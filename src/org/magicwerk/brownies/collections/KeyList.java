@@ -338,12 +338,11 @@ public abstract class KeyList<E, K> extends GapList<E> {
        		keyList.allowNullElem = (nullMode == NullMode.NORMAL || nullMode == NullMode.MULTIPLE);
        		keyList.allowNullKeys = nullMode;
 
+            keyList.init(capacity);
             if (collection != null) {
-            	keyList.init(collection.toArray());
+            	keyList.addAll(collection);
             } else if (array != null) {
-            	keyList.init(array.clone());
-            } else {
-            	keyList.init(capacity);
+            	keyList.addAll(array.clone());
             }
             return keyList;
         }
