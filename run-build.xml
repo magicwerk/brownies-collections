@@ -1,0 +1,366 @@
+<project default="build">
+	<property name="release" value="0.9.3"/>
+	<property name="release-overwrite" value="false"/>
+
+	<property environment="env"/>
+	<import file="${env.BROWNIES_DEV}/build-lib.xml" />
+
+    <property name="Brownies-Release.prj" value="Brownies-Collections" />
+    <target name="do-build-release" depends="build" />
+
+    <target name="pre-build" depends="build-src">
+	</target>
+
+	<target name="post-build">
+		<!-- There are no dependencies, so remove these JARs -->
+		<delete file="${build.dir}/brownies-collections-only-deps.jar" />
+		<delete file="${build.dir}/brownies-collections-with-all.jar" />
+		<delete file="${build.dir}/brownies-collections-with-deps.jar" />
+
+		<!-- TODO: Used for 0.9.x, remove this for next major release -->
+		<!-- Remove files for KeyList and SortedList -->
+	    <property name="tmp.bin.jar" value="${build.dir}/brownies-collections.jar" />
+        <property name="tmp.bin.dir" value="${build.dir}/brownies-collections.jar.tmp" />
+		<unjar src="${tmp.bin.jar}" dest="${tmp.bin.dir}" />
+		<delete>
+			 <fileset dir="${tmp.bin.dir}" includes="**/Key*, **/Set*, **/Map*, **/Sorted*"/>
+		</delete>
+		<delete file="${tmp.bin.jar}" />
+		<jar file="${tmp.bin.jar}" basedir="${tmp.bin.dir}" />
+        <delete dir="${tmp.bin.dir}" />
+
+        <property name="tmp.src.jar" value="${build.dir}/brownies-collections-sources.jar" />
+        <property name="tmp.src.dir" value="${build.dir}/brownies-collections-sources.jar.tmp" />
+        <unjar src="${tmp.src.jar}" dest="${tmp.src.dir}" />
+        <delete>
+             <fileset dir="${tmp.src.dir}" includes="**/Key*, **/Set*, **/Map*, **/Sorted*"/>
+        </delete>
+        <delete file="${tmp.src.jar}" />
+        <jar file="${tmp.src.jar}" basedir="${tmp.src.dir}" />
+        <delete dir="${tmp.src.dir}" />
+	</target>
+
+    <target name="build-doc" depends="build-doc-0.9.x">
+    </target>
+
+    <!-- TODO: Execute manually for 0.9.x to fix Javadoc -->
+    <target name="build-doc-0.9.x" depends="prepare-doc">
+        <delete dir="build/doc-src" />
+	    <mkdir dir="build/doc-src" />
+	   	<copy todir="build/doc-src">
+	   	   <fileset dir="src" excludes="**/Key*, **/Set*, **/Map*, **/Sorted*" />
+	   	</copy>
+        <delete dir="${build.dir}/doc" />
+            <javadoc
+            	executable="${javadoc.executable}"
+                access="public"
+                author="true"
+                destdir="${build.dir}/doc"
+                doctitle="${lib.title}"
+                nodeprecated="false"
+                nodeprecatedlist="false"
+                noindex="false"
+                nonavbar="false"
+                notree="false"
+                packagenames="${lib.package}.*"
+                source="1.6"
+            	sourcepath="build/doc-src:${rt.src.dir}"
+                splitindex="true"
+                use="true"
+                version="true">
+                <classpath refid="lib.classpath" />
+            </javadoc>
+            <jar destfile="${build.dir}/${lib.name}-javadoc.jar">
+                <fileset dir="${build.dir}/doc" />
+            </jar>
+
+    	<!--
+	    <copy file="build/brownies-collections-javadoc.jar" tofile="D:\Java\Sources\Origo-Magicwerk\Brownies-Dev\build\snapshot\brownies-collections-20120724-javadoc.jar" />
+	   	<copy file="build/brownies-collections-javadoc.jar" tofile="D:\Java\Sources\Origo-Magicwerk\Brownies-Dev\build\release\brownies-collections-0.9.1-javadoc.jar" />
+
+	    <delete dir="D:\Java\Build\Origo-Magicwerk\Brownies-Collections\build\doc" />
+        <copydir src="build/doc" dest="D:\Java\Build\Origo-Magicwerk\Brownies-Collections\build\doc" />
+		-->
+	    </target>
+
+	<!--
+	Create Java source in package org.magicwerk.brownies.collections.primitive
+	-->
+
+	<property name="NL" value="&#13;&#10;"/>
+	<property name="TAB" value="&#9;"/>
+
+	<property name="src.dir" value="src/org/magicwerk/brownies/collections" />
+	<property name="dst.dir" value="src/org/magicwerk/brownies/collections/primitive" />
+
+	<target name="build-src">
+		<antcall target="build-type">
+	    	<param name="name" value="Int"/>
+	    	<param name="type" value="int"/>
+	    	<param name="wrapper" value="Integer"/>
+	    	<param name="defval" value="0"/>
+		</antcall>
+		<antcall target="build-type">
+	    	<param name="name" value="Long"/>
+	    	<param name="type" value="long"/>
+	    	<param name="wrapper" value="Long"/>
+	    	<param name="defval" value="0"/>
+		</antcall>
+		<antcall target="build-type">
+	    	<param name="name" value="Double"/>
+	    	<param name="type" value="double"/>
+	    	<param name="wrapper" value="Double"/>
+	    	<param name="defval" value="0"/>
+		</antcall>
+		<antcall target="build-type">
+	    	<param name="name" value="Float"/>
+	    	<param name="type" value="float"/>
+	    	<param name="wrapper" value="Float"/>
+	    	<param name="defval" value="0"/>
+		</antcall>
+		<antcall target="build-type">
+	    	<param name="name" value="Boolean"/>
+	    	<param name="type" value="boolean"/>
+	    	<param name="wrapper" value="Boolean"/>
+	    	<param name="defval" value="false"/>
+		</antcall>
+		<antcall target="build-type">
+	    	<param name="name" value="Byte"/>
+	    	<param name="type" value="byte"/>
+	    	<param name="wrapper" value="Byte"/>
+	    	<param name="defval" value="0"/>
+		</antcall>
+		<antcall target="build-type">
+	    	<param name="name" value="Short"/>
+	    	<param name="type" value="short"/>
+	    	<param name="wrapper" value="Short"/>
+	    	<param name="defval" value="0"/>
+		</antcall>
+		<antcall target="build-type">
+	    	<param name="name" value="Char"/>
+	    	<param name="type" value="char"/>
+	    	<param name="wrapper" value="Character"/>
+	    	<param name="defval" value="0"/>
+		</antcall>
+	</target>
+
+	<!--
+	Create Java file, e.g. IntGapList.java.
+
+	@params name, type, wrapper, deval
+	-->
+	<target name="build-type">
+		<property name="class.name" value="${name}GapList" />
+		<property name="dst.file" value="${dst.dir}/${class.name}.java" />
+    	<delete file="${dst.file}"/>
+    	<copy file="${src.dir}/GapList.java" tofile="${dst.file}"/>
+
+		<replaceregexp file="${dst.file}" flags="s"
+		               match="^"
+		               replace="// ---${NL}// --- DO NOT EDIT${NL}// --- AUTOMATICALLY GENERATED FILE${NL}// ---${NL}" />
+		<replaceregexp file="${dst.file}"
+		               match="package org.magicwerk.brownies.collections;"
+		               replace="package org.magicwerk.brownies.collections.primitive;" />
+
+		<!-- Negative lookahead: match all java.util imports, except java.util.Collection -->
+		<replaceregexp file="${dst.file}" flags="mg"
+		               match="^import java\.util\.(?!(Collection|Arrays|List|Iterator)).*?$"
+		               replace="" />
+		<replaceregexp file="${dst.file}" flags="g"
+		               match="(\W+)@Override(\W+)"
+		               replace="\1\2" />
+		<replaceregexp file="${dst.file}" flags="s"
+		               match="public class.*?\{"
+		               replace="public class ${class.name} implements Cloneable, Serializable {" />
+        <replaceregexp file="${dst.file}" flags="s"
+                       match="static class ImmutableGapList.*?\{"
+                       replace="static class Immutable${class.name} extends ${class.name} {" />
+        <replaceregexp file="${dst.file}" flags="s"
+                       match="ImmutableGapList"
+                       replace="Immutable${class.name}" />
+        <replaceregexp file="${dst.file}" flags="s"
+                       match="ImmutableGapList&lt;E&gt;"
+                       replace="Immutable${class.name}" />
+
+		<!-- equalsElem / hashCodeElem -->
+
+		<replaceregexp file="${dst.file}" flags="s"
+				       match="public static &lt;E&gt; GapList&lt;E&gt; create\(GapList&lt;E&gt; list\).*?;\s+\}"
+				       replace="" />
+		<replaceregexp file="${dst.file}" flags="s"
+		               match="static boolean equalsElem\(.*?return false;"
+		               replace="static boolean equalsElem(${type} val1, ${type} val2\) {${NL}return val1 == val2;" />
+		<replaceregexp file="${dst.file}" flags="s"
+		               match="static int hashCodeElem\(.*?return elem.hashCode\(\);.+?\}"
+		               replace="static int hashCodeElem(${type} val\) {${NL}return (int) val;" />
+
+		<replaceregexp file="${dst.file}" flags="sg"
+		               match="Collection&lt;.*?&gt;"
+		               replace="Collection&lt;${wrapper}&gt;" />
+
+		<!-- remove method 'boolean remove(Object elem)' -->
+		<replaceregexp file="${dst.file}" flags="s"
+		               match="public boolean remove\(Object elem\).*?return true;\s+\}"
+		               replace="" />
+		<replaceregexp file="${dst.file}" flags="s"
+		               match="public boolean addAll\(int index, E\[\].*?return true;\s+\}"
+		               replace="\0${NL}${NL}${TAB}\0" />
+		<replaceregexp file="${dst.file}" flags="s"
+		               match="public boolean addAll\(int index, E\[\](.*?)return true;(\s+)\}"
+		               replace="public boolean addAll(int index, EE[]\1return true;\2}" />
+		<replaceregexp file="${dst.file}" flags="s"
+		               match="EE\[\]"
+		               replace="${wrapper}[]" />
+		<replaceregexp file="${dst.file}" flags="s"
+		               match="E\[\] array = \(E\[\]\) list.toArray\(\);"
+		               replace="${wrapper}[] array = (${wrapper}[]) list.toArray();" />
+		<replaceregexp file="${dst.file}" flags="sg"
+		               match="public Iterator.*?}"
+		               replace="" />
+		<replaceregexp file="${dst.file}" flags="sg"
+		               match="public ListIterator.*?}"
+		               replace="" />
+		<replaceregexp file="${dst.file}" flags="sg"
+		               match="--- Start class.*?End class (\w+) ---"
+		               replace="" />
+		<replaceregexp file="${dst.file}" flags="g"
+		               match=", Comparator&lt;\? super \w+&gt; comparator"
+		               replace="" />
+        <replaceregexp file="${dst.file}" flags="g"
+                       match=", \(Comparator&lt;Object&gt;\) comparator"
+                       replace="" />
+		<replaceregexp file="${dst.file}" flags="g"
+		               match="\(Comparator&lt;\? super \w+&gt; comparator"
+		               replace="(" />
+		<replaceregexp file="${dst.file}" flags="g"
+		               match=", comparator"
+		               replace="" />
+		<replaceregexp file="${dst.file}" flags="g"
+		               match="oos.writeObject"
+		               replace="oos.write${name}" />
+		<replaceregexp file="${dst.file}" flags="g"
+		               match="ois.readObject"
+		               replace="ois.read${name}" />
+		<replaceregexp file="${dst.file}" flags="g"
+		               match="GapList.class"
+		               replace="${class.name}.class" />
+		<replaceregexp file="${dst.file}" flags="g"
+		               match="(\W+)&lt;[EK]&gt;(\W+)"
+		               replace="\1\2" />
+		<replaceregexp file="${dst.file}" flags="g"
+			           match="(\W+)List&lt;E&gt;(\W+)"
+			           replace="\1${class.name}\2" />
+		<replaceregexp file="${dst.file}" flags="g"
+			           match="(\W+)GapList&lt;E&gt;(\W+)"
+			           replace="\1${class.name}\2" />
+		<replaceregexp file="${dst.file}" flags="g"
+			           match="(\W+)GapList&lt;\?&gt;(\W+)"
+			           replace="\1${class.name}\2" />
+        <replaceregexp file="${dst.file}" flags="g"
+                       match="GapList&lt;\? extends E&gt;"
+                       replace="${class.name}" />
+		<replaceregexp file="${dst.file}" flags="g"
+		               match="(\W+)GapList(\W+)"
+		               replace="\1${class.name}\2" />
+
+		<replaceregexp file="${dst.file}"  flags="g"
+		               match="(\W+)E\[\](\W+)"
+		               replace="\1${type}[]\2" />
+		<replaceregexp file="${dst.file}"  flags="g"
+		               match="(\W+)Object\[\](\W+)"
+		               replace="\1${type}[]\2" />
+		<replaceregexp file="${dst.file}" flags="g"
+		               match="(\W+)[EK](\W+)"
+		               replace="\1${type}\2" />
+
+		<replaceregexp file="${dst.file}" flags="g"
+		               match="([^.])Object(?!(\[\]| clone| obj|InputStream|OutputStream))"
+		               replace="\1${type}" />
+
+		<replaceregexp file="${dst.file}" flags="s"
+		               match="static *\w+\[\] toArray\(Collection&lt;\w+&gt; coll\).*?return values;\s+\}"
+		               replace="static ${type}[] toArray(Collection&lt;${wrapper}&gt; coll) { ${NL}
+	    	Object[] values = coll.toArray(); ${NL}
+	    	${type}[] v = new ${type}[values.length]; ${NL}
+	    	for (int i=0; i&lt;values.length; i++) { ${NL}
+	    		v[i] = (${wrapper}) values[i]; ${NL}
+	    	}
+	    	return v;
+		}" />
+
+        <!-- Fix EMPTY -->
+        <replaceregexp file="${dst.file}" flags="g"
+                       match="&lt;EE&gt;"
+                       replace="" />
+
+        <!-- Fix equals -->
+        <replaceregexp file="${dst.file}" flags="g"
+                       match="List&lt;\?&gt;"
+                       replace="${name}GapList" />
+
+        <!-- Fix iterator in setAll() -->
+        <replaceregexp file="${dst.file}" flags="s"
+                       match="Iterator&lt;${type}&gt;"
+                       replace="Iterator&lt;${wrapper}&gt;" />
+
+        <!-- Remove type parameter <T> -->
+		<replaceregexp file="${dst.file}" flags="g"
+		               match="(\W+)&lt;T&gt;(\W+)"
+		               replace="\1\2" />
+		<replaceregexp file="${dst.file}" flags="g"
+		               match="(\W+)T(\W+)"
+		               replace="\1${type}\2" />
+
+		<!-- Replace null using negative lookbehind -->
+		<replaceregexp file="${dst.file}" flags="g"
+		               match="(?&lt;!(init\(|newValues != ))null(\W+)"
+		               replace="(${type})${defval}\2" />
+
+        <!-- Fix ensureCapacity() -->
+        <replaceregexp file="${dst.file}" flags="s"
+                       match="newValues = .*?;"
+                       replace="newValues = null;" />
+
+	    <!-- Special handling of types  -->
+		<if>
+	        <equals arg1="${type}" arg2="double" />
+			<then>
+				<antcall target="build-type-double-float" />
+			</then>
+	    </if>
+		<if>
+	        <equals arg1="${type}" arg2="float" />
+			<then>
+				<antcall target="build-type-double-float" />
+			</then>
+	    </if>
+		<if>
+	        <equals arg1="${type}" arg2="boolean" />
+			<then>
+				<antcall target="build-type-boolean" />
+			</then>
+	    </if>
+	</target>
+
+    <!-- Special handling of double  -->
+	<target name="build-type-double-float">
+		<replaceregexp file="${dst.file}" flags="s"
+		               match="static boolean equalsElem\(.*?;"
+		               replace="static boolean equalsElem(${type} val1, ${type} val2\) {${NL}return ${wrapper}.compare(val1, val2) == 0;" />
+	</target>
+
+    <!-- Special handling of boolean  -->
+	<target name="build-type-boolean">
+		<replaceregexp file="${dst.file}" flags="s"
+		               match="public void sort\(.*?Arrays.sort\(values, index, index\+len\);\s+\}"
+		               replace="" />
+		<replaceregexp file="${dst.file}" flags="s"
+		               match="public  int binarySearch\(.*?Arrays.binarySearch\(.*?\);\s+\}"
+		               replace="" />
+		<replaceregexp file="${dst.file}" flags="s"
+		               match="static int hashCodeElem\(.*?val;"
+		               replace="static int hashCodeElem(${type} val\) {${NL}return val ? 1231 : 1237;" />
+	</target>
+
+
+</project>

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- WARNING: Eclipse auto-generated file.
+              Any modifications will be overwritten.
+              To include a user specific buildfile here, simply create one in the same
+              directory with the processing instruction <?eclipse.ant.import?>
+              as the first entry and export the buildfile again. --><project basedir="." default="build" name="Brownies-Collections">
+    <property environment="env"/>
+    <property name="AppSvnExplorer.location" value="../../Local-Magicwerk/AppSvnExplorer"/>
+    <property name="Brownies-Collections-Test.location" value="../Brownies-Collections-Test"/>
+    <property name="Brownies-Core.location" value="../Brownies-Core"/>
+    <property name="Brownies-Dev.location" value="../Brownies-Dev"/>
+    <property name="Brownies-Swt.location" value="../Brownies-Swt"/>
+    <property name="Brownies-Values.location" value="../Brownies-Values"/>
+    <property name="EvalSwtStyledText.location" value="../../Local-Magicwerk/EvalSwtStyledText"/>
+    <property name="ECLIPSE_HOME" value="../../../Eclipse-JEE-3.7.1"/>
+    <property name="debuglevel" value="source,lines,vars"/>
+    <property name="target" value="1.6"/>
+    <property name="source" value="1.6"/>
+    <path id="Brownies-Collections.classpath">
+        <pathelement location="bin"/>
+    </path>
+    <target name="init">
+        <mkdir dir="bin"/>
+        <copy includeemptydirs="false" todir="bin">
+            <fileset dir="src">
+                <exclude name="**/*.launch"/>
+                <exclude name="**/*.java"/>
+            </fileset>
+        </copy>
+    </target>
+    <target name="clean">
+        <delete dir="bin"/>
+    </target>
+    <target depends="clean" name="cleanall"/>
+    <target depends="build-subprojects,build-project" name="build"/>
+    <target name="build-subprojects"/>
+    <target depends="init" name="build-project">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="bin" source="${source}" target="${target}">
+            <src path="src"/>
+            <classpath refid="Brownies-Collections.classpath"/>
+        </javac>
+    </target>
+    <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects">
+        <ant antfile="build.xml" dir="${AppSvnExplorer.location}" inheritAll="false" target="clean"/>
+        <ant antfile="build.xml" dir="${AppSvnExplorer.location}" inheritAll="false" target="build">
+            <propertyset>
+                <propertyref name="build.compiler"/>
+            </propertyset>
+        </ant>
+        <ant antfile="build.xml" dir="${Brownies-Collections-Test.location}" inheritAll="false" target="clean"/>
+        <ant antfile="build.xml" dir="${Brownies-Collections-Test.location}" inheritAll="false" target="build">
+            <propertyset>
+                <propertyref name="build.compiler"/>
+            </propertyset>
+        </ant>
+        <ant antfile="build.xml" dir="${Brownies-Core.location}" inheritAll="false" target="clean"/>
+        <ant antfile="build.xml" dir="${Brownies-Core.location}" inheritAll="false" target="build">
+            <propertyset>
+                <propertyref name="build.compiler"/>
+            </propertyset>
+        </ant>
+        <ant antfile="build.xml" dir="${Brownies-Dev.location}" inheritAll="false" target="clean"/>
+        <ant antfile="build.xml" dir="${Brownies-Dev.location}" inheritAll="false" target="build">
+            <propertyset>
+                <propertyref name="build.compiler"/>
+            </propertyset>
+        </ant>
+        <ant antfile="build.xml" dir="${Brownies-Swt.location}" inheritAll="false" target="clean"/>
+        <ant antfile="build.xml" dir="${Brownies-Swt.location}" inheritAll="false" target="build">
+            <propertyset>
+                <propertyref name="build.compiler"/>
+            </propertyset>
+        </ant>
+        <ant antfile="build.xml" dir="${Brownies-Values.location}" inheritAll="false" target="clean"/>
+        <ant antfile="build.xml" dir="${Brownies-Values.location}" inheritAll="false" target="build">
+            <propertyset>
+                <propertyref name="build.compiler"/>
+            </propertyset>
+        </ant>
+        <ant antfile="build.xml" dir="${EvalSwtStyledText.location}" inheritAll="false" target="clean"/>
+        <ant antfile="build.xml" dir="${EvalSwtStyledText.location}" inheritAll="false" target="build">
+            <propertyset>
+                <propertyref name="build.compiler"/>
+            </propertyset>
+        </ant>
+    </target>
+    <target description="copy Eclipse compiler jars to ant lib directory" name="init-eclipse-compiler">
+        <copy todir="${ant.library.dir}">
+            <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
+        </copy>
+        <unzip dest="${ant.library.dir}">
+            <patternset includes="jdtCompilerAdapter.jar"/>
+            <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
+        </unzip>
+    </target>
+    <target description="compile project with Eclipse compiler" name="build-eclipse-compiler">
+        <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
+        <antcall target="build"/>
+    </target>
+</project>
