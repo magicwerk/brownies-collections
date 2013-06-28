@@ -5,14 +5,14 @@
               directory with the processing instruction <?eclipse.ant.import?>
               as the first entry and export the buildfile again. --><project basedir="." default="build" name="Brownies-Collections">
     <property environment="env"/>
-    <property name="AppSvnExplorer.location" value="../../Local-Magicwerk/AppSvnExplorer"/>
+    <property name="AppSvnExplorer.location" value="../../../Local-Magicwerk/AppSvnExplorer"/>
     <property name="Brownies-Collections-Test.location" value="../Brownies-Collections-Test"/>
     <property name="Brownies-Core.location" value="../Brownies-Core"/>
     <property name="Brownies-Dev.location" value="../Brownies-Dev"/>
     <property name="Brownies-Swt.location" value="../Brownies-Swt"/>
     <property name="Brownies-Values.location" value="../Brownies-Values"/>
-    <property name="EvalSwtStyledText.location" value="../../Local-Magicwerk/EvalSwtStyledText"/>
-    <property name="ECLIPSE_HOME" value="../../../Eclipse-JEE-3.7.1"/>
+    <property name="EvalSwtStyledText.location" value="../../../Local-Magicwerk/EvalSwtStyledText"/>
+    <property name="ECLIPSE_HOME" value="../../../../Eclipse-JEE-3.7.1"/>
     <property name="debuglevel" value="source,lines,vars"/>
     <property name="target" value="1.6"/>
     <property name="source" value="1.6"/>
@@ -23,7 +23,6 @@
         <mkdir dir="bin"/>
         <copy includeemptydirs="false" todir="bin">
             <fileset dir="src">
-                <exclude name="**/*.launch"/>
                 <exclude name="**/*.java"/>
             </fileset>
         </copy>
