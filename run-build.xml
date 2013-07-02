@@ -20,12 +20,12 @@
         <if>
             <isset property="release.dir" />
             <then>
-            	<antcall target="post-build-0.9" />
+            	<antcall target="post-build-0.9.x" />
             </then>
       	</if>
 	</target>
 
-	<target name="post-build-0.9">
+	<target name="post-build-0.9.x">
 		<!-- TODO: Used for 0.9.x, remove this for next major release -->
 		<!-- Remove files for KeyList and SortedList -->
 	    <property name="tmp.bin.jar" value="${build.dir}/brownies-collections.jar" />
@@ -49,8 +49,17 @@
         <delete dir="${tmp.src.dir}" />
 	</target>
 
-    <target name="build-doc" depends="build-doc-0.9.x">
-    </target>
+	<target name="build-doc">
+        <if>
+            <isset property="release.dir" />
+            <then>
+            	<antcall target="build-doc-0.9.x" />
+            </then>
+        	<else>
+        		<ant antfile="${Brownies-Dev.dir}/build-lib.xml" target="build-doc" />
+        	</else>
+      	</if>
+	</target>
 
     <!-- TODO: Execute manually for 0.9.x to fix Javadoc -->
     <target name="build-doc-0.9.x" depends="prepare-doc">
