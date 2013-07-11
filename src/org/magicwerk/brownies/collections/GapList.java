@@ -85,7 +85,7 @@ public class GapList<E> extends AbstractList<E>
 
     /** Unmodifiable empty instance */
     @SuppressWarnings("rawtypes")
-    private static GapList EMPTY = GapList.create().unmodifiableList();
+    private static final GapList EMPTY = GapList.create().unmodifiableList();
 
     /**
      * @return unmodifiable empty instance
@@ -411,7 +411,7 @@ public class GapList<E> extends AbstractList<E>
 		}
 		catch (CloneNotSupportedException e) {
 		    // This shouldn't happen, since we are Cloneable
-		    throw new InternalError();
+		    throw new AssertionError(e);
 		}
     }
 
