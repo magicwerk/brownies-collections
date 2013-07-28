@@ -21,7 +21,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.magicwerk.brownies.collections.SetList.Builder;
 import org.magicwerk.brownies.collections.SetList.IdentMapper;
@@ -356,8 +358,6 @@ public abstract class KeyList<E, K> extends GapList<E> {
     NullMode allowNullKeys;
     /** True to allow duplicate values. This also allows duplicate null values, but they are not distinct. */
     DuplicateMode duplicateMode = DuplicateMode.IGNORE;
-    /** True to allow duplicate null values which are distinct. */
-    //boolean allowNullDuplicates;
     /** Comparator to use for sorting (if null, elements are not sorted) */
     Comparator<K> comparator;
     /** Determine whether null values are listed before or after values (only if sorted) */
@@ -1016,7 +1016,19 @@ public abstract class KeyList<E, K> extends GapList<E> {
      */
     public GapList<K> getDistinctKeys() {
         if (keys != null) {
-            return new GapList<K>(keys.keySet());
+            GapList<K> list = new GapList<K>();
+            Set<K> ks = new HashSet<K>(keys.keySet());
+            for (int i=0; i<size(); i++) {
+                K k = getKey(get(i));
+                if (ks.remove(k)) {
+                    list.add(k);
+                    if (ks.isEmpty()) {
+                        break;
+                    }
+                }
+            }
+            assert(list.size() == keys.size());
+            return list;
         } else {
             K lastKey = null;
             GapList<K> list = new GapList<K>();
@@ -1097,7 +1109,9 @@ public abstract class KeyList<E, K> extends GapList<E> {
         if (keys != null) {
             // not sorted
             Object obj = keys.get(key);
-            if (obj instanceof GapList) {
+            if (obj == null) {
+                return GapList.EMPTY();
+            } else if (obj instanceof GapList) {
                 GapList<E> list = (GapList<E>) obj;
                 return list.unmodifiableList();
             } else {
@@ -1314,7 +1328,7 @@ public abstract class KeyList<E, K> extends GapList<E> {
 
     /**
      * Removes element by key.
-     * If there are duplicates, only one element is removed.
+     * If there are duplicates, all elements are removed.
      *
      * @param key   key of element to remove
      * @return      true if elements have been removed, false otherwise
