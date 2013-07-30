@@ -405,7 +405,7 @@ public class GapList<E> extends AbstractList<E>
 			GapList<E> list = (GapList<E>) super.clone();
 			// Do not simply clone the array, but make sure its capacity
 			// is equal to the size (as in ArrayList)
-		    init(toArray());
+		    list.init(toArray());
 			if (DEBUG_CHECK) list.debugCheck();
 		    return list;
 		}
@@ -1031,11 +1031,12 @@ public class GapList<E> extends AbstractList<E>
 
 		doModify();
 
+		// Note: Same behavior as in ArrayList.ensureCapacity()
 		int oldCapacity = values.length;
 		if (minCapacity <= oldCapacity) {
 			return;	// do not shrink
 		}
-	    int newCapacity = (oldCapacity * 3)/2 + 1;
+	    int newCapacity = (oldCapacity*3)/2 + 1;
 	    if (newCapacity < minCapacity) {
 	    	newCapacity = minCapacity;
     	}
