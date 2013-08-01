@@ -378,6 +378,11 @@ public abstract class KeyList<E, K> extends GapList<E> {
 	    /** Key storage if sorted */
 	    GapList<K> sortedKeys;
     }
+    /**
+     * There can be 0, 1, or several keys.
+     * If there are no keys, all key methods will fail. This can be used, if a constraint list is needed.
+     * If there are keys, only the first key can be sorted.
+     */
     private KeyMap<E, K>[] keyMaps;
 
     /** If true the invariants the GapList are checked for debugging */
@@ -415,14 +420,6 @@ public abstract class KeyList<E, K> extends GapList<E> {
     	}
     }
 
-    protected Mapper<E,K> getMapper() {
-        return mapper;
-    }
-
-    public Comparator<K> getComparator() {
-        return comparator;
-    }
-
     /**
      * Internal initialization.
      */
@@ -440,11 +437,10 @@ public abstract class KeyList<E, K> extends GapList<E> {
 	KeyList(KeyList<E, K> that) {
 	    super(false, that);
 
-	    mapper = that.mapper;
 	    allowNullElem = that.allowNullElem;
-	    allowNullKeys = that.allowNullKeys;
-	    duplicateMode = that.duplicateMode;
-	    comparator = that.comparator;
+	    attachHandler = that.attachHandler;
+	    detachHandler = that.detachHandler;
+	    keyMaps = that.keyMaps;
 	}
 
 	/**
@@ -458,12 +454,9 @@ public abstract class KeyList<E, K> extends GapList<E> {
 	    init(10);
 
 	    // KeyList
-	    if (that.unsortedKeys != null) {
-	        unsortedKeys = new HashMap<K, Object>();
-	    } else if (that.sortedKeys != that) {
-	        sortedKeys = new GapList<K>();
-	    } else {
-	        assert(false);
+	    keyMaps = that.keyMaps.clone();
+	    for (KeyMap<E,K> keyMap: keyMaps) {
+	    	init(keyMap);
 	    }
 	}
 
@@ -477,11 +470,10 @@ public abstract class KeyList<E, K> extends GapList<E> {
         init(toArray(that));
 
         // KeyList
-        if (that.unsortedKeys != null) {
-            unsortedKeys = new HashMap<K, Object>(that.unsortedKeys);
-        } else if (that.sortedKeys != that) {
-            sortedKeys = that.sortedKeys.copy();
-        }
+	    keyMaps = that.keyMaps.clone();
+	    for (KeyMap<E,K> keyMap: keyMaps) {
+	    	clone(keyMap);
+	    }
     }
 
     @SuppressWarnings("unchecked")
@@ -493,6 +485,14 @@ public abstract class KeyList<E, K> extends GapList<E> {
         	clone(keyMap);
         }
         return clone;
+    }
+
+    private void init(KeyMap<E,K> keyMap) {
+        if (keyMap.unsortedKeys != null) {
+        	keyMap.unsortedKeys = new HashMap<K, Object>();
+        } else if (keyMap.sortedKeys != this) {
+        	keyMap.sortedKeys = new GapList<K>();
+        }
     }
 
     private void clone(KeyMap<E,K> keyMap) {
@@ -833,7 +833,7 @@ public abstract class KeyList<E, K> extends GapList<E> {
                     // Different index
                     if (keyMap.duplicateMode == DuplicateMode.ALLOW ||
                     		(key == null && keyMap.allowNullKeys == NullMode.MULTIPLE)) {
-                        doAdd(elem, key);
+                        doAdd(keyMap, elem, key);
                         keyMap.unsortedKeys.remove(oldKey);
                         if (DEBUG_CHECK) debugCheck();
                         return oldElem;
@@ -1476,11 +1476,11 @@ public abstract class KeyList<E, K> extends GapList<E> {
     public void sort(int index, int len, Comparator<? super E> comparator) {
     	checkRange(index, len);
 
-    	// If the list is already sorted, nothing must be done
-    	// TODO what to do if another comparator is used?
-    	if (keys.sortedKeys != null) {
-    		// already sorted
-    		return;
+    	if (keyMaps != null && keyMaps[0].comparator != null) {
+    		if (keyMaps[0].comparator == comparator) {
+    			return;
+    		}
+    		throw new IllegalArgumentException("Differen comparator specified for sorted list");
     	}
 
     	super.sort(index, len, comparator);
