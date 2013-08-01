@@ -56,6 +56,10 @@ public abstract class KeyList<E, K> extends GapList<E> {
         public void handle(E elem);
     }
 
+    static public interface Predicate<E> {
+    	public boolean allow(E elem);
+    }
+
     /**
      * A comparator which can handle null values.
      */
@@ -334,7 +338,7 @@ public abstract class KeyList<E, K> extends GapList<E> {
             } else {
                 // Set is not sorted: maintain a separate HashMap for fast
                 // answering contains() calls
-                keyList.keys = new HashMap<K, Object>();
+                keyList.unsortedKeys = new HashMap<K, Object>();
             }
 
        		keyList.allowNullElem = (nullMode == NullMode.NORMAL || nullMode == NullMode.MULTIPLE);
@@ -350,40 +354,50 @@ public abstract class KeyList<E, K> extends GapList<E> {
         }
     }
 
-    /** A mapper to extract keys out of element for a MapList. For a SetList, this is always an IdentMapper. */
-    Mapper<E, K> mapper;
     /** True to allow null elements. A null element will always generate a null key. */
     boolean allowNullElem;
-    /** True to allow null keys */
-    NullMode allowNullKeys;
-    /** True to allow duplicate values. This also allows duplicate null values, but they are not distinct. */
-    DuplicateMode duplicateMode = DuplicateMode.IGNORE;
-    /** Comparator to use for sorting (if null, elements are not sorted) */
-    Comparator<K> comparator;
-    /** Determine whether null values are listed before or after values (only if sorted) */
-    boolean nullsFirst;
-    /** Key storage if not sorted (note that we cannot use TreeMap as K may not be comparable) */
-    HashMap<K, Object> keys;
-    /** Key storage if sorted */
-    GapList<K> sortedKeys;
     /** Handler method which is called if an element is attached to the list */
     Handler<E> attachHandler;
     /** Handler method which is called if an element is detached from the list */
     Handler<E> detachHandler;
 
+    static class KeyMap<E, K> {
+	    /** A mapper to extract keys out of element for a MapList. For a SetList, this is always an IdentMapper. */
+	    Mapper<E, K> mapper;
+	    /** True to allow null keys */
+	    NullMode allowNullKeys;
+	    /** True to allow duplicate values. This also allows duplicate null values, but they are not distinct. */
+	    DuplicateMode duplicateMode = DuplicateMode.IGNORE;
+	    /**
+	     * Key storage if not sorted. The values are single elements or a list of elements.
+	     * Note that we cannot use TreeMap as K may not be comparable
+	     */
+	    HashMap<K, Object> unsortedKeys;
+	    /** Comparator to use for sorting (if null, elements are not sorted) */
+	    Comparator<K> comparator;
+	    /** Key storage if sorted */
+	    GapList<K> sortedKeys;
+    }
+    private KeyMap<E, K>[] keyMaps;
 
     /** If true the invariants the GapList are checked for debugging */
-    private static final boolean DEBUG_CHECK = true;
+    private static final boolean DEBUG_CHECK = false;
 
     /**
      * Private method to check invariant of GapList.
      * It is only used for debugging.
      */
     private void debugCheck() {
-    	if (keys != null) {
-    		assert(keys.size() <= size());  // keys() can contain lists
+    	for (KeyMap<E,K> keyMap: keyMaps) {
+    		debugCheck(keyMap);
+    	}
+    }
+
+    private void debugCheck(KeyMap keyMap) {
+    	if (keyMap.unsortedKeys != null) {
+    		assert(keyMap.unsortedKeys.size() <= size());  // keys() can contain lists
     		int count = 0;
-    		for (Object obj: keys.values()) {
+    		for (Object obj: keyMap.unsortedKeys.values()) {
     			if (obj instanceof GapList) {
     				count += ((GapList) obj).size();
     			} else {
@@ -391,17 +405,17 @@ public abstract class KeyList<E, K> extends GapList<E> {
     			}
     		}
     		assert(count == size());
-    	} else if (sortedKeys != null) {
-    		assert(sortedKeys.size() == size());
-    		GapList<K> copy = sortedKeys.copy();
-    		copy.sort(comparator);
-    		assert(copy.equals(sortedKeys));
+    	} else if (keyMap.sortedKeys != null) {
+    		assert(keyMap.sortedKeys.size() == size());
+    		GapList<K> copy = keyMap.sortedKeys.copy();
+    		copy.sort(keyMap.comparator);
+    		assert(copy.equals(keyMap.sortedKeys));
     	} else {
     		assert(false);
     	}
     }
 
-    protected Mapper<E, K> getMapper() {
+    protected Mapper<E,K> getMapper() {
         return mapper;
     }
 
@@ -431,7 +445,6 @@ public abstract class KeyList<E, K> extends GapList<E> {
 	    allowNullKeys = that.allowNullKeys;
 	    duplicateMode = that.duplicateMode;
 	    comparator = that.comparator;
-	    nullsFirst = that.nullsFirst;
 	}
 
 	/**
@@ -445,8 +458,8 @@ public abstract class KeyList<E, K> extends GapList<E> {
 	    init(10);
 
 	    // KeyList
-	    if (that.keys != null) {
-	        keys = new HashMap<K, Object>();
+	    if (that.unsortedKeys != null) {
+	        unsortedKeys = new HashMap<K, Object>();
 	    } else if (that.sortedKeys != that) {
 	        sortedKeys = new GapList<K>();
 	    } else {
@@ -464,8 +477,8 @@ public abstract class KeyList<E, K> extends GapList<E> {
         init(toArray(that));
 
         // KeyList
-        if (that.keys != null) {
-            keys = new HashMap<K, Object>(that.keys);
+        if (that.unsortedKeys != null) {
+            unsortedKeys = new HashMap<K, Object>(that.unsortedKeys);
         } else if (that.sortedKeys != that) {
             sortedKeys = that.sortedKeys.copy();
         }
@@ -476,23 +489,34 @@ public abstract class KeyList<E, K> extends GapList<E> {
     public Object clone() {
         KeyList<E, K> clone = (KeyList<E, K>) super.clone();
 
-        // KeyList
-        if (keys != null) {
-            clone.keys = new HashMap<K, Object>(keys);
-        } else if (sortedKeys != this) {
-            clone.sortedKeys = sortedKeys.copy();
+        for (KeyMap<E,K> keyMap: keyMaps) {
+        	clone(keyMap);
         }
         return clone;
     }
 
+    private void clone(KeyMap<E,K> keyMap) {
+        if (keyMap.unsortedKeys != null) {
+        	keyMap.unsortedKeys = new HashMap<K, Object>(keyMap.unsortedKeys);
+        } else if (keyMap.sortedKeys != this) {
+        	keyMap.sortedKeys = keyMap.sortedKeys.copy();
+        }
+    }
+
     @Override
     public void clear() {
-        if (keys != null) {
-            keys.clear();
-        } else if (sortedKeys != this) {
-            sortedKeys.clear();
-        }
+    	for (KeyMap<E,K> keyMap: keyMaps) {
+    		clear(keyMap);
+    	}
         super.clear();
+    }
+
+    private void clear(KeyMap<E,K> keyMap) {
+        if (keyMap.unsortedKeys != null) {
+        	keyMap.unsortedKeys.clear();
+        } else if (keyMap.sortedKeys != this) {
+        	keyMap.sortedKeys.clear();
+        }
     }
 
     /**
@@ -544,6 +568,7 @@ public abstract class KeyList<E, K> extends GapList<E> {
      * @param elem  element to add
      * @return      element which has been replaced or null if the element has been added
      */
+    // TODO behavior with several keys?
     public E put(E elem) {
         K key = getKey(elem);
         int index = indexOfKey(key);
@@ -562,7 +587,7 @@ public abstract class KeyList<E, K> extends GapList<E> {
 	 * @return     key of specified element
 	 * @throws IllegalArgumentException if a null key is produced and null keys are not allowed
 	 */
-	K getKey(E elem) {
+	private K getKey(KeyMap<E,K> keyMap, E elem) {
 	    K key;
 	    if (elem == null) {
 	        if (!allowNullElem) {
@@ -570,33 +595,33 @@ public abstract class KeyList<E, K> extends GapList<E> {
 	        }
 	        key = null;
 	    } else {
-	        key = mapper.getKey(elem);
+	        key = keyMap.mapper.getKey(elem);
 	    }
-        if (key == null && allowNullKeys == NullMode.NONE) {
+        if (key == null && keyMap.allowNullKeys == NullMode.NONE) {
             throw new IllegalArgumentException("Null key not allowed");
         }
         return key;
 	}
 
-	private void doAdd(E elem, K key) {
-		Object obj = keys.get(key);
+	private void doAdd(KeyMap<E,K> keyMap, E elem, K key) {
+		Object obj = keyMap.unsortedKeys.get(key);
 	    if (obj == null) {
-	    	if (!keys.containsKey(key)) {
-	    		keys.put(key, elem);
+	    	if (!keyMap.unsortedKeys.containsKey(key)) {
+	    		keyMap.unsortedKeys.put(key, elem);
 	        } else {
 	            GapList<E> list = (GapList<E>) GapList.create(null, elem);
-	            keys.put(key, list);
+	            keyMap.unsortedKeys.put(key, list);
 	    	}
 	    } else if (obj instanceof GapList) {
             GapList<E> list = (GapList<E>) obj;
             list.add(elem);
         } else {
             GapList<E> list = (GapList<E>) GapList.create(obj, elem);
-            keys.put(key, list);
+            keyMap.unsortedKeys.put(key, list);
         }
 	}
 
-    private E doRemove(Object obj, K key) {
+    private E doRemove(KeyMap<E,K> keyMap, Object obj, K key) {
         assert(obj != null);
 
         E elem = null;
@@ -604,50 +629,53 @@ public abstract class KeyList<E, K> extends GapList<E> {
             GapList<E> list = (GapList<E>) obj;
             list.removeFirst();
             if (list.isEmpty()) {
-                keys.remove(key);
+                keyMap.unsortedKeys.remove(key);
             }
         } else {
-            elem = (E) keys.remove(key);
+            elem = (E) keyMap.unsortedKeys.remove(key);
         }
         return elem;
     }
 
     @Override
     protected boolean doAdd(int index, E elem) {
-        return doAdd(index, elem, true);
+    	boolean add = true;
+    	for (KeyMap<E,K> keyMap: keyMaps) {
+    		if (!doAdd(keyMap, index, elem)) {
+    			add = false;
+    			break;
+    		}
+    	}
+        if (add) {
+            super.doAdd(index, elem);
+            onAttach(elem);
+       }
+        if (DEBUG_CHECK) debugCheck();
+        return add;
     }
 
     /**
-     * @param index
-     * @param elem
-     * @param attach	true to call the attach handler, false to skip this call
-     * @return
+     * Add element.
+     *
+     * @param index		index of element to add (may be -1)
+     * @param elem		element to add
+     * @return			true if element has been added, false otherwise
      */
-    private boolean doAdd(int index, E elem, boolean attach) {
-        K key = getKey(elem);
-        if (keys != null) {
+    private boolean doAdd(KeyMap<E,K> keyMap, int index, E elem) {
+        K key = getKey(keyMap, elem);
+        if (keyMap.unsortedKeys != null) {
             // Keys not sorted
-            if (!keys.containsKey(key)) {
+            if (!keyMap.unsortedKeys.containsKey(key)) {
                 // New key
-                if (attach) {
-                    onAttach(elem);
-                }
-                doAdd(elem, key);
-                super.doAdd(index, elem);
-                if (DEBUG_CHECK) debugCheck();
+                doAdd(keyMap, elem, key);
                 return true;
 
             } else {
                 // Key exists already
-                if (duplicateMode == DuplicateMode.ALLOW ||
-                		(key == null && allowNullKeys == NullMode.MULTIPLE)) {
+                if (keyMap.duplicateMode == DuplicateMode.ALLOW ||
+                		(key == null && keyMap.allowNullKeys == NullMode.MULTIPLE)) {
                 	// Add duplicate
-                    if (attach) {
-                        onAttach(elem);
-                    }
-                    doAdd(elem, key);
-                    super.doAdd(index, elem);
-                    if (DEBUG_CHECK) debugCheck();
+                    doAdd(keyMap, elem, key);
                     return true;
 
                 } else {
@@ -655,19 +683,15 @@ public abstract class KeyList<E, K> extends GapList<E> {
                     if (index != -1) {
                         throw new IllegalArgumentException("Duplicate key not allowed: " + key);
                     }
-                    if (duplicateMode == DuplicateMode.REPLACE) {
-                        if (attach) {
-                            onAttach(elem);
-                        }
-                        Object oldElem = keys.put(key, elem);
+                    if (keyMap.duplicateMode == DuplicateMode.REPLACE) {
+                        Object oldElem = keyMap.unsortedKeys.put(key, elem);
                         index = indexOf(oldElem);
                         super.doSet(index, elem);
-                        if (DEBUG_CHECK) debugCheck();
-                        return true;
+                        return false;	// TODO what should be returned? false -> attach is not called
 
-                    } else if (duplicateMode == DuplicateMode.IGNORE) {
+                    } else if (keyMap.duplicateMode == DuplicateMode.IGNORE) {
                         return false;
-                    } else if (duplicateMode == DuplicateMode.ERROR) {
+                    } else if (keyMap.duplicateMode == DuplicateMode.ERROR) {
                         throw new IllegalArgumentException("Duplicate key not allowed: " + key);
                     } else {
                         throw new AssertionError();
@@ -677,46 +701,47 @@ public abstract class KeyList<E, K> extends GapList<E> {
 
         } else {
             // Sorted keys
-            int addIndex = SortedLists.binarySearchAdd(sortedKeys, key, comparator);
+        	int addIndex = 0;
+        	if (!keyMap.sortedKeys.isEmpty()) {
+        		if (keyMap.comparator.compare(key, keyMap.sortedKeys.getLast()) > 0) {
+        			addIndex = -keyMap.sortedKeys.size() - 1;
+        		} else if (keyMap.comparator.compare(key, keyMap.sortedKeys.getFirst()) < 0) {
+        			addIndex = -1;
+        		}
+        	}
+        	if (addIndex == 0) {
+        		addIndex = SortedLists.binarySearchAdd(keyMap.sortedKeys, key, keyMap.comparator);
+        	}
             if (addIndex < 0) {
                 // New key
-                if (attach) {
-                    onAttach(elem);
-                }
                 addIndex = -addIndex - 1;
                 if (index == -1) {
                 	index = addIndex;
                 } else if (index != addIndex) {
                 	throw new IllegalArgumentException("Invalid index for sorted order");
                 }
-                if (sortedKeys != this) {
-                    sortedKeys.doAdd(index, key);
+                if (keyMap.sortedKeys != this) {
+                	keyMap.sortedKeys.doAdd(index, key);
                 }
-                super.doAdd(index, elem);
-                if (DEBUG_CHECK) debugCheck();
                 return true;
 
             } else {
                 // Key exists already
             	if (index == -1) {
-                    if (duplicateMode == DuplicateMode.ALLOW ||
-                    		(key == null && allowNullKeys == NullMode.MULTIPLE)) {
+                    if (keyMap.duplicateMode == DuplicateMode.ALLOW ||
+                    		(key == null && keyMap.allowNullKeys == NullMode.MULTIPLE)) {
                     	index = addIndex;
-                    } else if (duplicateMode == DuplicateMode.REPLACE) {
-                        if (attach) {
-                            onAttach(elem);
-                        }
-                        int getIndex = SortedLists.binarySearchGet(sortedKeys, key, comparator);
-                        if (sortedKeys != this) {
-                            sortedKeys.set(getIndex, key);
+                    } else if (keyMap.duplicateMode == DuplicateMode.REPLACE) {
+                        int getIndex = SortedLists.binarySearchGet(keyMap.sortedKeys, key, keyMap.comparator);
+                        if (keyMap.sortedKeys != this) {
+                        	keyMap.sortedKeys.set(getIndex, key);
                         }
                         super.doSet(getIndex, elem);
-                        if (DEBUG_CHECK) debugCheck();
-                        return true;
+                        return false;	// TODO what should be returned? false -> attach is not called
 
-                    } else if (duplicateMode == DuplicateMode.IGNORE) {
+                    } else if (keyMap.duplicateMode == DuplicateMode.IGNORE) {
                         return false;
-                    } else if (duplicateMode == DuplicateMode.ERROR) {
+                    } else if (keyMap.duplicateMode == DuplicateMode.ERROR) {
                         throw new IllegalArgumentException("Duplicate key not allowed: " + key);
                     } else {
                         throw new AssertionError();
@@ -730,7 +755,7 @@ public abstract class KeyList<E, K> extends GapList<E> {
                 	} else {
                 		int lowerIndex = addIndex-1;
                 		while (lowerIndex >= 0) {
-                			if (comparator.compare(key, sortedKeys.get(lowerIndex)) != 0) {
+                			if (keyMap.comparator.compare(key, keyMap.sortedKeys.get(lowerIndex)) != 0) {
                 				break;
                 			}
                 			lowerIndex--;
@@ -740,14 +765,9 @@ public abstract class KeyList<E, K> extends GapList<E> {
                 		}
                 	}
                 }
-                if (attach) {
-                    onAttach(elem);
+                if (keyMap.sortedKeys != this) {
+                	keyMap.sortedKeys.doAdd(index, key);
                 }
-                if (sortedKeys != this) {
-                    sortedKeys.doAdd(index, key);
-                }
-                super.doAdd(index, elem);
-                if (DEBUG_CHECK) debugCheck();
                 return true;
             }
         }
@@ -781,41 +801,40 @@ public abstract class KeyList<E, K> extends GapList<E> {
 
     @Override
     protected E doSet(int index, E elem) {
-        K key = getKey(elem);
-        E oldElem = doGet(index);
-        if (keys != null) {
+        E oldElem = super.doSet(index, elem);
+        for (KeyMap keyMap: keyMaps) {
+        	doSet(keyMap, index, elem, oldElem);
+        }
+        if (DEBUG_CHECK) debugCheck();
+        onDetach(oldElem);
+        onAttach(elem);
+        return oldElem;
+    }
+
+    private E doSet(KeyMap<E,K> keyMap, int index, E elem, E oldElem) {
+        K key = getKey(keyMap, elem);
+        if (keyMap.unsortedKeys != null) {
             // Keys not sorted
-            K oldKey = mapper.getKey(oldElem);
-            if (!keys.containsKey(key)) {
+            K oldKey = keyMap.mapper.getKey(oldElem);
+            if (!keyMap.unsortedKeys.containsKey(key)) {
                 // New key
-                onDetach(oldElem);
-                onAttach(elem);
-                keys.remove(oldKey);
-                keys.put(key, elem);
-                super.doSet(index, elem);
-                if (DEBUG_CHECK) debugCheck();
+                keyMap.unsortedKeys.remove(oldKey);
+                keyMap.unsortedKeys.put(key, elem);
                 return oldElem;
 
             } else {
                 // Key exists already
                 if (GapList.equalsElem(oldKey, key)) {
                     // Same index
-                    onDetach(oldElem);
-                    onAttach(elem);
-                    keys.put(key, elem);
-                    super.doSet(index, elem);
-                    if (DEBUG_CHECK) debugCheck();
+                	keyMap.unsortedKeys.put(key, elem);
                     return oldElem;
 
                 } else {
                     // Different index
-                    if (duplicateMode == DuplicateMode.ALLOW ||
-                    		(key == null && allowNullKeys == NullMode.MULTIPLE)) {
-                        onDetach(oldElem);
-                        onAttach(elem);
+                    if (keyMap.duplicateMode == DuplicateMode.ALLOW ||
+                    		(key == null && keyMap.allowNullKeys == NullMode.MULTIPLE)) {
                         doAdd(elem, key);
-                        keys.remove(oldKey);
-                        super.doSet(index, elem);
+                        keyMap.unsortedKeys.remove(oldKey);
                         if (DEBUG_CHECK) debugCheck();
                         return oldElem;
 
@@ -826,19 +845,16 @@ public abstract class KeyList<E, K> extends GapList<E> {
             }
         } else {
             // Sorted keys
-            int setIndex = SortedLists.binarySearchAdd(sortedKeys, key, comparator);
+            int setIndex = SortedLists.binarySearchAdd(keyMap.sortedKeys, key, keyMap.comparator);
             if (setIndex < 0) {
                 // New key
                 setIndex = -setIndex - 1;
                 if (setIndex != index) {
                 	throw new IllegalArgumentException("Invalid index for sorted order");
                 }
-                onDetach(oldElem);
-                onAttach(elem);
-                if (sortedKeys != this) {
-                    sortedKeys.set(setIndex, key);
+                if (keyMap.sortedKeys != this) {
+                	keyMap.sortedKeys.set(setIndex, key);
                 }
-                super.doSet(setIndex, elem);
                 if (DEBUG_CHECK) debugCheck();
                 return oldElem;
 
@@ -846,8 +862,8 @@ public abstract class KeyList<E, K> extends GapList<E> {
                 // Key exists already
             	setIndex--;
                 if (setIndex != index) {
-                    if (duplicateMode == DuplicateMode.ALLOW ||
-                    		(key == null && allowNullKeys == NullMode.MULTIPLE)) {
+                    if (keyMap.duplicateMode == DuplicateMode.ALLOW ||
+                    		(key == null && keyMap.allowNullKeys == NullMode.MULTIPLE)) {
                     	if (index == setIndex+1) {
                     		// ok
                     	} else if (index > setIndex) {
@@ -855,7 +871,7 @@ public abstract class KeyList<E, K> extends GapList<E> {
                     	} else {
                     		int lowerIndex = setIndex-1;
                     		while (lowerIndex >= 0) {
-                    			if (comparator.compare(key, sortedKeys.get(lowerIndex)) != 0) {
+                    			if (keyMap.comparator.compare(key, keyMap.sortedKeys.get(lowerIndex)) != 0) {
                     				break;
                     			}
                     			lowerIndex--;
@@ -868,12 +884,9 @@ public abstract class KeyList<E, K> extends GapList<E> {
                     	throw new IllegalArgumentException("Invalid index for sorted order");
                     }
                 }
-                onDetach(oldElem);
-                onAttach(elem);
-                if (sortedKeys != this) {
-                    sortedKeys.set(index, key);
+                if (keyMap.sortedKeys != this) {
+                	keyMap.sortedKeys.set(index, key);
                 }
-                super.doSet(index, elem);
                 if (DEBUG_CHECK) debugCheck();
                 return oldElem;
             }
@@ -884,8 +897,13 @@ public abstract class KeyList<E, K> extends GapList<E> {
     protected E doRemove(int index) {
         E elem = get(index);
         onDetach(elem);
-        K key = getKey(elem);
-        return doRemove(index, elem, key);
+        K key = getKey(keyMaps[0], elem);
+        E elem2 = doRemove(index, elem, keyMaps[0], key);
+        assert(elem2 == elem);
+        for (int i=1; i<keyMaps.length; i++) {
+        	removeByKey(keyMaps[i], key, false);
+        }
+        return elem;
     }
 
     /**
@@ -897,10 +915,10 @@ public abstract class KeyList<E, K> extends GapList<E> {
      * @return      removed element
      */
     @SuppressWarnings("unchecked")
-    private E doRemove(int index, E elem, K key) {
-        if (keys != null) {
+    private E doRemove(int index, E elem, KeyMap keyMap, K key) {
+        if (keyMap.unsortedKeys != null) {
             // not sorted
-            Object obj = keys.get(key);
+            Object obj = keyMap.unsortedKeys.get(key);
             if (obj == null) {
                 throw new IllegalArgumentException("Key missmatch: " + key);
             }
@@ -910,23 +928,23 @@ public abstract class KeyList<E, K> extends GapList<E> {
                     throw new IllegalArgumentException("Key missmatch: " + key);
                 }
                 if (list.isEmpty()) {
-                    keys.remove(key);
+                	keyMap.unsortedKeys.remove(key);
                 }
             } else {
-                keys.remove(key);
+            	keyMap.unsortedKeys.remove(key);
             }
         } else {
             // sorted
             Object removedKey = null;
-            if (sortedKeys == this) {
+            if (keyMap.sortedKeys == this) {
                 removedKey = super.doRemove(index);
             } else {
-                removedKey = sortedKeys.remove(index);
+                removedKey = keyMap.sortedKeys.remove(index);
             }
             if (!GapList.equalsElem(key, removedKey)) {
                 throw new IllegalArgumentException("Key missmatch: " + key);
             }
-            if (sortedKeys == this) {
+            if (keyMap.sortedKeys == this) {
                 if (DEBUG_CHECK) debugCheck();
                 return (E) removedKey;
             }
@@ -953,15 +971,19 @@ public abstract class KeyList<E, K> extends GapList<E> {
      * @return      index of key or -1 if not found
      */
     public int indexOfKey(K key) {
+    	return indexOfKey(keyMaps[0], key);
+    }
+
+    private int indexOfKey(KeyMap<E,K> keyMap, K key) {
         if (key == null) {
-            if (allowNullKeys == NullMode.NONE) {
+            if (keyMap.allowNullKeys == NullMode.NONE) {
                 return -1;
             }
         }
 
-        if (keys != null) {
+        if (keyMap.unsortedKeys != null) {
             // not sorted
-            Object elem = keys.get(key);
+            Object elem = keyMap.unsortedKeys.get(key);
             if (elem == null) {
                 return -1;
             }
@@ -974,7 +996,7 @@ public abstract class KeyList<E, K> extends GapList<E> {
                         break;
                     }
                 } else {
-                    K oldKey = mapper.getKey(doGet(i));
+                    K oldKey = keyMap.mapper.getKey(doGet(i));
                     if (GapList.equalsElem(oldKey, key)) {
                         break;
                     }
@@ -987,7 +1009,7 @@ public abstract class KeyList<E, K> extends GapList<E> {
 
         } else {
             // sorted
-            int index = SortedLists.binarySearchGet(sortedKeys, key, comparator);
+            int index = SortedLists.binarySearchGet(keyMap.sortedKeys, key, keyMap.comparator);
             if (index >= 0) {
                 return index;
             } else {
@@ -1002,10 +1024,14 @@ public abstract class KeyList<E, K> extends GapList<E> {
      * @return count of distinct keys
      */
     public int getCountDistinctKeys() {
-    	if (keys != null) {
-    		return keys.size();
+    	return getCountDistinctKeysCount(keyMaps[0]);
+    }
+
+    private int getCountDistinctKeysCount(KeyMap<E,K> keyMap) {
+    	if (keyMap.unsortedKeys != null) {
+    		return keyMap.unsortedKeys.size();
     	} else {
-    		return getDistinctKeys().size();
+    		return getDistinctKeys(keyMap).size();
     	}
     }
 
@@ -1015,11 +1041,19 @@ public abstract class KeyList<E, K> extends GapList<E> {
      * @return list containing all distinct keys
      */
     public GapList<K> getDistinctKeys() {
-        if (keys != null) {
+    	return getDistinctKeys(0);
+    }
+
+    public GapList<K> getDistinctKeys(int keyIndex) {
+    	return getDistinctKeys(getKeyMap(keyIndex));
+    }
+
+    private GapList<K> getDistinctKeys(KeyMap<E,K> keyMap) {
+        if (keyMap.unsortedKeys != null) {
             GapList<K> list = new GapList<K>();
-            Set<K> ks = new HashSet<K>(keys.keySet());
+            Set<K> ks = new HashSet<K>(keyMap.unsortedKeys.keySet());
             for (int i=0; i<size(); i++) {
-                K k = getKey(get(i));
+                K k = getKey(keyMap, doGet(i));
                 if (ks.remove(k)) {
                     list.add(k);
                     if (ks.isEmpty()) {
@@ -1027,13 +1061,13 @@ public abstract class KeyList<E, K> extends GapList<E> {
                     }
                 }
             }
-            assert(list.size() == keys.size());
+            assert(list.size() == keyMap.unsortedKeys.size());
             return list;
         } else {
             K lastKey = null;
             GapList<K> list = new GapList<K>();
-            for (int i=0; i<sortedKeys.size(); i++) {
-                K key = sortedKeys.get(i);
+            for (int i=0; i<keyMap.sortedKeys.size(); i++) {
+                K key = keyMap.sortedKeys.get(i);
                 boolean add = false;
                 if (list.isEmpty()) {
                     add = true;
@@ -1053,6 +1087,13 @@ public abstract class KeyList<E, K> extends GapList<E> {
         }
     }
 
+    private KeyMap<E,K> getKeyMap(int keyIndex) {
+    	if (keyMaps == null || keyIndex >= keyMaps.length || keyIndex < 0) {
+    		throw new IllegalArgumentException("Invalid key index: " + keyIndex);
+    	}
+    	return keyMaps[keyIndex];
+    }
+
     /**
      * Returns value for given key.
      * If there are several values for this key, the first is returned.
@@ -1063,26 +1104,34 @@ public abstract class KeyList<E, K> extends GapList<E> {
      */
     @SuppressWarnings("unchecked")
     public E getByKey(K key) {
+    	return getByKey(0, key);
+    }
+
+    public E getByKey(int keyIndex, K key) {
+    	return getByKey(getKeyMap(keyIndex), key);
+    }
+
+    private E getByKey(KeyMap<E,K> keyMap, K key) {
         // Handle null key if not allowed to prevent NPE
         if (key == null) {
-            if (allowNullKeys == NullMode.NONE) {
+            if (keyMap.allowNullKeys == NullMode.NONE) {
                 return null;
             }
         }
 
-        if (keys != null) {
+        if (keyMap.unsortedKeys != null) {
             // not sorted
-            Object obj = keys.get(key);
+            Object obj = keyMap.unsortedKeys.get(key);
             if (obj instanceof GapList) {
                 GapList<E> list = (GapList<E>) obj;
                 return list.getFirst();
             } else {
-                return (E) keys.get(key);
+                return (E) keyMap.unsortedKeys.get(key);
             }
 
         } else {
             // sorted
-            int index = SortedLists.binarySearchGet(sortedKeys, key, comparator);
+            int index = SortedLists.binarySearchGet(keyMap.sortedKeys, key, keyMap.comparator);
             if (index >= 0) {
                 return doGet(index);
             } else {
@@ -1099,28 +1148,32 @@ public abstract class KeyList<E, K> extends GapList<E> {
      */
     @SuppressWarnings("unchecked")
     public GapList<E> getAllByKey(K key) {
+    	return getAllByKey(keyMaps[0], key);
+    }
+
+    private GapList<E> getAllByKey(KeyMap<E,K> keyMap, K key) {
         // Handle null key if not allowed to prevent NPE
         if (key == null) {
-            if (allowNullKeys == NullMode.NONE) {
+            if (keyMap.allowNullKeys == NullMode.NONE) {
                 return GapList.EMPTY();
             }
         }
 
-        if (keys != null) {
+        if (keyMap.unsortedKeys != null) {
             // not sorted
-            Object obj = keys.get(key);
+            Object obj = keyMap.unsortedKeys.get(key);
             if (obj == null) {
                 return GapList.EMPTY();
             } else if (obj instanceof GapList) {
                 GapList<E> list = (GapList<E>) obj;
                 return list.unmodifiableList();
             } else {
-                return (GapList<E>) GapList.create(keys.get(key));
+                return (GapList<E>) GapList.create(keyMap.unsortedKeys.get(key));
             }
 
         } else {
             // sorted
-            int index = SortedLists.binarySearchGet(sortedKeys, key, comparator);
+            int index = SortedLists.binarySearchGet(keyMap.sortedKeys, key, keyMap.comparator);
             if (index >= 0) {
                 GapList<E> list = new GapList<E>();
                 while (true) {
@@ -1129,7 +1182,7 @@ public abstract class KeyList<E, K> extends GapList<E> {
                     if (index == size()) {
                         break;
                     }
-                    if (!GapList.equalsElem(sortedKeys.get(index), key)) {
+                    if (!GapList.equalsElem(keyMap.sortedKeys.get(index), key)) {
                         break;
                     }
                 }
@@ -1146,18 +1199,21 @@ public abstract class KeyList<E, K> extends GapList<E> {
      * @param key   key which elements must have
      * @return      number of elements with key (-1 if key is null)
      */
-    @SuppressWarnings("unchecked")
     public int getCountByKey(K key) {
+    	return getCountByKey(keyMaps[0], key);
+    }
+
+    private int getCountByKey(KeyMap<E,K> keyMap, K key) {
         // Handle null key if not allowed to prevent NPE
         if (key == null) {
-            if (allowNullKeys == NullMode.NONE) {
+            if (keyMap.allowNullKeys == NullMode.NONE) {
                 return 0;
             }
         }
 
-        if (keys != null) {
+        if (keyMap.unsortedKeys != null) {
             // not sorted
-            Object obj = keys.get(key);
+            Object obj = keyMap.unsortedKeys.get(key);
             if (obj == null) {
                 return 0;
             } else if (obj instanceof GapList) {
@@ -1169,7 +1225,7 @@ public abstract class KeyList<E, K> extends GapList<E> {
 
         } else {
             // sorted
-            int index = SortedLists.binarySearchGet(sortedKeys, key, comparator);
+            int index = SortedLists.binarySearchGet(keyMap.sortedKeys, key, keyMap.comparator);
             if (index >= 0) {
                 int count = 0;
                 while (true) {
@@ -1178,7 +1234,7 @@ public abstract class KeyList<E, K> extends GapList<E> {
                     if (index == size()) {
                         break;
                     }
-                    if (!GapList.equalsElem(sortedKeys.get(index), key)) {
+                    if (!GapList.equalsElem(keyMap.sortedKeys.get(index), key)) {
                         break;
                     }
                 }
@@ -1198,10 +1254,10 @@ public abstract class KeyList<E, K> extends GapList<E> {
     @SuppressWarnings("unchecked")
     public void invalidate(E elem) {
         K newKey = getKey(elem);
-        if (keys != null) {
+        if (unsortedKeys != null) {
             // Keys not sorted
             K oldKey = null;
-            for (Map.Entry<K, Object> entry: keys.entrySet()) {
+            for (Map.Entry<K, Object> entry: unsortedKeys.entrySet()) {
                 Object value = entry.getValue();
                 if (value instanceof GapList) {
                     GapList<E> list = (GapList<E>) value;
@@ -1274,51 +1330,59 @@ public abstract class KeyList<E, K> extends GapList<E> {
      * @return      removed element or null if no element has been removed
      */
     public E removeByKey(K key) {
-//        // Handle null key if not allowed to prevent NPE
-//        if (key == null) {
-//            if (allowNullKeys == NullMode.NONE) {
-//                return null;
-//            }
-//        }
+    	E removed = removeByKey(keyMaps[0], key, true);
+        if (DEBUG_CHECK) debugCheck();
+    	for (int i=1; i<keyMaps.length; i++) {
+    		removeByKey(keyMaps[i], key, false);
+    	}
+        if (DEBUG_CHECK) debugCheck();
+        return removed;
+    }
 
-        if (keys != null) {
+    private E removeByKey(KeyMap<E,K> keyMap, K key, boolean removeElems) {
+        if (keyMap.unsortedKeys != null) {
             // not sorted
-        	if (!keys.containsKey(key)) {
+        	if (!keyMap.unsortedKeys.containsKey(key)) {
         		return null;
         	}
-            Object obj = keys.get(key);
+            Object obj = keyMap.unsortedKeys.get(key);
             E elem = doRemove(obj, key);
 
             // Faster than remove(elem) (equals not needed)
-            int i;
-            for (i=0; i<size(); i++) {
-                if (elem != null) {
-                    if (doGet(i) == elem) {
-                        break;
-                    }
-                } else {
-                    K oldKey = mapper.getKey(doGet(i));
-                    if (GapList.equalsElem(oldKey, key)) {
-                        break;
-                    }
-                }
+            if (!removeElems) {
+            	elem = null;
+            } else {
+	            int i;
+	            for (i=0; i<size(); i++) {
+	                if (elem != null) {
+	                    if (doGet(i) == elem) {
+	                        break;
+	                    }
+	                } else {
+	                    K oldKey = keyMap.mapper.getKey(doGet(i));
+	                    if (GapList.equalsElem(oldKey, key)) {
+	                        break;
+	                    }
+	                }
+	            }
+	            if (i == size()) {
+	                throw new IllegalArgumentException("Key missmatch: " + key);
+	            }
+	            E elem2 = super.doRemove(i);
+	            assert(elem2 == elem);
             }
-            if (i == size()) {
-                throw new IllegalArgumentException("Key missmatch: " + key);
-            }
-            elem = super.doRemove(i);
-            if (DEBUG_CHECK) debugCheck();
             return elem;
 
         } else {
             // sorted
-            int index = SortedLists.binarySearchGet(sortedKeys, key, comparator);
+        	assert(removeElems);
+
+            int index = SortedLists.binarySearchGet(keyMap.sortedKeys, key, keyMap.comparator);
             if (index >= 0) {
-                if (sortedKeys != this) {
-                    sortedKeys.remove(index);
+                if (keyMap.sortedKeys != this) {
+                	keyMap.sortedKeys.remove(index);
                 }
                 E elem = super.doRemove(index);
-                if (DEBUG_CHECK) debugCheck();
                 return elem;
             } else {
                 return null;
@@ -1334,46 +1398,57 @@ public abstract class KeyList<E, K> extends GapList<E> {
      * @return      true if elements have been removed, false otherwise
      */
     @SuppressWarnings("unchecked")
-    public boolean removeAllByKey(K key) {
-//      // Handle null key if not allowed to prevent NPE
-//      if (key == null) {
-//          if (allowNullKeys == NullMode.NONE) {
-//              return false;
-//          }
-//      }
+    public GapList<E> removeAllByKey(K key) {
+    	GapList<E> removed = removeAllByKey(keyMaps[0], key, true);
+    	for (int i=1; i<keyMaps.length; i++) {
+    		removeAllByKey(keyMaps[i], key, false);
+    	}
+        if (DEBUG_CHECK) debugCheck();
+        return removed;
+    }
 
-        if (keys != null) {
+    private GapList<E> removeAllByKey(KeyMap<E,K> keyMap, K key, boolean removeElems) {
+        if (keyMap.unsortedKeys != null) {
             // not sorted
-        	if (!keys.containsKey(key)) {
-        		return false;
+        	if (!keyMap.unsortedKeys.containsKey(key)) {
+        		return null;
         	}
-            Object obj = keys.remove(key);
+            Object obj = keyMap.unsortedKeys.remove(key);
             int num;
+            GapList<E> removed = null;
             if (obj instanceof GapList) {
-                GapList<E> list = (GapList<E>) obj;
-                num = list.size();
+                removed = (GapList<E>) obj;
+                num = removed.size();
             } else {
                 num = 1;
-            }
-            for (int i=0; i<size(); i++) {
-                K oldKey = mapper.getKey(doGet(i));
-                if (GapList.equalsElem(oldKey, key)) {
-                    super.doRemove(i);
-                    num--;
-                    if (num == 0) {
-                        break;
-                    }
-                    i--;
+                if (removeElems) {
+                	removed = GapList.create((E) obj);
                 }
             }
-            if (DEBUG_CHECK) debugCheck();
-            return true;
+            if (removeElems) {
+	            // We have to iterate through the list until we have found
+	            // all elements with specified key
+	            for (int i=0; i<size(); i++) {
+	                K oldKey = keyMap.mapper.getKey(doGet(i));
+	                if (GapList.equalsElem(oldKey, key)) {
+	                    super.doRemove(i);
+	                    num--;
+	                    if (num == 0) {
+	                        break;
+	                    }
+	                    i--;
+	                }
+	            }
+            }
+            return removed;
 
         } else {
             // sorted
-            int index = SortedLists.binarySearchGet(sortedKeys, key, comparator);
+        	assert(removeElems);
+
+        	int index = SortedLists.binarySearchGet(keyMap.sortedKeys, key, keyMap.comparator);
             if (index < 0) {
-                return false;
+                return null;
             }
             int start = index;
             while (true) {
@@ -1381,19 +1456,19 @@ public abstract class KeyList<E, K> extends GapList<E> {
                 if (index == size()) {
                     break;
                 }
-                if (!GapList.equalsElem(sortedKeys.get(index), key)) {
+                if (!GapList.equalsElem(keyMap.sortedKeys.get(index), key)) {
                     break;
                 }
             }
-            sortedKeys.remove(start, index-start);
-            if (sortedKeys != this) {
+            GapList<E> removed = super.get(start, index-start);
+            keyMap.sortedKeys.remove(start, index-start);
+            if (keyMap.sortedKeys != this) {
                 while (index > start) {
                     index--;
                     super.doRemove(index);
                 }
             }
-            if (DEBUG_CHECK) debugCheck();
-            return true;
+            return removed;
         }
     }
 
@@ -1401,12 +1476,15 @@ public abstract class KeyList<E, K> extends GapList<E> {
     public void sort(int index, int len, Comparator<? super E> comparator) {
     	checkRange(index, len);
 
-    	if (sortedKeys != null) {
+    	// If the list is already sorted, nothing must be done
+    	// TODO what to do if another comparator is used?
+    	if (keys.sortedKeys != null) {
     		// already sorted
     		return;
     	}
 
     	super.sort(index, len, comparator);
+    	// FIXME adapt keys
     }
 
 }
