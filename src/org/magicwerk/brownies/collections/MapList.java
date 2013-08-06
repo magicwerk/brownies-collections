@@ -42,7 +42,7 @@ import org.magicwerk.brownies.collections.SetList.Builder;
  * @param <E> type of elements stored in the list
  * @param <K> type of key
  */
-public class MapList<E, K> extends KeyList<E, K> {
+public class MapList<E, K> extends KeyList<E> {
 
 	public static class EntryMapper<E, K> implements Mapper<Entry<E, K>, K> {
 		@Override
@@ -82,7 +82,7 @@ public class MapList<E, K> extends KeyList<E, K> {
 	/**
      * Builder to construct MapList instances.
      */
-    public static class Builder<E, K> extends KeyList.Builder<E, K> {
+    public static class Builder<E, K> extends KeyList.Builder<E> {
 
         /**
          * Constructor.
@@ -90,43 +90,16 @@ public class MapList<E, K> extends KeyList<E, K> {
          * @param mapper mapper to use
          */
         public Builder(Mapper<E, K> mapper) {
-        	this.mapper = mapper;
+        	withKey((Mapper<E, Object>) mapper);
         }
 
         /**
          * Internal constructor
          *
          * @param mapList   mapList to customize
-         * @param mapper	mapper to use
          */
-        Builder(MapList<E, K> mapList, Mapper<E, K> mapper) {
+        Builder(MapList<E, K> mapList) {
             this.keyList = mapList;
-            this.mapper = mapper;
-        }
-
-        /**
-         * Determines that null elements are allowed.
-         * A null element will have a null key.
-         *
-         * @return  this (fluent interface)
-         */
-        public Builder<E, K> withNullElem() {
-            return withNullElem(true);
-        }
-
-        /**
-         * Determines whether null elements are allowed or not.
-         * A null element will have a null key.
-         *
-         * @param nullElem      true to allow null elements, false otherwise
-         * @return              this (fluent interface)
-         */
-        public Builder<E, K> withNullElem(boolean nullElem) {
-            this.allowNullElem = nullElem;
-            if (nullElem) {
-                this.nullMode = NullMode.NORMAL;
-            }
-            return this;
         }
 
         /**
@@ -135,29 +108,24 @@ public class MapList<E, K> extends KeyList<E, K> {
          * @return  MapList with specified options
          */
         public MapList<E, K> build() {
-            return (MapList<E, K>) doBuild();
+            return (MapList<E, K>) build();
         }
 
         // --- Methods overridden to change return type
 
 		@Override
-        public Builder<E, K> withAttachHandler(Handler<E> handler) {
-            return withAttachHandler(handler);
+        public Builder<E, K> withInsertTrigger(Handler<E> handler) {
+            return (Builder<E, K>) super.withInsertTrigger(handler);
         }
 
 		@Override
-        public Builder<E, K> withDetachHandler(Handler<E> handler) {
-            return withDetachHandler(handler);
+        public Builder<E, K> withDeleteTrigger(Handler<E> handler) {
+            return (Builder<E, K>) super.withDeleteTrigger(handler);
         }
 
 		@Override
 		public Builder<E, K> withCapacity(int capacity) {
 			return (Builder<E, K>) super.withCapacity(capacity);
-		}
-
-		@Override
-		public Builder<E, K> withDuplicates(DuplicateMode mode) {
-			return (Builder<E, K>) super.withDuplicates(mode);
 		}
 
 		@Override
@@ -170,117 +138,12 @@ public class MapList<E, K> extends KeyList<E, K> {
 			return (Builder<E, K>) super.withElements(elements);
 		}
 
-		@Override
-		public Builder<E, K> withNull(NullMode nullMode) {
-			return (Builder<E, K>) super.withNull(nullMode);
-		}
-
-		@Override
-		public Builder<E, K> withSort() {
-			return (Builder<E, K>) super.withSort();
-		}
-
-		@Override
-		public Builder<E, K> withComparator(Comparator<? super K> comparator) {
-			return (Builder<E, K>) super.withComparator(comparator);
-		}
     }
 
 
     /** UID for serialization. */
     private static final long serialVersionUID = -927503847084195522L;
 
-    // MapList constructors
-
-    public MapList(Mapper<E, K> mapper) {
-    	getBuilder(mapper).build();
-    }
-
-    public MapList(Mapper<E, K> mapper, int capacity) {
-    	getBuilder(mapper).withCapacity(capacity).build();
-    }
-
-    public MapList(Mapper<E, K> mapper, Collection<? extends E> elements) {
-    	getBuilder(mapper).withElements(elements).build();
-    }
-
-    public MapList(Mapper<E, K> mapper, E... elements) {
-    	getBuilder(mapper).withElements(elements).build();
-
-    }
-
-    // Create MapList
-
-    public static <E, K> MapList<E, K> create(Mapper<E, K> mapper) {
-    	return new Builder<E, K>(mapper).build();
-    }
-
-    public static <E, K> MapList<E, K> create(Mapper<E, K> mapper, int capacity) {
-    	return new Builder<E, K>(mapper).withCapacity(capacity).build();
-    }
-
-    public static <E, K> MapList<E, K> create(Mapper<E, K> mapper, Collection<? extends E> elements) {
-    	return new Builder<E, K>(mapper).withElements(elements).build();
-    }
-
-    public static <E, K> MapList<E, K> create(Mapper<E, K> mapper, E... elements) {
-    	return new Builder<E, K>(mapper).withElements(elements).build();
-
-    }
-
-    // Create HashMap
-
-    public static <E, K> MapList<E, K> createHashMap(Mapper<E, K> mapper) {
-    	return new Builder<E, K>(mapper).withNull(NullMode.NORMAL).build();
-    }
-
-    public MapList<E, K> createHashMap(Mapper<E, K> mapper, int capacity) {
-    	return new Builder<E, K>(mapper).withNull(NullMode.NORMAL).withCapacity(capacity).build();
-    }
-
-    public MapList<E, K> createHashMap(Mapper<E, K> mapper, Collection<? extends E> elements) {
-    	return new Builder<E, K>(mapper).withNull(NullMode.NORMAL).withElements(elements).build();
-    }
-
-    public MapList<E, K> createHashMap(Mapper<E, K> mapper, E... elements) {
-    	return new Builder<E, K>(mapper).withNull(NullMode.NORMAL).withElements(elements).build();
-    }
-
-    // Create TreeMap
-
-    public MapList<E, K> createTreeMap(Mapper<E, K> mapper) {
-    	return new Builder<E, K>(mapper).withSort().withNull(NullMode.NORMAL).build();
-    }
-
-    public MapList<E, K> createTreeMap(Mapper<E, K> mapper, int capacity) {
-    	return new Builder<E, K>(mapper).withSort().withNull(NullMode.NORMAL).withCapacity(capacity).build();
-    }
-
-    public MapList<E, K> createTreeMap(Mapper<E, K> mapper, Collection<? extends E> elements) {
-    	return new Builder<E, K>(mapper).withSort().withNull(NullMode.NORMAL).withElements(elements).build();
-    }
-
-    public MapList<E, K> createTreeMap(Mapper<E, K> mapper, E... elements) {
-    	return new Builder<E, K>(mapper).withSort().withNull(NullMode.NORMAL).withElements(elements).build();
-    }
-
-    // TreeMap with comparator
-
-    public MapList<E, K> createTreeMap(Mapper<E, K> mapper, Comparator<? super K> comparator) {
-    	return new Builder<E, K>(mapper).withComparator(comparator).withNull(NullMode.NORMAL).build();
-    }
-
-    public MapList<E, K> createTreeMap(Mapper<E, K> mapper, Comparator<? super K> comparator, int capacity) {
-    	return new Builder<E, K>(mapper).withComparator(comparator).withNull(NullMode.NORMAL).withCapacity(capacity).build();
-    }
-
-    public MapList<E, K> createTreeMap(Mapper<E, K> mapper, Comparator<? super K> comparator, Collection<? extends E> elements) {
-    	return new Builder<E, K>(mapper).withComparator(comparator).withNull(NullMode.NORMAL).withElements(elements).build();
-    }
-
-    public MapList<E, K> createTreeMap(Mapper<E, K> mapper, Comparator<? super K> comparator, E... elements) {
-    	return new Builder<E, K>(mapper).withComparator(comparator).withNull(NullMode.NORMAL).withElements(elements).build();
-    }
 
     /**
      * Default constructor.
@@ -307,7 +170,11 @@ public class MapList<E, K> extends KeyList<E, K> {
      * @return builder for this class
      */
     protected Builder<E,K> getBuilder(Mapper<E, K> mapper) {
-        return new Builder<E,K>(this, mapper);
+        return builder(mapper);
+    }
+
+    public static <E, K> MapList.Builder<E, K> builder(Mapper<E, K> mapper) {
+        return new MapList.Builder<E, K>(mapper);
     }
 
     @Override
@@ -329,9 +196,8 @@ public class MapList<E, K> extends KeyList<E, K> {
         return copy;
     }
 
-    @Override
     public Mapper<E, K> getMapper() {
-        return mapper;
+        return (Mapper<E, K>) getKeyMap(0).mapper;
     }
 
     /**
@@ -344,6 +210,10 @@ public class MapList<E, K> extends KeyList<E, K> {
      * @return view of this MapList as Map
      */
     public Map<K, E> asMap() {
+    	return asMap(0);
+
+    }
+    public Map<K, E> asMap(final int keyIndex) {
         return new Map<K, E>() {
 
             @Override
@@ -358,7 +228,7 @@ public class MapList<E, K> extends KeyList<E, K> {
 
             @Override
             public boolean containsKey(Object key) {
-                return MapList.this.getByKey((K) key) != null;
+                return MapList.this.getByKey(keyIndex, (K) key) != null;
             }
 
             @Override
@@ -368,25 +238,29 @@ public class MapList<E, K> extends KeyList<E, K> {
 
             @Override
             public E get(Object key) {
-                return MapList.this.getByKey((K) key);
+                return MapList.this.getByKey(keyIndex, (K) key);
             }
 
             @Override
-            // Note that the key is ignored (it is generated out of the value)
             public E put(K key, E value) {
-                return MapList.this.put(value);
+                throw new UnsupportedOperationException();
+            	//if (!getMapper().getKey(value).equals(key)) {
+//            		throw new IllegalArgumentException("Key is not equal to key created by mapper");
+            	//}
+//                return MapList.this.add(value); TODO
             }
 
             @Override
             public E remove(Object key) {
-                return MapList.this.removeByKey((K) key);
+                return MapList.this.removeByKey(keyIndex, (K) key);
             }
 
             @Override
             public void putAll(Map<? extends K, ? extends E> m) {
-                for (E value: m.values()) {
-                    MapList.this.put(value);
-                }
+                throw new UnsupportedOperationException();
+                //for (E value: m.values()) {
+                    //MapList.this.put(value);
+                //} TODO
             }
 
             @Override

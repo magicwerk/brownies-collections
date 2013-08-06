@@ -44,7 +44,7 @@ import org.magicwerk.brownies.collections.MapList.Builder;
  * @see MapList
  * @param <E> type of elements stored in the list
  */
-public class SetList<E> extends KeyList<E, E> implements Set<E> {
+public class SetList<E> extends KeyList<E> {
 
     /** UID for serialization. */
     private static final long serialVersionUID = 6181488174454611419L;
@@ -62,7 +62,7 @@ public class SetList<E> extends KeyList<E, E> implements Set<E> {
     /**
      * Builder to construct SetList instances.
      */
-    public static class Builder<E> extends KeyList.Builder<E, E> {
+    public static class Builder<E> extends KeyList.Builder<E> {
 
         /**
          * Default constructor.
@@ -85,7 +85,7 @@ public class SetList<E> extends KeyList<E, E> implements Set<E> {
          * @return created SetList
          */
         public SetList<E> build() {
-        	return (SetList<E>) doBuild();
+        	return (SetList<E>) super.build();
         }
 
         // --- Methods overridden to change return type
@@ -93,11 +93,6 @@ public class SetList<E> extends KeyList<E, E> implements Set<E> {
 		@Override
 		public Builder<E> withCapacity(int capacity) {
 			return (Builder<E>) super.withCapacity(capacity);
-		}
-
-		@Override
-		public Builder<E> withDuplicates(DuplicateMode mode) {
-			return (Builder<E>) super.withDuplicates(mode);
 		}
 
 		@Override
@@ -110,35 +105,6 @@ public class SetList<E> extends KeyList<E, E> implements Set<E> {
 			return (Builder<E>) super.withElements(elements);
 		}
 
-		@Override
-		public Builder<E> withNull(boolean allowNull) {
-			return (Builder<E>) super.withNull(allowNull);
-		}
-
-		@Override
-		public Builder<E> withNull(NullMode nullMode) {
-			return (Builder<E>) super.withNull(nullMode);
-		}
-
-		@Override
-		public Builder<E> withNullsFirst() {
-			return (Builder<E>) super.withNullsFirst();
-		}
-
-		@Override
-		public Builder<E> withNullsFirst(boolean nullsFirst) {
-			return (Builder<E>) super.withNullsFirst(nullsFirst);
-		}
-
-		@Override
-		public Builder<E> withSort() {
-			return (Builder<E>) super.withSort();
-		}
-
-		@Override
-		public Builder<E> withComparator(Comparator<? super E> comparator) {
-			return (Builder<E>) super.withComparator(comparator);
-		}
     }
 
     /**
@@ -165,8 +131,8 @@ public class SetList<E> extends KeyList<E, E> implements Set<E> {
      *
      * @return  builder for this class
      */
-    protected Builder<E> getBuilder() {
-        return new Builder<E>(this);
+    protected SetList.Builder<E> getBuilder() {
+        return builder();
     }
 
     public static <E> SetList.Builder<E> builder() {
@@ -209,60 +175,6 @@ public class SetList<E> extends KeyList<E, E> implements Set<E> {
     public static <E> SetList<E> create(E... elements) {
     	return new Builder<E>().withElements(elements).build();
 
-    }
-
-    // Create HashSet
-
-    public static <E> SetList<E> createHashSet() {
-    	return new Builder<E>().withNull(NullMode.NORMAL).build();
-    }
-
-    public SetList<E> createHashSet(int capacity) {
-    	return new Builder<E>().withNull(NullMode.NORMAL).withCapacity(capacity).build();
-    }
-
-    public SetList<E> createHashSet(Collection<? extends E> elements) {
-    	return new Builder<E>().withNull(NullMode.NORMAL).withElements(elements).build();
-    }
-
-    public SetList<E> createHashSet(E... elements) {
-    	return new Builder<E>().withNull(NullMode.NORMAL).withElements(elements).build();
-    }
-
-    // Create TreeSet
-
-    public SetList<E> createTreeSet() {
-    	return new Builder<E>().withSort().withNull(NullMode.NORMAL).build();
-    }
-
-    public SetList<E> createTreeSet(int capacity) {
-    	return new Builder<E>().withSort().withNull(NullMode.NORMAL).withCapacity(capacity).build();
-    }
-
-    public SetList<E> createTreeSet(Collection<? extends E> elements) {
-    	return new Builder<E>().withSort().withNull(NullMode.NORMAL).withElements(elements).build();
-    }
-
-    public SetList<E> createTreeSet(E... elements) {
-    	return new Builder<E>().withSort().withNull(NullMode.NORMAL).withElements(elements).build();
-    }
-
-    // TreeSet with comparator
-
-    public SetList<E> createTreeSet(Comparator<? super E> comparator) {
-    	return new Builder<E>().withComparator(comparator).withNull(NullMode.NORMAL).build();
-    }
-
-    public SetList<E> createTreeSet(Comparator<? super E> comparator, int capacity) {
-    	return new Builder<E>().withComparator(comparator).withNull(NullMode.NORMAL).withCapacity(capacity).build();
-    }
-
-    public SetList<E> createTreeSet(Comparator<? super E> comparator, Collection<? extends E> elements) {
-    	return new Builder<E>().withComparator(comparator).withNull(NullMode.NORMAL).withElements(elements).build();
-    }
-
-    public SetList<E> createTreeSet(Comparator<? super E> comparator, E... elements) {
-    	return new Builder<E>().withComparator(comparator).withNull(NullMode.NORMAL).withElements(elements).build();
     }
 
     /**
