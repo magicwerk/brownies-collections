@@ -40,7 +40,7 @@ import org.magicwerk.brownies.collections.SetList.IdentMapper;
  * @param <E> type of elements stored in the list
  * @param <K> type of keys stored used for accessing the list
  */
-public abstract class KeyList<E, K> extends GapList<E> {
+public class KeyList<E> extends GapList<E> {
 
     /**
      * The Handler interface is used to customize the behavior
@@ -131,15 +131,287 @@ public abstract class KeyList<E, K> extends GapList<E> {
     }
 
     /**
+     * Identity mapper.
+     */
+    static class IdentMapper<E> implements Mapper<E, E> {
+        @Override
+        public E getKey(E v) {
+            return v;
+        }
+    }
+
+    /**
      * Builder to construct SetList instances.
      */
-    public static class Builder<E, K> {
-        /** KeyList which is built up */
-    	KeyList<E, K> keyList;
-    	/** Mapper (IdentMapper for SetList) */
-        Mapper<E, K> mapper;
-        // -- null
+    public static class Builder<E> {
+    	//
+    	KeyList<E> keyList;
+    	// -- null
         boolean allowNullElem;
+        // -- keys
+        KeyMapBuilder keyMapBuilder;
+    	GapList<KeyMap<E,Object>> keyMaps = GapList.create();
+        // -- content
+        int capacity = 10;
+        Collection<? extends E> collection;
+        E[] array;
+        // -- handlers
+        Handler<E> insertTrigger;
+        Handler<E> deleteTrigger;
+
+        /**
+         * Default constructor.
+         */
+        public Builder() {
+        }
+
+        Builder(KeyList<E> keyList) {
+        	this.keyList = keyList;
+        }
+
+        public Builder<E> withNull() {
+        	endKeyMapBuilder();
+        	return withNull(true);
+        }
+
+        public Builder<E> withNull(boolean allowNullElem) {
+        	endKeyMapBuilder();
+        	this.allowNullElem = allowNullElem;
+        	return this;
+        }
+
+        public Builder<E> withInsertTrigger(Handler<E> handler) {
+        	endKeyMapBuilder();
+            this.insertTrigger = handler;
+            return this;
+        }
+
+        public Builder<E> withDeleteTrigger(Handler<E> handler) {
+        	endKeyMapBuilder();
+            this.deleteTrigger = handler;
+            return this;
+        }
+
+        public Builder<E> withCapacity(int capacity) {
+        	endKeyMapBuilder();
+            this.capacity = capacity;
+            return this;
+        }
+
+        public Builder<E> withElements(Collection<? extends E> elements) {
+        	endKeyMapBuilder();
+            this.collection = elements;
+            return this;
+        }
+
+        public Builder<E> withElements(E... elements) {
+        	endKeyMapBuilder();
+            this.array = elements;
+            return this;
+        }
+
+        public Builder<E> withKey(Mapper<E, Object> mapper) {
+        	endKeyMapBuilder();
+        	newKeyMapBuilder(mapper);
+        	return this;
+        }
+
+        public Builder<E> withSetKey() {
+        	endKeyMapBuilder();
+        	newKeyMapBuilder(new IdentMapper());
+        	return this;
+        }
+
+        /**
+         * Determines whether null elements are allowed or not.
+         * A null element will have a null key.
+         *
+         * @param nullable  true to allow null elements, false to disallow
+         * @return          this (for use in fluent interfaces)
+         */
+        public Builder<E> withKeyNull(boolean nullable) {
+            return withKeyNull(nullable ? NullMode.NORMAL : NullMode.NONE);
+        }
+
+        public Builder<E> withKeyNull(NullMode nullMode) {
+        	getKeyMapBuilder().nullMode = nullMode;
+            return this;
+        }
+
+        /**
+         * Determines whether duplicates are allowed or not.
+         *
+         * @param duplicates    true to allow duplicates, false to disallow
+         * @return              this (for use in fluent interfaces)
+         */
+        public Builder<E> withKeyDuplicates(DuplicateMode duplicateMode) {
+        	getKeyMapBuilder().duplicateMode = duplicateMode;
+            return this;
+        }
+
+        /**
+         * Determines whether list should be sorted or not.
+         *
+         * @return              this (for use in fluent interfaces)
+         */
+        public Builder<E> withKeySort() {
+            return withKeySort(true);
+        }
+
+        /**
+         * Determines that list should be sorted.
+         *
+         * @param sort    true to sort list, otherwise false
+         * @return        this (for use in fluent interfaces)
+         */
+        public Builder<E> withKeySort(boolean sort) {
+        	getKeyMapBuilder().sort = sort;
+            return this;
+        }
+
+        /**
+         * Set comparator to use for sorting.
+         *
+         * @param comparator    comparator to use for sorting
+         * @return              this (for use in fluent interfaces)
+         */
+        public Builder<E> withKeyComparator(Comparator<? super Object> comparator) {
+            return withKeyComparator(comparator, false);
+        }
+
+        /**
+         * Set comparator to use for sorting.
+         *
+         * @param comparator            comparator to use for sorting
+         * @param comparatorSortsNull   true if comparator sorts null, false if not
+         * @return                      this (for use in fluent interfaces)
+         */
+        public Builder<E> withKeyComparator(Comparator<? super Object> comparator, boolean comparatorSortsNull) {
+        	KeyMapBuilder<E, Object> kmb = getKeyMapBuilder();
+        	kmb.comparator = comparator;
+            kmb.comparatorSortsNull = comparatorSortsNull;
+            return this;
+        }
+
+        /**
+         * Determines that nulls are sorted first.
+         *
+         * @return  this (for use in fluent interfaces)
+         */
+        public Builder<E> withKeyNullsFirst() {
+            return withKeyNullsFirst(true);
+        }
+
+        /**
+         * Determines whether nulls are sorted first or last.
+         *
+         * @param nullsFirst    true to sort nulls first, false to sort nulls last
+         * @return              this (for use in fluent interfaces)
+         */
+        public Builder<E> withKeyNullsFirst(boolean nullsFirst) {
+        	getKeyMapBuilder().sortNullsFirst = nullsFirst;
+            return this;
+        }
+
+        KeyMapBuilder<E, Object> getKeyMapBuilder() {
+        	if (keyMapBuilder == null) {
+        		throw new IllegalArgumentException("Call withKey() to define a new key first");
+        	}
+        	return keyMapBuilder;
+        }
+
+        void newKeyMapBuilder(Mapper<E,Object> mapper) {
+        	assert(keyMapBuilder == null);
+        	keyMapBuilder = new KeyMapBuilder<E,Object>();
+        	keyMapBuilder.mapper = mapper;
+        }
+
+        void endKeyMapBuilder() {
+        	if (keyMapBuilder != null) {
+            	KeyMap<E,Object> keyMap = new KeyMap<E,Object>();
+            	keyMap.mapper = (Mapper<E, Object>) keyMapBuilder.mapper;
+            	keyMap.duplicateMode = keyMapBuilder.duplicateMode;
+
+            	boolean allowNullKey = (keyMapBuilder.nullMode != NullMode.NONE);
+                if (keyMapBuilder.comparator != null) {
+	                if (allowNullKey && !keyMapBuilder.comparatorSortsNull) {
+	                	keyMap.comparator = new NullComparator(keyMapBuilder.comparator, keyMapBuilder.sortNullsFirst);
+	                } else {
+	                	keyMap.comparator = (Comparator<Object>) keyMapBuilder.comparator;
+	                }
+                } else if (keyMapBuilder.sort) {
+                	if (allowNullKey) {
+	                	keyMap.comparator = new NullComparator(getNaturalComparator(), keyMapBuilder.sortNullsFirst);
+                	} else {
+                    	keyMap.comparator = getNaturalComparator();
+                	}
+                }
+	            if (keyMap.comparator != null) {
+	            	if (!keyMaps.isEmpty()) {
+	            		throw new IllegalArgumentException("Only first key can be sorted"); // TODO support multiple keys
+	            	}
+	            }
+
+                keyMap.allowNullKeys = keyMapBuilder.nullMode;
+                keyMaps.add(keyMap);
+
+        		keyMapBuilder = null;
+        	}
+        }
+
+        /**
+         * Build SetList with specified options.
+         *
+         * @return created SetList
+         */
+        KeyList<E> build() {
+        	endKeyMapBuilder();
+
+        	if (keyList == null) {
+            	if (this instanceof SetList.Builder) {
+                	keyList = new SetList<E>(false);
+            	} else if (this instanceof MapList.Builder) {
+                	keyList = new MapList<E, Object>(false);
+            	}
+        	}
+
+       		keyList.allowNullElem = allowNullElem;
+            keyList.insertTrigger = insertTrigger;
+            keyList.deleteTrigger = deleteTrigger;
+
+            KeyMap<E,Object> keyMap = keyMaps.peekFirst();
+            boolean isSet = false;
+            if (keyMap != null) {
+	            if (keyMap.comparator != null) {
+	                if (isSet) {
+	                	// Sorted set: we do not need a separate list for storing
+	                	// keys and elements. We have to handle this case specially later.
+	                	keyMap.sortedKeys = (GapList<Object>) keyList;
+	            	} else {
+	            		keyMap.sortedKeys = new GapList<Object>();
+	            	}
+	            } else {
+	                // Set is not sorted: maintain a separate HashMap for fast
+	                // answering contains() calls
+	            	keyMap.unsortedKeys = new HashMap<Object, Object>();
+	            }
+            }
+            keyList.keyMaps = keyMaps.toArray(new KeyMap[keyMaps.size()]);
+
+            keyList.init(capacity);
+            if (collection != null) {
+            	keyList.addAll(collection);
+            } else if (array != null) {
+            	keyList.addAll(array.clone());
+            }
+            return keyList;
+        }
+    }
+
+    public static class KeyMapBuilder<E,K> {
+    	// -- mapper
+    	Mapper<E,K> mapper;
+        // -- null
         NullMode nullMode = NullMode.NONE;
         // -- duplicates
         DuplicateMode duplicateMode = DuplicateMode.IGNORE;
@@ -152,214 +424,14 @@ public abstract class KeyList<E, K> extends GapList<E> {
         boolean comparatorSortsNull;
         /** Determine whether null values appear first or last */
         boolean sortNullsFirst;
-        // -- content
-        int capacity = 10;
-        Collection<? extends E> collection;
-        E[] array;
-        // -- handlers
-        Handler<E> attachHandler;
-        Handler<E> detachHandler;
-
-
-        /**
-         * Default constructor.
-         */
-        public Builder() {
-        }
-
-        /**
-         * Internal constructor
-         *
-         * @param setList   setList to customize
-         */
-        Builder(KeyList<E, K> keyList) {
-            this.keyList = keyList;
-        }
-
-        /**
-         * Determines whether null elements are allowed or not.
-         * A null element will have a null key.
-         *
-         * @param nullable  true to allow null elements, false to disallow
-         * @return          this (for use in fluent interfaces)
-         */
-        public Builder<E, K> withNull(boolean nullable) {
-            nullMode = nullable ? NullMode.NORMAL : NullMode.NONE;
-            return this;
-        }
-
-        public Builder<E, K> withNull(NullMode nullMode) {
-            this.nullMode = nullMode;
-            return this;
-        }
-
-        /**
-         * Determines whether duplicates are allowed or not.
-         *
-         * @param duplicates    true to allow duplicates, false to disallow
-         * @return              this (for use in fluent interfaces)
-         */
-        public Builder<E, K> withDuplicates(DuplicateMode duplicateMode) {
-            this.duplicateMode = duplicateMode;
-            return this;
-        }
-
-        public Builder<E, K> withAttachHandler(Handler<E> handler) {
-            this.attachHandler = handler;
-            return this;
-        }
-
-        public Builder<E, K> withDetachHandler(Handler<E> handler) {
-            this.detachHandler = handler;
-            return this;
-        }
-
-        public Builder<E, K> withCapacity(int capacity) {
-            this.capacity = capacity;
-            return this;
-        }
-
-        public Builder<E, K> withElements(Collection<? extends E> elements) {
-            this.collection = elements;
-            return this;
-        }
-
-        public Builder<E, K> withElements(E... elements) {
-            this.array = elements;
-            return this;
-        }
-
-        /**
-         * Determines whether list should be sorted or not.
-         *
-         * @return              this (for use in fluent interfaces)
-         */
-        public Builder<E, K> withSort() {
-            return withSort(true);
-        }
-
-        /**
-         * Determines that list should be sorted.
-         *
-         * @param sort    true to sort list, otherwise false
-         * @return        this (for use in fluent interfaces)
-         */
-        public Builder<E, K> withSort(boolean sort) {
-            this.sort = sort;
-            return this;
-        }
-
-        /**
-         * Set comparator to use for sorting.
-         *
-         * @param comparator    comparator to use for sorting
-         * @return              this (for use in fluent interfaces)
-         */
-        public Builder<E, K> withComparator(Comparator<? super K> comparator) {
-            this.comparator = comparator;
-            return this;
-        }
-
-        /**
-         * Set comparator to use for sorting.
-         *
-         * @param comparator            comparator to use for sorting
-         * @param comparatorSortsNull   true if comparator sorts null, false if not
-         * @return                      this (for use in fluent interfaces)
-         */
-        public Builder<E, K> withComparator(Comparator<? super K> comparator, boolean comparatorSortsNull) {
-            this.comparator = comparator;
-            this.comparatorSortsNull = comparatorSortsNull;
-            return this;
-        }
-
-        /**
-         * Determines that nulls are sorted first.
-         *
-         * @return  this (for use in fluent interfaces)
-         */
-        public Builder<E, K> withNullsFirst() {
-            return withNullsFirst(true);
-        }
-
-        /**
-         * Determines whether nulls are sorted first or last.
-         *
-         * @param nullsFirst    true to sort nulls first, false to sort nulls last
-         * @return              this (for use in fluent interfaces)
-         */
-        public Builder<E, K> withNullsFirst(boolean nullsFirst) {
-            this.sortNullsFirst = nullsFirst;
-            return this;
-        }
-
-        /**
-         * Build SetList with specified options.
-         *
-         * @return created SetList
-         */
-        KeyList<E, K> doBuild() {
-        	if (this instanceof SetList.Builder) {
-        		if (keyList == null) {
-        			keyList = (KeyList<E, K>) new SetList<E>(false);
-        		}
-        		mapper = new IdentMapper();
-        	} else if (this instanceof MapList.Builder) {
-        		if (keyList == null) {
-        			keyList = new MapList<E, K>(false);
-        		}
-        		assert(mapper != null);
-        	}
-
-        	keyList.mapper = mapper;
-            keyList.duplicateMode = duplicateMode;
-            keyList.attachHandler = attachHandler;
-            keyList.detachHandler = detachHandler;
-
-            if (comparator != null) {
-            	keyList.comparator = (Comparator<K>) comparator;
-            } else if (sort) {
-                keyList.comparator = getNaturalComparator();
-            }
-
-            if (keyList.comparator != null) {
-                if (!comparatorSortsNull) {
-                    keyList.comparator = new NullComparator(keyList.comparator, sortNullsFirst);
-                }
-                if (this instanceof SetList.Builder) {
-                	// Sorted set: we do not need a separate list for storing
-                	// keys and elements. We have to handle this case specially later.
-                	keyList.sortedKeys = (GapList<K>) keyList;
-            	} else if (this instanceof MapList.Builder) {
-            		keyList.sortedKeys = new GapList<K>();
-            	} else {
-            		assert(false);
-            	}
-            } else {
-                // Set is not sorted: maintain a separate HashMap for fast
-                // answering contains() calls
-                keyList.unsortedKeys = new HashMap<K, Object>();
-            }
-
-       		keyList.allowNullElem = (nullMode == NullMode.NORMAL || nullMode == NullMode.MULTIPLE);
-       		keyList.allowNullKeys = nullMode;
-
-            keyList.init(capacity);
-            if (collection != null) {
-            	keyList.addAll(collection);
-            } else if (array != null) {
-            	keyList.addAll(array.clone());
-            }
-            return keyList;
-        }
     }
 
     /** True to allow null elements. A null element will always generate a null key. */
     boolean allowNullElem;
     /** Handler method which is called if an element is attached to the list */
-    Handler<E> attachHandler;
+    Handler<E> insertTrigger;
     /** Handler method which is called if an element is detached from the list */
-    Handler<E> detachHandler;
+    Handler<E> deleteTrigger;
 
     static class KeyMap<E, K> {
 	    /** A mapper to extract keys out of element for a MapList. For a SetList, this is always an IdentMapper. */
@@ -368,13 +440,13 @@ public abstract class KeyList<E, K> extends GapList<E> {
 	    NullMode allowNullKeys;
 	    /** True to allow duplicate values. This also allows duplicate null values, but they are not distinct. */
 	    DuplicateMode duplicateMode = DuplicateMode.IGNORE;
+	    /** Comparator to use for sorting (if null, elements are not sorted) */
+	    Comparator<K> comparator;
 	    /**
 	     * Key storage if not sorted. The values are single elements or a list of elements.
 	     * Note that we cannot use TreeMap as K may not be comparable
 	     */
 	    HashMap<K, Object> unsortedKeys;
-	    /** Comparator to use for sorting (if null, elements are not sorted) */
-	    Comparator<K> comparator;
 	    /** Key storage if sorted */
 	    GapList<K> sortedKeys;
     }
@@ -383,7 +455,7 @@ public abstract class KeyList<E, K> extends GapList<E> {
      * If there are no keys, all key methods will fail. This can be used, if a constraint list is needed.
      * If there are keys, only the first key can be sorted.
      */
-    private KeyMap<E, K>[] keyMaps;
+    private KeyMap<E, Object>[] keyMaps;
 
     /** If true the invariants the GapList are checked for debugging */
     private static final boolean DEBUG_CHECK = false;
@@ -393,7 +465,7 @@ public abstract class KeyList<E, K> extends GapList<E> {
      * It is only used for debugging.
      */
     private void debugCheck() {
-    	for (KeyMap<E,K> keyMap: keyMaps) {
+    	for (KeyMap<E,?> keyMap: keyMaps) {
     		debugCheck(keyMap);
     	}
     }
@@ -412,7 +484,7 @@ public abstract class KeyList<E, K> extends GapList<E> {
     		assert(count == size());
     	} else if (keyMap.sortedKeys != null) {
     		assert(keyMap.sortedKeys.size() == size());
-    		GapList<K> copy = keyMap.sortedKeys.copy();
+    		GapList<?> copy = keyMap.sortedKeys.copy();
     		copy.sort(keyMap.comparator);
     		assert(copy.equals(keyMap.sortedKeys));
     	} else {
@@ -427,19 +499,18 @@ public abstract class KeyList<E, K> extends GapList<E> {
     	super(false, null);
     }
 
-
     /**
      * Internal initialization for copy() or crop() operation,
      * i.e. no element storage is allocated and initialized.
      *
      * @param that source object
      */
-	KeyList(KeyList<E, K> that) {
+	KeyList(KeyList<E> that) {
 	    super(false, that);
 
 	    allowNullElem = that.allowNullElem;
-	    attachHandler = that.attachHandler;
-	    detachHandler = that.detachHandler;
+	    insertTrigger = that.insertTrigger;
+	    deleteTrigger = that.deleteTrigger;
 	    keyMaps = that.keyMaps;
 	}
 
@@ -449,13 +520,13 @@ public abstract class KeyList<E, K> extends GapList<E> {
 	 * @param that source object
 	 */
 	@SuppressWarnings("unchecked")
-    void initCrop(KeyList<E, K> that) {
+    void initCrop(KeyList<E> that) {
 	    // GapList
 	    init(10);
 
 	    // KeyList
 	    keyMaps = that.keyMaps.clone();
-	    for (KeyMap<E,K> keyMap: keyMaps) {
+	    for (KeyMap<E,?> keyMap: keyMaps) {
 	    	init(keyMap);
 	    }
 	}
@@ -465,13 +536,13 @@ public abstract class KeyList<E, K> extends GapList<E> {
      *
      * @param that source object
      */
-    void initCopy(KeyList<E, K> that) {
+    void initCopy(KeyList<E> that) {
         // GapList
         init(toArray(that));
 
         // KeyList
 	    keyMaps = that.keyMaps.clone();
-	    for (KeyMap<E,K> keyMap: keyMaps) {
+	    for (KeyMap<E,Object> keyMap: keyMaps) {
 	    	clone(keyMap);
 	    }
     }
@@ -479,15 +550,15 @@ public abstract class KeyList<E, K> extends GapList<E> {
     @SuppressWarnings("unchecked")
     @Override
     public Object clone() {
-        KeyList<E, K> clone = (KeyList<E, K>) super.clone();
+        KeyList<E> clone = (KeyList<E>) super.clone();
 
-        for (KeyMap<E,K> keyMap: keyMaps) {
+        for (KeyMap<E,Object> keyMap: keyMaps) {
         	clone(keyMap);
         }
         return clone;
     }
 
-    private void init(KeyMap<E,K> keyMap) {
+    private <K> void init(KeyMap<E,K> keyMap) {
         if (keyMap.unsortedKeys != null) {
         	keyMap.unsortedKeys = new HashMap<K, Object>();
         } else if (keyMap.sortedKeys != this) {
@@ -495,7 +566,7 @@ public abstract class KeyList<E, K> extends GapList<E> {
         }
     }
 
-    private void clone(KeyMap<E,K> keyMap) {
+    private <K> void clone(KeyMap<E,K> keyMap) {
         if (keyMap.unsortedKeys != null) {
         	keyMap.unsortedKeys = new HashMap<K, Object>(keyMap.unsortedKeys);
         } else if (keyMap.sortedKeys != this) {
@@ -505,13 +576,13 @@ public abstract class KeyList<E, K> extends GapList<E> {
 
     @Override
     public void clear() {
-    	for (KeyMap<E,K> keyMap: keyMaps) {
+    	for (KeyMap<E,Object> keyMap: keyMaps) {
     		clear(keyMap);
     	}
         super.clear();
     }
 
-    private void clear(KeyMap<E,K> keyMap) {
+    private void clear(KeyMap<E,?> keyMap) {
         if (keyMap.unsortedKeys != null) {
         	keyMap.unsortedKeys.clear();
         } else if (keyMap.sortedKeys != this) {
@@ -569,16 +640,16 @@ public abstract class KeyList<E, K> extends GapList<E> {
      * @return      element which has been replaced or null if the element has been added
      */
     // TODO behavior with several keys?
-    public E put(E elem) {
-        K key = getKey(elem);
-        int index = indexOfKey(key);
-        if (index != -1) {
-            return doSet(index, elem);
-        } else {
-            doAdd(-1, elem);
-            return null;
-        }
-    }
+//    public E put(E elem) {
+//        K key = getKey(elem);
+//        int index = indexOfKey(key);
+//        if (index != -1) {
+//            return doSet(index, elem);
+//        } else {
+//            doAdd(-1, elem);
+//            return null;
+//        }
+//    }
 
 	/**
 	 * Produce key out of specified element.
@@ -587,7 +658,7 @@ public abstract class KeyList<E, K> extends GapList<E> {
 	 * @return     key of specified element
 	 * @throws IllegalArgumentException if a null key is produced and null keys are not allowed
 	 */
-	private K getKey(KeyMap<E,K> keyMap, E elem) {
+	private <K> K getKey(KeyMap<E,K> keyMap, E elem) {
 	    K key;
 	    if (elem == null) {
 	        if (!allowNullElem) {
@@ -603,7 +674,7 @@ public abstract class KeyList<E, K> extends GapList<E> {
         return key;
 	}
 
-	private void doAdd(KeyMap<E,K> keyMap, E elem, K key) {
+	private <K> void doAdd(KeyMap<E,K> keyMap, E elem, K key) {
 		Object obj = keyMap.unsortedKeys.get(key);
 	    if (obj == null) {
 	    	if (!keyMap.unsortedKeys.containsKey(key)) {
@@ -621,7 +692,7 @@ public abstract class KeyList<E, K> extends GapList<E> {
         }
 	}
 
-    private E doRemove(KeyMap<E,K> keyMap, Object obj, K key) {
+    private <K> E doRemove(KeyMap<E,K> keyMap, K key, Object obj) {
         assert(obj != null);
 
         E elem = null;
@@ -640,11 +711,13 @@ public abstract class KeyList<E, K> extends GapList<E> {
     @Override
     protected boolean doAdd(int index, E elem) {
     	boolean add = true;
-    	for (KeyMap<E,K> keyMap: keyMaps) {
-    		if (!doAdd(keyMap, index, elem)) {
-    			add = false;
-    			break;
-    		}
+    	if (keyMaps != null) {
+	    	for (KeyMap<E,?> keyMap: keyMaps) {
+	    		if (!doAdd(keyMap, index, elem)) {
+	    			add = false;
+	    			break;
+	    		}
+	    	}
     	}
         if (add) {
             super.doAdd(index, elem);
@@ -661,7 +734,7 @@ public abstract class KeyList<E, K> extends GapList<E> {
      * @param elem		element to add
      * @return			true if element has been added, false otherwise
      */
-    private boolean doAdd(KeyMap<E,K> keyMap, int index, E elem) {
+    private <K> boolean doAdd(KeyMap<E,K> keyMap, int index, E elem) {
         K key = getKey(keyMap, elem);
         if (keyMap.unsortedKeys != null) {
             // Keys not sorted
@@ -781,8 +854,8 @@ public abstract class KeyList<E, K> extends GapList<E> {
      * @param elem element which is stored in list
      */
     protected void onAttach(E elem) {
-        if (attachHandler != null) {
-            attachHandler.handle(elem);
+        if (insertTrigger != null) {
+            insertTrigger.handle(elem);
         }
     }
 
@@ -794,16 +867,18 @@ public abstract class KeyList<E, K> extends GapList<E> {
      * @param elem element which is detached from the list
      */
     protected void onDetach(E elem) {
-        if (detachHandler != null) {
-            detachHandler.handle(elem);
+        if (deleteTrigger != null) {
+            deleteTrigger.handle(elem);
         }
     }
 
     @Override
     protected E doSet(int index, E elem) {
         E oldElem = super.doSet(index, elem);
-        for (KeyMap keyMap: keyMaps) {
-        	doSet(keyMap, index, elem, oldElem);
+        if (keyMaps != null) {
+        	for (KeyMap keyMap: keyMaps) {
+        		doSet(keyMap, index, elem, oldElem);
+        	}
         }
         if (DEBUG_CHECK) debugCheck();
         onDetach(oldElem);
@@ -811,7 +886,7 @@ public abstract class KeyList<E, K> extends GapList<E> {
         return oldElem;
     }
 
-    private E doSet(KeyMap<E,K> keyMap, int index, E elem, E oldElem) {
+    private <K> E doSet(KeyMap<E,K> keyMap, int index, E elem, E oldElem) {
         K key = getKey(keyMap, elem);
         if (keyMap.unsortedKeys != null) {
             // Keys not sorted
@@ -897,7 +972,7 @@ public abstract class KeyList<E, K> extends GapList<E> {
     protected E doRemove(int index) {
         E elem = get(index);
         onDetach(elem);
-        K key = getKey(keyMaps[0], elem);
+        Object key = getKey(keyMaps[0], elem);
         E elem2 = doRemove(index, elem, keyMaps[0], key);
         assert(elem2 == elem);
         for (int i=1; i<keyMaps.length; i++) {
@@ -915,7 +990,7 @@ public abstract class KeyList<E, K> extends GapList<E> {
      * @return      removed element
      */
     @SuppressWarnings("unchecked")
-    private E doRemove(int index, E elem, KeyMap keyMap, K key) {
+    private <K> E doRemove(int index, E elem, KeyMap keyMap, K key) {
         if (keyMap.unsortedKeys != null) {
             // not sorted
             Object obj = keyMap.unsortedKeys.get(key);
@@ -960,8 +1035,8 @@ public abstract class KeyList<E, K> extends GapList<E> {
      * @param key key to look for
      * @return  true if the key exists, otherwise false
      */
-    public boolean containsKey(K key) {
-        return indexOfKey(key) != -1;
+    public <K> boolean containsKey(int keyIndex, K key) {
+        return indexOfKey(keyIndex, key) != -1;
     }
 
     /**
@@ -970,11 +1045,11 @@ public abstract class KeyList<E, K> extends GapList<E> {
      * @param key   key to find
      * @return      index of key or -1 if not found
      */
-    public int indexOfKey(K key) {
-    	return indexOfKey(keyMaps[0], key);
+    public <K> int indexOfKey(int keyIndex, K key) {
+    	return indexOfKey(getKeyMap(keyIndex), key);
     }
 
-    private int indexOfKey(KeyMap<E,K> keyMap, K key) {
+    private <K> int indexOfKey(KeyMap<E,K> keyMap, K key) {
         if (key == null) {
             if (keyMap.allowNullKeys == NullMode.NONE) {
                 return -1;
@@ -1023,11 +1098,11 @@ public abstract class KeyList<E, K> extends GapList<E> {
      *
      * @return count of distinct keys
      */
-    public int getCountDistinctKeys() {
-    	return getCountDistinctKeysCount(keyMaps[0]);
+    public int getCountDistinctKeys(int keyIndex) {
+    	return getCountDistinctKeysCount(getKeyMap(keyIndex));
     }
 
-    private int getCountDistinctKeysCount(KeyMap<E,K> keyMap) {
+    private <K> int getCountDistinctKeysCount(KeyMap<E,K> keyMap) {
     	if (keyMap.unsortedKeys != null) {
     		return keyMap.unsortedKeys.size();
     	} else {
@@ -1040,15 +1115,11 @@ public abstract class KeyList<E, K> extends GapList<E> {
      *
      * @return list containing all distinct keys
      */
-    public GapList<K> getDistinctKeys() {
-    	return getDistinctKeys(0);
-    }
-
-    public GapList<K> getDistinctKeys(int keyIndex) {
+    public GapList<Object> getDistinctKeys(int keyIndex) {
     	return getDistinctKeys(getKeyMap(keyIndex));
     }
 
-    private GapList<K> getDistinctKeys(KeyMap<E,K> keyMap) {
+    private <K> GapList<K> getDistinctKeys(KeyMap<E,K> keyMap) {
         if (keyMap.unsortedKeys != null) {
             GapList<K> list = new GapList<K>();
             Set<K> ks = new HashSet<K>(keyMap.unsortedKeys.keySet());
@@ -1087,10 +1158,14 @@ public abstract class KeyList<E, K> extends GapList<E> {
         }
     }
 
-    private KeyMap<E,K> getKeyMap(int keyIndex) {
+    void checkKeyMap(int keyIndex) {
     	if (keyMaps == null || keyIndex >= keyMaps.length || keyIndex < 0) {
     		throw new IllegalArgumentException("Invalid key index: " + keyIndex);
     	}
+    }
+
+    KeyMap<E,Object> getKeyMap(int keyIndex) {
+    	checkKeyMap(keyIndex);
     	return keyMaps[keyIndex];
     }
 
@@ -1102,16 +1177,11 @@ public abstract class KeyList<E, K> extends GapList<E> {
      * @param key   key to find
      * @return      value of specified key or null
      */
-    @SuppressWarnings("unchecked")
-    public E getByKey(K key) {
-    	return getByKey(0, key);
-    }
-
-    public E getByKey(int keyIndex, K key) {
+    public E getByKey(int keyIndex, Object key) {
     	return getByKey(getKeyMap(keyIndex), key);
     }
 
-    private E getByKey(KeyMap<E,K> keyMap, K key) {
+    private <K> E getByKey(KeyMap<E,K> keyMap, K key) {
         // Handle null key if not allowed to prevent NPE
         if (key == null) {
             if (keyMap.allowNullKeys == NullMode.NONE) {
@@ -1147,11 +1217,11 @@ public abstract class KeyList<E, K> extends GapList<E> {
      * @return      list with all keys (null if key is null)
      */
     @SuppressWarnings("unchecked")
-    public GapList<E> getAllByKey(K key) {
+    public GapList<E> getAllByKey(Object key) {
     	return getAllByKey(keyMaps[0], key);
     }
 
-    private GapList<E> getAllByKey(KeyMap<E,K> keyMap, K key) {
+    private <K> GapList<E> getAllByKey(KeyMap<E,K> keyMap, K key) {
         // Handle null key if not allowed to prevent NPE
         if (key == null) {
             if (keyMap.allowNullKeys == NullMode.NONE) {
@@ -1199,11 +1269,11 @@ public abstract class KeyList<E, K> extends GapList<E> {
      * @param key   key which elements must have
      * @return      number of elements with key (-1 if key is null)
      */
-    public int getCountByKey(K key) {
-    	return getCountByKey(keyMaps[0], key);
+    public int getCountByKey(int keyIndex, Object key) {
+    	return getCountByKey(getKeyMap(keyIndex), key);
     }
 
-    private int getCountByKey(KeyMap<E,K> keyMap, K key) {
+    private <K> int getCountByKey(KeyMap<E,K> keyMap, K key) {
         // Handle null key if not allowed to prevent NPE
         if (key == null) {
             if (keyMap.allowNullKeys == NullMode.NONE) {
@@ -1252,75 +1322,75 @@ public abstract class KeyList<E, K> extends GapList<E> {
      * @param elem  element whose key has changed
      */
     @SuppressWarnings("unchecked")
-    public void invalidate(E elem) {
-        K newKey = getKey(elem);
-        if (unsortedKeys != null) {
-            // Keys not sorted
-            K oldKey = null;
-            for (Map.Entry<K, Object> entry: unsortedKeys.entrySet()) {
-                Object value = entry.getValue();
-                if (value instanceof GapList) {
-                    GapList<E> list = (GapList<E>) value;
-                    int index = list.indexOf(elem);
-                    if (index != -1) {
-                        oldKey = entry.getKey();
-                        if (!GapList.equalsElem(oldKey, newKey)) {
-                            if (containsKey(newKey)) {
-                                if (duplicateMode != DuplicateMode.ALLOW) {
-                                    throw new IllegalArgumentException("Duplicate key not allowed: " + newKey);
-                                }
-                            }
-                            doRemove(value, oldKey);
-                            doAdd(elem, newKey);
-                            if (DEBUG_CHECK) debugCheck();
-                            return;
-                        }
-                        break;
-                    }
-                } else {
-                    if (value == elem) {
-                        oldKey = entry.getKey();
-                        if (!GapList.equalsElem(oldKey, newKey)) {
-                            if (containsKey(newKey)) {
-                                if (duplicateMode != DuplicateMode.ALLOW) {
-                                    throw new IllegalArgumentException("Duplicate key not allowed: " + newKey);
-                                }
-                            }
-                            doRemove(value, oldKey);
-                            doAdd(elem, newKey);
-                            if (DEBUG_CHECK) debugCheck();
-                            return;
-                        }
-                        break;
-                    }
-                }
-            }
-            throw new IllegalArgumentException("Key missmatch: " + newKey);
-
-        } else {
-            // Sorted keys
-            int i;
-            int size = size();
-            for (i=0; i<size; i++) {
-                if (doGet(i) == elem) {
-                    break;
-                }
-            }
-            if (i == size) {
-                throw new IllegalArgumentException("Key missmatch: " + newKey);
-            }
-            K oldKey = sortedKeys.get(i);
-            if (!GapList.equalsElem(oldKey, newKey)) {
-                if (containsKey(newKey)) {
-                    if (duplicateMode != DuplicateMode.ALLOW) {
-                        throw new IllegalArgumentException("Duplicate key not allowed: " + newKey);
-                    }
-                }
-                doRemove(i, elem, oldKey);
-                doAdd(-1, elem, false);
-            }
-        }
-    }
+//    public void invalidate(E elem) {
+//        K newKey = getKey(elem);
+//        if (unsortedKeys != null) {
+//            // Keys not sorted
+//            K oldKey = null;
+//            for (Map.Entry<K, Object> entry: unsortedKeys.entrySet()) {
+//                Object value = entry.getValue();
+//                if (value instanceof GapList) {
+//                    GapList<E> list = (GapList<E>) value;
+//                    int index = list.indexOf(elem);
+//                    if (index != -1) {
+//                        oldKey = entry.getKey();
+//                        if (!GapList.equalsElem(oldKey, newKey)) {
+//                            if (containsKey(newKey)) {
+//                                if (duplicateMode != DuplicateMode.ALLOW) {
+//                                    throw new IllegalArgumentException("Duplicate key not allowed: " + newKey);
+//                                }
+//                            }
+//                            doRemove(value, oldKey);
+//                            doAdd(elem, newKey);
+//                            if (DEBUG_CHECK) debugCheck();
+//                            return;
+//                        }
+//                        break;
+//                    }
+//                } else {
+//                    if (value == elem) {
+//                        oldKey = entry.getKey();
+//                        if (!GapList.equalsElem(oldKey, newKey)) {
+//                            if (containsKey(newKey)) {
+//                                if (duplicateMode != DuplicateMode.ALLOW) {
+//                                    throw new IllegalArgumentException("Duplicate key not allowed: " + newKey);
+//                                }
+//                            }
+//                            doRemove(value, oldKey);
+//                            doAdd(elem, newKey);
+//                            if (DEBUG_CHECK) debugCheck();
+//                            return;
+//                        }
+//                        break;
+//                    }
+//                }
+//            }
+//            throw new IllegalArgumentException("Key missmatch: " + newKey);
+//
+//        } else {
+//            // Sorted keys
+//            int i;
+//            int size = size();
+//            for (i=0; i<size; i++) {
+//                if (doGet(i) == elem) {
+//                    break;
+//                }
+//            }
+//            if (i == size) {
+//                throw new IllegalArgumentException("Key missmatch: " + newKey);
+//            }
+//            K oldKey = sortedKeys.get(i);
+//            if (!GapList.equalsElem(oldKey, newKey)) {
+//                if (containsKey(newKey)) {
+//                    if (duplicateMode != DuplicateMode.ALLOW) {
+//                        throw new IllegalArgumentException("Duplicate key not allowed: " + newKey);
+//                    }
+//                }
+//                doRemove(i, elem, oldKey);
+//                doAdd(-1, elem, false);
+//            }
+//        }
+//    }
 
     /**
      * Removes element by key.
@@ -1329,24 +1399,26 @@ public abstract class KeyList<E, K> extends GapList<E> {
      * @param key   key of element to remove
      * @return      removed element or null if no element has been removed
      */
-    public E removeByKey(K key) {
-    	E removed = removeByKey(keyMaps[0], key, true);
-        if (DEBUG_CHECK) debugCheck();
-    	for (int i=1; i<keyMaps.length; i++) {
-    		removeByKey(keyMaps[i], key, false);
+    public E removeByKey(int keyIndex, Object key) {
+    	checkKeyMap(keyIndex);
+    	E removed = removeByKey(keyMaps[keyIndex], key, true);
+    	for (int i=0; i<keyMaps.length; i++) {
+    		if (i != keyIndex) {
+    			removeByKey(keyMaps[i], key, false);
+    		}
     	}
         if (DEBUG_CHECK) debugCheck();
         return removed;
     }
 
-    private E removeByKey(KeyMap<E,K> keyMap, K key, boolean removeElems) {
+    private <K> E removeByKey(KeyMap<E,K> keyMap, K key, boolean removeElems) {
         if (keyMap.unsortedKeys != null) {
             // not sorted
         	if (!keyMap.unsortedKeys.containsKey(key)) {
         		return null;
         	}
             Object obj = keyMap.unsortedKeys.get(key);
-            E elem = doRemove(obj, key);
+            E elem = doRemove(keyMap, key, obj);
 
             // Faster than remove(elem) (equals not needed)
             if (!removeElems) {
@@ -1398,16 +1470,19 @@ public abstract class KeyList<E, K> extends GapList<E> {
      * @return      true if elements have been removed, false otherwise
      */
     @SuppressWarnings("unchecked")
-    public GapList<E> removeAllByKey(K key) {
-    	GapList<E> removed = removeAllByKey(keyMaps[0], key, true);
-    	for (int i=1; i<keyMaps.length; i++) {
-    		removeAllByKey(keyMaps[i], key, false);
+    public GapList<E> removeAllByKey(int keyIndex, Object key) {
+    	checkKeyMap(keyIndex);
+    	GapList<E> removed = removeAllByKey(keyMaps[keyIndex], key, true);
+    	for (int i=0; i<keyMaps.length; i++) {
+    		if (i != keyIndex) {
+    			removeAllByKey(keyMaps[i], key, false);
+    		}
     	}
         if (DEBUG_CHECK) debugCheck();
         return removed;
     }
 
-    private GapList<E> removeAllByKey(KeyMap<E,K> keyMap, K key, boolean removeElems) {
+    private <K> GapList<E> removeAllByKey(KeyMap<E,K> keyMap, K key, boolean removeElems) {
         if (keyMap.unsortedKeys != null) {
             // not sorted
         	if (!keyMap.unsortedKeys.containsKey(key)) {
