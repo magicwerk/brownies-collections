@@ -24,9 +24,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.magicwerk.brownies.collections.KeyList.BuilderBase;
 import org.magicwerk.brownies.collections.KeyList.DuplicateMode;
-import org.magicwerk.brownies.collections.KeyList.Handler;
+import org.magicwerk.brownies.collections.KeyList.IdentMapper;
+import org.magicwerk.brownies.collections.KeyList.Trigger;
 import org.magicwerk.brownies.collections.KeyList.NullMode;
+import org.magicwerk.brownies.collections.KeyList.BuilderBase.KeyMapBuilder;
 import org.magicwerk.brownies.collections.MapList.Builder;
 
 
@@ -35,7 +38,6 @@ import org.magicwerk.brownies.collections.MapList.Builder;
  * elements by index. Typically the elements are in the order
  * specified by the list, but you can also let them order
  * automatically like in TreeSet.
- * SetList offers the put() method which is missing in java.util.Set.
  *
  *
  * @author Thomas Mauch
@@ -62,49 +64,173 @@ public class SetList<E> extends KeyList<E> {
     /**
      * Builder to construct SetList instances.
      */
-    public static class Builder<E> extends KeyList.Builder<E> {
-
+    public static class Builder<E> extends BuilderBase<E> {
         /**
          * Default constructor.
          */
         public Builder() {
+        	newKeyMapBuilder(new IdentMapper());
         }
 
         /**
-         * Internal constructor
+         * Internal constructor.
          *
-         * @param setList   setList to customize
+         * @param keyList	keyList to setup
          */
-        Builder(SetList<E> setList) {
-            this.keyList = setList;
+        Builder(KeyList<E> keyList) {
+        	this.keyList = keyList;
+
+        	newKeyMapBuilder(new IdentMapper());
         }
 
         /**
-         * Build SetList with specified options.
+         * Specify insert trigger.
          *
-         * @return created SetList
+         * @param trigger	insert trigger method
+         * @return			this (fluent interface)
+         */
+        public Builder<E> withInsertTrigger(Trigger<E> trigger) {
+        	endKeyMapBuilder();
+            this.insertTrigger = trigger;
+            return this;
+        }
+
+        /**
+         * Specify delete trigger.
+         *
+         * @param trigger	delete trigger method
+         * @return			this (fluent interface)
+         */
+        public Builder<E> withDeleteTrigger(Trigger<E> trigger) {
+        	endKeyMapBuilder();
+            this.deleteTrigger = trigger;
+            return this;
+        }
+
+        //-- Capacity / Elements
+
+        public Builder<E> withCapacity(int capacity) {
+        	endKeyMapBuilder();
+            this.capacity = capacity;
+            return this;
+        }
+
+        public Builder<E> withElements(Collection<? extends E> elements) {
+        	endKeyMapBuilder();
+            this.collection = elements;
+            return this;
+        }
+
+        public Builder<E> withElements(E... elements) {
+        	endKeyMapBuilder();
+            this.array = elements;
+            return this;
+        }
+
+        //-- Keys
+
+        /**
+         * Determines whether null elements are allowed or not.
+         * A null element will have a null key.
+         *
+         * @param nullable  true to allow null elements, false to disallow
+         * @return          this (for use in fluent interfaces)
+         */
+        public Builder<E> withKeyNull(boolean nullable) {
+            return withKeyNull(nullable ? NullMode.NORMAL : NullMode.NONE);
+        }
+
+        public Builder<E> withKeyNull(NullMode nullMode) {
+        	getKeyMapBuilder().nullMode = nullMode;
+        	allowNullElem = (nullMode == NullMode.NONE ? false : true);
+            return this;
+        }
+
+        /**
+         * Determines whether duplicates are allowed or not.
+         *
+         * @param duplicates    true to allow duplicates, false to disallow
+         * @return              this (for use in fluent interfaces)
+         */
+        public Builder<E> withKeyDuplicates(DuplicateMode duplicateMode) {
+        	getKeyMapBuilder().duplicateMode = duplicateMode;
+            return this;
+        }
+
+        /**
+         * Determines whether list should be sorted or not.
+         *
+         * @return              this (for use in fluent interfaces)
+         */
+        public Builder<E> withKeySort() {
+            return withKeySort(true);
+        }
+
+        /**
+         * Determines that list should be sorted.
+         *
+         * @param sort    true to sort list, otherwise false
+         * @return        this (for use in fluent interfaces)
+         */
+        public Builder<E> withKeySort(boolean sort) {
+        	getKeyMapBuilder().sort = sort;
+            return this;
+        }
+
+        /**
+         * Set comparator to use for sorting.
+         *
+         * @param comparator    comparator to use for sorting
+         * @return              this (for use in fluent interfaces)
+         */
+        public Builder<E> withKeyComparator(Comparator<? super E> comparator) {
+            return withKeyComparator(comparator, false);
+        }
+
+        /**
+         * Set comparator to use for sorting.
+         *
+         * @param comparator            comparator to use for sorting
+         * @param comparatorSortsNull   true if comparator sorts null, false if not
+         * @return                      this (for use in fluent interfaces)
+         */
+        public Builder<E> withKeyComparator(Comparator<? super E> comparator, boolean comparatorSortsNull) {
+        	KeyMapBuilder<E, Object> kmb = getKeyMapBuilder();
+        	kmb.comparator = comparator;
+            kmb.comparatorSortsNull = comparatorSortsNull;
+            return this;
+        }
+
+        /**
+         * Determines that nulls are sorted first.
+         *
+         * @return  this (for use in fluent interfaces)
+         */
+        public Builder<E> withKeyNullsFirst() {
+            return withKeyNullsFirst(true);
+        }
+
+        /**
+         * Determines whether nulls are sorted first or last.
+         *
+         * @param nullsFirst    true to sort nulls first, false to sort nulls last
+         * @return              this (for use in fluent interfaces)
+         */
+        public Builder<E> withKeyNullsFirst(boolean nullsFirst) {
+        	getKeyMapBuilder().sortNullsFirst = nullsFirst;
+            return this;
+        }
+
+        /**
+         * @return
          */
         public SetList<E> build() {
-        	return (SetList<E>) super.build();
+        	if (keyList == null) {
+               	keyList = new SetList<E>(false);
+        	}
+        	build(keyList);
+        	return (SetList<E>) keyList;
         }
-
-        // --- Methods overridden to change return type
-
-		@Override
-		public Builder<E> withCapacity(int capacity) {
-			return (Builder<E>) super.withCapacity(capacity);
-		}
-
-		@Override
-		public Builder<E> withElements(Collection<? extends E> elements) {
-			return (Builder<E>) super.withElements(elements);
-		}
-
-		@Override
-		public Builder<E> withElements(E... elements) {
-			return (Builder<E>) super.withElements(elements);
-		}
-
     }
 
     /**
@@ -122,7 +248,7 @@ public class SetList<E> extends KeyList<E> {
      * Internal use in builder and child classes only.
      */
     protected SetList(boolean ignore) {
-        super();
+        super(ignore);
     }
 
     /**
@@ -142,20 +268,23 @@ public class SetList<E> extends KeyList<E> {
     // SetList constructors
 
     public SetList() {
-    	getBuilder().build();
+        super(false);
+        getBuilder().build();
     }
 
     public SetList(int capacity) {
+        super(false);
     	getBuilder().withCapacity(capacity).build();
     }
 
     public SetList(Collection<? extends E> elements) {
+        super(false);
     	getBuilder().withElements(elements).build();
     }
 
     public SetList(E... elements) {
+        super(false);
     	getBuilder().withElements(elements).build();
-
     }
 
     // Create SetList
@@ -177,7 +306,45 @@ public class SetList<E> extends KeyList<E> {
 
     }
 
-    /**
+    //-- Key methods
+
+    public boolean containsKey(E key) {
+    	return super.containsKey(0, key);
+    }
+
+    public int indexOfKey(E key) {
+    	return super.indexOfKey(0, key);
+    }
+
+	public int getCountDistinctKeys() {
+		return super.getCountDistinctKeys(0);
+	}
+
+	public GapList<Object> getDistinctKeys() {
+		return super.getDistinctKeys(0);
+	}
+
+	public E getByKey(E key) {
+		return super.getByKey(0, key);
+	}
+
+	public GapList<E> getAllByKey(E key) {
+		return super.getAllByKey(0, key);
+	}
+
+	public int getCountByKey(E key) {
+		return super.getCountByKey(0, key);
+	}
+
+	public E removeByKey(E key) {
+		return super.removeByKey(0, key);
+	}
+
+	public GapList<E> removeAllByKey(E key) {
+		return super.removeAllByKey(0, key);
+	}
+
+	/**
      * {@inheritDoc}
      */
     @Override
