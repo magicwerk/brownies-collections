@@ -19,17 +19,8 @@ package org.magicwerk.brownies.collections;
 
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-
-import org.magicwerk.brownies.collections.KeyList.BuilderBase;
-import org.magicwerk.brownies.collections.KeyList.DuplicateMode;
-import org.magicwerk.brownies.collections.KeyList.Trigger;
-import org.magicwerk.brownies.collections.KeyList.NullMode;
-import org.magicwerk.brownies.collections.KeyList.BuilderBase.KeyMapBuilder;
-import org.magicwerk.brownies.collections.SetList.Builder;
-import org.magicwerk.brownies.collections.SetList.IdentMapper;
 
 
 /**
@@ -101,8 +92,10 @@ public class MapList<E, K> extends KeyList<E> {
          *
          * @param mapList   mapList to customize
          */
-        Builder(MapList<E,K> mapList) {
+        Builder(MapList<E,K> mapList, Mapper<E,K> mapper) {
             this.keyList = mapList;
+
+            newKeyMapBuilder((Mapper<E, Object>) mapper);
         }
 
         /**
@@ -289,10 +282,6 @@ public class MapList<E, K> extends KeyList<E> {
      * @return builder for this class
      */
     protected Builder<E,K> getBuilder(Mapper<E, K> mapper) {
-        return builder(mapper);
-    }
-
-    public static <E, K> MapList.Builder<E, K> builder(Mapper<E, K> mapper) {
         return new MapList.Builder<E, K>(mapper);
     }
 
