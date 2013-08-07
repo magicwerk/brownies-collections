@@ -17,16 +17,11 @@
  */
 package org.magicwerk.brownies.collections;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
-
-import org.magicwerk.brownies.collections.SetList.Builder;
-import org.magicwerk.brownies.collections.SetList.IdentMapper;
 
 
 /**
@@ -134,6 +129,12 @@ public class KeyList<E> extends GapList<E> {
      * Identity mapper.
      */
     static class IdentMapper<E> implements Mapper<E, E> {
+        
+        public static final IdentMapper INSTANCE = new IdentMapper();
+
+        private IdentMapper() {            
+        }
+        
         @Override
         public E getKey(E v) {
             return v;
@@ -239,10 +240,9 @@ public class KeyList<E> extends GapList<E> {
             keyList.deleteTrigger = deleteTrigger;
 
             KeyMap<E,Object> keyMap = keyMaps.peekFirst();
-            boolean isSet = false;
             if (keyMap != null) {
 	            if (keyMap.comparator != null) {
-	                if (isSet) {
+	                if (keyMap.mapper == IdentMapper.INSTANCE) {
 	                	// Sorted set: we do not need a separate list for storing
 	                	// keys and elements. We have to handle this case specially later.
 	                	keyMap.sortedKeys = (GapList<Object>) keyList;
@@ -252,7 +252,8 @@ public class KeyList<E> extends GapList<E> {
 	            } else {
 	                // Set is not sorted: maintain a separate HashMap for fast
 	                // answering contains() calls
-	            	keyMap.unsortedKeys = new HashMap<Object, Object>();
+	            	//keyMap.unsortedKeys = new HashMap<Object, Object>();
+	                keyMap.unsortedKeys = new HashMap<Object, Object>();
 	            }
             }
             keyList.keyMaps = keyMaps.toArray(new KeyMap[keyMaps.size()]);
@@ -1105,6 +1106,17 @@ public class KeyList<E> extends GapList<E> {
         return oldElem;
     }
 
+    @Override
+    public int indexOf(Object elem) {
+        if (keyMaps != null) {
+            if (keyMaps[0].sortedKeys == this) {
+                // sorted set
+                assert(keyMaps[0].mapper == IdentMapper.INSTANCE);
+                return indexOfKey(keyMaps[0], elem);
+            }
+        }
+        return super.indexOf(elem);
+    }
     /**
      * Checks whether the specified key exists in this list.
      *

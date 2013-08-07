@@ -52,16 +52,6 @@ public class SetList<E> extends KeyList<E> {
     private static final long serialVersionUID = 6181488174454611419L;
 
     /**
-     * Identity mapper.
-     */
-    static class IdentMapper<E> implements Mapper<E, E> {
-        @Override
-        public E getKey(E v) {
-            return v;
-        }
-    }
-
-    /**
      * Builder to construct SetList instances.
      */
     public static class Builder<E> extends BuilderBase<E> {
@@ -69,7 +59,7 @@ public class SetList<E> extends KeyList<E> {
          * Default constructor.
          */
         public Builder() {
-        	newKeyMapBuilder(new IdentMapper());
+        	newKeyMapBuilder(IdentMapper.INSTANCE);
         }
 
         /**
@@ -80,7 +70,7 @@ public class SetList<E> extends KeyList<E> {
         Builder(KeyList<E> keyList) {
         	this.keyList = keyList;
 
-        	newKeyMapBuilder(new IdentMapper());
+        	newKeyMapBuilder(IdentMapper.INSTANCE);
         }
 
         /**
@@ -258,11 +248,7 @@ public class SetList<E> extends KeyList<E> {
      * @return  builder for this class
      */
     protected SetList.Builder<E> getBuilder() {
-        return builder();
-    }
-
-    public static <E> SetList.Builder<E> builder() {
-        return new SetList.Builder<E>();
+        return new SetList.Builder<E>(this);
     }
 
     // SetList constructors
