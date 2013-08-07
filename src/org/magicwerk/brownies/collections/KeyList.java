@@ -21,6 +21,8 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 
@@ -94,6 +96,7 @@ public class KeyList<E> extends GapList<E> {
         };
     }
 
+    // FIXME: constraint check - silent vs. error
     /**
      * Mode to control handling of duplicate values:
      * REPLACE, IGNORE, ERROR, ALLOW.
@@ -129,12 +132,12 @@ public class KeyList<E> extends GapList<E> {
      * Identity mapper.
      */
     static class IdentMapper<E> implements Mapper<E, E> {
-        
+
         public static final IdentMapper INSTANCE = new IdentMapper();
 
-        private IdentMapper() {            
+        private IdentMapper() {
         }
-        
+
         @Override
         public E getKey(E v) {
             return v;
@@ -507,7 +510,7 @@ public class KeyList<E> extends GapList<E> {
     KeyMap<E, Object>[] keyMaps;
 
     /** If true the invariants the GapList are checked for debugging */
-    private static final boolean DEBUG_CHECK = false;
+    private static final boolean DEBUG_CHECK = true;
 
     /**
      * Private method to check invariant of GapList.
@@ -1220,7 +1223,9 @@ public class KeyList<E> extends GapList<E> {
                     }
                 }
             }
-            assert(list.size() == keyMap.unsortedKeys.size());
+            if (list.size() != keyMap.unsortedKeys.size()) {
+            	throw new IllegalArgumentException("Invalid data (key has changed without invalidate)");
+            }
             return list;
         } else {
             K lastKey = null;
@@ -1403,21 +1408,73 @@ public class KeyList<E> extends GapList<E> {
         }
     }
 
-//    public void invalidate(E elem) {
-//    	int index = indexOf(elem);
-//    	if (index == -1) {
-//    		throw new IllegalArgumentException("Element not found: " + elem);
-//    	}
-//    	invalidate(index);
-//    }
-//
-//    public void invalidate(int index) {
-//    	E elem = doGet(index);
-//        for (int i=0; i<keyMaps.length; i++) {
-//            Object key = getKey(keyMaps[i], elem);
-//        	removeByKey(keyMaps[i], key, false);
-//        }
-//    }
+    public void invalidate(E elem) {
+    	int index = indexOf(elem);
+    	if (index == -1) {
+    		throw new IllegalArgumentException("Element not found: " + elem);
+    	}
+    	invalidate(index);
+    }
+
+    public void invalidate(int index) {
+    	E elem = doGet(index);
+        for (int i=0; i<keyMaps.length; i++) {
+    		Object key = invalidate(keyMaps[i], elem);
+    		if (key != null) {
+    			if (i == 0 && keyMaps[i].sortedKeys != null && keyMaps[i].sortedKeys != this) {
+    				// First key is sorted
+    				int idx = super.indexOf(elem);
+    				super.doRemove(idx);
+    				idx = doAdd(keyMaps[i], -1, elem);
+    				super.doAdd(idx, elem);
+    			} else {
+    				// Not first or not sorted key
+    				doAdd(keyMaps[i], -1, elem);
+    			}
+    		}
+        }
+        if (DEBUG_CHECK) debugCheck();
+    }
+
+    /**
+     * @param keyMap
+     * @param elem
+     * @return			null if key for keyMap and element is correct, else key which must be added to keymap
+     */
+    private Object invalidate(KeyMap keyMap, Object elem) {
+    	boolean allowDuplicates = (keyMap.duplicateMode == DuplicateMode.ALLOW);
+    	Object key = keyMap.mapper.getKey(elem);
+
+    	if (keyMap.unsortedKeys != null) {
+    		Iterator<Map.Entry> iter = keyMap.unsortedKeys.entrySet().iterator();
+    		while (iter.hasNext()) {
+    		    Map.Entry entry = iter.next();
+    		    if (equalsElem(elem, entry.getValue())) {
+    		    	if (equalsElem(key, entry.getKey())) {
+    		    		return null;
+    		    	}
+    		        iter.remove();
+    		        if (!allowDuplicates) {
+    		        	break;
+    		        }
+    		    }
+    		}
+    	} else {
+    		assert(keyMap.sortedKeys != null);
+    		for (int i=0; i<size(); i++) {
+    			if (equalsElem(elem, doGet(i))) {
+    				if (equalsElem(key, keyMap.sortedKeys.get(i))) {
+    					return null;
+    				}
+    				keyMap.sortedKeys.remove(i);
+    		        if (!allowDuplicates) {
+    		        	break;
+    		        }
+    			}
+    		}
+    	}
+    	return key;
+    }
 
     /**
      * The keys of the elements must not change as long as the elements are stored in the list.
