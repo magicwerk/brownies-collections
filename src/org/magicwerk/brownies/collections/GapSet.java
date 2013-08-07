@@ -13,7 +13,7 @@ public class GapSet<E> implements Set<E> {
 
     static class AnyComparator<K> implements Comparator<K> {
         public static final AnyComparator INSTANCE = new AnyComparator();
-        
+
         @Override
         public int compare(K key1, K key2) {
             if (key1 == key2) {
@@ -31,65 +31,65 @@ public class GapSet<E> implements Set<E> {
             return System.identityHashCode(key1) - System.identityHashCode(key2);
         }
     }
-    
+
     // Not sorted
 
     public static <E> GapSet<E> create(boolean comparable) {
-        return new GapSet<E>(comparable).init(); 
+        return new GapSet<E>(comparable).init();
     }
 
     public static <E> GapSet<E> create(boolean comparable, int capacity) {
-        return new GapSet<E>(comparable).init(capacity); 
+        return new GapSet<E>(comparable).init(capacity);
     }
 
     public static <E> GapSet<E> create(boolean comparable, Collection<? extends E> elements) {
-        return new GapSet<E>(comparable).init(elements); 
+        return new GapSet<E>(comparable).init(elements);
     }
 
     public static <E> GapSet<E> create(boolean comparable, E... elements) {
-        return new GapSet<E>(comparable).init(elements); 
+        return new GapSet<E>(comparable).init(elements);
     }
-    
+
     // Sorted - Natural comparator
-    
+
     public static <E> GapSet<E> createSorted() {
-        return new GapSet<E>(KeyList.getNaturalComparator()).init(); 
+        return new GapSet<E>(KeyList.getNaturalComparator()).init();
     }
 
     public static <E> GapSet<E> createSorted(int capacity) {
-        return new GapSet<E>(KeyList.getNaturalComparator()).init(capacity); 
+        return new GapSet<E>(KeyList.getNaturalComparator()).init(capacity);
     }
 
     public static <E> GapSet<E> createSorted(Collection<? extends E> elements) {
-        return new GapSet<E>(KeyList.getNaturalComparator()).init(elements); 
+        return new GapSet<E>(KeyList.getNaturalComparator()).init(elements);
     }
 
     public static <E> GapSet<E> createSorted(E... elements) {
-        return new GapSet<E>(KeyList.getNaturalComparator()).init(elements); 
+        return new GapSet<E>(KeyList.getNaturalComparator()).init(elements);
     }
-    
+
     // Sorted Explicit comparator
 
     public static <E> GapSet<E> createSorted(Comparator<? super E> comparator) {
-        return new GapSet<E>(comparator).init(); 
+        return new GapSet<E>(comparator).init();
     }
 
     public static <E> GapSet<E> createSorted(Comparator<? super E> comparator, int capacity) {
-        return new GapSet<E>(comparator).init(capacity); 
+        return new GapSet<E>(comparator).init(capacity);
     }
 
     public static <E> GapSet<E> createSorted(Comparator<? super E> comparator, Collection<? extends E> elements) {
-        return new GapSet<E>(comparator).init(elements); 
+        return new GapSet<E>(comparator).init(elements);
     }
 
     public static <E> GapSet<E> createSorted(Comparator<? super E> comparator, E... elements) {
-        return new GapSet<E>(comparator).init(elements); 
+        return new GapSet<E>(comparator).init(elements);
     }
-    
+
 
     private Comparator<? super E> comparator;
     private GapList<E> list;
-    
+
     private GapSet(boolean comparable) {
         this(comparable ? KeyList.getNaturalComparator() : AnyComparator.INSTANCE);
     }
@@ -97,27 +97,27 @@ public class GapSet<E> implements Set<E> {
     private GapSet(Comparator<? super E> comparator) {
         this.comparator = comparator;
     }
-    
+
     private GapSet<E> init() {
         list = new GapList<E>();
         return this;
     }
-    
+
     private GapSet<E> init(int capacity) {
         list = new GapList<E>(capacity);
         return this;
     }
-    
+
     private GapSet<E> init(Collection<? extends E> elements) {
         list = new GapList<E>(elements);
         return this;
     }
-    
+
     private GapSet<E> init(E... elements) {
         list = new GapList<E>(elements);
         return this;
     }
-    
+
     private int indexOf(E elem) {
         int index = SortedLists.binarySearchGet(list, elem, comparator);
         if (index >= 0) {
@@ -172,8 +172,12 @@ public class GapSet<E> implements Set<E> {
 
     @Override
     public boolean containsAll(Collection<?> c) {
-        // TODO Auto-generated method stub
-        return false;
+        for (Object e: c) {
+            if (!contains(e)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
@@ -183,8 +187,7 @@ public class GapSet<E> implements Set<E> {
 
     @Override
     public Iterator<E> iterator() {
-        // TODO Auto-generated method stub
-        return null;
+        return list.iterator();
     }
 
     @Override
@@ -200,14 +203,34 @@ public class GapSet<E> implements Set<E> {
 
     @Override
     public boolean removeAll(Collection<?> c) {
-        // TODO Auto-generated method stub
-        return false;
+    	boolean changed = false;
+    	if (c.size() < size()) {
+    		for (Iterator<?> i = c.iterator(); i.hasNext(); ) {
+    			if (remove(i.next())) {
+    				changed = true;
+    			}
+    		}
+    	} else {
+    		for (Iterator<?> i = iterator(); i.hasNext(); ) {
+    			if (c.contains(i.next())) {
+    				i.remove();
+    				changed = true;
+    			}
+    		}
+    	}
+        return changed;
     }
 
     @Override
     public boolean retainAll(Collection<?> c) {
-        // TODO Auto-generated method stub
-        return false;
+    	boolean changed = false;
+		for (Iterator<?> i = iterator(); i.hasNext(); ) {
+			if (!c.contains(i.next())) {
+				i.remove();
+				changed = true;
+			}
+		}
+        return changed;
     }
 
     @Override
