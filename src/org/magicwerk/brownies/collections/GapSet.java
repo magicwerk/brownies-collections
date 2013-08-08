@@ -19,7 +19,10 @@ public class GapSet<E> implements Set<E> {
             if (key1 == key2) {
                 return 0;
             }
-            int cmp = key1.hashCode() - key2.hashCode();
+            int hash1 = key1.hashCode();
+            int hash2 = key2.hashCode();
+            // Prevent overflow
+            int cmp = (hash1 < hash2 ? -1 : (hash1 > hash2 ? 1 : 0));
             if (cmp != 0) {
                 return cmp;
             }
@@ -28,7 +31,9 @@ public class GapSet<E> implements Set<E> {
                 return 0;
             }
             // Objects have same hashcode, but are not equal, so use identity hash code to distinguish them
-            return System.identityHashCode(key1) - System.identityHashCode(key2);
+            hash1 = System.identityHashCode(key1);
+            hash2 = System.identityHashCode(key2);
+            return (hash1 < hash2 ? -1 : (hash1 > hash2 ? 1 : 0));
         }
     }
 
