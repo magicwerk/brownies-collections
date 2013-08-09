@@ -757,7 +757,7 @@ public class KeyList<E> extends GapList<E> {
         return key;
 	}
 
-	private <K> void doAdd(KeyMap<E,K> keyMap, E elem, K key) {
+	private <K> void doAddUnsorted(KeyMap<E,K> keyMap, E elem, K key) {
 		Object obj = keyMap.unsortedKeys.get(key);
 	    if (obj == null) {
 	    	if (!keyMap.unsortedKeys.containsKey(key)) {
@@ -775,7 +775,7 @@ public class KeyList<E> extends GapList<E> {
         }
 	}
 
-    private <K> E doRemove(KeyMap<E,K> keyMap, K key, Object obj) {
+    private <K> E doRemoveUnsorted(KeyMap<E,K> keyMap, K key, Object obj) {
         assert(obj != null);
 
         E elem = null;
@@ -801,7 +801,7 @@ public class KeyList<E> extends GapList<E> {
     	if (keyMaps != null) {
     		try {
 		    	for (i=0; i<keyMaps.length; i++) {
-		    		int idx = doAdd(keyMaps[i], index, elem);
+		    		int idx = doAddKey(keyMaps[i], index, elem);
 		    		if (idx == Integer.MIN_VALUE) {
 		    			addIndex = idx;
 		    			break;
@@ -818,7 +818,8 @@ public class KeyList<E> extends GapList<E> {
     	}
     	if (addIndex == Integer.MIN_VALUE) {
     		for (i--; i>=0; i--) {
-    			doRemove(keyMaps[i], index, elem);
+    			Object key = keyMaps[i].mapper.getKey(elem);
+    			removeByKey(keyMaps[i], key, false);
     		}
     		if (error != null) {
     			throw error;
@@ -839,13 +840,13 @@ public class KeyList<E> extends GapList<E> {
      * @param elem		element to add
      * @return			index where element should be added (-1 is valid), otherwise Integer.MIN_VALUE
      */
-    private <K> int doAdd(KeyMap<E,K> keyMap, int index, E elem) {
+    private <K> int doAddKey(KeyMap<E,K> keyMap, int index, E elem) {
         K key = getKey(keyMap, elem);
         if (keyMap.unsortedKeys != null) {
             // Keys not sorted
             if (!keyMap.unsortedKeys.containsKey(key)) {
                 // New key
-                doAdd(keyMap, elem, key);
+                doAddUnsorted(keyMap, elem, key);
                 return index;
 
             } else {
@@ -853,7 +854,7 @@ public class KeyList<E> extends GapList<E> {
                 if (keyMap.duplicateMode == DuplicateMode.ALLOW ||
                 		(key == null && keyMap.allowNullKeys == NullMode.MULTIPLE)) {
                 	// Add duplicate
-                    doAdd(keyMap, elem, key);
+                    doAddUnsorted(keyMap, elem, key);
                     return index;
 
                 } else {
@@ -1040,7 +1041,7 @@ public class KeyList<E> extends GapList<E> {
                     // Different index
                     if (keyMap.duplicateMode == DuplicateMode.ALLOW ||
                     		(key == null && keyMap.allowNullKeys == NullMode.MULTIPLE)) {
-                        doAdd(keyMap, elem, key);
+                        doAddUnsorted(keyMap, elem, key);
                         keyMap.unsortedKeys.remove(oldKey);
                         return oldElem;
 
@@ -1102,7 +1103,7 @@ public class KeyList<E> extends GapList<E> {
         E elem = get(index);
         onDetach(elem);
         Object key = getKey(keyMaps[0], elem);
-        E elem2 = doRemove(index, elem, keyMaps[0], key);
+        E elem2 = doRemove(keyMaps[0], key, index, elem);
         assert(elem2 == elem);
         for (int i=1; i<keyMaps.length; i++) {
         	removeByKey(keyMaps[i], key, false);
@@ -1119,7 +1120,7 @@ public class KeyList<E> extends GapList<E> {
      * @return      removed element
      */
     @SuppressWarnings("unchecked")
-    private <K> E doRemove(int index, E elem, KeyMap keyMap, K key) {
+    private <K> E doRemove(KeyMap keyMap, K key, int index, E elem) {
         if (keyMap.unsortedKeys != null) {
             // not sorted
             Object obj = keyMap.unsortedKeys.get(key);
@@ -1474,11 +1475,11 @@ public class KeyList<E> extends GapList<E> {
     				// First key is sorted
     				int idx = super.indexOf(elem);
     				super.doRemove(idx);
-    				idx = doAdd(keyMaps[i], -1, elem);
+    				idx = doAddKey(keyMaps[i], -1, elem);
     				super.doAdd(idx, elem);
     			} else {
     				// Not first or not sorted key
-    				doAdd(keyMaps[i], -1, elem);
+    				doAddKey(keyMaps[i], -1, elem);
     			}
     		}
         }
@@ -1635,7 +1636,7 @@ public class KeyList<E> extends GapList<E> {
         		return null;
         	}
             Object obj = keyMap.unsortedKeys.get(key);
-            E elem = doRemove(keyMap, key, obj);
+            E elem = doRemoveUnsorted(keyMap, key, obj);
 
             // Faster than remove(elem) (equals not needed)
             if (!removeElems) {
