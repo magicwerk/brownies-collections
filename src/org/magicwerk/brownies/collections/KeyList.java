@@ -171,6 +171,7 @@ public class KeyList<E> extends GapList<E> {
     	KeyList<E> keyList;
     	// -- null
         boolean allowNullElem;
+        Predicate<E> constraint;
         // -- keys
         KeyMapBuilder keyMapBuilder;
     	GapList<KeyMap<E,Object>> keyMaps = GapList.create();
@@ -231,21 +232,22 @@ public class KeyList<E> extends GapList<E> {
         }
 
         /**
-         * Build SetList with specified options.
+         * Initialize KeyList with specified options.
          *
-         * @return created SetList
+         * @param keyList keyList to initialize
          */
         void build(KeyList<E> keyList) {
         	endKeyMapBuilder();
 
        		keyList.allowNullElem = allowNullElem;
+       		keyList.constraint = constraint;
             keyList.insertTrigger = insertTrigger;
             keyList.deleteTrigger = deleteTrigger;
 
-            KeyMap<E,Object> keyMap = keyMaps.peekFirst();
-            if (keyMap != null) {
+            for (int i=0; i<keyMaps.size(); i++) {
+	            KeyMap<E,Object> keyMap = keyMaps.get(i);
 	            if (keyMap.comparator != null) {
-	                if (keyMap.mapper == IdentMapper.INSTANCE) {
+	                if (i == 0 && keyMap.mapper == IdentMapper.INSTANCE) {
 	                	// Sorted set: we do not need a separate list for storing
 	                	// keys and elements. We have to handle this case specially later.
 	                	keyMap.sortedKeys = (GapList<Object>) keyList;
@@ -316,6 +318,18 @@ public class KeyList<E> extends GapList<E> {
         public Builder<E> withNull(boolean allowNullElem) {
         	endKeyMapBuilder();
         	this.allowNullElem = allowNullElem;
+        	return this;
+        }
+
+        /**
+         * Specify element constraint.
+         *
+         * @param constraint	constraint element must satisfy
+         * @return 				this (fluent interface)
+         */
+        public Builder<E> withConstraint(Predicate<E> constraint) {
+        	endKeyMapBuilder();
+        	this.constraint = constraint;
         	return this;
         }
 
@@ -480,6 +494,8 @@ public class KeyList<E> extends GapList<E> {
 
     /** True to allow null elements. A null element will always generate a null key. */
     boolean allowNullElem;
+    /** Evaluation of the predicate must be successful for every element added to the list */
+    Predicate<E> constraint;
     /** Handler method which is called if an element is attached to the list */
     Trigger<E> insertTrigger;
     /** Handler method which is called if an element is detached from the list */
@@ -546,6 +562,8 @@ public class KeyList<E> extends GapList<E> {
 
     /**
      * Internal initialization.
+     *
+     * @param ignore ignored parameter for unique method signature
      */
     KeyList(boolean ignore) {
     	super(false, null);
@@ -561,6 +579,7 @@ public class KeyList<E> extends GapList<E> {
 	    super(false, that);
 
 	    allowNullElem = that.allowNullElem;
+	    constraint = that.constraint;
 	    insertTrigger = that.insertTrigger;
 	    deleteTrigger = that.deleteTrigger;
 	    keyMaps = that.keyMaps;
@@ -613,16 +632,28 @@ public class KeyList<E> extends GapList<E> {
     private <K> void init(KeyMap<E,K> keyMap) {
         if (keyMap.unsortedKeys != null) {
         	keyMap.unsortedKeys = new HashMap<K, Object>();
-        } else if (keyMap.sortedKeys != this) {
-        	keyMap.sortedKeys = new GapList<K>();
+        } else {
+        	// Note that the check (keyMap.sortedKeys != this) does not work here
+        	// as cloned KeyMap points to the old this pointer
+        	if (keyMap.sortedKeys.getClass() == GapList.class) {
+        		keyMap.sortedKeys = new GapList<K>();
+        	} else {
+	        	keyMap.sortedKeys = (GapList<K>) this;
+        	}
         }
     }
 
     private <K> void clone(KeyMap<E,K> keyMap) {
         if (keyMap.unsortedKeys != null) {
         	keyMap.unsortedKeys = new HashMap<K, Object>(keyMap.unsortedKeys);
-        } else if (keyMap.sortedKeys != this) {
-        	keyMap.sortedKeys = keyMap.sortedKeys.copy();
+        } else {
+        	// Note that the check (keyMap.sortedKeys != this) does not work here
+        	// as cloned KeyMap points to the old this pointer
+        	if (keyMap.sortedKeys.getClass() == GapList.class) {
+	        	keyMap.sortedKeys = keyMap.sortedKeys.copy();
+	        } else {
+	        	keyMap.sortedKeys = (GapList<K>) this;
+	        }
         }
     }
 
@@ -762,6 +793,8 @@ public class KeyList<E> extends GapList<E> {
 
     @Override
     protected boolean doAdd(int index, E elem) {
+    	checkElemAllowed(elem);
+
     	IllegalArgumentException error = null;
     	int addIndex = 0;
 		int i = 0;
@@ -944,8 +977,24 @@ public class KeyList<E> extends GapList<E> {
         }
     }
 
+    void checkElemAllowed(E elem) {
+    	if (elem == null) {
+    		if (!allowNullElem) {
+    			throw new IllegalArgumentException("Constraint violation: null element not allowed");
+    		}
+    	} else {
+    		if (constraint != null) {
+    			if (!constraint.allow(elem)) {
+        			throw new IllegalArgumentException("Constraint violation: element not allowed");
+    			}
+    		}
+    	}
+    }
+
     @Override
     protected E doSet(int index, E elem) {
+    	checkElemAllowed(elem);
+
         E oldElem = super.doSet(index, elem);
         if (keyMaps != null) {
         	int i = 0;
@@ -1565,7 +1614,8 @@ public class KeyList<E> extends GapList<E> {
     	E removed = removeByKey(keyMaps[keyIndex], key, true);
     	for (int i=0; i<keyMaps.length; i++) {
     		if (i != keyIndex) {
-    			removeByKey(keyMaps[i], key, false);
+    			Object k = keyMaps[i].mapper.getKey(removed);
+    			removeByKey(keyMaps[i], k, false);
     		}
     	}
         if (DEBUG_CHECK) debugCheck();
@@ -1639,14 +1689,17 @@ public class KeyList<E> extends GapList<E> {
     @SuppressWarnings("unchecked")
     public GapList<E> removeAllByKey(int keyIndex, Object key) {
     	checkKeyMap(keyIndex);
-    	GapList<E> removed = removeAllByKey(keyMaps[keyIndex], key, true);
-    	for (int i=0; i<keyMaps.length; i++) {
-    		if (i != keyIndex) {
-    			removeAllByKey(keyMaps[i], key, false);
+    	GapList<E> removeds = removeAllByKey(keyMaps[keyIndex], key, true);
+    	for (E removed: removeds) {
+    		for (int i=0; i<keyMaps.length; i++) {
+    			if (i != keyIndex) {
+    				Object k = keyMaps[i].mapper.getKey(removed);
+    				removeAllByKey(keyMaps[i], k, false);
+    			}
     		}
     	}
         if (DEBUG_CHECK) debugCheck();
-        return removed;
+        return removeds;
     }
 
     private <K> GapList<E> removeAllByKey(KeyMap<E,K> keyMap, K key, boolean removeElems) {
