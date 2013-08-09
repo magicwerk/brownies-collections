@@ -1100,63 +1100,15 @@ public class KeyList<E> extends GapList<E> {
 
     @Override
     protected E doRemove(int index) {
-        E elem = get(index);
+        E elem = super.doRemove(index);
         onDetach(elem);
-        Object key = getKey(keyMaps[0], elem);
-        E elem2 = doRemove(keyMaps[0], key, index, elem);
-        assert(elem2 == elem);
-        for (int i=1; i<keyMaps.length; i++) {
-        	removeByKey(keyMaps[i], key, false);
+        for (int i=0; i<keyMaps.length; i++) {
+        	if (i > 0 || keyMaps[i].sortedKeys != this) {
+        		Object key = keyMaps[i].mapper.getKey(elem);
+        		removeByKey(keyMaps[i], key, false);
+        	}
         }
         return elem;
-    }
-
-    /**
-     * Private method to remove element.
-     *
-     * @param index index of element to remove
-     * @param elem  element to remove
-     * @param key   key of element to remove
-     * @return      removed element
-     */
-    @SuppressWarnings("unchecked")
-    private <K> E doRemove(KeyMap keyMap, K key, int index, E elem) {
-        if (keyMap.unsortedKeys != null) {
-            // not sorted
-            Object obj = keyMap.unsortedKeys.get(key);
-            if (obj == null) {
-                throw new IllegalArgumentException("Key missmatch: " + key);
-            }
-            if (obj instanceof GapList) {
-                GapList<E> list = (GapList<E>) obj;
-                if (!list.remove(elem)) {
-                    throw new IllegalArgumentException("Key missmatch: " + key);
-                }
-                if (list.isEmpty()) {
-                	keyMap.unsortedKeys.remove(key);
-                }
-            } else {
-            	keyMap.unsortedKeys.remove(key);
-            }
-        } else {
-            // sorted
-            Object removedKey = null;
-            if (keyMap.sortedKeys == this) {
-                removedKey = super.doRemove(index);
-            } else {
-                removedKey = keyMap.sortedKeys.remove(index);
-            }
-            if (!GapList.equalsElem(key, removedKey)) {
-                throw new IllegalArgumentException("Key missmatch: " + key);
-            }
-            if (keyMap.sortedKeys == this) {
-                if (DEBUG_CHECK) debugCheck();
-                return (E) removedKey;
-            }
-        }
-        E oldElem = super.doRemove(index);
-        if (DEBUG_CHECK) debugCheck();
-        return oldElem;
     }
 
     @Override
@@ -1613,16 +1565,26 @@ public class KeyList<E> extends GapList<E> {
     public E removeByKey(int keyIndex, Object key) {
     	checkKeyMap(keyIndex);
     	E removed = removeByKey(keyMaps[keyIndex], key, true);
-    	for (int i=0; i<keyMaps.length; i++) {
-    		if (i != keyIndex) {
-    			Object k = keyMaps[i].mapper.getKey(removed);
-    			removeByKey(keyMaps[i], k, false);
+    	if (removed != null) {
+    		for (int i=0; i<keyMaps.length; i++) {
+    			if (i != keyIndex) {
+    				Object k = keyMaps[i].mapper.getKey(removed);
+    				removeByKey(keyMaps[i], k, false);
+    			}
     		}
     	}
         if (DEBUG_CHECK) debugCheck();
         return removed;
     }
 
+    /**
+     * Remove element with specified key from key map.
+     *
+     * @param keyMap		key map
+     * @param key			key to remove
+     * @param removeElems
+     * @return				removed element or null
+     */
     private <K> E removeByKey(KeyMap<E,K> keyMap, K key, boolean removeElems) {
     	// If list cannot contain null, handle null explicitly to prevent NPE
     	if (key == null) {
