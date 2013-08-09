@@ -27,6 +27,7 @@ import java.util.Set;
 import org.magicwerk.brownies.collections.KeyList.BuilderBase;
 import org.magicwerk.brownies.collections.KeyList.DuplicateMode;
 import org.magicwerk.brownies.collections.KeyList.IdentMapper;
+import org.magicwerk.brownies.collections.KeyList.Predicate;
 import org.magicwerk.brownies.collections.KeyList.Trigger;
 import org.magicwerk.brownies.collections.KeyList.NullMode;
 import org.magicwerk.brownies.collections.KeyList.BuilderBase.KeyMapBuilder;
@@ -71,6 +72,18 @@ public class SetList<E> extends KeyList<E> {
         	this.keyList = keyList;
 
         	newKeyMapBuilder(IdentMapper.INSTANCE);
+        }
+
+        /**
+         * Specify element constraint.
+         *
+         * @param constraint	constraint element must satisfy
+         * @return 				this (fluent interface)
+         */
+        public Builder<E> withConstraint(Predicate<E> constraint) {
+        	endKeyMapBuilder();
+        	this.constraint = constraint;
+        	return this;
         }
 
         /**
@@ -212,7 +225,7 @@ public class SetList<E> extends KeyList<E> {
         }
 
         /**
-         * @return
+         * @return created SetList
          */
         public SetList<E> build() {
         	if (keyList == null) {
@@ -236,6 +249,8 @@ public class SetList<E> extends KeyList<E> {
     /**
      * Default constructor.
      * Internal use in builder and child classes only.
+     *
+     * @param ignore ignored parameter for unique method signature
      */
     protected SetList(boolean ignore) {
         super(ignore);
