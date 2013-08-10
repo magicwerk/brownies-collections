@@ -301,7 +301,7 @@ public class GapList<E> extends AbstractList<E>
      *             if false nothing is done
      * @param that list to copy
      */
-    GapList(boolean copy, GapList<E> that) {
+    protected GapList(boolean copy, GapList<E> that) {
         if (copy) {
             this.values = that.values;
             this.size = that.size;
@@ -1852,7 +1852,7 @@ public class GapList<E> extends AbstractList<E>
      * @param index index of first element to set
      * @param list  list with elements to set
      */
-    public void setAll(int index, GapList<E> list) {
+    public void setAll(int index, GapList<? extends E> list) {
     	// There is a special implementation accepting a GapList
     	// so the method is also available in the primitive classes.
         checkRange(index, list.size());
@@ -1868,13 +1868,13 @@ public class GapList<E> extends AbstractList<E>
      * @param index index of first element to set
      * @param coll  collection with elements to set
      */
-    public void setAll(int index, Collection<E> coll) {
+    public void setAll(int index, Collection<? extends E> coll) {
         checkRange(index, coll.size());
 
         // In contrary to addAll() there is no need to first create an array
         // containing the collection elements, as the list will not grow.
         int i = 0;
-        Iterator<E> iter = coll.iterator();
+        Iterator<? extends E> iter = coll.iterator();
         while (iter.hasNext()) {
             doSet(index+i, iter.next());
             i++;
