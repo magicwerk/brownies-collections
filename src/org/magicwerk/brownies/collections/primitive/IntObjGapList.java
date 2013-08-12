@@ -1,95 +1,95 @@
 package org.magicwerk.brownies.collections.primitive;
 
-import org.magicwerk.brownies.collections.primitive.DoubleGapList;
+import org.magicwerk.brownies.collections.primitive.IntGapList;
 import org.magicwerk.brownies.collections.GapList;
 
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
 
-public class DoubleObjGapList extends GapList<Double> {
+public class IntObjGapList extends GapList<Integer> {
 
-	private DoubleGapList list;
+	private IntGapList list;
 
-	static Double[] toWrapper(double[] elems) {
-		Double[] e = new Double[elems.length];
+	static Integer[] toWrapper(int[] elems) {
+		Integer[] e = new Integer[elems.length];
 		for (int i = 0; i < e.length; i++) {
 			e[i] = elems[i];
 		}
 		return e;
 	}
 
-	static double[] toPrimitive(Double[] elems) {
-		double[] e = new double[elems.length];
+	static int[] toPrimitive(Integer[] elems) {
+		int[] e = new int[elems.length];
 		for (int i = 0; i < e.length; i++) {
 			e[i] = elems[i];
 		}
 		return e;
 	}
 
-	static double[] toPrimitive(GapList<? extends Double> list2) {
-		double[] e = new double[list2.size()];
+	static int[] toPrimitive(GapList<? extends Integer> list2) {
+		int[] e = new int[list2.size()];
 		for (int i = 0; i < e.length; i++) {
 			e[i] = list2.get(i);
 		}
 		return e;
 	}
 
-	static double[] toPrimitive(Collection<? extends Double> list) {
-		double[] e = new double[list.size()];
-		Iterator<? extends Double> iter = list.iterator();
+	static int[] toPrimitive(Collection<? extends Integer> list) {
+		int[] e = new int[list.size()];
+		Iterator<? extends Integer> iter = list.iterator();
 		for (int i = 0; i < e.length; i++) {
 			e[i] = iter.next();
 		}
 		return e;
 	}
 
-	public static DoubleObjGapList create() {
-		return new DoubleObjGapList();
+	public static IntObjGapList create() {
+		return new IntObjGapList();
 	}
 
-	public static DoubleObjGapList create(int capacity) {
-		return new DoubleObjGapList(capacity);
+	public static IntObjGapList create(int capacity) {
+		return new IntObjGapList(capacity);
 	}
 
-	public static DoubleObjGapList create(Double... elems) {
-		return new DoubleObjGapList(elems);
+	public static IntObjGapList create(Integer... elems) {
+		return new IntObjGapList(elems);
 	}
 
-	public static DoubleObjGapList create(Collection<? extends Double> elems) {
-		return new DoubleObjGapList(elems);
+	public static IntObjGapList create(Collection<? extends Integer> elems) {
+		return new IntObjGapList(elems);
 	}
 
-	public DoubleObjGapList() {
+	public IntObjGapList() {
 		super(false, null);
-		list = new DoubleGapList();
+		list = new IntGapList();
 	}
 
-	public DoubleObjGapList(int capacity) {
+	public IntObjGapList(int capacity) {
 		super(false, null);
-		list = new DoubleGapList(capacity);
+		list = new IntGapList(capacity);
 	}
 
-	public DoubleObjGapList(Double... elems) {
+	public IntObjGapList(Integer... elems) {
 		super(false, null);
-		list = new DoubleGapList(toPrimitive(elems));
+		list = new IntGapList(toPrimitive(elems));
 	}
 
-	public DoubleObjGapList(Collection<? extends Double> elems) {
+	public IntObjGapList(Collection<? extends Integer> elems) {
 		super(false, null);
-		list = new DoubleGapList(toPrimitive(elems));
+		list = new IntGapList(toPrimitive(elems));
 	}
 
 	@Override
 	public Object clone() {
-		DoubleObjGapList list = (DoubleObjGapList) super.clone();
-		list.list = (DoubleGapList) list.list.clone();
+		IntObjGapList list = (IntObjGapList) super.clone();
+		list.list = (IntGapList) list.list.clone();
 		return list;
 	}
 
 	@Override
-	public DoubleObjGapList copy() {
-		return (DoubleObjGapList) clone();
+	public IntObjGapList copy() {
+		return (IntObjGapList) clone();
 	}
 
 	@Override
@@ -108,27 +108,27 @@ public class DoubleObjGapList extends GapList<Double> {
 	}
 
 	@Override
-	public Double get(int index) {
+	public Integer get(int index) {
 		return list.get(index);
 	}
 
 	@Override
-	public Double set(int index, Double elem) {
+	public Integer set(int index, Integer elem) {
 		return list.set(index, elem);
 	}
 
 	@Override
-	public boolean add(Double elem) {
+	public boolean add(Integer elem) {
 		return list.add(elem);
 	}
 
 	@Override
-	public void add(int index, Double elem) {
+	public void add(int index, Integer elem) {
 		list.add(index, elem);
 	}
 
 	@Override
-	public Double remove(int index) {
+	public Integer remove(int index) {
 		return list.remove(index);
 	}
 
@@ -164,26 +164,26 @@ public class DoubleObjGapList extends GapList<Double> {
 
 	@Override
 	public int indexOf(Object elem) {
-		if (elem == null || elem.getClass() != Double.class) {
+		if (elem == null || elem.getClass() != Integer.class) {
 			return -1;
 		}
-		return list.indexOf((Double) elem);
+		return list.indexOf((Integer) elem);
 	}
 
 	@Override
 	public int lastIndexOf(Object elem) {
-		if (elem == null || elem.getClass() != Double.class) {
+		if (elem == null || elem.getClass() != Integer.class) {
 			return -1;
 		}
-		return list.lastIndexOf((Double) elem);
+		return list.lastIndexOf((Integer) elem);
 	}
 
 	@Override
 	public boolean remove(Object elem) {
-		if (elem == null || elem.getClass() != Double.class) {
+		if (elem == null || elem.getClass() != Integer.class) {
 			return false;
 		}
-		int index = list.indexOf((Double) elem);
+		int index = list.indexOf((Integer) elem);
 		if (index == -1) {
 			return false;
 		}
@@ -193,51 +193,51 @@ public class DoubleObjGapList extends GapList<Double> {
 
 	@Override
 	public boolean contains(Object elem) {
-		if (elem == null || elem.getClass() != Double.class) {
+		if (elem == null || elem.getClass() != Integer.class) {
 			return false;
 		}
-		return list.contains((Double) elem);
+		return list.contains((Integer) elem);
 	}
 
 	@Override
 	public boolean containsAny(Collection<?> coll) {
-		return list.containsAny((Collection<Double>) coll);
+		return list.containsAny((Collection<Integer>) coll);
 	}
 
 	@Override
 	public boolean containsAll(Collection<?> coll) {
-		return list.containsAll((Collection<Double>) coll);
+		return list.containsAll((Collection<Integer>) coll);
 	}
 
 	@Override
 	public boolean removeAll(Collection<?> coll) {
-		return list.removeAll((Collection<Double>) coll);
+		return list.removeAll((Collection<Integer>) coll);
 	}
 
 	@Override
 	public boolean removeAll(GapList<?> coll) {
-		return list.removeAll((Collection<Double>) coll);
+		return list.removeAll((Collection<Integer>) coll);
 	}
 
 	@Override
 	public boolean retainAll(Collection<?> coll) {
-		return list.retainAll((Collection<Double>) coll);
+		return list.retainAll((Collection<Integer>) coll);
 	}
 
 	@Override
 	public boolean retainAll(GapList<?> coll) {
-		return list.retainAll((Collection<Double>) coll);
+		return list.retainAll((Collection<Integer>) coll);
 	}
 
 	@Override
 	public Object[] toArray() {
-		double[] elems = list.toArray();
+		int[] elems = list.toArray();
 		return toWrapper(elems);
 	}
 
 	@Override
 	public Object[] toArray(int index, int len) {
-		double[] elems = list.toArray(index, len);
+		int[] elems = list.toArray(index, len);
 		return toWrapper(elems);
 	}
 
@@ -248,7 +248,7 @@ public class DoubleObjGapList extends GapList<Double> {
 			array = (T[]) java.lang.reflect.Array.newInstance(array.getClass().getComponentType(), size);
 		}
 		for (int i = 0; i < size; i++) {
-			array[i] = (T) (Double) list.get(i);
+			array[i] = (T) (Integer) list.get(i);
 		}
 		if (array.length > size) {
 			array[size] = null;
@@ -257,177 +257,177 @@ public class DoubleObjGapList extends GapList<Double> {
 	}
 
 	@Override
-	public boolean addAll(Collection<? extends Double> coll) {
-		return list.addAll((Collection<Double>) coll);
+	public boolean addAll(Collection<? extends Integer> coll) {
+		return list.addAll((Collection<Integer>) coll);
 	}
 
 	@Override
-	public boolean addAll(int index, Collection<? extends Double> coll) {
-		return list.addAll(index, (Collection<Double>) coll);
+	public boolean addAll(int index, Collection<? extends Integer> coll) {
+		return list.addAll(index, (Collection<Integer>) coll);
 	}
 
 	@Override
-	public boolean addAll(Double... elems) {
-		double[] e = toPrimitive(elems);
+	public boolean addAll(Integer... elems) {
+		int[] e = toPrimitive(elems);
 		return list.addAll(e);
 	}
 
 	@Override
-	public boolean addAll(int index, Double... elems) {
-		double[] e = toPrimitive(elems);
+	public boolean addAll(int index, Integer... elems) {
+		int[] e = toPrimitive(elems);
 		return list.addAll(index, e);
 	}
 
 	@Override
-	public boolean addAll(GapList<? extends Double> list2) {
-		double[] e = toPrimitive(list2);
+	public boolean addAll(GapList<? extends Integer> list2) {
+		int[] e = toPrimitive(list2);
 		return list.addAll(e);
 	}
 
 	@Override
-	public boolean addAll(int index, GapList<? extends Double> list2) {
-		double[] e = toPrimitive(list2);
+	public boolean addAll(int index, GapList<? extends Integer> list2) {
+		int[] e = toPrimitive(list2);
 		return list.addAll(index, e);
 	}
 
 	@Override
-	public Double getFirst() {
+	public Integer getFirst() {
 		return list.getFirst();
 	}
 
 	@Override
-	public Double getLast() {
+	public Integer getLast() {
 		return list.getLast();
 	}
 
 	@Override
-	public void addFirst(Double elem) {
+	public void addFirst(Integer elem) {
 		list.addFirst(elem);
 	}
 
 	@Override
-	public void addLast(Double elem) {
+	public void addLast(Integer elem) {
 		list.addLast(elem);
 	}
 
 	@Override
-	public Double removeFirst() {
+	public Integer removeFirst() {
 		return list.removeFirst();
 	}
 
 	@Override
-	public Double removeLast() {
+	public Integer removeLast() {
 		return list.removeLast();
 	}
 
 	@Override
-	public Double peek() {
+	public Integer peek() {
 		return list.peek();
 	}
 
 	@Override
-	public Double element() {
+	public Integer element() {
 		return list.element();
 	}
 
 	@Override
-	public Double poll() {
+	public Integer poll() {
 		return list.poll();
 	}
 
 	@Override
-	public Double remove() {
+	public Integer remove() {
 		return list.remove();
 	}
 
 	@Override
-	public boolean offer(Double elem) {
+	public boolean offer(Integer elem) {
 		return list.offer(elem);
 	}
 
 	@Override
-	public boolean offerFirst(Double elem) {
+	public boolean offerFirst(Integer elem) {
 		return list.offerFirst(elem);
 	}
 
 	@Override
-	public boolean offerLast(Double elem) {
+	public boolean offerLast(Integer elem) {
 		return list.offerLast(elem);
 	}
 
 	@Override
-	public Double peekFirst() {
+	public Integer peekFirst() {
 		return list.peekFirst();
 	}
 
 	@Override
-	public Double peekLast() {
+	public Integer peekLast() {
 		return list.peekLast();
 	}
 
 	@Override
-	public Double pollFirst() {
+	public Integer pollFirst() {
 		return list.pollFirst();
 	}
 
 	@Override
-	public Double pollLast() {
+	public Integer pollLast() {
 		return list.pollLast();
 	}
 
 	@Override
-	public Double pop() {
+	public Integer pop() {
 		return list.pop();
 	}
 
 	@Override
-	public void push(Double elem) {
+	public void push(Integer elem) {
 		list.push(elem);
 	}
 
 	@Override
 	public boolean removeFirstOccurrence(Object elem) {
-		if (elem == null || elem.getClass() != Double.class) {
+		if (elem == null || elem.getClass() != Integer.class) {
 			return false;
 		}
-		return list.removeFirstOccurrence((Double) elem);
+		return list.removeFirstOccurrence((Integer) elem);
 	}
 
 	@Override
 	public boolean removeLastOccurrence(Object elem) {
-		if (elem == null || elem.getClass() != Double.class) {
+		if (elem == null || elem.getClass() != Integer.class) {
 			return false;
 		}
-		return list.removeLastOccurrence((Double) elem);
+		return list.removeLastOccurrence((Integer) elem);
 	}
 
 	@Override
-	public GapList<Double> get(int index, int len) {
-		double[] elems = list.getArray(index, len);
+	public GapList<Integer> get(int index, int len) {
+		int[] elems = list.getArray(index, len);
 		return GapList.create(toWrapper(elems));
 	}
 
 	@Override
-	public Double[] getArray(int index, int len) {
-		double[] elems = list.getArray(index, len);
+	public Integer[] getArray(int index, int len) {
+		int[] elems = list.getArray(index, len);
 		return toWrapper(elems);
 	}
 
 	@Override
-	public void setAll(int index, GapList<? extends Double> list2) {
-		double[] e = toPrimitive(list2);
+	public void setAll(int index, GapList<? extends Integer> list2) {
+		int[] e = toPrimitive(list2);
 		list.setAll(index, e);
 	}
 
 	@Override
-	public void setAll(int index, Collection<? extends Double> coll) {
-		double[] e = toPrimitive(coll);
+	public void setAll(int index, Collection<? extends Integer> coll) {
+		int[] e = toPrimitive(coll);
 		list.setAll(index, e);
 	}
 
 	@Override
-	public void setAll(int index, Double... elems) {
-		double[] e = toPrimitive(elems);
+	public void setAll(int index, Integer... elems) {
+		int[] e = toPrimitive(elems);
 		list.setAll(index, e);
 	}
 
@@ -437,22 +437,22 @@ public class DoubleObjGapList extends GapList<Double> {
 	}
 
 	@Override
-	public void init(int len, Double elem) {
+	public void init(int len, Integer elem) {
 		list.init(len, elem);
 	}
 
 	@Override
-	public void resize(int len, Double elem) {
+	public void resize(int len, Integer elem) {
 		list.resize(len, elem);
 	}
 
 	@Override
-	public void fill(Double elem) {
+	public void fill(Integer elem) {
 		list.fill(elem);
 	}
 
 	@Override
-	public void fill(int index, int len, Double elem) {
+	public void fill(int index, int len, Integer elem) {
 		list.fill(index, len, elem);
 	}
 
@@ -509,24 +509,24 @@ public class DoubleObjGapList extends GapList<Double> {
 
 	@Override
 	public <K> int binarySearch(K key, Comparator<? super K> comparator) {
-		if (key == null || key.getClass() != Double.class) {
+		if (key == null || key.getClass() != Integer.class) {
 			throw new IllegalArgumentException("Value is null or has invalid type");
 		}
 		if (comparator != null) {
 			throw new IllegalArgumentException("Only natural comparator (null) allowed");
 		}
-		return list.binarySearch((Double) key);
+		return list.binarySearch((Integer) key);
 	}
 
 	@Override
 	public <K> int binarySearch(int index, int len, K key, Comparator<? super K> comparator) {
-		if (key == null || key.getClass() != Double.class) {
+		if (key == null || key.getClass() != Integer.class) {
 			throw new IllegalArgumentException("Value is null or has invalid type");
 		}
 		if (comparator != null) {
 			throw new IllegalArgumentException("Only natural comparator (null) allowed");
 		}
-		return list.binarySearch(index, len, (Double) key);
+		return list.binarySearch(index, len, (Integer) key);
 	}
 
 }
