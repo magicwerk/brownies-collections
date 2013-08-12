@@ -21,6 +21,8 @@
  */
 package org.magicwerk.brownies.collections.primitive;
 
+import org.magicwerk.brownies.collections.ArraysHelper;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -2135,7 +2137,7 @@ return (int) val;
     	checkRange(index, len);
 
     	normalize();
-    	Arrays.sort(values, index, index+len);
+    	ArraysHelper.sort(values, index, index+len);
     }
 
     /*
@@ -2239,7 +2241,7 @@ return (int) val;
     	checkRange(index, len);
 
     	normalize();
-    	return Arrays.binarySearch((int[]) values, index, index+len, key);
+    	return ArraysHelper.binarySearch((int[]) values, index, index+len, key);
     }
 
     //--- Arguments check methods

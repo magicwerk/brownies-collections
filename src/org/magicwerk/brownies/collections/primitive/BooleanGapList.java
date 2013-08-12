@@ -21,6 +21,8 @@
  */
 package org.magicwerk.brownies.collections.primitive;
 
+import org.magicwerk.brownies.collections.ArraysHelper;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -2117,12 +2119,130 @@ return val ? 1231 : 1237;
      *
      * @see Arrays#sort
      */
-    
+    public void sort() {
+    	sort(0, size());
+    }
+
+    /**
+     * Sort specified elements in the list using the specified comparator.
+     *
+     * @param index			index of first element to sort
+     * @param len			number of elements to sort
+     * @param comparator	comparator to use for sorting
+     * 						((boolean)false means the elements natural ordering should be used)
+     *
+     * @see Arrays#sort
+     */
+    public void sort(int index, int len) {
+    	checkRange(index, len);
+
+    	normalize();
+    	ArraysHelper.sort(values, index, index+len);
+    }
 
     /*
     Question:
        Why is the signature of method binarySearch
+           public  int binarySearch(boolean key)
+       and not
+           public int binarySearch(boolean key)
+       as you could expect?
+
+    Answer:
+       This allows to use the binarySearch method not only with keys of
+       the type stored in the BooleanGapList, but also with any other type you
+       are prepared to handle in you Comparator.
+       So if we have a class Name and its comparator as defined in the
+       following code snippets, both method calls are possible:
+
+       new BooleanGapList<Name>().binarySearch(new Name("a"), new NameComparator());
+       new BooleanGapList<Name>().binarySearch("a), new NameComparator());
+
+       class Name {
+           String name;
+
+           public Name(String name) {
+               this.name = name;
+           }
+           public String getName() {
+               return name;
+           }
+           public String toString() {
+               return name;
+           }
+       }
+
+       static class NameComparator implements Comparator<boolean> {
            
+           public int compare(boolean o1, boolean o2) {
+               String s1;
+               if (o1 instanceof String) {
+                   s1 = (String) o1;
+               } else {
+                   s1 = ((Name) o1).getName();
+               }
+               String s2;
+               if (o2 instanceof String) {
+                   s2 = (String) o2;
+               } else {
+                   s2 = ((Name) o2).getName();
+               }
+               return s1.compareTo(s2);
+           }
+        }
+    */
+
+    /**
+     * Searches the specified range for an object using the binary
+     * search algorithm.
+     *
+     * @param key           the value to be searched for
+     * @param comparator    the comparator by which the list is ordered.
+     *                      A <tt>(boolean)false</tt> value indicates that the elements'
+     *                      {@linkplain Comparable natural ordering} should be used.
+     * @return              index of the search key, if it is contained in the array;
+     *                      otherwise, <tt>(-(<i>insertion point</i>) - 1)</tt>.  The
+     *                      <i>insertion point</i> is defined as the point at which the
+     *                      key would be inserted into the array: the index of the first
+     *                      element greater than the key, or <tt>a.length</tt> if all
+     *                      elements in the array are less than the specified key.  Note
+     *                      that this guarantees that the return value will be &gt;= 0 if
+     *                      and only if the key is found.
+     *
+     * @see Arrays#binarySearch
+     */
+    public  int binarySearch(boolean key) {
+    	return binarySearch(0, size, key);
+    }
+
+    /**
+     * Searches the specified range for an object using the binary
+     * search algorithm.
+     *
+     * @param index         index of first element to search
+     * @param len           number of elements to search
+     * @param key           the value to be searched for
+     * @param comparator    the comparator by which the list is ordered.
+     *                      A <tt>(boolean)false</tt> value indicates that the elements'
+     *                      {@linkplain Comparable natural ordering} should be used.
+     * @return              index of the search key, if it is contained in the array;
+     *                      otherwise, <tt>(-(<i>insertion point</i>) - 1)</tt>.  The
+     *                      <i>insertion point</i> is defined as the point at which the
+     *                      key would be inserted into the array: the index of the first
+     *                      element greater than the key, or <tt>a.length</tt> if all
+     *                      elements in the array are less than the specified key.  Note
+     *                      that this guarantees that the return value will be &gt;= 0 if
+     *                      and only if the key is found.
+     *
+     * @see Arrays#binarySearch
+     */
+    @SuppressWarnings("unchecked")
+    public  int binarySearch(int index, int len, boolean key) {
+    	checkRange(index, len);
+
+    	normalize();
+    	return ArraysHelper.binarySearch((boolean[]) values, index, index+len, key);
+    }
 
     //--- Arguments check methods
 

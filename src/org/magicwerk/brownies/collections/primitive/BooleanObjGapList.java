@@ -491,6 +491,36 @@ public class BooleanObjGapList extends GapList<Boolean> {
 		list.rotate(index, len, distance);
 	}
 
-	
+	@Override
+	public void sort(Comparator comparator) {
+		if (comparator != null) {
+			throw new IllegalArgumentException("Only natural comparator (null) allowed");
+		}
+		list.sort();
+	}
+
+	@Override
+	public void sort(int index, int len, Comparator comparator) {
+		if (comparator != null) {
+			throw new IllegalArgumentException("Only natural comparator (null) allowed");
+		}
+		list.sort(index, len);
+	}
+
+	@Override
+	public <K> int binarySearch(K key, Comparator<? super K> comparator) {
+		if (comparator != null) {
+			throw new IllegalArgumentException("Only natural comparator (null) allowed");
+		}
+		return list.binarySearch((Boolean) key);
+	}
+
+	@Override
+	public <K> int binarySearch(int index, int len, K key, Comparator<? super K> comparator) {
+		if (comparator != null) {
+			throw new IllegalArgumentException("Only natural comparator (null) allowed");
+		}
+		return list.binarySearch(index, len, (Boolean) key);
+	}
 
 }
