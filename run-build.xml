@@ -184,16 +184,6 @@
       		<replacefilter token="WRAPPERTYPE" value="${wrapper}"/>
        		<replacefilter token="SIMPLETYPE" value="${type}"/>
     	</replace>
-
-		<!-- Special handling of types -->
-		<if>
-	        <equals arg1="${type}" arg2="boolean" />
-			<then>
-				<replaceregexp file="${dst.file}" flags="s"
-				               match="@Override[ \t\r\n]+?public void sort\(Comparator.*?return list.binarySearch\(index, len, \(Boolean\) key\);\s+\}"
-				               replace="" />
-			</then>
-	    </if>
 	</target>
 
 	<!--
@@ -237,7 +227,7 @@
 		               replace="// ---${NL}// --- DO NOT EDIT${NL}// --- AUTOMATICALLY GENERATED FILE${NL}// ---${NL}" />
 		<replaceregexp file="${dst.file}"
 		               match="package org.magicwerk.brownies.collections;"
-		               replace="package org.magicwerk.brownies.collections.primitive;" />
+		               replace="package org.magicwerk.brownies.collections.primitive;${NL}${NL}import org.magicwerk.brownies.collections.ArraysHelper;" />
 
 		<!-- Negative lookahead: match all java.util imports, except java.util.Collection -->
 		<replaceregexp file="${dst.file}" flags="mg"
@@ -400,6 +390,16 @@
         <replaceregexp file="${dst.file}" flags="s"
                        match="newValues = .*?;"
                        replace="newValues = null;" />
+
+		<!-- Fix call to Arrays.sort() -->
+        <replaceregexp file="${dst.file}" flags="g"
+                       match="Arrays\.sort"
+                       replace="ArraysHelper.sort" />
+
+		<!-- Fix call to Arrays.binarySearch() -->
+        <replaceregexp file="${dst.file}" flags="g"
+                       match="Arrays\.binarySearch"
+                       replace="ArraysHelper.binarySearch" />
 	</target>
 
     <!-- Special handling of double  -->
@@ -411,12 +411,6 @@
 
     <!-- Special handling of boolean  -->
 	<target name="build-simple-type-boolean">
-		<replaceregexp file="${dst.file}" flags="s"
-		               match="public void sort\(.*?Arrays.sort\(values, index, index\+len\);\s+\}"
-		               replace="" />
-		<replaceregexp file="${dst.file}" flags="s"
-		               match="public  int binarySearch\(.*?Arrays.binarySearch\(.*?\);\s+\}"
-		               replace="" />
 		<replaceregexp file="${dst.file}" flags="s"
 		               match="static int hashCodeElem\(.*?val;"
 		               replace="static int hashCodeElem(${type} val\) {${NL}return val ? 1231 : 1237;" />

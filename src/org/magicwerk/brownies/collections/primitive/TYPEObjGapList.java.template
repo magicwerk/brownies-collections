@@ -509,9 +509,6 @@ public class NAMETYPEObjGapList extends GapList<WRAPPERTYPE> {
 
 	@Override
 	public <K> int binarySearch(K key, Comparator<? super K> comparator) {
-		if (key == null || key.getClass() != WRAPPERTYPE.class) {
-			throw new IllegalArgumentException("Value is null or has invalid type");
-		}
 		if (comparator != null) {
 			throw new IllegalArgumentException("Only natural comparator (null) allowed");
 		}
@@ -520,9 +517,6 @@ public class NAMETYPEObjGapList extends GapList<WRAPPERTYPE> {
 
 	@Override
 	public <K> int binarySearch(int index, int len, K key, Comparator<? super K> comparator) {
-		if (key == null || key.getClass() != WRAPPERTYPE.class) {
-			throw new IllegalArgumentException("Value is null or has invalid type");
-		}
 		if (comparator != null) {
 			throw new IllegalArgumentException("Only natural comparator (null) allowed");
 		}
