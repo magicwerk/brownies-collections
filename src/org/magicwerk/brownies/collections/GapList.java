@@ -2491,7 +2491,7 @@ public class GapList<E> extends AbstractList<E>
     		if (forward) {
     			index = 0;
     		} else {
-    			index = size-1;
+    			index = size()-1;
     		}
     		remove = -1;
     	}

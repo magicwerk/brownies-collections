@@ -163,16 +163,75 @@
 	</target>
 
 	<!--
-	Create Java file, e.g. IntGapList.java.
+	Create Java files, e.g. IntGapList.java and IntObjGapList.java.
 
 	@params name, type, wrapper, deval
 	-->
 	<target name="build-type">
+		<antcall target="build-simple-type" />
+		<antcall target="build-object-type" />
+	</target>
+
+    <target name="build-object-type">
+		<property name="class.name" value="${name}GapList" />
+		<property name="dst.file" value="${dst.dir}/${name}ObjGapList.java" />
+    	<delete file="${dst.file}"/>
+    	<copy file="${dst.dir}/TYPEObjGapList.java.template" tofile="${dst.file}"/>
+
+		<!-- Common handling of types -->
+    	<replace file="${dst.file}">
+      		<replacefilter token="NAMETYPE" value="${name}"/>
+      		<replacefilter token="WRAPPERTYPE" value="${wrapper}"/>
+       		<replacefilter token="SIMPLETYPE" value="${type}"/>
+    	</replace>
+
+		<!-- Special handling of types -->
+		<if>
+	        <equals arg1="${type}" arg2="boolean" />
+			<then>
+				<replaceregexp file="${dst.file}" flags="s"
+				               match="@Override[ \t\r\n]+?public void sort\(Comparator.*?return list.binarySearch\(index, len, \(Boolean\) key\);\s+\}"
+				               replace="" />
+			</then>
+	    </if>
+	</target>
+
+	<!--
+	Create Java file, e.g. IntGapList.java.
+
+	@params name, type, wrapper, deval
+	-->
+	<target name="build-simple-type">
 		<property name="class.name" value="${name}GapList" />
 		<property name="dst.file" value="${dst.dir}/${class.name}.java" />
     	<delete file="${dst.file}"/>
     	<copy file="${src.dir}/GapList.java" tofile="${dst.file}"/>
 
+		<!-- Common handling of types -->
+		<antcall target="build-simple-type-base" />
+
+		<!-- Special handling of types -->
+		<if>
+	        <equals arg1="${type}" arg2="double" />
+			<then>
+				<antcall target="build-simple-type-double-float" />
+			</then>
+	    </if>
+		<if>
+	        <equals arg1="${type}" arg2="float" />
+			<then>
+				<antcall target="build-simple-type-double-float" />
+			</then>
+	    </if>
+		<if>
+	        <equals arg1="${type}" arg2="boolean" />
+			<then>
+				<antcall target="build-simple-type-boolean" />
+			</then>
+	    </if>
+	</target>
+
+	<target name="build-simple-type-base">
 		<replaceregexp file="${dst.file}" flags="s"
 		               match="^"
 		               replace="// ---${NL}// --- DO NOT EDIT${NL}// --- AUTOMATICALLY GENERATED FILE${NL}// ---${NL}" />
@@ -216,6 +275,9 @@
 		               match="Collection&lt;.*?&gt;"
 		               replace="Collection&lt;${wrapper}&gt;" />
 
+		<replaceregexp file="${dst.file}" flags="s"
+		               match=" \* @param.*?\r\n"
+		               replace="" />
 		<!-- remove method 'boolean remove(Object elem)' -->
 		<replaceregexp file="${dst.file}" flags="s"
 		               match="public boolean remove\(Object elem\).*?return true;\s+\}"
@@ -318,7 +380,7 @@
 
         <!-- Fix iterator in setAll() -->
         <replaceregexp file="${dst.file}" flags="s"
-                       match="Iterator&lt;${type}&gt;"
+                       match="Iterator&lt;\? extends ${type}&gt;"
                        replace="Iterator&lt;${wrapper}&gt;" />
 
         <!-- Remove type parameter <T> -->
@@ -338,37 +400,17 @@
         <replaceregexp file="${dst.file}" flags="s"
                        match="newValues = .*?;"
                        replace="newValues = null;" />
-
-	    <!-- Special handling of types  -->
-		<if>
-	        <equals arg1="${type}" arg2="double" />
-			<then>
-				<antcall target="build-type-double-float" />
-			</then>
-	    </if>
-		<if>
-	        <equals arg1="${type}" arg2="float" />
-			<then>
-				<antcall target="build-type-double-float" />
-			</then>
-	    </if>
-		<if>
-	        <equals arg1="${type}" arg2="boolean" />
-			<then>
-				<antcall target="build-type-boolean" />
-			</then>
-	    </if>
 	</target>
 
     <!-- Special handling of double  -->
-	<target name="build-type-double-float">
+	<target name="build-simple-type-double-float">
 		<replaceregexp file="${dst.file}" flags="s"
 		               match="static boolean equalsElem\(.*?;"
 		               replace="static boolean equalsElem(${type} val1, ${type} val2\) {${NL}return ${wrapper}.compare(val1, val2) == 0;" />
 	</target>
 
     <!-- Special handling of boolean  -->
-	<target name="build-type-boolean">
+	<target name="build-simple-type-boolean">
 		<replaceregexp file="${dst.file}" flags="s"
 		               match="public void sort\(.*?Arrays.sort\(values, index, index\+len\);\s+\}"
 		               replace="" />

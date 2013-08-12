@@ -50,7 +50,6 @@ import java.util.ListIterator;
  * @author Thomas Mauch
  * @version $Id$
  *
- * @param  type of elements stored in the list
  * @see	    java.util.List
  * @see	    java.util.ArrayList
  * @see	    java.util.LinkedList
@@ -84,7 +83,7 @@ public class DoubleGapList implements Cloneable, Serializable {
 
     /** Unmodifiable empty instance */
     @SuppressWarnings("rawtypes")
-    private static DoubleGapList EMPTY = DoubleGapList.create().unmodifiableList();
+    private static final DoubleGapList EMPTY = DoubleGapList.create().unmodifiableList();
 
     /**
      * @return unmodifiable empty instance
@@ -300,7 +299,7 @@ public class DoubleGapList implements Cloneable, Serializable {
      *             if false nothing is done
      * @param that list to copy
      */
-    DoubleGapList(boolean copy, DoubleGapList that) {
+    protected DoubleGapList(boolean copy, DoubleGapList that) {
         if (copy) {
             this.values = that.values;
             this.size = that.size;
@@ -402,13 +401,13 @@ public class DoubleGapList implements Cloneable, Serializable {
 			DoubleGapList list = (DoubleGapList) super.clone();
 			// Do not simply clone the array, but make sure its capacity
 			// is equal to the size (as in ArrayList)
-		    init(toArray());
+		    list.init(toArray());
 			if (DEBUG_CHECK) list.debugCheck();
 		    return list;
 		}
 		catch (CloneNotSupportedException e) {
 		    // This shouldn't happen, since we are Cloneable
-		    throw new InternalError();
+		    throw new AssertionError(e);
 		}
     }
 
@@ -1028,11 +1027,12 @@ public class DoubleGapList implements Cloneable, Serializable {
 
 		doModify();
 
+		// Note: Same behavior as in ArrayList.ensureCapacity()
 		int oldCapacity = values.length;
 		if (minCapacity <= oldCapacity) {
 			return;	// do not shrink
 		}
-	    int newCapacity = (oldCapacity * 3)/2 + 1;
+	    int newCapacity = (oldCapacity*3)/2 + 1;
 	    if (newCapacity < minCapacity) {
 	    	newCapacity = minCapacity;
     	}
