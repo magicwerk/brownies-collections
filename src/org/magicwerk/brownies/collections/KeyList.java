@@ -25,6 +25,15 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.magicwerk.brownies.collections.primitive.BooleanObjGapList;
+import org.magicwerk.brownies.collections.primitive.ByteObjGapList;
+import org.magicwerk.brownies.collections.primitive.CharObjGapList;
+import org.magicwerk.brownies.collections.primitive.DoubleObjGapList;
+import org.magicwerk.brownies.collections.primitive.FloatObjGapList;
+import org.magicwerk.brownies.collections.primitive.IntObjGapList;
+import org.magicwerk.brownies.collections.primitive.LongObjGapList;
+import org.magicwerk.brownies.collections.primitive.ShortObjGapList;
+
 
 /**
  * A KeyList add key handling features to GapList.
@@ -165,12 +174,15 @@ public class KeyList<E> extends GapList<E> {
             boolean comparatorSortsNull;
             /** Determine whether null values appear first or last */
             boolean sortNullsFirst;
+            /** Primitive class to use for sorting */
+            Class<?> type;
         }
 
     	// KeyList to build
     	KeyList<E> keyList;
     	// -- null
         boolean allowNullElem;
+        boolean sorted;
         Predicate<E> constraint;
         // -- keys
         KeyMapBuilder keyMapBuilder;
@@ -212,6 +224,10 @@ public class KeyList<E> extends GapList<E> {
 	                	keyMap.comparator = (Comparator<Object>) keyMapBuilder.comparator;
 	                }
                 } else if (keyMapBuilder.sort) {
+	            	if (!keyMaps.isEmpty()) {
+	            		throw new IllegalArgumentException("Only first key can be sort key"); // TODO support multiple keys
+	            	}
+	            	sorted = keyMapBuilder.sort;
                 	if (allowNullKey) {
 	                	keyMap.comparator = new NullComparator(getNaturalComparator(), keyMapBuilder.sortNullsFirst);
                 	} else {
@@ -219,15 +235,56 @@ public class KeyList<E> extends GapList<E> {
                 	}
                 }
 	            if (keyMap.comparator != null) {
-	            	if (!keyMaps.isEmpty()) {
-	            		throw new IllegalArgumentException("Only first key can be sorted"); // TODO support multiple keys
+	                if (keyMapBuilder.sort && keyMap.mapper == IdentMapper.INSTANCE) {
+	                	// Sorted set: we do not need a separate list for storing
+	                	// keys and elements. We have to handle this case specially later.
+	                	keyMap.sortedKeys = (GapList<Object>) keyList;
+	            	} else {
+	            		if (keyMapBuilder.type == null) {
+		            		keyMap.sortedKeys = new GapList<Object>();
+	            		} else {
+	            			keyMap.sortedKeys = (GapList<Object>) createWrapperList(keyMapBuilder.type);
+	            		}
 	            	}
+	            } else {
+	                // Set is not sorted: maintain a separate HashMap for fast
+	                // answering contains() calls
+	                keyMap.unsortedKeys = new HashMap<Object, Object>();
 	            }
 
                 keyMap.allowNullKeys = keyMapBuilder.nullMode;
                 keyMaps.add(keyMap);
 
         		keyMapBuilder = null;
+        	}
+        }
+
+        /**
+         * Create a GapList wrapping a primitive GapList, e.g. IntObjGapList.
+         *
+         * @param type	primitive type for GapList
+         * @return		create wrapping GapList
+         * @throws 		IllegalArgumentException if no primitive type is specified
+         */
+        static GapList<?> createWrapperList(Class<?> type) {
+        	if (type == int.class) {
+        		return new IntObjGapList();
+        	} else if (type == long.class) {
+            	return new LongObjGapList();
+        	} else if (type == double.class) {
+            	return new DoubleObjGapList();
+        	} else if (type == float.class) {
+            	return new FloatObjGapList();
+        	} else if (type == boolean.class) {
+            	return new BooleanObjGapList();
+        	} else if (type == byte.class) {
+            	return new ByteObjGapList();
+        	} else if (type == char.class) {
+            	return new CharObjGapList();
+        	} else if (type == short.class) {
+            	return new ShortObjGapList();
+        	} else {
+        		throw new IllegalArgumentException("Primitive type expected: " + type);
         	}
         }
 
@@ -240,27 +297,10 @@ public class KeyList<E> extends GapList<E> {
         	endKeyMapBuilder();
 
        		keyList.allowNullElem = allowNullElem;
+       		keyList.sorted = sorted;
        		keyList.constraint = constraint;
             keyList.insertTrigger = insertTrigger;
             keyList.deleteTrigger = deleteTrigger;
-
-            for (int i=0; i<keyMaps.size(); i++) {
-	            KeyMap<E,Object> keyMap = keyMaps.get(i);
-	            if (keyMap.comparator != null) {
-	                if (i == 0 && keyMap.mapper == IdentMapper.INSTANCE) {
-	                	// Sorted set: we do not need a separate list for storing
-	                	// keys and elements. We have to handle this case specially later.
-	                	keyMap.sortedKeys = (GapList<Object>) keyList;
-	            	} else {
-	            		keyMap.sortedKeys = new GapList<Object>();
-	            	}
-	            } else {
-	                // Set is not sorted: maintain a separate HashMap for fast
-	                // answering contains() calls
-	            	//keyMap.unsortedKeys = new HashMap<Object, Object>();
-	                keyMap.unsortedKeys = new HashMap<Object, Object>();
-	            }
-            }
             keyList.keyMaps = keyMaps.toArray(new KeyMap[keyMaps.size()]);
 
             if (capacity == -1) {
@@ -272,7 +312,7 @@ public class KeyList<E> extends GapList<E> {
                 	capacity = 10;
                 }
             }
-            keyList.init(capacity);
+            keyList.init(new Object[capacity], 0);
             if (collection != null) {
             	keyList.addAll(collection);
             } else if (array != null) {
@@ -417,7 +457,7 @@ public class KeyList<E> extends GapList<E> {
         }
 
         /**
-         * Determines whether list should be sorted or not.
+         * Determines that list should be sorted.
          *
          * @return              this (for use in fluent interfaces)
          */
@@ -426,7 +466,7 @@ public class KeyList<E> extends GapList<E> {
         }
 
         /**
-         * Determines that list should be sorted.
+         * Determines whether list should be sorted or not.
          *
          * @param sort    true to sort list, otherwise false
          * @return        this (for use in fluent interfaces)
@@ -434,6 +474,17 @@ public class KeyList<E> extends GapList<E> {
         public Builder<E> withKeySort(boolean sort) {
         	getKeyMapBuilder().sort = sort;
             return this;
+        }
+
+        /**
+         * Set primitive type to use for sorting.
+         *
+         * @param type    primitive type to use for key
+         * @return        this (for use in fluent interfaces)
+         */
+        public Builder<E> withKeyType(Class<?> type) {
+        	getKeyMapBuilder().type = type;
+        	return this;
         }
 
         /**
@@ -494,6 +545,8 @@ public class KeyList<E> extends GapList<E> {
 
     /** True to allow null elements. A null element will always generate a null key. */
     boolean allowNullElem;
+    /** True if list is sorted by first key */
+    boolean sorted;
     /** Evaluation of the predicate must be successful for every element added to the list */
     Predicate<E> constraint;
     /** Handler method which is called if an element is attached to the list */
@@ -579,6 +632,7 @@ public class KeyList<E> extends GapList<E> {
 	    super(false, that);
 
 	    allowNullElem = that.allowNullElem;
+	    sorted = that.sorted;
 	    constraint = that.constraint;
 	    insertTrigger = that.insertTrigger;
 	    deleteTrigger = that.deleteTrigger;
@@ -593,7 +647,7 @@ public class KeyList<E> extends GapList<E> {
 	@SuppressWarnings("unchecked")
     void initCrop(KeyList<E> that) {
 	    // GapList
-	    init(10);
+	    init(new Object[10], 0);
 
 	    // KeyList
 	    keyMaps = that.keyMaps.clone();
@@ -609,7 +663,7 @@ public class KeyList<E> extends GapList<E> {
      */
     void initCopy(KeyList<E> that) {
         // GapList
-        init(toArray(that));
+        init(that.toArray(), that.size());
 
         // KeyList
 	    keyMaps = that.keyMaps.clone();

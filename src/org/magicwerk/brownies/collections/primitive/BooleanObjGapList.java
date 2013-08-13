@@ -93,11 +93,6 @@ public class BooleanObjGapList extends GapList<Boolean> {
 	}
 
 	@Override
-	public void clear() {
-		list.clear();
-	}
-
-	@Override
 	public int size() {
 		return list.size();
 	}
@@ -113,24 +108,60 @@ public class BooleanObjGapList extends GapList<Boolean> {
 	}
 
 	@Override
-	public Boolean set(int index, Boolean elem) {
-		return list.set(index, elem);
+	public Boolean doGet(int index) {
+		return list.doGet(index);
 	}
 
 	@Override
-	public boolean add(Boolean elem) {
-		return list.add(elem);
+	public void doGetAll(Object[] elems, int index, int len) {
+		list.doGetAll(toPrimitive((Boolean[]) elems), index, len);
 	}
 
 	@Override
-	public void add(int index, Boolean elem) {
-		list.add(index, elem);
+	public boolean doAdd(int index, Boolean elem) {
+		return list.doAdd(index, elem);
 	}
 
 	@Override
-	public Boolean remove(int index) {
-		return list.remove(index);
+	public boolean doAddAll(int index, Boolean[] elem) {
+		return list.doAddAll(index, toPrimitive(elem));
 	}
+
+	@Override
+	public Boolean doSet(int index, Boolean elem) {
+		return list.doSet(index, elem);
+	}
+
+	@Override
+	public void doSetAll(int index, Boolean[] elem) {
+		list.doSetAll(index, toPrimitive(elem));
+	}
+
+	@Override
+	public Boolean doRemove(int index) {
+		return list.doRemove(index);
+	}
+
+	@Override
+	public void doRemoveAll(int index, int len) {
+		list.doRemoveAll(index, len);
+	}
+
+	@Override
+	public Boolean doReSet(int index, Boolean elem) {
+		return list.doReSet(index, elem);
+	}
+
+	@Override
+	public Boolean doReSet(int index) {
+		return list.doReSet(index);
+	}
+
+	@Override
+    public void move(int srcIndex, int dstIndex, int len) {
+    	// Use correct default value
+    	list.move(srcIndex, dstIndex, len);
+    }
 
 	@Override
 	public void ensureCapacity(int minCapacity) {
@@ -291,101 +322,6 @@ public class BooleanObjGapList extends GapList<Boolean> {
 	}
 
 	@Override
-	public Boolean getFirst() {
-		return list.getFirst();
-	}
-
-	@Override
-	public Boolean getLast() {
-		return list.getLast();
-	}
-
-	@Override
-	public void addFirst(Boolean elem) {
-		list.addFirst(elem);
-	}
-
-	@Override
-	public void addLast(Boolean elem) {
-		list.addLast(elem);
-	}
-
-	@Override
-	public Boolean removeFirst() {
-		return list.removeFirst();
-	}
-
-	@Override
-	public Boolean removeLast() {
-		return list.removeLast();
-	}
-
-	@Override
-	public Boolean peek() {
-		return list.peek();
-	}
-
-	@Override
-	public Boolean element() {
-		return list.element();
-	}
-
-	@Override
-	public Boolean poll() {
-		return list.poll();
-	}
-
-	@Override
-	public Boolean remove() {
-		return list.remove();
-	}
-
-	@Override
-	public boolean offer(Boolean elem) {
-		return list.offer(elem);
-	}
-
-	@Override
-	public boolean offerFirst(Boolean elem) {
-		return list.offerFirst(elem);
-	}
-
-	@Override
-	public boolean offerLast(Boolean elem) {
-		return list.offerLast(elem);
-	}
-
-	@Override
-	public Boolean peekFirst() {
-		return list.peekFirst();
-	}
-
-	@Override
-	public Boolean peekLast() {
-		return list.peekLast();
-	}
-
-	@Override
-	public Boolean pollFirst() {
-		return list.pollFirst();
-	}
-
-	@Override
-	public Boolean pollLast() {
-		return list.pollLast();
-	}
-
-	@Override
-	public Boolean pop() {
-		return list.pop();
-	}
-
-	@Override
-	public void push(Boolean elem) {
-		list.push(elem);
-	}
-
-	@Override
 	public boolean removeFirstOccurrence(Object elem) {
 		if (elem == null || elem.getClass() != Boolean.class) {
 			return false;
@@ -432,87 +368,11 @@ public class BooleanObjGapList extends GapList<Boolean> {
 	}
 
 	@Override
-	public void remove(int index, int len) {
-		list.remove(index, len);
-	}
-
-	@Override
-	public void init(int len, Boolean elem) {
-		list.init(len, elem);
-	}
-
-	@Override
-	public void resize(int len, Boolean elem) {
-		list.resize(len, elem);
-	}
-
-	@Override
-	public void fill(Boolean elem) {
-		list.fill(elem);
-	}
-
-	@Override
-	public void fill(int index, int len, Boolean elem) {
-		list.fill(index, len, elem);
-	}
-
-	@Override
-	public void copy(int srcIndex, int dstIndex, int len) {
-		list.copy(srcIndex, dstIndex, len);
-	}
-
-	@Override
-	public void move(int srcIndex, int dstIndex, int len) {
-		list.move(srcIndex, dstIndex, len);
-	}
-
-	@Override
-	public void reverse() {
-		list.reverse();
-	}
-
-	@Override
-	public void reverse(int index, int len) {
-		list.reverse(index, len);
-	}
-
-	@Override
-	public void swap(int index1, int index2, int len) {
-		list.swap(index1, index2, len);
-	}
-
-	@Override
-	public void rotate(int distance) {
-		list.rotate(distance);
-	}
-
-	@Override
-	public void rotate(int index, int len, int distance) {
-		list.rotate(index, len, distance);
-	}
-
-	@Override
-	public void sort(Comparator comparator) {
-		if (comparator != null) {
-			throw new IllegalArgumentException("Only natural comparator (null) allowed");
-		}
-		list.sort();
-	}
-
-	@Override
 	public void sort(int index, int len, Comparator comparator) {
 		if (comparator != null) {
 			throw new IllegalArgumentException("Only natural comparator (null) allowed");
 		}
 		list.sort(index, len);
-	}
-
-	@Override
-	public <K> int binarySearch(K key, Comparator<? super K> comparator) {
-		if (comparator != null) {
-			throw new IllegalArgumentException("Only natural comparator (null) allowed");
-		}
-		return list.binarySearch((Boolean) key);
 	}
 
 	@Override
@@ -523,4 +383,36 @@ public class BooleanObjGapList extends GapList<Boolean> {
 		return list.binarySearch(index, len, (Boolean) key);
 	}
 
+    public GapList<Boolean> unmodifiableList() {
+        return new ImmutableGapList<Boolean>(this) {
+			{
+        		BooleanGapList list = BooleanObjGapList.this.list;
+			}
+
+			@Override
+			public int size() {
+				return list.size();
+			}
+
+			@Override
+			public int capacity() {
+				return list.capacity();
+			}
+
+			@Override
+			public Boolean get(int index) {
+				return list.get(index);
+			}
+
+			@Override
+			public Boolean doGet(int index) {
+				return list.doGet(index);
+			}
+
+			@Override
+			public void doGetAll(Object[] elems, int index, int len) {
+				list.doGetAll(toPrimitive((Boolean[]) elems), index, len);
+			}
+        };
+    }
 }

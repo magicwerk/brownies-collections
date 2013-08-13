@@ -93,11 +93,6 @@ public class IntObjGapList extends GapList<Integer> {
 	}
 
 	@Override
-	public void clear() {
-		list.clear();
-	}
-
-	@Override
 	public int size() {
 		return list.size();
 	}
@@ -113,24 +108,60 @@ public class IntObjGapList extends GapList<Integer> {
 	}
 
 	@Override
-	public Integer set(int index, Integer elem) {
-		return list.set(index, elem);
+	public Integer doGet(int index) {
+		return list.doGet(index);
 	}
 
 	@Override
-	public boolean add(Integer elem) {
-		return list.add(elem);
+	public void doGetAll(Object[] elems, int index, int len) {
+		list.doGetAll(toPrimitive((Integer[]) elems), index, len);
 	}
 
 	@Override
-	public void add(int index, Integer elem) {
-		list.add(index, elem);
+	public boolean doAdd(int index, Integer elem) {
+		return list.doAdd(index, elem);
 	}
 
 	@Override
-	public Integer remove(int index) {
-		return list.remove(index);
+	public boolean doAddAll(int index, Integer[] elem) {
+		return list.doAddAll(index, toPrimitive(elem));
 	}
+
+	@Override
+	public Integer doSet(int index, Integer elem) {
+		return list.doSet(index, elem);
+	}
+
+	@Override
+	public void doSetAll(int index, Integer[] elem) {
+		list.doSetAll(index, toPrimitive(elem));
+	}
+
+	@Override
+	public Integer doRemove(int index) {
+		return list.doRemove(index);
+	}
+
+	@Override
+	public void doRemoveAll(int index, int len) {
+		list.doRemoveAll(index, len);
+	}
+
+	@Override
+	public Integer doReSet(int index, Integer elem) {
+		return list.doReSet(index, elem);
+	}
+
+	@Override
+	public Integer doReSet(int index) {
+		return list.doReSet(index);
+	}
+
+	@Override
+    public void move(int srcIndex, int dstIndex, int len) {
+    	// Use correct default value
+    	list.move(srcIndex, dstIndex, len);
+    }
 
 	@Override
 	public void ensureCapacity(int minCapacity) {
@@ -291,101 +322,6 @@ public class IntObjGapList extends GapList<Integer> {
 	}
 
 	@Override
-	public Integer getFirst() {
-		return list.getFirst();
-	}
-
-	@Override
-	public Integer getLast() {
-		return list.getLast();
-	}
-
-	@Override
-	public void addFirst(Integer elem) {
-		list.addFirst(elem);
-	}
-
-	@Override
-	public void addLast(Integer elem) {
-		list.addLast(elem);
-	}
-
-	@Override
-	public Integer removeFirst() {
-		return list.removeFirst();
-	}
-
-	@Override
-	public Integer removeLast() {
-		return list.removeLast();
-	}
-
-	@Override
-	public Integer peek() {
-		return list.peek();
-	}
-
-	@Override
-	public Integer element() {
-		return list.element();
-	}
-
-	@Override
-	public Integer poll() {
-		return list.poll();
-	}
-
-	@Override
-	public Integer remove() {
-		return list.remove();
-	}
-
-	@Override
-	public boolean offer(Integer elem) {
-		return list.offer(elem);
-	}
-
-	@Override
-	public boolean offerFirst(Integer elem) {
-		return list.offerFirst(elem);
-	}
-
-	@Override
-	public boolean offerLast(Integer elem) {
-		return list.offerLast(elem);
-	}
-
-	@Override
-	public Integer peekFirst() {
-		return list.peekFirst();
-	}
-
-	@Override
-	public Integer peekLast() {
-		return list.peekLast();
-	}
-
-	@Override
-	public Integer pollFirst() {
-		return list.pollFirst();
-	}
-
-	@Override
-	public Integer pollLast() {
-		return list.pollLast();
-	}
-
-	@Override
-	public Integer pop() {
-		return list.pop();
-	}
-
-	@Override
-	public void push(Integer elem) {
-		list.push(elem);
-	}
-
-	@Override
 	public boolean removeFirstOccurrence(Object elem) {
 		if (elem == null || elem.getClass() != Integer.class) {
 			return false;
@@ -432,74 +368,6 @@ public class IntObjGapList extends GapList<Integer> {
 	}
 
 	@Override
-	public void remove(int index, int len) {
-		list.remove(index, len);
-	}
-
-	@Override
-	public void init(int len, Integer elem) {
-		list.init(len, elem);
-	}
-
-	@Override
-	public void resize(int len, Integer elem) {
-		list.resize(len, elem);
-	}
-
-	@Override
-	public void fill(Integer elem) {
-		list.fill(elem);
-	}
-
-	@Override
-	public void fill(int index, int len, Integer elem) {
-		list.fill(index, len, elem);
-	}
-
-	@Override
-	public void copy(int srcIndex, int dstIndex, int len) {
-		list.copy(srcIndex, dstIndex, len);
-	}
-
-	@Override
-	public void move(int srcIndex, int dstIndex, int len) {
-		list.move(srcIndex, dstIndex, len);
-	}
-
-	@Override
-	public void reverse() {
-		list.reverse();
-	}
-
-	@Override
-	public void reverse(int index, int len) {
-		list.reverse(index, len);
-	}
-
-	@Override
-	public void swap(int index1, int index2, int len) {
-		list.swap(index1, index2, len);
-	}
-
-	@Override
-	public void rotate(int distance) {
-		list.rotate(distance);
-	}
-
-	@Override
-	public void rotate(int index, int len, int distance) {
-		list.rotate(index, len, distance);
-	}
-
-	@Override
-	public void sort(Comparator comparator) {
-		if (comparator != null) {
-			throw new IllegalArgumentException("Only natural comparator (null) allowed");
-		}
-		list.sort();
-	}
-
-	@Override
 	public void sort(int index, int len, Comparator comparator) {
 		if (comparator != null) {
 			throw new IllegalArgumentException("Only natural comparator (null) allowed");
@@ -508,25 +376,43 @@ public class IntObjGapList extends GapList<Integer> {
 	}
 
 	@Override
-	public <K> int binarySearch(K key, Comparator<? super K> comparator) {
-		if (key == null || key.getClass() != Integer.class) {
-			throw new IllegalArgumentException("Value is null or has invalid type");
-		}
-		if (comparator != null) {
-			throw new IllegalArgumentException("Only natural comparator (null) allowed");
-		}
-		return list.binarySearch((Integer) key);
-	}
-
-	@Override
 	public <K> int binarySearch(int index, int len, K key, Comparator<? super K> comparator) {
-		if (key == null || key.getClass() != Integer.class) {
-			throw new IllegalArgumentException("Value is null or has invalid type");
-		}
 		if (comparator != null) {
 			throw new IllegalArgumentException("Only natural comparator (null) allowed");
 		}
 		return list.binarySearch(index, len, (Integer) key);
 	}
 
+    public GapList<Integer> unmodifiableList() {
+        return new ImmutableGapList<Integer>(this) {
+			{
+        		IntGapList list = IntObjGapList.this.list;
+			}
+
+			@Override
+			public int size() {
+				return list.size();
+			}
+
+			@Override
+			public int capacity() {
+				return list.capacity();
+			}
+
+			@Override
+			public Integer get(int index) {
+				return list.get(index);
+			}
+
+			@Override
+			public Integer doGet(int index) {
+				return list.doGet(index);
+			}
+
+			@Override
+			public void doGetAll(Object[] elems, int index, int len) {
+				list.doGetAll(toPrimitive((Integer[]) elems), index, len);
+			}
+        };
+    }
 }

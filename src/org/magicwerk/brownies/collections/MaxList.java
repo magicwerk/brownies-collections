@@ -87,33 +87,6 @@ public class MaxList<E> extends GapList<E> {
         return false;
     }
 
-    @Override
-	protected boolean doAddAll(int index, GapList<? extends E> c) {
-        int addSize = c.size();
-		if (addSize == 0) {
-			return false;
-		}
-		int overlap = size()+addSize - maxSize;
-		if (overlap > 0) {
-			if (index >= overlap) {
-				super.remove(0, overlap);
-			} else {
-				super.remove(0, index);
-			}
-			index = index - overlap;
-		}
-		if (index >= 0) {
-			for (int i=0; i<addSize; i++) {
-				super.doAdd(index+i, c.get(i));
-			}
-		} else {
-			for (int i=0; i<addSize+index; i++) {
-				super.doAdd(0, c.get(i-index));
-			}
-		}
-		return true;
-	}
-
 	@Override
 	protected boolean doAddAll(int index, E[] array) {
         checkIndexAdd(index);

@@ -93,11 +93,6 @@ public class CharObjGapList extends GapList<Character> {
 	}
 
 	@Override
-	public void clear() {
-		list.clear();
-	}
-
-	@Override
 	public int size() {
 		return list.size();
 	}
@@ -113,24 +108,60 @@ public class CharObjGapList extends GapList<Character> {
 	}
 
 	@Override
-	public Character set(int index, Character elem) {
-		return list.set(index, elem);
+	public Character doGet(int index) {
+		return list.doGet(index);
 	}
 
 	@Override
-	public boolean add(Character elem) {
-		return list.add(elem);
+	public void doGetAll(Object[] elems, int index, int len) {
+		list.doGetAll(toPrimitive((Character[]) elems), index, len);
 	}
 
 	@Override
-	public void add(int index, Character elem) {
-		list.add(index, elem);
+	public boolean doAdd(int index, Character elem) {
+		return list.doAdd(index, elem);
 	}
 
 	@Override
-	public Character remove(int index) {
-		return list.remove(index);
+	public boolean doAddAll(int index, Character[] elem) {
+		return list.doAddAll(index, toPrimitive(elem));
 	}
+
+	@Override
+	public Character doSet(int index, Character elem) {
+		return list.doSet(index, elem);
+	}
+
+	@Override
+	public void doSetAll(int index, Character[] elem) {
+		list.doSetAll(index, toPrimitive(elem));
+	}
+
+	@Override
+	public Character doRemove(int index) {
+		return list.doRemove(index);
+	}
+
+	@Override
+	public void doRemoveAll(int index, int len) {
+		list.doRemoveAll(index, len);
+	}
+
+	@Override
+	public Character doReSet(int index, Character elem) {
+		return list.doReSet(index, elem);
+	}
+
+	@Override
+	public Character doReSet(int index) {
+		return list.doReSet(index);
+	}
+
+	@Override
+    public void move(int srcIndex, int dstIndex, int len) {
+    	// Use correct default value
+    	list.move(srcIndex, dstIndex, len);
+    }
 
 	@Override
 	public void ensureCapacity(int minCapacity) {
@@ -291,101 +322,6 @@ public class CharObjGapList extends GapList<Character> {
 	}
 
 	@Override
-	public Character getFirst() {
-		return list.getFirst();
-	}
-
-	@Override
-	public Character getLast() {
-		return list.getLast();
-	}
-
-	@Override
-	public void addFirst(Character elem) {
-		list.addFirst(elem);
-	}
-
-	@Override
-	public void addLast(Character elem) {
-		list.addLast(elem);
-	}
-
-	@Override
-	public Character removeFirst() {
-		return list.removeFirst();
-	}
-
-	@Override
-	public Character removeLast() {
-		return list.removeLast();
-	}
-
-	@Override
-	public Character peek() {
-		return list.peek();
-	}
-
-	@Override
-	public Character element() {
-		return list.element();
-	}
-
-	@Override
-	public Character poll() {
-		return list.poll();
-	}
-
-	@Override
-	public Character remove() {
-		return list.remove();
-	}
-
-	@Override
-	public boolean offer(Character elem) {
-		return list.offer(elem);
-	}
-
-	@Override
-	public boolean offerFirst(Character elem) {
-		return list.offerFirst(elem);
-	}
-
-	@Override
-	public boolean offerLast(Character elem) {
-		return list.offerLast(elem);
-	}
-
-	@Override
-	public Character peekFirst() {
-		return list.peekFirst();
-	}
-
-	@Override
-	public Character peekLast() {
-		return list.peekLast();
-	}
-
-	@Override
-	public Character pollFirst() {
-		return list.pollFirst();
-	}
-
-	@Override
-	public Character pollLast() {
-		return list.pollLast();
-	}
-
-	@Override
-	public Character pop() {
-		return list.pop();
-	}
-
-	@Override
-	public void push(Character elem) {
-		list.push(elem);
-	}
-
-	@Override
 	public boolean removeFirstOccurrence(Object elem) {
 		if (elem == null || elem.getClass() != Character.class) {
 			return false;
@@ -432,74 +368,6 @@ public class CharObjGapList extends GapList<Character> {
 	}
 
 	@Override
-	public void remove(int index, int len) {
-		list.remove(index, len);
-	}
-
-	@Override
-	public void init(int len, Character elem) {
-		list.init(len, elem);
-	}
-
-	@Override
-	public void resize(int len, Character elem) {
-		list.resize(len, elem);
-	}
-
-	@Override
-	public void fill(Character elem) {
-		list.fill(elem);
-	}
-
-	@Override
-	public void fill(int index, int len, Character elem) {
-		list.fill(index, len, elem);
-	}
-
-	@Override
-	public void copy(int srcIndex, int dstIndex, int len) {
-		list.copy(srcIndex, dstIndex, len);
-	}
-
-	@Override
-	public void move(int srcIndex, int dstIndex, int len) {
-		list.move(srcIndex, dstIndex, len);
-	}
-
-	@Override
-	public void reverse() {
-		list.reverse();
-	}
-
-	@Override
-	public void reverse(int index, int len) {
-		list.reverse(index, len);
-	}
-
-	@Override
-	public void swap(int index1, int index2, int len) {
-		list.swap(index1, index2, len);
-	}
-
-	@Override
-	public void rotate(int distance) {
-		list.rotate(distance);
-	}
-
-	@Override
-	public void rotate(int index, int len, int distance) {
-		list.rotate(index, len, distance);
-	}
-
-	@Override
-	public void sort(Comparator comparator) {
-		if (comparator != null) {
-			throw new IllegalArgumentException("Only natural comparator (null) allowed");
-		}
-		list.sort();
-	}
-
-	@Override
 	public void sort(int index, int len, Comparator comparator) {
 		if (comparator != null) {
 			throw new IllegalArgumentException("Only natural comparator (null) allowed");
@@ -508,25 +376,43 @@ public class CharObjGapList extends GapList<Character> {
 	}
 
 	@Override
-	public <K> int binarySearch(K key, Comparator<? super K> comparator) {
-		if (key == null || key.getClass() != Character.class) {
-			throw new IllegalArgumentException("Value is null or has invalid type");
-		}
-		if (comparator != null) {
-			throw new IllegalArgumentException("Only natural comparator (null) allowed");
-		}
-		return list.binarySearch((Character) key);
-	}
-
-	@Override
 	public <K> int binarySearch(int index, int len, K key, Comparator<? super K> comparator) {
-		if (key == null || key.getClass() != Character.class) {
-			throw new IllegalArgumentException("Value is null or has invalid type");
-		}
 		if (comparator != null) {
 			throw new IllegalArgumentException("Only natural comparator (null) allowed");
 		}
 		return list.binarySearch(index, len, (Character) key);
 	}
 
+    public GapList<Character> unmodifiableList() {
+        return new ImmutableGapList<Character>(this) {
+			{
+        		CharGapList list = CharObjGapList.this.list;
+			}
+
+			@Override
+			public int size() {
+				return list.size();
+			}
+
+			@Override
+			public int capacity() {
+				return list.capacity();
+			}
+
+			@Override
+			public Character get(int index) {
+				return list.get(index);
+			}
+
+			@Override
+			public Character doGet(int index) {
+				return list.doGet(index);
+			}
+
+			@Override
+			public void doGetAll(Object[] elems, int index, int len) {
+				list.doGetAll(toPrimitive((Character[]) elems), index, len);
+			}
+        };
+    }
 }

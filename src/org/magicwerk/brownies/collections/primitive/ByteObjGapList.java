@@ -93,11 +93,6 @@ public class ByteObjGapList extends GapList<Byte> {
 	}
 
 	@Override
-	public void clear() {
-		list.clear();
-	}
-
-	@Override
 	public int size() {
 		return list.size();
 	}
@@ -113,24 +108,60 @@ public class ByteObjGapList extends GapList<Byte> {
 	}
 
 	@Override
-	public Byte set(int index, Byte elem) {
-		return list.set(index, elem);
+	public Byte doGet(int index) {
+		return list.doGet(index);
 	}
 
 	@Override
-	public boolean add(Byte elem) {
-		return list.add(elem);
+	public void doGetAll(Object[] elems, int index, int len) {
+		list.doGetAll(toPrimitive((Byte[]) elems), index, len);
 	}
 
 	@Override
-	public void add(int index, Byte elem) {
-		list.add(index, elem);
+	public boolean doAdd(int index, Byte elem) {
+		return list.doAdd(index, elem);
 	}
 
 	@Override
-	public Byte remove(int index) {
-		return list.remove(index);
+	public boolean doAddAll(int index, Byte[] elem) {
+		return list.doAddAll(index, toPrimitive(elem));
 	}
+
+	@Override
+	public Byte doSet(int index, Byte elem) {
+		return list.doSet(index, elem);
+	}
+
+	@Override
+	public void doSetAll(int index, Byte[] elem) {
+		list.doSetAll(index, toPrimitive(elem));
+	}
+
+	@Override
+	public Byte doRemove(int index) {
+		return list.doRemove(index);
+	}
+
+	@Override
+	public void doRemoveAll(int index, int len) {
+		list.doRemoveAll(index, len);
+	}
+
+	@Override
+	public Byte doReSet(int index, Byte elem) {
+		return list.doReSet(index, elem);
+	}
+
+	@Override
+	public Byte doReSet(int index) {
+		return list.doReSet(index);
+	}
+
+	@Override
+    public void move(int srcIndex, int dstIndex, int len) {
+    	// Use correct default value
+    	list.move(srcIndex, dstIndex, len);
+    }
 
 	@Override
 	public void ensureCapacity(int minCapacity) {
@@ -291,101 +322,6 @@ public class ByteObjGapList extends GapList<Byte> {
 	}
 
 	@Override
-	public Byte getFirst() {
-		return list.getFirst();
-	}
-
-	@Override
-	public Byte getLast() {
-		return list.getLast();
-	}
-
-	@Override
-	public void addFirst(Byte elem) {
-		list.addFirst(elem);
-	}
-
-	@Override
-	public void addLast(Byte elem) {
-		list.addLast(elem);
-	}
-
-	@Override
-	public Byte removeFirst() {
-		return list.removeFirst();
-	}
-
-	@Override
-	public Byte removeLast() {
-		return list.removeLast();
-	}
-
-	@Override
-	public Byte peek() {
-		return list.peek();
-	}
-
-	@Override
-	public Byte element() {
-		return list.element();
-	}
-
-	@Override
-	public Byte poll() {
-		return list.poll();
-	}
-
-	@Override
-	public Byte remove() {
-		return list.remove();
-	}
-
-	@Override
-	public boolean offer(Byte elem) {
-		return list.offer(elem);
-	}
-
-	@Override
-	public boolean offerFirst(Byte elem) {
-		return list.offerFirst(elem);
-	}
-
-	@Override
-	public boolean offerLast(Byte elem) {
-		return list.offerLast(elem);
-	}
-
-	@Override
-	public Byte peekFirst() {
-		return list.peekFirst();
-	}
-
-	@Override
-	public Byte peekLast() {
-		return list.peekLast();
-	}
-
-	@Override
-	public Byte pollFirst() {
-		return list.pollFirst();
-	}
-
-	@Override
-	public Byte pollLast() {
-		return list.pollLast();
-	}
-
-	@Override
-	public Byte pop() {
-		return list.pop();
-	}
-
-	@Override
-	public void push(Byte elem) {
-		list.push(elem);
-	}
-
-	@Override
 	public boolean removeFirstOccurrence(Object elem) {
 		if (elem == null || elem.getClass() != Byte.class) {
 			return false;
@@ -432,74 +368,6 @@ public class ByteObjGapList extends GapList<Byte> {
 	}
 
 	@Override
-	public void remove(int index, int len) {
-		list.remove(index, len);
-	}
-
-	@Override
-	public void init(int len, Byte elem) {
-		list.init(len, elem);
-	}
-
-	@Override
-	public void resize(int len, Byte elem) {
-		list.resize(len, elem);
-	}
-
-	@Override
-	public void fill(Byte elem) {
-		list.fill(elem);
-	}
-
-	@Override
-	public void fill(int index, int len, Byte elem) {
-		list.fill(index, len, elem);
-	}
-
-	@Override
-	public void copy(int srcIndex, int dstIndex, int len) {
-		list.copy(srcIndex, dstIndex, len);
-	}
-
-	@Override
-	public void move(int srcIndex, int dstIndex, int len) {
-		list.move(srcIndex, dstIndex, len);
-	}
-
-	@Override
-	public void reverse() {
-		list.reverse();
-	}
-
-	@Override
-	public void reverse(int index, int len) {
-		list.reverse(index, len);
-	}
-
-	@Override
-	public void swap(int index1, int index2, int len) {
-		list.swap(index1, index2, len);
-	}
-
-	@Override
-	public void rotate(int distance) {
-		list.rotate(distance);
-	}
-
-	@Override
-	public void rotate(int index, int len, int distance) {
-		list.rotate(index, len, distance);
-	}
-
-	@Override
-	public void sort(Comparator comparator) {
-		if (comparator != null) {
-			throw new IllegalArgumentException("Only natural comparator (null) allowed");
-		}
-		list.sort();
-	}
-
-	@Override
 	public void sort(int index, int len, Comparator comparator) {
 		if (comparator != null) {
 			throw new IllegalArgumentException("Only natural comparator (null) allowed");
@@ -508,25 +376,43 @@ public class ByteObjGapList extends GapList<Byte> {
 	}
 
 	@Override
-	public <K> int binarySearch(K key, Comparator<? super K> comparator) {
-		if (key == null || key.getClass() != Byte.class) {
-			throw new IllegalArgumentException("Value is null or has invalid type");
-		}
-		if (comparator != null) {
-			throw new IllegalArgumentException("Only natural comparator (null) allowed");
-		}
-		return list.binarySearch((Byte) key);
-	}
-
-	@Override
 	public <K> int binarySearch(int index, int len, K key, Comparator<? super K> comparator) {
-		if (key == null || key.getClass() != Byte.class) {
-			throw new IllegalArgumentException("Value is null or has invalid type");
-		}
 		if (comparator != null) {
 			throw new IllegalArgumentException("Only natural comparator (null) allowed");
 		}
 		return list.binarySearch(index, len, (Byte) key);
 	}
 
+    public GapList<Byte> unmodifiableList() {
+        return new ImmutableGapList<Byte>(this) {
+			{
+        		ByteGapList list = ByteObjGapList.this.list;
+			}
+
+			@Override
+			public int size() {
+				return list.size();
+			}
+
+			@Override
+			public int capacity() {
+				return list.capacity();
+			}
+
+			@Override
+			public Byte get(int index) {
+				return list.get(index);
+			}
+
+			@Override
+			public Byte doGet(int index) {
+				return list.doGet(index);
+			}
+
+			@Override
+			public void doGetAll(Object[] elems, int index, int len) {
+				list.doGetAll(toPrimitive((Byte[]) elems), index, len);
+			}
+        };
+    }
 }

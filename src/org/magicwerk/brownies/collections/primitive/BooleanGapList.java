@@ -58,6 +58,11 @@ import java.util.ListIterator;
  */
 public class BooleanGapList implements Cloneable, Serializable {
 
+	// Guide to subclass BooleanGapList
+	// You need to overwrite the following methods:
+	// - size(): return size
+	// - get(int): check index, return element
+	// - doGet,
 
     /*
      * Helper variables to enable code for debugging.
@@ -101,7 +106,7 @@ public class BooleanGapList implements Cloneable, Serializable {
      * Note that the client cannot change the list,
      * but the content may change if the underlying list is changed.
      */
-    static class ImmutableBooleanGapList extends BooleanGapList {
+    protected static class ImmutableBooleanGapList extends BooleanGapList {
 
         /** UID for serialization */
         private static final long serialVersionUID = -1352274047348922584L;
@@ -111,32 +116,62 @@ public class BooleanGapList implements Cloneable, Serializable {
          *
          * @param that  list to create an immutable view of
          */
-        private ImmutableBooleanGapList(BooleanGapList that) {
+        protected ImmutableBooleanGapList(BooleanGapList that) {
             super(true, that);
         }
 
         
         protected boolean doAdd(int index, boolean elem) {
-            throw new UnsupportedOperationException("list is read-only");
+        	check();
+        	return false;
+        }
+
+        
+        protected boolean doAddAll(int index, boolean[] elems) {
+        	check();
+        	return false;
         }
 
         
         protected boolean doSet(int index, boolean elem) {
-            throw new UnsupportedOperationException("list is read-only");
+        	check();
+        	return (boolean)false;
+        }
+
+        
+        protected void doSetAll(int index, boolean[] elems) {
+        	check();
         }
 
         
         protected boolean doReSet(int index, boolean elem) {
-            throw new UnsupportedOperationException("list is read-only");
+        	check();
+        	return (boolean)false;
+        }
+
+        
+        protected boolean doReSet(int index) {
+        	check();
+        	return (boolean)false;
         }
 
         
         protected boolean doRemove(int index) {
-            throw new UnsupportedOperationException("list is read-only");
+        	check();
+        	return (boolean)false;
+        }
+
+        
+        protected void doRemoveAll(int index, int len) {
+        	check();
         }
 
         
         protected void doModify() {
+        	check();
+        }
+
+        private void check() {
             throw new UnsupportedOperationException("list is read-only");
         }
     };
@@ -327,7 +362,7 @@ public class BooleanGapList implements Cloneable, Serializable {
 	 */
 	@SuppressWarnings("unchecked")
 	public BooleanGapList(int capacity) {
-		init(capacity);
+		init(new boolean[capacity], 0);
 	}
 
 	/**
@@ -336,7 +371,8 @@ public class BooleanGapList implements Cloneable, Serializable {
 	 * @param that	source object to copy
 	 */
 	public BooleanGapList(Collection<Boolean> that) {
-		init(toArray(that));
+		boolean[] array = toArray(that);
+		init(array, array.length);
 	}
 
 	/**
@@ -345,7 +381,8 @@ public class BooleanGapList implements Cloneable, Serializable {
 	 * @param that	source object to copy
 	 */
 	public BooleanGapList(boolean... that) {
-		init(that.clone());
+		boolean[] array = that.clone();
+		init(array, array.length);
 	}
 
 	/**
@@ -403,7 +440,7 @@ public class BooleanGapList implements Cloneable, Serializable {
 			BooleanGapList list = (BooleanGapList) super.clone();
 			// Do not simply clone the array, but make sure its capacity
 			// is equal to the size (as in ArrayList)
-		    list.init(toArray());
+		    list.init(toArray(), size());
 			if (DEBUG_CHECK) list.debugCheck();
 		    return list;
 		}
@@ -415,9 +452,7 @@ public class BooleanGapList implements Cloneable, Serializable {
 
 	
 	public void clear() {
-		init();
-
-		if (DEBUG_CHECK) debugCheck();
+		doRemoveAll(0, size());
 	}
 
 	/**
@@ -427,30 +462,17 @@ public class BooleanGapList implements Cloneable, Serializable {
 	 * binarySearch.
 	 */
 	private void normalize() {
-		init(toArray());
-	}
-
-	void init() {
-		doInit(values, 0);
-	}
-
-	void init(boolean[] values) {
-		doInit(values, values.length);
-	}
-
-	void init(int capacity) {
-		doInit(new boolean[capacity], 0);
+		init(toArray(), size());
 	}
 
 	/**
 	 * Initialize all instance fields.
 	 *
-	 * @param newValues	new values array to use (or (boolean)false for no change)
-	 * @param empty		true to to set size to 0, otherwise size is set
-	 * 					to values.length
+	 * @param values	new values array
+	 * @param size		new size
 	 */
 	@SuppressWarnings("unchecked")
-	private void doInit(boolean[] values, int size) {
+	void init(boolean[] values, int size) {
 		this.values = (boolean[]) values;
 		this.size = size;
 
@@ -540,6 +562,10 @@ public class BooleanGapList implements Cloneable, Serializable {
         boolean oldElem = values[physIdx];
         values[physIdx] = elem;
         return oldElem;
+    }
+
+    protected boolean doReSet(int index) {
+    	return doReSet(index, (boolean)false);
     }
 
     /**
@@ -1280,7 +1306,7 @@ return val ? 1231 : 1237;
 	
 	public boolean[] toArray() {
 		boolean[] array = new boolean[size];
-		doToArray(array, 0, size);
+		doGetAll(array, 0, size);
         return array;
 	}
 
@@ -1293,7 +1319,7 @@ return val ? 1231 : 1237;
 	 */
 	public boolean[] toArray(int index, int len) {
 		boolean[] array = new boolean[len];
-		doToArray(array, index, len);
+		doGetAll(array, index, len);
         return array;
 	}
 
@@ -1303,7 +1329,7 @@ return val ? 1231 : 1237;
         if (array.length < size) {
         	array = (boolean[]) java.lang.reflect.Array.newInstance(array.getClass().getComponentType(), size);
         }
-        doToArray(array, 0, size);
+        doGetAll(array, 0, size);
         if (array.length > size) {
         	array[size] = (boolean)false;
         }
@@ -1318,7 +1344,7 @@ return val ? 1231 : 1237;
 	 * @param len	number of elements to copy
 	 * @param  type of elements stored in the list
 	 */
-	private  void doToArray(boolean[] array, int index, int len) {
+	protected  void doGetAll(boolean[] array, int index, int len) {
 		int[] physIdx = physIndex(index, index+len);
 		int pos = 0;
         for (int i=0; i<physIdx.length; i+=2) {
@@ -1411,7 +1437,7 @@ return val ? 1231 : 1237;
      * @throws NullPointerException if the specified list is (boolean)false
      */
     public boolean addAll(BooleanGapList list) {
-        return doAddAll(-1, list);
+        return doAddAll(-1, (boolean[]) list.toArray());
     }
 
     /**
@@ -1430,32 +1456,7 @@ return val ? 1231 : 1237;
 	public boolean addAll(int index, BooleanGapList list) {
 		checkIndexAdd(index);
 
-		return doAddAll(index, list);
-	}
-
-	/**
-     * Helper method for adding multiple elements to the BooleanGapList.
-     * It still calls doAdd() for adding each element.
-	 *
-	 * @param index index where element should be added
-     *              (-1 is valid for adding at the end)
-	 * @param list  list with elements to add
-	 * @return      true if elements have been added, false otherwise
-	 */
-	protected boolean doAddAll(int index, BooleanGapList list) {
-        ensureCapacity(size() + list.size());
-
-		int size = list.size();
-		if (size == 0) {
-			return false;
-		}
-		for (int i=0; i<list.size(); i++) {
-			doAdd(index, list.doGet(i));
-            if (index != -1) {
-                index++;
-            }
-		}
-		return true;
+		return doAddAll(index, (boolean[]) list.toArray());
 	}
 
     /**
@@ -1699,7 +1700,7 @@ return val ? 1231 : 1237;
             dst.checkRange(dstIndex, len);
 
     		for (int i=0; i<len; i++) {
-    			boolean elem = src.doSet(srcIndex+i, (boolean)false);
+    			boolean elem = src.doReSet(srcIndex+i);
     			dst.doSet(dstIndex+i, elem);
     		}
         }
@@ -1860,6 +1861,10 @@ return val ? 1231 : 1237;
     public void setAll(int index, boolean... elems) {
         checkRange(index, elems.length);
 
+        doSetAll(index, elems);
+    }
+
+    protected void doSetAll(int index, boolean[] elems) {
         for (int i=0; i<elems.length; i++) {
             doSet(index+i, elems[i]);
         }
@@ -1874,8 +1879,17 @@ return val ? 1231 : 1237;
 	public void remove(int index, int len) {
     	checkRange(index, len);
 
-		for (int i=index+len-1; i>=index; i--) {
-			doRemove(i);
+    	doRemoveAll(index, len);
+	}
+
+	protected void doRemoveAll(int index, int len) {
+		if (len == size) {
+			doModify();
+			init(values, 0);
+		} else {
+			for (int i=index+len-1; i>=index; i--) {
+				doRemove(i);
+			}
 		}
 	}
 
@@ -1932,6 +1946,7 @@ return val ? 1231 : 1237;
      */
     // see java.util.Arrays#fill
     public void fill(boolean elem) {
+    	int size = size();
         for (int i=0; i<size; i++) {
             doSet(i, elem);
         }
@@ -2014,7 +2029,7 @@ return val ? 1231 : 1237;
      * Reverses the order of all elements in the specified list.
      */
     public void reverse() {
-    	reverse(0, size);
+    	reverse(0, size());
     }
 
     /**
@@ -2088,6 +2103,7 @@ return val ? 1231 : 1237;
     public void rotate(int index, int len, int distance) {
     	checkRange(index, len);
 
+    	int size = size();
         distance = distance % size;
         if (distance < 0) {
             distance += size;
@@ -2253,8 +2269,8 @@ return val ? 1231 : 1237;
      * @throws IndexOutOfBoundsException if index is invalid
      */
     protected void checkIndex(int index) {
-		if (index < 0 || index >= size) {
-			throw new IndexOutOfBoundsException("Invalid index: " + index + " (size: " + size + ")");
+		if (index < 0 || index >= size()) {
+			throw new IndexOutOfBoundsException("Invalid index: " + index + " (size: " + size() + ")");
 		}
 	}
 
@@ -2265,8 +2281,8 @@ return val ? 1231 : 1237;
      * @throws IndexOutOfBoundsException if index is invalid
      */
 	protected void checkIndexAdd(int index) {
-		if (index < 0 || index > size) {
-			throw new IndexOutOfBoundsException("Invalid index: " + index + " (size: " + size + ")");
+		if (index < 0 || index > size()) {
+			throw new IndexOutOfBoundsException("Invalid index: " + index + " (size: " + size() + ")");
 		}
 	}
 
@@ -2278,8 +2294,8 @@ return val ? 1231 : 1237;
      * @throws IndexOutOfBoundsException if index is invalid
 	 */
 	protected void checkRange(int index, int len) {
-		if (index < 0 || len < 0 || index+len > size) {
-			throw new IndexOutOfBoundsException("Invalid range: " + index + "/" + len + " (size: " + size + ")");
+		if (index < 0 || len < 0 || index+len > size()) {
+			throw new IndexOutOfBoundsException("Invalid range: " + index + "/" + len + " (size: " + size() + ")");
 		}
 	}
 

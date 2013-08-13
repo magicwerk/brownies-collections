@@ -58,6 +58,11 @@ public class GapList<E> extends AbstractList<E>
 		// Additional interfaces of LinkedList
 		Deque<E> {
 
+	// Guide to subclass GapList
+	// You need to overwrite the following methods:
+	// - size(): return size
+	// - get(int): check index, return element
+	// - doGet,
 
     /*
      * Helper variables to enable code for debugging.
@@ -101,7 +106,7 @@ public class GapList<E> extends AbstractList<E>
      * Note that the client cannot change the list,
      * but the content may change if the underlying list is changed.
      */
-    static class ImmutableGapList<E> extends GapList<E> {
+    protected static class ImmutableGapList<E> extends GapList<E> {
 
         /** UID for serialization */
         private static final long serialVersionUID = -1352274047348922584L;
@@ -111,32 +116,62 @@ public class GapList<E> extends AbstractList<E>
          *
          * @param that  list to create an immutable view of
          */
-        private ImmutableGapList(GapList<E> that) {
+        protected ImmutableGapList(GapList<E> that) {
             super(true, that);
         }
 
         @Override
         protected boolean doAdd(int index, E elem) {
-            throw new UnsupportedOperationException("list is read-only");
+        	check();
+        	return false;
+        }
+
+        @Override
+        protected boolean doAddAll(int index, E[] elems) {
+        	check();
+        	return false;
         }
 
         @Override
         protected E doSet(int index, E elem) {
-            throw new UnsupportedOperationException("list is read-only");
+        	check();
+        	return null;
+        }
+
+        @Override
+        protected void doSetAll(int index, E[] elems) {
+        	check();
         }
 
         @Override
         protected E doReSet(int index, E elem) {
-            throw new UnsupportedOperationException("list is read-only");
+        	check();
+        	return null;
+        }
+
+        @Override
+        protected E doReSet(int index) {
+        	check();
+        	return null;
         }
 
         @Override
         protected E doRemove(int index) {
-            throw new UnsupportedOperationException("list is read-only");
+        	check();
+        	return null;
+        }
+
+        @Override
+        protected void doRemoveAll(int index, int len) {
+        	check();
         }
 
         @Override
         protected void doModify() {
+        	check();
+        }
+
+        private void check() {
             throw new UnsupportedOperationException("list is read-only");
         }
     };
@@ -327,7 +362,7 @@ public class GapList<E> extends AbstractList<E>
 	 */
 	@SuppressWarnings("unchecked")
 	public GapList(int capacity) {
-		init(capacity);
+		init(new Object[capacity], 0);
 	}
 
 	/**
@@ -336,7 +371,8 @@ public class GapList<E> extends AbstractList<E>
 	 * @param that	source object to copy
 	 */
 	public GapList(Collection<? extends E> that) {
-		init(toArray(that));
+		Object[] array = toArray(that);
+		init(array, array.length);
 	}
 
 	/**
@@ -345,7 +381,8 @@ public class GapList<E> extends AbstractList<E>
 	 * @param that	source object to copy
 	 */
 	public GapList(E... that) {
-		init(that.clone());
+		Object[] array = that.clone();
+		init(array, array.length);
 	}
 
 	/**
@@ -405,7 +442,7 @@ public class GapList<E> extends AbstractList<E>
 			GapList<E> list = (GapList<E>) super.clone();
 			// Do not simply clone the array, but make sure its capacity
 			// is equal to the size (as in ArrayList)
-		    list.init(toArray());
+		    list.init(toArray(), size());
 			if (DEBUG_CHECK) list.debugCheck();
 		    return list;
 		}
@@ -417,9 +454,7 @@ public class GapList<E> extends AbstractList<E>
 
 	@Override
 	public void clear() {
-		init();
-
-		if (DEBUG_CHECK) debugCheck();
+		doRemoveAll(0, size());
 	}
 
 	/**
@@ -429,30 +464,17 @@ public class GapList<E> extends AbstractList<E>
 	 * binarySearch.
 	 */
 	private void normalize() {
-		init(toArray());
-	}
-
-	void init() {
-		doInit(values, 0);
-	}
-
-	void init(Object[] values) {
-		doInit(values, values.length);
-	}
-
-	void init(int capacity) {
-		doInit(new Object[capacity], 0);
+		init(toArray(), size());
 	}
 
 	/**
 	 * Initialize all instance fields.
 	 *
-	 * @param newValues	new values array to use (or null for no change)
-	 * @param empty		true to to set size to 0, otherwise size is set
-	 * 					to values.length
+	 * @param values	new values array
+	 * @param size		new size
 	 */
 	@SuppressWarnings("unchecked")
-	private void doInit(Object[] values, int size) {
+	void init(Object[] values, int size) {
 		this.values = (E[]) values;
 		this.size = size;
 
@@ -542,6 +564,10 @@ public class GapList<E> extends AbstractList<E>
         E oldElem = values[physIdx];
         values[physIdx] = elem;
         return oldElem;
+    }
+
+    protected E doReSet(int index) {
+    	return doReSet(index, null);
     }
 
     /**
@@ -1302,7 +1328,7 @@ public class GapList<E> extends AbstractList<E>
 	@Override
 	public Object[] toArray() {
 		Object[] array = new Object[size];
-		doToArray(array, 0, size);
+		doGetAll(array, 0, size);
         return array;
 	}
 
@@ -1315,7 +1341,7 @@ public class GapList<E> extends AbstractList<E>
 	 */
 	public Object[] toArray(int index, int len) {
 		Object[] array = new Object[len];
-		doToArray(array, index, len);
+		doGetAll(array, index, len);
         return array;
 	}
 
@@ -1325,7 +1351,7 @@ public class GapList<E> extends AbstractList<E>
         if (array.length < size) {
         	array = (T[]) java.lang.reflect.Array.newInstance(array.getClass().getComponentType(), size);
         }
-        doToArray(array, 0, size);
+        doGetAll(array, 0, size);
         if (array.length > size) {
         	array[size] = null;
         }
@@ -1340,7 +1366,7 @@ public class GapList<E> extends AbstractList<E>
 	 * @param len	number of elements to copy
 	 * @param <T> type of elements stored in the list
 	 */
-	private <T> void doToArray(T[] array, int index, int len) {
+	protected <T> void doGetAll(T[] array, int index, int len) {
 		int[] physIdx = physIndex(index, index+len);
 		int pos = 0;
         for (int i=0; i<physIdx.length; i+=2) {
@@ -1433,7 +1459,7 @@ public class GapList<E> extends AbstractList<E>
      * @throws NullPointerException if the specified list is null
      */
     public boolean addAll(GapList<? extends E> list) {
-        return doAddAll(-1, list);
+        return doAddAll(-1, (E[]) list.toArray());
     }
 
     /**
@@ -1452,32 +1478,7 @@ public class GapList<E> extends AbstractList<E>
 	public boolean addAll(int index, GapList<? extends E> list) {
 		checkIndexAdd(index);
 
-		return doAddAll(index, list);
-	}
-
-	/**
-     * Helper method for adding multiple elements to the GapList.
-     * It still calls doAdd() for adding each element.
-	 *
-	 * @param index index where element should be added
-     *              (-1 is valid for adding at the end)
-	 * @param list  list with elements to add
-	 * @return      true if elements have been added, false otherwise
-	 */
-	protected boolean doAddAll(int index, GapList<? extends E> list) {
-        ensureCapacity(size() + list.size());
-
-		int size = list.size();
-		if (size == 0) {
-			return false;
-		}
-		for (int i=0; i<list.size(); i++) {
-			doAdd(index, list.doGet(i));
-            if (index != -1) {
-                index++;
-            }
-		}
-		return true;
+		return doAddAll(index, (E[]) list.toArray());
 	}
 
     /**
@@ -1729,7 +1730,7 @@ public class GapList<E> extends AbstractList<E>
             dst.checkRange(dstIndex, len);
 
     		for (int i=0; i<len; i++) {
-    			E elem = src.doSet(srcIndex+i, null);
+    			E elem = src.doReSet(srcIndex+i);
     			dst.doSet(dstIndex+i, elem);
     		}
         }
@@ -1890,6 +1891,10 @@ public class GapList<E> extends AbstractList<E>
     public void setAll(int index, E... elems) {
         checkRange(index, elems.length);
 
+        doSetAll(index, elems);
+    }
+
+    protected void doSetAll(int index, E[] elems) {
         for (int i=0; i<elems.length; i++) {
             doSet(index+i, elems[i]);
         }
@@ -1904,8 +1909,17 @@ public class GapList<E> extends AbstractList<E>
 	public void remove(int index, int len) {
     	checkRange(index, len);
 
-		for (int i=index+len-1; i>=index; i--) {
-			doRemove(i);
+    	doRemoveAll(index, len);
+	}
+
+	protected void doRemoveAll(int index, int len) {
+		if (len == size) {
+			doModify();
+			init(values, 0);
+		} else {
+			for (int i=index+len-1; i>=index; i--) {
+				doRemove(i);
+			}
 		}
 	}
 
@@ -1962,6 +1976,7 @@ public class GapList<E> extends AbstractList<E>
      */
     // see java.util.Arrays#fill
     public void fill(E elem) {
+    	int size = size();
         for (int i=0; i<size; i++) {
             doSet(i, elem);
         }
@@ -2044,7 +2059,7 @@ public class GapList<E> extends AbstractList<E>
      * Reverses the order of all elements in the specified list.
      */
     public void reverse() {
-    	reverse(0, size);
+    	reverse(0, size());
     }
 
     /**
@@ -2118,6 +2133,7 @@ public class GapList<E> extends AbstractList<E>
     public void rotate(int index, int len, int distance) {
     	checkRange(index, len);
 
+    	int size = size();
         distance = distance % size;
         if (distance < 0) {
             distance += size;
@@ -2283,8 +2299,8 @@ public class GapList<E> extends AbstractList<E>
      * @throws IndexOutOfBoundsException if index is invalid
      */
     protected void checkIndex(int index) {
-		if (index < 0 || index >= size) {
-			throw new IndexOutOfBoundsException("Invalid index: " + index + " (size: " + size + ")");
+		if (index < 0 || index >= size()) {
+			throw new IndexOutOfBoundsException("Invalid index: " + index + " (size: " + size() + ")");
 		}
 	}
 
@@ -2295,8 +2311,8 @@ public class GapList<E> extends AbstractList<E>
      * @throws IndexOutOfBoundsException if index is invalid
      */
 	protected void checkIndexAdd(int index) {
-		if (index < 0 || index > size) {
-			throw new IndexOutOfBoundsException("Invalid index: " + index + " (size: " + size + ")");
+		if (index < 0 || index > size()) {
+			throw new IndexOutOfBoundsException("Invalid index: " + index + " (size: " + size() + ")");
 		}
 	}
 
@@ -2308,8 +2324,8 @@ public class GapList<E> extends AbstractList<E>
      * @throws IndexOutOfBoundsException if index is invalid
 	 */
 	protected void checkRange(int index, int len) {
-		if (index < 0 || len < 0 || index+len > size) {
-			throw new IndexOutOfBoundsException("Invalid range: " + index + "/" + len + " (size: " + size + ")");
+		if (index < 0 || len < 0 || index+len > size()) {
+			throw new IndexOutOfBoundsException("Invalid range: " + index + "/" + len + " (size: " + size() + ")");
 		}
 	}
 

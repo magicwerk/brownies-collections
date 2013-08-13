@@ -93,11 +93,6 @@ public class ShortObjGapList extends GapList<Short> {
 	}
 
 	@Override
-	public void clear() {
-		list.clear();
-	}
-
-	@Override
 	public int size() {
 		return list.size();
 	}
@@ -113,24 +108,60 @@ public class ShortObjGapList extends GapList<Short> {
 	}
 
 	@Override
-	public Short set(int index, Short elem) {
-		return list.set(index, elem);
+	public Short doGet(int index) {
+		return list.doGet(index);
 	}
 
 	@Override
-	public boolean add(Short elem) {
-		return list.add(elem);
+	public void doGetAll(Object[] elems, int index, int len) {
+		list.doGetAll(toPrimitive((Short[]) elems), index, len);
 	}
 
 	@Override
-	public void add(int index, Short elem) {
-		list.add(index, elem);
+	public boolean doAdd(int index, Short elem) {
+		return list.doAdd(index, elem);
 	}
 
 	@Override
-	public Short remove(int index) {
-		return list.remove(index);
+	public boolean doAddAll(int index, Short[] elem) {
+		return list.doAddAll(index, toPrimitive(elem));
 	}
+
+	@Override
+	public Short doSet(int index, Short elem) {
+		return list.doSet(index, elem);
+	}
+
+	@Override
+	public void doSetAll(int index, Short[] elem) {
+		list.doSetAll(index, toPrimitive(elem));
+	}
+
+	@Override
+	public Short doRemove(int index) {
+		return list.doRemove(index);
+	}
+
+	@Override
+	public void doRemoveAll(int index, int len) {
+		list.doRemoveAll(index, len);
+	}
+
+	@Override
+	public Short doReSet(int index, Short elem) {
+		return list.doReSet(index, elem);
+	}
+
+	@Override
+	public Short doReSet(int index) {
+		return list.doReSet(index);
+	}
+
+	@Override
+    public void move(int srcIndex, int dstIndex, int len) {
+    	// Use correct default value
+    	list.move(srcIndex, dstIndex, len);
+    }
 
 	@Override
 	public void ensureCapacity(int minCapacity) {
@@ -291,101 +322,6 @@ public class ShortObjGapList extends GapList<Short> {
 	}
 
 	@Override
-	public Short getFirst() {
-		return list.getFirst();
-	}
-
-	@Override
-	public Short getLast() {
-		return list.getLast();
-	}
-
-	@Override
-	public void addFirst(Short elem) {
-		list.addFirst(elem);
-	}
-
-	@Override
-	public void addLast(Short elem) {
-		list.addLast(elem);
-	}
-
-	@Override
-	public Short removeFirst() {
-		return list.removeFirst();
-	}
-
-	@Override
-	public Short removeLast() {
-		return list.removeLast();
-	}
-
-	@Override
-	public Short peek() {
-		return list.peek();
-	}
-
-	@Override
-	public Short element() {
-		return list.element();
-	}
-
-	@Override
-	public Short poll() {
-		return list.poll();
-	}
-
-	@Override
-	public Short remove() {
-		return list.remove();
-	}
-
-	@Override
-	public boolean offer(Short elem) {
-		return list.offer(elem);
-	}
-
-	@Override
-	public boolean offerFirst(Short elem) {
-		return list.offerFirst(elem);
-	}
-
-	@Override
-	public boolean offerLast(Short elem) {
-		return list.offerLast(elem);
-	}
-
-	@Override
-	public Short peekFirst() {
-		return list.peekFirst();
-	}
-
-	@Override
-	public Short peekLast() {
-		return list.peekLast();
-	}
-
-	@Override
-	public Short pollFirst() {
-		return list.pollFirst();
-	}
-
-	@Override
-	public Short pollLast() {
-		return list.pollLast();
-	}
-
-	@Override
-	public Short pop() {
-		return list.pop();
-	}
-
-	@Override
-	public void push(Short elem) {
-		list.push(elem);
-	}
-
-	@Override
 	public boolean removeFirstOccurrence(Object elem) {
 		if (elem == null || elem.getClass() != Short.class) {
 			return false;
@@ -432,74 +368,6 @@ public class ShortObjGapList extends GapList<Short> {
 	}
 
 	@Override
-	public void remove(int index, int len) {
-		list.remove(index, len);
-	}
-
-	@Override
-	public void init(int len, Short elem) {
-		list.init(len, elem);
-	}
-
-	@Override
-	public void resize(int len, Short elem) {
-		list.resize(len, elem);
-	}
-
-	@Override
-	public void fill(Short elem) {
-		list.fill(elem);
-	}
-
-	@Override
-	public void fill(int index, int len, Short elem) {
-		list.fill(index, len, elem);
-	}
-
-	@Override
-	public void copy(int srcIndex, int dstIndex, int len) {
-		list.copy(srcIndex, dstIndex, len);
-	}
-
-	@Override
-	public void move(int srcIndex, int dstIndex, int len) {
-		list.move(srcIndex, dstIndex, len);
-	}
-
-	@Override
-	public void reverse() {
-		list.reverse();
-	}
-
-	@Override
-	public void reverse(int index, int len) {
-		list.reverse(index, len);
-	}
-
-	@Override
-	public void swap(int index1, int index2, int len) {
-		list.swap(index1, index2, len);
-	}
-
-	@Override
-	public void rotate(int distance) {
-		list.rotate(distance);
-	}
-
-	@Override
-	public void rotate(int index, int len, int distance) {
-		list.rotate(index, len, distance);
-	}
-
-	@Override
-	public void sort(Comparator comparator) {
-		if (comparator != null) {
-			throw new IllegalArgumentException("Only natural comparator (null) allowed");
-		}
-		list.sort();
-	}
-
-	@Override
 	public void sort(int index, int len, Comparator comparator) {
 		if (comparator != null) {
 			throw new IllegalArgumentException("Only natural comparator (null) allowed");
@@ -508,25 +376,43 @@ public class ShortObjGapList extends GapList<Short> {
 	}
 
 	@Override
-	public <K> int binarySearch(K key, Comparator<? super K> comparator) {
-		if (key == null || key.getClass() != Short.class) {
-			throw new IllegalArgumentException("Value is null or has invalid type");
-		}
-		if (comparator != null) {
-			throw new IllegalArgumentException("Only natural comparator (null) allowed");
-		}
-		return list.binarySearch((Short) key);
-	}
-
-	@Override
 	public <K> int binarySearch(int index, int len, K key, Comparator<? super K> comparator) {
-		if (key == null || key.getClass() != Short.class) {
-			throw new IllegalArgumentException("Value is null or has invalid type");
-		}
 		if (comparator != null) {
 			throw new IllegalArgumentException("Only natural comparator (null) allowed");
 		}
 		return list.binarySearch(index, len, (Short) key);
 	}
 
+    public GapList<Short> unmodifiableList() {
+        return new ImmutableGapList<Short>(this) {
+			{
+        		ShortGapList list = ShortObjGapList.this.list;
+			}
+
+			@Override
+			public int size() {
+				return list.size();
+			}
+
+			@Override
+			public int capacity() {
+				return list.capacity();
+			}
+
+			@Override
+			public Short get(int index) {
+				return list.get(index);
+			}
+
+			@Override
+			public Short doGet(int index) {
+				return list.doGet(index);
+			}
+
+			@Override
+			public void doGetAll(Object[] elems, int index, int len) {
+				list.doGetAll(toPrimitive((Short[]) elems), index, len);
+			}
+        };
+    }
 }
