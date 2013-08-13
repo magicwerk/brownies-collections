@@ -21,6 +21,8 @@
  */
 package org.magicwerk.brownies.collections.primitive;
 
+import org.magicwerk.brownies.collections.ArraysHelper;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -56,6 +58,11 @@ import java.util.ListIterator;
  */
 public class CharGapList implements Cloneable, Serializable {
 
+	// Guide to subclass CharGapList
+	// You need to overwrite the following methods:
+	// - size(): return size
+	// - get(int): check index, return element
+	// - doGet,
 
     /*
      * Helper variables to enable code for debugging.
@@ -99,7 +106,7 @@ public class CharGapList implements Cloneable, Serializable {
      * Note that the client cannot change the list,
      * but the content may change if the underlying list is changed.
      */
-    static class ImmutableCharGapList extends CharGapList {
+    protected static class ImmutableCharGapList extends CharGapList {
 
         /** UID for serialization */
         private static final long serialVersionUID = -1352274047348922584L;
@@ -109,32 +116,62 @@ public class CharGapList implements Cloneable, Serializable {
          *
          * @param that  list to create an immutable view of
          */
-        private ImmutableCharGapList(CharGapList that) {
+        protected ImmutableCharGapList(CharGapList that) {
             super(true, that);
         }
 
         
         protected boolean doAdd(int index, char elem) {
-            throw new UnsupportedOperationException("list is read-only");
+        	check();
+        	return false;
+        }
+
+        
+        protected boolean doAddAll(int index, char[] elems) {
+        	check();
+        	return false;
         }
 
         
         protected char doSet(int index, char elem) {
-            throw new UnsupportedOperationException("list is read-only");
+        	check();
+        	return (char)0;
+        }
+
+        
+        protected void doSetAll(int index, char[] elems) {
+        	check();
         }
 
         
         protected char doReSet(int index, char elem) {
-            throw new UnsupportedOperationException("list is read-only");
+        	check();
+        	return (char)0;
+        }
+
+        
+        protected char doReSet(int index) {
+        	check();
+        	return (char)0;
         }
 
         
         protected char doRemove(int index) {
-            throw new UnsupportedOperationException("list is read-only");
+        	check();
+        	return (char)0;
+        }
+
+        
+        protected void doRemoveAll(int index, int len) {
+        	check();
         }
 
         
         protected void doModify() {
+        	check();
+        }
+
+        private void check() {
             throw new UnsupportedOperationException("list is read-only");
         }
     };
@@ -325,7 +362,7 @@ public class CharGapList implements Cloneable, Serializable {
 	 */
 	@SuppressWarnings("unchecked")
 	public CharGapList(int capacity) {
-		init(capacity);
+		init(new char[capacity], 0);
 	}
 
 	/**
@@ -334,7 +371,8 @@ public class CharGapList implements Cloneable, Serializable {
 	 * @param that	source object to copy
 	 */
 	public CharGapList(Collection<Character> that) {
-		init(toArray(that));
+		char[] array = toArray(that);
+		init(array, array.length);
 	}
 
 	/**
@@ -343,7 +381,8 @@ public class CharGapList implements Cloneable, Serializable {
 	 * @param that	source object to copy
 	 */
 	public CharGapList(char... that) {
-		init(that.clone());
+		char[] array = that.clone();
+		init(array, array.length);
 	}
 
 	/**
@@ -401,7 +440,7 @@ public class CharGapList implements Cloneable, Serializable {
 			CharGapList list = (CharGapList) super.clone();
 			// Do not simply clone the array, but make sure its capacity
 			// is equal to the size (as in ArrayList)
-		    list.init(toArray());
+		    list.init(toArray(), size());
 			if (DEBUG_CHECK) list.debugCheck();
 		    return list;
 		}
@@ -413,9 +452,7 @@ public class CharGapList implements Cloneable, Serializable {
 
 	
 	public void clear() {
-		init();
-
-		if (DEBUG_CHECK) debugCheck();
+		doRemoveAll(0, size());
 	}
 
 	/**
@@ -425,30 +462,17 @@ public class CharGapList implements Cloneable, Serializable {
 	 * binarySearch.
 	 */
 	private void normalize() {
-		init(toArray());
-	}
-
-	void init() {
-		doInit(values, 0);
-	}
-
-	void init(char[] values) {
-		doInit(values, values.length);
-	}
-
-	void init(int capacity) {
-		doInit(new char[capacity], 0);
+		init(toArray(), size());
 	}
 
 	/**
 	 * Initialize all instance fields.
 	 *
-	 * @param newValues	new values array to use (or (char)0 for no change)
-	 * @param empty		true to to set size to 0, otherwise size is set
-	 * 					to values.length
+	 * @param values	new values array
+	 * @param size		new size
 	 */
 	@SuppressWarnings("unchecked")
-	private void doInit(char[] values, int size) {
+	void init(char[] values, int size) {
 		this.values = (char[]) values;
 		this.size = size;
 
@@ -538,6 +562,10 @@ public class CharGapList implements Cloneable, Serializable {
         char oldElem = values[physIdx];
         values[physIdx] = elem;
         return oldElem;
+    }
+
+    protected char doReSet(int index) {
+    	return doReSet(index, (char)0);
     }
 
     /**
@@ -1278,7 +1306,7 @@ return (int) val;
 	
 	public char[] toArray() {
 		char[] array = new char[size];
-		doToArray(array, 0, size);
+		doGetAll(array, 0, size);
         return array;
 	}
 
@@ -1291,7 +1319,7 @@ return (int) val;
 	 */
 	public char[] toArray(int index, int len) {
 		char[] array = new char[len];
-		doToArray(array, index, len);
+		doGetAll(array, index, len);
         return array;
 	}
 
@@ -1301,7 +1329,7 @@ return (int) val;
         if (array.length < size) {
         	array = (char[]) java.lang.reflect.Array.newInstance(array.getClass().getComponentType(), size);
         }
-        doToArray(array, 0, size);
+        doGetAll(array, 0, size);
         if (array.length > size) {
         	array[size] = (char)0;
         }
@@ -1316,7 +1344,7 @@ return (int) val;
 	 * @param len	number of elements to copy
 	 * @param  type of elements stored in the list
 	 */
-	private  void doToArray(char[] array, int index, int len) {
+	protected  void doGetAll(char[] array, int index, int len) {
 		int[] physIdx = physIndex(index, index+len);
 		int pos = 0;
         for (int i=0; i<physIdx.length; i+=2) {
@@ -1409,7 +1437,7 @@ return (int) val;
      * @throws NullPointerException if the specified list is (char)0
      */
     public boolean addAll(CharGapList list) {
-        return doAddAll(-1, list);
+        return doAddAll(-1, (char[]) list.toArray());
     }
 
     /**
@@ -1428,32 +1456,7 @@ return (int) val;
 	public boolean addAll(int index, CharGapList list) {
 		checkIndexAdd(index);
 
-		return doAddAll(index, list);
-	}
-
-	/**
-     * Helper method for adding multiple elements to the CharGapList.
-     * It still calls doAdd() for adding each element.
-	 *
-	 * @param index index where element should be added
-     *              (-1 is valid for adding at the end)
-	 * @param list  list with elements to add
-	 * @return      true if elements have been added, false otherwise
-	 */
-	protected boolean doAddAll(int index, CharGapList list) {
-        ensureCapacity(size() + list.size());
-
-		int size = list.size();
-		if (size == 0) {
-			return false;
-		}
-		for (int i=0; i<list.size(); i++) {
-			doAdd(index, list.doGet(i));
-            if (index != -1) {
-                index++;
-            }
-		}
-		return true;
+		return doAddAll(index, (char[]) list.toArray());
 	}
 
     /**
@@ -1697,7 +1700,7 @@ return (int) val;
             dst.checkRange(dstIndex, len);
 
     		for (int i=0; i<len; i++) {
-    			char elem = src.doSet(srcIndex+i, (char)0);
+    			char elem = src.doReSet(srcIndex+i);
     			dst.doSet(dstIndex+i, elem);
     		}
         }
@@ -1858,6 +1861,10 @@ return (int) val;
     public void setAll(int index, char... elems) {
         checkRange(index, elems.length);
 
+        doSetAll(index, elems);
+    }
+
+    protected void doSetAll(int index, char[] elems) {
         for (int i=0; i<elems.length; i++) {
             doSet(index+i, elems[i]);
         }
@@ -1872,8 +1879,17 @@ return (int) val;
 	public void remove(int index, int len) {
     	checkRange(index, len);
 
-		for (int i=index+len-1; i>=index; i--) {
-			doRemove(i);
+    	doRemoveAll(index, len);
+	}
+
+	protected void doRemoveAll(int index, int len) {
+		if (len == size) {
+			doModify();
+			init(values, 0);
+		} else {
+			for (int i=index+len-1; i>=index; i--) {
+				doRemove(i);
+			}
 		}
 	}
 
@@ -1930,6 +1946,7 @@ return (int) val;
      */
     // see java.util.Arrays#fill
     public void fill(char elem) {
+    	int size = size();
         for (int i=0; i<size; i++) {
             doSet(i, elem);
         }
@@ -2012,7 +2029,7 @@ return (int) val;
      * Reverses the order of all elements in the specified list.
      */
     public void reverse() {
-    	reverse(0, size);
+    	reverse(0, size());
     }
 
     /**
@@ -2086,6 +2103,7 @@ return (int) val;
     public void rotate(int index, int len, int distance) {
     	checkRange(index, len);
 
+    	int size = size();
         distance = distance % size;
         if (distance < 0) {
             distance += size;
@@ -2135,7 +2153,7 @@ return (int) val;
     	checkRange(index, len);
 
     	normalize();
-    	Arrays.sort(values, index, index+len);
+    	ArraysHelper.sort(values, index, index+len);
     }
 
     /*
@@ -2239,7 +2257,7 @@ return (int) val;
     	checkRange(index, len);
 
     	normalize();
-    	return Arrays.binarySearch((char[]) values, index, index+len, key);
+    	return ArraysHelper.binarySearch((char[]) values, index, index+len, key);
     }
 
     //--- Arguments check methods
@@ -2251,8 +2269,8 @@ return (int) val;
      * @throws IndexOutOfBoundsException if index is invalid
      */
     protected void checkIndex(int index) {
-		if (index < 0 || index >= size) {
-			throw new IndexOutOfBoundsException("Invalid index: " + index + " (size: " + size + ")");
+		if (index < 0 || index >= size()) {
+			throw new IndexOutOfBoundsException("Invalid index: " + index + " (size: " + size() + ")");
 		}
 	}
 
@@ -2263,8 +2281,8 @@ return (int) val;
      * @throws IndexOutOfBoundsException if index is invalid
      */
 	protected void checkIndexAdd(int index) {
-		if (index < 0 || index > size) {
-			throw new IndexOutOfBoundsException("Invalid index: " + index + " (size: " + size + ")");
+		if (index < 0 || index > size()) {
+			throw new IndexOutOfBoundsException("Invalid index: " + index + " (size: " + size() + ")");
 		}
 	}
 
@@ -2276,8 +2294,8 @@ return (int) val;
      * @throws IndexOutOfBoundsException if index is invalid
 	 */
 	protected void checkRange(int index, int len) {
-		if (index < 0 || len < 0 || index+len > size) {
-			throw new IndexOutOfBoundsException("Invalid range: " + index + "/" + len + " (size: " + size + ")");
+		if (index < 0 || len < 0 || index+len > size()) {
+			throw new IndexOutOfBoundsException("Invalid range: " + index + "/" + len + " (size: " + size() + ")");
 		}
 	}
 

@@ -93,11 +93,6 @@ public class FloatObjGapList extends GapList<Float> {
 	}
 
 	@Override
-	public void clear() {
-		list.clear();
-	}
-
-	@Override
 	public int size() {
 		return list.size();
 	}
@@ -113,24 +108,60 @@ public class FloatObjGapList extends GapList<Float> {
 	}
 
 	@Override
-	public Float set(int index, Float elem) {
-		return list.set(index, elem);
+	public Float doGet(int index) {
+		return list.doGet(index);
 	}
 
 	@Override
-	public boolean add(Float elem) {
-		return list.add(elem);
+	public void doGetAll(Object[] elems, int index, int len) {
+		list.doGetAll(toPrimitive((Float[]) elems), index, len);
 	}
 
 	@Override
-	public void add(int index, Float elem) {
-		list.add(index, elem);
+	public boolean doAdd(int index, Float elem) {
+		return list.doAdd(index, elem);
 	}
 
 	@Override
-	public Float remove(int index) {
-		return list.remove(index);
+	public boolean doAddAll(int index, Float[] elem) {
+		return list.doAddAll(index, toPrimitive(elem));
 	}
+
+	@Override
+	public Float doSet(int index, Float elem) {
+		return list.doSet(index, elem);
+	}
+
+	@Override
+	public void doSetAll(int index, Float[] elem) {
+		list.doSetAll(index, toPrimitive(elem));
+	}
+
+	@Override
+	public Float doRemove(int index) {
+		return list.doRemove(index);
+	}
+
+	@Override
+	public void doRemoveAll(int index, int len) {
+		list.doRemoveAll(index, len);
+	}
+
+	@Override
+	public Float doReSet(int index, Float elem) {
+		return list.doReSet(index, elem);
+	}
+
+	@Override
+	public Float doReSet(int index) {
+		return list.doReSet(index);
+	}
+
+	@Override
+    public void move(int srcIndex, int dstIndex, int len) {
+    	// Use correct default value
+    	list.move(srcIndex, dstIndex, len);
+    }
 
 	@Override
 	public void ensureCapacity(int minCapacity) {
@@ -291,101 +322,6 @@ public class FloatObjGapList extends GapList<Float> {
 	}
 
 	@Override
-	public Float getFirst() {
-		return list.getFirst();
-	}
-
-	@Override
-	public Float getLast() {
-		return list.getLast();
-	}
-
-	@Override
-	public void addFirst(Float elem) {
-		list.addFirst(elem);
-	}
-
-	@Override
-	public void addLast(Float elem) {
-		list.addLast(elem);
-	}
-
-	@Override
-	public Float removeFirst() {
-		return list.removeFirst();
-	}
-
-	@Override
-	public Float removeLast() {
-		return list.removeLast();
-	}
-
-	@Override
-	public Float peek() {
-		return list.peek();
-	}
-
-	@Override
-	public Float element() {
-		return list.element();
-	}
-
-	@Override
-	public Float poll() {
-		return list.poll();
-	}
-
-	@Override
-	public Float remove() {
-		return list.remove();
-	}
-
-	@Override
-	public boolean offer(Float elem) {
-		return list.offer(elem);
-	}
-
-	@Override
-	public boolean offerFirst(Float elem) {
-		return list.offerFirst(elem);
-	}
-
-	@Override
-	public boolean offerLast(Float elem) {
-		return list.offerLast(elem);
-	}
-
-	@Override
-	public Float peekFirst() {
-		return list.peekFirst();
-	}
-
-	@Override
-	public Float peekLast() {
-		return list.peekLast();
-	}
-
-	@Override
-	public Float pollFirst() {
-		return list.pollFirst();
-	}
-
-	@Override
-	public Float pollLast() {
-		return list.pollLast();
-	}
-
-	@Override
-	public Float pop() {
-		return list.pop();
-	}
-
-	@Override
-	public void push(Float elem) {
-		list.push(elem);
-	}
-
-	@Override
 	public boolean removeFirstOccurrence(Object elem) {
 		if (elem == null || elem.getClass() != Float.class) {
 			return false;
@@ -432,74 +368,6 @@ public class FloatObjGapList extends GapList<Float> {
 	}
 
 	@Override
-	public void remove(int index, int len) {
-		list.remove(index, len);
-	}
-
-	@Override
-	public void init(int len, Float elem) {
-		list.init(len, elem);
-	}
-
-	@Override
-	public void resize(int len, Float elem) {
-		list.resize(len, elem);
-	}
-
-	@Override
-	public void fill(Float elem) {
-		list.fill(elem);
-	}
-
-	@Override
-	public void fill(int index, int len, Float elem) {
-		list.fill(index, len, elem);
-	}
-
-	@Override
-	public void copy(int srcIndex, int dstIndex, int len) {
-		list.copy(srcIndex, dstIndex, len);
-	}
-
-	@Override
-	public void move(int srcIndex, int dstIndex, int len) {
-		list.move(srcIndex, dstIndex, len);
-	}
-
-	@Override
-	public void reverse() {
-		list.reverse();
-	}
-
-	@Override
-	public void reverse(int index, int len) {
-		list.reverse(index, len);
-	}
-
-	@Override
-	public void swap(int index1, int index2, int len) {
-		list.swap(index1, index2, len);
-	}
-
-	@Override
-	public void rotate(int distance) {
-		list.rotate(distance);
-	}
-
-	@Override
-	public void rotate(int index, int len, int distance) {
-		list.rotate(index, len, distance);
-	}
-
-	@Override
-	public void sort(Comparator comparator) {
-		if (comparator != null) {
-			throw new IllegalArgumentException("Only natural comparator (null) allowed");
-		}
-		list.sort();
-	}
-
-	@Override
 	public void sort(int index, int len, Comparator comparator) {
 		if (comparator != null) {
 			throw new IllegalArgumentException("Only natural comparator (null) allowed");
@@ -508,25 +376,43 @@ public class FloatObjGapList extends GapList<Float> {
 	}
 
 	@Override
-	public <K> int binarySearch(K key, Comparator<? super K> comparator) {
-		if (key == null || key.getClass() != Float.class) {
-			throw new IllegalArgumentException("Value is null or has invalid type");
-		}
-		if (comparator != null) {
-			throw new IllegalArgumentException("Only natural comparator (null) allowed");
-		}
-		return list.binarySearch((Float) key);
-	}
-
-	@Override
 	public <K> int binarySearch(int index, int len, K key, Comparator<? super K> comparator) {
-		if (key == null || key.getClass() != Float.class) {
-			throw new IllegalArgumentException("Value is null or has invalid type");
-		}
 		if (comparator != null) {
 			throw new IllegalArgumentException("Only natural comparator (null) allowed");
 		}
 		return list.binarySearch(index, len, (Float) key);
 	}
 
+    public GapList<Float> unmodifiableList() {
+        return new ImmutableGapList<Float>(this) {
+			{
+        		FloatGapList list = FloatObjGapList.this.list;
+			}
+
+			@Override
+			public int size() {
+				return list.size();
+			}
+
+			@Override
+			public int capacity() {
+				return list.capacity();
+			}
+
+			@Override
+			public Float get(int index) {
+				return list.get(index);
+			}
+
+			@Override
+			public Float doGet(int index) {
+				return list.doGet(index);
+			}
+
+			@Override
+			public void doGetAll(Object[] elems, int index, int len) {
+				list.doGetAll(toPrimitive((Float[]) elems), index, len);
+			}
+        };
+    }
 }

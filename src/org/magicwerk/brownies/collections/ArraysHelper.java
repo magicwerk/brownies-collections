@@ -72,7 +72,15 @@ public class ArraysHelper {
 		}
 	}
 
-	public static void sort(Object[] values, int fromIndex, int toIndex) {
+	public static void sort(byte[] values, int fromIndex, int toIndex) {
+		Arrays.sort(values, fromIndex, toIndex);
+	}
+
+	public static void sort(char[] values, int fromIndex, int toIndex) {
+		Arrays.sort(values, fromIndex, toIndex);
+	}
+
+	public static void sort(short[] values, int fromIndex, int toIndex) {
 		Arrays.sort(values, fromIndex, toIndex);
 	}
 
@@ -115,7 +123,15 @@ public class ArraysHelper {
 		}
 	}
 
-	public static int binarySearch(Object[] values, int fromIndex, int toIndex, Object key) {
+	public static int binarySearch(byte[] values, int fromIndex, int toIndex, byte key) {
+		return Arrays.binarySearch(values, fromIndex, toIndex, key);
+	}
+
+	public static int binarySearch(char[] values, int fromIndex, int toIndex, char key) {
+		return Arrays.binarySearch(values, fromIndex, toIndex, key);
+	}
+
+	public static int binarySearch(short[] values, int fromIndex, int toIndex, short key) {
 		return Arrays.binarySearch(values, fromIndex, toIndex, key);
 	}
 
