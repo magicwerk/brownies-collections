@@ -18,7 +18,7 @@
  * the License.
  */
 
-package org.magicwerk.brownies.collections;
+package org.magicwerk.brownies.collections.helper;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -35,7 +35,7 @@ import java.util.List;
  *
  * @author Louis Wasserman
  */
-class SortedLists {
+public class SortedLists {
   private SortedLists() {}
 
   /**

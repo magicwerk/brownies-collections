@@ -60,23 +60,42 @@ public class ByteObjGapList extends GapList<Byte> {
 		return new ByteObjGapList(elems);
 	}
 
+	public ByteObjGapList(INIT init) {
+		super(false, null);
+	}
+
 	public ByteObjGapList() {
 		super(false, null);
+		init();
+	}
+
+	public void init() {
 		list = new ByteGapList();
 	}
 
 	public ByteObjGapList(int capacity) {
 		super(false, null);
+		init(capacity);
+	}
+
+	public void init(int capacity) {
 		list = new ByteGapList(capacity);
 	}
 
 	public ByteObjGapList(Byte... elems) {
 		super(false, null);
+		init(elems);
+	}
+
+	public void init(Byte... elems) {
 		list = new ByteGapList(toPrimitive(elems));
 	}
 
 	public ByteObjGapList(Collection<? extends Byte> elems) {
 		super(false, null);
+		init(elems);
+	}
+	public void init(Collection<? extends Byte> elems) {
 		list = new ByteGapList(toPrimitive(elems));
 	}
 

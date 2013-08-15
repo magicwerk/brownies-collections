@@ -60,23 +60,42 @@ public class LongObjGapList extends GapList<Long> {
 		return new LongObjGapList(elems);
 	}
 
+	public LongObjGapList(INIT init) {
+		super(false, null);
+	}
+
 	public LongObjGapList() {
 		super(false, null);
+		init();
+	}
+
+	public void init() {
 		list = new LongGapList();
 	}
 
 	public LongObjGapList(int capacity) {
 		super(false, null);
+		init(capacity);
+	}
+
+	public void init(int capacity) {
 		list = new LongGapList(capacity);
 	}
 
 	public LongObjGapList(Long... elems) {
 		super(false, null);
+		init(elems);
+	}
+
+	public void init(Long... elems) {
 		list = new LongGapList(toPrimitive(elems));
 	}
 
 	public LongObjGapList(Collection<? extends Long> elems) {
 		super(false, null);
+		init(elems);
+	}
+	public void init(Collection<? extends Long> elems) {
 		list = new LongGapList(toPrimitive(elems));
 	}
 

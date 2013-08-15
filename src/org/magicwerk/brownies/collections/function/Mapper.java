@@ -1,4 +1,4 @@
-package org.magicwerk.brownies.collections;
+package org.magicwerk.brownies.collections.function;
 
 /**
  * Interface to determine a map value out of a given value.

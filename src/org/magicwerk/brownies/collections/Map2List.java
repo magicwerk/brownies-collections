@@ -24,6 +24,7 @@ import java.util.Set;
 
 import org.magicwerk.brownies.collections.KeyList.Builder;
 import org.magicwerk.brownies.collections.KeyList.Predicate;
+import org.magicwerk.brownies.collections.function.Mapper;
 
 
 /**
@@ -38,7 +39,8 @@ import org.magicwerk.brownies.collections.KeyList.Predicate;
  *
  * @see SetList
  * @param <E> type of elements stored in the list
- * @param <K> type of key
+ * @param <K1> type of first key
+ * @param <K2> type of second key
  */
 public class Map2List<E,K1,K2> extends KeyList<E> {
 

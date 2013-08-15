@@ -60,23 +60,42 @@ public class IntObjGapList extends GapList<Integer> {
 		return new IntObjGapList(elems);
 	}
 
+	public IntObjGapList(INIT init) {
+		super(false, null);
+	}
+
 	public IntObjGapList() {
 		super(false, null);
+		init();
+	}
+
+	public void init() {
 		list = new IntGapList();
 	}
 
 	public IntObjGapList(int capacity) {
 		super(false, null);
+		init(capacity);
+	}
+
+	public void init(int capacity) {
 		list = new IntGapList(capacity);
 	}
 
 	public IntObjGapList(Integer... elems) {
 		super(false, null);
+		init(elems);
+	}
+
+	public void init(Integer... elems) {
 		list = new IntGapList(toPrimitive(elems));
 	}
 
 	public IntObjGapList(Collection<? extends Integer> elems) {
 		super(false, null);
+		init(elems);
+	}
+	public void init(Collection<? extends Integer> elems) {
 		list = new IntGapList(toPrimitive(elems));
 	}
 

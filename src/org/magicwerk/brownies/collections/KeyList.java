@@ -25,6 +25,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import org.magicwerk.brownies.collections.function.Mapper;
+import org.magicwerk.brownies.collections.helper.NaturalComparator;
+import org.magicwerk.brownies.collections.helper.SortedLists;
 import org.magicwerk.brownies.collections.primitive.BooleanObjGapList;
 import org.magicwerk.brownies.collections.primitive.ByteObjGapList;
 import org.magicwerk.brownies.collections.primitive.CharObjGapList;
@@ -44,7 +47,6 @@ import org.magicwerk.brownies.collections.primitive.ShortObjGapList;
  *
  * @see GapList
  * @param <E> type of elements stored in the list
- * @param <K> type of keys stored used for accessing the list
  */
 public class KeyList<E> extends GapList<E> {
 
@@ -94,15 +96,6 @@ public class KeyList<E> extends GapList<E> {
                 return nullsFirst ? 1 : -1;
             }
         }
-    }
-
-    public static <T> Comparator<T> getNaturalComparator() {
-        return new Comparator<T>() {
-            @SuppressWarnings({ "unchecked", "rawtypes" })
-            public int compare(Object o1, Object o2) {
-                return ((Comparable) o1).compareTo(o2);
-            }
-        };
     }
 
     // FIXME: constraint check - silent vs. error
@@ -229,9 +222,9 @@ public class KeyList<E> extends GapList<E> {
 	            	}
 	            	sorted = keyMapBuilder.sort;
                 	if (allowNullKey) {
-	                	keyMap.comparator = new NullComparator(getNaturalComparator(), keyMapBuilder.sortNullsFirst);
+	                	keyMap.comparator = new NullComparator(NaturalComparator.INSTANCE, keyMapBuilder.sortNullsFirst);
                 	} else {
-                    	keyMap.comparator = getNaturalComparator();
+                    	keyMap.comparator = NaturalComparator.INSTANCE;
                 	}
                 }
 	            if (keyMap.comparator != null) {
