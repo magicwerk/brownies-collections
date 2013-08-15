@@ -60,23 +60,42 @@ public class ShortObjGapList extends GapList<Short> {
 		return new ShortObjGapList(elems);
 	}
 
+	public ShortObjGapList(INIT init) {
+		super(false, null);
+	}
+
 	public ShortObjGapList() {
 		super(false, null);
+		init();
+	}
+
+	public void init() {
 		list = new ShortGapList();
 	}
 
 	public ShortObjGapList(int capacity) {
 		super(false, null);
+		init(capacity);
+	}
+
+	public void init(int capacity) {
 		list = new ShortGapList(capacity);
 	}
 
 	public ShortObjGapList(Short... elems) {
 		super(false, null);
+		init(elems);
+	}
+
+	public void init(Short... elems) {
 		list = new ShortGapList(toPrimitive(elems));
 	}
 
 	public ShortObjGapList(Collection<? extends Short> elems) {
 		super(false, null);
+		init(elems);
+	}
+	public void init(Collection<? extends Short> elems) {
 		list = new ShortGapList(toPrimitive(elems));
 	}
 

@@ -60,23 +60,42 @@ public class DoubleObjGapList extends GapList<Double> {
 		return new DoubleObjGapList(elems);
 	}
 
+	public DoubleObjGapList(INIT init) {
+		super(false, null);
+	}
+
 	public DoubleObjGapList() {
 		super(false, null);
+		init();
+	}
+
+	public void init() {
 		list = new DoubleGapList();
 	}
 
 	public DoubleObjGapList(int capacity) {
 		super(false, null);
+		init(capacity);
+	}
+
+	public void init(int capacity) {
 		list = new DoubleGapList(capacity);
 	}
 
 	public DoubleObjGapList(Double... elems) {
 		super(false, null);
+		init(elems);
+	}
+
+	public void init(Double... elems) {
 		list = new DoubleGapList(toPrimitive(elems));
 	}
 
 	public DoubleObjGapList(Collection<? extends Double> elems) {
 		super(false, null);
+		init(elems);
+	}
+	public void init(Collection<? extends Double> elems) {
 		list = new DoubleGapList(toPrimitive(elems));
 	}
 

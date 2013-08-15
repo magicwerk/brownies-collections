@@ -21,7 +21,7 @@
  */
 package org.magicwerk.brownies.collections.primitive;
 
-import org.magicwerk.brownies.collections.ArraysHelper;
+import org.magicwerk.brownies.collections.helper.ArraysHelper;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -57,6 +57,8 @@ import java.util.ListIterator;
  * @see	    java.util.LinkedList
  */
 public class ByteGapList implements Cloneable, Serializable {
+
+	public enum INIT {};
 
 	// Guide to subclass ByteGapList
 	// You need to overwrite the following methods:
@@ -178,6 +180,8 @@ public class ByteGapList implements Cloneable, Serializable {
 
     /** UID for serialization */
     private static final long serialVersionUID = -4477005565661968383L;
+
+    private static final int DEFAULT_CAPACITY = 10;
 
 	/** Array holding raw data */
 	private byte[] values;
@@ -352,7 +356,7 @@ public class ByteGapList implements Cloneable, Serializable {
 	 * Default constructor.
 	 */
 	public ByteGapList() {
-		this(10);
+		init();
 	}
 
 	/**
@@ -360,9 +364,8 @@ public class ByteGapList implements Cloneable, Serializable {
 	 *
 	 * @param capacity	capacity to use
 	 */
-	@SuppressWarnings("unchecked")
 	public ByteGapList(int capacity) {
-		init(new byte[capacity], 0);
+		init(capacity);
 	}
 
 	/**
@@ -371,8 +374,7 @@ public class ByteGapList implements Cloneable, Serializable {
 	 * @param that	source object to copy
 	 */
 	public ByteGapList(Collection<Byte> that) {
-		byte[] array = toArray(that);
-		init(array, array.length);
+		init(that);
 	}
 
 	/**
@@ -381,7 +383,24 @@ public class ByteGapList implements Cloneable, Serializable {
 	 * @param that	source object to copy
 	 */
 	public ByteGapList(byte... that) {
-		byte[] array = that.clone();
+		init(that);
+	}
+
+	public void init() {
+		init(new byte[DEFAULT_CAPACITY], 0);
+	}
+
+	public void init(int capacity) {
+		init(new byte[capacity], 0);
+	}
+
+	public void init(Collection<Byte> coll) {
+		byte[] array = toArray(coll);
+		init(array, array.length);
+	}
+
+	public void init(byte... elems) {
+		byte[] array = elems.clone();
 		init(array, array.length);
 	}
 
@@ -450,11 +469,6 @@ public class ByteGapList implements Cloneable, Serializable {
 		}
     }
 
-	
-	public void clear() {
-		doRemoveAll(0, size());
-	}
-
 	/**
 	 * Normalize data of ByteGapList so the elements are found
 	 * from values[0] to values[size-1].
@@ -462,6 +476,9 @@ public class ByteGapList implements Cloneable, Serializable {
 	 * binarySearch.
 	 */
 	private void normalize() {
+		if (start == 0 && end == 0 && gapSize == 0 && gapStart == 0 && gapIndex == 0) {
+			return;
+		}
 		init(toArray(), size());
 	}
 
@@ -483,6 +500,11 @@ public class ByteGapList implements Cloneable, Serializable {
 		gapIndex = 0;
 
 		if (DEBUG_CHECK) debugCheck();
+	}
+
+	
+	public void clear() {
+		doRemoveAll(0, size());
 	}
 
 	
@@ -511,8 +533,8 @@ public class ByteGapList implements Cloneable, Serializable {
         // We therefore do inlining manually.
 
         // INLINE: checkIndex(index);
-        if (index < 0 || index >= size) {
-            throw new IllegalArgumentException("Invalid index: " + index + " (size: " + size + ")");
+        if (index < 0 || index >= size()) {
+            throw new IllegalArgumentException("Invalid index: " + index + " (size: " + size() + ")");
         }
         return doGet(index);
     }
@@ -1118,6 +1140,7 @@ public class ByteGapList implements Cloneable, Serializable {
     	}
     	@SuppressWarnings("unchecked")
 		ByteGapList list = (ByteGapList) obj;
+    	int size = size();
     	if (size != list.size()) {
     		return false;
     	}
@@ -1132,6 +1155,7 @@ public class ByteGapList implements Cloneable, Serializable {
     
     public int hashCode() {
     	int hashCode = 1;
+    	int size = size();
     	for (int i=0; i<size; i++) {
     		byte elem = doGet(i);
     		hashCode = 31*hashCode + hashCodeElem(elem);
@@ -1143,7 +1167,8 @@ public class ByteGapList implements Cloneable, Serializable {
 	public String toString() {
 		StringBuilder buf = new StringBuilder();
 		buf.append("[");
-		for (int i=0; i<size(); i++) {
+		int size = size();
+		for (int i=0; i<size; i++) {
 			if (i > 0) {
 				buf.append(", ");
 			}
@@ -1155,7 +1180,7 @@ public class ByteGapList implements Cloneable, Serializable {
 
 	
 	public boolean isEmpty() {
-		return size == 0;
+		return size() == 0;
 	}
 
 	/**
@@ -1183,6 +1208,7 @@ return (int) val;
 
 	
 	public int indexOf(byte elem) {
+		int size = size();
 		for (int i=0; i<size; i++) {
 			if (equalsElem(doGet(i), elem)) {
 				return i;
@@ -1244,6 +1270,7 @@ return (int) val;
 	    // Note that this method is already implemented in AbstractCollection.
 		// It has been duplicated so the method is also available in the primitive classes.
 	    boolean modified = false;
+	    int size = size();
 		for (int i=0; i<size; i++) {
 			if (coll.contains(doGet(i))) {
 				doRemove(i);
@@ -1261,6 +1288,7 @@ return (int) val;
     	// There is a special implementation accepting a ByteGapList
     	// so the method is also available in the primitive classes.
 	    boolean modified = false;
+	    int size = size();
 		for (int i=0; i<size; i++) {
 			if (coll.contains(doGet(i))) {
 				doRemove(i);
@@ -1276,6 +1304,7 @@ return (int) val;
 	    // Note that this method is already implemented in AbstractCollection.
 		// It has been duplicated so the method is also available in the primitive classes.
 	    boolean modified = false;
+	    int size = size();
 		for (int i=0; i<size; i++) {
 			if (!coll.contains(doGet(i))) {
 				doRemove(i);
@@ -1293,6 +1322,7 @@ return (int) val;
     	// There is a special implementation accepting a ByteGapList
     	// so the method is also available in the primitive classes.
 	    boolean modified = false;
+	    int size = size();
 		for (int i=0; i<size; i++) {
 			if (!coll.contains(doGet(i))) {
 				doRemove(i);
@@ -1305,6 +1335,7 @@ return (int) val;
 
 	
 	public byte[] toArray() {
+	    int size = size();
 		byte[] array = new byte[size];
 		doGetAll(array, 0, size);
         return array;
@@ -1326,6 +1357,7 @@ return (int) val;
 	@SuppressWarnings("unchecked")
 	
 	public  byte[] toArray(byte[] array) {
+	    int size = size();
         if (array.length < size) {
         	array = (byte[]) java.lang.reflect.Array.newInstance(array.getClass().getComponentType(), size);
         }
@@ -1503,7 +1535,7 @@ return (int) val;
 
     
     public byte getLast() {
-    	return doGet(size-1);
+    	return doGet(size()-1);
     }
 
     
@@ -1523,14 +1555,14 @@ return (int) val;
 
     
     public byte removeLast() {
-    	return doRemove(size-1);
+    	return doRemove(size()-1);
     }
 
     // Queue operations
 
     
     public byte peek() {
-        if (size == 0) {
+        if (size() == 0) {
             return (byte)0;
         }
         return getFirst();
@@ -1543,7 +1575,7 @@ return (int) val;
 
     
     public byte poll() {
-        if (size == 0) {
+        if (size() == 0) {
             return (byte)0;
         }
         return removeFirst();
@@ -1578,7 +1610,7 @@ return (int) val;
 
 	
 	public byte peekFirst() {
-        if (size == 0) {
+        if (size() == 0) {
             return (byte)0;
         }
         return getFirst();
@@ -1586,7 +1618,7 @@ return (int) val;
 
 	
 	public byte peekLast() {
-        if (size == 0) {
+        if (size() == 0) {
             return (byte)0;
         }
         return getLast();
@@ -1594,7 +1626,7 @@ return (int) val;
 
 	
 	public byte pollFirst() {
-        if (size == 0) {
+        if (size() == 0) {
             return (byte)0;
         }
         return removeFirst();
@@ -1602,7 +1634,7 @@ return (int) val;
 
 	
 	public byte pollLast() {
-        if (size == 0) {
+        if (size() == 0) {
             return (byte)0;
         }
         return removeLast();
@@ -1651,6 +1683,7 @@ return (int) val;
      */
     private void writebyte(ObjectOutputStream oos) throws IOException {
         // Write out array length
+	    int size = size();
         oos.writeInt(size);
 
         // Write out all elements in the proper order.
@@ -1826,9 +1859,10 @@ return (int) val;
     public void setAll(int index, ByteGapList list) {
     	// There is a special implementation accepting a ByteGapList
     	// so the method is also available in the primitive classes.
-        checkRange(index, list.size());
+	    int size = list.size();
+        checkRange(index, size);
 
-        for (int i=0; i<list.size(); i++) {
+        for (int i=0; i<size; i++) {
             doSet(index+i, list.get(i));
         }
     }
@@ -1883,7 +1917,7 @@ return (int) val;
 	}
 
 	protected void doRemoveAll(int index, int len) {
-		if (len == size) {
+		if (len == size()) {
 			doModify();
 			init(values, 0);
 		} else {
@@ -2086,7 +2120,7 @@ return (int) val;
      * @param distance	distance to move the elements
      */
     public void rotate(int distance) {
-    	rotate(0, size, distance);
+    	rotate(0, size(), distance);
     }
 
     /**
@@ -2228,7 +2262,7 @@ return (int) val;
      * @see Arrays#binarySearch
      */
     public  int binarySearch(byte key) {
-    	return binarySearch(0, size, key);
+    	return binarySearch(0, size(), key);
     }
 
     /**

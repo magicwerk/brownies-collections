@@ -60,23 +60,42 @@ public class NAMETYPEObjGapList extends GapList<WRAPPERTYPE> {
 		return new NAMETYPEObjGapList(elems);
 	}
 
+	public NAMETYPEObjGapList(INIT init) {
+		super(false, null);
+	}
+
 	public NAMETYPEObjGapList() {
 		super(false, null);
+		init();
+	}
+
+	public void init() {
 		list = new NAMETYPEGapList();
 	}
 
 	public NAMETYPEObjGapList(int capacity) {
 		super(false, null);
+		init(capacity);
+	}
+
+	public void init(int capacity) {
 		list = new NAMETYPEGapList(capacity);
 	}
 
 	public NAMETYPEObjGapList(WRAPPERTYPE... elems) {
 		super(false, null);
+		init(elems);
+	}
+
+	public void init(WRAPPERTYPE... elems) {
 		list = new NAMETYPEGapList(toPrimitive(elems));
 	}
 
 	public NAMETYPEObjGapList(Collection<? extends WRAPPERTYPE> elems) {
 		super(false, null);
+		init(elems);
+	}
+	public void init(Collection<? extends WRAPPERTYPE> elems) {
 		list = new NAMETYPEGapList(toPrimitive(elems));
 	}
 

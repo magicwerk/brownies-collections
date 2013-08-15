@@ -60,23 +60,42 @@ public class FloatObjGapList extends GapList<Float> {
 		return new FloatObjGapList(elems);
 	}
 
+	public FloatObjGapList(INIT init) {
+		super(false, null);
+	}
+
 	public FloatObjGapList() {
 		super(false, null);
+		init();
+	}
+
+	public void init() {
 		list = new FloatGapList();
 	}
 
 	public FloatObjGapList(int capacity) {
 		super(false, null);
+		init(capacity);
+	}
+
+	public void init(int capacity) {
 		list = new FloatGapList(capacity);
 	}
 
 	public FloatObjGapList(Float... elems) {
 		super(false, null);
+		init(elems);
+	}
+
+	public void init(Float... elems) {
 		list = new FloatGapList(toPrimitive(elems));
 	}
 
 	public FloatObjGapList(Collection<? extends Float> elems) {
 		super(false, null);
+		init(elems);
+	}
+	public void init(Collection<? extends Float> elems) {
 		list = new FloatGapList(toPrimitive(elems));
 	}
 

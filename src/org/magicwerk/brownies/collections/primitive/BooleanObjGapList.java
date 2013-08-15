@@ -60,23 +60,42 @@ public class BooleanObjGapList extends GapList<Boolean> {
 		return new BooleanObjGapList(elems);
 	}
 
+	public BooleanObjGapList(INIT init) {
+		super(false, null);
+	}
+
 	public BooleanObjGapList() {
 		super(false, null);
+		init();
+	}
+
+	public void init() {
 		list = new BooleanGapList();
 	}
 
 	public BooleanObjGapList(int capacity) {
 		super(false, null);
+		init(capacity);
+	}
+
+	public void init(int capacity) {
 		list = new BooleanGapList(capacity);
 	}
 
 	public BooleanObjGapList(Boolean... elems) {
 		super(false, null);
+		init(elems);
+	}
+
+	public void init(Boolean... elems) {
 		list = new BooleanGapList(toPrimitive(elems));
 	}
 
 	public BooleanObjGapList(Collection<? extends Boolean> elems) {
 		super(false, null);
+		init(elems);
+	}
+	public void init(Collection<? extends Boolean> elems) {
 		list = new BooleanGapList(toPrimitive(elems));
 	}
 

@@ -24,6 +24,7 @@ import java.util.Set;
 
 import org.magicwerk.brownies.collections.KeyList.Builder;
 import org.magicwerk.brownies.collections.KeyList.Predicate;
+import org.magicwerk.brownies.collections.function.Mapper;
 
 
 /**

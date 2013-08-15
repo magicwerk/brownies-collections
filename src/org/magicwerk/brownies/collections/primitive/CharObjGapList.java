@@ -60,23 +60,42 @@ public class CharObjGapList extends GapList<Character> {
 		return new CharObjGapList(elems);
 	}
 
+	public CharObjGapList(INIT init) {
+		super(false, null);
+	}
+
 	public CharObjGapList() {
 		super(false, null);
+		init();
+	}
+
+	public void init() {
 		list = new CharGapList();
 	}
 
 	public CharObjGapList(int capacity) {
 		super(false, null);
+		init(capacity);
+	}
+
+	public void init(int capacity) {
 		list = new CharGapList(capacity);
 	}
 
 	public CharObjGapList(Character... elems) {
 		super(false, null);
+		init(elems);
+	}
+
+	public void init(Character... elems) {
 		list = new CharGapList(toPrimitive(elems));
 	}
 
 	public CharObjGapList(Collection<? extends Character> elems) {
 		super(false, null);
+		init(elems);
+	}
+	public void init(Collection<? extends Character> elems) {
 		list = new CharGapList(toPrimitive(elems));
 	}
 

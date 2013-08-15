@@ -15,7 +15,7 @@
  *
  * $Id: TypeTools.java 1775 2013-07-10 22:53:57Z origo $
  */
-package org.magicwerk.brownies.collections;
+package org.magicwerk.brownies.collections.helper;
 
 import java.util.Arrays;
 

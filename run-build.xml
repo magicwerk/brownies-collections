@@ -227,7 +227,7 @@
 		               replace="// ---${NL}// --- DO NOT EDIT${NL}// --- AUTOMATICALLY GENERATED FILE${NL}// ---${NL}" />
 		<replaceregexp file="${dst.file}"
 		               match="package org.magicwerk.brownies.collections;"
-		               replace="package org.magicwerk.brownies.collections.primitive;${NL}${NL}import org.magicwerk.brownies.collections.ArraysHelper;" />
+		               replace="package org.magicwerk.brownies.collections.primitive;${NL}${NL}import org.magicwerk.brownies.collections.helper.ArraysHelper;" />
 
 		<!-- Negative lookahead: match all java.util imports, except java.util.Collection -->
 		<replaceregexp file="${dst.file}" flags="mg"
