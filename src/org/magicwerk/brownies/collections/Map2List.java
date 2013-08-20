@@ -20,10 +20,7 @@ package org.magicwerk.brownies.collections;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Map;
-import java.util.Set;
 
-import org.magicwerk.brownies.collections.KeyList.Builder;
-import org.magicwerk.brownies.collections.KeyList.Predicate;
 import org.magicwerk.brownies.collections.function.Mapper;
 
 
