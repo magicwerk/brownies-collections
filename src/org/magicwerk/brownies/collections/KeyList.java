@@ -563,6 +563,16 @@ public class KeyList<E> extends GapList<E> {
 	    HashMap<K, Object> unsortedKeys;
 	    /** Key storage if sorted */
 	    GapList<K> sortedKeys;
+
+	    KeyMap() {
+	    }
+
+	    KeyMap(KeyMap that) {
+	    	mapper = that.mapper;
+	    	allowNullKeys = that.allowNullKeys;
+	    	duplicateMode = that.duplicateMode;
+	    	comparator = that.comparator;
+	    }
     }
     /**
      * There can be 0, 1, or several keys.
@@ -643,10 +653,7 @@ public class KeyList<E> extends GapList<E> {
 	    init(new Object[10], 0);
 
 	    // KeyList
-	    keyMaps = that.keyMaps.clone();
-	    for (KeyMap<E,?> keyMap: keyMaps) {
-	    	init(keyMap);
-	    }
+	    keyMaps = init(that.keyMaps);
 	}
 
     /**
@@ -659,10 +666,7 @@ public class KeyList<E> extends GapList<E> {
         init(that.toArray(), that.size());
 
         // KeyList
-	    keyMaps = that.keyMaps.clone();
-	    for (KeyMap<E,Object> keyMap: keyMaps) {
-	    	clone(keyMap);
-	    }
+	    keyMaps = copy(that.keyMaps);
     }
 
     @SuppressWarnings("unchecked")
@@ -670,38 +674,57 @@ public class KeyList<E> extends GapList<E> {
     public Object clone() {
         KeyList<E> clone = (KeyList<E>) super.clone();
 
-        for (KeyMap<E,Object> keyMap: keyMaps) {
-        	clone(keyMap);
-        }
+        // KeyList
+	    clone.keyMaps = copy(this.keyMaps);
         return clone;
     }
 
-    private <K> void init(KeyMap<E,K> keyMap) {
-        if (keyMap.unsortedKeys != null) {
-        	keyMap.unsortedKeys = new HashMap<K, Object>();
-        } else {
-        	// Note that the check (keyMap.sortedKeys != this) does not work here
-        	// as cloned KeyMap points to the old this pointer
-        	if (keyMap.sortedKeys.getClass() == GapList.class) {
-        		keyMap.sortedKeys = new GapList<K>();
-        	} else {
-	        	keyMap.sortedKeys = (GapList<K>) this;
-        	}
-        }
+    private <K> KeyMap[] init(KeyMap<E,K>[] keyMaps) {
+    	KeyMap<E,K>[] copy = new KeyMap[keyMaps.length];
+    	for (int i=0; i<keyMaps.length; i++) {
+    		copy[i] = init(keyMaps[i]);
+    	}
+    	return copy;
     }
 
-    private <K> void clone(KeyMap<E,K> keyMap) {
+    private <K> KeyMap[] copy(KeyMap<E,K>[] keyMaps) {
+    	KeyMap<E,K>[] copy = new KeyMap[keyMaps.length];
+    	for (int i=0; i<keyMaps.length; i++) {
+    		copy[i] = copy(keyMaps[i]);
+    	}
+    	return copy;
+    }
+
+    private <K> KeyMap<E,K> init(KeyMap<E,K> keyMap) {
+    	KeyMap<E,K> copy = new KeyMap(keyMap);
         if (keyMap.unsortedKeys != null) {
-        	keyMap.unsortedKeys = new HashMap<K, Object>(keyMap.unsortedKeys);
+        	copy.unsortedKeys = new HashMap<K, Object>();
         } else {
         	// Note that the check (keyMap.sortedKeys != this) does not work here
         	// as cloned KeyMap points to the old this pointer
         	if (keyMap.sortedKeys.getClass() == GapList.class) {
-	        	keyMap.sortedKeys = keyMap.sortedKeys.copy();
+        		copy.sortedKeys = new GapList<K>();
+        	} else {
+	        	copy.sortedKeys = (GapList<K>) this;
+        	}
+        }
+        return copy;
+    }
+
+    private <K> KeyMap<E,K> copy(KeyMap<E,K> keyMap) {
+    	KeyMap<E,K> copy = new KeyMap(keyMap);
+        if (keyMap.unsortedKeys != null) {
+        	copy.unsortedKeys = new HashMap<K, Object>(keyMap.unsortedKeys);
+        } else {
+        	// Note that the check (keyMap.sortedKeys != this) does not work here
+        	// as cloned KeyMap points to the old this pointer
+        	if (keyMap.sortedKeys.getClass() == GapList.class) {
+	        	copy.sortedKeys = keyMap.sortedKeys.copy();
 	        } else {
-	        	keyMap.sortedKeys = (GapList<K>) this;
+	        	copy.sortedKeys = (GapList<K>) this;
 	        }
         }
+        return copy;
     }
 
     @Override
