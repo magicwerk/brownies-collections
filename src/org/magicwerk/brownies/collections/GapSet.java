@@ -101,19 +101,19 @@ public class GapSet<E> implements NavigableSet<E> {
     // Natural comparator
 
     public static <E> GapSet<E> create() {
-        return new GapSet<E>(NaturalComparator.INSTANCE).init();
+        return new GapSet<E>((Comparator) null).init();
     }
 
     public static <E> GapSet<E> create(int capacity) {
-        return new GapSet<E>(NaturalComparator.INSTANCE).init(capacity);
+        return new GapSet<E>((Comparator) null).init(capacity);
     }
 
     public static <E> GapSet<E> create(Collection<? extends E> elements) {
-        return new GapSet<E>(NaturalComparator.INSTANCE).init(elements);
+        return new GapSet<E>((Comparator) null).init(elements);
     }
 
     public static <E> GapSet<E> create(E... elements) {
-        return new GapSet<E>(NaturalComparator.INSTANCE).init(elements);
+        return new GapSet<E>((Comparator) null).init(elements);
     }
 
     // Explicit types
@@ -516,4 +516,29 @@ public class GapSet<E> implements NavigableSet<E> {
 		return subSet(fromElement, inclusive, list.peekLast(), true);
 	}
 
+	@Override
+    public boolean equals(Object obj) {
+    	if (obj == this) {
+    		return true;
+    	}
+    	if (!(obj instanceof Set)) {
+    		return false;
+		}
+		Set<?> set = (Set<?>) obj;
+		if (set.size() != size()) {
+			return false;
+		}
+        try {
+            return containsAll(set);
+        } catch (ClassCastException unused)   {
+            return false;
+        } catch (NullPointerException unused) {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+    	return list.hashCode();
+    }
 }
