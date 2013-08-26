@@ -221,7 +221,7 @@ public class GapList<E> extends AbstractList<E>
 	}
 
 	/**
-	 * Create new list and add multiple elements to list.
+	 * Create new list and add elements.
 	 *
 	 * @param elems 	elements to add
 	 * @return 			created array list
