@@ -22,6 +22,8 @@ import java.util.Comparator;
 import java.util.Map;
 
 import org.magicwerk.brownies.collections.function.Mapper;
+import org.magicwerk.brownies.collections.function.Predicate;
+import org.magicwerk.brownies.collections.function.Trigger;
 
 
 /**

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id$
+ * $Id: SetList.java 1815 2013-08-09 00:05:35Z origo $
  */
 package org.magicwerk.brownies.collections;
 
@@ -24,10 +24,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.magicwerk.brownies.collections.KeyList.BuilderBase;
-import org.magicwerk.brownies.collections.KeyList.DuplicateMode;
-import org.magicwerk.brownies.collections.KeyList.NullMode;
-import org.magicwerk.brownies.collections.KeyList.BuilderBase.KeyMapBuilder;
+import org.magicwerk.brownies.collections.KeyCollection.BuilderBase;
+import org.magicwerk.brownies.collections.KeyCollection.DuplicateMode;
+import org.magicwerk.brownies.collections.KeyCollection.NullMode;
+import org.magicwerk.brownies.collections.KeyCollection.BuilderBase.KeyMapBuilder;
 import org.magicwerk.brownies.collections.MapList.Builder;
 import org.magicwerk.brownies.collections.function.Predicate;
 import org.magicwerk.brownies.collections.function.Trigger;
@@ -42,12 +42,12 @@ import org.magicwerk.brownies.collections.helper.IdentMapper;
  *
  *
  * @author Thomas Mauch
- * @version $Id$
+ * @version $Id: SetList.java 1815 2013-08-09 00:05:35Z origo $
  *
  * @see MapList
  * @param <E> type of elements stored in the list
  */
-public class SetList<E> extends KeyList<E> {
+public class SetCollection<E> extends KeyCollection<E> {
 
     /** UID for serialization. */
     private static final long serialVersionUID = 6181488174454611419L;
@@ -66,10 +66,10 @@ public class SetList<E> extends KeyList<E> {
         /**
          * Internal constructor.
          *
-         * @param keyList	keyList to setup
+         * @param keyColl	keyColl to setup
          */
-        Builder(KeyList<E> keyList) {
-        	this.keyList = keyList;
+        Builder(KeyCollection<E> keyColl) {
+        	this.keyColl = keyColl;
 
         	newKeyMapBuilder(IdentMapper.INSTANCE);
         }
@@ -227,12 +227,12 @@ public class SetList<E> extends KeyList<E> {
         /**
          * @return created SetList
          */
-        public SetList<E> build() {
-        	if (keyList == null) {
-               	keyList = new SetList<E>(false);
+        public SetCollection<E> build() {
+        	if (keyColl == null) {
+               	keyColl = new SetCollection<E>(false);
         	}
-        	build(keyList);
-        	return (SetList<E>) keyList;
+        	build(keyColl);
+        	return (SetCollection<E>) keyColl;
         }
     }
 
@@ -242,7 +242,7 @@ public class SetList<E> extends KeyList<E> {
      *
      * @param that  source list
      */
-    SetList(SetList<E> that) {
+    SetCollection(SetCollection<E> that) {
         super(that);
     }
 
@@ -252,7 +252,7 @@ public class SetList<E> extends KeyList<E> {
      *
      * @param ignore ignored parameter for unique method signature
      */
-    protected SetList(boolean ignore) {
+    protected SetCollection(boolean ignore) {
         super(ignore);
     }
 
@@ -262,47 +262,47 @@ public class SetList<E> extends KeyList<E> {
      *
      * @return  builder for this class
      */
-    protected SetList.Builder<E> getBuilder() {
-        return new SetList.Builder<E>(this);
+    protected SetCollection.Builder<E> getBuilder() {
+        return new SetCollection.Builder<E>(this);
     }
 
     // SetList constructors
 
-    public SetList() {
+    public SetCollection() {
         super(false);
         getBuilder().build();
     }
 
-    public SetList(int capacity) {
+    public SetCollection(int capacity) {
         super(false);
     	getBuilder().withCapacity(capacity).build();
     }
 
-    public SetList(Collection<? extends E> elements) {
+    public SetCollection(Collection<? extends E> elements) {
         super(false);
     	getBuilder().withElements(elements).build();
     }
 
-    public SetList(E... elements) {
+    public SetCollection(E... elements) {
         super(false);
     	getBuilder().withElements(elements).build();
     }
 
     // Create SetList
 
-    public static <E> SetList<E> create() {
+    public static <E> SetCollection<E> create() {
     	return new Builder<E>().build();
     }
 
-    public static <E> SetList<E> create(int capacity) {
+    public static <E> SetCollection<E> create(int capacity) {
     	return new Builder<E>().withCapacity(capacity).build();
     }
 
-    public static <E> SetList<E> create(Collection<? extends E> elements) {
+    public static <E> SetCollection<E> create(Collection<? extends E> elements) {
     	return new Builder<E>().withElements(elements).build();
     }
 
-    public static <E> SetList<E> create(E... elements) {
+    public static <E> SetCollection<E> create(E... elements) {
     	return new Builder<E>().withElements(elements).build();
 
     }
@@ -349,8 +349,8 @@ public class SetList<E> extends KeyList<E> {
      * {@inheritDoc}
      */
     @Override
-    public SetList<E> copy() {
-        SetList<E> copy = new SetList<E>(this);
+    public SetCollection<E> copy() {
+        SetCollection<E> copy = new SetCollection<E>(this);
         copy.initCopy(this);
         return copy;
     }
@@ -361,8 +361,8 @@ public class SetList<E> extends KeyList<E> {
      *
      * @return  an empty copy of this instance
      */
-    public SetList<E> crop() {
-        SetList<E> copy = new SetList<E>(this);
+    public SetCollection<E> crop() {
+        SetCollection<E> copy = new SetCollection<E>(this);
         copy.initCrop(this);
         return copy;
     }
