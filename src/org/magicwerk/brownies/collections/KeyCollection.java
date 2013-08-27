@@ -28,6 +28,7 @@ import org.magicwerk.brownies.collections.KeyList.Builder;
 import org.magicwerk.brownies.collections.function.Mapper;
 import org.magicwerk.brownies.collections.function.Predicate;
 import org.magicwerk.brownies.collections.function.Trigger;
+import org.magicwerk.brownies.collections.helper.IdentMapper;
 import org.magicwerk.brownies.collections.helper.NaturalComparator;
 import org.magicwerk.brownies.collections.helper.NullComparator;
 import org.magicwerk.brownies.collections.helper.SortedLists;
@@ -42,8 +43,13 @@ import org.magicwerk.brownies.collections.primitive.ShortObjGapList;
 
 
 /**
- * A KeyList add key handling features to GapList.
- * It is the abstract base class for both SetList and MapList.
+ * Add:
+ * - validation fails: null / constraint
+ * - duplicate not allowed (mode replace)
+ *
+ * Triggers:
+ * - triggers are called after the add/remove operation has finished
+ * - if an exception is thrown in the trigger, the change already made to the collection is not undone
  *
  * @author Thomas Mauch
  * @version $Id: KeyList.java 1829 2013-08-20 06:45:35Z origo $
@@ -54,35 +60,19 @@ import org.magicwerk.brownies.collections.primitive.ShortObjGapList;
 public class KeyCollection<E> implements Collection<E> {
 
 
-    // FIXME: constraint check - silent vs. error
-    /**
-     * Mode to control handling of duplicate values:
-     * REPLACE, IGNORE, ERROR, ALLOW.
-     */
-    public enum DuplicateMode {
-        /** Duplicates on add or set are ignored, i.e. the old value remains in place (default mode) */
-        IGNORE,
-        /** Duplicates on add or set will replace the old value */
-        REPLACE,
-        /** Duplicates on add or set will be rejected by throwing an exception */
-        ERROR,
-        /** Duplicates are allowed */
-        ALLOW
-    }
-
     /**
      * Mode to control handling of duplicate values:
      * NONE, NORMAL, MULTIPLE.
      */
     public enum NullMode {
-        /** Null values are not allowed. */
+        /** No null values are allowed at all. */
         NONE,
         /**
          * Null values are treated like normal values, so if duplicates
-         * are allowed there can be multiple
+         * are allowed there can also be multiple null values.
          */
         NORMAL,
-        /** Duplicates on add or set will be rejected by throwing an exception */
+        /** Even if no duplicates are allowed, there can be duplicate null values. */
         MULTIPLE
     }
 
@@ -97,7 +87,7 @@ public class KeyCollection<E> implements Collection<E> {
             // -- null
             NullMode nullMode = NullMode.NONE;
             // -- duplicates
-            DuplicateMode duplicateMode = DuplicateMode.IGNORE;
+            boolean allowDuplicates = false;
             // -- sort
             /** True to sort using natural comparator */
             boolean sort;
@@ -147,7 +137,7 @@ public class KeyCollection<E> implements Collection<E> {
         	if (keyMapBuilder != null) {
             	KeyMap<E,Object> keyMap = new KeyMap<E,Object>();
             	keyMap.mapper = (Mapper<E, Object>) keyMapBuilder.mapper;
-            	keyMap.duplicateMode = keyMapBuilder.duplicateMode;
+            	keyMap.allowDuplicates = keyMapBuilder.allowDuplicates;
 
             	boolean allowNullKey = (keyMapBuilder.nullMode != NullMode.NONE);
                 if (keyMapBuilder.comparator != null) {
@@ -230,7 +220,11 @@ public class KeyCollection<E> implements Collection<E> {
         void build(KeyCollection<E> keyColl) {
         	endKeyMapBuilder();
 
+        	keyColl.allowNullElem = allowNullElem;
             keyColl.keyMaps = keyMaps.toArray(new KeyMap[keyMaps.size()]);
+            keyColl.constraint = constraint;
+            keyColl.insertTrigger = insertTrigger;
+            keyColl.deleteTrigger = deleteTrigger;
 
             if (collection != null) {
             	keyColl.addAll(collection);
@@ -332,10 +326,22 @@ public class KeyCollection<E> implements Collection<E> {
 
         //-- Keys
 
+        public Builder<E> withSetKey() {
+        	if (keyMapBuilder != null || !keyMaps.isEmpty()) {
+        		throw new IllegalArgumentException("Set key must be first");
+        	}
+        	newKeyMapBuilder(IdentMapper.INSTANCE);
+        	return this;
+        }
+
         public Builder<E> withKey(Mapper<E, Object> mapper) {
         	endKeyMapBuilder();
         	newKeyMapBuilder(mapper);
         	return this;
+        }
+
+        public Builder<E> withKeyNull() {
+            return withKeyNull(true);
         }
 
         /**
@@ -354,14 +360,18 @@ public class KeyCollection<E> implements Collection<E> {
             return this;
         }
 
+        public Builder<E> withKeyDuplicates() {
+        	return withKeyDuplicates(true);
+        }
+
         /**
          * Determines whether duplicates are allowed or not.
          *
          * @param duplicates    true to allow duplicates, false to disallow
          * @return              this (for use in fluent interfaces)
          */
-        public Builder<E> withKeyDuplicates(DuplicateMode duplicateMode) {
-        	getKeyMapBuilder().duplicateMode = duplicateMode;
+        public Builder<E> withKeyDuplicates(boolean duplicates) {
+        	getKeyMapBuilder().allowDuplicates = duplicates;
             return this;
         }
 
@@ -447,6 +457,10 @@ public class KeyCollection<E> implements Collection<E> {
         	if (keyColl == null) {
                	keyColl = new KeyCollection<E>();
         	}
+        	// If no keys have been defined, create a set key so the elements can be stored somewhere
+        	if (keyMapBuilder == null && keyMaps.isEmpty()) {
+        		withSetKey();
+        	}
         	build(keyColl);
         	return (KeyCollection<E>) keyColl;
         }
@@ -458,7 +472,7 @@ public class KeyCollection<E> implements Collection<E> {
 	    /** True to allow null keys */
 	    NullMode allowNullKeys;
 	    /** True to allow duplicate values. This also allows duplicate null values, but they are not distinct. */
-	    DuplicateMode duplicateMode = DuplicateMode.IGNORE;
+	    boolean allowDuplicates;
 	    /** Comparator to use for sorting (if null, elements are not sorted) */
 	    Comparator<K> comparator;
 	    /**
@@ -475,10 +489,173 @@ public class KeyCollection<E> implements Collection<E> {
 	    KeyMap(KeyMap that) {
 	    	mapper = that.mapper;
 	    	allowNullKeys = that.allowNullKeys;
-	    	duplicateMode = that.duplicateMode;
+	    	allowDuplicates = that.allowDuplicates;
 	    	comparator = that.comparator;
 	    }
+
+	    boolean containsKey(Object key) {
+	        if (key == null) {
+	            if (allowNullKeys == NullMode.NONE) {
+	                return false;
+	            }
+	        }
+	    	if (unsortedKeys != null) {
+    			return unsortedKeys.containsKey(key);
+	    	} else {
+	    		return sortedKeys.binarySearch(key, (Comparator<Object>) comparator) >= 0;
+	    	}
+	    }
+
+	    @SuppressWarnings("unchecked")
+		Iterator<E> iterator() {
+	    	if (unsortedKeys != null) {
+	    		return (Iterator<E>) unsortedKeys.values().iterator();
+	    	} else {
+	    		return (Iterator<E>) sortedKeys.iterator();
+	    	}
+	    }
+
+	    static class KeyMapIter<E> implements Iterator<E> {
+
+	    	KeyCollection<E> coll;
+	    	Iterator<E> iter;
+	    	boolean hasElem = false;
+	    	E elem;
+
+	    	public KeyMapIter(KeyCollection<E> coll, Iterator<E> iter) {
+	    		this.coll = coll;
+	    		this.iter = iter;
+	    	}
+
+			@Override
+			public boolean hasNext() {
+				return iter.hasNext();
+			}
+
+			@Override
+			public E next() {
+				hasElem = false;
+				elem = iter.next();
+				hasElem = true;
+				return elem;
+			}
+
+			@Override
+			public void remove() {
+				if (hasElem) {
+					iter.remove();
+					coll.remove(elem, true);
+				}
+			}
+
+	    }
+
+	    private void add(K key, E elem) {
+	    	if (key == null) {
+	    		if (allowNullKeys == NullMode.NONE) {
+	    			errorNullKey();
+	    		}
+	    	}
+	        if (unsortedKeys != null) {
+	            // Keys not sorted
+	        	boolean add = false;
+	        	if (!unsortedKeys.containsKey(key)) {
+	        		add = true;
+	        	} else {
+	                if (allowDuplicates == true ||
+	                	(key == null && allowNullKeys == NullMode.MULTIPLE)) {
+	                	add = true;
+	                }
+	        	}
+	        	if (!add) {
+	        		errorDuplicateKey();
+	        	}
+
+                // New key
+    			Object obj = unsortedKeys.get(key);
+    		    if (obj == null) {
+    		    	if (!unsortedKeys.containsKey(key)) {
+    		    		unsortedKeys.put(key, elem);
+    		        } else {
+    		            GapList<E> list = (GapList<E>) GapList.create(null, elem);
+    		            unsortedKeys.put(key, list);
+    		    	}
+    		    } else if (obj instanceof GapList) {
+    	            GapList<E> list = (GapList<E>) obj;
+    	            list.add(elem);
+    	        } else {
+    	            GapList<E> list = (GapList<E>) GapList.create(obj, elem);
+    	            unsortedKeys.put(key, list);
+    	        }
+
+	        } else {
+	            // Sorted keys
+	        	int addIndex = 0;
+	        	if (!sortedKeys.isEmpty()) {
+	        		if (comparator.compare(key, sortedKeys.getLast()) > 0) {
+	        			addIndex = -sortedKeys.size() - 1;
+	        		} else if (comparator.compare(key, sortedKeys.getFirst()) < 0) {
+	        			addIndex = -1;
+	        		}
+	        	}
+	        	if (addIndex == 0) {
+	        		addIndex = SortedLists.binarySearchAdd(sortedKeys, key, comparator);
+	        	}
+	        	boolean add = false;
+	            if (addIndex < 0) {
+	                // New key
+	                addIndex = -addIndex - 1;
+	        		add = true;
+	        	} else {
+	                if (allowDuplicates == true ||
+	                	(key == null && allowNullKeys == NullMode.MULTIPLE)) {
+	                	add = true;
+	                }
+	        	}
+	        	if (!add) {
+	        		errorDuplicateKey();
+	        	}
+	            sortedKeys.doAdd(addIndex, key);
+	       	}
+	    }
+
+	    E removeKey(Object key) {
+	    	// If list cannot contain null, handle null explicitly to prevent NPE
+	    	if (key == null) {
+	    		if (allowNullKeys == NullMode.NONE) {
+	    			return null;
+	    		}
+	    	}
+
+	    	if (unsortedKeys != null) {
+	        	if (!unsortedKeys.containsKey(key)) {
+	        		return null;
+	        	}
+	        	E elem = null;
+	            Object obj = unsortedKeys.get(key);
+		        if (obj instanceof GapList) {
+		            GapList<E> list = (GapList<E>) obj;
+		            elem = list.removeFirst();
+		            if (list.isEmpty()) {
+		                unsortedKeys.remove(key);
+		            }
+		        } else {
+		            elem = (E) unsortedKeys.remove(key);
+		        }
+		        return elem;
+	    	} else {
+	    		int index = sortedKeys.binarySearch(key, (Comparator<Object>) comparator);
+	    		E elem = null;
+	    		if (index >= 0) {
+	    			elem = (E) sortedKeys.remove(index);
+	    		}
+	    		return elem;
+	    	}
+	    }
+
     }
+
+    int size;
     /**
      * There can be 0, 1, or several keys.
      * If there are no keys, all key methods will fail. This can be used, if a constraint list is needed.
@@ -515,7 +692,7 @@ public class KeyCollection<E> implements Collection<E> {
     				count++;
     			}
     		}
-    		assert(count == keyMap.unsortedKeys.size());
+    		assert(count == size());
     	} else if (keyMap.sortedKeys != null) {
     		GapList<?> copy = keyMap.sortedKeys.copy();
     		copy.sort(keyMap.comparator);
@@ -578,110 +755,194 @@ public class KeyCollection<E> implements Collection<E> {
 //	    keyMaps = that.keyMaps;
 //	}
 
-    /**
-     * The method onAttach() is called before a new element is added to or set in the list.
-     * For a set() operation, onDetach() is first called for the old element and then
-     * onAttach() is called for the new element.
-     *
-     * @param elem element which is stored in list
-     */
-    protected void onInsert(E elem) {
-        if (insertTrigger != null) {
-            insertTrigger.handle(elem);
-        }
-    }
-
-    /**
-     * The method onDetach() is called before an element is removed from or overwritten in the list.
-     * For a set() operation, onDetach() is first called for the old element and then
-     * onAttach() is called for the new element.
-     *
-     * @param elem element which is detached from the list
-     */
-    protected void onDelete(E elem) {
-        if (deleteTrigger != null) {
-            deleteTrigger.handle(elem);
-        }
-    }
-
     void checkElemAllowed(E elem) {
     	if (elem == null) {
     		if (!allowNullElem) {
-    			throw new IllegalArgumentException("Constraint violation: null element not allowed");
+    			errorNullElement();
     		}
     	} else {
     		if (constraint != null) {
     			if (!constraint.allow(elem)) {
-        			throw new IllegalArgumentException("Constraint violation: element not allowed");
+        			errorConstraintElement();
     			}
     		}
     	}
     }
 
+    static void errorNullElement() {
+		throw new IllegalArgumentException("Constraint violation: null element not allowed");
+    }
+
+    static void errorConstraintElement() {
+		throw new IllegalArgumentException("Constraint violation: element not allowed");
+    }
+
+    static void errorNullKey() {
+		throw new IllegalArgumentException("Constraint violation: null key not allowed");
+    }
+
+    static void errorDuplicateKey() {
+		throw new IllegalArgumentException("Constraint violation: duplicate key not allowed");
+    }
+
+    static void errorInvalidData() {
+		throw new IllegalArgumentException("Invalid data: call update() on change of key data");
+    }
+
+    @Override
+    public boolean add(E elem) {
+    	checkElemAllowed(elem);
+    	doAdd(elem);
+    	size++;
+        if (DEBUG_CHECK) debugCheck();
+
+    	if (insertTrigger != null) {
+   			insertTrigger.handle(elem);
+    	}
+    	return true;
+    }
+
+	@Override
+	public boolean remove(Object elem) {
+		return remove(elem, false);
+	}
+
+	boolean remove(Object elem, boolean iterator) {
+        Object removed = doRemove(elem, iterator);
+        if (removed != null) {
+        	size--;
+            if (DEBUG_CHECK) debugCheck();
+
+        	if (deleteTrigger != null) {
+        		deleteTrigger.handle((E) elem);
+        	}
+        }
+        return removed != null;
+	}
+
 	@Override
 	public int size() {
-		// TODO Auto-generated method stub
-		return 0;
+		return size;
 	}
 
 	@Override
 	public boolean isEmpty() {
-		// TODO Auto-generated method stub
 		return size() == 0;
 	}
 
 	@Override
 	public boolean contains(Object o) {
-		// TODO Auto-generated method stub
-		return false;
+		return getKeyMap(0).containsKey(o);
 	}
 
 	@Override
 	public Iterator<E> iterator() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Object[] toArray() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public <T> T[] toArray(T[] a) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public boolean remove(Object o) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public boolean containsAll(Collection<?> c) {
-		// TODO Auto-generated method stub
-		return false;
+		return getKeyMap(0).iterator();
 	}
 
 	@Override
 	public boolean addAll(Collection<? extends E> c) {
-		// TODO Auto-generated method stub
-		return false;
+		boolean added = false;
+		for (E e: c) {
+			if (add(e)) {
+				added = true;
+			}
+		}
+		return added;
+	}
+
+	@Override
+	public Object[] toArray() {
+		GapList<Object> list = GapList.create(size());
+		for (E e : this) {
+			list.add(e);
+		}
+		return list.toArray();
+	}
+
+	@Override
+	public <T> T[] toArray(T[] a) {
+		GapList<Object> list = GapList.create(size());
+		for (E e : this) {
+			list.add(e);
+		}
+		return list.toArray(a);
+	}
+
+	@Override
+	public boolean containsAll(Collection<?> c) {
+        for (Object e: c) {
+            if (!contains(e)) {
+                return false;
+            }
+        }
+        return true;
 	}
 
 	@Override
 	public boolean removeAll(Collection<?> c) {
-		// TODO Auto-generated method stub
-		return false;
+    	boolean changed = false;
+    	if (c.size() < size()) {
+    		for (Iterator<?> i = c.iterator(); i.hasNext(); ) {
+    			if (remove(i.next())) {
+    				changed = true;
+    			}
+    		}
+    	} else {
+    		for (Iterator<?> i = iterator(); i.hasNext(); ) {
+    			if (c.contains(i.next())) {
+    				i.remove();
+    				changed = true;
+    			}
+    		}
+    	}
+        return changed;
 	}
 
 	@Override
 	public boolean retainAll(Collection<?> c) {
-		// TODO Auto-generated method stub
-		return false;
+    	boolean changed = false;
+		for (Iterator<?> i = iterator(); i.hasNext(); ) {
+			if (!c.contains(i.next())) {
+				i.remove();
+				changed = true;
+			}
+		}
+        return changed;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder buf = new StringBuilder();
+		buf.append("[");
+		boolean first = true;
+		for (Iterator<E> iter=iterator(); iter.hasNext(); ) {
+			if (!first) {
+				buf.append(", ");
+			} else {
+				first = false;
+			}
+			buf.append(iter.next());
+		}
+		buf.append("]");
+		return buf.toString();
+	}
+
+	E doRemove(Object elem, boolean iterator) {
+        E removed = null;
+        int i = (iterator ? 1 : 0);
+        for (; i<keyMaps.length; i++) {
+       		Object key = keyMaps[i].mapper.getKey((E) elem);
+       		Object obj = keyMaps[i].removeKey(key);
+       		if (i == 0) {
+       			removed = (E) obj;
+       		} else {
+       			if (obj != removed) {
+       				errorInvalidData();
+       			}
+       		}
+        }
+        return removed;
 	}
 
 	/**
@@ -788,72 +1049,30 @@ public class KeyCollection<E> implements Collection<E> {
         return key;
 	}
 
-	private <K> void doAddUnsorted(KeyMap<E,K> keyMap, E elem, K key) {
-		Object obj = keyMap.unsortedKeys.get(key);
-	    if (obj == null) {
-	    	if (!keyMap.unsortedKeys.containsKey(key)) {
-	    		keyMap.unsortedKeys.put(key, elem);
-	        } else {
-	            GapList<E> list = (GapList<E>) GapList.create(null, elem);
-	            keyMap.unsortedKeys.put(key, list);
-	    	}
-	    } else if (obj instanceof GapList) {
-            GapList<E> list = (GapList<E>) obj;
-            list.add(elem);
-        } else {
-            GapList<E> list = (GapList<E>) GapList.create(obj, elem);
-            keyMap.unsortedKeys.put(key, list);
-        }
-	}
-
-    private <K> E doRemoveUnsorted(KeyMap<E,K> keyMap, K key, Object obj) {
-        assert(obj != null);
-
-        E elem = null;
-        if (obj instanceof GapList) {
-            GapList<E> list = (GapList<E>) obj;
-            elem = list.removeFirst();
-            if (list.isEmpty()) {
-                keyMap.unsortedKeys.remove(key);
-            }
-        } else {
-            elem = (E) keyMap.unsortedKeys.remove(key);
-        }
-        return elem;
-    }
-
-    @Override
-    public boolean add(E elem) {
+    void doAdd(E elem) {
     	IllegalArgumentException error = null;
-    	boolean add = true;
 		int i = 0;
     	if (keyMaps != null) {
     		try {
 		    	for (i=0; i<keyMaps.length; i++) {
-		    		add = doAddKey(keyMaps[i], elem);
-		    		if (!add) {
-		    			break;
-		    		}
+	    			Object key = keyMaps[i].mapper.getKey(elem);
+		    		keyMaps[i].add(key, elem);
 		    	}
     		}
     		catch (IllegalArgumentException e) {
-    			add = false;
     			error = e;
     		}
     	}
-    	if (!add) {
+    	if (error != null) {
     		for (i--; i>=0; i--) {
     			Object key = keyMaps[i].mapper.getKey(elem);
-    			doRemoveByKey(keyMaps[i], key);
+    			keyMaps[i].removeKey(key);
     		}
     		if (error != null) {
+    	        if (DEBUG_CHECK) debugCheck();
     			throw error;
-    		} else {
-    			return false;
     		}
     	}
-        if (DEBUG_CHECK) debugCheck();
-        return true;
     }
 
     /**
@@ -862,81 +1081,6 @@ public class KeyCollection<E> implements Collection<E> {
      * @param elem		element to add
      * @return			index where element should be added (-1 is valid), otherwise Integer.MIN_VALUE
      */
-    private <K> boolean doAddKey(KeyMap<E,K> keyMap, E elem) {
-        K key = getKey(keyMap, elem);
-        if (keyMap.unsortedKeys != null) {
-            // Keys not sorted
-            if (!keyMap.unsortedKeys.containsKey(key)) {
-                // New key
-                doAddUnsorted(keyMap, elem, key);
-                return true;
-
-            } else {
-                // Key exists already
-                if (keyMap.duplicateMode == DuplicateMode.ALLOW ||
-                		(key == null && keyMap.allowNullKeys == NullMode.MULTIPLE)) {
-                	// Add duplicate
-                    doAddUnsorted(keyMap, elem, key);
-                    return true;
-
-                } else {
-                	// Handle duplicate without adding
-                    if (keyMap.duplicateMode == DuplicateMode.REPLACE) {
-                        Object oldElem = keyMap.unsortedKeys.put(key, elem);
-                        return false;	// TODO what should be returned? false -> attach is not called
-
-                    } else if (keyMap.duplicateMode == DuplicateMode.IGNORE) {
-                        return false;
-                    } else if (keyMap.duplicateMode == DuplicateMode.ERROR) {
-                        throw new IllegalArgumentException("Duplicate key not allowed: " + key);
-                    } else {
-                        throw new AssertionError();
-                    }
-                }
-            }
-
-        } else {
-            // Sorted keys
-        	int addIndex = 0;
-        	if (!keyMap.sortedKeys.isEmpty()) {
-        		if (keyMap.comparator.compare(key, keyMap.sortedKeys.getLast()) > 0) {
-        			addIndex = -keyMap.sortedKeys.size() - 1;
-        		} else if (keyMap.comparator.compare(key, keyMap.sortedKeys.getFirst()) < 0) {
-        			addIndex = -1;
-        		}
-        	}
-        	if (addIndex == 0) {
-        		addIndex = SortedLists.binarySearchAdd(keyMap.sortedKeys, key, keyMap.comparator);
-        	}
-            if (addIndex < 0) {
-                // New key
-                addIndex = -addIndex - 1;
-                keyMap.sortedKeys.doAdd(addIndex, key);
-                return true;
-
-            } else {
-                // Key exists already
-                if (keyMap.duplicateMode == DuplicateMode.ALLOW ||
-                		(key == null && keyMap.allowNullKeys == NullMode.MULTIPLE)) {
-                	;
-                } else if (keyMap.duplicateMode == DuplicateMode.REPLACE) {
-                    int getIndex = SortedLists.binarySearchGet(keyMap.sortedKeys, key, keyMap.comparator);
-                   	keyMap.sortedKeys.set(getIndex, key);
-                    return false;	// TODO what should be returned? false -> attach is not called
-
-                } else if (keyMap.duplicateMode == DuplicateMode.IGNORE) {
-                    return false;
-                } else if (keyMap.duplicateMode == DuplicateMode.ERROR) {
-                    throw new IllegalArgumentException("Duplicate key not allowed: " + key);
-                } else {
-                    throw new AssertionError();
-                }
-               	keyMap.sortedKeys.doAdd(addIndex, key);
-                return true;
-            }
-        }
-    }
-
     /**
      * Checks whether the specified key exists in this list.
      *
@@ -944,24 +1088,7 @@ public class KeyCollection<E> implements Collection<E> {
      * @return  true if the key exists, otherwise false
      */
     public <K> boolean containsKey(int keyIndex, K key) {
-        return doContainsKey(getKeyMap(keyIndex), key);
-    }
-
-    private <K> boolean doContainsKey(KeyMap<E,K> keyMap, K key) {
-        if (key == null) {
-            if (keyMap.allowNullKeys == NullMode.NONE) {
-                return false;
-            }
-        }
-
-        if (keyMap.unsortedKeys != null) {
-            // not sorted
-           return keyMap.unsortedKeys.containsKey(key);
-        } else {
-            // sorted
-            int index = SortedLists.binarySearchGet(keyMap.sortedKeys, key, keyMap.comparator);
-            return (index >= 0);
-        }
+        return getKeyMap(keyIndex).containsKey(key);
     }
 
     /**
@@ -1187,7 +1314,7 @@ public class KeyCollection<E> implements Collection<E> {
      * @return			null if key for keyMap and element is correct, else key which must be added to keymap
      */
     private Object invalidate(KeyMap keyMap, Object elem) {
-    	boolean allowDuplicates = (keyMap.duplicateMode == DuplicateMode.ALLOW);
+    	boolean allowDuplicates = keyMap.allowDuplicates;
     	Object key = keyMap.mapper.getKey(elem);
 
     	if (keyMap.unsortedKeys != null) {
@@ -1230,14 +1357,15 @@ public class KeyCollection<E> implements Collection<E> {
      */
     public E removeByKey(int keyIndex, Object key) {
     	checkKeyMap(keyIndex);
-    	E removed = doRemoveByKey(keyMaps[keyIndex], key);
+    	E removed = keyMaps[keyIndex].removeKey(key);
     	if (removed != null) {
     		for (int i=0; i<keyMaps.length; i++) {
     			if (i != keyIndex) {
     				Object k = keyMaps[i].mapper.getKey(removed);
-    				doRemoveByKey(keyMaps[i], k);
+    				keyMaps[i].removeKey(k);
     			}
     		}
+    		size--;
     	}
         if (DEBUG_CHECK) debugCheck();
         return removed;
@@ -1251,35 +1379,7 @@ public class KeyCollection<E> implements Collection<E> {
      * @param removeElems
      * @return				removed element or null
      */
-    private <K> E doRemoveByKey(KeyMap<E,K> keyMap, K key) {
-    	// If list cannot contain null, handle null explicitly to prevent NPE
-    	if (key == null) {
-    		if (keyMap.allowNullKeys == NullMode.NONE) {
-    			return null;
-    		}
-    	}
-        if (keyMap.unsortedKeys != null) {
-            // not sorted
-        	if (!keyMap.unsortedKeys.containsKey(key)) {
-        		return null;
-        	}
-            Object obj = keyMap.unsortedKeys.get(key);
-            E elem = doRemoveUnsorted(keyMap, key, obj);
-            return elem;
-
-        } else {
-            // sorted
-            int index = SortedLists.binarySearchGet(keyMap.sortedKeys, key, keyMap.comparator);
-            if (index >= 0) {
-               	E elem = (E) keyMap.sortedKeys.remove(index);
-                return elem;
-            } else {
-                return null;
-            }
-        }
-    }
-
-    /**
+     /**
      * Removes element by key.
      * If there are duplicates, all elements are removed.
      *
@@ -1298,6 +1398,7 @@ public class KeyCollection<E> implements Collection<E> {
     				doRemoveAllByKey(keyMaps[i], k);
     			}
     		}
+    		size--;
     	}
         if (DEBUG_CHECK) debugCheck();
         return removeds;
