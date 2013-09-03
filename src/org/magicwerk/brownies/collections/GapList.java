@@ -536,7 +536,7 @@ public class GapList<E> extends AbstractList<E>
 
         // INLINE: checkIndex(index);
         if (index < 0 || index >= size()) {
-            throw new IllegalArgumentException("Invalid index: " + index + " (size: " + size() + ")");
+            throw new IndexOutOfBoundsException("Invalid index: " + index + " (size: " + size() + ")");
         }
         return doGet(index);
     }
@@ -1296,6 +1296,7 @@ public class GapList<E> extends AbstractList<E>
 		for (int i=0; i<size; i++) {
 			if (coll.contains(doGet(i))) {
 				doRemove(i);
+				size--;
 				i--;
 				modified = true;
 			}
@@ -1314,6 +1315,7 @@ public class GapList<E> extends AbstractList<E>
 		for (int i=0; i<size; i++) {
 			if (coll.contains(doGet(i))) {
 				doRemove(i);
+				size--;
 				i--;
 				modified = true;
 			}
@@ -1330,6 +1332,7 @@ public class GapList<E> extends AbstractList<E>
 		for (int i=0; i<size; i++) {
 			if (!coll.contains(doGet(i))) {
 				doRemove(i);
+				size--;
 				i--;
 				modified = true;
 			}
@@ -1348,6 +1351,7 @@ public class GapList<E> extends AbstractList<E>
 		for (int i=0; i<size; i++) {
 			if (!coll.contains(doGet(i))) {
 				doRemove(i);
+				size--;
 				i--;
 				modified = true;
 			}
@@ -2608,6 +2612,7 @@ public class GapList<E> extends AbstractList<E>
     	 * @param index	start index
     	 */
     	public ListIter(int index) {
+    		checkIndexAdd(index);
    			this.index = index;
     		this.remove = -1;
     	}
@@ -2677,6 +2682,8 @@ public class GapList<E> extends AbstractList<E>
 		@Override
 		public void add(E e) {
 			GapList.this.add(index, e);
+			index++;
+			remove = -1;
 		}
     }
 
