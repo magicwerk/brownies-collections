@@ -229,7 +229,7 @@ public class KeyCollection<E> implements Collection<E> {
             if (collection != null) {
             	keyColl.addAll(collection);
             } else if (array != null) {
-            	keyColl.addAll((Collection<? extends E>) Arrays.asList(collection));
+            	keyColl.addAll((Collection<? extends E>) Arrays.asList(array));
             }
         }
     }
@@ -331,6 +331,7 @@ public class KeyCollection<E> implements Collection<E> {
         		throw new IllegalArgumentException("Set key must be first");
         	}
         	newKeyMapBuilder(IdentMapper.INSTANCE);
+        	withKeyNull();
         	return this;
         }
 
@@ -1019,6 +1020,7 @@ public class KeyCollection<E> implements Collection<E> {
     	for (KeyMap<E,Object> keyMap: keyMaps) {
     		doClear(keyMap);
     	}
+    	size = 0;
     }
 
     private void doClear(KeyMap<E,?> keyMap) {
