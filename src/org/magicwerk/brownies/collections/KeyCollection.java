@@ -31,6 +31,7 @@ import org.magicwerk.brownies.collections.function.Trigger;
 import org.magicwerk.brownies.collections.helper.IdentMapper;
 import org.magicwerk.brownies.collections.helper.NaturalComparator;
 import org.magicwerk.brownies.collections.helper.NullComparator;
+import org.magicwerk.brownies.collections.helper.Option;
 import org.magicwerk.brownies.collections.helper.SortedLists;
 import org.magicwerk.brownies.collections.primitive.BooleanObjGapList;
 import org.magicwerk.brownies.collections.primitive.ByteObjGapList;
@@ -332,6 +333,7 @@ public class KeyCollection<E> implements Collection<E> {
         	}
         	newKeyMapBuilder(IdentMapper.INSTANCE);
         	withKeyNull();
+        	withKeyDuplicates(true);
         	return this;
         }
 
@@ -620,17 +622,21 @@ public class KeyCollection<E> implements Collection<E> {
 	       	}
 	    }
 
-	    E removeKey(Object key) {
+	    /**
+	     * @param key
+	     * @return		removed object
+	     */
+	    Option<E> removeKey(Object key) {
 	    	// If list cannot contain null, handle null explicitly to prevent NPE
 	    	if (key == null) {
 	    		if (allowNullKeys == NullMode.NONE) {
-	    			return null;
+	    			return Option.EMPTY();
 	    		}
 	    	}
 
 	    	if (unsortedKeys != null) {
 	        	if (!unsortedKeys.containsKey(key)) {
-	        		return null;
+	        		return Option.EMPTY();
 	        	}
 	        	E elem = null;
 	            Object obj = unsortedKeys.get(key);
@@ -643,14 +649,15 @@ public class KeyCollection<E> implements Collection<E> {
 		        } else {
 		            elem = (E) unsortedKeys.remove(key);
 		        }
-		        return elem;
+		        return new Option(elem);
 	    	} else {
 	    		int index = sortedKeys.binarySearch(key, (Comparator<Object>) comparator);
 	    		E elem = null;
-	    		if (index >= 0) {
-	    			elem = (E) sortedKeys.remove(index);
+	    		if (index < 0) {
+	    			return Option.EMPTY();
 	    		}
-	    		return elem;
+    			elem = (E) sortedKeys.remove(index);
+	    		return new Option(elem);
 	    	}
 	    }
 
@@ -809,8 +816,8 @@ public class KeyCollection<E> implements Collection<E> {
 	}
 
 	boolean remove(Object elem, boolean iterator) {
-        Object removed = doRemove(elem, iterator);
-        if (removed != null) {
+        boolean removed = doRemove(elem, iterator);
+        if (removed) {
         	size--;
             if (DEBUG_CHECK) debugCheck();
 
@@ -818,7 +825,7 @@ public class KeyCollection<E> implements Collection<E> {
         		deleteTrigger.handle((E) elem);
         	}
         }
-        return removed != null;
+        return removed;
 	}
 
 	@Override
@@ -929,21 +936,26 @@ public class KeyCollection<E> implements Collection<E> {
 		return buf.toString();
 	}
 
-	E doRemove(Object elem, boolean iterator) {
+	boolean doRemove(Object elem, boolean iterator) {
         E removed = null;
         int i = (iterator ? 1 : 0);
         for (; i<keyMaps.length; i++) {
        		Object key = keyMaps[i].mapper.getKey((E) elem);
-       		Object obj = keyMaps[i].removeKey(key);
+       		Option<E> obj = keyMaps[i].removeKey(key);
        		if (i == 0) {
-       			removed = (E) obj;
+       			if (!obj.hasValue()) {
+       				return false;
+       			} else {
+       				removed = obj.getValue();
+       			}
        		} else {
+       			removed = (E) obj.getValue();
        			if (obj != removed) {
        				errorInvalidData();
        			}
        		}
         }
-        return removed;
+        return true;
 	}
 
 	/**
@@ -1359,18 +1371,18 @@ public class KeyCollection<E> implements Collection<E> {
      */
     public E removeByKey(int keyIndex, Object key) {
     	checkKeyMap(keyIndex);
-    	E removed = keyMaps[keyIndex].removeKey(key);
-    	if (removed != null) {
+    	Option<E> removed = keyMaps[keyIndex].removeKey(key);
+    	if (removed.hasValue()) {
     		for (int i=0; i<keyMaps.length; i++) {
     			if (i != keyIndex) {
-    				Object k = keyMaps[i].mapper.getKey(removed);
+    				Object k = keyMaps[i].mapper.getKey(removed.getValue());
     				keyMaps[i].removeKey(k);
     			}
     		}
     		size--;
     	}
         if (DEBUG_CHECK) debugCheck();
-        return removed;
+        return removed.getValueOrNull();
     }
 
     /**
