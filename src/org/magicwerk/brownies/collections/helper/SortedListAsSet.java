@@ -1,4 +1,4 @@
-package org.magicwerk.brownies.collections;
+package org.magicwerk.brownies.collections.helper;
 
 import java.util.Collection;
 import java.util.Comparator;
@@ -7,11 +7,10 @@ import java.util.NavigableSet;
 import java.util.Set;
 import java.util.SortedSet;
 
-import org.magicwerk.brownies.collections.KeyList.KeyMap;
+import org.magicwerk.brownies.collections.GapList;
 import org.magicwerk.brownies.collections.KeyList.NullMode;
 import org.magicwerk.brownies.collections.SetList.Builder;
 import org.magicwerk.brownies.collections.helper.AnyComparator;
-import org.magicwerk.brownies.collections.helper.GapLists;
 import org.magicwerk.brownies.collections.helper.NaturalComparator;
 import org.magicwerk.brownies.collections.helper.SortedLists;
 import org.magicwerk.brownies.collections.primitive.BooleanObjGapList;
@@ -23,190 +22,16 @@ import org.magicwerk.brownies.collections.primitive.IntObjGapList;
 import org.magicwerk.brownies.collections.primitive.LongObjGapList;
 import org.magicwerk.brownies.collections.primitive.ShortObjGapList;
 
-public class GapSet<E> implements NavigableSet<E> {
+public class SortedListAsSet<E> implements NavigableSet<E> {
 
-    /** Unmodifiable empty instance */
-    @SuppressWarnings("rawtypes")
-    private static final GapSet EMPTY = GapSet.create().unmodifiableSet();
-
-    /**
-     * @return unmodifiable empty instance
-     */
-    @SuppressWarnings("unchecked")
-    public static <EE> GapSet<EE> EMPTY() {
-        return EMPTY;
-    }
-
-    /**
-     * An immutable version of a GapList.
-     * Note that the client cannot change the list,
-     * but the content may change if the underlying list is changed.
-     */
-    protected static class ImmutableGapSet<E> extends GapSet<E> {
-    	public ImmutableGapSet(GapSet<E> set) {
-			super(set.comparator, set.list);
-		}
-
-		@Override
-		public boolean add(E elem) {
-			error();
-			return false;
-		}
-
-		@Override
-		public boolean addAll(Collection<? extends E> c) {
-			error();
-			return false;
-		}
-
-		@Override
-		public void clear() {
-			error();
-		}
-
-		@Override
-		public boolean remove(Object o) {
-			error();
-			return false;
-		}
-
-		@Override
-		public boolean removeAll(Collection<?> c) {
-			error();
-			return false;
-		}
-
-		@Override
-		public boolean retainAll(Collection<?> c) {
-			error();
-			return false;
-		}
-
-		@Override
-		public E pollFirst() {
-			error();
-			return null;
-		}
-
-		@Override
-		public E pollLast() {
-			error();
-			return null;
-		}
-
-        private void error() {
-            throw new UnsupportedOperationException("set is immutable");
-        }
-    }
-
-    // Natural comparator
-
-    public static <E> GapSet<E> create() {
-        return new GapSet<E>((Comparator) null).init();
-    }
-
-    public static <E> GapSet<E> create(int capacity) {
-        return new GapSet<E>((Comparator) null).init(capacity);
-    }
-
-    public static <E> GapSet<E> create(Collection<? extends E> elements) {
-        return new GapSet<E>((Comparator) null).init(elements);
-    }
-
-    public static <E> GapSet<E> create(E... elements) {
-        return new GapSet<E>((Comparator) null).init(elements);
-    }
-
-    // Explicit types
-
-    public static <E> GapSet<E> create(Class<E> type) {
-        return new GapSet<E>(type).init();
-    }
-
-    public static <E> GapSet<E> create(Class<E> type, int capacity) {
-        return new GapSet<E>(type).init(capacity);
-    }
-
-    public static <E> GapSet<E> create(Class<E> type, Collection<? extends E> elements) {
-        return new GapSet<E>(type).init(elements);
-    }
-
-    public static <E> GapSet<E> create(Class<E> type, E... elements) {
-        return new GapSet<E>(type).init(elements);
-    }
-
-    // Explicit comparator
-
-    public static <E> GapSet<E> create(Comparator<? super E> comparator) {
-        return new GapSet<E>(comparator).init();
-    }
-
-    public static <E> GapSet<E> create(Comparator<? super E> comparator, int capacity) {
-        return new GapSet<E>(comparator).init(capacity);
-    }
-
-    public static <E> GapSet<E> create(Comparator<? super E> comparator, Collection<? extends E> elements) {
-        return new GapSet<E>(comparator).init(elements);
-    }
-
-    public static <E> GapSet<E> create(Comparator<? super E> comparator, E... elements) {
-        return new GapSet<E>(comparator).init(elements);
-    }
-
-
+	private GapList<E> list;
     private Comparator<? super E> comparator;
-    private GapList<E> list;
+    private boolean immutable;
 
-    private GapSet(Comparator<? super E> comparator) {
-        this.comparator = comparator;
-        this.list = new GapList<E>(false, null);
-    }
-
-    private GapSet(Class<E> type) {
-        this.comparator = null;
-        this.list = (GapList<E>) GapLists.createWrapperList(type);
-    }
-
-    private GapSet(Comparator<? super E> comparator, GapList<E> list) {
-    	this.comparator = comparator;
+    public SortedListAsSet(GapList<E> list, Comparator<? super E> comparator, boolean immutable) {
     	this.list = list;
-    }
-
-    private GapSet<E> init() {
-        list.init();
-        return this;
-    }
-
-    private GapSet<E> init(int capacity) {
-        list.init(capacity);
-        return this;
-    }
-
-    private GapSet<E> init(Collection<? extends E> elements) {
-        list.init(elements);
-        return this;
-    }
-
-    private GapSet<E> init(E... elements) {
-        list.init(elements);
-        return this;
-    }
-
-    private int indexOf(E elem) {
-    	int index = list.binarySearch(elem, comparator);
-        if (index >= 0) {
-            return index;
-        } else {
-            return -1;
-        }
-    }
-
-    public GapList<E> unmodifiableList() {
-    	return list.unmodifiableList();
-    }
-
-    public GapSet<E> unmodifiableSet() {
-    	return new ImmutableGapSet<E>(this);
+    	this.comparator = comparator;
+    	this.immutable = immutable;
     }
 
     private int compare(E elem1, E elem2) {
@@ -217,8 +42,17 @@ public class GapSet<E> implements NavigableSet<E> {
     	}
     }
 
+    // --- Write operations
+
+    private void checkMutable() {
+    	if (immutable) {
+    		throw new UnsupportedOperationException("Set is immutable");
+    	}
+    }
+
     @Override
     public boolean add(E elem) {
+    	checkMutable();
         int index = 0;
         if (!list.isEmpty()) {
             if (compare(elem, list.getLast()) > 0) {
@@ -241,6 +75,7 @@ public class GapSet<E> implements NavigableSet<E> {
 
     @Override
     public boolean addAll(Collection<? extends E> c) {
+    	checkMutable();
         boolean changed = false;
         for (E e: c) {
             if (add(e)) {
@@ -252,36 +87,13 @@ public class GapSet<E> implements NavigableSet<E> {
 
     @Override
     public void clear() {
+    	checkMutable();
         list.clear();
     }
 
     @Override
-    public boolean contains(Object o) {
-        return indexOf((E) o) != -1;
-    }
-
-    @Override
-    public boolean containsAll(Collection<?> c) {
-        for (Object e: c) {
-            if (!contains(e)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    @Override
-    public boolean isEmpty() {
-        return list.isEmpty();
-    }
-
-    @Override
-    public Iterator<E> iterator() {
-        return list.iterator();
-    }
-
-    @Override
     public boolean remove(Object o) {
+    	checkMutable();
         int index = indexOf((E) o);
         if (index == -1) {
             return false;
@@ -293,6 +105,7 @@ public class GapSet<E> implements NavigableSet<E> {
 
     @Override
     public boolean removeAll(Collection<?> c) {
+    	checkMutable();
     	boolean changed = false;
     	if (c.size() < size()) {
     		for (Iterator<?> i = c.iterator(); i.hasNext(); ) {
@@ -313,6 +126,7 @@ public class GapSet<E> implements NavigableSet<E> {
 
     @Override
     public boolean retainAll(Collection<?> c) {
+    	checkMutable();
     	boolean changed = false;
 		for (Iterator<?> i = iterator(); i.hasNext(); ) {
 			if (!c.contains(i.next())) {
@@ -321,6 +135,46 @@ public class GapSet<E> implements NavigableSet<E> {
 			}
 		}
         return changed;
+    }
+
+    //--- Methods from Set
+
+    @Override
+    public Iterator<E> iterator() {
+    	if (immutable) {
+    		return list.unmodifiableList().iterator();
+    	} else {
+    		return list.iterator();
+    	}
+    }
+
+    @Override
+    public boolean contains(Object o) {
+        return indexOf((E) o) != -1;
+    }
+
+    private int indexOf(E elem) {
+    	int index = list.binarySearch(elem, comparator);
+        if (index >= 0) {
+            return index;
+        } else {
+            return -1;
+        }
+    }
+
+    @Override
+    public boolean containsAll(Collection<?> c) {
+        for (Object e: c) {
+            if (!contains(e)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return list.isEmpty();
     }
 
     @Override
@@ -446,7 +300,7 @@ public class GapSet<E> implements NavigableSet<E> {
 	public NavigableSet<E> descendingSet() {
 		GapList<E> reverse = list.copy();
 		reverse.reverse();
-		return new GapSet<E>(comparator, reverse).unmodifiableSet();
+		return new SortedListAsSet<E>(reverse.unmodifiableList(), comparator, immutable);
 	}
 
 	@Override
@@ -473,9 +327,9 @@ public class GapSet<E> implements NavigableSet<E> {
         	toIndex = -toIndex-1;
         }
         if (fromIndex >= toIndex) {
-        	return EMPTY();
+        	return new SortedListAsSet<E>((GapList<E>) GapList.EMPTY(), comparator, immutable);
         }
-		return new GapSet<E>(comparator, list.get(fromIndex, toIndex-fromIndex)).unmodifiableSet();
+		return new SortedListAsSet<E>(list.get(fromIndex, toIndex-fromIndex).unmodifiableList(), comparator, immutable);
 	}
 
 	@Override

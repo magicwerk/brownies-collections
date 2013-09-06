@@ -19,16 +19,11 @@ package org.magicwerk.brownies.collections;
 
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.magicwerk.brownies.collections.KeyCollection.BuilderBase;
-import org.magicwerk.brownies.collections.KeyCollection.DuplicateMode;
-import org.magicwerk.brownies.collections.KeyCollection.NullMode;
-import org.magicwerk.brownies.collections.KeyCollection.BuilderBase.KeyMapBuilder;
-import org.magicwerk.brownies.collections.MapList.Builder;
+import org.magicwerk.brownies.collections.KeyList.DuplicateMode;
 import org.magicwerk.brownies.collections.function.Predicate;
 import org.magicwerk.brownies.collections.function.Trigger;
 import org.magicwerk.brownies.collections.helper.IdentMapper;
@@ -40,20 +35,19 @@ import org.magicwerk.brownies.collections.helper.IdentMapper;
  * specified by the list, but you can also let them order
  * automatically like in TreeSet.
  *
- *
  * @author Thomas Mauch
  * @version $Id: SetList.java 1815 2013-08-09 00:05:35Z origo $
  *
  * @see MapList
  * @param <E> type of elements stored in the list
  */
-public class SetCollection<E> extends KeyCollection<E> {
+public class MapCollection<E> extends KeyCollection<E> {
 
     /** UID for serialization. */
     private static final long serialVersionUID = 6181488174454611419L;
 
     /**
-     * Builder to construct SetList instances.
+     * Builder to construct BagCollection instances.
      */
     public static class Builder<E> extends BuilderBase<E> {
         /**
@@ -74,6 +68,20 @@ public class SetCollection<E> extends KeyCollection<E> {
         	newKeyMapBuilder(IdentMapper.INSTANCE);
         }
 
+        // -- Constraint
+
+        /**
+         * Specify element constraint.
+         *
+         * @param allowNull	true to allow null values
+         * @return 			this (fluent interface)
+         */
+        public Builder<E> withNull(boolean allowNull) {
+        	endKeyMapBuilder();
+        	this.allowNullElem = allowNull;
+        	return this;
+        }
+
         /**
          * Specify element constraint.
          *
@@ -85,6 +93,8 @@ public class SetCollection<E> extends KeyCollection<E> {
         	this.constraint = constraint;
         	return this;
         }
+
+        // -- Triggers
 
         /**
          * Specify insert trigger.
@@ -110,7 +120,7 @@ public class SetCollection<E> extends KeyCollection<E> {
             return this;
         }
 
-        //-- Capacity / Elements
+        //-- Content
 
         public Builder<E> withCapacity(int capacity) {
         	endKeyMapBuilder();
@@ -227,12 +237,12 @@ public class SetCollection<E> extends KeyCollection<E> {
         /**
          * @return created SetList
          */
-        public SetCollection<E> build() {
+        public MapCollection<E> build() {
         	if (keyColl == null) {
-               	keyColl = new SetCollection<E>(false);
+               	keyColl = new MapCollection<E>(false);
         	}
         	build(keyColl);
-        	return (SetCollection<E>) keyColl;
+        	return (MapCollection<E>) keyColl;
         }
     }
 
@@ -242,7 +252,7 @@ public class SetCollection<E> extends KeyCollection<E> {
      *
      * @param that  source list
      */
-    SetCollection(SetCollection<E> that) {
+    MapCollection(MapCollection<E> that) {
         super(that);
     }
 
@@ -252,7 +262,7 @@ public class SetCollection<E> extends KeyCollection<E> {
      *
      * @param ignore ignored parameter for unique method signature
      */
-    protected SetCollection(boolean ignore) {
+    protected MapCollection(boolean ignore) {
         super(ignore);
     }
 
@@ -262,47 +272,47 @@ public class SetCollection<E> extends KeyCollection<E> {
      *
      * @return  builder for this class
      */
-    protected SetCollection.Builder<E> getBuilder() {
-        return new SetCollection.Builder<E>(this);
+    protected MapCollection.Builder<E> getBuilder() {
+        return new MapCollection.Builder<E>(this);
     }
 
     // SetList constructors
 
-    public SetCollection() {
+    public MapCollection() {
         super(false);
         getBuilder().build();
     }
 
-    public SetCollection(int capacity) {
+    public MapCollection(int capacity) {
         super(false);
     	getBuilder().withCapacity(capacity).build();
     }
 
-    public SetCollection(Collection<? extends E> elements) {
+    public MapCollection(Collection<? extends E> elements) {
         super(false);
     	getBuilder().withElements(elements).build();
     }
 
-    public SetCollection(E... elements) {
+    public MapCollection(E... elements) {
         super(false);
     	getBuilder().withElements(elements).build();
     }
 
     // Create SetList
 
-    public static <E> SetCollection<E> create() {
+    public static <E> MapCollection<E> create() {
     	return new Builder<E>().build();
     }
 
-    public static <E> SetCollection<E> create(int capacity) {
+    public static <E> MapCollection<E> create(int capacity) {
     	return new Builder<E>().withCapacity(capacity).build();
     }
 
-    public static <E> SetCollection<E> create(Collection<? extends E> elements) {
+    public static <E> MapCollection<E> create(Collection<? extends E> elements) {
     	return new Builder<E>().withElements(elements).build();
     }
 
-    public static <E> SetCollection<E> create(E... elements) {
+    public static <E> MapCollection<E> create(E... elements) {
     	return new Builder<E>().withElements(elements).build();
 
     }
@@ -322,7 +332,7 @@ public class SetCollection<E> extends KeyCollection<E> {
 	}
 
 	public GapList<Object> getDistinctKeys() {
-		return super.getDistinctKeys(0);
+		return super.getAllDistinctKeys(0);
 	}
 
 	public E getByKey(E key) {
@@ -349,8 +359,8 @@ public class SetCollection<E> extends KeyCollection<E> {
      * {@inheritDoc}
      */
     @Override
-    public SetCollection<E> copy() {
-        SetCollection<E> copy = new SetCollection<E>(this);
+    public MapCollection<E> copy() {
+        MapCollection<E> copy = new MapCollection<E>(this);
         copy.initCopy(this);
         return copy;
     }
@@ -361,8 +371,8 @@ public class SetCollection<E> extends KeyCollection<E> {
      *
      * @return  an empty copy of this instance
      */
-    public SetCollection<E> crop() {
-        SetCollection<E> copy = new SetCollection<E>(this);
+    public MapCollection<E> crop() {
+        MapCollection<E> copy = new MapCollection<E>(this);
         copy.initCrop(this);
         return copy;
     }
