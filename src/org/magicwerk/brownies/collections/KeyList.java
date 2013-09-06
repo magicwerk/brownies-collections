@@ -59,16 +59,16 @@ public class KeyList<E> extends GapList<E> {
      * Mode to control handling of duplicate values:
      * REPLACE, IGNORE, ERROR, ALLOW.
      */
-    public enum DuplicateMode {
-        /** Duplicates on add or set are ignored, i.e. the old value remains in place (default mode) */
-        IGNORE,
-        /** Duplicates on add or set will replace the old value */
-        REPLACE,
-        /** Duplicates on add or set will be rejected by throwing an exception */
-        ERROR,
-        /** Duplicates are allowed */
-        ALLOW
-    }
+//    public enum DuplicateMode {
+//        /** Duplicates on add or set are ignored, i.e. the old value remains in place (default mode) */
+//        IGNORE,
+//        /** Duplicates on add or set will replace the old value */
+//        REPLACE,
+//        /** Duplicates on add or set will be rejected by throwing an exception */
+//        ERROR,
+//        /** Duplicates are allowed */
+//        ALLOW
+//    }
 
     /**
      * Mode to control handling of duplicate values:
