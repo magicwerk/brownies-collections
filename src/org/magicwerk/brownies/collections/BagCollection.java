@@ -53,7 +53,6 @@ public class BagCollection<E> extends KeyCollection<E> {
          * Default constructor.
          */
         public Builder() {
-        	newKeyMapBuilder(IdentMapper.INSTANCE);
         }
 
         /**
@@ -63,8 +62,6 @@ public class BagCollection<E> extends KeyCollection<E> {
          */
         Builder(KeyCollection<E> keyColl) {
         	this.keyColl = keyColl;
-
-        	newKeyMapBuilder(IdentMapper.INSTANCE);
         }
 
         // -- Constraint
@@ -76,8 +73,10 @@ public class BagCollection<E> extends KeyCollection<E> {
          * @return 			this (fluent interface)
          */
         public Builder<E> withNull(boolean allowNull) {
-        	endKeyMapBuilder();
         	this.allowNullElem = allowNull;
+        	if (hasElemMapBuilder()) {
+        		getElemMapBuilder().allowNull = allowNull;
+        	}
         	return this;
         }
 
@@ -88,7 +87,6 @@ public class BagCollection<E> extends KeyCollection<E> {
          * @return 				this (fluent interface)
          */
         public Builder<E> withConstraint(Predicate<E> constraint) {
-        	endKeyMapBuilder();
         	this.constraint = constraint;
         	return this;
         }
@@ -102,7 +100,6 @@ public class BagCollection<E> extends KeyCollection<E> {
          * @return			this (fluent interface)
          */
         public Builder<E> withInsertTrigger(Trigger<E> trigger) {
-        	endKeyMapBuilder();
             this.insertTrigger = trigger;
             return this;
         }
@@ -114,7 +111,6 @@ public class BagCollection<E> extends KeyCollection<E> {
          * @return			this (fluent interface)
          */
         public Builder<E> withDeleteTrigger(Trigger<E> trigger) {
-        	endKeyMapBuilder();
             this.deleteTrigger = trigger;
             return this;
         }
@@ -122,19 +118,16 @@ public class BagCollection<E> extends KeyCollection<E> {
         //-- Content
 
         public Builder<E> withCapacity(int capacity) {
-        	endKeyMapBuilder();
             this.capacity = capacity;
             return this;
         }
 
         public Builder<E> withElements(Collection<? extends E> elements) {
-        	endKeyMapBuilder();
             this.collection = elements;
             return this;
         }
 
         public Builder<E> withElements(E... elements) {
-        	endKeyMapBuilder();
             this.array = elements;
             return this;
         }
@@ -159,6 +152,7 @@ public class BagCollection<E> extends KeyCollection<E> {
          */
         public Builder<E> withElemNull(boolean allowNull) {
         	getElemMapBuilder().allowNull = allowNull;
+        	allowNullElem = allowNull;
         	return this;
         }
 
