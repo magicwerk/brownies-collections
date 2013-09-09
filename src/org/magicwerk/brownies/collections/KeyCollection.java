@@ -66,24 +66,7 @@ import org.magicwerk.brownies.collections.primitive.ShortObjGapList;
  */
 public class KeyCollection<E> implements Collection<E> {
 
-
-    /**
-     * Mode to control handling of duplicate values:
-     * NONE, NORMAL, MULTIPLE.
-     */
-//    public enum NullMode {
-//        /** No null values are allowed at all. */
-//        NONE,
-//        /**
-//         * Null values are treated like normal values, so if duplicates
-//         * are allowed there can also be multiple null values.
-//         */
-//        NORMAL,
-//        /** Even if no duplicates are allowed, there can be duplicate null values. */
-//        MULTIPLE
-//    }
-
-    /**
+	/**
      * Data used for builders.
      */
     public static class BuilderBase<E> {
@@ -106,7 +89,7 @@ public class KeyCollection<E> implements Collection<E> {
             boolean comparatorSortsNull;
             /** Determine whether null values appear first or last */
             boolean sortNullsFirst;
-            /** Primitive class to use for sorting */
+            /** Primitive class to use for storage */
             Class<?> type;
         }
 
@@ -121,8 +104,8 @@ public class KeyCollection<E> implements Collection<E> {
         Trigger<E> insertTrigger;
         Trigger<E> deleteTrigger;
         // -- keys
-        KeyMapBuilder keyMapBuilder;
-    	GapList<KeyMap<E,Object>> keyMaps = GapList.create();
+        KeyMapBuilder elemMapBuilder;
+    	GapList<KeyMapBuilder<E,Object>> keyMapBuilders = GapList.create();
         // -- content
         Collection<? extends E> collection;
         E[] array;
@@ -130,89 +113,94 @@ public class KeyCollection<E> implements Collection<E> {
 
         //-- Implementation
 
+        boolean hasElemMapBuilder() {
+        	return elemMapBuilder != null;
+        }
+
         KeyMapBuilder<E, Object> getElemMapBuilder() {
-        	if (keyMapBuilder == null) {
-        		throw new IllegalArgumentException("Call withKey() to define a new key first");
+        	if (elemMapBuilder == null) {
+        		elemMapBuilder = new KeyMapBuilder();
+        		elemMapBuilder.mapper = IdentMapper.INSTANCE;
+        		elemMapBuilder.allowNull = allowNullElem;
         	}
-        	return keyMapBuilder;
+        	return elemMapBuilder;
         }
 
-        KeyMapBuilder<E, Object> getKeyMapBuilder() {
-        	if (keyMapBuilder == null) {
-        		throw new IllegalArgumentException("Call withKey() to define a new key first");
+        KeyMapBuilder<E, Object> getKeyMapBuilder(int index) {
+        	if (index >= keyMapBuilders.size()) {
+        		keyMapBuilders.add(index, new KeyMapBuilder());
         	}
-        	return keyMapBuilder;
+        	return keyMapBuilders.get(index);
         }
 
-        void newKeyMapBuilder(Mapper<E,Object> mapper) {
-        	assert(keyMapBuilder == null);
-        	keyMapBuilder = new KeyMapBuilder<E,Object>();
-        	keyMapBuilder.mapper = mapper;
-        }
+        KeyMap getKeyMap(KeyMapBuilder keyMapBuilder) {
+        	KeyMap<E,Object> keyMap = new KeyMap<E,Object>();
+        	keyMap.mapper = (Mapper<E, Object>) keyMapBuilder.mapper;
+        	keyMap.allowDuplicates = keyMapBuilder.allowDuplicates;
 
-        void endKeyMapBuilder() {
-        	if (keyMapBuilder != null) {
-            	KeyMap<E,Object> keyMap = new KeyMap<E,Object>();
-            	keyMap.mapper = (Mapper<E, Object>) keyMapBuilder.mapper;
-            	keyMap.allowDuplicates = keyMapBuilder.allowDuplicates;
-
-            	boolean allowNullKey = keyMapBuilder.allowNull;
-                if (keyMapBuilder.comparator != null) {
-	                if (allowNullKey && !keyMapBuilder.comparatorSortsNull) {
-	                	keyMap.comparator = new NullComparator(keyMapBuilder.comparator, keyMapBuilder.sortNullsFirst);
-	                } else {
-	                	keyMap.comparator = (Comparator<Object>) keyMapBuilder.comparator;
-	                }
-                } else if (keyMapBuilder.sort) {
-	            	if (!keyMaps.isEmpty()) {
-	            		throw new IllegalArgumentException("Only first key can be sort key"); // TODO support multiple keys
-	            	}
-	            	sorted = keyMapBuilder.sort;
-                	if (allowNullKey) {
-	                	keyMap.comparator = new NullComparator(NaturalComparator.INSTANCE, keyMapBuilder.sortNullsFirst);
-                	} else {
-                    	keyMap.comparator = NaturalComparator.INSTANCE;
-                	}
+        	boolean allowNullKey = keyMapBuilder.allowNull;
+            if (keyMapBuilder.comparator != null) {
+                if (allowNullKey && !keyMapBuilder.comparatorSortsNull) {
+                	keyMap.comparator = new NullComparator(keyMapBuilder.comparator, keyMapBuilder.sortNullsFirst);
+                } else {
+                	keyMap.comparator = (Comparator<Object>) keyMapBuilder.comparator;
                 }
-	            if (keyMap.comparator != null) {
-	            	// TODO
+            } else if (keyMapBuilder.sort) {
+//	            	if (!keyMaps.isEmpty()) {
+//	            		throw new IllegalArgumentException("Only first key can be sort key"); // TODO support multiple keys
+//	            	}
+            	sorted = keyMapBuilder.sort;
+            	if (allowNullKey) {
+                	keyMap.comparator = new NullComparator(NaturalComparator.INSTANCE, keyMapBuilder.sortNullsFirst);
+            	} else {
+                	keyMap.comparator = NaturalComparator.INSTANCE;
+            	}
+            }
+            if (keyMap.comparator != null) {
+            	// TODO
 //	                if (keyMapBuilder.sort && keyMap.mapper == IdentMapper.INSTANCE) {
 //	                	// Sorted set: we do not need a separate list for storing
 //	                	// keys and elements. We have to handle this case specially later.
 //	                	keyMap.sortedKeys = (GapList<Object>) keyList;
 //	            	} else {
-	            		if (keyMapBuilder.type == null) {
-		            		keyMap.keysList = new GapList<Object>();
-	            		} else {
-	            			keyMap.keysList = (GapList<Object>) GapLists.createWrapperList(keyMapBuilder.type);
-	            		}
-	            	//}
-	            } else {
-	                // Set is not sorted: maintain a separate HashMap for fast
-	                // answering contains() calls
-	                keyMap.keysMap = new HashMap<Object, Object>();
-	            }
+            		if (keyMapBuilder.type == null) {
+	            		keyMap.keysList = new GapList<Object>();
+            		} else {
+            			keyMap.keysList = (GapList<Object>) GapLists.createWrapperList(keyMapBuilder.type);
+            		}
+            	//}
+            } else {
+                // Set is not sorted: maintain a separate HashMap for fast
+                // answering contains() calls
+                keyMap.keysMap = new HashMap<Object, Object>();
+            }
 
-                keyMap.allowNull = keyMapBuilder.allowNull;
-                keyMaps.add(keyMap);
-
-        		keyMapBuilder = null;
-        	}
+            keyMap.allowNull = keyMapBuilder.allowNull;
+            return keyMap;
         }
 
          /**
-         * Initialize KeyList with specified options.
+         * Initialize KeyCollection with specified options.
          *
-         * @param keyColl keyList to initialize
+         * @param keyColl collection to initialize
          */
         void build(KeyCollection<E> keyColl) {
-        	endKeyMapBuilder();
-
         	keyColl.allowNullElem = allowNullElem;
-            keyColl.keyMaps = keyMaps.toArray(new KeyMap[keyMaps.size()]);
             keyColl.constraint = constraint;
             keyColl.insertTrigger = insertTrigger;
             keyColl.deleteTrigger = deleteTrigger;
+
+            keyColl.keyMaps = new KeyMap[keyMapBuilders.size()+1];
+            if (elemMapBuilder != null) {
+            	keyColl.keyMaps[0] = getKeyMap(elemMapBuilder);
+            }
+            for (int i=0; i<keyMapBuilders.size(); i++) {
+            	KeyMapBuilder kmb = keyMapBuilders.get(i);
+            	if (kmb == null) {
+            		throw new IllegalArgumentException("Key " + i + " is not defined");
+            	}
+            	keyColl.keyMaps[i+1] = getKeyMap(kmb);
+            }
 
             if (collection != null) {
             	keyColl.addAll(collection);
@@ -720,7 +708,10 @@ public class KeyCollection<E> implements Collection<E> {
      * Size of collection.
      */
     int size;
-    KeyMap<E, Object> setMap;
+    /**
+     * Index 0 is reseverd for the elem key using an IdentMapper. If there is no
+     * elem key, keyMaps[0] contains null.
+     */
     KeyMap<E, Object>[] keyMaps;
 	// -- null
     boolean allowNullElem;
@@ -739,7 +730,6 @@ public class KeyCollection<E> implements Collection<E> {
      */
     void initCopy(KeyCollection<E> that) {
     	size = that.size;
-    	setMap = that.setMap.copy();
     	keyMaps = new KeyMap[that.keyMaps.length];
     	for (int i=0; i<keyMaps.length; i++) {
     		keyMaps[i] = that.keyMaps[i].copy();
@@ -757,7 +747,6 @@ public class KeyCollection<E> implements Collection<E> {
      */
     void initCrop(KeyCollection<E> that) {
     	size = that.size;
-    	setMap = that.setMap.crop();
     	keyMaps = new KeyMap[that.keyMaps.length];
     	for (int i=0; i<keyMaps.length; i++) {
     		keyMaps[i] = that.keyMaps[i].crop();
