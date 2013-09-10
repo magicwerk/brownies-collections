@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 by Thomas Mauch
+ * Copyright 2013 by Thomas Mauch
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,6 @@ import java.util.Set;
 
 import org.magicwerk.brownies.collections.function.Predicate;
 import org.magicwerk.brownies.collections.function.Trigger;
-import org.magicwerk.brownies.collections.helper.IdentMapper;
 
 
 /**
@@ -60,9 +59,9 @@ public class BagCollection<E> extends KeyCollection<E> {
          *
          * @param keyColl	keyColl to setup
          */
-        Builder(KeyCollection<E> keyColl) {
-        	this.keyColl = keyColl;
-        }
+//        Builder(KeyCollection<E> keyColl) {
+//        	this.keyColl = keyColl;
+//        }
 
         // -- Constraint
 
@@ -117,38 +116,67 @@ public class BagCollection<E> extends KeyCollection<E> {
 
         //-- Content
 
+        /**
+         * Specify initial capacity.
+         *
+         * @param capacity	initial capacity
+         * @return			this (fluent interface)
+         */
         public Builder<E> withCapacity(int capacity) {
             this.capacity = capacity;
             return this;
         }
 
+        /**
+         * Specify elements added to the collection upon creation.
+         *
+         * @param elements	initial elements
+         * @return			this (fluent interface)
+         */
         public Builder<E> withElements(Collection<? extends E> elements) {
             this.collection = elements;
             return this;
         }
 
+        /**
+         * Specify elements added to the collection upon creation.
+         *
+         * @param elements	initial elements
+         * @return			this (fluent interface)
+         */
         public Builder<E> withElements(E... elements) {
             this.array = elements;
             return this;
         }
 
-        //-- Keys
+        //-- Element key
 
+        /**
+         * Add element map (with ident mapper).
+         *
+         * @return	this (fluent interface)
+         */
         public Builder<E> withElem() {
             return withElem(false);
         }
 
+        /**
+         * Add element map (with ident mapper).
+         *
+         * @param orderBy	true to force the collection to have the order of this map
+         * @return			this (fluent interface)
+         */
         public Builder<E> withElem(boolean orderBy) {
             getElemMapBuilder().orderBy = orderBy;
             return this;
         }
 
         /**
-         * Determines whether null elements are allowed or not.
+         * Specify whether null elements are allowed or not.
          * A null element will have a null key.
          *
-         * @param nullable  true to allow null elements, false to disallow
-         * @return          this (for use in fluent interfaces)
+         * @param allowNull true to allow null elements, false to disallow
+         * @return          this (fluent interfaces)
          */
         public Builder<E> withElemNull(boolean allowNull) {
         	getElemMapBuilder().allowNull = allowNull;
@@ -157,20 +185,25 @@ public class BagCollection<E> extends KeyCollection<E> {
         }
 
         /**
-         * Determines whether duplicates are allowed or not.
+         * Specify whether duplicates are allowed or not.
          *
-         * @param duplicates    true to allow duplicates, false to disallow
-         * @return              this (for use in fluent interfaces)
+         * @param allowDuplicates   true to allow duplicates
+         * @return              	this (fluent interfaces)
          */
         public Builder<E> withElemDuplicates(boolean allowDuplicates) {
-        	getElemMapBuilder().allowDuplicates = allowDuplicates;
-        	getElemMapBuilder().allowNullDuplicates = allowDuplicates;
-            return this;
+        	return withElemDuplicates(allowDuplicates, allowDuplicates);
         }
 
-        public Builder<E> withElemDuplicates(boolean allowDuplicates, boolean allowNullDuplicates) {
+        /**
+         * Specify whether duplicates are allowed or not.
+         *
+         * @param allowDuplicates		true to allow duplicates
+         * @param allowDuplicatesNull	true to allow duplicate null values
+         * @return						this (fluent interfaces)
+         */
+        public Builder<E> withElemDuplicates(boolean allowDuplicates, boolean allowDuplicatesNull) {
         	getElemMapBuilder().allowDuplicates = allowDuplicates;
-        	getElemMapBuilder().allowNullDuplicates = allowDuplicates;
+        	getElemMapBuilder().allowDuplicatesNull = allowDuplicatesNull;
             return this;
         }
 
@@ -178,7 +211,7 @@ public class BagCollection<E> extends KeyCollection<E> {
          * Determines that list should be sorted.
          *
          * @param sort    true to sort list, otherwise false
-         * @return        this (for use in fluent interfaces)
+         * @return        this (fluent interface)
          */
         public Builder<E> withElemSort(boolean sort) {
         	getElemMapBuilder().sort = sort;
@@ -189,7 +222,7 @@ public class BagCollection<E> extends KeyCollection<E> {
          * Set comparator to use for sorting.
          *
          * @param comparator    comparator to use for sorting
-         * @return              this (for use in fluent interfaces)
+         * @return              this (fluent interface)
          */
         public Builder<E> withElemSort(Comparator<? super E> comparator) {
             return withElemSort(comparator, false);
@@ -200,7 +233,7 @@ public class BagCollection<E> extends KeyCollection<E> {
          *
          * @param comparator            comparator to use for sorting
          * @param comparatorSortsNull   true if comparator sorts null, false if not
-         * @return                      this (for use in fluent interfaces)
+         * @return                      this (fluent interface)
          */
         public Builder<E> withElemSort(Comparator<? super E> comparator, boolean comparatorSortsNull) {
         	getElemMapBuilder().comparator = comparator;
@@ -212,22 +245,33 @@ public class BagCollection<E> extends KeyCollection<E> {
          * Determines whether nulls are sorted first or last.
          *
          * @param nullsFirst    true to sort nulls first, false to sort nulls last
-         * @return              this (for use in fluent interfaces)
+         * @return              this (fluent interface)
          */
         public Builder<E> withElemSortNullsFirst(boolean nullsFirst) {
         	getElemMapBuilder().sortNullsFirst = nullsFirst;
             return this;
         }
 
+        /**
+         * Specify element type to use.
+         *
+         * @param type	type to use
+         * @return		this (fluent interface)
+         */
         public Builder<E> withElemType(Class<?> type) {
         	getElemMapBuilder().type = type;
             return this;
         }
 
         /**
-         * @return created SetList
+         * Create collection with specified options.
+         *
+         * @return created collection
          */
         public BagCollection<E> build() {
+        	// Constructs builder if there is none
+        	getElemMapBuilder();
+
         	if (keyColl == null) {
                	keyColl = new BagCollection<E>();
         	}
@@ -236,28 +280,10 @@ public class BagCollection<E> extends KeyCollection<E> {
         }
     }
 
-    private BagCollection() {
-    }
-
-	/**
-     * {@inheritDoc}
-     */
-    public BagCollection<E> copy() {
-        BagCollection<E> copy = new BagCollection<E>();
-        copy.initCopy(this);
-        return copy;
-    }
-
     /**
-     * Returns a copy this list but without elements.
-     * The new list will use the same comparator, ordering, etc.
-     *
-     * @return  an empty copy of this instance
+     * Private constructor used by builder.
      */
-    public BagCollection<E> crop() {
-        BagCollection<E> copy = new BagCollection<E>();
-        copy.initCrop(this);
-        return copy;
+    private BagCollection() {
     }
 
     /**
@@ -270,7 +296,7 @@ public class BagCollection<E> extends KeyCollection<E> {
 //        return new BagCollection.Builder<E>(this);
 //    }
 
-    //-- Key methods
+    //-- Element methods
 
 	public E get(E key) {
 		return super.getByKey(0, key);
@@ -298,40 +324,29 @@ public class BagCollection<E> extends KeyCollection<E> {
 
 	//-- Other methods
 
-    @Override
-    public boolean equals(Object obj) {
-    	// Compare as List
-    	if (obj instanceof List<?>) {
-    		return super.equals(obj);
-    	}
-
-    	// Compare as Set (same functionality as in AbstractSet)
-    	if (obj == this) {
-    		return true;
-    	}
-		if (!(obj instanceof Set<?>)) {
-		    return false;
-		}
-		Collection<?> coll = (Collection<?>) obj;
-		if (coll.size() != size()) {
-			return false;
-		} else {
-            return containsAll(coll);
-		}
+    // TODO what about clone()?
+    /**
+     * Returns a copy of this collection.
+     * The new collection will use the same comparator, ordering, etc.
+     *
+     * @return  an empty copy of this instance
+     */
+    public BagCollection<E> copy() {
+        BagCollection<E> copy = new BagCollection<E>();
+        copy.initCopy(this);
+        return copy;
     }
 
-    @Override
-    public int hashCode() {
-    	// Calculate hash code as Set (same functionality as in AbstractSet)
-		int hash = 0;
-		Iterator<E> iter = iterator();
-		while (iter.hasNext()) {
-			E obj = iter.next();
-	        if (obj != null) {
-	        	hash += obj.hashCode();
-	        }
-	    }
-		return hash;
+    /**
+     * Returns a copy of this collection.
+     * The new collection will use the same comparator, ordering, etc.
+     *
+     * @return  a copy of this instance
+     */
+    public BagCollection<E> crop() {
+        BagCollection<E> copy = new BagCollection<E>();
+        copy.initCrop(this);
+        return copy;
     }
 
 }
