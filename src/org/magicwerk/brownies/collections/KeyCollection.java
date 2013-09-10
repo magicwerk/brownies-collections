@@ -79,7 +79,7 @@ public class KeyCollection<E> implements Collection<E> {
             boolean allowNull = true;
             // -- duplicates
             boolean allowDuplicates = true;
-            boolean allowNullDuplicates = true;
+            boolean allowDuplicatesNull = true;
             // -- sort
             /** True to sort using natural comparator */
             boolean sort;
@@ -98,7 +98,7 @@ public class KeyCollection<E> implements Collection<E> {
     	// -- order
         boolean sorted;
     	// -- constraint
-        boolean allowNullElem;
+        boolean allowNullElem = true;
         Predicate<E> constraint;
         // -- triggers
         Trigger<E> insertTrigger;
@@ -137,6 +137,7 @@ public class KeyCollection<E> implements Collection<E> {
         	KeyMap<E,Object> keyMap = new KeyMap<E,Object>();
         	keyMap.mapper = (Mapper<E, Object>) keyMapBuilder.mapper;
         	keyMap.allowDuplicates = keyMapBuilder.allowDuplicates;
+        	keyMap.allowDuplicatesNull = keyMapBuilder.allowDuplicatesNull;
 
         	boolean allowNullKey = keyMapBuilder.allowNull;
             if (keyMapBuilder.comparator != null) {
@@ -210,240 +211,6 @@ public class KeyCollection<E> implements Collection<E> {
         }
     }
 
-//    /**
-//     * Builder to construct KeyList instances.
-//     */
-//    public static class Builder<E> extends BuilderBase<E> {
-//        /**
-//         * Default constructor.
-//         */
-//        public Builder() {
-//        }
-//
-//        /**
-//         * Internal constructor.
-//         *
-//         * @param keyList	keyList to setup
-//         */
-//        Builder(KeyCollection<E> keyList) {
-//        	this.keyColl = keyList;
-//        }
-//
-//        /**
-//         * Allow null elements.
-//         *
-//         * @return this (fluent interface)
-//         */
-//        public Builder<E> withNull() {
-//        	return withNull(true);
-//        }
-//
-//        /**
-//         * Specify whether null elements are allowed.
-//         *
-//         * @param allowNullElem	true to allow null elements
-//         * @return 				this (fluent interface)
-//         */
-//        public Builder<E> withNull(boolean allowNullElem) {
-//        	endKeyMapBuilder();
-//        	this.allowNullElem = allowNullElem;
-//        	return this;
-//        }
-//
-//        /**
-//         * Specify element constraint.
-//         *
-//         * @param constraint	constraint element must satisfy
-//         * @return 				this (fluent interface)
-//         */
-//        public Builder<E> withConstraint(Predicate<E> constraint) {
-//        	endKeyMapBuilder();
-//        	this.constraint = constraint;
-//        	return this;
-//        }
-//
-//        /**
-//         * Specify insert trigger.
-//         *
-//         * @param trigger	insert trigger method
-//         * @return			this (fluent interface)
-//         */
-//        public Builder<E> withInsertTrigger(Trigger<E> trigger) {
-//        	endKeyMapBuilder();
-//            this.insertTrigger = trigger;
-//            return this;
-//        }
-//
-//        /**
-//         * Specify delete trigger.
-//         *
-//         * @param trigger	delete trigger method
-//         * @return			this (fluent interface)
-//         */
-//        public Builder<E> withDeleteTrigger(Trigger<E> trigger) {
-//        	endKeyMapBuilder();
-//            this.deleteTrigger = trigger;
-//            return this;
-//        }
-//
-//        //-- Capacity / Elements
-//
-//        public Builder<E> withElements(Collection<? extends E> elements) {
-//        	endKeyMapBuilder();
-//            this.collection = elements;
-//            return this;
-//        }
-//
-//        public Builder<E> withElements(E... elements) {
-//        	endKeyMapBuilder();
-//            this.array = elements;
-//            return this;
-//        }
-//
-//        //-- Keys
-//
-//        public Builder<E> withSetKey() {
-//        	if (keyMapBuilder != null || !keyMaps.isEmpty()) {
-//        		throw new IllegalArgumentException("Set key must be first");
-//        	}
-//        	newKeyMapBuilder(IdentMapper.INSTANCE);
-//        	withKeyNull();
-//        	withKeyDuplicates(true);
-//        	return this;
-//        }
-//
-//        public Builder<E> withKey(Mapper<E, Object> mapper) {
-//        	endKeyMapBuilder();
-//        	newKeyMapBuilder(mapper);
-//        	return this;
-//        }
-//
-//        public Builder<E> withKeyNull() {
-//            return withKeyNull(true);
-//        }
-//
-//        /**
-//         * Determines whether null elements are allowed or not.
-//         * A null element will have a null key.
-//         *
-//         * @param nullable  true to allow null elements, false to disallow
-//         * @return          this (for use in fluent interfaces)
-//         */
-//        public Builder<E> withKeyNull(boolean nullable) {
-//            return withKeyNull(nullable ? NullMode.NORMAL : NullMode.NONE);
-//        }
-//
-//        public Builder<E> withKeyNull(NullMode nullMode) {
-//        	getKeyMapBuilder().nullMode = nullMode;
-//            return this;
-//        }
-//
-//        public Builder<E> withKeyDuplicates() {
-//        	return withKeyDuplicates(true);
-//        }
-//
-//        /**
-//         * Determines whether duplicates are allowed or not.
-//         *
-//         * @param duplicates    true to allow duplicates, false to disallow
-//         * @return              this (for use in fluent interfaces)
-//         */
-//        public Builder<E> withKeyDuplicates(boolean duplicates) {
-//        	getKeyMapBuilder().allowDuplicates = duplicates;
-//            return this;
-//        }
-//
-//        /**
-//         * Determines that list should be sorted.
-//         *
-//         * @return              this (for use in fluent interfaces)
-//         */
-//        public Builder<E> withKeySort() {
-//            return withKeySort(true);
-//        }
-//
-//        /**
-//         * Determines whether list should be sorted or not.
-//         *
-//         * @param sort    true to sort list, otherwise false
-//         * @return        this (for use in fluent interfaces)
-//         */
-//        public Builder<E> withKeySort(boolean sort) {
-//        	getKeyMapBuilder().sort = sort;
-//            return this;
-//        }
-//
-//        /**
-//         * Set primitive type to use for sorting.
-//         *
-//         * @param type    primitive type to use for key
-//         * @return        this (for use in fluent interfaces)
-//         */
-//        public Builder<E> withKeyType(Class<?> type) {
-//        	getKeyMapBuilder().type = type;
-//        	return this;
-//        }
-//
-//        /**
-//         * Set comparator to use for sorting.
-//         *
-//         * @param comparator    comparator to use for sorting
-//         * @return              this (for use in fluent interfaces)
-//         */
-//        public Builder<E> withKeyComparator(Comparator<? super Object> comparator) {
-//            return withKeyComparator(comparator, false);
-//        }
-//
-//        /**
-//         * Set comparator to use for sorting.
-//         *
-//         * @param comparator            comparator to use for sorting
-//         * @param comparatorSortsNull   true if comparator sorts null, false if not
-//         * @return                      this (for use in fluent interfaces)
-//         */
-//        public Builder<E> withKeyComparator(Comparator<? super Object> comparator, boolean comparatorSortsNull) {
-//        	KeyMapBuilder<E, Object> kmb = getKeyMapBuilder();
-//        	kmb.comparator = comparator;
-//            kmb.comparatorSortsNull = comparatorSortsNull;
-//            return this;
-//        }
-//
-//        /**
-//         * Determines that nulls are sorted first.
-//         *
-//         * @return  this (for use in fluent interfaces)
-//         */
-//        public Builder<E> withKeyNullsFirst() {
-//            return withKeyNullsFirst(true);
-//        }
-//
-//        /**
-//         * Determines whether nulls are sorted first or last.
-//         *
-//         * @param nullsFirst    true to sort nulls first, false to sort nulls last
-//         * @return              this (for use in fluent interfaces)
-//         */
-//        public Builder<E> withKeyNullsFirst(boolean nullsFirst) {
-//        	getKeyMapBuilder().sortNullsFirst = nullsFirst;
-//            return this;
-//        }
-//
-//        /**
-//         * @return
-//         */
-//        public KeyCollection<E> build() {
-//        	if (keyColl == null) {
-//               	keyColl = new KeyCollection<E>();
-//        	}
-//        	// If no keys have been defined, create a set key so the elements can be stored somewhere
-//        	if (keyMapBuilder == null && keyMaps.isEmpty()) {
-//        		withSetKey();
-//        	}
-//        	build(keyColl);
-//        	return (KeyCollection<E>) keyColl;
-//        }
-//    }
-
     static class KeyMap<E, K> {
 	    /** A mapper to extract keys out of element for a MapList. For a SetList, this is always an IdentMapper. */
 	    Mapper<E, K> mapper;
@@ -498,9 +265,17 @@ public class KeyCollection<E> implements Collection<E> {
 	    			copy.keysMap = new TreeMap();
 	    		}
 	    	} else {
-	    		copy.keysList = keysList.copy();
+	    		copy.keysList = new GapList();
 	    	}
 	    	return copy;
+	    }
+
+	    K getKey(E elem) {
+	    	if (elem == null) {
+	            assert(allowNull);
+	            return null;
+	    	}
+	    	return mapper.getKey(elem);
 	    }
 
 	    boolean containsKey(Object key) {
@@ -732,7 +507,9 @@ public class KeyCollection<E> implements Collection<E> {
     	size = that.size;
     	keyMaps = new KeyMap[that.keyMaps.length];
     	for (int i=0; i<keyMaps.length; i++) {
-    		keyMaps[i] = that.keyMaps[i].copy();
+    		if (that.keyMaps[i] != null) {
+    			keyMaps[i] = that.keyMaps[i].copy();
+    		}
     	}
     	allowNullElem = that.allowNullElem;
     	constraint = that.constraint;
@@ -749,7 +526,9 @@ public class KeyCollection<E> implements Collection<E> {
     	size = that.size;
     	keyMaps = new KeyMap[that.keyMaps.length];
     	for (int i=0; i<keyMaps.length; i++) {
-    		keyMaps[i] = that.keyMaps[i].crop();
+    		if (that.keyMaps[i] != null) {
+    			keyMaps[i] = that.keyMaps[i].crop();
+    		}
     	}
     	allowNullElem = that.allowNullElem;
     	constraint = that.constraint;
@@ -1001,7 +780,7 @@ public class KeyCollection<E> implements Collection<E> {
         E removed = null;
         int i = (iterator ? 1 : 0);
         for (; i<keyMaps.length; i++) {
-       		Object key = keyMaps[i].mapper.getKey((E) elem);
+       		Object key = keyMaps[i].getKey((E) elem);
        		Option<E> obj = keyMaps[i].removeKey(key);
        		if (i == 0) {
        			if (!obj.hasValue()) {
@@ -1043,12 +822,7 @@ public class KeyCollection<E> implements Collection<E> {
 	 * @throws IllegalArgumentException if a null key is produced and null keys are not allowed
 	 */
 	private <K> K getKey(KeyMap<E,K> keyMap, E elem) {
-	    K key;
-	    if (elem == null) {
-	        key = null;
-	    } else {
-	        key = keyMap.mapper.getKey(elem);
-	    }
+	    K key = keyMap.getKey(elem); // TODO do we need both getKey() methods?
         if (key == null && !keyMap.allowNull) {
             throw new IllegalArgumentException("Null key not allowed");
         }
@@ -1061,7 +835,7 @@ public class KeyCollection<E> implements Collection<E> {
     	if (keyMaps != null) {
     		try {
 		    	for (i=0; i<keyMaps.length; i++) {
-	    			Object key = keyMaps[i].mapper.getKey(elem);
+	    			Object key = keyMaps[i].getKey(elem);
 		    		keyMaps[i].add(key, elem);
 		    	}
     		}
@@ -1071,7 +845,7 @@ public class KeyCollection<E> implements Collection<E> {
     	}
     	if (error != null) {
     		for (i--; i>=0; i--) {
-    			Object key = keyMaps[i].mapper.getKey(elem);
+    			Object key = keyMaps[i].getKey(elem);
     			keyMaps[i].removeKey(key);
     		}
     		if (error != null) {
@@ -1320,7 +1094,7 @@ public class KeyCollection<E> implements Collection<E> {
      */
     private Object invalidate(KeyMap keyMap, Object elem) {
     	boolean allowDuplicates = keyMap.allowDuplicates;
-    	Object key = keyMap.mapper.getKey(elem);
+    	Object key = keyMap.getKey(elem);
 
     	if (keyMap.keysMap != null) {
     		Iterator<Map.Entry> iter = keyMap.keysMap.entrySet().iterator();
@@ -1366,7 +1140,7 @@ public class KeyCollection<E> implements Collection<E> {
     	if (removed.hasValue()) {
     		for (int i=0; i<keyMaps.length; i++) {
     			if (i != keyIndex) {
-    				Object k = keyMaps[i].mapper.getKey(removed.getValue());
+    				Object k = keyMaps[i].getKey(removed.getValue());
     				keyMaps[i].removeKey(k);
     			}
     		}
@@ -1399,7 +1173,7 @@ public class KeyCollection<E> implements Collection<E> {
     	for (E removed: removeds) {
     		for (int i=0; i<keyMaps.length; i++) {
     			if (i != keyIndex) {
-    				Object k = keyMaps[i].mapper.getKey(removed);
+    				Object k = keyMaps[i].getKey(removed);
     				doRemoveAllByKey(keyMaps[i], k);
     			}
     		}
@@ -1453,5 +1227,41 @@ public class KeyCollection<E> implements Collection<E> {
             return removed;
         }
     }
+
+	// As in AbstractSet
+	@Override
+	public boolean equals(Object o) {
+		if (o == this) {
+			return true;
+		}
+		if (!(o instanceof Collection)) {
+			return false;
+		}
+		Collection c = (Collection) o;
+		if (c.size() != size()) {
+			return false;
+		}
+		try {
+			return containsAll(c);
+		} catch (ClassCastException unused) {
+			return false;
+		} catch (NullPointerException unused) {
+			return false;
+		}
+	}
+
+	// As in AbstractSet
+	@Override
+	public int hashCode() {
+		int h = 0;
+		Iterator<E> i = iterator();
+		while (i.hasNext()) {
+			E obj = i.next();
+			if (obj != null) {
+				h += obj.hashCode();
+			}
+		}
+		return h;
+	}
 
 }
