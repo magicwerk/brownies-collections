@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 by Thomas Mauch
+ * Copyright 2012 by Thomas Mauch
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: SetList.java 1815 2013-08-09 00:05:35Z origo $
+ * $Id$
  */
 package org.magicwerk.brownies.collections;
 
@@ -23,9 +23,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.magicwerk.brownies.collections.Table1Collection.Builder;
+import org.magicwerk.brownies.collections.TableCollection.Builder;
+import org.magicwerk.brownies.collections.TableCollectionImpl.BuilderImpl;
 import org.magicwerk.brownies.collections.function.Predicate;
 import org.magicwerk.brownies.collections.function.Trigger;
+import org.magicwerk.brownies.collections.helper.IdentMapper;
 
 
 /**
@@ -34,13 +36,14 @@ import org.magicwerk.brownies.collections.function.Trigger;
  * specified by the list, but you can also let them order
  * automatically like in TreeSet.
  *
+ *
  * @author Thomas Mauch
- * @version $Id: SetList.java 1815 2013-08-09 00:05:35Z origo $
+ * @version $Id$
  *
  * @see Table1List
  * @param <E> type of elements stored in the list
  */
-public class TableCollection<E> extends TableCollectionImpl<E> {
+public class TableList<E> extends TableListImpl<E> {
 
     /** UID for serialization. */
     private static final long serialVersionUID = 6181488174454611419L;
@@ -154,51 +157,43 @@ public class TableCollection<E> extends TableCollectionImpl<E> {
          *
          * @return created collection
          */
-        public TableCollection<E> build() {
-        	// Constructs builder if there is none
-        	getElemMapBuilder();
-
+        public TableList<E> build() {
         	if (tableColl == null) {
-               	tableColl = new TableCollection<E>();
+               	tableColl = new TableCollectionImpl<E>();
         	}
         	build(tableColl);
-        	return (TableCollection<E>) tableColl;
+        	return new TableList(tableColl);
         }
     }
 
     /**
      * Private constructor used by builder.
      */
-    private TableCollection() {
+    private TableList(TableCollectionImpl tableImpl) {
+    	this.tableImpl = tableImpl;
     }
 
-    /**
-     * Create builder for this class.
-     * Internal use in child classes only.
-     *
-     * @return  builder for this class
-     */
-//    protected BagCollection.Builder<E> getBuilder() {
-//        return new BagCollection.Builder<E>(this);
+//    /**
+//     * Create builder for this class.
+//     * Internal use in child classes only.
+//     *
+//     * @return  builder for this class
+//     */
+//    protected TableList.Builder<E> getBuilder() {
+//        return new TableList.Builder<E>(this);
 //    }
 
-    //-- Element methods
+    // SetList constructors
 
-	public E get(E key) {
-		return super.getByKey(0, key);
-	}
+    //-- Key methods
 
-	public GapList<E> getAll(E key) {
-		return super.getAllByKey(0, key);
-	}
+    public boolean containsKey(E key) {
+    	return super.containsKey(0, key);
+    }
 
-	public int getCount(E key) {
-		return super.getCountByKey(0, key);
-	}
-
-	public GapList<E> removeAll(E key) {
-		return super.removeAllByKey(0, key);
-	}
+    public int indexOfKey(E key) {
+    	return super.indexOfKey(0, key);
+    }
 
 	public GapList<E> getAllDistinct() {
 		return (GapList<E>) super.getAllDistinctKeys(0);
@@ -208,31 +203,84 @@ public class TableCollection<E> extends TableCollectionImpl<E> {
 		return super.getCountDistinctKeys(0);
 	}
 
-	//-- Other methods
+	public E getByKey(E key) {
+		return super.getByKey(0, key);
+	}
 
-    // TODO what about clone()?
-    /**
-     * Returns a copy of this collection.
-     * The new collection will use the same comparator, ordering, etc.
-     *
-     * @return  an empty copy of this instance
+	public GapList<E> getAllByKey(E key) {
+		return super.getAllByKey(0, key);
+	}
+
+	public int getCountByKey(E key) {
+		return super.getCountByKey(0, key);
+	}
+
+	public E removeByKey(E key) {
+		return super.removeByKey(0, key);
+	}
+
+	public GapList<E> removeAllByKey(E key) {
+		return super.removeAllByKey(0, key);
+	}
+
+	/**
+     * {@inheritDoc}
      */
-    public TableCollection<E> copy() {
-        TableCollection<E> copy = new TableCollection<E>();
+    @Override
+    public TableList<E> copy() {
+        TableList<E> copy = new TableList<E>(null);
         copy.initCopy(this);
         return copy;
     }
 
     /**
-     * Returns a copy of this collection.
-     * The new collection will use the same comparator, ordering, etc.
+     * Returns a copy this list but without elements.
+     * The new list will use the same comparator, ordering, etc.
      *
-     * @return  a copy of this instance
+     * @return  an empty copy of this instance
      */
-    public TableCollection<E> crop() {
-        TableCollection<E> copy = new TableCollection<E>();
-        copy.initCrop(this);
-        return copy;
+    public TableList<E> crop() {
+        TableList<E> crop = new TableList<E>(null);
+        crop.initCrop(this);
+        return crop;
+    }
+
+    // -- Equals / hashCode
+
+    @Override
+    public boolean equals(Object obj) {
+    	// Compare as List
+    	if (obj instanceof List<?>) {
+    		return super.equals(obj);
+    	}
+
+    	// Compare as Set (same functionality as in AbstractSet)
+    	if (obj == this) {
+    		return true;
+    	}
+		if (!(obj instanceof Set<?>)) {
+		    return false;
+		}
+		Collection<?> coll = (Collection<?>) obj;
+		if (coll.size() != size()) {
+			return false;
+		} else {
+            return containsAll(coll);
+		}
+    }
+
+    @Override
+    public int hashCode() {
+    	// Calculate hash code as Set (same functionality as in AbstractSet)
+		int hash = 0;
+		Iterator<E> iter = iterator();
+		while (iter.hasNext()) {
+			E obj = iter.next();
+	        if (obj != null) {
+	        	hash += obj.hashCode();
+	        }
+	    }
+		return hash;
     }
 
 }

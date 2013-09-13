@@ -55,6 +55,10 @@ public class Option<T> {
 		return value;
 	}
 
+	/**
+	 * @return
+	 * @throws IllegalArgumentException if no value is stored
+	 */
 	public T getValue() {
 		if (!hasValue) {
 			throw new IllegalArgumentException("No value stored");

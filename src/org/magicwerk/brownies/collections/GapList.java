@@ -58,8 +58,6 @@ public class GapList<E> extends AbstractList<E>
 		// Additional interfaces of LinkedList
 		Deque<E> {
 
-	public enum INIT {};
-
 	// Guide to subclass GapList
 	// You need to overwrite the following methods:
 	// - size(): return size
@@ -181,7 +179,7 @@ public class GapList<E> extends AbstractList<E>
     /** UID for serialization */
     private static final long serialVersionUID = -4477005565661968383L;
 
-    private static final int DEFAULT_CAPACITY = 10;
+    static final int DEFAULT_CAPACITY = 10;
 
 	/** Array holding raw data */
 	private E[] values;
@@ -334,7 +332,7 @@ public class GapList<E> extends AbstractList<E>
 	}
 
     /**
-     * Constructor used internally.
+     * Constructor used internally, e.g. for ImmutableGapList.
      *
      * @param copy true to copy all instance values from source,
      *             if false nothing is done
@@ -360,7 +358,7 @@ public class GapList<E> extends AbstractList<E>
 	}
 
 	/**
-	 * Construct a vector with given capacity.
+	 * Construct a list with specified capacity.
 	 *
 	 * @param capacity	capacity to use
 	 */
@@ -642,7 +640,7 @@ public class GapList<E> extends AbstractList<E>
 	 * Override if you need to validity checks before adding.
 	 *
 	 * @param index	index where element should be added
-	 *              (-1 is valid for adding at the end)
+	 *              (-1 means it is up to the implementation to choose the index)
 	 * @param elem	element to add
 	 * @return      true if element has been added (GapList.add() will always return true)
 	 */

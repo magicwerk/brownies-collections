@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.magicwerk.brownies.collections.TableCollection.Builder;
-import org.magicwerk.brownies.collections.KeyList.NullMode;
+import org.magicwerk.brownies.collections.TableListImpl.NullMode;
 import org.magicwerk.brownies.collections.function.Mapper;
 import org.magicwerk.brownies.collections.function.Predicate;
 import org.magicwerk.brownies.collections.function.Trigger;
@@ -40,7 +40,7 @@ import org.magicwerk.brownies.collections.helper.IdentMapper;
  * @author Thomas Mauch
  * @version $Id: SetList.java 1815 2013-08-09 00:05:35Z origo $
  *
- * @see MapList
+ * @see Table1List
  * @param <E> type of elements stored in the list
  * @param <K> type of key
  */
