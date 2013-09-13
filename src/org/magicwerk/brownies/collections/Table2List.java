@@ -20,9 +20,7 @@ package org.magicwerk.brownies.collections;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Map;
-import java.util.Set;
 
-import org.magicwerk.brownies.collections.KeyList.Builder;
 import org.magicwerk.brownies.collections.function.Mapper;
 import org.magicwerk.brownies.collections.function.Predicate;
 import org.magicwerk.brownies.collections.function.Trigger;
@@ -38,58 +36,21 @@ import org.magicwerk.brownies.collections.function.Trigger;
  * @author Thomas Mauch
  * @version $Id$
  *
- * @see SetList
+ * @see TableList
  * @param <E> type of elements stored in the list
- * @param <K> type of key
+ * @param <K1> type of first key
+ * @param <K2> type of second key
  */
-public class MapList<E, K> extends KeyList<E> {
-
-	public static class EntryMapper<E, K> implements Mapper<Entry<E, K>, K> {
-		@Override
-		public K getKey(Entry<E, K> entry) {
-			return entry.getKey();
-		}
-	}
-
-	public static class Entry<E, K> {
-
-		public static <E, K> Mapper<E, K> getMapper() {
-			return (Mapper<E, K>) new EntryMapper<E, K>();
-		}
-
-		E elem;
-		K key;
-
-		public Entry(E elem, K key) {
-			this.elem = elem;
-			this.key = key;
-		}
-
-		public K getKey() {
-			return key;
-		}
-
-		public E getElem() {
-			return elem;
-		}
-
-		public void setElem(E elem) {
-			this.elem = elem;
-		}
-	}
-
+public class Table2List<E,K1,K2> extends TableListImpl<E> {
 
     /**
-     * Builder to construct MapList instances.
+     * Builder to construct Map2List instances.
      */
-    public static class Builder<E, K> extends BuilderBase<E> {
+    public static class Builder<E,K1,K2> extends BuilderBase<E> {
         /**
          * Constructor.
-         *
-         * @param mapper mapper to use
          */
-        public Builder(Mapper<E,K> mapper) {
-        	newKeyMapBuilder((Mapper<E, Object>) mapper);
+        public Builder() {
         }
 
         /**
@@ -97,10 +58,8 @@ public class MapList<E, K> extends KeyList<E> {
          *
          * @param mapList   mapList to customize
          */
-        Builder(MapList<E,K> mapList, Mapper<E,K> mapper) {
+        Builder(Table2List<E,K1,K2> mapList) {
             this.keyList = mapList;
-
-            newKeyMapBuilder((Mapper<E, Object>) mapper);
         }
 
         /**
@@ -108,7 +67,7 @@ public class MapList<E, K> extends KeyList<E> {
          *
          * @return this (fluent interface)
          */
-        public Builder<E,K> withNull() {
+        public Builder<E,K1,K2> withNull() {
         	return withNull(true);
         }
 
@@ -118,7 +77,7 @@ public class MapList<E, K> extends KeyList<E> {
          * @param allowNullElem	true to allow null elements
          * @return 				this (fluent interface)
          */
-        public Builder<E,K> withNull(boolean allowNullElem) {
+        public Builder<E,K1,K2> withNull(boolean allowNullElem) {
         	endKeyMapBuilder();
         	this.allowNullElem = allowNullElem;
         	return this;
@@ -130,7 +89,7 @@ public class MapList<E, K> extends KeyList<E> {
          * @param constraint	constraint element must satisfy
          * @return 				this (fluent interface)
          */
-        public Builder<E,K> withConstraint(Predicate<E> constraint) {
+        public Builder<E,K1,K2> withConstraint(Predicate<E> constraint) {
         	endKeyMapBuilder();
         	this.constraint = constraint;
         	return this;
@@ -142,7 +101,7 @@ public class MapList<E, K> extends KeyList<E> {
          * @param trigger	insert trigger method
          * @return			this (fluent interface)
          */
-        public Builder<E,K> withInsertTrigger(Trigger<E> trigger) {
+        public Builder<E,K1,K2> withInsertTrigger(Trigger<E> trigger) {
         	endKeyMapBuilder();
             this.insertTrigger = trigger;
             return this;
@@ -154,7 +113,7 @@ public class MapList<E, K> extends KeyList<E> {
          * @param trigger	delete trigger method
          * @return			this (fluent interface)
          */
-        public Builder<E,K> withDeleteTrigger(Trigger<E> trigger) {
+        public Builder<E,K1,K2> withDeleteTrigger(Trigger<E> trigger) {
         	endKeyMapBuilder();
             this.deleteTrigger = trigger;
             return this;
@@ -162,25 +121,31 @@ public class MapList<E, K> extends KeyList<E> {
 
         //-- Capacity / Elements
 
-        public Builder<E,K> withCapacity(int capacity) {
+        public Builder<E,K1,K2> withCapacity(int capacity) {
         	endKeyMapBuilder();
             this.capacity = capacity;
             return this;
         }
 
-        public Builder<E,K> withElements(Collection<? extends E> elements) {
+        public Builder<E,K1,K2> withElements(Collection<? extends E> elements) {
         	endKeyMapBuilder();
             this.collection = elements;
             return this;
         }
 
-        public Builder<E,K> withElements(E... elements) {
+        public Builder<E,K1,K2> withElements(E... elements) {
         	endKeyMapBuilder();
             this.array = elements;
             return this;
         }
 
         //-- Keys
+
+        public Builder<E,K1,K2> withKey(Mapper<E,K1> mapper) {
+        	endKeyMapBuilder();
+        	newKeyMapBuilder((Mapper<E, Object>) mapper);
+        	return this;
+        }
 
         /**
          * Determines whether null elements are allowed or not.
@@ -189,11 +154,11 @@ public class MapList<E, K> extends KeyList<E> {
          * @param nullable  true to allow null elements, false to disallow
          * @return          this (for use in fluent interfaces)
          */
-        public Builder<E,K> withKeyNull(boolean nullable) {
+        public Builder<E,K1,K2> withKeyNull(boolean nullable) {
             return withKeyNull(nullable ? NullMode.NORMAL : NullMode.NONE);
         }
 
-        public Builder<E,K> withKeyNull(NullMode nullMode) {
+        public Builder<E,K1,K2> withKeyNull(NullMode nullMode) {
         	getKeyMapBuilder().nullMode = nullMode;
             return this;
         }
@@ -204,7 +169,7 @@ public class MapList<E, K> extends KeyList<E> {
          * @param duplicateMode duplicate mode
          * @return              this (for use in fluent interfaces)
          */
-        public Builder<E,K> withKeyDuplicates(DuplicateMode duplicateMode) {
+        public Builder<E,K1,K2> withKeyDuplicates(DuplicateMode duplicateMode) {
         	getKeyMapBuilder().duplicateMode = duplicateMode;
             return this;
         }
@@ -214,7 +179,7 @@ public class MapList<E, K> extends KeyList<E> {
          *
          * @return              this (for use in fluent interfaces)
          */
-        public Builder<E,K> withKeySort() {
+        public Builder<E,K1,K2> withKeySort() {
             return withKeySort(true);
         }
 
@@ -224,7 +189,7 @@ public class MapList<E, K> extends KeyList<E> {
          * @param sort    true to sort list, otherwise false
          * @return        this (for use in fluent interfaces)
          */
-        public Builder<E,K> withKeySort(boolean sort) {
+        public Builder<E,K1,K2> withKeySort(boolean sort) {
         	getKeyMapBuilder().sort = sort;
             return this;
         }
@@ -235,7 +200,7 @@ public class MapList<E, K> extends KeyList<E> {
          * @param comparator    comparator to use for sorting
          * @return              this (for use in fluent interfaces)
          */
-        public Builder<E,K> withKeyComparator(Comparator<? super K> comparator) {
+        public Builder<E,K1,K2> withKeyComparator(Comparator<?> comparator) {
             return withKeyComparator(comparator, false);
         }
 
@@ -246,7 +211,7 @@ public class MapList<E, K> extends KeyList<E> {
          * @param comparatorSortsNull   true if comparator sorts null, false if not
          * @return                      this (for use in fluent interfaces)
          */
-        public Builder<E,K> withKeyComparator(Comparator<? super K> comparator, boolean comparatorSortsNull) {
+        public Builder<E,K1,K2> withKeyComparator(Comparator<?> comparator, boolean comparatorSortsNull) {
         	KeyMapBuilder<E, Object> kmb = getKeyMapBuilder();
         	kmb.comparator = comparator;
             kmb.comparatorSortsNull = comparatorSortsNull;
@@ -258,7 +223,7 @@ public class MapList<E, K> extends KeyList<E> {
          *
          * @return  this (for use in fluent interfaces)
          */
-        public Builder<E,K> withKeyNullsFirst() {
+        public Builder<E,K1,K2> withKeyNullsFirst() {
             return withKeyNullsFirst(true);
         }
 
@@ -268,20 +233,20 @@ public class MapList<E, K> extends KeyList<E> {
          * @param nullsFirst    true to sort nulls first, false to sort nulls last
          * @return              this (for use in fluent interfaces)
          */
-        public Builder<E,K> withKeyNullsFirst(boolean nullsFirst) {
+        public Builder<E,K1,K2> withKeyNullsFirst(boolean nullsFirst) {
         	getKeyMapBuilder().sortNullsFirst = nullsFirst;
             return this;
         }
 
         /**
-         * @return created MapList
+         * @return create Map2List
          */
-        public MapList<E,K> build() {
+        public Table2List<E,K1,K2> build() {
         	if (keyList == null) {
-               	keyList = new MapList<E,K>(false);
+               	keyList = new Table2List<E,K1,K2>(false);
         	}
         	build(keyList);
-        	return (MapList<E,K>) keyList;
+        	return (Table2List<E,K1,K2>) keyList;
         }
     }
 
@@ -295,7 +260,7 @@ public class MapList<E, K> extends KeyList<E> {
      *
      * @param ignore ignored parameter for unique method signature
      */
-    protected MapList(boolean ignore) {
+    protected Table2List(boolean ignore) {
     	super(ignore);
     }
 
@@ -305,7 +270,7 @@ public class MapList<E, K> extends KeyList<E> {
      *
      * @param that source list
      */
-    MapList(MapList<E,K> that) {
+    Table2List(Table2List<E,K1,K2> that) {
         super(that);
     }
 
@@ -313,76 +278,121 @@ public class MapList<E, K> extends KeyList<E> {
      * Create builder for this class.
      * Internal use in child classes only.
      *
-     * @param mapper 	mapper to use
      * @return builder for this class
      */
-    protected Builder<E,K> getBuilder(Mapper<E, K> mapper) {
-        return new MapList.Builder<E, K>(mapper);
+    protected Builder<E,K1,K2> getBuilder() {
+        return new Table2List.Builder<E,K1,K2>();
     }
 
-    //-- Key methods
+    //-- Key1 methods
 
-    public Mapper<E,K> getMapper() {
-    	return (Mapper<E,K>) keyMaps[0].mapper;
+    public Mapper<E,K1> getMapper1() {
+    	return (Mapper<E,K1>) keyMaps[0].mapper;
     }
 
-    public K getKey(E elem) {
-    	return getMapper().getKey(elem);
+    public K1 getKey1(E elem) {
+    	return getMapper1().getKey(elem);
     }
 
-    public boolean containsKey(K key) {
+    public boolean containsKey1(K1 key) {
     	return super.containsKey(0, key);
     }
 
-    public int indexOfKey(K key) {
+    public int indexOfKey1(K1 key) {
     	return super.indexOfKey(0, key);
     }
 
-	public int getCountDistinctKeys() {
+	public int getCountDistinctKeys1() {
 		return super.getCountDistinctKeys(0);
 	}
 
-	public GapList<K> getDistinctKeys() {
-		return (GapList<K>) super.getDistinctKeys(0);
+	public GapList<K1> getDistinctKeys1() {
+		return (GapList<K1>) super.getDistinctKeys(0);
 	}
 
-	public E getByKey(K key) {
+	public E getByKey1(K1 key) {
 		return super.getByKey(0, key);
 	}
 
-	public GapList<E> getAllByKey(K key) {
+	public GapList<E> getAllByKey1(K1 key) {
 		return super.getAllByKey(0, key);
 	}
 
-	public int getCountByKey(K key) {
+	public int getCountByKey1(K1 key) {
 		return super.getCountByKey(0, key);
 	}
 
-	public E removeByKey(K key) {
+	public E removeByKey1(K1 key) {
 		return super.removeByKey(0, key);
 	}
 
-	public GapList<E> removeAllByKey(K key) {
+	public GapList<E> removeAllByKey1(K1 key) {
 		return super.removeAllByKey(0, key);
 	}
 
-	public E put(E elem) {
-		K key = getMapper().getKey(elem);
-		int index = indexOfKey(0, key);
-		E oldElem;
-		if (index == -1) {
-			oldElem = null;
-			add(elem);
-		} else {
-			oldElem = get(index);
-			set(index, elem);
-		}
-		return oldElem;
+    //-- Key2 methods
+
+    public Mapper<E,K2> getMapper2() {
+    	return (Mapper<E,K2>) keyMaps[1].mapper;
+    }
+
+    public K2 getKey2(E elem) {
+    	return getMapper2().getKey(elem);
+    }
+
+    public boolean containsKey2(K2 key) {
+    	return super.containsKey(1, key);
+    }
+
+    public int indexOfKey2(K2 key) {
+    	return super.indexOfKey(1, key);
+    }
+
+	public int getCountDistinctKeys2() {
+		return super.getCountDistinctKeys(1);
 	}
 
+	public GapList<K1> getDistinctKeys2() {
+		return (GapList<K1>) super.getDistinctKeys(1);
+	}
+
+	public E getByKey2(K2 key) {
+		return super.getByKey(1, key);
+	}
+
+	public GapList<E> getAllByKey2(K2 key) {
+		return super.getAllByKey(1, key);
+	}
+
+	public int getCountByKey2(K2 key) {
+		return super.getCountByKey(1, key);
+	}
+
+	public E removeByKey2(K2 key) {
+		return super.removeByKey(1, key);
+	}
+
+	public GapList<E> removeAllByKey2(K2 key) {
+		return super.removeAllByKey(1, key);
+	}
+
+	//	public E put(E elem) {
+//		K key = getMapper().getKey(elem);
+//		int index = indexOfKey(0, key);
+//		E oldElem;
+//		if (index == -1) {
+//			oldElem = null;
+//			add(elem);
+//		} else {
+//			oldElem = get(index);
+//			set(index, elem);
+//		}
+//		return oldElem;
+//	}
+
     @Override
-    public MapList<E,K> copy() {
-        MapList<E,K> copy = new MapList<E,K>(this);
+    public Table2List<E,K1,K2> copy() {
+        Table2List<E,K1,K2> copy = new Table2List<E,K1,K2>(this);
         copy.initCopy(this);
         return copy;
     }
@@ -393,8 +403,8 @@ public class MapList<E, K> extends KeyList<E> {
      *
      * @return  an empty copy of this instance
      */
-    public MapList<E,K> crop() {
-        MapList<E,K> copy = new MapList<E,K>(this);
+    public Table2List<E,K1,K2> crop() {
+        Table2List<E,K1,K2> copy = new Table2List<E,K1,K2>(this);
         copy.initCrop(this);
         return copy;
     }
@@ -408,81 +418,11 @@ public class MapList<E, K> extends KeyList<E> {
      *
      * @return view of this MapList as Map
      */
-    public Map<K,E> asMap() {
-    	return asMap(this, 0);
+    public Map<K1,E> asMap1() {
+    	return Table1List.asMap(this, 0);
     }
 
-    static <K,E> Map asMap(final KeyList keyList, final int keyIndex) {
-        return new Map<K,E>() {
-
-            @Override
-            public int size() {
-                return keyList.size();
-            }
-
-            @Override
-            public boolean isEmpty() {
-                return keyList.isEmpty();
-            }
-
-            @Override
-            public boolean containsKey(Object key) {
-                return keyList.getByKey(keyIndex, (K) key) != null;
-            }
-
-            @Override
-            public boolean containsValue(Object value) {
-                return keyList.contains(value);
-            }
-
-            @Override
-            public E get(Object key) {
-                return (E) keyList.getByKey(keyIndex, (K) key);
-            }
-
-            @Override
-            public E put(K key, E value) {
-                throw new UnsupportedOperationException();
-            	//if (!getMapper().getKey(value).equals(key)) {
-//            		throw new IllegalArgumentException("Key is not equal to key created by mapper");
-            	//}
-//                return MapList.this.add(value); TODO
-            }
-
-            @Override
-            public E remove(Object key) {
-                return (E) keyList.removeByKey(keyIndex, (K) key);
-            }
-
-            @Override
-            public void putAll(Map<? extends K, ? extends E> m) {
-                throw new UnsupportedOperationException();
-                //for (E value: m.values()) {
-                    //MapList.this.put(value);
-                //} TODO
-            }
-
-            @Override
-            public void clear() {
-            	keyList.clear();
-            }
-
-            @Override
-            public Set<K> keySet() {
-                throw new UnsupportedOperationException();
-            }
-
-            @Override
-            public Collection<E> values() {
-                throw new UnsupportedOperationException();
-            }
-
-            @Override
-            public Set<java.util.Map.Entry<K, E>> entrySet() {
-                throw new UnsupportedOperationException();
-            }
-
-        };
+    public Map<K1,E> asMap2() {
+    	return Table1List.asMap(this, 1);
     }
-
 }

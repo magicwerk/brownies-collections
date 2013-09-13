@@ -23,30 +23,17 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 
-import org.magicwerk.brownies.collections.KeyList.Builder;
-import org.magicwerk.brownies.collections.KeyList.KeyMap;
 import org.magicwerk.brownies.collections.function.Mapper;
 import org.magicwerk.brownies.collections.function.Predicate;
 import org.magicwerk.brownies.collections.function.Trigger;
 import org.magicwerk.brownies.collections.helper.GapLists;
 import org.magicwerk.brownies.collections.helper.IdentMapper;
-import org.magicwerk.brownies.collections.helper.MapAsSet;
 import org.magicwerk.brownies.collections.helper.NaturalComparator;
 import org.magicwerk.brownies.collections.helper.NullComparator;
 import org.magicwerk.brownies.collections.helper.Option;
-import org.magicwerk.brownies.collections.helper.SortedListAsSet;
 import org.magicwerk.brownies.collections.helper.SortedLists;
-import org.magicwerk.brownies.collections.primitive.BooleanObjGapList;
-import org.magicwerk.brownies.collections.primitive.ByteObjGapList;
-import org.magicwerk.brownies.collections.primitive.CharObjGapList;
-import org.magicwerk.brownies.collections.primitive.DoubleObjGapList;
-import org.magicwerk.brownies.collections.primitive.FloatObjGapList;
-import org.magicwerk.brownies.collections.primitive.IntObjGapList;
-import org.magicwerk.brownies.collections.primitive.LongObjGapList;
-import org.magicwerk.brownies.collections.primitive.ShortObjGapList;
 
 
 /**
@@ -730,32 +717,43 @@ public class TableCollectionImpl<E> implements Collection<E> {
         }
 
          /**
-         * Initialize KeyCollection with specified options.
+         * Initialize TableCollection with specified options.
          *
-         * @param keyColl collection to initialize
+         * @param tableColl collection to initialize
          */
-        void build(TableCollectionImpl<E> keyColl) {
-        	keyColl.allowNullElem = allowNullElem;
-            keyColl.constraint = constraint;
-            keyColl.insertTrigger = insertTrigger;
-            keyColl.deleteTrigger = deleteTrigger;
+        void build(TableCollectionImpl<E> tableColl) {
+        	tableColl.allowNullElem = allowNullElem;
+            tableColl.constraint = constraint;
+            tableColl.insertTrigger = insertTrigger;
+            tableColl.deleteTrigger = deleteTrigger;
 
-            keyColl.keyMaps = new KeyMap[keyMapBuilders.size()+1];
+            int orderByKey = -1;
+            tableColl.keyMaps = new KeyMap[keyMapBuilders.size()+1];
             if (elemMapBuilder != null) {
-            	keyColl.keyMaps[0] = getKeyMap(elemMapBuilder);
+            	tableColl.keyMaps[0] = getKeyMap(elemMapBuilder);
+            	if (elemMapBuilder.orderBy) {
+            		orderByKey = 0;
+            	}
             }
             for (int i=0; i<keyMapBuilders.size(); i++) {
             	KeyMapBuilder kmb = keyMapBuilders.get(i);
             	if (kmb == null) {
             		throw new IllegalArgumentException("Key " + i + " is not defined");
             	}
-            	keyColl.keyMaps[i+1] = getKeyMap(kmb);
+            	if (kmb.orderBy) {
+            		if (orderByKey != -1) {
+                		throw new IllegalArgumentException("Only one order by key allowed");
+            		}
+            		orderByKey = i+1;
+            	}
+            	tableColl.keyMaps[i+1] = getKeyMap(kmb);
             }
+            tableColl.orderByKey = orderByKey;
 
             if (collection != null) {
-            	keyColl.addAll(collection);
+            	tableColl.addAll(collection);
             } else if (array != null) {
-            	keyColl.addAll((Collection<? extends E>) Arrays.asList(array));
+            	tableColl.addAll((Collection<? extends E>) Arrays.asList(array));
             }
         }
     }
@@ -962,10 +960,11 @@ public class TableCollectionImpl<E> implements Collection<E> {
 	    }
 
 	    /**
-	     * @param key
-	     * @return		removed object
+	     * @param key		key of object to remove
+	     * @param value		value of object to remove
+	     * @return			removed object
 	     */
-	    Option<E> removeKey(Object key) {
+	    Option<E> remove(Object key, boolean matchValue, Object value) {
 	    	// If list cannot contain null, handle null explicitly to prevent NPE
 	    	if (key == null) {
 	    		if (!allowNull) {
@@ -981,7 +980,15 @@ public class TableCollectionImpl<E> implements Collection<E> {
 	            Object obj = keysMap.get(key);
 		        if (obj instanceof GapList) {
 		            GapList<E> list = (GapList<E>) obj;
-		            elem = list.removeFirst();
+		            if (matchValue) {
+		            	if (!list.remove(value)) {
+		            		return Option.EMPTY();
+		            	} else {
+		            		elem = (E) value;
+		            	}
+		            } else {
+		            	elem = list.removeFirst();
+		            }
 		            if (list.isEmpty()) {
 		                keysMap.remove(key);
 		            }
@@ -990,6 +997,8 @@ public class TableCollectionImpl<E> implements Collection<E> {
 		        }
 		        return new Option(elem);
 	    	} else {
+	    		assert(mapper == IdentMapper.INSTANCE);
+	    		assert(key == value);
 	    		int index = keysList.binarySearch(key, (Comparator<Object>) comparator);
 	    		E elem = null;
 	    		if (index < 0) {
@@ -1044,6 +1053,8 @@ public class TableCollectionImpl<E> implements Collection<E> {
      * elem key, keyMaps[0] contains null.
      */
     KeyMap<E, Object>[] keyMaps;
+    /** Index of key map which defines order (-1 for no order) */
+    int orderByKey;
 	// -- null
     boolean allowNullElem;
     Predicate<E> constraint;
@@ -1123,16 +1134,44 @@ public class TableCollectionImpl<E> implements Collection<E> {
     	}
     }
 
-    /**
-     * Default constructor.
-     * Internal use in builder and child classes only.
-     *
-     * @param ignore ignored parameter for unique method signature
-     */
-//    protected KeyCollection(boolean ignore) {
-//        super(ignore);
-//    }
+    // for TableListImpl
 
+    boolean isSortedList() {
+    	return false;
+    }
+
+    int binarySearchSorted(Object elem) {
+    	assert(isSortedList());
+
+    	int index = keyMaps[0].keysList.binarySearch(elem, keyMaps[0].comparator);
+    	return (index < 0) ? -1 : index;
+    }
+
+    int indexOfSorted(Object elem) {
+    	int index = binarySearchSorted(elem);
+    	return (index < 0) ? -1 : index;
+    }
+
+    Object getKey(int keyIndex, E elem) {
+    	return keyMaps[keyIndex].getKey(elem);
+    }
+
+    Comparator getSortComparator() {
+    	if (orderByKey == -1) {
+    		return null;
+    	} else {
+    		return keyMaps[orderByKey].comparator;
+    	}
+    }
+
+    //
+
+    /**
+     * Checks whether element is allowed.
+     *
+     * @param elem element to check
+     * @throws IllegalArgumentException if the element is not allowed
+     */
     void checkElemAllowed(E elem) {
     	if (elem == null) {
     		if (!allowNullElem) {
@@ -1349,7 +1388,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
         for (int i=start; i<keyMaps.length; i++) {
         	if (keyMaps[i] != null) {
 	       		Object key = keyMaps[i].getKey((E) elem);
-	       		Option<E> obj = keyMaps[i].removeKey(key);
+	       		Option<E> obj = keyMaps[i].remove(key, true, elem);
 	       		if (first) {
 	       			if (!obj.hasValue()) {
 	       				return false;
@@ -1358,7 +1397,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
 	       			}
 	       			first = false;
 	       		} else {
-	       			if (obj.getValue() != removed) {
+	       			if (!obj.hasValue() || obj.getValue() != removed) {
 	       				errorInvalidData();
 	       			}
 	       		}
@@ -1418,7 +1457,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
     		for (i--; i>=0; i--) {
     			if (keyMaps[i] != null) {
     				Object key = keyMaps[i].getKey(elem);
-    				keyMaps[i].removeKey(key);
+    				keyMaps[i].remove(key, true, elem);
     			}
     		}
     		if (error != null) {
@@ -1466,7 +1505,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
      *
      * @return list containing all distinct keys
      */
-    protected GapList<Object> getAllDistinctKeys(int keyIndex) {
+    protected GapList<?> getAllDistinctKeys(int keyIndex) {
     	return getAllDistinctKeys(getKeyMap(keyIndex));
     }
 
@@ -1710,13 +1749,14 @@ public class TableCollectionImpl<E> implements Collection<E> {
      */
     protected E removeByKey(int keyIndex, Object key) {
     	checkKeyMap(keyIndex);
-    	Option<E> removed = keyMaps[keyIndex].removeKey(key);
+    	Option<E> removed = keyMaps[keyIndex].remove(key, false, null);
     	if (removed.hasValue()) {
     		for (int i=0; i<keyMaps.length; i++) {
     			if (i != keyIndex) {
         			if (keyMaps[i] != null) {
-        				Object k = keyMaps[i].getKey(removed.getValue());
-        				keyMaps[i].removeKey(k);
+        				E value = removed.getValue();
+        				Object k = keyMaps[i].getKey(value);
+        				keyMaps[i].remove(k, true, value);
         			}
     			}
     		}

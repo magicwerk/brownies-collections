@@ -7,9 +7,9 @@ import java.util.NavigableSet;
 import java.util.Set;
 import java.util.SortedSet;
 
-import org.magicwerk.brownies.collections.KeyList.KeyMap;
-import org.magicwerk.brownies.collections.KeyList.NullMode;
-import org.magicwerk.brownies.collections.SetList.Builder;
+import org.magicwerk.brownies.collections.TableListImpl.KeyMap;
+import org.magicwerk.brownies.collections.TableListImpl.NullMode;
+import org.magicwerk.brownies.collections.TableList.Builder;
 import org.magicwerk.brownies.collections.helper.AnyComparator;
 import org.magicwerk.brownies.collections.helper.GapLists;
 import org.magicwerk.brownies.collections.helper.NaturalComparator;
