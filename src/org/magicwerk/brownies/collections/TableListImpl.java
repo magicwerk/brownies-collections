@@ -147,28 +147,6 @@ public class TableListImpl<E> extends GapList<E> {
         return super.set(index, elem);
     }
 
-    /**
-     * Puts an element into the list.
-     * The behavior is similar to Map.put():
-     * If no element with this key exists, the element is added.
-     * If there is already such an element, it is replaced.
-     * This method does not support duplicates.
-     *
-     * @param elem  element to add
-     * @return      element which has been replaced or null if the element has been added
-     */
-    // TODO behavior with several keys?
-//    public E put(E elem) {
-//        K key = getKey(elem);
-//        int index = indexOfKey(key);
-//        if (index != -1) {
-//            return doSet(index, elem);
-//        } else {
-//            doAdd(-1, elem);
-//            return null;
-//        }
-//    }
-
     @Override
     protected boolean doAdd(int index, E elem) {
     	tableImpl.checkElemAllowed(elem);
@@ -355,76 +333,6 @@ public class TableListImpl<E> extends GapList<E> {
     	return tableImpl.getCountDistinctKeys(keyIndex);
     }
 
-    //-- Invalidate
-
-    public void invalidate(E elem) {
-    	int index = indexOf(elem);
-    	if (index == -1) {
-    		throw new IllegalArgumentException("Element not found: " + elem);
-    	}
-    	invalidate(index);
-    }
-
-    public void invalidate(int index) {
-    	E elem = doGet(index);
-        for (int i=0; i<keyMaps.length; i++) {
-    		Object key = invalidate(keyMaps[i], elem);
-    		if (key != null) {
-    			if (i == 0 && keyMaps[i].sortedKeys != null && keyMaps[i].sortedKeys != this) {
-    				// First key is sorted
-    				int idx = super.indexOf(elem);
-    				super.doRemove(idx);
-    				idx = doAddKey(keyMaps[i], -1, elem);
-    				super.doAdd(idx, elem);
-    			} else {
-    				// Not first or not sorted key
-    				doAddKey(keyMaps[i], -1, elem);
-    			}
-    		}
-        }
-        if (DEBUG_CHECK) debugCheck();
-    }
-
-    /**
-     * @param keyMap
-     * @param elem
-     * @return			null if key for keyMap and element is correct, else key which must be added to keymap
-     */
-    private Object invalidate(KeyMap keyMap, Object elem) {
-    	boolean allowDuplicates = (keyMap.duplicateMode == DuplicateMode.ALLOW);
-    	Object key = keyMap.mapper.getKey(elem);
-
-    	if (keyMap.unsortedKeys != null) {
-    		Iterator<Map.Entry> iter = keyMap.unsortedKeys.entrySet().iterator();
-    		while (iter.hasNext()) {
-    		    Map.Entry entry = iter.next();
-    		    if (equalsElem(elem, entry.getValue())) {
-    		    	if (equalsElem(key, entry.getKey())) {
-    		    		return null;
-    		    	}
-    		        iter.remove();
-    		        if (!allowDuplicates) {
-    		        	break;
-    		        }
-    		    }
-    		}
-    	} else {
-    		assert(keyMap.sortedKeys != null);
-    		for (int i=0; i<size(); i++) {
-    			if (equalsElem(elem, doGet(i))) {
-    				if (equalsElem(key, keyMap.sortedKeys.get(i))) {
-    					return null;
-    				}
-    				keyMap.sortedKeys.remove(i);
-    		        if (!allowDuplicates) {
-    		        	break;
-    		        }
-    			}
-    		}
-    	}
-    	return key;
-    }
-
     @Override
     public <K> int binarySearch(int index, int len, K key, Comparator<? super K> comparator) {
     	// If this is a sorted list, it is obvious that binarySearch will work.
@@ -446,4 +354,74 @@ public class TableListImpl<E> extends GapList<E> {
     	}
     }
 
+    //-- Invalidate
+
+    //
+//  public void invalidate(E elem) {
+//  	int index = indexOf(elem);
+//  	if (index == -1) {
+//  		throw new IllegalArgumentException("Element not found: " + elem);
+//  	}
+//  	invalidate(index);
+//  }
+//
+//  public void invalidate(int index) {
+//  	E elem = doGet(index);
+//      for (int i=0; i<keyMaps.length; i++) {
+//  		Object key = invalidate(keyMaps[i], elem);
+//  		if (key != null) {
+//  			if (i == 0 && keyMaps[i].sortedKeys != null && keyMaps[i].sortedKeys != this) {
+//  				// First key is sorted
+//  				int idx = super.indexOf(elem);
+//  				super.doRemove(idx);
+//  				idx = doAddKey(keyMaps[i], -1, elem);
+//  				super.doAdd(idx, elem);
+//  			} else {
+//  				// Not first or not sorted key
+//  				doAddKey(keyMaps[i], -1, elem);
+//  			}
+//  		}
+//      }
+//      if (DEBUG_CHECK) debugCheck();
+//  }
+//
+//  /**
+//   * @param keyMap
+//   * @param elem
+//   * @return			null if key for keyMap and element is correct, else key which must be added to keymap
+//   */
+//  private Object invalidate(KeyMap keyMap, Object elem) {
+//  	boolean allowDuplicates = (keyMap.duplicateMode == DuplicateMode.ALLOW);
+//  	Object key = keyMap.mapper.getKey(elem);
+//
+//  	if (keyMap.unsortedKeys != null) {
+//  		Iterator<Map.Entry> iter = keyMap.unsortedKeys.entrySet().iterator();
+//  		while (iter.hasNext()) {
+//  		    Map.Entry entry = iter.next();
+//  		    if (equalsElem(elem, entry.getValue())) {
+//  		    	if (equalsElem(key, entry.getKey())) {
+//  		    		return null;
+//  		    	}
+//  		        iter.remove();
+//  		        if (!allowDuplicates) {
+//  		        	break;
+//  		        }
+//  		    }
+//  		}
+//  	} else {
+//  		assert(keyMap.sortedKeys != null);
+//  		for (int i=0; i<size(); i++) {
+//  			if (equalsElem(elem, doGet(i))) {
+//  				if (equalsElem(key, keyMap.sortedKeys.get(i))) {
+//  					return null;
+//  				}
+//  				keyMap.sortedKeys.remove(i);
+//  		        if (!allowDuplicates) {
+//  		        	break;
+//  		        }
+//  			}
+//  		}
+//  	}
+//  	return key;
+//  }
 }

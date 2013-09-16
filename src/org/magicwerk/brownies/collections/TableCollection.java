@@ -124,8 +124,8 @@ public class TableCollection<E> extends TableCollectionImpl<E> {
         }
 
         @Override
-        public Builder<E> withElemSort(boolean sort) {
-        	return (Builder<E>) super.withElemSort(sort);
+        public Builder<E> withElemSort() {
+        	return (Builder<E>) super.withElemSort();
         }
 
         @Override
@@ -134,18 +134,18 @@ public class TableCollection<E> extends TableCollectionImpl<E> {
         }
 
         @Override
-        public Builder<E> withElemSort(Comparator<? super E> comparator, boolean comparatorSortsNull) {
-        	return (Builder<E>) super.withElemSort(comparator, comparatorSortsNull);
+        public Builder<E> withElemSort(Comparator<? super E> comparator, boolean sortNullsFirst) {
+        	return (Builder<E>) super.withElemSort(comparator, sortNullsFirst);
         }
 
         @Override
-        public Builder<E> withElemSortNullsFirst(boolean nullsFirst) {
-        	return (Builder<E>) super.withElemSortNullsFirst(nullsFirst);
+        public Builder<E> withElemList() {
+        	return (Builder<E>) super.withElemList();
         }
 
         @Override
-        public Builder<E> withElemType(Class<?> type) {
-        	return (Builder<E>) super.withElemType(type);
+        public Builder<E> withElemList(Class<?> type) {
+        	return (Builder<E>) super.withElemList(type);
         }
 
 

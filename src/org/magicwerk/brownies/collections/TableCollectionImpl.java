@@ -19,6 +19,7 @@ package org.magicwerk.brownies.collections;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -67,7 +68,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
             // -- duplicates
             boolean allowDuplicates = true;
             boolean allowDuplicatesNull = true;
-            // -- sort
+            // -- sorted list
             /** True to sort using natural comparator */
             boolean sort;
             /** Comparator to use for sorting */
@@ -76,8 +77,10 @@ public class TableCollectionImpl<E> implements Collection<E> {
             boolean comparatorSortsNull;
             /** Determine whether null values appear first or last */
             boolean sortNullsFirst;
+            // -- sorted list
+            boolean list;
             /** Primitive class to use for storage */
-            Class<?> type;
+            Class<?> listType;
         }
 
     	// KeyList to build
@@ -245,11 +248,10 @@ public class TableCollectionImpl<E> implements Collection<E> {
         /**
          * Determines that list should be sorted.
          *
-         * @param sort    true to sort list, otherwise false
          * @return        this (fluent interface)
          */
-        protected BuilderImpl<E> withElemSort(boolean sort) {
-        	getElemMapBuilder().sort = sort;
+        protected BuilderImpl<E> withElemSort() {
+        	getElemMapBuilder().sort = true;
             return this;
         }
 
@@ -260,30 +262,34 @@ public class TableCollectionImpl<E> implements Collection<E> {
          * @return              this (fluent interface)
          */
         protected BuilderImpl<E> withElemSort(Comparator<? super E> comparator) {
-            return withElemSort(comparator, false);
+        	getElemMapBuilder().sort = true;
+        	getElemMapBuilder().comparator = comparator;
+        	getElemMapBuilder().comparatorSortsNull = true;
+        	return this;
         }
 
         /**
          * Set comparator to use for sorting.
          *
-         * @param comparator            comparator to use for sorting
-         * @param comparatorSortsNull   true if comparator sorts null, false if not
-         * @return                      this (fluent interface)
+         * @param comparator           comparator to use for sorting
+         * @param sortNullsFirst	   true to sort null values first, false for last
+         * @return                     this (fluent interface)
          */
-        protected BuilderImpl<E> withElemSort(Comparator<? super E> comparator, boolean comparatorSortsNull) {
+        protected BuilderImpl<E> withElemSort(Comparator<? super E> comparator, boolean sortNullsFirst) {
+        	getElemMapBuilder().sort = true;
         	getElemMapBuilder().comparator = comparator;
-        	getElemMapBuilder().comparatorSortsNull = comparatorSortsNull;
+        	getElemMapBuilder().comparatorSortsNull = false;
+        	getElemMapBuilder().sortNullsFirst = sortNullsFirst;
             return this;
         }
 
         /**
-         * Determines whether nulls are sorted first or last.
+         * Specify element type to use.
          *
-         * @param nullsFirst    true to sort nulls first, false to sort nulls last
-         * @return              this (fluent interface)
+         * @return		this (fluent interface)
          */
-        protected BuilderImpl<E> withElemSortNullsFirst(boolean nullsFirst) {
-        	getElemMapBuilder().sortNullsFirst = nullsFirst;
+        protected BuilderImpl<E> withElemList() {
+        	getElemMapBuilder().list = true;
             return this;
         }
 
@@ -293,8 +299,9 @@ public class TableCollectionImpl<E> implements Collection<E> {
          * @param type	type to use
          * @return		this (fluent interface)
          */
-        protected BuilderImpl<E> withElemType(Class<?> type) {
-        	getElemMapBuilder().type = type;
+        protected BuilderImpl<E> withElemList(Class<?> type) {
+        	getElemMapBuilder().list = true;
+        	getElemMapBuilder().listType = type;
             return this;
         }
 
@@ -361,11 +368,10 @@ public class TableCollectionImpl<E> implements Collection<E> {
         /**
          * Determines that list should be sorted.
          *
-         * @param sort    true to sort list, otherwise false
          * @return        this (fluent interface)
          */
-        protected BuilderImpl<E> withKeySort(boolean sort) {
-        	getKeyMapBuilder(0).sort = sort;
+        protected BuilderImpl<E> withKeySort() {
+        	getKeyMapBuilder(0).sort = true;
             return this;
         }
 
@@ -382,24 +388,24 @@ public class TableCollectionImpl<E> implements Collection<E> {
         /**
          * Set comparator to use for sorting.
          *
-         * @param comparator            comparator to use for sorting
-         * @param comparatorSortsNull   true if comparator sorts null, false if not
-         * @return                      this (fluent interface)
+         * @param comparator        comparator to use for sorting
+         * @param sortNullsFirst   	true if comparator sorts null, false if not
+         * @return                  this (fluent interface)
          */
-        protected BuilderImpl<E> withKeySort(Comparator<? super E> comparator, boolean comparatorSortsNull) {
+        protected BuilderImpl<E> withKeySort(Comparator<? super E> comparator, boolean sortNullsFirst) {
         	getKeyMapBuilder(0).comparator = comparator;
-        	getKeyMapBuilder(0).comparatorSortsNull = comparatorSortsNull;
+        	getKeyMapBuilder(0).comparatorSortsNull = false;
+        	getKeyMapBuilder(0).sortNullsFirst = sortNullsFirst;
             return this;
         }
 
         /**
-         * Determines whether nulls are sorted first or last.
+         * Specify element type to use.
          *
-         * @param nullsFirst    true to sort nulls first, false to sort nulls last
-         * @return              this (fluent interface)
+         * @return		this (fluent interface)
          */
-        protected BuilderImpl<E> withKeySortNullsFirst(boolean nullsFirst) {
-        	getKeyMapBuilder(0).sortNullsFirst = nullsFirst;
+        protected BuilderImpl<E> withKeyList() {
+        	getKeyMapBuilder(0).list = true;
             return this;
         }
 
@@ -409,8 +415,9 @@ public class TableCollectionImpl<E> implements Collection<E> {
          * @param type	type to use
          * @return		this (fluent interface)
          */
-        protected BuilderImpl<E> withKeyType(Class<?> type) {
-        	getKeyMapBuilder(0).type = type;
+        protected BuilderImpl<E> withKeyList(Class<?> type) {
+        	getKeyMapBuilder(0).list = true;
+        	getKeyMapBuilder(0).listType = type;
             return this;
         }
 
@@ -477,11 +484,10 @@ public class TableCollectionImpl<E> implements Collection<E> {
         /**
          * Determines that list should be sorted.
          *
-         * @param sort    true to sort list, otherwise false
          * @return        this (fluent interface)
          */
-        protected BuilderImpl<E> withKey1Sort(boolean sort) {
-        	getKeyMapBuilder(0).sort = sort;
+        protected BuilderImpl<E> withKey1Sort() {
+        	getKeyMapBuilder(0).sort = true;
             return this;
         }
 
@@ -492,30 +498,33 @@ public class TableCollectionImpl<E> implements Collection<E> {
          * @return              this (fluent interface)
          */
         protected BuilderImpl<E> withKey1Sort(Comparator<? super E> comparator) {
-            return withKey1Sort(comparator, false);
+        	getKeyMapBuilder(0).sort = true;
+        	getKeyMapBuilder(0).comparator = comparator;
+        	getKeyMapBuilder(0).comparatorSortsNull = true;
+        	return this;
         }
 
         /**
          * Set comparator to use for sorting.
          *
          * @param comparator            comparator to use for sorting
-         * @param comparatorSortsNull   true if comparator sorts null, false if not
+         * @param sortNullsFirst   		true if comparator sorts null, false if not
          * @return                      this (fluent interface)
          */
-        protected BuilderImpl<E> withKey1Sort(Comparator<? super E> comparator, boolean comparatorSortsNull) {
+        protected BuilderImpl<E> withKey1Sort(Comparator<? super E> comparator, boolean sortNullsFirst) {
         	getKeyMapBuilder(0).comparator = comparator;
-        	getKeyMapBuilder(0).comparatorSortsNull = comparatorSortsNull;
+        	getKeyMapBuilder(0).comparatorSortsNull = false;
+        	getKeyMapBuilder(0).sortNullsFirst = sortNullsFirst;
             return this;
         }
 
         /**
-         * Determines whether nulls are sorted first or last.
+         * Specify element type to use.
          *
-         * @param nullsFirst    true to sort nulls first, false to sort nulls last
-         * @return              this (fluent interface)
+         * @return		this (fluent interface)
          */
-        protected BuilderImpl<E> withKey1SortNullsFirst(boolean nullsFirst) {
-        	getKeyMapBuilder(0).sortNullsFirst = nullsFirst;
+        protected BuilderImpl<E> withKey1List() {
+        	getKeyMapBuilder(0).list = true;
             return this;
         }
 
@@ -525,8 +534,9 @@ public class TableCollectionImpl<E> implements Collection<E> {
          * @param type	type to use
          * @return		this (fluent interface)
          */
-        protected BuilderImpl<E> withKey1Type(Class<?> type) {
-        	getKeyMapBuilder(0).type = type;
+        protected BuilderImpl<E> withKey1List(Class<?> type) {
+        	getKeyMapBuilder(0).list = true;
+        	getKeyMapBuilder(0).listType = type;
             return this;
         }
 
@@ -593,11 +603,10 @@ public class TableCollectionImpl<E> implements Collection<E> {
         /**
          * Determines that list should be sorted.
          *
-         * @param sort    true to sort list, otherwise false
          * @return        this (fluent interface)
          */
-        protected BuilderImpl<E> withKey2Sort(boolean sort) {
-        	getKeyMapBuilder(1).sort = sort;
+        protected BuilderImpl<E> withKey2Sort() {
+        	getKeyMapBuilder(1).sort = true;
             return this;
         }
 
@@ -608,7 +617,10 @@ public class TableCollectionImpl<E> implements Collection<E> {
          * @return              this (fluent interface)
          */
         protected BuilderImpl<E> withKey2Sort(Comparator<? super E> comparator) {
-            return withKey2Sort(comparator, false);
+        	getKeyMapBuilder(1).sort = true;
+        	getKeyMapBuilder(1).comparator = comparator;
+        	getKeyMapBuilder(1).comparatorSortsNull = true;
+        	return this;
         }
 
         /**
@@ -618,20 +630,21 @@ public class TableCollectionImpl<E> implements Collection<E> {
          * @param comparatorSortsNull   true if comparator sorts null, false if not
          * @return                      this (fluent interface)
          */
-        protected BuilderImpl<E> withKey2Sort(Comparator<? super E> comparator, boolean comparatorSortsNull) {
+        protected BuilderImpl<E> withKey2Sort(Comparator<? super E> comparator, boolean sortNullsFirst) {
+        	getKeyMapBuilder(1).sort = true;
         	getKeyMapBuilder(1).comparator = comparator;
-        	getKeyMapBuilder(1).comparatorSortsNull = comparatorSortsNull;
+        	getKeyMapBuilder(1).comparatorSortsNull = false;
+        	getKeyMapBuilder(1).sortNullsFirst = sortNullsFirst;
             return this;
         }
 
         /**
-         * Determines whether nulls are sorted first or last.
+         * Specify element type to use.
          *
-         * @param nullsFirst    true to sort nulls first, false to sort nulls last
-         * @return              this (fluent interface)
+         * @return		this (fluent interface)
          */
-        protected BuilderImpl<E> withKey2SortNullsFirst(boolean nullsFirst) {
-        	getKeyMapBuilder(1).sortNullsFirst = nullsFirst;
+        protected BuilderImpl<E> withKey2List() {
+        	getKeyMapBuilder(1).list = true;
             return this;
         }
 
@@ -641,8 +654,9 @@ public class TableCollectionImpl<E> implements Collection<E> {
          * @param type	type to use
          * @return		this (fluent interface)
          */
-        protected BuilderImpl<E> withKey2Type(Class<?> type) {
-        	getKeyMapBuilder(1).type = type;
+        protected BuilderImpl<E> withKey2List(Class<?> type) {
+        	getKeyMapBuilder(1).list = true;
+        	getKeyMapBuilder(1).listType = type;
             return this;
         }
 
@@ -669,50 +683,45 @@ public class TableCollectionImpl<E> implements Collection<E> {
         	return keyMapBuilders.get(index);
         }
 
-        KeyMap getKeyMap(KeyMapBuilder keyMapBuilder) {
+        KeyMap buildKeyMap(KeyMapBuilder keyMapBuilder) {
         	KeyMap<E,Object> keyMap = new KeyMap<E,Object>();
         	keyMap.mapper = (Mapper<E, Object>) keyMapBuilder.mapper;
+            keyMap.allowNull = keyMapBuilder.allowNull;
         	keyMap.allowDuplicates = keyMapBuilder.allowDuplicates;
         	keyMap.allowDuplicatesNull = keyMapBuilder.allowDuplicatesNull;
 
         	boolean allowNullKey = keyMapBuilder.allowNull;
-            if (keyMapBuilder.comparator != null) {
-                if (allowNullKey && !keyMapBuilder.comparatorSortsNull) {
-                	keyMap.comparator = new NullComparator(keyMapBuilder.comparator, keyMapBuilder.sortNullsFirst);
+        	if (keyMapBuilder.sort || keyMapBuilder.list) {
+                if (keyMapBuilder.comparator == null) {
+                	if (allowNullKey) {
+                    	keyMap.comparator = new NullComparator(NaturalComparator.INSTANCE, keyMapBuilder.sortNullsFirst);
+                	} else {
+                    	keyMap.comparator = NaturalComparator.INSTANCE;
+                	}
                 } else {
-                	keyMap.comparator = (Comparator<Object>) keyMapBuilder.comparator;
+                    if (!keyMapBuilder.comparatorSortsNull && allowNullKey) {
+                    	keyMap.comparator = new NullComparator(keyMapBuilder.comparator, keyMapBuilder.sortNullsFirst);
+                    } else {
+                    	keyMap.comparator = (Comparator<Object>) keyMapBuilder.comparator;
+                    }
                 }
-            } else if (keyMapBuilder.sort) {
-//	            	if (!keyMaps.isEmpty()) {
-//	            		throw new IllegalArgumentException("Only first key can be sort key"); // TODO support multiple keys
-//	            	}
-            	sorted = keyMapBuilder.sort;
-            	if (allowNullKey) {
-                	keyMap.comparator = new NullComparator(NaturalComparator.INSTANCE, keyMapBuilder.sortNullsFirst);
-            	} else {
-                	keyMap.comparator = NaturalComparator.INSTANCE;
-            	}
-            }
-            if (keyMap.comparator != null) {
-            	// TODO
-//	                if (keyMapBuilder.sort && keyMap.mapper == IdentMapper.INSTANCE) {
-//	                	// Sorted set: we do not need a separate list for storing
-//	                	// keys and elements. We have to handle this case specially later.
-//	                	keyMap.sortedKeys = (GapList<Object>) keyList;
-//	            	} else {
-            		if (keyMapBuilder.type == null) {
-	            		keyMap.keysList = new GapList<Object>();
-            		} else {
-            			keyMap.keysList = (GapList<Object>) GapLists.createWrapperList(keyMapBuilder.type);
-            		}
-            	//}
-            } else {
-                // Set is not sorted: maintain a separate HashMap for fast
-                // answering contains() calls
-                keyMap.keysMap = new HashMap<Object, Object>();
-            }
+        	}
 
-            keyMap.allowNull = keyMapBuilder.allowNull;
+        	if (keyMapBuilder.list) {
+        		if (keyMapBuilder.listType == null) {
+            		keyMap.keysList = new GapList<Object>();
+        		} else {
+                	if (keyMap.comparator != NaturalComparator.INSTANCE) {
+                		throw new IllegalArgumentException("Only natural comparator supported for list type");
+                	}
+        			keyMap.keysList = (GapList<Object>) GapLists.createWrapperList(keyMapBuilder.listType);
+        		}
+        	} else if (keyMapBuilder.sort) {
+        		keyMap.keysMap = new TreeMap(keyMap.comparator);
+        	} else {
+        		keyMap.keysMap = new HashMap();
+        	}
+
             return keyMap;
         }
 
@@ -730,7 +739,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
             int orderByKey = -1;
             tableColl.keyMaps = new KeyMap[keyMapBuilders.size()+1];
             if (elemMapBuilder != null) {
-            	tableColl.keyMaps[0] = getKeyMap(elemMapBuilder);
+            	tableColl.keyMaps[0] = buildKeyMap(elemMapBuilder);
             	if (elemMapBuilder.orderBy) {
             		orderByKey = 0;
             	}
@@ -746,7 +755,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
             		}
             		orderByKey = i+1;
             	}
-            	tableColl.keyMaps[i+1] = getKeyMap(kmb);
+            	tableColl.keyMaps[i+1] = buildKeyMap(kmb);
             }
             tableColl.orderByKey = orderByKey;
 
@@ -848,43 +857,67 @@ public class TableCollectionImpl<E> implements Collection<E> {
 	    @SuppressWarnings("unchecked")
 		Iterator<E> iteratorValues() {
 	    	if (keysMap != null) {
-	    		return (Iterator<E>) keysMap.values().iterator();
+	    		return (Iterator<E>) new KeyMapIter(keysMap);
 	    	} else {
-	    		return (Iterator<E>) keysList.iterator();
+	    		return (Iterator<E>) keysList.unmodifiableList().iterator();
 	    	}
 	    }
 
-	    static class KeyMapIter<E> implements Iterator<E> {
+	    static class KeyMapIter<E,K> implements Iterator<E> {
 
 	    	TableCollectionImpl<E> coll;
-	    	Iterator<E> iter;
+	    	Iterator<Object> iter0;
+	    	Iterator<E> iter1;
 	    	boolean hasElem = false;
 	    	E elem;
 
-	    	public KeyMapIter(TableCollectionImpl<E> coll, Iterator<E> iter) {
-	    		this.coll = coll;
-	    		this.iter = iter;
+	    	public KeyMapIter(Map<K,Object> coll) {
+	    		this.iter0 = coll.values().iterator();
 	    	}
 
 			@Override
 			public boolean hasNext() {
-				return iter.hasNext();
+				boolean hasNext = false;
+				if (iter1 != null) {
+					hasNext = iter1.hasNext();
+				}
+				if (!hasNext) {
+					hasNext = iter0.hasNext();
+				}
+				return hasNext;
 			}
 
 			@Override
 			public E next() {
-				hasElem = false;
-				elem = iter.next();
-				hasElem = true;
+				boolean hasNext = false;
+				E elem = null;
+				if (iter1 != null) {
+					if (iter1.hasNext()) {
+						hasNext = true;
+						elem = iter1.next();
+					} else {
+						iter1 = null;
+					}
+				}
+				if (!hasNext) {
+					if (iter0.hasNext()) {
+						Object o = iter0.next();
+						if (o instanceof GapList) {
+							iter1 = ((GapList) o).iterator();
+							elem = iter1.next();
+						} else {
+							elem = (E) o;
+						}
+					} else {
+						iter1 = null;
+					}
+				}
 				return elem;
 			}
 
 			@Override
 			public void remove() {
-				if (hasElem) {
-					iter.remove();
-					coll.remove(elem, true);
-				}
+				throw new UnsupportedOperationException();
 			}
 
 	    }

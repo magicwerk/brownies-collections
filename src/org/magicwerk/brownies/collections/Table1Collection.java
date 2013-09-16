@@ -19,16 +19,10 @@ package org.magicwerk.brownies.collections;
 
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
 
-import org.magicwerk.brownies.collections.TableCollection.Builder;
-import org.magicwerk.brownies.collections.TableListImpl.NullMode;
 import org.magicwerk.brownies.collections.function.Mapper;
 import org.magicwerk.brownies.collections.function.Predicate;
 import org.magicwerk.brownies.collections.function.Trigger;
-import org.magicwerk.brownies.collections.helper.IdentMapper;
 
 
 /**
@@ -128,8 +122,8 @@ public class Table1Collection<E,K> extends TableCollectionImpl<E> {
         }
 
         @Override
-        public Builder<E,K> withElemSort(boolean sort) {
-        	return (Builder<E,K>) super.withElemSort(sort);
+        public Builder<E,K> withElemSort() {
+        	return (Builder<E,K>) super.withElemSort();
         }
 
         @Override
@@ -138,18 +132,18 @@ public class Table1Collection<E,K> extends TableCollectionImpl<E> {
         }
 
         @Override
-        public Builder<E,K> withElemSort(Comparator<? super E> comparator, boolean comparatorSortsNull) {
-        	return (Builder<E,K>) super.withElemSort(comparator, comparatorSortsNull);
+        public Builder<E,K> withElemSort(Comparator<? super E> comparator, boolean sortNullsFirst) {
+        	return (Builder<E,K>) super.withElemSort(comparator, sortNullsFirst);
         }
 
         @Override
-        public Builder<E,K> withElemSortNullsFirst(boolean nullsFirst) {
-        	return (Builder<E,K>) super.withElemSortNullsFirst(nullsFirst);
+        public Builder<E,K> withElemList() {
+        	return (Builder<E,K>) super.withElemList();
         }
 
         @Override
-        public Builder<E,K> withElemType(Class<?> type) {
-        	return (Builder<E,K>) super.withElemType(type);
+        public Builder<E,K> withElemList(Class<?> type) {
+        	return (Builder<E,K>) super.withElemList(type);
         }
 
         // -- Key
@@ -180,8 +174,8 @@ public class Table1Collection<E,K> extends TableCollectionImpl<E> {
         }
 
         @Override
-        public Builder<E,K> withKeySort(boolean sort) {
-        	return (Builder<E,K>) super.withKeySort(sort);
+        public Builder<E,K> withKeySort() {
+        	return (Builder<E,K>) super.withKeySort();
         }
 
         @Override
@@ -190,18 +184,18 @@ public class Table1Collection<E,K> extends TableCollectionImpl<E> {
         }
 
         @Override
-        public Builder<E,K> withKeySort(Comparator<? super E> comparator, boolean comparatorSortsNull) {
-        	return (Builder<E,K>) super.withKeySort(comparator, comparatorSortsNull);
+        public Builder<E,K> withKeySort(Comparator<? super E> comparator, boolean sortNullsFirst) {
+        	return (Builder<E,K>) super.withKeySort(comparator, sortNullsFirst);
         }
 
         @Override
-        public Builder<E,K> withKeySortNullsFirst(boolean nullsFirst) {
-        	return (Builder<E,K>) super.withKeySortNullsFirst(nullsFirst);
+        public Builder<E,K> withKeyList() {
+        	return (Builder<E,K>) super.withKeyList();
         }
 
         @Override
-        public Builder<E,K> withKeyType(Class<?> type) {
-        	return (Builder<E,K>) super.withKeyType(type);
+        public Builder<E,K> withKeyList(Class<?> type) {
+        	return (Builder<E,K>) super.withKeyList(type);
         }
 
         /**
@@ -221,6 +215,44 @@ public class Table1Collection<E,K> extends TableCollectionImpl<E> {
      */
     private Table1Collection() {
     }
+
+    public Table1Collection<E,K> copy() {
+        Table1Collection<E,K> copy = new Table1Collection<E,K>();
+        copy.initCopy(this);
+        return copy;
+    }
+
+    public Table1Collection<E,K> crop() {
+        Table1Collection<E,K> copy = new Table1Collection<E,K>();
+        copy.initCrop(this);
+        return copy;
+    }
+
+    //-- Element methods
+
+	public E get(E key) {
+		return super.getByKey(0, key);
+	}
+
+	public GapList<E> getAll(E key) {
+		return super.getAllByKey(0, key);
+	}
+
+	public int getCount(E key) {
+		return super.getCountByKey(0, key);
+	}
+
+	public GapList<E> removeAll(E key) {
+		return super.removeAllByKey(0, key);
+	}
+
+	public GapList<E> getAllDistinct() {
+		return (GapList<E>) super.getAllDistinctKeys(0);
+	}
+
+	public int getCountDistinct() {
+		return super.getCountDistinctKeys(0);
+	}
 
     //-- Key methods
 
@@ -248,24 +280,12 @@ public class Table1Collection<E,K> extends TableCollectionImpl<E> {
 		return super.removeAllByKey(1, key);
 	}
 
-	public GapList<Object> getAllDistinctKeys() {
-		return super.getAllDistinctKeys(1);
+	public GapList<K> getAllDistinctKeys() {
+		return (GapList<K>) super.getAllDistinctKeys(1);
 	}
 
 	public int getCountDistinctKeys() {
 		return super.getCountDistinctKeys(1);
 	}
-
-    public Table1Collection<E,K> copy() {
-        Table1Collection<E,K> copy = new Table1Collection<E,K>();
-        copy.initCopy(this);
-        return copy;
-    }
-
-    public Table1Collection<E,K> crop() {
-        Table1Collection<E,K> copy = new Table1Collection<E,K>();
-        copy.initCrop(this);
-        return copy;
-    }
 
 }
