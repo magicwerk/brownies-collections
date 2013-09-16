@@ -127,8 +127,8 @@ public class TableList<E> extends TableListImpl<E> {
         }
 
         @Override
-        public Builder<E> withElemSort(boolean sort) {
-        	return (Builder<E>) super.withElemSort(sort);
+        public Builder<E> withElemSort() {
+        	return (Builder<E>) super.withElemSort();
         }
 
         @Override
@@ -137,18 +137,18 @@ public class TableList<E> extends TableListImpl<E> {
         }
 
         @Override
-        public Builder<E> withElemSort(Comparator<? super E> comparator, boolean comparatorSortsNull) {
-        	return (Builder<E>) super.withElemSort(comparator, comparatorSortsNull);
+        public Builder<E> withElemSort(Comparator<? super E> comparator, boolean sortNullsFirst) {
+        	return (Builder<E>) super.withElemSort(comparator, sortNullsFirst);
         }
 
         @Override
-        public Builder<E> withElemSortNullsFirst(boolean nullsFirst) {
-        	return (Builder<E>) super.withElemSortNullsFirst(nullsFirst);
+        public Builder<E> withElemList() {
+        	return (Builder<E>) super.withElemList();
         }
 
         @Override
-        public Builder<E> withElemType(Class<?> type) {
-        	return (Builder<E>) super.withElemType(type);
+        public Builder<E> withElemList(Class<?> type) {
+        	return (Builder<E>) super.withElemList(type);
         }
 
 
@@ -183,17 +183,23 @@ public class TableList<E> extends TableListImpl<E> {
 //        return new TableList.Builder<E>(this);
 //    }
 
-    // SetList constructors
+    //-- Element methods
 
-    //-- Key methods
+	public E get(E key) {
+		return super.getByKey(0, key);
+	}
 
-    public boolean containsKey(E key) {
-    	return super.containsKey(0, key);
-    }
+	public GapList<E> getAll(E key) {
+		return super.getAllByKey(0, key);
+	}
 
-    public int indexOfKey(E key) {
-    	return super.indexOfKey(0, key);
-    }
+	public int getCount(E key) {
+		return super.getCountByKey(0, key);
+	}
+
+	public GapList<E> removeAll(E key) {
+		return super.removeAllByKey(0, key);
+	}
 
 	public GapList<E> getAllDistinct() {
 		return (GapList<E>) super.getAllDistinctKeys(0);
@@ -201,26 +207,6 @@ public class TableList<E> extends TableListImpl<E> {
 
 	public int getCountDistinct() {
 		return super.getCountDistinctKeys(0);
-	}
-
-	public E getByKey(E key) {
-		return super.getByKey(0, key);
-	}
-
-	public GapList<E> getAllByKey(E key) {
-		return super.getAllByKey(0, key);
-	}
-
-	public int getCountByKey(E key) {
-		return super.getCountByKey(0, key);
-	}
-
-	public E removeByKey(E key) {
-		return super.removeByKey(0, key);
-	}
-
-	public GapList<E> removeAllByKey(E key) {
-		return super.removeAllByKey(0, key);
 	}
 
 	/**
