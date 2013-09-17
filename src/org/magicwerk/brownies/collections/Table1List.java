@@ -207,7 +207,9 @@ public class Table1List<E,K> extends TableListImpl<E> {
                	tableColl = new TableCollectionImpl<E>();
         	}
         	build(tableColl);
-        	return new Table1List(tableColl);
+        	Table1List<E,K> list = new Table1List<E,K>(tableColl);
+        	fill(list);
+        	return list;
         }
     }
 
@@ -248,12 +250,8 @@ public class Table1List<E,K> extends TableListImpl<E> {
 		return super.removeAllByKey(0, key);
 	}
 
-	public GapList<E> getAllDistinct() {
-		return (GapList<E>) super.getAllDistinctKeys(0);
-	}
-
-	public int getCountDistinct() {
-		return super.getCountDistinctKeys(0);
+	public GapList<E> getDistinct() {
+		return (GapList<E>) super.getDistinctKeys(0);
 	}
 
     //-- Key methods
@@ -282,12 +280,8 @@ public class Table1List<E,K> extends TableListImpl<E> {
 		return super.removeAllByKey(1, key);
 	}
 
-	public GapList<K> getAllDistinctKeys() {
-		return (GapList<K>) super.getAllDistinctKeys(1);
-	}
-
-	public int getCountDistinctKeys() {
-		return super.getCountDistinctKeys(1);
+	public GapList<K> getDistinctKeys() {
+		return (GapList<K>) super.getDistinctKeys(1);
 	}
 
 }

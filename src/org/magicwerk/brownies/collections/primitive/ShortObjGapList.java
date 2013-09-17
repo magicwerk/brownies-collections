@@ -60,9 +60,9 @@ public class ShortObjGapList extends GapList<Short> {
 		return new ShortObjGapList(elems);
 	}
 
-	public ShortObjGapList(INIT init) {
-		super(false, null);
-	}
+//	public ShortObjGapList(INIT init) {
+//		super(false, null);
+//	}
 
 	public ShortObjGapList() {
 		super(false, null);

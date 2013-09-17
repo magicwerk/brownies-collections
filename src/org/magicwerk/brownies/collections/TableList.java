@@ -162,7 +162,9 @@ public class TableList<E> extends TableListImpl<E> {
                	tableColl = new TableCollectionImpl<E>();
         	}
         	build(tableColl);
-        	return new TableList(tableColl);
+        	TableList<E> list = new TableList(tableColl);
+        	fill(list);
+        	return list;
         }
     }
 
@@ -201,12 +203,8 @@ public class TableList<E> extends TableListImpl<E> {
 		return super.removeAllByKey(0, key);
 	}
 
-	public GapList<E> getAllDistinct() {
-		return (GapList<E>) super.getAllDistinctKeys(0);
-	}
-
-	public int getCountDistinct() {
-		return super.getCountDistinctKeys(0);
+	public GapList<E> getDistinct() {
+		return (GapList<E>) super.getDistinctKeys(0);
 	}
 
 	/**

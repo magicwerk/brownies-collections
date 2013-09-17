@@ -136,16 +136,6 @@ public class Table1Collection<E,K> extends TableCollectionImpl<E> {
         	return (Builder<E,K>) super.withElemSort(comparator, sortNullsFirst);
         }
 
-        @Override
-        public Builder<E,K> withElemList() {
-        	return (Builder<E,K>) super.withElemList();
-        }
-
-        @Override
-        public Builder<E,K> withElemList(Class<?> type) {
-        	return (Builder<E,K>) super.withElemList(type);
-        }
-
         // -- Key
 
         // @Override
@@ -188,16 +178,6 @@ public class Table1Collection<E,K> extends TableCollectionImpl<E> {
         	return (Builder<E,K>) super.withKeySort(comparator, sortNullsFirst);
         }
 
-        @Override
-        public Builder<E,K> withKeyList() {
-        	return (Builder<E,K>) super.withKeyList();
-        }
-
-        @Override
-        public Builder<E,K> withKeyList(Class<?> type) {
-        	return (Builder<E,K>) super.withKeyList(type);
-        }
-
         /**
          * @return created SetList
          */
@@ -206,6 +186,7 @@ public class Table1Collection<E,K> extends TableCollectionImpl<E> {
                	tableColl = new Table1Collection<E,K>();
         	}
         	build(tableColl);
+        	fill(tableColl);
         	return (Table1Collection<E,K>) tableColl;
         }
     }
@@ -246,12 +227,8 @@ public class Table1Collection<E,K> extends TableCollectionImpl<E> {
 		return super.removeAllByKey(0, key);
 	}
 
-	public GapList<E> getAllDistinct() {
-		return (GapList<E>) super.getAllDistinctKeys(0);
-	}
-
-	public int getCountDistinct() {
-		return super.getCountDistinctKeys(0);
+	public GapList<E> getDistinct() {
+		return (GapList<E>) super.getDistinctKeys(0);
 	}
 
     //-- Key methods
@@ -280,12 +257,8 @@ public class Table1Collection<E,K> extends TableCollectionImpl<E> {
 		return super.removeAllByKey(1, key);
 	}
 
-	public GapList<K> getAllDistinctKeys() {
-		return (GapList<K>) super.getAllDistinctKeys(1);
-	}
-
-	public int getCountDistinctKeys() {
-		return super.getCountDistinctKeys(1);
+	public GapList<K> getDistinctKeys() {
+		return (GapList<K>) super.getDistinctKeys(1);
 	}
 
 }

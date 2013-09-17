@@ -60,9 +60,9 @@ public class IntObjGapList extends GapList<Integer> {
 		return new IntObjGapList(elems);
 	}
 
-	public IntObjGapList(INIT init) {
-		super(false, null);
-	}
+//	public IntObjGapList(INIT init) {
+//		super(false, null);
+//	}
 
 	public IntObjGapList() {
 		super(false, null);

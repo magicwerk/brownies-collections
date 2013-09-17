@@ -320,17 +320,8 @@ public class TableListImpl<E> extends GapList<E> {
      *
      * @return list containing all distinct keys
      */
-    public GapList<?> getAllDistinctKeys(int keyIndex) {
-    	return tableImpl.getAllDistinctKeys(keyIndex);
-    }
-
-    /**
-     * Returns count of distinct keys.
-     *
-     * @return count of distinct keys
-     */
-    public int getCountDistinctKeys(int keyIndex) {
-    	return tableImpl.getCountDistinctKeys(keyIndex);
+    public GapList<?> getDistinctKeys(int keyIndex) {
+    	return tableImpl.getDistinctKeys(keyIndex);
     }
 
     @Override

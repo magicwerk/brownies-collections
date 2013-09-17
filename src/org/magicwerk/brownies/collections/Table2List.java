@@ -207,7 +207,9 @@ public class Table2List<E,K1,K2> extends TableListImpl<E> {
                	tableColl = new TableCollectionImpl<E>();
         	}
         	build(tableColl);
-        	return new Table2List(tableColl);
+        	Table2List<E,K1,K2> list = new Table2List(tableColl);
+        	fill(list);
+        	return list;
         }
     }
 
@@ -248,12 +250,8 @@ public class Table2List<E,K1,K2> extends TableListImpl<E> {
 		return super.removeAllByKey(0, key);
 	}
 
-	public GapList<E> getAllDistinct() {
-		return (GapList<E>) super.getAllDistinctKeys(0);
-	}
-
-	public int getCountDistinct() {
-		return super.getCountDistinctKeys(0);
+	public GapList<E> getDistinct() {
+		return (GapList<E>) super.getDistinctKeys(0);
 	}
 
     //-- Key 1 methods
@@ -282,12 +280,8 @@ public class Table2List<E,K1,K2> extends TableListImpl<E> {
 		return super.removeAllByKey(1, key);
 	}
 
-	public GapList<K1> getAllDistinctKeys1() {
-		return (GapList<K1>) super.getAllDistinctKeys(1);
-	}
-
-	public int getCountDistinctKeys1() {
-		return super.getCountDistinctKeys(1);
+	public GapList<K1> getDistinctKeys1() {
+		return (GapList<K1>) super.getDistinctKeys(1);
 	}
 
     //-- Key 2 methods
@@ -316,12 +310,8 @@ public class Table2List<E,K1,K2> extends TableListImpl<E> {
 		return super.removeAllByKey(2, key);
 	}
 
-	public GapList<K2> getAllDistinctKeys2() {
-		return (GapList<K2>) super.getAllDistinctKeys(2);
-	}
-
-	public int getCountDistinctKeys2() {
-		return super.getCountDistinctKeys(2);
+	public GapList<K2> getDistinctKeys2() {
+		return (GapList<K2>) super.getDistinctKeys(2);
 	}
 
 }
