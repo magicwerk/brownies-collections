@@ -138,17 +138,6 @@ public class TableCollection<E> extends TableCollectionImpl<E> {
         	return (Builder<E>) super.withElemSort(comparator, sortNullsFirst);
         }
 
-        @Override
-        public Builder<E> withElemList() {
-        	return (Builder<E>) super.withElemList();
-        }
-
-        @Override
-        public Builder<E> withElemList(Class<?> type) {
-        	return (Builder<E>) super.withElemList(type);
-        }
-
-
         /**
          * Create collection with specified options.
          *
@@ -162,6 +151,7 @@ public class TableCollection<E> extends TableCollectionImpl<E> {
                	tableColl = new TableCollection<E>();
         	}
         	build(tableColl);
+        	fill(tableColl);
         	return (TableCollection<E>) tableColl;
         }
     }
@@ -200,12 +190,8 @@ public class TableCollection<E> extends TableCollectionImpl<E> {
 		return super.removeAllByKey(0, key);
 	}
 
-	public GapList<E> getAllDistinct() {
-		return (GapList<E>) super.getAllDistinctKeys(0);
-	}
-
-	public int getCountDistinct() {
-		return super.getCountDistinctKeys(0);
+	public GapList<E> getDistinct() {
+		return (GapList<E>) super.getDistinctKeys(0);
 	}
 
 	//-- Other methods

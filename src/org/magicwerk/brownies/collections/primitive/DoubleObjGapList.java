@@ -60,9 +60,9 @@ public class DoubleObjGapList extends GapList<Double> {
 		return new DoubleObjGapList(elems);
 	}
 
-	public DoubleObjGapList(INIT init) {
-		super(false, null);
-	}
+//	public DoubleObjGapList(INIT init) {
+//		super(false, null);
+//	}
 
 	public DoubleObjGapList() {
 		super(false, null);

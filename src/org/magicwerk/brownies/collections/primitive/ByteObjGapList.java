@@ -60,9 +60,9 @@ public class ByteObjGapList extends GapList<Byte> {
 		return new ByteObjGapList(elems);
 	}
 
-	public ByteObjGapList(INIT init) {
-		super(false, null);
-	}
+//	public ByteObjGapList(INIT init) {
+//		super(false, null);
+//	}
 
 	public ByteObjGapList() {
 		super(false, null);

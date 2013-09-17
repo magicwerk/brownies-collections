@@ -60,9 +60,9 @@ public class FloatObjGapList extends GapList<Float> {
 		return new FloatObjGapList(elems);
 	}
 
-	public FloatObjGapList(INIT init) {
-		super(false, null);
-	}
+//	public FloatObjGapList(INIT init) {
+//		super(false, null);
+//	}
 
 	public FloatObjGapList() {
 		super(false, null);

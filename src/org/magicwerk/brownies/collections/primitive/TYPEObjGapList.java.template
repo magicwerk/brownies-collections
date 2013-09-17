@@ -60,9 +60,9 @@ public class NAMETYPEObjGapList extends GapList<WRAPPERTYPE> {
 		return new NAMETYPEObjGapList(elems);
 	}
 
-	public NAMETYPEObjGapList(INIT init) {
-		super(false, null);
-	}
+//	public NAMETYPEObjGapList(INIT init) {
+//		super(false, null);
+//	}
 
 	public NAMETYPEObjGapList() {
 		super(false, null);

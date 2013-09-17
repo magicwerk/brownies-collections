@@ -137,16 +137,6 @@ public class Table2Collection<E,K1,K2> extends TableCollectionImpl<E> {
         	return (Builder<E,K1,K2>) super.withElemSort(comparator, sortNullsFirst);
         }
 
-        @Override
-        public Builder<E,K1,K2> withElemList() {
-        	return (Builder<E,K1,K2>) super.withElemList();
-        }
-
-        @Override
-        public Builder<E,K1,K2> withElemList(Class<?> type) {
-        	return (Builder<E,K1,K2>) super.withElemList(type);
-        }
-
         // -- Key1
 
         // @Override
@@ -187,16 +177,6 @@ public class Table2Collection<E,K1,K2> extends TableCollectionImpl<E> {
         @Override
         public Builder<E,K1,K2> withKey1Sort(Comparator<? super E> comparator, boolean sortNullsFirst) {
         	return (Builder<E,K1,K2>) super.withKey1Sort(comparator, sortNullsFirst);
-        }
-
-        @Override
-        public Builder<E,K1,K2> withKey1List() {
-        	return (Builder<E,K1,K2>) super.withKey1List();
-        }
-
-        @Override
-        public Builder<E,K1,K2> withKey1List(Class<?> type) {
-        	return (Builder<E,K1,K2>) super.withKey1List(type);
         }
 
         // -- Key2
@@ -241,16 +221,6 @@ public class Table2Collection<E,K1,K2> extends TableCollectionImpl<E> {
         	return (Builder<E,K1,K2>) super.withKey2Sort(comparator, sortNullsFirst);
         }
 
-        @Override
-        public Builder<E,K1,K2> withKey2List() {
-        	return (Builder<E,K1,K2>) super.withKey2List();
-        }
-
-        @Override
-        public Builder<E,K1,K2> withKey2List(Class<?> type) {
-        	return (Builder<E,K1,K2>) super.withKey2List(type);
-        }
-
         /**
          * @return created collection
          */
@@ -259,6 +229,7 @@ public class Table2Collection<E,K1,K2> extends TableCollectionImpl<E> {
                	tableColl = new Table2Collection<E,K1,K2>();
         	}
         	build(tableColl);
+        	fill(tableColl);
         	return (Table2Collection<E,K1,K2>) tableColl;
         }
     }
@@ -287,12 +258,8 @@ public class Table2Collection<E,K1,K2> extends TableCollectionImpl<E> {
 		return super.removeAllByKey(0, key);
 	}
 
-	public GapList<E> getAllDistinct() {
-		return (GapList<E>) super.getAllDistinctKeys(0);
-	}
-
-	public int getCountDistinct() {
-		return super.getCountDistinctKeys(0);
+	public GapList<E> getDistinct() {
+		return (GapList<E>) super.getDistinctKeys(0);
 	}
 
     //-- Key1 methods
@@ -322,11 +289,7 @@ public class Table2Collection<E,K1,K2> extends TableCollectionImpl<E> {
 	}
 
 	public GapList<K1> getAllDistinctKeys1() {
-		return (GapList<K1>) super.getAllDistinctKeys(1);
-	}
-
-	public int getCountDistinctKeys1() {
-		return super.getCountDistinctKeys(1);
+		return (GapList<K1>) super.getDistinctKeys(1);
 	}
 
     //-- Key2 methods
@@ -355,12 +318,8 @@ public class Table2Collection<E,K1,K2> extends TableCollectionImpl<E> {
 		return super.removeAllByKey(2, key);
 	}
 
-	public GapList<K2> getAllDistinctKeys2() {
-		return (GapList<K2>) super.getAllDistinctKeys(2);
-	}
-
-	public int getCountDistinctKeys2() {
-		return super.getCountDistinctKeys(2);
+	public GapList<K2> getDistinctKeys2() {
+		return (GapList<K2>) super.getDistinctKeys(2);
 	}
 
 	//

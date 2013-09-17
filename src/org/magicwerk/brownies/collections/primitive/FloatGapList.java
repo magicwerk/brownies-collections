@@ -58,8 +58,6 @@ import java.util.ListIterator;
  */
 public class FloatGapList implements Cloneable, Serializable {
 
-	public enum INIT {};
-
 	// Guide to subclass FloatGapList
 	// You need to overwrite the following methods:
 	// - size(): return size
@@ -124,64 +122,64 @@ public class FloatGapList implements Cloneable, Serializable {
 
         
         protected boolean doAdd(int index, float elem) {
-        	check();
+        	error();
         	return false;
         }
 
         
         protected boolean doAddAll(int index, float[] elems) {
-        	check();
+        	error();
         	return false;
         }
 
         
         protected float doSet(int index, float elem) {
-        	check();
+        	error();
         	return (float)0;
         }
 
         
         protected void doSetAll(int index, float[] elems) {
-        	check();
+        	error();
         }
 
         
         protected float doReSet(int index, float elem) {
-        	check();
+        	error();
         	return (float)0;
         }
 
         
         protected float doReSet(int index) {
-        	check();
+        	error();
         	return (float)0;
         }
 
         
         protected float doRemove(int index) {
-        	check();
+        	error();
         	return (float)0;
         }
 
         
         protected void doRemoveAll(int index, int len) {
-        	check();
+        	error();
         }
 
         
         protected void doModify() {
-        	check();
+        	error();
         }
 
-        private void check() {
-            throw new UnsupportedOperationException("list is read-only");
+        private void error() {
+            throw new UnsupportedOperationException("list is immutable");
         }
     };
 
     /** UID for serialization */
     private static final long serialVersionUID = -4477005565661968383L;
 
-    private static final int DEFAULT_CAPACITY = 10;
+    static final int DEFAULT_CAPACITY = 10;
 
 	/** Array holding raw data */
 	private float[] values;
@@ -221,7 +219,7 @@ public class FloatGapList implements Cloneable, Serializable {
 	}
 
 	/**
-	 * Create new list and add multiple elements to list.
+	 * Create new list and add elements.
 	 *
 	 * @param elems 	elements to add
 	 * @return 			created array list
@@ -334,7 +332,7 @@ public class FloatGapList implements Cloneable, Serializable {
 	}
 
     /**
-     * Constructor used internally.
+     * Constructor used internally, e.g. for ImmutableGapList.
      *
      * @param copy true to copy all instance values from source,
      *             if false nothing is done
@@ -360,7 +358,7 @@ public class FloatGapList implements Cloneable, Serializable {
 	}
 
 	/**
-	 * Construct a vector with given capacity.
+	 * Construct a list with specified capacity.
 	 *
 	 * @param capacity	capacity to use
 	 */
@@ -534,7 +532,7 @@ public class FloatGapList implements Cloneable, Serializable {
 
         // INLINE: checkIndex(index);
         if (index < 0 || index >= size()) {
-            throw new IllegalArgumentException("Invalid index: " + index + " (size: " + size() + ")");
+            throw new IndexOutOfBoundsException("Invalid index: " + index + " (size: " + size() + ")");
         }
         return doGet(index);
     }
@@ -640,7 +638,7 @@ public class FloatGapList implements Cloneable, Serializable {
 	 * Override if you need to validity checks before adding.
 	 *
 	 * @param index	index where element should be added
-	 *              (-1 is valid for adding at the end)
+	 *              (-1 means it is up to the implementation to choose the index)
 	 * @param elem	element to add
 	 * @return      true if element has been added (FloatGapList.add() will always return true)
 	 */
@@ -1274,6 +1272,7 @@ return (int) val;
 		for (int i=0; i<size; i++) {
 			if (coll.contains(doGet(i))) {
 				doRemove(i);
+				size--;
 				i--;
 				modified = true;
 			}
@@ -1292,6 +1291,7 @@ return (int) val;
 		for (int i=0; i<size; i++) {
 			if (coll.contains(doGet(i))) {
 				doRemove(i);
+				size--;
 				i--;
 				modified = true;
 			}
@@ -1308,6 +1308,7 @@ return (int) val;
 		for (int i=0; i<size; i++) {
 			if (!coll.contains(doGet(i))) {
 				doRemove(i);
+				size--;
 				i--;
 				modified = true;
 			}
@@ -1326,6 +1327,7 @@ return (int) val;
 		for (int i=0; i<size; i++) {
 			if (!coll.contains(doGet(i))) {
 				doRemove(i);
+				size--;
 				i--;
 				modified = true;
 			}

@@ -60,9 +60,9 @@ public class LongObjGapList extends GapList<Long> {
 		return new LongObjGapList(elems);
 	}
 
-	public LongObjGapList(INIT init) {
-		super(false, null);
-	}
+//	public LongObjGapList(INIT init) {
+//		super(false, null);
+//	}
 
 	public LongObjGapList() {
 		super(false, null);

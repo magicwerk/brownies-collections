@@ -60,9 +60,9 @@ public class CharObjGapList extends GapList<Character> {
 		return new CharObjGapList(elems);
 	}
 
-	public CharObjGapList(INIT init) {
-		super(false, null);
-	}
+//	public CharObjGapList(INIT init) {
+//		super(false, null);
+//	}
 
 	public CharObjGapList() {
 		super(false, null);

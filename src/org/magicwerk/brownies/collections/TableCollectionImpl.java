@@ -725,7 +725,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
             return keyMap;
         }
 
-         /**
+        /**
          * Initialize TableCollection with specified options.
          *
          * @param tableColl collection to initialize
@@ -736,36 +736,60 @@ public class TableCollectionImpl<E> implements Collection<E> {
             tableColl.insertTrigger = insertTrigger;
             tableColl.deleteTrigger = deleteTrigger;
 
-            int orderByKey = -1;
-            tableColl.keyMaps = new KeyMap[keyMapBuilders.size()+1];
-            if (elemMapBuilder != null) {
-            	tableColl.keyMaps[0] = buildKeyMap(elemMapBuilder);
-            	if (elemMapBuilder.orderBy) {
-            		orderByKey = 0;
-            	}
+            if (elemMapBuilder != null || keyMapBuilders.size() > 0) {
+                int orderByKey = -1;
+	            tableColl.keyMaps = new KeyMap[keyMapBuilders.size()+1];
+	            if (elemMapBuilder != null) {
+	            	tableColl.keyMaps[0] = buildKeyMap(elemMapBuilder);
+	            	if (elemMapBuilder.orderBy) {
+	            		orderByKey = 0;
+	            	}
+	            }
+	            for (int i=0; i<keyMapBuilders.size(); i++) {
+	            	KeyMapBuilder kmb = keyMapBuilders.get(i);
+	            	if (kmb == null) {
+	            		throw new IllegalArgumentException("Key " + i + " is not defined");
+	            	}
+	            	if (kmb.orderBy) {
+	            		if (orderByKey != -1) {
+	                		throw new IllegalArgumentException("Only one order by key allowed");
+	            		}
+	            		orderByKey = i+1;
+	            	}
+	            	tableColl.keyMaps[i+1] = buildKeyMap(kmb);
+	            }
+	            if (orderByKey == -1) {
+	            	if (tableColl.keyMaps[0] != null) {
+	            		orderByKey = 0;
+	            	} else {
+	            		assert(tableColl.keyMaps[1] != null);
+	            		orderByKey = 1;
+	            	}
+	            }
+	            tableColl.orderByKey = orderByKey;
             }
-            for (int i=0; i<keyMapBuilders.size(); i++) {
-            	KeyMapBuilder kmb = keyMapBuilders.get(i);
-            	if (kmb == null) {
-            		throw new IllegalArgumentException("Key " + i + " is not defined");
-            	}
-            	if (kmb.orderBy) {
-            		if (orderByKey != -1) {
-                		throw new IllegalArgumentException("Only one order by key allowed");
-            		}
-            		orderByKey = i+1;
-            	}
-            	tableColl.keyMaps[i+1] = buildKeyMap(kmb);
-            }
-            tableColl.orderByKey = orderByKey;
+        }
 
+        void fill(TableCollectionImpl<E> tableColl) {
             if (collection != null) {
             	tableColl.addAll(collection);
             } else if (array != null) {
             	tableColl.addAll((Collection<? extends E>) Arrays.asList(array));
             }
         }
-    }
+
+        void fill(TableListImpl<E> tableList) {
+            if (collection != null) {
+            	tableList.init(collection);
+            } else if (array != null) {
+            	tableList.init((Collection<? extends E>) Arrays.asList(array));
+            } else if (capacity != 0) {
+        		tableList.init(capacity);
+        	} else {
+        		tableList.init();
+        	}
+        }
+   }
 
     static class KeyMap<E, K> {
 	    /** A mapper to extract keys out of element for a MapList. For a SetList, this is always an IdentMapper. */
@@ -1059,6 +1083,34 @@ public class TableCollectionImpl<E> implements Collection<E> {
         	assert(keysList.size() == size);
 			return list;
 		}
+
+		GapList<Object> getDistinctKeys() {
+	        if (keysMap != null) {
+	            GapList<Object> list = new GapList<Object>(keysMap.keySet());
+	            return list;
+	        } else {
+	            K lastKey = null;
+	            GapList<Object> list = new GapList<Object>();
+	            for (int i=0; i<keysList.size(); i++) {
+	                K key = keysList.get(i);
+	                boolean add = false;
+	                if (list.isEmpty()) {
+	                    add = true;
+	                } else {
+	                    if (key != null) {
+	                        add = !key.equals(lastKey);
+	                    } else {
+	                        add = (lastKey != null);
+	                    }
+	                }
+	                if (add) {
+	                    list.add(key);
+	                    lastKey = key;
+	                }
+	            }
+	            return list;
+	        }
+		}
     }
 
     /**
@@ -1140,9 +1192,11 @@ public class TableCollectionImpl<E> implements Collection<E> {
      * It is only used for debugging.
      */
     private void debugCheck() {
-    	for (KeyMap<E,?> keyMap: keyMaps) {
-    		if (keyMap != null) {
-    			doDebugCheck(keyMap);
+    	if (keyMaps != null) {
+    		for (KeyMap<E,?> keyMap: keyMaps) {
+    			if (keyMap != null) {
+    				doDebugCheck(keyMap);
+    			}
     		}
     	}
     }
@@ -1319,11 +1373,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
 
 	@Override
 	public Iterator<E> iterator() {
-		if (keyMaps[0] != null) {
-			return keyMaps[0].iteratorValues();
-		} else {
-			return keyMaps[1].iteratorValues();
-		}
+		return keyMaps[orderByKey].iteratorValues();
 	}
 
 	@Override
@@ -1517,57 +1567,12 @@ public class TableCollectionImpl<E> implements Collection<E> {
     }
 
     /**
-     * Returns count of distinct keys.
-     *
-     * @return count of distinct keys
-     */
-    protected int getCountDistinctKeys(int keyIndex) {
-    	return getCountDistinctKeys(getKeyMap(keyIndex));
-    }
-
-    private <K> int getCountDistinctKeys(KeyMap<E,K> keyMap) {
-    	if (keyMap.keysMap != null) {
-    		return keyMap.keysMap.size();
-    	} else {
-    		return getAllDistinctKeys(keyMap).size();
-    	}
-    }
-
-    /**
      * Returns list containing all distinct keys.
      *
      * @return list containing all distinct keys
      */
-    protected GapList<?> getAllDistinctKeys(int keyIndex) {
-    	return getAllDistinctKeys(getKeyMap(keyIndex));
-    }
-
-    private <K> GapList<K> getAllDistinctKeys(KeyMap<E,K> keyMap) {
-        if (keyMap.keysMap != null) {
-            GapList<K> list = new GapList<K>(keyMap.keysMap.keySet());
-            return list;
-        } else {
-            K lastKey = null;
-            GapList<K> list = new GapList<K>();
-            for (int i=0; i<keyMap.keysList.size(); i++) {
-                K key = keyMap.keysList.get(i);
-                boolean add = false;
-                if (list.isEmpty()) {
-                    add = true;
-                } else {
-                    if (key != null) {
-                        add = !key.equals(lastKey);
-                    } else {
-                        add = (lastKey != null);
-                    }
-                }
-                if (add) {
-                    list.add(key);
-                    lastKey = key;
-                }
-            }
-            return list;
-        }
+    protected GapList<?> getDistinctKeys(int keyIndex) {
+    	return getKeyMap(keyIndex).getDistinctKeys();
     }
 
     void checkKeyMap(int keyIndex) {

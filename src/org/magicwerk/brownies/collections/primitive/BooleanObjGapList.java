@@ -27,7 +27,7 @@ public class BooleanObjGapList extends GapList<Boolean> {
 		return e;
 	}
 
-	static boolean[] toPrimitive2(GapList<? extends Boolean> list2) {
+	static boolean[] toPrimitive(GapList<? extends Boolean> list2) {
 		boolean[] e = new boolean[list2.size()];
 		for (int i = 0; i < e.length; i++) {
 			e[i] = list2.get(i);
@@ -35,7 +35,7 @@ public class BooleanObjGapList extends GapList<Boolean> {
 		return e;
 	}
 
-	static boolean[] toPrimitive3(Collection<? extends Boolean> list) {
+	static boolean[] toPrimitive(Collection<? extends Boolean> list) {
 		boolean[] e = new boolean[list.size()];
 		Iterator<? extends Boolean> iter = list.iterator();
 		for (int i = 0; i < e.length; i++) {
@@ -60,9 +60,9 @@ public class BooleanObjGapList extends GapList<Boolean> {
 		return new BooleanObjGapList(elems);
 	}
 
-	public BooleanObjGapList(INIT init) {
-		super(false, null);
-	}
+//	public BooleanObjGapList(INIT init) {
+//		super(false, null);
+//	}
 
 	public BooleanObjGapList() {
 		super(false, null);
