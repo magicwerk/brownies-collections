@@ -365,8 +365,8 @@
 
         <!-- Fix equals -->
         <replaceregexp file="${dst.file}" flags="g"
-                       match="List&lt;\?&gt;"
-                       replace="${name}GapList" />
+                       match="if .* List&lt;\?&gt;\)"
+                       replace="if (obj instanceof ${name}ObjGapList) { obj = ((${name}ObjGapList) obj).list; }${NL} if (!(obj instanceof ${name}GapList)" />
 
         <!-- Fix iterator in setAll() -->
         <replaceregexp file="${dst.file}" flags="s"

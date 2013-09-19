@@ -2,6 +2,7 @@ package org.magicwerk.brownies.collections.primitive;
 
 import org.magicwerk.brownies.collections.primitive.IntGapList;
 import org.magicwerk.brownies.collections.GapList;
+import org.magicwerk.brownies.collections.helper.NaturalComparator;
 
 import java.util.Collection;
 import java.util.Comparator;
@@ -9,7 +10,7 @@ import java.util.Iterator;
 
 public class IntObjGapList extends GapList<Integer> {
 
-	private IntGapList list;
+	IntGapList list;
 
 	static Integer[] toWrapper(int[] elems) {
 		Integer[] e = new Integer[elems.length];
@@ -169,11 +170,6 @@ public class IntObjGapList extends GapList<Integer> {
 	@Override
 	public Integer doReSet(int index, Integer elem) {
 		return list.doReSet(index, elem);
-	}
-
-	@Override
-	public Integer doReSet(int index) {
-		return list.doReSet(index);
 	}
 
 	@Override
@@ -388,7 +384,7 @@ public class IntObjGapList extends GapList<Integer> {
 
 	@Override
 	public void sort(int index, int len, Comparator comparator) {
-		if (comparator != null) {
+		if (comparator != null && comparator != NaturalComparator.INSTANCE) {
 			throw new IllegalArgumentException("Only natural comparator (null) allowed");
 		}
 		list.sort(index, len);
@@ -396,7 +392,7 @@ public class IntObjGapList extends GapList<Integer> {
 
 	@Override
 	public <K> int binarySearch(int index, int len, K key, Comparator<? super K> comparator) {
-		if (comparator != null) {
+		if (comparator != null && comparator != NaturalComparator.INSTANCE) {
 			throw new IllegalArgumentException("Only natural comparator (null) allowed");
 		}
 		return list.binarySearch(index, len, (Integer) key);

@@ -85,8 +85,6 @@ public class TableCollectionImpl<E> implements Collection<E> {
 
     	// KeyList to build
     	TableCollectionImpl<E> tableColl;
-    	// -- order
-        boolean sorted;
     	// -- constraint
         boolean allowNullElem = true;
         Predicate<E> constraint;
@@ -711,9 +709,10 @@ public class TableCollectionImpl<E> implements Collection<E> {
         		if (keyMapBuilder.listType == null) {
             		keyMap.keysList = new GapList<Object>();
         		} else {
-                	if (keyMap.comparator != NaturalComparator.INSTANCE) {
-                		throw new IllegalArgumentException("Only natural comparator supported for list type");
-                	}
+//                	if (keyMap.comparator != NaturalComparator.INSTANCE) {
+//                		throw new IllegalArgumentException("Only natural comparator supported for list type");
+//                	}
+        			keyMap.comparator = NaturalComparator.INSTANCE;
         			keyMap.keysList = (GapList<Object>) GapLists.createWrapperList(keyMapBuilder.listType);
         		}
         	} else if (keyMapBuilder.sort) {
@@ -736,8 +735,8 @@ public class TableCollectionImpl<E> implements Collection<E> {
             tableColl.insertTrigger = insertTrigger;
             tableColl.deleteTrigger = deleteTrigger;
 
+            int orderByKey = -1;
             if (elemMapBuilder != null || keyMapBuilders.size() > 0) {
-                int orderByKey = -1;
 	            tableColl.keyMaps = new KeyMap[keyMapBuilders.size()+1];
 	            if (elemMapBuilder != null) {
 	            	tableColl.keyMaps[0] = buildKeyMap(elemMapBuilder);
@@ -758,16 +757,21 @@ public class TableCollectionImpl<E> implements Collection<E> {
 	            	}
 	            	tableColl.keyMaps[i+1] = buildKeyMap(kmb);
 	            }
-	            if (orderByKey == -1) {
+            }
+            if (orderByKey != -1) {
+            	tableColl.ordered = true;
+            } else {
+            	tableColl.ordered = false;
+	            if (tableColl.keyMaps != null) {
 	            	if (tableColl.keyMaps[0] != null) {
 	            		orderByKey = 0;
 	            	} else {
 	            		assert(tableColl.keyMaps[1] != null);
 	            		orderByKey = 1;
 	            	}
-	            }
-	            tableColl.orderByKey = orderByKey;
+            	}
             }
+            tableColl.orderByKey = orderByKey;
         }
 
         void fill(TableCollectionImpl<E> tableColl) {
@@ -778,15 +782,25 @@ public class TableCollectionImpl<E> implements Collection<E> {
             }
         }
 
-        void fill(TableListImpl<E> tableList) {
-            if (collection != null) {
-            	tableList.init(collection);
-            } else if (array != null) {
-            	tableList.init((Collection<? extends E>) Arrays.asList(array));
-            } else if (capacity != 0) {
-        		tableList.init(capacity);
+        void fill(TableCollectionImpl<E> tableColl, TableListImpl<E> tableList) {
+        	tableList.tableImpl = tableColl;
+        	if (tableColl.ordered && tableColl.orderByKey == 0) {
+        		tableList.forward = (GapList<E>) tableColl.keyMaps[0].keysList;
+                if (collection != null) {
+                	tableColl.addAll(collection);
+                } else if (array != null) {
+                	tableColl.addAll((Collection<? extends E>) Arrays.asList(array));
+                }
         	} else {
-        		tableList.init();
+        		if (collection != null) {
+        			tableList.init(collection);
+        		} else if (array != null) {
+        			tableList.init((Collection<? extends E>) Arrays.asList(array));
+        		} else if (capacity != 0) {
+        			tableList.init(capacity);
+        		} else {
+        			tableList.init();
+        		}
         	}
         }
    }
@@ -1127,7 +1141,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
     //-- KeyCollection --
 
     /** If true the invariants the GapList are checked for debugging */
-    private static final boolean DEBUG_CHECK = true;
+    private static final boolean DEBUG_CHECK = false;
 
     /**
      * Size of collection.
@@ -1140,6 +1154,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
     KeyMap<E, Object>[] keyMaps;
     /** Index of key map which defines order (-1 for no order) */
     int orderByKey;
+    boolean ordered;
 	// -- null
     boolean allowNullElem;
     Predicate<E> constraint;
@@ -1223,24 +1238,22 @@ public class TableCollectionImpl<E> implements Collection<E> {
 
     // for TableListImpl
 
+    Object getKey(int keyIndex, E elem) {
+    	return keyMaps[keyIndex].getKey(elem);
+    }
+
     boolean isSortedList() {
-    	return false;
+    	return ordered;
     }
 
     int binarySearchSorted(Object elem) {
-    	assert(isSortedList());
-
-    	int index = keyMaps[0].keysList.binarySearch(elem, keyMaps[0].comparator);
+    	int index = keyMaps[orderByKey].keysList.binarySearch(elem, keyMaps[orderByKey].comparator);
     	return (index < 0) ? -1 : index;
     }
 
     int indexOfSorted(Object elem) {
     	int index = binarySearchSorted(elem);
     	return (index < 0) ? -1 : index;
-    }
-
-    Object getKey(int keyIndex, E elem) {
-    	return keyMaps[keyIndex].getKey(elem);
     }
 
     Comparator getSortComparator() {

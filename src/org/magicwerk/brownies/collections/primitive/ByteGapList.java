@@ -150,12 +150,6 @@ public class ByteGapList implements Cloneable, Serializable {
         }
 
         
-        protected byte doReSet(int index) {
-        	error();
-        	return (byte)0;
-        }
-
-        
         protected byte doRemove(int index) {
         	error();
         	return (byte)0;
@@ -582,10 +576,6 @@ public class ByteGapList implements Cloneable, Serializable {
         byte oldElem = values[physIdx];
         values[physIdx] = elem;
         return oldElem;
-    }
-
-    protected byte doReSet(int index) {
-    	return doReSet(index, (byte)0);
     }
 
     /**
@@ -1133,7 +1123,8 @@ public class ByteGapList implements Cloneable, Serializable {
     	if (obj == this) {
     		return true;
     	}
-    	if (!(obj instanceof ByteGapList)) {
+    	if (obj instanceof ByteObjGapList) { obj = ((ByteObjGapList) obj).list; }
+ if (!(obj instanceof ByteGapList)) {
     		return false;
     	}
     	@SuppressWarnings("unchecked")
@@ -1735,7 +1726,7 @@ return (int) val;
             dst.checkRange(dstIndex, len);
 
     		for (int i=0; i<len; i++) {
-    			byte elem = src.doReSet(srcIndex+i);
+    			byte elem = src.doReSet(srcIndex+i, (byte)0);
     			dst.doSet(dstIndex+i, elem);
     		}
         }

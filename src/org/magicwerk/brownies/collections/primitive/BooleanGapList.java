@@ -150,12 +150,6 @@ public class BooleanGapList implements Cloneable, Serializable {
         }
 
         
-        protected boolean doReSet(int index) {
-        	error();
-        	return (boolean)false;
-        }
-
-        
         protected boolean doRemove(int index) {
         	error();
         	return (boolean)false;
@@ -582,10 +576,6 @@ public class BooleanGapList implements Cloneable, Serializable {
         boolean oldElem = values[physIdx];
         values[physIdx] = elem;
         return oldElem;
-    }
-
-    protected boolean doReSet(int index) {
-    	return doReSet(index, (boolean)false);
     }
 
     /**
@@ -1133,7 +1123,8 @@ public class BooleanGapList implements Cloneable, Serializable {
     	if (obj == this) {
     		return true;
     	}
-    	if (!(obj instanceof BooleanGapList)) {
+    	if (obj instanceof BooleanObjGapList) { obj = ((BooleanObjGapList) obj).list; }
+ if (!(obj instanceof BooleanGapList)) {
     		return false;
     	}
     	@SuppressWarnings("unchecked")
@@ -1735,7 +1726,7 @@ return val ? 1231 : 1237;
             dst.checkRange(dstIndex, len);
 
     		for (int i=0; i<len; i++) {
-    			boolean elem = src.doReSet(srcIndex+i);
+    			boolean elem = src.doReSet(srcIndex+i, (boolean)false);
     			dst.doSet(dstIndex+i, elem);
     		}
         }
