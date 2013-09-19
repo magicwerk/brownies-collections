@@ -207,8 +207,8 @@ public class Table2List<E,K1,K2> extends TableListImpl<E> {
                	tableColl = new TableCollectionImpl<E>();
         	}
         	build(tableColl);
-        	Table2List<E,K1,K2> list = new Table2List(tableColl);
-        	fill(list);
+        	Table2List<E,K1,K2> list = new Table2List();
+        	fill(tableColl, list);
         	return list;
         }
     }
@@ -216,18 +216,17 @@ public class Table2List<E,K1,K2> extends TableListImpl<E> {
     /**
      * Private constructor used by builder.
      */
-    private Table2List(TableCollectionImpl tableImpl) {
-    	this.tableImpl = tableImpl;
+    private Table2List() {
     }
 
     public Table2List<E,K1,K2> copy() {
-    	Table2List<E,K1,K2> copy = new Table2List<E,K1,K2>(null);
+    	Table2List<E,K1,K2> copy = new Table2List<E,K1,K2>();
         copy.initCopy(this);
         return copy;
     }
 
     public Table2List<E,K1,K2> crop() {
-    	Table2List<E,K1,K2> copy = new Table2List<E,K1,K2>(null);
+    	Table2List<E,K1,K2> copy = new Table2List<E,K1,K2>();
         copy.initCrop(this);
         return copy;
     }

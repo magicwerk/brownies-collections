@@ -150,12 +150,6 @@ public class DoubleGapList implements Cloneable, Serializable {
         }
 
         
-        protected double doReSet(int index) {
-        	error();
-        	return (double)0;
-        }
-
-        
         protected double doRemove(int index) {
         	error();
         	return (double)0;
@@ -582,10 +576,6 @@ public class DoubleGapList implements Cloneable, Serializable {
         double oldElem = values[physIdx];
         values[physIdx] = elem;
         return oldElem;
-    }
-
-    protected double doReSet(int index) {
-    	return doReSet(index, (double)0);
     }
 
     /**
@@ -1133,7 +1123,8 @@ public class DoubleGapList implements Cloneable, Serializable {
     	if (obj == this) {
     		return true;
     	}
-    	if (!(obj instanceof DoubleGapList)) {
+    	if (obj instanceof DoubleObjGapList) { obj = ((DoubleObjGapList) obj).list; }
+ if (!(obj instanceof DoubleGapList)) {
     		return false;
     	}
     	@SuppressWarnings("unchecked")
@@ -1735,7 +1726,7 @@ return (int) val;
             dst.checkRange(dstIndex, len);
 
     		for (int i=0; i<len; i++) {
-    			double elem = src.doReSet(srcIndex+i);
+    			double elem = src.doReSet(srcIndex+i, (double)0);
     			dst.doSet(dstIndex+i, elem);
     		}
         }

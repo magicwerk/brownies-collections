@@ -150,12 +150,6 @@ public class FloatGapList implements Cloneable, Serializable {
         }
 
         
-        protected float doReSet(int index) {
-        	error();
-        	return (float)0;
-        }
-
-        
         protected float doRemove(int index) {
         	error();
         	return (float)0;
@@ -582,10 +576,6 @@ public class FloatGapList implements Cloneable, Serializable {
         float oldElem = values[physIdx];
         values[physIdx] = elem;
         return oldElem;
-    }
-
-    protected float doReSet(int index) {
-    	return doReSet(index, (float)0);
     }
 
     /**
@@ -1133,7 +1123,8 @@ public class FloatGapList implements Cloneable, Serializable {
     	if (obj == this) {
     		return true;
     	}
-    	if (!(obj instanceof FloatGapList)) {
+    	if (obj instanceof FloatObjGapList) { obj = ((FloatObjGapList) obj).list; }
+ if (!(obj instanceof FloatGapList)) {
     		return false;
     	}
     	@SuppressWarnings("unchecked")
@@ -1735,7 +1726,7 @@ return (int) val;
             dst.checkRange(dstIndex, len);
 
     		for (int i=0; i<len; i++) {
-    			float elem = src.doReSet(srcIndex+i);
+    			float elem = src.doReSet(srcIndex+i, (float)0);
     			dst.doSet(dstIndex+i, elem);
     		}
         }

@@ -150,12 +150,6 @@ public class CharGapList implements Cloneable, Serializable {
         }
 
         
-        protected char doReSet(int index) {
-        	error();
-        	return (char)0;
-        }
-
-        
         protected char doRemove(int index) {
         	error();
         	return (char)0;
@@ -582,10 +576,6 @@ public class CharGapList implements Cloneable, Serializable {
         char oldElem = values[physIdx];
         values[physIdx] = elem;
         return oldElem;
-    }
-
-    protected char doReSet(int index) {
-    	return doReSet(index, (char)0);
     }
 
     /**
@@ -1133,7 +1123,8 @@ public class CharGapList implements Cloneable, Serializable {
     	if (obj == this) {
     		return true;
     	}
-    	if (!(obj instanceof CharGapList)) {
+    	if (obj instanceof CharObjGapList) { obj = ((CharObjGapList) obj).list; }
+ if (!(obj instanceof CharGapList)) {
     		return false;
     	}
     	@SuppressWarnings("unchecked")
@@ -1735,7 +1726,7 @@ return (int) val;
             dst.checkRange(dstIndex, len);
 
     		for (int i=0; i<len; i++) {
-    			char elem = src.doReSet(srcIndex+i);
+    			char elem = src.doReSet(srcIndex+i, (char)0);
     			dst.doSet(dstIndex+i, elem);
     		}
         }

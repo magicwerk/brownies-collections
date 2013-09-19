@@ -150,12 +150,6 @@ public class GapList<E> extends AbstractList<E>
         }
 
         @Override
-        protected E doReSet(int index) {
-        	error();
-        	return null;
-        }
-
-        @Override
         protected E doRemove(int index) {
         	error();
         	return null;
@@ -584,10 +578,6 @@ public class GapList<E> extends AbstractList<E>
         E oldElem = values[physIdx];
         values[physIdx] = elem;
         return oldElem;
-    }
-
-    protected E doReSet(int index) {
-    	return doReSet(index, null);
     }
 
     /**
@@ -1765,7 +1755,7 @@ public class GapList<E> extends AbstractList<E>
             dst.checkRange(dstIndex, len);
 
     		for (int i=0; i<len; i++) {
-    			E elem = src.doReSet(srcIndex+i);
+    			E elem = src.doReSet(srcIndex+i, null);
     			dst.doSet(dstIndex+i, elem);
     		}
         }

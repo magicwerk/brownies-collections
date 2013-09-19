@@ -150,12 +150,6 @@ public class IntGapList implements Cloneable, Serializable {
         }
 
         
-        protected int doReSet(int index) {
-        	error();
-        	return (int)0;
-        }
-
-        
         protected int doRemove(int index) {
         	error();
         	return (int)0;
@@ -582,10 +576,6 @@ public class IntGapList implements Cloneable, Serializable {
         int oldElem = values[physIdx];
         values[physIdx] = elem;
         return oldElem;
-    }
-
-    protected int doReSet(int index) {
-    	return doReSet(index, (int)0);
     }
 
     /**
@@ -1133,7 +1123,8 @@ public class IntGapList implements Cloneable, Serializable {
     	if (obj == this) {
     		return true;
     	}
-    	if (!(obj instanceof IntGapList)) {
+    	if (obj instanceof IntObjGapList) { obj = ((IntObjGapList) obj).list; }
+ if (!(obj instanceof IntGapList)) {
     		return false;
     	}
     	@SuppressWarnings("unchecked")
@@ -1735,7 +1726,7 @@ return (int) val;
             dst.checkRange(dstIndex, len);
 
     		for (int i=0; i<len; i++) {
-    			int elem = src.doReSet(srcIndex+i);
+    			int elem = src.doReSet(srcIndex+i, (int)0);
     			dst.doSet(dstIndex+i, elem);
     		}
         }

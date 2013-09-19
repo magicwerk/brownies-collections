@@ -150,12 +150,6 @@ public class LongGapList implements Cloneable, Serializable {
         }
 
         
-        protected long doReSet(int index) {
-        	error();
-        	return (long)0;
-        }
-
-        
         protected long doRemove(int index) {
         	error();
         	return (long)0;
@@ -582,10 +576,6 @@ public class LongGapList implements Cloneable, Serializable {
         long oldElem = values[physIdx];
         values[physIdx] = elem;
         return oldElem;
-    }
-
-    protected long doReSet(int index) {
-    	return doReSet(index, (long)0);
     }
 
     /**
@@ -1133,7 +1123,8 @@ public class LongGapList implements Cloneable, Serializable {
     	if (obj == this) {
     		return true;
     	}
-    	if (!(obj instanceof LongGapList)) {
+    	if (obj instanceof LongObjGapList) { obj = ((LongObjGapList) obj).list; }
+ if (!(obj instanceof LongGapList)) {
     		return false;
     	}
     	@SuppressWarnings("unchecked")
@@ -1735,7 +1726,7 @@ return (int) val;
             dst.checkRange(dstIndex, len);
 
     		for (int i=0; i<len; i++) {
-    			long elem = src.doReSet(srcIndex+i);
+    			long elem = src.doReSet(srcIndex+i, (long)0);
     			dst.doSet(dstIndex+i, elem);
     		}
         }

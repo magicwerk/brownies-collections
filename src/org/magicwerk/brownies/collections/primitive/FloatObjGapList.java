@@ -2,6 +2,7 @@ package org.magicwerk.brownies.collections.primitive;
 
 import org.magicwerk.brownies.collections.primitive.FloatGapList;
 import org.magicwerk.brownies.collections.GapList;
+import org.magicwerk.brownies.collections.helper.NaturalComparator;
 
 import java.util.Collection;
 import java.util.Comparator;
@@ -9,7 +10,7 @@ import java.util.Iterator;
 
 public class FloatObjGapList extends GapList<Float> {
 
-	private FloatGapList list;
+	FloatGapList list;
 
 	static Float[] toWrapper(float[] elems) {
 		Float[] e = new Float[elems.length];
@@ -169,11 +170,6 @@ public class FloatObjGapList extends GapList<Float> {
 	@Override
 	public Float doReSet(int index, Float elem) {
 		return list.doReSet(index, elem);
-	}
-
-	@Override
-	public Float doReSet(int index) {
-		return list.doReSet(index);
 	}
 
 	@Override
@@ -388,7 +384,7 @@ public class FloatObjGapList extends GapList<Float> {
 
 	@Override
 	public void sort(int index, int len, Comparator comparator) {
-		if (comparator != null) {
+		if (comparator != null && comparator != NaturalComparator.INSTANCE) {
 			throw new IllegalArgumentException("Only natural comparator (null) allowed");
 		}
 		list.sort(index, len);
@@ -396,7 +392,7 @@ public class FloatObjGapList extends GapList<Float> {
 
 	@Override
 	public <K> int binarySearch(int index, int len, K key, Comparator<? super K> comparator) {
-		if (comparator != null) {
+		if (comparator != null && comparator != NaturalComparator.INSTANCE) {
 			throw new IllegalArgumentException("Only natural comparator (null) allowed");
 		}
 		return list.binarySearch(index, len, (Float) key);

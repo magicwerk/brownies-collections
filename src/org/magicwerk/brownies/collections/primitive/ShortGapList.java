@@ -150,12 +150,6 @@ public class ShortGapList implements Cloneable, Serializable {
         }
 
         
-        protected short doReSet(int index) {
-        	error();
-        	return (short)0;
-        }
-
-        
         protected short doRemove(int index) {
         	error();
         	return (short)0;
@@ -582,10 +576,6 @@ public class ShortGapList implements Cloneable, Serializable {
         short oldElem = values[physIdx];
         values[physIdx] = elem;
         return oldElem;
-    }
-
-    protected short doReSet(int index) {
-    	return doReSet(index, (short)0);
     }
 
     /**
@@ -1133,7 +1123,8 @@ public class ShortGapList implements Cloneable, Serializable {
     	if (obj == this) {
     		return true;
     	}
-    	if (!(obj instanceof ShortGapList)) {
+    	if (obj instanceof ShortObjGapList) { obj = ((ShortObjGapList) obj).list; }
+ if (!(obj instanceof ShortGapList)) {
     		return false;
     	}
     	@SuppressWarnings("unchecked")
@@ -1735,7 +1726,7 @@ return (int) val;
             dst.checkRange(dstIndex, len);
 
     		for (int i=0; i<len; i++) {
-    			short elem = src.doReSet(srcIndex+i);
+    			short elem = src.doReSet(srcIndex+i, (short)0);
     			dst.doSet(dstIndex+i, elem);
     		}
         }

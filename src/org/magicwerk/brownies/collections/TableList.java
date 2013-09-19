@@ -162,8 +162,8 @@ public class TableList<E> extends TableListImpl<E> {
                	tableColl = new TableCollectionImpl<E>();
         	}
         	build(tableColl);
-        	TableList<E> list = new TableList(tableColl);
-        	fill(list);
+        	TableList<E> list = new TableList();
+        	fill(tableColl, list);
         	return list;
         }
     }
@@ -171,8 +171,7 @@ public class TableList<E> extends TableListImpl<E> {
     /**
      * Private constructor used by builder.
      */
-    private TableList(TableCollectionImpl tableImpl) {
-    	this.tableImpl = tableImpl;
+    private TableList() {
     }
 
 //    /**
@@ -212,7 +211,7 @@ public class TableList<E> extends TableListImpl<E> {
      */
     @Override
     public TableList<E> copy() {
-        TableList<E> copy = new TableList<E>(null);
+        TableList<E> copy = new TableList<E>();
         copy.initCopy(this);
         return copy;
     }
@@ -224,47 +223,9 @@ public class TableList<E> extends TableListImpl<E> {
      * @return  an empty copy of this instance
      */
     public TableList<E> crop() {
-        TableList<E> crop = new TableList<E>(null);
+        TableList<E> crop = new TableList<E>();
         crop.initCrop(this);
         return crop;
-    }
-
-    // -- Equals / hashCode
-
-    @Override
-    public boolean equals(Object obj) {
-    	// Compare as List
-    	if (obj instanceof List<?>) {
-    		return super.equals(obj);
-    	}
-
-    	// Compare as Set (same functionality as in AbstractSet)
-    	if (obj == this) {
-    		return true;
-    	}
-		if (!(obj instanceof Set<?>)) {
-		    return false;
-		}
-		Collection<?> coll = (Collection<?>) obj;
-		if (coll.size() != size()) {
-			return false;
-		} else {
-            return containsAll(coll);
-		}
-    }
-
-    @Override
-    public int hashCode() {
-    	// Calculate hash code as Set (same functionality as in AbstractSet)
-		int hash = 0;
-		Iterator<E> iter = iterator();
-		while (iter.hasNext()) {
-			E obj = iter.next();
-	        if (obj != null) {
-	        	hash += obj.hashCode();
-	        }
-	    }
-		return hash;
     }
 
 }

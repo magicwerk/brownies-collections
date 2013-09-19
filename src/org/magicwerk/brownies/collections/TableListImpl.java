@@ -17,29 +17,7 @@
  */
 package org.magicwerk.brownies.collections;
 
-import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-
-import org.magicwerk.brownies.collections.function.Mapper;
-import org.magicwerk.brownies.collections.function.Predicate;
-import org.magicwerk.brownies.collections.function.Trigger;
-import org.magicwerk.brownies.collections.helper.IdentMapper;
-import org.magicwerk.brownies.collections.helper.NaturalComparator;
-import org.magicwerk.brownies.collections.helper.NullComparator;
-import org.magicwerk.brownies.collections.helper.SortedLists;
-import org.magicwerk.brownies.collections.primitive.BooleanObjGapList;
-import org.magicwerk.brownies.collections.primitive.ByteObjGapList;
-import org.magicwerk.brownies.collections.primitive.CharObjGapList;
-import org.magicwerk.brownies.collections.primitive.DoubleObjGapList;
-import org.magicwerk.brownies.collections.primitive.FloatObjGapList;
-import org.magicwerk.brownies.collections.primitive.IntObjGapList;
-import org.magicwerk.brownies.collections.primitive.LongObjGapList;
-import org.magicwerk.brownies.collections.primitive.ShortObjGapList;
 
 
 /**
@@ -55,16 +33,21 @@ import org.magicwerk.brownies.collections.primitive.ShortObjGapList;
 public class TableListImpl<E> extends GapList<E> {
 
     TableCollectionImpl<E> tableImpl;
+    GapList<E> forward;
 
     /** If true the invariants the GapList are checked for debugging */
-    private static final boolean DEBUG_CHECK = true;
+    private static final boolean DEBUG_CHECK = false;
 
     /**
      * Private method to check invariant of GapList.
      * It is only used for debugging.
      */
     private void debugCheck() {
-    	assert(super.size() == tableImpl.size());
+    	if (forward != null) {
+    		assert(super.size() == 0);
+    	} else {
+    		assert(super.size() == tableImpl.size());
+    	}
     }
 
     TableListImpl() {
@@ -102,11 +85,54 @@ public class TableListImpl<E> extends GapList<E> {
 	    tableImpl.initCrop(that.tableImpl);
     }
 
+    //-- Read
+
     @Override
-    public void clear() {
-    	tableImpl.clear();
-    	super.clear();
+    public int capacity() {
+    	if (forward != null) {
+    		return forward.capacity();
+    	} else {
+    		return super.capacity();
+    	}
     }
+
+    @Override
+    public int size() {
+    	if (forward != null) {
+    		return forward.size();
+    	} else {
+    		return super.size();
+    	}
+    }
+
+    @Override
+    public E get(int index) {
+    	if (forward != null) {
+    		return forward.get(index);
+    	} else {
+    		return super.get(index);
+    	}
+    }
+
+    @Override
+    protected E doGet(int index) {
+    	if (forward != null) {
+    		return forward.doGet(index);
+    	} else {
+    		return super.doGet(index);
+    	}
+    }
+
+    @Override
+	protected <T> void doGetAll(T[] array, int index, int len) {
+    	if (forward != null) {
+    		forward.doGetAll(array, index, len);
+    	} else {
+    		super.doGetAll(array, index, len);
+    	}
+    }
+
+    //--
 
     /**
      * {@inheritDoc}
@@ -148,27 +174,46 @@ public class TableListImpl<E> extends GapList<E> {
     }
 
     @Override
+    public void clear() {
+    	tableImpl.clear();
+    	if (forward == null) {
+    		super.clear();
+    	}
+    }
+
+    @Override
     protected boolean doAdd(int index, E elem) {
     	tableImpl.checkElemAllowed(elem);
 
     	tableImpl.add(elem);
-    	int addIndex = index;
-    	if (tableImpl.isSortedList()) {
-    		addIndex = tableImpl.binarySearchSorted(elem);
-    		assert(addIndex >= 0);
-    		if (index != -1 && addIndex != index) {
-    			throw new IllegalArgumentException("Invalid index for sorted list: " + index);
+    	if (forward == null) {
+    		int addIndex = index;
+    		if (tableImpl.isSortedList()) {
+    			addIndex = tableImpl.binarySearchSorted(elem);
+    			assert(addIndex >= 0);
+    			if (index != -1 && addIndex != index) {
+    				throw new IllegalArgumentException("Invalid index for sorted list: " + index);
+    			}
+    		} else {
+    			if (addIndex == -1) {
+    				// Element is already added to tableImpl
+    				addIndex = tableImpl.size()-1;
+    			}
     		}
-    	} else {
-    		if (addIndex == -1) {
-    			// Element is already added to tableImpl
-    			addIndex = tableImpl.size()-1;
-    		}
+    		super.doAdd(addIndex, elem);
     	}
-        super.doAdd(addIndex, elem);
         if (DEBUG_CHECK) debugCheck();
         return true;
     }
+
+    @Override
+	protected boolean doAddAll(int index, E[] array) {
+		if (forward != null) {
+			return forward.doAddAll(index, array);
+		} else {
+			return super.doAddAll(index, array);
+		}
+	}
 
     @Override
     protected E doSet(int index, E elem) {
@@ -186,19 +231,48 @@ public class TableListImpl<E> extends GapList<E> {
     			throw new IllegalArgumentException("Invalid index for sorted list: " + index);
     		}
     	}
-        super.doSet(addIndex, elem);
+    	if (forward == null) {
+    		super.doSet(index, elem);
+    	}
         if (DEBUG_CHECK) debugCheck();
         return remove;
+    }
+
+    @Override
+    protected void doSetAll(int index, E[] elems) {
+    	if (forward != null) {
+    		forward.doSetAll(index, elems);
+    	} else {
+    		super.doSetAll(index, elems);
+    	}
     }
 
     @Override
     protected E doRemove(int index) {
     	E removed = super.doGet(index);
 		tableImpl.remove(removed);
-    	if (!tableImpl.isSortedList()) {
+    	if (forward == null) {
     		super.doRemove(index);
     	}
         return removed;
+    }
+
+    @Override
+	protected void doRemoveAll(int index, int len) {
+    	if (forward != null) {
+    		forward.doRemoveAll(index, len);
+    	} else {
+    		super.doRemoveAll(index, len);
+    	}
+	}
+
+    @Override
+    protected E doReSet(int index, E elem) {
+    	if (forward != null) {
+    		return forward.doReSet(index, elem);
+    	} else {
+    		return super.doReSet(index, elem);
+    	}
     }
 
     @Override
