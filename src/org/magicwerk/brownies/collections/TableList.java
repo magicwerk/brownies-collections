@@ -107,8 +107,13 @@ public class TableList<E> extends TableListImpl<E> {
         }
 
         @Override
-        public Builder<E> withElem(boolean orderBy) {
-        	return (Builder<E>) super.withElem(orderBy);
+        public Builder<E> withElemOrderBy(boolean orderBy) {
+        	return (Builder<E>) super.withElemOrderBy(orderBy);
+        }
+
+        @Override
+        public Builder<E> withElemOrderBy(Class<?> type) {
+        	return (Builder<E>) super.withElemOrderBy(type);
         }
 
         @Override
@@ -127,8 +132,8 @@ public class TableList<E> extends TableListImpl<E> {
         }
 
         @Override
-        public Builder<E> withElemSort() {
-        	return (Builder<E>) super.withElemSort();
+        public Builder<E> withElemSort(boolean sort) {
+        	return (Builder<E>) super.withElemSort(sort);
         }
 
         @Override
@@ -140,17 +145,6 @@ public class TableList<E> extends TableListImpl<E> {
         public Builder<E> withElemSort(Comparator<? super E> comparator, boolean sortNullsFirst) {
         	return (Builder<E>) super.withElemSort(comparator, sortNullsFirst);
         }
-
-        @Override
-        public Builder<E> withElemList() {
-        	return (Builder<E>) super.withElemList();
-        }
-
-        @Override
-        public Builder<E> withElemList(Class<?> type) {
-        	return (Builder<E>) super.withElemList(type);
-        }
-
 
         /**
          * Create collection with specified options.

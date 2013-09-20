@@ -104,8 +104,8 @@ public class TableCollection<E> extends TableCollectionImpl<E> {
         }
 
         @Override
-        public Builder<E> withElem(boolean orderBy) {
-        	return (Builder<E>) super.withElem(orderBy);
+        public Builder<E> withElemOrderBy(boolean orderBy) {
+        	return (Builder<E>) super.withElemOrderBy(orderBy);
         }
 
         @Override
@@ -124,8 +124,8 @@ public class TableCollection<E> extends TableCollectionImpl<E> {
         }
 
         @Override
-        public Builder<E> withElemSort() {
-        	return (Builder<E>) super.withElemSort();
+        public Builder<E> withElemSort(boolean sort) {
+        	return (Builder<E>) super.withElemSort(sort);
         }
 
         @Override

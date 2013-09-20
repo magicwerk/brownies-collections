@@ -103,8 +103,13 @@ public class Table1List<E,K> extends TableListImpl<E> {
         }
 
         @Override
-        public Builder<E,K> withElem(boolean orderBy) {
-        	return (Builder<E,K>) super.withElem(orderBy);
+        public Builder<E,K> withElemOrderBy(boolean orderBy) {
+        	return (Builder<E,K>) super.withElemOrderBy(orderBy);
+        }
+
+        @Override
+        public Builder<E,K> withElemOrderBy(Class<?> type) {
+        	return (Builder<E,K>) super.withElemOrderBy(type);
         }
 
         @Override
@@ -123,8 +128,8 @@ public class Table1List<E,K> extends TableListImpl<E> {
         }
 
         @Override
-        public Builder<E,K> withElemSort() {
-        	return (Builder<E,K>) super.withElemSort();
+        public Builder<E,K> withElemSort(boolean sort) {
+        	return (Builder<E,K>) super.withElemSort(sort);
         }
 
         @Override
@@ -137,16 +142,6 @@ public class Table1List<E,K> extends TableListImpl<E> {
         	return (Builder<E,K>) super.withElemSort(comparator, sortNullsFirst);
         }
 
-        @Override
-        public Builder<E,K> withElemList() {
-        	return (Builder<E,K>) super.withElemList();
-        }
-
-        @Override
-        public Builder<E,K> withElemList(Class<?> type) {
-        	return (Builder<E,K>) super.withElemList(type);
-        }
-
         // -- Key
 
         // @Override
@@ -155,8 +150,13 @@ public class Table1List<E,K> extends TableListImpl<E> {
         }
 
         // @Override
-        public Builder<E,K> withKey(Mapper<E,K> mapper, boolean orderBy) {
-        	return (Builder<E,K>) super.withKey(mapper, orderBy);
+        public Builder<E,K> withKeyOrderBy(boolean orderBy) {
+        	return (Builder<E,K>) super.withKeyOrderBy(orderBy);
+        }
+
+        @Override
+        public Builder<E,K> withKeyOrderBy(Class<?> type) {
+        	return (Builder<E,K>) super.withKeyOrderBy(type);
         }
 
         @Override
@@ -175,8 +175,8 @@ public class Table1List<E,K> extends TableListImpl<E> {
         }
 
         @Override
-        public Builder<E,K> withKeySort() {
-        	return (Builder<E,K>) super.withKeySort();
+        public Builder<E,K> withKeySort(boolean sort) {
+        	return (Builder<E,K>) super.withKeySort(sort);
         }
 
         @Override
@@ -187,16 +187,6 @@ public class Table1List<E,K> extends TableListImpl<E> {
         @Override
         public Builder<E,K> withKeySort(Comparator<? super E> comparator, boolean comparatorSortsNull) {
         	return (Builder<E,K>) super.withKeySort(comparator, comparatorSortsNull);
-        }
-
-        @Override
-        public Builder<E,K> withKeyList() {
-        	return (Builder<E,K>) super.withKeyList();
-        }
-
-        @Override
-        public Builder<E,K> withKeyList(Class<?> type) {
-        	return (Builder<E,K>) super.withKeyList(type);
         }
 
         /**

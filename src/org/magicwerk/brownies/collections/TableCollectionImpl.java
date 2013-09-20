@@ -78,7 +78,6 @@ public class TableCollectionImpl<E> implements Collection<E> {
             /** Determine whether null values appear first or last */
             boolean sortNullsFirst;
             // -- sorted list
-            boolean list;
             /** Primitive class to use for storage */
             Class<?> listType;
         }
@@ -190,10 +189,12 @@ public class TableCollectionImpl<E> implements Collection<E> {
         /**
          * Add element map (with ident mapper).
          *
-         * @return	this (fluent interface)
+         * @param orderBy	true to force the collection to have the order of this map
+         * @return			this (fluent interface)
          */
         protected BuilderImpl<E> withElem() {
-            return withElem(false);
+            getElemMapBuilder();
+            return this;
         }
 
         /**
@@ -202,8 +203,32 @@ public class TableCollectionImpl<E> implements Collection<E> {
          * @param orderBy	true to force the collection to have the order of this map
          * @return			this (fluent interface)
          */
-        protected BuilderImpl<E> withElem(boolean orderBy) {
+        protected BuilderImpl<E> withElemOrderBy(boolean orderBy) {
             getElemMapBuilder().orderBy = orderBy;
+            return this;
+        }
+
+        /**
+         * Specify element type to use.
+         *
+         * @param type	type to use
+         * @return		this (fluent interface)
+         */
+        // only for TableList
+        protected BuilderImpl<E> withElemOrderBy(Class<?> type) {
+        	getElemMapBuilder().listType = type;
+            return this;
+        }
+
+        protected BuilderImpl<E> withPrimaryElem() {
+        	withElemNull(false);
+        	withElemDuplicates(false);
+            return this;
+        }
+
+        protected BuilderImpl<E> withUniqueElem() {
+        	withElemNull(false);
+        	withElemDuplicates(false, true);
             return this;
         }
 
@@ -244,17 +269,25 @@ public class TableCollectionImpl<E> implements Collection<E> {
         }
 
         /**
-         * Determines that list should be sorted.
+         * Specify that the collection should be sorted using the natural comparator.
+         * If the collection supports null values, they are sorted last.
          *
+         * @param sort    true to sorted, false for unsorted
          * @return        this (fluent interface)
          */
-        protected BuilderImpl<E> withElemSort() {
-        	getElemMapBuilder().sort = true;
+        protected BuilderImpl<E> withElemSort(boolean sort) {
+        	getElemMapBuilder().sort = sort;
+        	getElemMapBuilder().comparator = null;
+        	getElemMapBuilder().comparatorSortsNull = false;
+        	getElemMapBuilder().sortNullsFirst = false;
             return this;
         }
 
         /**
          * Set comparator to use for sorting.
+         * If the collection allows null values, the comparator must be able to compare null values.
+         * If the comparator does not support null values, use withElemSort(Comparator, boolean) to
+         * explicitly specify how null values should be sorted.
          *
          * @param comparator    comparator to use for sorting
          * @return              this (fluent interface)
@@ -268,6 +301,9 @@ public class TableCollectionImpl<E> implements Collection<E> {
 
         /**
          * Set comparator to use for sorting.
+         * This method should be used if the collection can contain null values, but the comparator
+         * is not able to handle them. The parameter sortNullsFirst determine how the null values
+         * should be sorted.
          *
          * @param comparator           comparator to use for sorting
          * @param sortNullsFirst	   true to sort null values first, false for last
@@ -281,28 +317,6 @@ public class TableCollectionImpl<E> implements Collection<E> {
             return this;
         }
 
-        /**
-         * Specify element type to use.
-         *
-         * @return		this (fluent interface)
-         */
-        protected BuilderImpl<E> withElemList() {
-        	getElemMapBuilder().list = true;
-            return this;
-        }
-
-        /**
-         * Specify element type to use.
-         *
-         * @param type	type to use
-         * @return		this (fluent interface)
-         */
-        protected BuilderImpl<E> withElemList(Class<?> type) {
-        	getElemMapBuilder().list = true;
-        	getElemMapBuilder().listType = type;
-            return this;
-        }
-
         // -- Key
 
         /**
@@ -312,19 +326,42 @@ public class TableCollectionImpl<E> implements Collection<E> {
          * @return			this (fluent interface)
          */
         protected BuilderImpl<E> withKey(Mapper mapper) {
-            return withKey(mapper, false);
+        	getKeyMapBuilder(0).mapper = mapper;
+            return this;
         }
 
         /**
-         * Add key map.
+         * Add element map (with ident mapper).
          *
-         * @param mapper	mapper to use
          * @param orderBy	true to force the collection to have the order of this map
          * @return			this (fluent interface)
          */
-        protected BuilderImpl<E> withKey(Mapper mapper, boolean orderBy) {
-            getKeyMapBuilder(0).mapper = (Mapper<E, Object>) mapper;
-            getKeyMapBuilder(0).orderBy = orderBy;
+        protected BuilderImpl<E> withKeyOrderBy(boolean orderBy) {
+        	getKeyMapBuilder(0).orderBy = orderBy;
+            return this;
+        }
+
+        /**
+         * Specify element type to use.
+         *
+         * @param type	type to use
+         * @return		this (fluent interface)
+         */
+        // only for TableList
+        protected BuilderImpl<E> withKeyOrderBy(Class<?> type) {
+        	getKeyMapBuilder(0).listType = type;
+            return this;
+        }
+
+        protected BuilderImpl<E> withPrimaryKey() {
+        	withKeyNull(false);
+        	withKeyDuplicates(false);
+            return this;
+        }
+
+        protected BuilderImpl<E> withUniqueKey() {
+        	withKeyNull(false);
+        	withKeyDuplicates(false, true);
             return this;
         }
 
@@ -368,8 +405,8 @@ public class TableCollectionImpl<E> implements Collection<E> {
          *
          * @return        this (fluent interface)
          */
-        protected BuilderImpl<E> withKeySort() {
-        	getKeyMapBuilder(0).sort = true;
+        protected BuilderImpl<E> withKeySort(boolean sort) {
+        	getKeyMapBuilder(0).sort = sort;
             return this;
         }
 
@@ -397,28 +434,6 @@ public class TableCollectionImpl<E> implements Collection<E> {
             return this;
         }
 
-        /**
-         * Specify element type to use.
-         *
-         * @return		this (fluent interface)
-         */
-        protected BuilderImpl<E> withKeyList() {
-        	getKeyMapBuilder(0).list = true;
-            return this;
-        }
-
-        /**
-         * Specify element type to use.
-         *
-         * @param type	type to use
-         * @return		this (fluent interface)
-         */
-        protected BuilderImpl<E> withKeyList(Class<?> type) {
-        	getKeyMapBuilder(0).list = true;
-        	getKeyMapBuilder(0).listType = type;
-            return this;
-        }
-
         // -- Key1
 
         /**
@@ -428,19 +443,42 @@ public class TableCollectionImpl<E> implements Collection<E> {
          * @return			this (fluent interface)
          */
         protected BuilderImpl<E> withKey1(Mapper mapper) {
-            return withKey1(mapper, false);
+            getKeyMapBuilder(0).mapper = mapper;
+            return this;
         }
 
         /**
          * Add key map.
          *
-         * @param mapper	mapper to use
          * @param orderBy	true to force the collection to have the order of this map
          * @return			this (fluent interface)
          */
-        protected BuilderImpl<E> withKey1(Mapper mapper, boolean orderBy) {
-            getKeyMapBuilder(0).mapper = (Mapper<E, Object>) mapper;
+        protected BuilderImpl<E> withKey1OrderBy(boolean orderBy) {
             getKeyMapBuilder(0).orderBy = orderBy;
+            return this;
+        }
+
+        /**
+         * Specify element type to use.
+         *
+         * @param type	type to use
+         * @return		this (fluent interface)
+         */
+        // only for TableListImpl
+        protected BuilderImpl<E> withKey1OrderBy(Class<?> type) {
+        	getKeyMapBuilder(0).listType = type;
+            return this;
+        }
+
+        protected BuilderImpl<E> withPrimaryKey1() {
+        	withKey1Null(false);
+        	withKey1Duplicates(false);
+            return this;
+        }
+
+        protected BuilderImpl<E> withUniqueKey1() {
+        	withKey1Null(false);
+        	withKey1Duplicates(false, true);
             return this;
         }
 
@@ -484,8 +522,8 @@ public class TableCollectionImpl<E> implements Collection<E> {
          *
          * @return        this (fluent interface)
          */
-        protected BuilderImpl<E> withKey1Sort() {
-        	getKeyMapBuilder(0).sort = true;
+        protected BuilderImpl<E> withKey1Sort(boolean sort) {
+        	getKeyMapBuilder(0).sort = sort;
             return this;
         }
 
@@ -516,28 +554,6 @@ public class TableCollectionImpl<E> implements Collection<E> {
             return this;
         }
 
-        /**
-         * Specify element type to use.
-         *
-         * @return		this (fluent interface)
-         */
-        protected BuilderImpl<E> withKey1List() {
-        	getKeyMapBuilder(0).list = true;
-            return this;
-        }
-
-        /**
-         * Specify element type to use.
-         *
-         * @param type	type to use
-         * @return		this (fluent interface)
-         */
-        protected BuilderImpl<E> withKey1List(Class<?> type) {
-        	getKeyMapBuilder(0).list = true;
-        	getKeyMapBuilder(0).listType = type;
-            return this;
-        }
-
         // -- Key2
 
         /**
@@ -547,19 +563,41 @@ public class TableCollectionImpl<E> implements Collection<E> {
          * @return			this (fluent interface)
          */
         protected BuilderImpl<E> withKey2(Mapper mapper) {
-            return withKey2(mapper, false);
+            getKeyMapBuilder(1).mapper = (Mapper<E, Object>) mapper;
+            return this;
         }
 
         /**
          * Add key map.
          *
-         * @param mapper	mapper to use
          * @param orderBy	true to force the collection to have the order of this map
          * @return			this (fluent interface)
          */
-        protected BuilderImpl<E> withKey2(Mapper mapper, boolean orderBy) {
-            getKeyMapBuilder(1).mapper = (Mapper<E, Object>) mapper;
+        protected BuilderImpl<E> withKey2OrderBy(boolean orderBy) {
             getKeyMapBuilder(1).orderBy = orderBy;
+            return this;
+        }
+
+        /**
+         * Specify element type to use.
+         *
+         * @param type	type to use
+         * @return		this (fluent interface)
+         */
+        protected BuilderImpl<E> withKey2OrderBy(Class<?> type) {
+        	getKeyMapBuilder(1).listType = type;
+            return this;
+        }
+
+        protected BuilderImpl<E> withPrimaryKey2() {
+        	withKey2Null(false);
+        	withKey2Duplicates(false);
+            return this;
+        }
+
+        protected BuilderImpl<E> withUniqueKey2() {
+        	withKey2Null(false);
+        	withKey2Duplicates(false, true);
             return this;
         }
 
@@ -601,10 +639,11 @@ public class TableCollectionImpl<E> implements Collection<E> {
         /**
          * Determines that list should be sorted.
          *
+         * @param sort    true to sort keys
          * @return        this (fluent interface)
          */
-        protected BuilderImpl<E> withKey2Sort() {
-        	getKeyMapBuilder(1).sort = true;
+        protected BuilderImpl<E> withKey2Sort(boolean sort) {
+        	getKeyMapBuilder(1).sort = sort;
             return this;
         }
 
@@ -624,37 +663,15 @@ public class TableCollectionImpl<E> implements Collection<E> {
         /**
          * Set comparator to use for sorting.
          *
-         * @param comparator            comparator to use for sorting
-         * @param comparatorSortsNull   true if comparator sorts null, false if not
-         * @return                      this (fluent interface)
+         * @param comparator           comparator to use for sorting
+         * @param sortNullsFirst	   true to sort nulls first, false for last
+         * @return                     this (fluent interface)
          */
         protected BuilderImpl<E> withKey2Sort(Comparator<? super E> comparator, boolean sortNullsFirst) {
         	getKeyMapBuilder(1).sort = true;
         	getKeyMapBuilder(1).comparator = comparator;
         	getKeyMapBuilder(1).comparatorSortsNull = false;
         	getKeyMapBuilder(1).sortNullsFirst = sortNullsFirst;
-            return this;
-        }
-
-        /**
-         * Specify element type to use.
-         *
-         * @return		this (fluent interface)
-         */
-        protected BuilderImpl<E> withKey2List() {
-        	getKeyMapBuilder(1).list = true;
-            return this;
-        }
-
-        /**
-         * Specify element type to use.
-         *
-         * @param type	type to use
-         * @return		this (fluent interface)
-         */
-        protected BuilderImpl<E> withKey2List(Class<?> type) {
-        	getKeyMapBuilder(1).list = true;
-        	getKeyMapBuilder(1).listType = type;
             return this;
         }
 
@@ -689,7 +706,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
         	keyMap.allowDuplicatesNull = keyMapBuilder.allowDuplicatesNull;
 
         	boolean allowNullKey = keyMapBuilder.allowNull;
-        	if (keyMapBuilder.sort || keyMapBuilder.list) {
+        	if (keyMapBuilder.sort) {
                 if (keyMapBuilder.comparator == null) {
                 	if (allowNullKey) {
                     	keyMap.comparator = new NullComparator(NaturalComparator.INSTANCE, keyMapBuilder.sortNullsFirst);
@@ -705,7 +722,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
                 }
         	}
 
-        	if (keyMapBuilder.list) {
+        	if (keyMapBuilder.listType != null || keyMapBuilder.orderBy) {
         		if (keyMapBuilder.listType == null) {
             		keyMap.keysList = new GapList<Object>();
         		} else {
@@ -1246,12 +1263,13 @@ public class TableCollectionImpl<E> implements Collection<E> {
     	return ordered;
     }
 
-    int binarySearchSorted(Object elem) {
-    	int index = keyMaps[orderByKey].keysList.binarySearch(elem, keyMaps[orderByKey].comparator);
+    int binarySearchSorted(E elem) {
+    	Object key = keyMaps[orderByKey].getKey(elem);
+    	int index = keyMaps[orderByKey].keysList.binarySearch(key, keyMaps[orderByKey].comparator);
     	return (index < 0) ? -1 : index;
     }
 
-    int indexOfSorted(Object elem) {
+    int indexOfSorted(E elem) {
     	int index = binarySearchSorted(elem);
     	return (index < 0) ? -1 : index;
     }

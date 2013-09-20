@@ -103,8 +103,8 @@ public class Table2Collection<E,K1,K2> extends TableCollectionImpl<E> {
         }
 
         @Override
-        public Builder<E,K1,K2> withElem(boolean orderBy) {
-        	return (Builder<E,K1,K2>) super.withElem(orderBy);
+        public Builder<E,K1,K2> withElemOrderBy(boolean orderBy) {
+        	return (Builder<E,K1,K2>) super.withElemOrderBy(orderBy);
         }
 
         @Override
@@ -123,8 +123,8 @@ public class Table2Collection<E,K1,K2> extends TableCollectionImpl<E> {
         }
 
         @Override
-        public Builder<E,K1,K2> withElemSort() {
-        	return (Builder<E,K1,K2>) super.withElemSort();
+        public Builder<E,K1,K2> withElemSort(boolean sort) {
+        	return (Builder<E,K1,K2>) super.withElemSort(sort);
         }
 
         @Override
@@ -145,8 +145,8 @@ public class Table2Collection<E,K1,K2> extends TableCollectionImpl<E> {
         }
 
         // @Override
-        public Builder<E,K1,K2> withKey1(Mapper<E,K1> mapper, boolean orderBy) {
-        	return (Builder<E,K1,K2>) super.withKey1(mapper, orderBy);
+        public Builder<E,K1,K2> withKey1OrderBy(boolean orderBy) {
+        	return (Builder<E,K1,K2>) super.withKey1OrderBy(orderBy);
         }
 
         @Override
@@ -165,8 +165,8 @@ public class Table2Collection<E,K1,K2> extends TableCollectionImpl<E> {
         }
 
         @Override
-        public Builder<E,K1,K2> withKey1Sort() {
-        	return (Builder<E,K1,K2>) super.withKey1Sort();
+        public Builder<E,K1,K2> withKey1Sort(boolean sort) {
+        	return (Builder<E,K1,K2>) super.withKey1Sort(sort);
         }
 
         @Override
@@ -187,8 +187,8 @@ public class Table2Collection<E,K1,K2> extends TableCollectionImpl<E> {
         }
 
         // @Override
-        public Builder<E,K1,K2> withKey2(Mapper<E,K2> mapper, boolean orderBy) {
-        	return (Builder<E,K1,K2>) super.withKey2(mapper, orderBy);
+        public Builder<E,K1,K2> withKey2OrderBy(boolean orderBy) {
+        	return (Builder<E,K1,K2>) super.withKey2OrderBy(orderBy);
         }
 
         @Override
@@ -207,8 +207,8 @@ public class Table2Collection<E,K1,K2> extends TableCollectionImpl<E> {
         }
 
         @Override
-        public Builder<E,K1,K2> withKey2Sort() {
-        	return (Builder<E,K1,K2>) super.withKey2Sort();
+        public Builder<E,K1,K2> withKey2Sort(boolean sort) {
+        	return (Builder<E,K1,K2>) super.withKey2Sort(sort);
         }
 
         @Override

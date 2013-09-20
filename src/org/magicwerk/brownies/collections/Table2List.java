@@ -103,8 +103,13 @@ public class Table2List<E,K1,K2> extends TableListImpl<E> {
         }
 
         @Override
-        public Builder<E,K1,K2> withElem(boolean orderBy) {
-        	return (Builder<E,K1,K2>) super.withElem(orderBy);
+        public Builder<E,K1,K2> withElemOrderBy(boolean orderBy) {
+        	return (Builder<E,K1,K2>) super.withElemOrderBy(orderBy);
+        }
+
+        @Override
+        public Builder<E,K1,K2> withElemOrderBy(Class<?> type) {
+        	return (Builder<E,K1,K2>) super.withElemOrderBy(type);
         }
 
         @Override
@@ -123,8 +128,8 @@ public class Table2List<E,K1,K2> extends TableListImpl<E> {
         }
 
         @Override
-        public Builder<E,K1,K2> withElemSort() {
-        	return (Builder<E,K1,K2>) super.withElemSort();
+        public Builder<E,K1,K2> withElemSort(boolean sort) {
+        	return (Builder<E,K1,K2>) super.withElemSort(sort);
         }
 
         @Override
@@ -137,17 +142,7 @@ public class Table2List<E,K1,K2> extends TableListImpl<E> {
         	return (Builder<E,K1,K2>) super.withElemSort(comparator, sortNullsFirst);
         }
 
-        @Override
-        public Builder<E,K1,K2> withElemList() {
-        	return (Builder<E,K1,K2>) super.withElemList();
-        }
-
-        @Override
-        public Builder<E,K1,K2> withElemList(Class<?> type) {
-        	return (Builder<E,K1,K2>) super.withElemList(type);
-        }
-
-        // -- Key
+        // -- Key 1
 
         // @Override
         public Builder<E,K1,K2> withKey1(Mapper<E,K1> mapper) {
@@ -155,8 +150,13 @@ public class Table2List<E,K1,K2> extends TableListImpl<E> {
         }
 
         // @Override
-        public Builder<E,K1,K2> withKey1(Mapper<E,K1> mapper, boolean orderBy) {
-        	return (Builder<E,K1,K2>) super.withKey(mapper, orderBy);
+        public Builder<E,K1,K2> withKey1OrderBy(boolean orderBy) {
+        	return (Builder<E,K1,K2>) super.withKey1OrderBy(orderBy);
+        }
+
+        @Override
+        public Builder<E,K1,K2> withKey1OrderBy(Class<?> type) {
+        	return (Builder<E,K1,K2>) super.withKey1OrderBy(type);
         }
 
         @Override
@@ -175,8 +175,8 @@ public class Table2List<E,K1,K2> extends TableListImpl<E> {
         }
 
         @Override
-        public Builder<E,K1,K2> withKey1Sort() {
-        	return (Builder<E,K1,K2>) super.withKeySort();
+        public Builder<E,K1,K2> withKey1Sort(boolean sort) {
+        	return (Builder<E,K1,K2>) super.withKeySort(sort);
         }
 
         @Override
@@ -189,14 +189,51 @@ public class Table2List<E,K1,K2> extends TableListImpl<E> {
         	return (Builder<E,K1,K2>) super.withKeySort(comparator, sortNullsFirst);
         }
 
-        @Override
-        public Builder<E,K1,K2> withKey1List() {
-        	return (Builder<E,K1,K2>) super.withKeyList();
+        // -- Key 2
+
+        // @Override
+        public Builder<E,K1,K2> withKey2(Mapper<E,K1> mapper) {
+        	return (Builder<E,K1,K2>) super.withKey(mapper);
+        }
+
+        // @Override
+        public Builder<E,K1,K2> withKey2OrderBy(boolean orderBy) {
+        	return (Builder<E,K1,K2>) super.withKey2OrderBy(orderBy);
         }
 
         @Override
-        public Builder<E,K1,K2> withKey1List(Class<?> type) {
-        	return (Builder<E,K1,K2>) super.withKeyList(type);
+        public Builder<E,K1,K2> withKey2OrderBy(Class<?> type) {
+        	return (Builder<E,K1,K2>) super.withKey2OrderBy(type);
+        }
+
+        @Override
+        public Builder<E,K1,K2> withKey2Null(boolean allowNull) {
+        	return (Builder<E,K1,K2>) super.withKeyNull(allowNull);
+        }
+
+        @Override
+        public Builder<E,K1,K2> withKey2Duplicates(boolean allowDuplicates) {
+        	return (Builder<E,K1,K2>) super.withKeyDuplicates(allowDuplicates);
+        }
+
+        @Override
+        public Builder<E,K1,K2> withKey2Duplicates(boolean allowDuplicates, boolean allowDuplicatesNull) {
+        	return (Builder<E,K1,K2>) super.withKeyDuplicates(allowDuplicates, allowDuplicatesNull);
+        }
+
+        @Override
+        public Builder<E,K1,K2> withKey2Sort(boolean sort) {
+        	return (Builder<E,K1,K2>) super.withKeySort(sort);
+        }
+
+        @Override
+        public Builder<E,K1,K2> withKey2Sort(Comparator<? super E> comparator) {
+        	return (Builder<E,K1,K2>) super.withKeySort(comparator);
+        }
+
+        @Override
+        public Builder<E,K1,K2> withKey2Sort(Comparator<? super E> comparator, boolean sortNullsFirst) {
+        	return (Builder<E,K1,K2>) super.withKeySort(comparator, sortNullsFirst);
         }
 
         /**
