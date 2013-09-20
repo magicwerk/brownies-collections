@@ -208,11 +208,17 @@ public class TableListImpl<E> extends GapList<E> {
 
     @Override
 	protected boolean doAddAll(int index, E[] array) {
-		if (forward != null) {
-			return forward.doAddAll(index, array);
-		} else {
-			return super.doAddAll(index, array);
+    	// delegate to doAdd()
+		if (array.length == 0) {
+			return false;
 		}
+		for (E elem: array) {
+			doAdd(index, elem);
+			if (index != -1) {
+			    index++;
+			}
+		}
+		return true;
 	}
 
     @Override
@@ -240,11 +246,10 @@ public class TableListImpl<E> extends GapList<E> {
 
     @Override
     protected void doSetAll(int index, E[] elems) {
-    	if (forward != null) {
-    		forward.doSetAll(index, elems);
-    	} else {
-    		super.doSetAll(index, elems);
-    	}
+    	// delegate to doSet()
+        for (int i=0; i<elems.length; i++) {
+            doSet(index+i, elems[i]);
+        }
     }
 
     @Override
@@ -278,7 +283,7 @@ public class TableListImpl<E> extends GapList<E> {
     @Override
     public int indexOf(Object elem) {
     	if (tableImpl.isSortedList()) {
-    		return tableImpl.indexOfSorted(elem);
+    		return tableImpl.indexOfSorted((E) elem);
     	} else {
     		return super.indexOf(elem);
     	}
