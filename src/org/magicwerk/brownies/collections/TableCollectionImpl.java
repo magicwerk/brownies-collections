@@ -60,26 +60,27 @@ public class TableCollectionImpl<E> implements Collection<E> {
     public static class BuilderImpl<E> {
 
         public static class KeyMapBuilder<E,K> {
-        	boolean orderBy;
+        	/** True order collection by this key map */
+        	Boolean orderBy;
+            // -- sorted list
+            /** Primitive class to use for storage */
+            Class<?> orderByType;
         	// -- mapper
         	Mapper<E,K> mapper;
             // -- null
-            boolean allowNull = true;
+            Boolean allowNull = true;
             // -- duplicates
-            boolean allowDuplicates = true;
-            boolean allowDuplicatesNull = true;
+            Boolean allowDuplicates = true;
+            Boolean allowDuplicatesNull = true;
             // -- sorted list
             /** True to sort using natural comparator */
-            boolean sort;
+            Boolean sort;
             /** Comparator to use for sorting */
             Comparator<?> comparator;
             /** The specified comparator can handle null values */
-            boolean comparatorSortsNull;
+            Boolean comparatorSortsNull;
             /** Determine whether null values appear first or last */
-            boolean sortNullsFirst;
-            // -- sorted list
-            /** Primitive class to use for storage */
-            Class<?> listType;
+            Boolean sortNullsFirst;
         }
 
     	// KeyList to build
@@ -91,7 +92,6 @@ public class TableCollectionImpl<E> implements Collection<E> {
         Trigger<E> insertTrigger;
         Trigger<E> deleteTrigger;
         // -- keys
-        KeyMapBuilder elemMapBuilder;
     	GapList<KeyMapBuilder<E,Object>> keyMapBuilders = GapList.create();
         // -- content
         Collection<? extends E> collection;
@@ -109,7 +109,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
         protected BuilderImpl<E> withNull(boolean allowNull) {
         	this.allowNullElem = allowNull;
         	if (hasElemMapBuilder()) {
-        		getElemMapBuilder().allowNull = allowNull;
+        		getKeyMapBuilder(0).allowNull = allowNull;
         	}
         	return this;
         }
@@ -189,12 +189,10 @@ public class TableCollectionImpl<E> implements Collection<E> {
         /**
          * Add element map (with ident mapper).
          *
-         * @param orderBy	true to force the collection to have the order of this map
          * @return			this (fluent interface)
          */
         protected BuilderImpl<E> withElem() {
-            getElemMapBuilder();
-            return this;
+            return withKey(0, IdentMapper.INSTANCE);
         }
 
         /**
@@ -204,8 +202,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
          * @return			this (fluent interface)
          */
         protected BuilderImpl<E> withElemOrderBy(boolean orderBy) {
-            getElemMapBuilder().orderBy = orderBy;
-            return this;
+            return withKeyOrderBy(0, orderBy);
         }
 
         /**
@@ -216,20 +213,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
          */
         // only for TableList
         protected BuilderImpl<E> withElemOrderBy(Class<?> type) {
-        	getElemMapBuilder().listType = type;
-            return this;
-        }
-
-        protected BuilderImpl<E> withPrimaryElem() {
-        	withElemNull(false);
-        	withElemDuplicates(false);
-            return this;
-        }
-
-        protected BuilderImpl<E> withUniqueElem() {
-        	withElemNull(false);
-        	withElemDuplicates(false, true);
-            return this;
+            return withKeyOrderBy(0, type);
         }
 
         /**
@@ -240,9 +224,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
          * @return          this (fluent interfaces)
          */
         protected BuilderImpl<E> withElemNull(boolean allowNull) {
-        	getElemMapBuilder().allowNull = allowNull;
-        	allowNullElem = allowNull;
-        	return this;
+        	return withKeyNull(0, allowNull);
         }
 
         /**
@@ -263,9 +245,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
          * @return						this (fluent interfaces)
          */
         protected BuilderImpl<E> withElemDuplicates(boolean allowDuplicates, boolean allowDuplicatesNull) {
-        	getElemMapBuilder().allowDuplicates = allowDuplicates;
-        	getElemMapBuilder().allowDuplicatesNull = allowDuplicatesNull;
-            return this;
+        	return withKeyDuplicates(0, allowDuplicates, allowDuplicatesNull);
         }
 
         /**
@@ -276,11 +256,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
          * @return        this (fluent interface)
          */
         protected BuilderImpl<E> withElemSort(boolean sort) {
-        	getElemMapBuilder().sort = sort;
-        	getElemMapBuilder().comparator = null;
-        	getElemMapBuilder().comparatorSortsNull = false;
-        	getElemMapBuilder().sortNullsFirst = false;
-            return this;
+        	return withKeySort(0, sort);
         }
 
         /**
@@ -293,10 +269,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
          * @return              this (fluent interface)
          */
         protected BuilderImpl<E> withElemSort(Comparator<? super E> comparator) {
-        	getElemMapBuilder().sort = true;
-        	getElemMapBuilder().comparator = comparator;
-        	getElemMapBuilder().comparatorSortsNull = true;
-        	return this;
+        	return withKeySort(0, comparator);
         }
 
         /**
@@ -310,14 +283,119 @@ public class TableCollectionImpl<E> implements Collection<E> {
          * @return                     this (fluent interface)
          */
         protected BuilderImpl<E> withElemSort(Comparator<? super E> comparator, boolean sortNullsFirst) {
-        	getElemMapBuilder().sort = true;
-        	getElemMapBuilder().comparator = comparator;
-        	getElemMapBuilder().comparatorSortsNull = false;
-        	getElemMapBuilder().sortNullsFirst = sortNullsFirst;
+        	return withKeySort(0, comparator, sortNullsFirst);
+        }
+
+        protected BuilderImpl<E> withPrimaryElem() {
+        	return withPrimaryKey(0);
+        }
+
+        protected BuilderImpl<E> withUniqueElem() {
+            return withUniqueKey(0);
+        }
+
+
+        //
+
+        protected BuilderImpl<E> withKey(int keyIndex, Mapper mapper) {
+        	if (mapper == null) {
+        		throw new IllegalArgumentException("Mapper may not be null");
+        	}
+        	KeyMapBuilder kmb = getKeyMapBuilder(keyIndex);
+        	if (kmb.mapper != null) {
+        		throw new IllegalArgumentException("Mapper already set");
+        	}
+        	kmb.mapper = mapper;
+            return this;
+        }
+
+        protected BuilderImpl<E> withKeyOrderBy(int keyIndex, boolean orderBy) {
+        	KeyMapBuilder kmb = getKeyMapBuilder(keyIndex);
+        	if (kmb.orderBy != null || kmb.orderByType != null) {
+        		throw new IllegalArgumentException("Order by already set");
+        	}
+        	kmb.orderBy = orderBy;
+            return this;
+        }
+
+        protected BuilderImpl<E> withKeyOrderBy(int keyIndex, Class<?> type) {
+        	if (type == null) {
+        		throw new IllegalArgumentException("Order by type may not be null");
+        	}
+        	KeyMapBuilder kmb = getKeyMapBuilder(keyIndex);
+        	if (kmb.orderBy != null || kmb.orderByType != null) {
+        		throw new IllegalArgumentException("Order by already set");
+        	}
+        	kmb.orderByType = type;
+            return this;
+        }
+
+        protected BuilderImpl<E> withKeyNull(int keyIndex, boolean allowNull) {
+        	KeyMapBuilder kmb = getKeyMapBuilder(keyIndex);
+        	kmb.allowNull = allowNull;
+        	if (keyIndex == 0) {
+        		allowNullElem = allowNull;
+        	}
+        	return this;
+        }
+
+        protected BuilderImpl<E> withKeyDuplicates(int keyIndex, boolean allowDuplicates, boolean allowDuplicatesNull) {
+        	KeyMapBuilder kmb = getKeyMapBuilder(keyIndex);
+        	kmb.allowDuplicates = allowDuplicates;
+        	kmb.allowDuplicatesNull = allowDuplicatesNull;
+            return this;
+        }
+
+        protected BuilderImpl<E> withKeySort(int keyIndex, boolean sort) {
+        	KeyMapBuilder kmb = getKeyMapBuilder(keyIndex);
+        	if (kmb.sort != null) {
+        		throw new IllegalArgumentException("sort already called");
+        	}
+        	kmb.sort = sort;
+        	kmb.comparator = null;
+        	kmb.comparatorSortsNull = false;
+        	kmb.sortNullsFirst = false;
+            return this;
+        }
+
+        protected BuilderImpl<E> withKeySort(int keyIndex, Comparator<? super E> comparator) {
+        	KeyMapBuilder kmb = getKeyMapBuilder(keyIndex);
+        	if (kmb.sort != null) {
+        		throw new IllegalArgumentException("sort already called");
+        	}
+        	kmb.sort = true;
+        	kmb.comparator = comparator;
+        	kmb.comparatorSortsNull = true;
+        	kmb.sortNullsFirst = false;
+        	return this;
+        }
+
+        protected BuilderImpl<E> withKeySort(int keyIndex, Comparator<? super E> comparator, boolean sortNullsFirst) {
+        	KeyMapBuilder kmb = getKeyMapBuilder(keyIndex);
+        	if (kmb.sort != null) {
+        		throw new IllegalArgumentException("sort already called");
+        	}
+        	kmb.sort = true;
+        	kmb.comparator = comparator;
+        	kmb.comparatorSortsNull = false;
+        	kmb.sortNullsFirst = sortNullsFirst;
+            return this;
+        }
+
+        protected BuilderImpl<E> withPrimaryKey(int keyIndex) {
+        	withKeyNull(keyIndex, false);
+        	withKeyDuplicates(keyIndex, false, false);
+            return this;
+        }
+
+        protected BuilderImpl<E> withUniqueKey(int keyIndex) {
+        	withKeyNull(keyIndex, false);
+        	withKeyDuplicates(keyIndex, false, true);
             return this;
         }
 
         // -- Key
+        // -- The methods for Key and Key1 are exactly the same, except the naming
 
         /**
          * Add key map.
@@ -326,19 +404,17 @@ public class TableCollectionImpl<E> implements Collection<E> {
          * @return			this (fluent interface)
          */
         protected BuilderImpl<E> withKey(Mapper mapper) {
-        	getKeyMapBuilder(0).mapper = mapper;
-            return this;
+            return withKey(1, mapper);
         }
 
         /**
-         * Add element map (with ident mapper).
+         * Add key map.
          *
          * @param orderBy	true to force the collection to have the order of this map
          * @return			this (fluent interface)
          */
         protected BuilderImpl<E> withKeyOrderBy(boolean orderBy) {
-        	getKeyMapBuilder(0).orderBy = orderBy;
-            return this;
+            return withKeyOrderBy(1, orderBy);
         }
 
         /**
@@ -347,22 +423,9 @@ public class TableCollectionImpl<E> implements Collection<E> {
          * @param type	type to use
          * @return		this (fluent interface)
          */
-        // only for TableList
+        // only for TableListImpl
         protected BuilderImpl<E> withKeyOrderBy(Class<?> type) {
-        	getKeyMapBuilder(0).listType = type;
-            return this;
-        }
-
-        protected BuilderImpl<E> withPrimaryKey() {
-        	withKeyNull(false);
-        	withKeyDuplicates(false);
-            return this;
-        }
-
-        protected BuilderImpl<E> withUniqueKey() {
-        	withKeyNull(false);
-        	withKeyDuplicates(false, true);
-            return this;
+            return withKeyOrderBy(1, type);
         }
 
         /**
@@ -373,8 +436,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
          * @return          this (fluent interfaces)
          */
         protected BuilderImpl<E> withKeyNull(boolean allowNull) {
-        	getKeyMapBuilder(0).allowNull = allowNull;
-        	return this;
+        	return withKeyNull(1, allowNull);
         }
 
         /**
@@ -384,7 +446,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
          * @return              	this (fluent interfaces)
          */
         protected BuilderImpl<E> withKeyDuplicates(boolean allowDuplicates) {
-        	return withKeyDuplicates(allowDuplicates, allowDuplicates);
+            return withKeyDuplicates(1, allowDuplicates, allowDuplicates);
         }
 
         /**
@@ -395,9 +457,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
          * @return						this (fluent interfaces)
          */
         protected BuilderImpl<E> withKeyDuplicates(boolean allowDuplicates, boolean allowDuplicatesNull) {
-        	getKeyMapBuilder(0).allowDuplicates = allowDuplicates;
-        	getKeyMapBuilder(0).allowDuplicatesNull = allowDuplicatesNull;
-            return this;
+            return withKeyDuplicates(1, allowDuplicates, allowDuplicatesNull);
         }
 
         /**
@@ -406,8 +466,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
          * @return        this (fluent interface)
          */
         protected BuilderImpl<E> withKeySort(boolean sort) {
-        	getKeyMapBuilder(0).sort = sort;
-            return this;
+        	return withKeySort(1, sort);
         }
 
         /**
@@ -417,24 +476,31 @@ public class TableCollectionImpl<E> implements Collection<E> {
          * @return              this (fluent interface)
          */
         protected BuilderImpl<E> withKeySort(Comparator<? super E> comparator) {
-            return withKeySort(comparator, false);
+        	return withKeySort(1, comparator);
         }
 
         /**
          * Set comparator to use for sorting.
          *
-         * @param comparator        comparator to use for sorting
-         * @param sortNullsFirst   	true if comparator sorts null, false if not
-         * @return                  this (fluent interface)
+         * @param comparator            comparator to use for sorting
+         * @param sortNullsFirst   		true if comparator sorts null, false if not
+         * @return                      this (fluent interface)
          */
         protected BuilderImpl<E> withKeySort(Comparator<? super E> comparator, boolean sortNullsFirst) {
-        	getKeyMapBuilder(0).comparator = comparator;
-        	getKeyMapBuilder(0).comparatorSortsNull = false;
-        	getKeyMapBuilder(0).sortNullsFirst = sortNullsFirst;
-            return this;
+            return withKeySort(1, comparator, sortNullsFirst);
         }
 
+        protected BuilderImpl<E> withPrimaryKey() {
+        	return withPrimaryKey(1);
+        }
+
+        protected BuilderImpl<E> withUniqueKey() {
+            return withUniqueKey(1);
+        }
+
+
         // -- Key1
+        // -- The methods for Key and Key1 are exactly the same, except the naming
 
         /**
          * Add key map.
@@ -443,8 +509,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
          * @return			this (fluent interface)
          */
         protected BuilderImpl<E> withKey1(Mapper mapper) {
-            getKeyMapBuilder(0).mapper = mapper;
-            return this;
+            return withKey(1, mapper);
         }
 
         /**
@@ -454,8 +519,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
          * @return			this (fluent interface)
          */
         protected BuilderImpl<E> withKey1OrderBy(boolean orderBy) {
-            getKeyMapBuilder(0).orderBy = orderBy;
-            return this;
+            return withKeyOrderBy(1, orderBy);
         }
 
         /**
@@ -466,20 +530,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
          */
         // only for TableListImpl
         protected BuilderImpl<E> withKey1OrderBy(Class<?> type) {
-        	getKeyMapBuilder(0).listType = type;
-            return this;
-        }
-
-        protected BuilderImpl<E> withPrimaryKey1() {
-        	withKey1Null(false);
-        	withKey1Duplicates(false);
-            return this;
-        }
-
-        protected BuilderImpl<E> withUniqueKey1() {
-        	withKey1Null(false);
-        	withKey1Duplicates(false, true);
-            return this;
+            return withKeyOrderBy(1, type);
         }
 
         /**
@@ -490,8 +541,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
          * @return          this (fluent interfaces)
          */
         protected BuilderImpl<E> withKey1Null(boolean allowNull) {
-        	getKeyMapBuilder(0).allowNull = allowNull;
-        	return this;
+        	return withKeyNull(1, allowNull);
         }
 
         /**
@@ -501,7 +551,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
          * @return              	this (fluent interfaces)
          */
         protected BuilderImpl<E> withKey1Duplicates(boolean allowDuplicates) {
-        	return withKey1Duplicates(allowDuplicates, allowDuplicates);
+            return withKeyDuplicates(1, allowDuplicates, allowDuplicates);
         }
 
         /**
@@ -512,9 +562,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
          * @return						this (fluent interfaces)
          */
         protected BuilderImpl<E> withKey1Duplicates(boolean allowDuplicates, boolean allowDuplicatesNull) {
-        	getKeyMapBuilder(0).allowDuplicates = allowDuplicates;
-        	getKeyMapBuilder(0).allowDuplicatesNull = allowDuplicatesNull;
-            return this;
+            return withKeyDuplicates(1, allowDuplicates, allowDuplicatesNull);
         }
 
         /**
@@ -523,8 +571,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
          * @return        this (fluent interface)
          */
         protected BuilderImpl<E> withKey1Sort(boolean sort) {
-        	getKeyMapBuilder(0).sort = sort;
-            return this;
+        	return withKeySort(1, sort);
         }
 
         /**
@@ -534,10 +581,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
          * @return              this (fluent interface)
          */
         protected BuilderImpl<E> withKey1Sort(Comparator<? super E> comparator) {
-        	getKeyMapBuilder(0).sort = true;
-        	getKeyMapBuilder(0).comparator = comparator;
-        	getKeyMapBuilder(0).comparatorSortsNull = true;
-        	return this;
+        	return withKeySort(1, comparator);
         }
 
         /**
@@ -548,10 +592,15 @@ public class TableCollectionImpl<E> implements Collection<E> {
          * @return                      this (fluent interface)
          */
         protected BuilderImpl<E> withKey1Sort(Comparator<? super E> comparator, boolean sortNullsFirst) {
-        	getKeyMapBuilder(0).comparator = comparator;
-        	getKeyMapBuilder(0).comparatorSortsNull = false;
-        	getKeyMapBuilder(0).sortNullsFirst = sortNullsFirst;
-            return this;
+            return withKeySort(1, comparator, sortNullsFirst);
+        }
+
+        protected BuilderImpl<E> withPrimaryKey1() {
+        	return withPrimaryKey(1);
+        }
+
+        protected BuilderImpl<E> withUniqueKey1() {
+            return withUniqueKey(1);
         }
 
         // -- Key2
@@ -563,8 +612,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
          * @return			this (fluent interface)
          */
         protected BuilderImpl<E> withKey2(Mapper mapper) {
-            getKeyMapBuilder(1).mapper = (Mapper<E, Object>) mapper;
-            return this;
+            return withKey(2, mapper);
         }
 
         /**
@@ -574,8 +622,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
          * @return			this (fluent interface)
          */
         protected BuilderImpl<E> withKey2OrderBy(boolean orderBy) {
-            getKeyMapBuilder(1).orderBy = orderBy;
-            return this;
+            return withKeyOrderBy(2, orderBy);
         }
 
         /**
@@ -585,20 +632,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
          * @return		this (fluent interface)
          */
         protected BuilderImpl<E> withKey2OrderBy(Class<?> type) {
-        	getKeyMapBuilder(1).listType = type;
-            return this;
-        }
-
-        protected BuilderImpl<E> withPrimaryKey2() {
-        	withKey2Null(false);
-        	withKey2Duplicates(false);
-            return this;
-        }
-
-        protected BuilderImpl<E> withUniqueKey2() {
-        	withKey2Null(false);
-        	withKey2Duplicates(false, true);
-            return this;
+            return withKeyOrderBy(2, type);
         }
 
         /**
@@ -609,8 +643,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
          * @return          this (fluent interfaces)
          */
         protected BuilderImpl<E> withKey2Null(boolean allowNull) {
-        	getKeyMapBuilder(1).allowNull = allowNull;
-        	return this;
+        	return withKeyNull(2, allowNull);
         }
 
         /**
@@ -620,7 +653,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
          * @return              	this (fluent interfaces)
          */
         protected BuilderImpl<E> withKey2Duplicates(boolean allowDuplicates) {
-        	return withKey2Duplicates(allowDuplicates, allowDuplicates);
+        	return withKeyDuplicates(2, allowDuplicates, allowDuplicates);
         }
 
         /**
@@ -631,9 +664,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
          * @return						this (fluent interfaces)
          */
         protected BuilderImpl<E> withKey2Duplicates(boolean allowDuplicates, boolean allowDuplicatesNull) {
-        	getKeyMapBuilder(1).allowDuplicates = allowDuplicates;
-        	getKeyMapBuilder(1).allowDuplicatesNull = allowDuplicatesNull;
-            return this;
+            return withKeyDuplicates(2, allowDuplicates, allowDuplicatesNull);
         }
 
         /**
@@ -643,8 +674,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
          * @return        this (fluent interface)
          */
         protected BuilderImpl<E> withKey2Sort(boolean sort) {
-        	getKeyMapBuilder(1).sort = sort;
-            return this;
+        	return withKeySort(2, sort);
         }
 
         /**
@@ -654,10 +684,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
          * @return              this (fluent interface)
          */
         protected BuilderImpl<E> withKey2Sort(Comparator<? super E> comparator) {
-        	getKeyMapBuilder(1).sort = true;
-        	getKeyMapBuilder(1).comparator = comparator;
-        	getKeyMapBuilder(1).comparatorSortsNull = true;
-        	return this;
+        	return withKeySort(2, comparator);
         }
 
         /**
@@ -668,32 +695,32 @@ public class TableCollectionImpl<E> implements Collection<E> {
          * @return                     this (fluent interface)
          */
         protected BuilderImpl<E> withKey2Sort(Comparator<? super E> comparator, boolean sortNullsFirst) {
-        	getKeyMapBuilder(1).sort = true;
-        	getKeyMapBuilder(1).comparator = comparator;
-        	getKeyMapBuilder(1).comparatorSortsNull = false;
-        	getKeyMapBuilder(1).sortNullsFirst = sortNullsFirst;
-            return this;
+        	return withKeySort(2, comparator, sortNullsFirst);
+        }
+
+        protected BuilderImpl<E> withPrimaryKey2() {
+        	return withPrimaryKey(2);
+        }
+
+        protected BuilderImpl<E> withUniqueKey2() {
+            return withUniqueKey(2);
         }
 
 
         //-- Implementation
 
         boolean hasElemMapBuilder() {
-        	return elemMapBuilder != null;
-        }
-
-        KeyMapBuilder<E, Object> getElemMapBuilder() {
-        	if (elemMapBuilder == null) {
-        		elemMapBuilder = new KeyMapBuilder();
-        		elemMapBuilder.mapper = IdentMapper.INSTANCE;
-        		elemMapBuilder.allowNull = allowNullElem;
-        	}
-        	return elemMapBuilder;
+        	return keyMapBuilders.size() > 0 && keyMapBuilders.get(0) != null;
         }
 
         KeyMapBuilder<E, Object> getKeyMapBuilder(int index) {
         	if (index >= keyMapBuilders.size()) {
-        		keyMapBuilders.add(index, new KeyMapBuilder());
+        		KeyMapBuilder kmb = new KeyMapBuilder();
+        		if (index == 0) {
+        			kmb.mapper = IdentMapper.INSTANCE;
+        			kmb.allowNull = allowNullElem;
+        		}
+        		keyMapBuilders.add(index, kmb);
         	}
         	return keyMapBuilders.get(index);
         }
@@ -722,15 +749,15 @@ public class TableCollectionImpl<E> implements Collection<E> {
                 }
         	}
 
-        	if (keyMapBuilder.listType != null || keyMapBuilder.orderBy) {
-        		if (keyMapBuilder.listType == null) {
+        	if (keyMapBuilder.orderByType != null || keyMapBuilder.orderBy) {
+        		if (keyMapBuilder.orderByType == null) {
             		keyMap.keysList = new GapList<Object>();
         		} else {
 //                	if (keyMap.comparator != NaturalComparator.INSTANCE) {
 //                		throw new IllegalArgumentException("Only natural comparator supported for list type");
 //                	}
         			keyMap.comparator = NaturalComparator.INSTANCE;
-        			keyMap.keysList = (GapList<Object>) GapLists.createWrapperList(keyMapBuilder.listType);
+        			keyMap.keysList = (GapList<Object>) GapLists.createWrapperList(keyMapBuilder.orderByType);
         		}
         	} else if (keyMapBuilder.sort) {
         		keyMap.keysMap = new TreeMap(keyMap.comparator);
@@ -753,14 +780,8 @@ public class TableCollectionImpl<E> implements Collection<E> {
             tableColl.deleteTrigger = deleteTrigger;
 
             int orderByKey = -1;
-            if (elemMapBuilder != null || keyMapBuilders.size() > 0) {
+            if (keyMapBuilders.size() > 0) {
 	            tableColl.keyMaps = new KeyMap[keyMapBuilders.size()+1];
-	            if (elemMapBuilder != null) {
-	            	tableColl.keyMaps[0] = buildKeyMap(elemMapBuilder);
-	            	if (elemMapBuilder.orderBy) {
-	            		orderByKey = 0;
-	            	}
-	            }
 	            for (int i=0; i<keyMapBuilders.size(); i++) {
 	            	KeyMapBuilder kmb = keyMapBuilders.get(i);
 	            	if (kmb == null) {

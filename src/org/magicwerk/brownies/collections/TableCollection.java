@@ -145,7 +145,7 @@ public class TableCollection<E> extends TableCollectionImpl<E> {
          */
         public TableCollection<E> build() {
         	// Constructs builder if there is none
-        	getElemMapBuilder();
+        	getKeyMapBuilder(0);
 
         	if (tableColl == null) {
                	tableColl = new TableCollection<E>();
