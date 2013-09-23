@@ -243,7 +243,7 @@ public class Table2List<E,K1,K2> extends TableListImpl<E> {
         	if (tableColl == null) {
                	tableColl = new TableCollectionImpl<E>();
         	}
-        	build(tableColl);
+        	build(tableColl, true);
         	Table2List<E,K1,K2> list = new Table2List();
         	fill(tableColl, list);
         	return list;

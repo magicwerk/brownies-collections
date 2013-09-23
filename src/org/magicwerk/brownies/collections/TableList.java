@@ -155,7 +155,7 @@ public class TableList<E> extends TableListImpl<E> {
         	if (tableColl == null) {
                	tableColl = new TableCollectionImpl<E>();
         	}
-        	build(tableColl);
+        	build(tableColl, true);
         	TableList<E> list = new TableList();
         	fill(tableColl, list);
         	return list;

@@ -145,12 +145,10 @@ public class TableCollection<E> extends TableCollectionImpl<E> {
          */
         public TableCollection<E> build() {
         	// Constructs builder if there is none
-        	getKeyMapBuilder(0);
-
         	if (tableColl == null) {
                	tableColl = new TableCollection<E>();
         	}
-        	build(tableColl);
+        	build(tableColl, false);
         	fill(tableColl);
         	return (TableCollection<E>) tableColl;
         }

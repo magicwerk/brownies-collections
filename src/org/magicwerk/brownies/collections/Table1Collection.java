@@ -185,7 +185,7 @@ public class Table1Collection<E,K> extends TableCollectionImpl<E> {
         	if (tableColl == null) {
                	tableColl = new Table1Collection<E,K>();
         	}
-        	build(tableColl);
+        	build(tableColl, false);
         	fill(tableColl);
         	return (Table1Collection<E,K>) tableColl;
         }

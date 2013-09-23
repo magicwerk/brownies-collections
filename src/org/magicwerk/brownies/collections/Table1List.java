@@ -196,7 +196,7 @@ public class Table1List<E,K> extends TableListImpl<E> {
         	if (tableColl == null) {
                	tableColl = new TableCollectionImpl<E>();
         	}
-        	build(tableColl);
+        	build(tableColl, true);
         	Table1List<E,K> list = new Table1List<E,K>();
         	fill(tableColl, list);
         	return list;
