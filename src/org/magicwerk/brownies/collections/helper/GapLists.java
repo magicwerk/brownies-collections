@@ -17,8 +17,6 @@
  */
 package org.magicwerk.brownies.collections.helper;
 
-import java.util.Comparator;
-
 import org.magicwerk.brownies.collections.GapList;
 import org.magicwerk.brownies.collections.primitive.BooleanObjGapList;
 import org.magicwerk.brownies.collections.primitive.ByteObjGapList;
@@ -30,7 +28,7 @@ import org.magicwerk.brownies.collections.primitive.LongObjGapList;
 import org.magicwerk.brownies.collections.primitive.ShortObjGapList;
 
 /**
- *
+ * Helper class to create wrapper list objects wrapping primitive GapLists.
  *
  * @author Thomas Mauch
  * @version $Id$

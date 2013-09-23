@@ -228,7 +228,7 @@ public class Table2Collection<E,K1,K2> extends TableCollectionImpl<E> {
         	if (tableColl == null) {
                	tableColl = new Table2Collection<E,K1,K2>();
         	}
-        	build(tableColl);
+        	build(tableColl, false);
         	fill(tableColl);
         	return (Table2Collection<E,K1,K2>) tableColl;
         }

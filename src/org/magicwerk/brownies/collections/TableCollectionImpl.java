@@ -63,24 +63,24 @@ public class TableCollectionImpl<E> implements Collection<E> {
         	/** True order collection by this key map */
         	Boolean orderBy;
             // -- sorted list
-            /** Primitive class to use for storage */
+            /** Primitive class to use for list storage */
             Class<?> orderByType;
         	// -- mapper
         	Mapper<E,K> mapper;
             // -- null
-            Boolean allowNull = true;
+            Boolean allowNull;
             // -- duplicates
-            Boolean allowDuplicates = true;
-            Boolean allowDuplicatesNull = true;
+            Boolean allowDuplicates;
+            boolean allowDuplicatesNull;
             // -- sorted list
             /** True to sort using natural comparator */
             Boolean sort;
             /** Comparator to use for sorting */
             Comparator<?> comparator;
             /** The specified comparator can handle null values */
-            Boolean comparatorSortsNull;
+            boolean comparatorSortsNull;
             /** Determine whether null values appear first or last */
-            Boolean sortNullsFirst;
+            boolean sortNullsFirst;
         }
 
     	// KeyList to build
@@ -294,7 +294,6 @@ public class TableCollectionImpl<E> implements Collection<E> {
             return withUniqueKey(0);
         }
 
-
         //
 
         protected BuilderImpl<E> withKey(int keyIndex, Mapper mapper) {
@@ -311,10 +310,11 @@ public class TableCollectionImpl<E> implements Collection<E> {
 
         protected BuilderImpl<E> withKeyOrderBy(int keyIndex, boolean orderBy) {
         	KeyMapBuilder kmb = getKeyMapBuilder(keyIndex);
-        	if (kmb.orderBy != null || kmb.orderByType != null) {
+        	if (kmb.orderBy != null) {
         		throw new IllegalArgumentException("Order by already set");
         	}
         	kmb.orderBy = orderBy;
+        	kmb.orderByType = null;
             return this;
         }
 
@@ -323,9 +323,10 @@ public class TableCollectionImpl<E> implements Collection<E> {
         		throw new IllegalArgumentException("Order by type may not be null");
         	}
         	KeyMapBuilder kmb = getKeyMapBuilder(keyIndex);
-        	if (kmb.orderBy != null || kmb.orderByType != null) {
+        	if (kmb.orderBy != null) {
         		throw new IllegalArgumentException("Order by already set");
         	}
+        	kmb.orderBy = true;
         	kmb.orderByType = type;
             return this;
         }
@@ -714,34 +715,48 @@ public class TableCollectionImpl<E> implements Collection<E> {
         }
 
         KeyMapBuilder<E, Object> getKeyMapBuilder(int index) {
-        	if (index >= keyMapBuilders.size()) {
+        	int size = keyMapBuilders.size();
+        	if (index >= size) {
         		KeyMapBuilder kmb = new KeyMapBuilder();
-        		if (index == 0) {
-        			kmb.mapper = IdentMapper.INSTANCE;
-        			kmb.allowNull = allowNullElem;
+//        		if (index == 0) {
+//        			kmb.mapper = IdentMapper.INSTANCE;
+//        			kmb.allowNull = allowNullElem;
+//        		}
+        		if (index == 1 && size == 0) {
+            		keyMapBuilders.add(0, null);
         		}
         		keyMapBuilders.add(index, kmb);
         	}
         	return keyMapBuilders.get(index);
         }
 
-        KeyMap buildKeyMap(KeyMapBuilder keyMapBuilder) {
+        boolean isTrue(Boolean b) {
+        	return b != null && b;
+        }
+
+        boolean isFalse(Boolean b) {
+        	return b != null && !b;
+        }
+
+        KeyMap buildKeyMap(KeyMapBuilder keyMapBuilder, boolean list) {
         	KeyMap<E,Object> keyMap = new KeyMap<E,Object>();
         	keyMap.mapper = (Mapper<E, Object>) keyMapBuilder.mapper;
-            keyMap.allowNull = keyMapBuilder.allowNull;
-        	keyMap.allowDuplicates = keyMapBuilder.allowDuplicates;
-        	keyMap.allowDuplicatesNull = keyMapBuilder.allowDuplicatesNull;
+        	if (keyMap.mapper == null) {
+        		keyMap.mapper = IdentMapper.INSTANCE;
+        	}
+            keyMap.allowNull = !isFalse(keyMapBuilder.allowNull);
+        	keyMap.allowDuplicates = !isFalse(keyMapBuilder.allowDuplicates);
+        	keyMap.allowDuplicatesNull = !isFalse(keyMapBuilder.allowDuplicatesNull);
 
-        	boolean allowNullKey = keyMapBuilder.allowNull;
-        	if (keyMapBuilder.sort) {
+        	if (isTrue(keyMapBuilder.sort) || (isTrue(keyMapBuilder.orderBy) && list)) {
                 if (keyMapBuilder.comparator == null) {
-                	if (allowNullKey) {
+                	if (keyMap.allowNull) {
                     	keyMap.comparator = new NullComparator(NaturalComparator.INSTANCE, keyMapBuilder.sortNullsFirst);
                 	} else {
                     	keyMap.comparator = NaturalComparator.INSTANCE;
                 	}
                 } else {
-                    if (!keyMapBuilder.comparatorSortsNull && allowNullKey) {
+                    if (!keyMapBuilder.comparatorSortsNull && keyMap.allowNull) {
                     	keyMap.comparator = new NullComparator(keyMapBuilder.comparator, keyMapBuilder.sortNullsFirst);
                     } else {
                     	keyMap.comparator = (Comparator<Object>) keyMapBuilder.comparator;
@@ -749,17 +764,20 @@ public class TableCollectionImpl<E> implements Collection<E> {
                 }
         	}
 
-        	if (keyMapBuilder.orderByType != null || keyMapBuilder.orderBy) {
+        	if (list && isTrue(keyMapBuilder.orderBy)) {
         		if (keyMapBuilder.orderByType == null) {
             		keyMap.keysList = new GapList<Object>();
         		} else {
-//                	if (keyMap.comparator != NaturalComparator.INSTANCE) {
-//                		throw new IllegalArgumentException("Only natural comparator supported for list type");
-//                	}
-        			keyMap.comparator = NaturalComparator.INSTANCE;
+                	if (keyMapBuilder.comparator != null && keyMapBuilder.comparator != NaturalComparator.INSTANCE) {
+                		throw new IllegalArgumentException("Only natural comparator supported for list type");
+                	}
+                	if (isTrue(keyMapBuilder.allowNull)) {
+                		throw new IllegalArgumentException("Null values are not supported for primitive list type");
+                	}
+                	keyMap.comparator = NaturalComparator.INSTANCE;
         			keyMap.keysList = (GapList<Object>) GapLists.createWrapperList(keyMapBuilder.orderByType);
         		}
-        	} else if (keyMapBuilder.sort) {
+        	} else if (keyMap.comparator != null) {
         		keyMap.keysMap = new TreeMap(keyMap.comparator);
         	} else {
         		keyMap.keysMap = new HashMap();
@@ -773,33 +791,43 @@ public class TableCollectionImpl<E> implements Collection<E> {
          *
          * @param tableColl collection to initialize
          */
-        void build(TableCollectionImpl<E> tableColl) {
+        void build(TableCollectionImpl<E> tableColl, boolean list) {
         	tableColl.allowNullElem = allowNullElem;
             tableColl.constraint = constraint;
             tableColl.insertTrigger = insertTrigger;
             tableColl.deleteTrigger = deleteTrigger;
 
             int orderByKey = -1;
-            if (keyMapBuilders.size() > 0) {
-	            tableColl.keyMaps = new KeyMap[keyMapBuilders.size()+1];
-	            for (int i=0; i<keyMapBuilders.size(); i++) {
+            int size = keyMapBuilders.size();
+            if (size == 0) {
+            	if (!list) {
+            		withElem();
+            		size++;
+            	}
+            }
+            if (size > 0) {
+	            tableColl.keyMaps = new KeyMap[size];
+	            for (int i=0; i<size; i++) {
 	            	KeyMapBuilder kmb = keyMapBuilders.get(i);
 	            	if (kmb == null) {
-	            		throw new IllegalArgumentException("Key " + i + " is not defined");
-	            	}
-	            	if (kmb.orderBy) {
-	            		if (orderByKey != -1) {
-	                		throw new IllegalArgumentException("Only one order by key allowed");
+	            		if (i != 0) {
+	            			throw new IllegalArgumentException("Key " + i + " is not defined");
 	            		}
-	            		orderByKey = i+1;
+	            	} else {
+	            		if (isTrue(kmb.orderBy)) {
+	            			if (orderByKey != -1) {
+	            				throw new IllegalArgumentException("Only one order by key allowed");
+	            			}
+	            			orderByKey = i;
+	            		}
+		            	tableColl.keyMaps[i] = buildKeyMap(kmb, list);
 	            	}
-	            	tableColl.keyMaps[i+1] = buildKeyMap(kmb);
 	            }
             }
-            if (orderByKey != -1) {
-            	tableColl.ordered = true;
-            } else {
-            	tableColl.ordered = false;
+
+            // TableCollectionImpl must have a defined order,
+            // TableListImpl will use the list order
+            if (orderByKey == -1 && !list) {
 	            if (tableColl.keyMaps != null) {
 	            	if (tableColl.keyMaps[0] != null) {
 	            		orderByKey = 0;
@@ -822,7 +850,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
 
         void fill(TableCollectionImpl<E> tableColl, TableListImpl<E> tableList) {
         	tableList.tableImpl = tableColl;
-        	if (tableColl.ordered && tableColl.orderByKey == 0) {
+        	if (tableColl.orderByKey == 0) {
         		tableList.forward = (GapList<E>) tableColl.keyMaps[0].keysList;
                 if (collection != null) {
                 	tableColl.addAll(collection);
@@ -1183,16 +1211,26 @@ public class TableCollectionImpl<E> implements Collection<E> {
 
     /**
      * Size of collection.
+     * The size is cached, as the key maps do not know the size if duplicates are allowed.
      */
     int size;
     /**
-     * Index 0 is reseverd for the elem key using an IdentMapper. If there is no
-     * elem key, keyMaps[0] contains null.
+     * Maps for element and all defined keys.
+     * Index 0 is reseverd for the elem key using an IdentMapper.
+     * If there is no elem key, keyMaps[0] contains null.
      */
     KeyMap<E, Object>[] keyMaps;
-    /** Index of key map which defines order (-1 for no order) */
+    /**
+     * Index of key map which defines order
+     * (-1 for no order, only possible for TableList).
+     * If an order key is defined for a TableList, it must be implemented as list.
+     */
     int orderByKey;
-    boolean ordered;
+    /**
+     * True if key map which defines order is implem
+     * Only
+     */
+    //boolean orderedList;
 	// -- null
     boolean allowNullElem;
     Predicate<E> constraint;
@@ -1281,7 +1319,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
     }
 
     boolean isSortedList() {
-    	return ordered;
+    	return orderByKey != -1;
     }
 
     int binarySearchSorted(E elem) {
