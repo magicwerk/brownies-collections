@@ -138,6 +138,16 @@ public class TableCollection<E> extends TableCollectionImpl<E> {
         	return (Builder<E>) super.withElemSort(comparator, sortNullsFirst);
         }
 
+        @Override
+        public Builder<E> withPrimaryElem() {
+        	return (Builder<E>) super.withPrimaryElem();
+        }
+
+        @Override
+        public Builder<E> withUniqueElem() {
+        	return (Builder<E>) super.withUniqueElem();
+        }
+
         /**
          * Create collection with specified options.
          *
@@ -160,15 +170,24 @@ public class TableCollection<E> extends TableCollectionImpl<E> {
     private TableCollection() {
     }
 
-    /**
-     * Create builder for this class.
-     * Internal use in child classes only.
-     *
-     * @return  builder for this class
-     */
-//    protected BagCollection.Builder<E> getBuilder() {
-//        return new BagCollection.Builder<E>(this);
-//    }
+    @Override
+    public Object clone() {
+    	return copy();
+    }
+
+	@Override
+    public TableCollection<E> copy() {
+        TableCollection<E> copy = new TableCollection<E>();
+        copy.initCopy(this);
+        return copy;
+    }
+
+	@Override
+    public TableCollection<E> crop() {
+        TableCollection<E> copy = new TableCollection<E>();
+        copy.initCrop(this);
+        return copy;
+    }
 
     //-- Element methods
 
@@ -191,32 +210,5 @@ public class TableCollection<E> extends TableCollectionImpl<E> {
 	public GapList<E> getDistinct() {
 		return (GapList<E>) super.getDistinctKeys(0);
 	}
-
-	//-- Other methods
-
-    // TODO what about clone()?
-    /**
-     * Returns a copy of this collection.
-     * The new collection will use the same comparator, ordering, etc.
-     *
-     * @return  an empty copy of this instance
-     */
-    public TableCollection<E> copy() {
-        TableCollection<E> copy = new TableCollection<E>();
-        copy.initCopy(this);
-        return copy;
-    }
-
-    /**
-     * Returns a copy of this collection.
-     * The new collection will use the same comparator, ordering, etc.
-     *
-     * @return  a copy of this instance
-     */
-    public TableCollection<E> crop() {
-        TableCollection<E> copy = new TableCollection<E>();
-        copy.initCrop(this);
-        return copy;
-    }
 
 }

@@ -137,6 +137,16 @@ public class Table2Collection<E,K1,K2> extends TableCollectionImpl<E> {
         	return (Builder<E,K1,K2>) super.withElemSort(comparator, sortNullsFirst);
         }
 
+        @Override
+        public Builder<E,K1,K2> withPrimaryElem() {
+        	return (Builder<E,K1,K2>) super.withPrimaryElem();
+        }
+
+        @Override
+        public Builder<E,K1,K2> withUniqueElem() {
+        	return (Builder<E,K1,K2>) super.withUniqueElem();
+        }
+
         // -- Key1
 
         // @Override
@@ -177,6 +187,16 @@ public class Table2Collection<E,K1,K2> extends TableCollectionImpl<E> {
         @Override
         public Builder<E,K1,K2> withKey1Sort(Comparator<? super E> comparator, boolean sortNullsFirst) {
         	return (Builder<E,K1,K2>) super.withKey1Sort(comparator, sortNullsFirst);
+        }
+
+        @Override
+        public Builder<E,K1,K2> withPrimaryKey1() {
+        	return (Builder<E,K1,K2>) super.withPrimaryKey1();
+        }
+
+        @Override
+        public Builder<E,K1,K2> withUniqueKey1() {
+        	return (Builder<E,K1,K2>) super.withUniqueKey1();
         }
 
         // -- Key2
@@ -221,6 +241,16 @@ public class Table2Collection<E,K1,K2> extends TableCollectionImpl<E> {
         	return (Builder<E,K1,K2>) super.withKey2Sort(comparator, sortNullsFirst);
         }
 
+        @Override
+        public Builder<E,K1,K2> withPrimaryKey2() {
+        	return (Builder<E,K1,K2>) super.withPrimaryKey2();
+        }
+
+        @Override
+        public Builder<E,K1,K2> withUniqueKey2() {
+        	return (Builder<E,K1,K2>) super.withUniqueKey2();
+        }
+
         /**
          * @return created collection
          */
@@ -238,6 +268,25 @@ public class Table2Collection<E,K1,K2> extends TableCollectionImpl<E> {
      * Private constructor.
      */
     private Table2Collection() {
+    }
+
+    @Override
+    public Object clone() {
+    	return copy();
+    }
+
+    @Override
+    public Table2Collection<E,K1,K2> copy() {
+        Table2Collection<E,K1,K2> copy = new Table2Collection<E,K1,K2>();
+        copy.initCopy(this);
+        return copy;
+    }
+
+    @Override
+    public Table2Collection<E,K1,K2> crop() {
+        Table2Collection<E,K1,K2> copy = new Table2Collection<E,K1,K2>();
+        copy.initCrop(this);
+        return copy;
     }
 
     //-- Element methods
@@ -321,19 +370,5 @@ public class Table2Collection<E,K1,K2> extends TableCollectionImpl<E> {
 	public GapList<K2> getDistinctKeys2() {
 		return (GapList<K2>) super.getDistinctKeys(2);
 	}
-
-	//
-
-    public Table2Collection<E,K1,K2> copy() {
-        Table2Collection<E,K1,K2> copy = new Table2Collection<E,K1,K2>();
-        copy.initCopy(this);
-        return copy;
-    }
-
-    public Table2Collection<E,K1,K2> crop() {
-        Table2Collection<E,K1,K2> copy = new Table2Collection<E,K1,K2>();
-        copy.initCrop(this);
-        return copy;
-    }
 
 }

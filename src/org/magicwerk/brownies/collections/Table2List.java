@@ -20,6 +20,7 @@ package org.magicwerk.brownies.collections;
 import java.util.Collection;
 import java.util.Comparator;
 
+import org.magicwerk.brownies.collections.Table2Collection.Builder;
 import org.magicwerk.brownies.collections.TableCollectionImpl.BuilderImpl;
 import org.magicwerk.brownies.collections.function.Mapper;
 import org.magicwerk.brownies.collections.function.Predicate;
@@ -142,11 +143,21 @@ public class Table2List<E,K1,K2> extends TableListImpl<E> {
         	return (Builder<E,K1,K2>) super.withElemSort(comparator, sortNullsFirst);
         }
 
+        @Override
+        public Builder<E,K1,K2> withPrimaryElem() {
+        	return (Builder<E,K1,K2>) super.withPrimaryElem();
+        }
+
+        @Override
+        public Builder<E,K1,K2> withUniqueElem() {
+        	return (Builder<E,K1,K2>) super.withUniqueElem();
+        }
+
         // -- Key 1
 
         // @Override
         public Builder<E,K1,K2> withKey1(Mapper<E,K1> mapper) {
-        	return (Builder<E,K1,K2>) super.withKey(mapper);
+        	return (Builder<E,K1,K2>) super.withKey1(mapper);
         }
 
         // @Override
@@ -161,39 +172,49 @@ public class Table2List<E,K1,K2> extends TableListImpl<E> {
 
         @Override
         public Builder<E,K1,K2> withKey1Null(boolean allowNull) {
-        	return (Builder<E,K1,K2>) super.withKeyNull(allowNull);
+        	return (Builder<E,K1,K2>) super.withKey1Null(allowNull);
         }
 
         @Override
         public Builder<E,K1,K2> withKey1Duplicates(boolean allowDuplicates) {
-        	return (Builder<E,K1,K2>) super.withKeyDuplicates(allowDuplicates);
+        	return (Builder<E,K1,K2>) super.withKey1Duplicates(allowDuplicates);
         }
 
         @Override
         public Builder<E,K1,K2> withKey1Duplicates(boolean allowDuplicates, boolean allowDuplicatesNull) {
-        	return (Builder<E,K1,K2>) super.withKeyDuplicates(allowDuplicates, allowDuplicatesNull);
+        	return (Builder<E,K1,K2>) super.withKey1Duplicates(allowDuplicates, allowDuplicatesNull);
         }
 
         @Override
         public Builder<E,K1,K2> withKey1Sort(boolean sort) {
-        	return (Builder<E,K1,K2>) super.withKeySort(sort);
+        	return (Builder<E,K1,K2>) super.withKey1Sort(sort);
         }
 
         @Override
         public Builder<E,K1,K2> withKey1Sort(Comparator<? super E> comparator) {
-        	return (Builder<E,K1,K2>) super.withKeySort(comparator);
+        	return (Builder<E,K1,K2>) super.withKey1Sort(comparator);
         }
 
         @Override
         public Builder<E,K1,K2> withKey1Sort(Comparator<? super E> comparator, boolean sortNullsFirst) {
-        	return (Builder<E,K1,K2>) super.withKeySort(comparator, sortNullsFirst);
+        	return (Builder<E,K1,K2>) super.withKey1Sort(comparator, sortNullsFirst);
+        }
+
+        @Override
+        public Builder<E,K1,K2> withPrimaryKey1() {
+        	return (Builder<E,K1,K2>) super.withPrimaryKey1();
+        }
+
+        @Override
+        public Builder<E,K1,K2> withUniqueKey1() {
+        	return (Builder<E,K1,K2>) super.withUniqueKey1();
         }
 
         // -- Key 2
 
         // @Override
         public Builder<E,K1,K2> withKey2(Mapper<E,K1> mapper) {
-        	return (Builder<E,K1,K2>) super.withKey(mapper);
+        	return (Builder<E,K1,K2>) super.withKey2(mapper);
         }
 
         // @Override
@@ -208,32 +229,42 @@ public class Table2List<E,K1,K2> extends TableListImpl<E> {
 
         @Override
         public Builder<E,K1,K2> withKey2Null(boolean allowNull) {
-        	return (Builder<E,K1,K2>) super.withKeyNull(allowNull);
+        	return (Builder<E,K1,K2>) super.withKey2Null(allowNull);
         }
 
         @Override
         public Builder<E,K1,K2> withKey2Duplicates(boolean allowDuplicates) {
-        	return (Builder<E,K1,K2>) super.withKeyDuplicates(allowDuplicates);
+        	return (Builder<E,K1,K2>) super.withKey2Duplicates(allowDuplicates);
         }
 
         @Override
         public Builder<E,K1,K2> withKey2Duplicates(boolean allowDuplicates, boolean allowDuplicatesNull) {
-        	return (Builder<E,K1,K2>) super.withKeyDuplicates(allowDuplicates, allowDuplicatesNull);
+        	return (Builder<E,K1,K2>) super.withKey2Duplicates(allowDuplicates, allowDuplicatesNull);
         }
 
         @Override
         public Builder<E,K1,K2> withKey2Sort(boolean sort) {
-        	return (Builder<E,K1,K2>) super.withKeySort(sort);
+        	return (Builder<E,K1,K2>) super.withKey2Sort(sort);
         }
 
         @Override
         public Builder<E,K1,K2> withKey2Sort(Comparator<? super E> comparator) {
-        	return (Builder<E,K1,K2>) super.withKeySort(comparator);
+        	return (Builder<E,K1,K2>) super.withKey2Sort(comparator);
         }
 
         @Override
         public Builder<E,K1,K2> withKey2Sort(Comparator<? super E> comparator, boolean sortNullsFirst) {
-        	return (Builder<E,K1,K2>) super.withKeySort(comparator, sortNullsFirst);
+        	return (Builder<E,K1,K2>) super.withKey2Sort(comparator, sortNullsFirst);
+        }
+
+        @Override
+        public Builder<E,K1,K2> withPrimaryKey2() {
+        	return (Builder<E,K1,K2>) super.withPrimaryKey2();
+        }
+
+        @Override
+        public Builder<E,K1,K2> withUniqueKey2() {
+        	return (Builder<E,K1,K2>) super.withUniqueKey2();
         }
 
         /**
@@ -256,12 +287,19 @@ public class Table2List<E,K1,K2> extends TableListImpl<E> {
     private Table2List() {
     }
 
+    @Override
+    public Object clone() {
+    	return copy();
+    }
+
+    @Override
     public Table2List<E,K1,K2> copy() {
     	Table2List<E,K1,K2> copy = new Table2List<E,K1,K2>();
         copy.initCopy(this);
         return copy;
     }
 
+    @Override
     public Table2List<E,K1,K2> crop() {
     	Table2List<E,K1,K2> copy = new Table2List<E,K1,K2>();
         copy.initCrop(this);

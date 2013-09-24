@@ -196,9 +196,12 @@ public class TableCollectionImpl<E> implements Collection<E> {
         }
 
         /**
-         * Add element map (with ident mapper).
+         * Specifies that the collection will have the order of this map.
+         * The map must be sorted, if no sort order has been defined,
+         * the natural comparator will be used. If the map allows null
+         * values, the used comparator will sort them last.
          *
-         * @param orderBy	true to force the collection to have the order of this map
+         * @param orderBy	if true the collection will have the order of this map
          * @return			this (fluent interface)
          */
         protected BuilderImpl<E> withElemOrderBy(boolean orderBy) {
@@ -206,9 +209,11 @@ public class TableCollectionImpl<E> implements Collection<E> {
         }
 
         /**
-         * Specify element type to use.
+         * Specifies that the list will have the order of this map.
+         * The map will store values of the primitive type specified like <code>int</code>.
+         * The map will be sorted using the natural comparator and no null values are allowed.
          *
-         * @param type	type to use
+         * @param type	primitive type to use for map
          * @return		this (fluent interface)
          */
         // only for TableList
@@ -217,7 +222,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
         }
 
         /**
-         * Specify whether null elements are allowed or not.
+         * Specifies whether null elements are allowed or not.
          * A null element will have a null key.
          *
          * @param allowNull true to allow null elements, false to disallow
@@ -333,6 +338,9 @@ public class TableCollectionImpl<E> implements Collection<E> {
 
         protected BuilderImpl<E> withKeyNull(int keyIndex, boolean allowNull) {
         	KeyMapBuilder kmb = getKeyMapBuilder(keyIndex);
+        	if (kmb.allowNull != null) {
+        		throw new IllegalArgumentException("AllowNull already set");
+        	}
         	kmb.allowNull = allowNull;
         	if (keyIndex == 0) {
         		allowNullElem = allowNull;
@@ -342,6 +350,9 @@ public class TableCollectionImpl<E> implements Collection<E> {
 
         protected BuilderImpl<E> withKeyDuplicates(int keyIndex, boolean allowDuplicates, boolean allowDuplicatesNull) {
         	KeyMapBuilder kmb = getKeyMapBuilder(keyIndex);
+        	if (kmb.allowDuplicates != null) {
+        		throw new IllegalArgumentException("AllowDuplicates already set");
+        	}
         	kmb.allowDuplicates = allowDuplicates;
         	kmb.allowDuplicatesNull = allowDuplicatesNull;
             return this;
@@ -350,7 +361,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
         protected BuilderImpl<E> withKeySort(int keyIndex, boolean sort) {
         	KeyMapBuilder kmb = getKeyMapBuilder(keyIndex);
         	if (kmb.sort != null) {
-        		throw new IllegalArgumentException("sort already called");
+        		throw new IllegalArgumentException("Sort already set");
         	}
         	kmb.sort = sort;
         	kmb.comparator = null;
@@ -362,7 +373,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
         protected BuilderImpl<E> withKeySort(int keyIndex, Comparator<? super E> comparator) {
         	KeyMapBuilder kmb = getKeyMapBuilder(keyIndex);
         	if (kmb.sort != null) {
-        		throw new IllegalArgumentException("sort already called");
+        		throw new IllegalArgumentException("Sort already set");
         	}
         	kmb.sort = true;
         	kmb.comparator = comparator;
@@ -374,7 +385,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
         protected BuilderImpl<E> withKeySort(int keyIndex, Comparator<? super E> comparator, boolean sortNullsFirst) {
         	KeyMapBuilder kmb = getKeyMapBuilder(keyIndex);
         	if (kmb.sort != null) {
-        		throw new IllegalArgumentException("sort already called");
+        		throw new IllegalArgumentException("Sort already set");
         	}
         	kmb.sort = true;
         	kmb.comparator = comparator;
@@ -390,7 +401,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
         }
 
         protected BuilderImpl<E> withUniqueKey(int keyIndex) {
-        	withKeyNull(keyIndex, false);
+        	withKeyNull(keyIndex, true);
         	withKeyDuplicates(keyIndex, false, true);
             return this;
         }
@@ -718,10 +729,6 @@ public class TableCollectionImpl<E> implements Collection<E> {
         	int size = keyMapBuilders.size();
         	if (index >= size) {
         		KeyMapBuilder kmb = new KeyMapBuilder();
-//        		if (index == 0) {
-//        			kmb.mapper = IdentMapper.INSTANCE;
-//        			kmb.allowNull = allowNullElem;
-//        		}
         		if (index == 1 && size == 0) {
             		keyMapBuilders.add(0, null);
         		}
@@ -735,20 +742,17 @@ public class TableCollectionImpl<E> implements Collection<E> {
         }
 
         boolean isFalse(Boolean b) {
-        	return b != null && !b;
+        	return !(b != null && !b);
         }
 
         KeyMap buildKeyMap(KeyMapBuilder keyMapBuilder, boolean list) {
         	KeyMap<E,Object> keyMap = new KeyMap<E,Object>();
         	keyMap.mapper = (Mapper<E, Object>) keyMapBuilder.mapper;
-        	if (keyMap.mapper == null) {
-        		keyMap.mapper = IdentMapper.INSTANCE;
-        	}
-            keyMap.allowNull = !isFalse(keyMapBuilder.allowNull);
-        	keyMap.allowDuplicates = !isFalse(keyMapBuilder.allowDuplicates);
-        	keyMap.allowDuplicatesNull = !isFalse(keyMapBuilder.allowDuplicatesNull);
+            keyMap.allowNull = isFalse(keyMapBuilder.allowNull);
+        	keyMap.allowDuplicates = isFalse(keyMapBuilder.allowDuplicates);
+        	keyMap.allowDuplicatesNull = isFalse(keyMapBuilder.allowDuplicatesNull);
 
-        	if (isTrue(keyMapBuilder.sort) || (isTrue(keyMapBuilder.orderBy) && list)) {
+        	if (isTrue(keyMapBuilder.sort) || isTrue(keyMapBuilder.orderBy)) {
                 if (keyMapBuilder.comparator == null) {
                 	if (keyMap.allowNull) {
                     	keyMap.comparator = new NullComparator(NaturalComparator.INSTANCE, keyMapBuilder.sortNullsFirst);
@@ -820,6 +824,13 @@ public class TableCollectionImpl<E> implements Collection<E> {
 	            			}
 	            			orderByKey = i;
 	            		}
+	                	if (kmb.mapper == null) {
+	                		if (i == 0) {
+	                			kmb.mapper = IdentMapper.INSTANCE;
+	                		} else {
+		            			throw new IllegalArgumentException("No mapper for key " + i + " defined");
+	                		}
+	                	}
 		            	tableColl.keyMaps[i] = buildKeyMap(kmb, list);
 	            	}
 	            }
@@ -849,7 +860,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
         }
 
         void fill(TableCollectionImpl<E> tableColl, TableListImpl<E> tableList) {
-        	tableList.tableImpl = tableColl;
+        	tableList.tableColl = tableColl;
         	if (tableColl.orderByKey == 0) {
         		tableList.forward = (GapList<E>) tableColl.keyMaps[0].keysList;
                 if (collection != null) {
@@ -1207,7 +1218,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
     //-- KeyCollection --
 
     /** If true the invariants the GapList are checked for debugging */
-    private static final boolean DEBUG_CHECK = false;
+    private static final boolean DEBUG_CHECK = true;
 
     /**
      * Size of collection.
@@ -1258,6 +1269,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
     	constraint = that.constraint;
     	insertTrigger = that.insertTrigger;
     	deleteTrigger = that.deleteTrigger;
+    	orderByKey = that.orderByKey;
     }
 
     /**
@@ -1277,7 +1289,9 @@ public class TableCollectionImpl<E> implements Collection<E> {
     	constraint = that.constraint;
     	insertTrigger = that.insertTrigger;
     	deleteTrigger = that.deleteTrigger;
+    	orderByKey = that.orderByKey;
     }
+
     /**
      * Private method to check invariant of GapList.
      * It is only used for debugging.
@@ -1578,6 +1592,28 @@ public class TableCollectionImpl<E> implements Collection<E> {
         }
         return true;
 	}
+
+    /**
+     * Returns a copy of this collection.
+     * The new collection will use the same comparator, ordering, etc.
+     *
+     * @return  an empty copy of this instance
+     */
+    public TableCollectionImpl copy() {
+    	// Derived classes must implement
+    	throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Returns a copy of this collection.
+     * The new collection will use the same comparator, ordering, etc.
+     *
+     * @return  a copy of this instance
+     */
+    public TableCollectionImpl crop() {
+    	// Derived classes must implement
+    	throw new UnsupportedOperationException();
+    }
 
     @Override
     public void clear() {

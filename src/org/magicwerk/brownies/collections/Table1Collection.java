@@ -136,6 +136,16 @@ public class Table1Collection<E,K> extends TableCollectionImpl<E> {
         	return (Builder<E,K>) super.withElemSort(comparator, sortNullsFirst);
         }
 
+        @Override
+        public Builder<E,K> withPrimaryElem() {
+        	return (Builder<E,K>) super.withPrimaryElem();
+        }
+
+        @Override
+        public Builder<E,K> withUniqueElem() {
+        	return (Builder<E,K>) super.withUniqueElem();
+        }
+
         // -- Key
 
         // @Override
@@ -178,6 +188,16 @@ public class Table1Collection<E,K> extends TableCollectionImpl<E> {
         	return (Builder<E,K>) super.withKeySort(comparator, sortNullsFirst);
         }
 
+        @Override
+        public Builder<E,K> withPrimaryKey() {
+        	return (Builder<E,K>) super.withPrimaryKey();
+        }
+
+        @Override
+        public Builder<E,K> withUniqueKey() {
+        	return (Builder<E,K>) super.withUniqueKey();
+        }
+
         /**
          * @return created SetList
          */
@@ -197,12 +217,19 @@ public class Table1Collection<E,K> extends TableCollectionImpl<E> {
     private Table1Collection() {
     }
 
+    @Override
+    public Object clone() {
+    	return copy();
+    }
+    
+    @Override
     public Table1Collection<E,K> copy() {
         Table1Collection<E,K> copy = new Table1Collection<E,K>();
         copy.initCopy(this);
         return copy;
     }
 
+    @Override
     public Table1Collection<E,K> crop() {
         Table1Collection<E,K> copy = new Table1Collection<E,K>();
         copy.initCrop(this);

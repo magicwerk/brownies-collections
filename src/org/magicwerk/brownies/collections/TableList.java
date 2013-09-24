@@ -146,6 +146,16 @@ public class TableList<E> extends TableListImpl<E> {
         	return (Builder<E>) super.withElemSort(comparator, sortNullsFirst);
         }
 
+        @Override
+        public Builder<E> withPrimaryElem() {
+        	return (Builder<E>) super.withPrimaryElem();
+        }
+
+        @Override
+        public Builder<E> withUniqueElem() {
+        	return (Builder<E>) super.withUniqueElem();
+        }
+
         /**
          * Create collection with specified options.
          *
@@ -168,15 +178,24 @@ public class TableList<E> extends TableListImpl<E> {
     private TableList() {
     }
 
-//    /**
-//     * Create builder for this class.
-//     * Internal use in child classes only.
-//     *
-//     * @return  builder for this class
-//     */
-//    protected TableList.Builder<E> getBuilder() {
-//        return new TableList.Builder<E>(this);
-//    }
+    @Override
+    public Object clone() {
+    	return copy();
+    }
+
+    @Override
+    public TableList<E> copy() {
+        TableList<E> copy = new TableList<E>();
+        copy.initCopy(this);
+        return copy;
+    }
+
+    @Override
+    public TableList<E> crop() {
+        TableList<E> crop = new TableList<E>();
+        crop.initCrop(this);
+        return crop;
+    }
 
     //-- Element methods
 
@@ -199,27 +218,5 @@ public class TableList<E> extends TableListImpl<E> {
 	public GapList<E> getDistinct() {
 		return (GapList<E>) super.getDistinctKeys(0);
 	}
-
-	/**
-     * {@inheritDoc}
-     */
-    @Override
-    public TableList<E> copy() {
-        TableList<E> copy = new TableList<E>();
-        copy.initCopy(this);
-        return copy;
-    }
-
-    /**
-     * Returns a copy this list but without elements.
-     * The new list will use the same comparator, ordering, etc.
-     *
-     * @return  an empty copy of this instance
-     */
-    public TableList<E> crop() {
-        TableList<E> crop = new TableList<E>();
-        crop.initCrop(this);
-        return crop;
-    }
 
 }

@@ -20,6 +20,7 @@ package org.magicwerk.brownies.collections;
 import java.util.Collection;
 import java.util.Comparator;
 
+import org.magicwerk.brownies.collections.Table2Collection.Builder;
 import org.magicwerk.brownies.collections.TableCollectionImpl.BuilderImpl;
 import org.magicwerk.brownies.collections.function.Mapper;
 import org.magicwerk.brownies.collections.function.Predicate;
@@ -142,6 +143,16 @@ public class Table1List<E,K> extends TableListImpl<E> {
         	return (Builder<E,K>) super.withElemSort(comparator, sortNullsFirst);
         }
 
+        @Override
+        public Builder<E,K> withPrimaryElem() {
+        	return (Builder<E,K>) super.withPrimaryElem();
+        }
+
+        @Override
+        public Builder<E,K> withUniqueElem() {
+        	return (Builder<E,K>) super.withUniqueElem();
+        }
+
         // -- Key
 
         // @Override
@@ -189,6 +200,16 @@ public class Table1List<E,K> extends TableListImpl<E> {
         	return (Builder<E,K>) super.withKeySort(comparator, comparatorSortsNull);
         }
 
+        @Override
+        public Builder<E,K> withPrimaryKey() {
+        	return (Builder<E,K>) super.withPrimaryKey();
+        }
+
+        @Override
+        public Builder<E,K> withUniqueKey() {
+        	return (Builder<E,K>) super.withUniqueKey();
+        }
+
         /**
          * @return created list
          */
@@ -209,12 +230,19 @@ public class Table1List<E,K> extends TableListImpl<E> {
     private Table1List() {
     }
 
+    @Override
+    public Object clone() {
+    	return copy();
+    }
+
+    @Override
     public Table1List<E,K> copy() {
     	Table1List<E,K> copy = new Table1List<E,K>();
         copy.initCopy(this);
         return copy;
     }
 
+    @Override
     public Table1List<E,K> crop() {
     	Table1List<E,K> copy = new Table1List<E,K>();
         copy.initCrop(this);
