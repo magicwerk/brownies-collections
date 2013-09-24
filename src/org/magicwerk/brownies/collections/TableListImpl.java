@@ -32,11 +32,11 @@ import java.util.Comparator;
  */
 public class TableListImpl<E> extends GapList<E> {
 
-    TableCollectionImpl<E> tableImpl;
+    TableCollectionImpl<E> tableColl;
     GapList<E> forward;
 
     /** If true the invariants the GapList are checked for debugging */
-    private static final boolean DEBUG_CHECK = false;
+    private static final boolean DEBUG_CHECK = true;
 
     /**
      * Private method to check invariant of GapList.
@@ -46,7 +46,7 @@ public class TableListImpl<E> extends GapList<E> {
     	if (forward != null) {
     		assert(super.size() == 0);
     	} else {
-    		assert(super.size() == tableImpl.size());
+    		assert(super.size() == tableColl.size());
     	}
     }
 
@@ -67,8 +67,8 @@ public class TableListImpl<E> extends GapList<E> {
 	    init(new Object[DEFAULT_CAPACITY], 0);
 
 	    // TableCollection
-	    tableImpl = new TableCollectionImpl();
-	    tableImpl.initCopy(that.tableImpl);
+	    tableColl = new TableCollectionImpl();
+	    tableColl.initCopy(that.tableColl);
 	}
 
     /**
@@ -81,8 +81,8 @@ public class TableListImpl<E> extends GapList<E> {
         init(that.toArray(), that.size());
 
 	    // TableCollection
-	    tableImpl = new TableCollectionImpl();
-	    tableImpl.initCrop(that.tableImpl);
+	    tableColl = new TableCollectionImpl();
+	    tableColl.initCrop(that.tableColl);
     }
 
     //-- Read
@@ -175,21 +175,32 @@ public class TableListImpl<E> extends GapList<E> {
 
     @Override
     public void clear() {
-    	tableImpl.clear();
+    	tableColl.clear();
     	if (forward == null) {
     		super.clear();
     	}
     }
 
+    /**
+     * Returns a copy this list but without elements.
+     * The new list will use the same comparator, ordering, etc.
+     *
+     * @return  an empty copy of this instance
+     */
+    public TableListImpl<E> crop() {
+    	// Derived classes must implement
+    	throw new UnsupportedOperationException();
+    }
+
     @Override
     protected boolean doAdd(int index, E elem) {
-    	tableImpl.checkElemAllowed(elem);
+    	tableColl.checkElemAllowed(elem);
 
-    	tableImpl.add(elem);
+    	tableColl.add(elem);
     	if (forward == null) {
     		int addIndex = index;
-    		if (tableImpl.isSortedList()) {
-    			addIndex = tableImpl.binarySearchSorted(elem);
+    		if (tableColl.isSortedList()) {
+    			addIndex = tableColl.binarySearchSorted(elem);
     			assert(addIndex >= 0);
     			if (index != -1 && addIndex != index) {
     				throw new IllegalArgumentException("Invalid index for sorted list: " + index);
@@ -197,7 +208,7 @@ public class TableListImpl<E> extends GapList<E> {
     		} else {
     			if (addIndex == -1) {
     				// Element is already added to tableImpl
-    				addIndex = tableImpl.size()-1;
+    				addIndex = tableColl.size()-1;
     			}
     		}
     		super.doAdd(addIndex, elem);
@@ -223,15 +234,15 @@ public class TableListImpl<E> extends GapList<E> {
 
     @Override
     protected E doSet(int index, E elem) {
-    	tableImpl.checkElemAllowed(elem);
+    	tableColl.checkElemAllowed(elem);
 
     	E remove = doGet(index);
     	// TODO this will result in add/remove instead of set for sorted lists
-    	tableImpl.remove(remove);
-    	tableImpl.add(elem);
+    	tableColl.remove(remove);
+    	tableColl.add(elem);
     	int addIndex = index;
-    	if (tableImpl.isSortedList()) {
-    		addIndex = tableImpl.binarySearchSorted(elem);
+    	if (tableColl.isSortedList()) {
+    		addIndex = tableColl.binarySearchSorted(elem);
     		assert(addIndex >= 0);
     		if (addIndex != index) {
     			throw new IllegalArgumentException("Invalid index for sorted list: " + index);
@@ -255,7 +266,7 @@ public class TableListImpl<E> extends GapList<E> {
     @Override
     protected E doRemove(int index) {
     	E removed = super.doGet(index);
-		tableImpl.remove(removed);
+		tableColl.remove(removed);
     	if (forward == null) {
     		super.doRemove(index);
     	}
@@ -282,8 +293,8 @@ public class TableListImpl<E> extends GapList<E> {
 
     @Override
     public int indexOf(Object elem) {
-    	if (tableImpl.isSortedList()) {
-    		return tableImpl.indexOfSorted((E) elem);
+    	if (tableColl.isSortedList()) {
+    		return tableColl.indexOfSorted((E) elem);
     	} else {
     		return super.indexOf(elem);
     	}
@@ -307,7 +318,7 @@ public class TableListImpl<E> extends GapList<E> {
     public <K> int indexOfKey(int keyIndex, K key, int start) {
     	int size = size();
     	for (int i=start; i<size; i++) {
-    		K elemKey = (K) tableImpl.getKey(keyIndex, doGet(i));
+    		K elemKey = (K) tableColl.getKey(keyIndex, doGet(i));
     		if (equalsElem(elemKey, key)) {
     			return i;
     		}
@@ -334,7 +345,7 @@ public class TableListImpl<E> extends GapList<E> {
      * @return      value of specified key or null
      */
     public E getByKey(int keyIndex, Object key) {
-    	return tableImpl.getByKey(keyIndex, key);
+    	return tableColl.getByKey(keyIndex, key);
     }
 
     /**
@@ -345,7 +356,7 @@ public class TableListImpl<E> extends GapList<E> {
      */
     @SuppressWarnings("unchecked")
     public GapList<E> getAllByKey(int keyIndex, Object key) {
-    	return tableImpl.getAllByKey(keyIndex, key);
+    	return tableColl.getAllByKey(keyIndex, key);
     }
 
     /**
@@ -355,7 +366,7 @@ public class TableListImpl<E> extends GapList<E> {
      * @return      number of elements with key
      */
     public int getCountByKey(int keyIndex, Object key) {
-    	return tableImpl.getCountByKey(keyIndex, key);
+    	return tableColl.getCountByKey(keyIndex, key);
     }
 
     /**
@@ -366,10 +377,10 @@ public class TableListImpl<E> extends GapList<E> {
      * @return      removed element or null if no element has been removed
      */
     protected E removeByKey(int keyIndex, Object key) {
-    	E removed = (E) tableImpl.removeByKey(keyIndex, key);
-    	if (!tableImpl.isSortedList()) {
+    	E removed = (E) tableColl.removeByKey(keyIndex, key);
+    	if (!tableColl.isSortedList()) {
     		if (!super.remove(removed)) {
-    			tableImpl.errorInvalidData();
+    			tableColl.errorInvalidData();
     		}
     	}
         if (DEBUG_CHECK) debugCheck();
@@ -384,10 +395,10 @@ public class TableListImpl<E> extends GapList<E> {
      * @return      true if elements have been removed, false otherwise
      */
     protected GapList<E> removeAllByKey(int keyIndex, Object key) {
-    	GapList<E> removeds = tableImpl.removeAllByKey(keyIndex, key);
-    	if (!tableImpl.isSortedList()) {
+    	GapList<E> removeds = tableColl.removeAllByKey(keyIndex, key);
+    	if (!tableColl.isSortedList()) {
     		if (!super.removeAll(removeds)) {
-    			tableImpl.errorInvalidData();
+    			tableColl.errorInvalidData();
     		}
     	}
         if (DEBUG_CHECK) debugCheck();
@@ -400,7 +411,7 @@ public class TableListImpl<E> extends GapList<E> {
      * @return list containing all distinct keys
      */
     public GapList<?> getDistinctKeys(int keyIndex) {
-    	return tableImpl.getDistinctKeys(keyIndex);
+    	return tableColl.getDistinctKeys(keyIndex);
     }
 
     @Override
@@ -414,7 +425,7 @@ public class TableListImpl<E> extends GapList<E> {
     @Override
     public void sort(int index, int len, Comparator<? super E> comparator) {
     	// If this is sorted list, the comparator must be equal to the specified one
-    	Comparator sortComparator = tableImpl.getSortComparator();
+    	Comparator sortComparator = tableColl.getSortComparator();
     	if (sortComparator != null) {
     		if (sortComparator != comparator) {
         		throw new IllegalArgumentException("Different comparator specified for sorted list");
