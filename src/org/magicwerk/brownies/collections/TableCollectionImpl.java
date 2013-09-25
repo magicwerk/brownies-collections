@@ -24,11 +24,13 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import org.magicwerk.brownies.collections.function.Mapper;
 import org.magicwerk.brownies.collections.function.Predicate;
 import org.magicwerk.brownies.collections.function.Trigger;
+import org.magicwerk.brownies.collections.helper.CollectionAsSet;
 import org.magicwerk.brownies.collections.helper.GapLists;
 import org.magicwerk.brownies.collections.helper.IdentMapper;
 import org.magicwerk.brownies.collections.helper.NaturalComparator;
@@ -882,9 +884,9 @@ public class TableCollectionImpl<E> implements Collection<E> {
         }
    }
 
-    static class KeyMap<E, K> {
+    static class KeyMap<E,K> {
 	    /** A mapper to extract keys out of element for a MapList. For a SetList, this is always an IdentMapper. */
-	    Mapper<E, K> mapper;
+	    Mapper<E,K> mapper;
 	    /** True to allow null keys */
 	    boolean allowNull;
 	    /** True to allow duplicate values. This also allows duplicate null values, but they are not distinct. */
@@ -970,69 +972,119 @@ public class TableCollectionImpl<E> implements Collection<E> {
 	    }
 
 	    @SuppressWarnings("unchecked")
-		Iterator<E> iteratorValues() {
+		Iterator<E> iteratorValues(TableCollectionImpl<E> tableColl) {
 	    	if (keysMap != null) {
-	    		return (Iterator<E>) new KeyMapIter(keysMap);
+	    		return (Iterator<E>) new KeyMapIter(tableColl, this, keysMap);
 	    	} else {
 	    		return (Iterator<E>) keysList.unmodifiableList().iterator();
 	    	}
 	    }
 
-	    static class KeyMapIter<E,K> implements Iterator<E> {
+	    static class KeysListIter<E,K> implements Iterator<E> {
 
-	    	TableCollectionImpl<E> coll;
-	    	Iterator<Object> iter0;
-	    	Iterator<E> iter1;
-	    	boolean hasElem = false;
+	    	TableCollectionImpl<E> tableColl;
+	    	KeyMap<E,K> keyMap;
+	    	GapList<E> list;
+	    	Iterator<E> iter;
 	    	E elem;
 
-	    	public KeyMapIter(Map<K,Object> coll) {
-	    		this.iter0 = coll.values().iterator();
+			public KeysListIter(TableCollectionImpl<E> tableColl, KeyMap<E,K> keyMap, GapList<E> list) {
+	    		this.tableColl = tableColl;
+	    		this.keyMap = keyMap;
+				this.list = list;
+				this.iter = list.iterator();
+			}
+
+			@Override
+			public boolean hasNext() {
+				return iter.hasNext();
+			}
+
+			@Override
+			public E next() {
+				elem = iter.next();
+				return elem;
+			}
+
+			@Override
+			public void remove() {
+				iter.remove();
+				tableColl.remove(elem, keyMap);
+			}
+
+	    }
+
+	    static class KeyMapIter<E,K> implements Iterator<E> {
+
+	    	TableCollectionImpl<E> tableColl;
+	    	KeyMap<E,K> keyMap;
+	    	Iterator<Object> mapIter;
+	    	Iterator<E> listIter;
+	    	boolean hasElem;
+	    	E elem;
+
+	    	public KeyMapIter(TableCollectionImpl<E> tableColl, KeyMap<E,K> keyMap, Map<K,Object> map) {
+	    		this.tableColl = tableColl;
+	    		this.keyMap = keyMap;
+	    		this.mapIter = map.values().iterator();
 	    	}
 
 			@Override
 			public boolean hasNext() {
 				boolean hasNext = false;
-				if (iter1 != null) {
-					hasNext = iter1.hasNext();
+				if (listIter != null) {
+					hasNext = listIter.hasNext();
 				}
 				if (!hasNext) {
-					hasNext = iter0.hasNext();
+					hasNext = mapIter.hasNext();
 				}
 				return hasNext;
 			}
 
 			@Override
 			public E next() {
+				// Reset hasElem so it is false if a call to Iterator.next()
+				// fails with NoSuchElementException
+				hasElem = false;
+
 				boolean hasNext = false;
-				E elem = null;
-				if (iter1 != null) {
-					if (iter1.hasNext()) {
+				elem = null;
+				if (listIter != null) {
+					if (listIter.hasNext()) {
 						hasNext = true;
-						elem = iter1.next();
+						elem = listIter.next();
 					} else {
-						iter1 = null;
+						listIter = null;
 					}
 				}
 				if (!hasNext) {
-					if (iter0.hasNext()) {
-						Object o = iter0.next();
+					if (mapIter.hasNext()) {
+						Object o = mapIter.next();
 						if (o instanceof GapList) {
-							iter1 = ((GapList) o).iterator();
-							elem = iter1.next();
+							listIter = ((GapList) o).iterator();
+							elem = listIter.next();
 						} else {
 							elem = (E) o;
 						}
 					} else {
-						iter1 = null;
+						listIter = null;
 					}
 				}
+				hasElem = true;
 				return elem;
 			}
 
 			@Override
 			public void remove() {
-				throw new UnsupportedOperationException();
+				if (!hasElem) {
+					throw new IllegalStateException("No current element to remove");
+				}
+				if (listIter != null) {
+					listIter.remove();
+				} else {
+					mapIter.remove();
+				}
+				tableColl.remove(elem, keyMap);
 			}
 
 	    }
@@ -1389,22 +1441,6 @@ public class TableCollectionImpl<E> implements Collection<E> {
     	return getKeyMap(keyIndex).getValues(size);
     }
 
-//    public Set<E> getSet() {
-//    	if (setMap != null) {
-//    		boolean immutable = (keyMaps != null);
-//    		if (setMap.keysMap != null) {
-//    			return new MapAsSet(setMap.keysMap, immutable);
-//    		} else {
-//    			return new SortedListAsSet(setMap.keysList, setMap.comparator, immutable);
-//    		}
-//    	}
-//    	return null;
-//    }
-//
-//    public Map getMap(int keyIndex) {
-//    	return getKeyMap(keyIndex).keysMap;
-//    }
-
     static void errorNullElement() {
 		throw new IllegalArgumentException("Constraint violation: null element not allowed");
     }
@@ -1440,11 +1476,11 @@ public class TableCollectionImpl<E> implements Collection<E> {
 
 	@Override
 	public boolean remove(Object elem) {
-		return remove(elem, false);
+		return remove(elem, null);
 	}
 
-	boolean remove(Object elem, boolean iterator) {
-        boolean removed = doRemove(elem, iterator);
+	boolean remove(Object elem, KeyMap ignore) {
+        boolean removed = doRemove(elem, ignore);
         if (removed) {
         	size--;
             if (DEBUG_CHECK) debugCheck();
@@ -1477,7 +1513,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
 
 	@Override
 	public Iterator<E> iterator() {
-		return keyMaps[orderByKey].iteratorValues();
+		return keyMaps[orderByKey].iteratorValues(this);
 	}
 
 	@Override
@@ -1568,27 +1604,28 @@ public class TableCollectionImpl<E> implements Collection<E> {
 		return buf.toString();
 	}
 
-	boolean doRemove(Object elem, boolean iterator) {
+	boolean doRemove(Object elem, KeyMap ignore) {
         E removed = null;
         boolean first = true;
-        int start = (iterator ? 1 : 0);
-        for (int i=start; i<keyMaps.length; i++) {
-        	if (keyMaps[i] != null) {
-	       		Object key = keyMaps[i].getKey((E) elem);
-	       		Option<E> obj = keyMaps[i].remove(key, true, elem);
-	       		if (first) {
-	       			if (!obj.hasValue()) {
-	       				return false;
-	       			} else {
-	       				removed = obj.getValue();
-	       			}
-	       			first = false;
-	       		} else {
-	       			if (!obj.hasValue() || obj.getValue() != removed) {
-	       				errorInvalidData();
-	       			}
-	       		}
-        	}
+        if (keyMaps != null) {
+	        for (int i=0; i<keyMaps.length; i++) {
+	        	if (keyMaps[i] != null && keyMaps[i] != ignore) {
+		       		Object key = keyMaps[i].getKey((E) elem);
+		       		Option<E> obj = keyMaps[i].remove(key, true, elem);
+		       		if (first) {
+		       			if (!obj.hasValue()) {
+		       				return false;
+		       			} else {
+		       				removed = obj.getValue();
+		       			}
+		       			first = false;
+		       		} else {
+		       			if (!obj.hasValue() || obj.getValue() != removed) {
+		       				errorInvalidData();
+		       			}
+		       		}
+	        	}
+	        }
         }
         return true;
 	}
@@ -1613,6 +1650,10 @@ public class TableCollectionImpl<E> implements Collection<E> {
     public TableCollectionImpl crop() {
     	// Derived classes must implement
     	throw new UnsupportedOperationException();
+    }
+
+    public Set<E> asSet() {
+    	return new CollectionAsSet(this, false);
     }
 
     @Override
