@@ -210,7 +210,7 @@ public class GapList<E> extends AbstractList<E>
 
     /**
      * Create new list with specified capacity.
-     * 
+     *
      * @param capacity  capacity
      * @return          created list
      * @param <E>       type of elements stored in the list
@@ -221,7 +221,7 @@ public class GapList<E> extends AbstractList<E>
 
     /**
      * Create new list with specified elements.
-     * 
+     *
      * @param coll      collection with element
      * @return          created list
      * @param <E>       type of elements stored in the list
@@ -405,7 +405,7 @@ public class GapList<E> extends AbstractList<E>
 
 	/**
      * Initialize the list to be empty with specified capacity.
-     * 
+     *
 	 * @param capacity capacity
 	 */
 	public void init(int capacity) {
@@ -414,7 +414,7 @@ public class GapList<E> extends AbstractList<E>
 
 	/**
 	 * Initialize the list to contain the specified elements only.
-	 * 
+	 *
 	 * @param coll collection with elements
 	 */
 	public void init(Collection<? extends E> coll) {
@@ -424,7 +424,7 @@ public class GapList<E> extends AbstractList<E>
 
 	/**
      * Initialize the list to contain the specified elements only.
-     * 
+     *
 	 * @param elems array with elements
 	 */
 	public void init(E... elems) {
@@ -2564,7 +2564,7 @@ public class GapList<E> extends AbstractList<E>
     /**
      * Iterator supports forward and reverse iteration.
      */
-    private class Iter implements Iterator<E> {
+    class Iter implements Iterator<E> {
     	/** true if iterator moves forward */
     	boolean forward;
     	/** current index */
@@ -2638,7 +2638,7 @@ public class GapList<E> extends AbstractList<E>
     /**
      * Iterator supports forward and reverse iteration.
      */
-    private class ListIter implements ListIterator<E> {
+    class ListIter implements ListIterator<E> {
     	/** current index */
     	int index;
     	/** index where element will be removed if remove() is called */

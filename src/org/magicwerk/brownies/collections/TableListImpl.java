@@ -19,6 +19,9 @@ package org.magicwerk.brownies.collections;
 
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Set;
+
+import org.magicwerk.brownies.collections.helper.CollectionAsSet;
 
 
 /**
@@ -39,14 +42,14 @@ public class TableListImpl<E> extends GapList<E> {
     /** If true the invariants the GapList are checked for debugging */
     private static final boolean DEBUG_CHECK = true;
 
-    
+
     /*
      * GapList offers static create() methods which are public.
      * As TableListImpl extends GapList, it also inherits these methods.
      * As they cannot be hidden, the will throw an UnsupportedOperationException.
      * A cleaner solution would be that TableListImpl does not extend GapList.
      */
-    
+
     /**
      * Do not use. Use Builder instead.
      */
@@ -120,6 +123,10 @@ public class TableListImpl<E> extends GapList<E> {
 	    // TableCollection
 	    tableColl = new TableCollectionImpl();
 	    tableColl.initCrop(that.tableColl);
+    }
+
+    public Set<E> asSet() {
+    	return new CollectionAsSet(this, false);
     }
 
     //-- Read
@@ -302,7 +309,7 @@ public class TableListImpl<E> extends GapList<E> {
 
     @Override
     protected E doRemove(int index) {
-    	E removed = super.doGet(index);
+    	E removed = doGet(index);
 		tableColl.remove(removed);
     	if (forward == null) {
     		super.doRemove(index);
