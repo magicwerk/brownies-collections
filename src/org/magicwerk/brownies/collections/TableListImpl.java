@@ -17,6 +17,7 @@
  */
 package org.magicwerk.brownies.collections;
 
+import java.util.Collection;
 import java.util.Comparator;
 
 
@@ -37,6 +38,42 @@ public class TableListImpl<E> extends GapList<E> {
 
     /** If true the invariants the GapList are checked for debugging */
     private static final boolean DEBUG_CHECK = true;
+
+    
+    /*
+     * GapList offers static create() methods which are public.
+     * As TableListImpl extends GapList, it also inherits these methods.
+     * As they cannot be hidden, the will throw an UnsupportedOperationException.
+     * A cleaner solution would be that TableListImpl does not extend GapList.
+     */
+    
+    /**
+     * Do not use. Use Builder instead.
+     */
+    public static <E> TableListImpl<E> create() {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Do not use. Use Builder instead.
+     */
+    public static <E> GapList<E> create(int capacity) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Do not use. Use Builder instead.
+     */
+    public static <E> GapList<E> create(Collection<? extends E> coll) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Do not use. Use Builder instead.
+     */
+    public static <E> GapList<E> create(E... elems) {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * Private method to check invariant of GapList.
