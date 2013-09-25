@@ -19,11 +19,7 @@ package org.magicwerk.brownies.collections;
 
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
 
-import org.magicwerk.brownies.collections.Table1Collection.Builder;
 import org.magicwerk.brownies.collections.function.Predicate;
 import org.magicwerk.brownies.collections.function.Trigger;
 

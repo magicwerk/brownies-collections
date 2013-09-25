@@ -165,6 +165,9 @@ public class GapList<E> extends AbstractList<E>
         	error();
         }
 
+        /**
+         * Throw exception if an attempt is made to change an immutable list.
+         */
         private void error() {
             throw new UnsupportedOperationException("list is immutable");
         }
@@ -173,6 +176,7 @@ public class GapList<E> extends AbstractList<E>
     /** UID for serialization */
     private static final long serialVersionUID = -4477005565661968383L;
 
+    /** Default capacity for list */
     static final int DEFAULT_CAPACITY = 10;
 
 	/** Array holding raw data */
@@ -196,7 +200,7 @@ public class GapList<E> extends AbstractList<E>
     /**
      * Create new list.
      *
-     * @return          created array list
+     * @return          created list
      * @param <E>       type of elements stored in the list
      */
     // This separate method is needed as the varargs variant creates the GapList with specific size
@@ -204,23 +208,37 @@ public class GapList<E> extends AbstractList<E>
         return new GapList<E>();
     }
 
+    /**
+     * Create new list with specified capacity.
+     * 
+     * @param capacity  capacity
+     * @return          created list
+     * @param <E>       type of elements stored in the list
+     */
     public static <E> GapList<E> create(int capacity) {
         return new GapList<E>(capacity);
     }
 
-	public static <E> GapList<E> create(Collection<? extends E> elements) {
-		return new GapList<E>(elements);
+    /**
+     * Create new list with specified elements.
+     * 
+     * @param coll      collection with element
+     * @return          created list
+     * @param <E>       type of elements stored in the list
+     */
+	public static <E> GapList<E> create(Collection<? extends E> coll) {
+		return new GapList<E>(coll);
 	}
 
 	/**
-	 * Create new list and add elements.
+	 * Create new list with specified elements.
 	 *
-	 * @param elems 	elements to add
-	 * @return 			created array list
+	 * @param elems 	array with elements
+	 * @return 			created list
 	 * @param <E> 		type of elements stored in the list
 	 */
-	public static <E> GapList<E> create(E... elements) {
-		return new GapList<E>(elements);
+	public static <E> GapList<E> create(E... elems) {
+		return new GapList<E>(elems);
 	}
 
 	/**
@@ -378,19 +396,37 @@ public class GapList<E> extends AbstractList<E>
 		init(that);
 	}
 
+	/**
+	 * Initialize the list to be empty.
+	 */
 	public void init() {
 		init(new Object[DEFAULT_CAPACITY], 0);
 	}
 
+	/**
+     * Initialize the list to be empty with specified capacity.
+     * 
+	 * @param capacity capacity
+	 */
 	public void init(int capacity) {
 		init(new Object[capacity], 0);
 	}
 
+	/**
+	 * Initialize the list to contain the specified elements only.
+	 * 
+	 * @param coll collection with elements
+	 */
 	public void init(Collection<? extends E> coll) {
 		Object[] array = toArray(coll);
 		init(array, array.length);
 	}
 
+	/**
+     * Initialize the list to contain the specified elements only.
+     * 
+	 * @param elems array with elements
+	 */
 	public void init(E... elems) {
 		Object[] array = elems.clone();
 		init(array, array.length);
@@ -1482,6 +1518,7 @@ public class GapList<E> extends AbstractList<E>
      * @return <tt>true</tt> if this list changed as a result of the call
      * @throws NullPointerException if the specified list is null
      */
+    @SuppressWarnings("unchecked")
     public boolean addAll(GapList<? extends E> list) {
         return doAddAll(-1, (E[]) list.toArray());
     }
@@ -1499,7 +1536,8 @@ public class GapList<E> extends AbstractList<E>
      * @throws IndexOutOfBoundsException if the index is invalid
      * @throws NullPointerException if the specified collection is null
      */
-	public boolean addAll(int index, GapList<? extends E> list) {
+	@SuppressWarnings("unchecked")
+    public boolean addAll(int index, GapList<? extends E> list) {
 		checkIndexAdd(index);
 
 		return doAddAll(index, (E[]) list.toArray());
@@ -1920,6 +1958,12 @@ public class GapList<E> extends AbstractList<E>
         doSetAll(index, elems);
     }
 
+    /**
+     * Replaces the specified elements.
+     *
+     * @param index index of first element to set
+     * @param elems elements to set
+     */
     protected void doSetAll(int index, E[] elems) {
         for (int i=0; i<elems.length; i++) {
             doSet(index+i, elems[i]);
@@ -1938,6 +1982,12 @@ public class GapList<E> extends AbstractList<E>
     	doRemoveAll(index, len);
 	}
 
+    /**
+     * Remove specified range of elements from list.
+     *
+     * @param index index of first element to remove
+     * @param len   number of elements to remove
+     */
 	protected void doRemoveAll(int index, int len) {
 		if (len == size()) {
 			doModify();
