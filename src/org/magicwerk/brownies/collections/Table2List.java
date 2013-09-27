@@ -330,6 +330,10 @@ public class Table2List<E,K1,K2> extends TableListImpl<E> {
 
     //-- Key 1 methods
 
+    public int indexOfKey1(K1 key) {
+    	return super.indexOfKey(1, key);
+    }
+
     public boolean containsKey1(K1 key) {
     	return super.containsKey(1, key);
     }
@@ -359,6 +363,10 @@ public class Table2List<E,K1,K2> extends TableListImpl<E> {
 	}
 
     //-- Key 2 methods
+
+    public int indexOfKey2(K2 key) {
+    	return super.indexOfKey(2, key);
+    }
 
     public boolean containsKey2(K2 key) {
     	return super.containsKey(2, key);

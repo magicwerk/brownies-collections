@@ -273,6 +273,10 @@ public class Table1List<E,K> extends TableListImpl<E> {
 
     //-- Key methods
 
+    public int indexOfKey(K key) {
+    	return super.indexOfKey(1, key);
+    }
+
     public boolean containsKey(K key) {
     	return super.containsKey(1, key);
     }

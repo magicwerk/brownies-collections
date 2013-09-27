@@ -248,6 +248,9 @@ public class TableListImpl<E> extends GapList<E> {
 				}
 			}
 			tableColl.addSorted(index, elem);
+			if (forward == null) {
+	    		super.doAdd(index, elem);
+			}
 		} else {
 			tableColl.add(elem);
 			if (index == -1) {
@@ -428,11 +431,14 @@ public class TableListImpl<E> extends GapList<E> {
      * @return      removed element or null if no element has been removed
      */
     protected E removeByKey(int keyIndex, Object key) {
+    	// TODO what about if null has been removed -> return Option
     	E removed = (E) tableColl.removeByKey(keyIndex, key);
     	if (!tableColl.isSortedList()) {
-    		if (!super.remove(removed)) {
+    		int index = super.indexOf(removed);
+    		if (index == -1) {
     			tableColl.errorInvalidData();
     		}
+    		super.doRemove(index);
     	}
         if (DEBUG_CHECK) debugCheck();
         return removed;
