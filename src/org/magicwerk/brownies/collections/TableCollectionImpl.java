@@ -272,7 +272,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
          * If the comparator does not support null values, use withElemSort(Comparator, boolean) to
          * explicitly specify how null values should be sorted.
          *
-         * @param comparator    comparator to use for sorting
+         * @param comparator    comparator to use for sorting (null for natural comparator)
          * @return              this (fluent interface)
          */
         protected BuilderImpl<E> withElemSort(Comparator<? super E> comparator) {
@@ -1311,11 +1311,13 @@ public class TableCollectionImpl<E> implements Collection<E> {
      */
     void initCopy(TableCollectionImpl<E> that) {
     	size = that.size;
-    	keyMaps = new KeyMap[that.keyMaps.length];
-    	for (int i=0; i<keyMaps.length; i++) {
-    		if (that.keyMaps[i] != null) {
-    			keyMaps[i] = that.keyMaps[i].copy();
-    		}
+    	if (that.keyMaps != null) {
+	    	keyMaps = new KeyMap[that.keyMaps.length];
+	    	for (int i=0; i<keyMaps.length; i++) {
+	    		if (that.keyMaps[i] != null) {
+	    			keyMaps[i] = that.keyMaps[i].copy();
+	    		}
+	    	}
     	}
     	allowNullElem = that.allowNullElem;
     	constraint = that.constraint;
@@ -1331,11 +1333,13 @@ public class TableCollectionImpl<E> implements Collection<E> {
      */
     void initCrop(TableCollectionImpl<E> that) {
     	size = that.size;
-    	keyMaps = new KeyMap[that.keyMaps.length];
-    	for (int i=0; i<keyMaps.length; i++) {
-    		if (that.keyMaps[i] != null) {
-    			keyMaps[i] = that.keyMaps[i].crop();
-    		}
+    	if (that.keyMaps != null) {
+	    	keyMaps = new KeyMap[that.keyMaps.length];
+	    	for (int i=0; i<keyMaps.length; i++) {
+	    		if (that.keyMaps[i] != null) {
+	    			keyMaps[i] = that.keyMaps[i].crop();
+	    		}
+	    	}
     	}
     	allowNullElem = that.allowNullElem;
     	constraint = that.constraint;
@@ -1388,14 +1392,100 @@ public class TableCollectionImpl<E> implements Collection<E> {
     	return orderByKey != -1;
     }
 
+    void checkIndex(int loIndex, int hiIndex, E elem) {
+   		KeyMap keyMap = keyMaps[orderByKey];
+    	Object key = keyMap.getKey(elem);
+    	GapList<Object> list = keyMap.keysList;
+    	Comparator<Object> comp = keyMap.comparator;
+    	if (loIndex >= 0) {
+    		int cmp = comp.compare(list.doGet(loIndex), key);
+    		if (cmp == 0) {
+    			if (elem != null) {
+    				if (!keyMap.allowDuplicates) {
+    					cmp = 1;
+    				}
+    			} else {
+    				if (!keyMap.allowDuplicatesNull) {
+    					cmp = 1;
+    				}
+    			}
+    		}
+    		if (cmp > 0) {
+    			errorInvalidIndex();
+    		}
+    	}
+    	if (hiIndex < list.size()) {
+    		int cmp = comp.compare(key, list.doGet(hiIndex));
+    		if (cmp == 0) {
+    			if (elem != null) {
+    				if (!keyMap.allowDuplicates) {
+    					cmp = 1;
+    				}
+    			} else {
+    				if (!keyMap.allowDuplicatesNull) {
+    					cmp = 1;
+    				}
+    			}
+    		}
+			if (cmp > 0) {
+    			errorInvalidIndex();
+    		}
+    	}
+    }
+
+    void addSorted(int index, E elem) {
+   		// Check whether index is correct for adding element in a sorted list
+    	checkIndex(index-1, index, elem);
+
+    	// Index is correct
+   		KeyMap keyMap = keyMaps[orderByKey];
+    	Object key = keyMap.getKey(elem);
+    	GapList<Object> list = keyMap.keysList;
+
+   		doAdd(elem, keyMap);
+    	list.doAdd(index, key);
+   }
+
+   	void setSorted(int index, E elem, E oldElem) {
+   		// Check whether index is correct for setting element in a sorted list
+    	checkIndex(index-1, index+1, elem);
+
+    	// Index is correct
+   		KeyMap keyMap = keyMaps[orderByKey];
+    	Object key = keyMap.getKey(elem);
+    	GapList<Object> list = keyMap.keysList;
+
+    	doRemove(oldElem, keyMap);
+    	try {
+    		doAdd(elem, keyMap);
+    	}
+    	catch (RuntimeException e) {
+    		doAdd((E) oldElem, keyMap);
+    		throw e;
+    	}
+    	list.doSet(index, key);
+    }
+
     int binarySearchSorted(E elem) {
-    	Object key = keyMaps[orderByKey].getKey(elem);
-    	int index = keyMaps[orderByKey].keysList.binarySearch(key, keyMaps[orderByKey].comparator);
-    	return (index < 0) ? -1 : index;
+    	KeyMap keyMap = keyMaps[orderByKey];
+    	Object key = keyMap.getKey(elem);
+    	int index = keyMap.keysList.binarySearch(key, keyMap.comparator);
+    	if (index >= 0) {
+    		index++;
+    		while (index < keyMap.keysList.size()) {
+    			if (keyMap.comparator.compare(keyMap.keysList.get(index), key) != 0) {
+    				break;
+    			}
+    			index++;
+    		}
+    	}
+    	return index;
     }
 
     int indexOfSorted(E elem) {
-    	int index = binarySearchSorted(elem);
+    	KeyMap keyMap = keyMaps[orderByKey];
+    	Object key = keyMap.getKey(elem);
+    	int index = keyMap.keysList.binarySearch(key, keyMap.comparator);
     	return (index < 0) ? -1 : index;
     }
 
@@ -1461,10 +1551,14 @@ public class TableCollectionImpl<E> implements Collection<E> {
 		throw new IllegalArgumentException("Invalid data: call update() on change of key data");
     }
 
+    static void errorInvalidIndex() {
+		throw new IllegalArgumentException("Invalid index for sorted list");
+    }
+
     @Override
     public boolean add(E elem) {
     	checkElemAllowed(elem);
-    	doAdd(elem);
+    	doAdd(elem, null);
     	size++;
         if (DEBUG_CHECK) debugCheck();
 
@@ -1687,13 +1781,18 @@ public class TableCollectionImpl<E> implements Collection<E> {
         return key;
 	}
 
-    void doAdd(E elem) {
+    /**
+     * Add element.
+     *
+     * @param elem		element to add
+     */
+    void doAdd(E elem, KeyMap ignore) {
     	IllegalArgumentException error = null;
 		int i = 0;
     	if (keyMaps != null) {
     		try {
 		    	for (i=0; i<keyMaps.length; i++) {
-		    		if (keyMaps[i] != null) {
+		    		if (keyMaps[i] != null && keyMaps[i] != ignore) {
 		    			Object key = keyMaps[i].getKey(elem);
 		    			keyMaps[i].add(key, elem);
 		    		}
@@ -1717,12 +1816,6 @@ public class TableCollectionImpl<E> implements Collection<E> {
     	}
     }
 
-    /**
-     * Add element.
-     *
-     * @param elem		element to add
-     * @return			index where element should be added (-1 is valid), otherwise Integer.MIN_VALUE
-     */
     /**
      * Checks whether the specified key exists in this list.
      *
