@@ -1444,6 +1444,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
 
    		doAdd(elem, keyMap);
     	list.doAdd(index, key);
+   		size++;
    }
 
    	void setSorted(int index, E elem, E oldElem) {
@@ -1753,7 +1754,9 @@ public class TableCollectionImpl<E> implements Collection<E> {
     @Override
     public void clear() {
     	for (KeyMap<E,Object> keyMap: keyMaps) {
-    		doClear(keyMap);
+    		if (keyMap != null) {
+    			doClear(keyMap);
+    		}
     	}
     	size = 0;
     }
@@ -2086,7 +2089,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
     	GapList<E> removeds = doRemoveAllByKey(keyMaps[keyIndex], key);
     	for (E removed: removeds) {
     		for (int i=0; i<keyMaps.length; i++) {
-    			if (i != keyIndex) {
+    			if (i != keyIndex && keyMaps[i] != null) {
     				Object k = keyMaps[i].getKey(removed);
     				doRemoveAllByKey(keyMaps[i], k);
     			}
