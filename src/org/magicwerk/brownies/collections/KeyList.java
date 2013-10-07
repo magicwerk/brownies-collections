@@ -162,12 +162,12 @@ public class KeyList<E> extends KeyListImpl<E> {
          * @return created collection
          */
         public KeyList<E> build() {
-        	if (tableColl == null) {
-               	tableColl = new KeyCollectionImpl<E>();
+        	if (keyColl == null) {
+               	keyColl = new KeyCollectionImpl<E>();
         	}
-        	build(tableColl, true);
+        	build(keyColl, true);
         	KeyList<E> list = new KeyList();
-        	fill(tableColl, list);
+        	fill(keyColl, list);
         	return list;
         }
     }

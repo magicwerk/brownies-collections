@@ -149,65 +149,65 @@ public class Key1Collection<E,K> extends KeyCollectionImpl<E> {
         // -- Key
 
         // @Override
-        public Builder<E,K> withKey(Mapper<E,K> mapper) {
-        	return (Builder<E,K>) super.withKey(mapper);
+        public Builder<E,K> withKey1(Mapper<E,K> mapper) {
+        	return (Builder<E,K>) super.withKey1(mapper);
         }
 
         // @Override
-        public Builder<E,K> withKeyOrderBy(boolean orderBy) {
-        	return (Builder<E,K>) super.withKeyOrderBy(orderBy);
+        public Builder<E,K> withKey1OrderBy(boolean orderBy) {
+        	return (Builder<E,K>) super.withKey1OrderBy(orderBy);
         }
 
         @Override
-        public Builder<E,K> withKeyNull(boolean allowNull) {
-        	return (Builder<E,K>) super.withKeyNull(allowNull);
+        public Builder<E,K> withKey1Null(boolean allowNull) {
+        	return (Builder<E,K>) super.withKey1Null(allowNull);
         }
 
         @Override
-        public Builder<E,K> withKeyDuplicates(boolean allowDuplicates) {
-        	return (Builder<E,K>) super.withKeyDuplicates(allowDuplicates);
+        public Builder<E,K> withKey1Duplicates(boolean allowDuplicates) {
+        	return (Builder<E,K>) super.withKey1Duplicates(allowDuplicates);
         }
 
         @Override
-        public Builder<E,K> withKeyDuplicates(boolean allowDuplicates, boolean allowDuplicatesNull) {
-        	return (Builder<E,K>) super.withKeyDuplicates(allowDuplicates, allowDuplicatesNull);
+        public Builder<E,K> withKey1Duplicates(boolean allowDuplicates, boolean allowDuplicatesNull) {
+        	return (Builder<E,K>) super.withKey1Duplicates(allowDuplicates, allowDuplicatesNull);
         }
 
         @Override
-        public Builder<E,K> withKeySort(boolean sort) {
-        	return (Builder<E,K>) super.withKeySort(sort);
+        public Builder<E,K> withKey1Sort(boolean sort) {
+        	return (Builder<E,K>) super.withKey1Sort(sort);
         }
 
         @Override
-        public Builder<E,K> withKeySort(Comparator<? super E> comparator) {
-        	return (Builder<E,K>) super.withKeySort(comparator);
+        public Builder<E,K> withKey1Sort(Comparator<? super E> comparator) {
+        	return (Builder<E,K>) super.withKey1Sort(comparator);
         }
 
         @Override
-        public Builder<E,K> withKeySort(Comparator<? super E> comparator, boolean sortNullsFirst) {
-        	return (Builder<E,K>) super.withKeySort(comparator, sortNullsFirst);
+        public Builder<E,K> withKey1Sort(Comparator<? super E> comparator, boolean sortNullsFirst) {
+        	return (Builder<E,K>) super.withKey1Sort(comparator, sortNullsFirst);
         }
 
         @Override
-        public Builder<E,K> withPrimaryKey() {
-        	return (Builder<E,K>) super.withPrimaryKey();
+        public Builder<E,K> withPrimaryKey1() {
+        	return (Builder<E,K>) super.withPrimaryKey1();
         }
 
         @Override
-        public Builder<E,K> withUniqueKey() {
-        	return (Builder<E,K>) super.withUniqueKey();
+        public Builder<E,K> withUniqueKey1() {
+        	return (Builder<E,K>) super.withUniqueKey1();
         }
 
         /**
          * @return created SetList
          */
         public Key1Collection<E,K> build() {
-        	if (tableColl == null) {
-               	tableColl = new Key1Collection<E,K>();
+        	if (keyColl == null) {
+               	keyColl = new Key1Collection<E,K>();
         	}
-        	build(tableColl, false);
-        	fill(tableColl);
-        	return (Key1Collection<E,K>) tableColl;
+        	build(keyColl, false);
+        	fill(keyColl);
+        	return (Key1Collection<E,K>) keyColl;
         }
     }
 
@@ -221,7 +221,7 @@ public class Key1Collection<E,K> extends KeyCollectionImpl<E> {
     public Object clone() {
     	return copy();
     }
-    
+
     @Override
     public Key1Collection<E,K> copy() {
         Key1Collection<E,K> copy = new Key1Collection<E,K>();

@@ -270,12 +270,12 @@ public class Key2List<E,K1,K2> extends KeyListImpl<E> {
          * @return created SetList
          */
         public Key2List<E,K1,K2> build() {
-        	if (tableColl == null) {
-               	tableColl = new KeyCollectionImpl<E>();
+        	if (keyColl == null) {
+               	keyColl = new KeyCollectionImpl<E>();
         	}
-        	build(tableColl, true);
+        	build(keyColl, true);
         	Key2List<E,K1,K2> list = new Key2List();
-        	fill(tableColl, list);
+        	fill(keyColl, list);
         	return list;
         }
     }

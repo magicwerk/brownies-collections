@@ -255,12 +255,12 @@ public class Key2Collection<E,K1,K2> extends KeyCollectionImpl<E> {
          * @return created collection
          */
         public Key2Collection<E,K1,K2> build() {
-        	if (tableColl == null) {
-               	tableColl = new Key2Collection<E,K1,K2>();
+        	if (keyColl == null) {
+               	keyColl = new Key2Collection<E,K1,K2>();
         	}
-        	build(tableColl, false);
-        	fill(tableColl);
-        	return (Key2Collection<E,K1,K2>) tableColl;
+        	build(keyColl, false);
+        	fill(keyColl);
+        	return (Key2Collection<E,K1,K2>) keyColl;
         }
     }
 
