@@ -34,12 +34,12 @@ import org.magicwerk.brownies.collections.function.Trigger;
  * @author Thomas Mauch
  * @version $Id: SetList.java 1815 2013-08-09 00:05:35Z origo $
  *
- * @see Table1List
+ * @see Key1List
  * @param <E> type of elements stored in the list
  * @param <K1> type of first key
  * @param <K2> type of second key
  */
-public class Table2Collection<E,K1,K2> extends TableCollectionImpl<E> {
+public class Key2Collection<E,K1,K2> extends KeyCollectionImpl<E> {
 
     /** UID for serialization. */
     private static final long serialVersionUID = 6181488174454611419L;
@@ -254,20 +254,20 @@ public class Table2Collection<E,K1,K2> extends TableCollectionImpl<E> {
         /**
          * @return created collection
          */
-        public Table2Collection<E,K1,K2> build() {
+        public Key2Collection<E,K1,K2> build() {
         	if (tableColl == null) {
-               	tableColl = new Table2Collection<E,K1,K2>();
+               	tableColl = new Key2Collection<E,K1,K2>();
         	}
         	build(tableColl, false);
         	fill(tableColl);
-        	return (Table2Collection<E,K1,K2>) tableColl;
+        	return (Key2Collection<E,K1,K2>) tableColl;
         }
     }
 
     /**
      * Private constructor.
      */
-    private Table2Collection() {
+    private Key2Collection() {
     }
 
     @Override
@@ -276,15 +276,15 @@ public class Table2Collection<E,K1,K2> extends TableCollectionImpl<E> {
     }
 
     @Override
-    public Table2Collection<E,K1,K2> copy() {
-        Table2Collection<E,K1,K2> copy = new Table2Collection<E,K1,K2>();
+    public Key2Collection<E,K1,K2> copy() {
+        Key2Collection<E,K1,K2> copy = new Key2Collection<E,K1,K2>();
         copy.initCopy(this);
         return copy;
     }
 
     @Override
-    public Table2Collection<E,K1,K2> crop() {
-        Table2Collection<E,K1,K2> copy = new Table2Collection<E,K1,K2>();
+    public Key2Collection<E,K1,K2> crop() {
+        Key2Collection<E,K1,K2> copy = new Key2Collection<E,K1,K2>();
         copy.initCrop(this);
         return copy;
     }

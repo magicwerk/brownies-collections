@@ -23,8 +23,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.magicwerk.brownies.collections.TableCollection.Builder;
-import org.magicwerk.brownies.collections.TableCollectionImpl.BuilderImpl;
+import org.magicwerk.brownies.collections.KeyCollection.Builder;
+import org.magicwerk.brownies.collections.KeyCollectionImpl.BuilderImpl;
 import org.magicwerk.brownies.collections.function.Predicate;
 import org.magicwerk.brownies.collections.function.Trigger;
 import org.magicwerk.brownies.collections.helper.IdentMapper;
@@ -40,12 +40,12 @@ import org.magicwerk.brownies.collections.helper.IdentMapper;
  * @author Thomas Mauch
  * @version $Id$
  *
- * @see Table1List
+ * @see Key1List
  * @param <E> type of elements stored in the list
  */
-public class TableList<E> extends TableListImpl<E> {
+public class KeyList<E> extends KeyListImpl<E> {
 
-    /** UID for serialization. */
+    /** UID forKeyListation. */
     private static final long serialVersionUID = 6181488174454611419L;
 
     /**
@@ -161,12 +161,12 @@ public class TableList<E> extends TableListImpl<E> {
          *
          * @return created collection
          */
-        public TableList<E> build() {
+        public KeyList<E> build() {
         	if (tableColl == null) {
-               	tableColl = new TableCollectionImpl<E>();
+               	tableColl = new KeyCollectionImpl<E>();
         	}
         	build(tableColl, true);
-        	TableList<E> list = new TableList();
+        	KeyList<E> list = new KeyList();
         	fill(tableColl, list);
         	return list;
         }
@@ -175,7 +175,7 @@ public class TableList<E> extends TableListImpl<E> {
     /**
      * Private constructor used by builder.
      */
-    private TableList() {
+    private KeyList() {
     }
 
     @Override
@@ -184,15 +184,15 @@ public class TableList<E> extends TableListImpl<E> {
     }
 
     @Override
-    public TableList<E> copy() {
-        TableList<E> copy = new TableList<E>();
+    public KeyList<E> copy() {
+        KeyList<E> copy = new KeyList<E>();
         copy.initCopy(this);
         return copy;
     }
 
     @Override
-    public TableList<E> crop() {
-        TableList<E> crop = new TableList<E>();
+    public KeyList<E> crop() {
+        KeyList<E> crop = new KeyList<E>();
         crop.initCrop(this);
         return crop;
     }

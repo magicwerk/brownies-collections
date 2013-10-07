@@ -16,12 +16,11 @@
  * $Id$
  */
 package org.magicwerk.brownies.collections;
-
 import java.util.Collection;
 import java.util.Comparator;
 
-import org.magicwerk.brownies.collections.Table2Collection.Builder;
-import org.magicwerk.brownies.collections.TableCollectionImpl.BuilderImpl;
+import org.magicwerk.brownies.collections.Key2Collection.Builder;
+import org.magicwerk.brownies.collections.KeyCollectionImpl.BuilderImpl;
 import org.magicwerk.brownies.collections.function.Mapper;
 import org.magicwerk.brownies.collections.function.Predicate;
 import org.magicwerk.brownies.collections.function.Trigger;
@@ -36,13 +35,13 @@ import org.magicwerk.brownies.collections.function.Trigger;
  * @author Thomas Mauch
  * @version $Id$
  *
- * @see Table2List
+ * @see Key2List
  * @param <E> type of elements stored in the list
  * @param <K> type of key
  */
-public class Table2List<E,K1,K2> extends TableListImpl<E> {
+public class Key2List<E,K1,K2> extends KeyListImpl<E> {
 
-    /** UID for serialization. */
+    /** Key2Listrialization. */
     private static final long serialVersionUID = 6181488174454611419L;
 
     /**
@@ -270,12 +269,12 @@ public class Table2List<E,K1,K2> extends TableListImpl<E> {
         /**
          * @return created SetList
          */
-        public Table2List<E,K1,K2> build() {
+        public Key2List<E,K1,K2> build() {
         	if (tableColl == null) {
-               	tableColl = new TableCollectionImpl<E>();
+               	tableColl = new KeyCollectionImpl<E>();
         	}
         	build(tableColl, true);
-        	Table2List<E,K1,K2> list = new Table2List();
+        	Key2List<E,K1,K2> list = new Key2List();
         	fill(tableColl, list);
         	return list;
         }
@@ -284,7 +283,7 @@ public class Table2List<E,K1,K2> extends TableListImpl<E> {
     /**
      * Private constructor used by builder.
      */
-    private Table2List() {
+    private Key2List() {
     }
 
     @Override
@@ -293,15 +292,15 @@ public class Table2List<E,K1,K2> extends TableListImpl<E> {
     }
 
     @Override
-    public Table2List<E,K1,K2> copy() {
-    	Table2List<E,K1,K2> copy = new Table2List<E,K1,K2>();
+    public Key2List<E,K1,K2> copy() {
+    	Key2List<E,K1,K2> copy = new Key2List<E,K1,K2>();
         copy.initCopy(this);
         return copy;
     }
 
     @Override
-    public Table2List<E,K1,K2> crop() {
-    	Table2List<E,K1,K2> copy = new Table2List<E,K1,K2>();
+    public Key2List<E,K1,K2> crop() {
+    	Key2List<E,K1,K2> copy = new Key2List<E,K1,K2>();
         copy.initCrop(this);
         return copy;
     }
