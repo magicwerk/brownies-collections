@@ -13,13 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: SetList.java 1815 2013-08-09 00:05:35Z origo $
+ * $Id$
  */
 package org.magicwerk.brownies.collections;
 
 import java.util.Collection;
 import java.util.Comparator;
 
+import org.magicwerk.brownies.collections.Key2Collection.Builder;
+import org.magicwerk.brownies.collections.KeyCollectionImpl.BuilderImpl;
 import org.magicwerk.brownies.collections.function.Mapper;
 import org.magicwerk.brownies.collections.function.Predicate;
 import org.magicwerk.brownies.collections.function.Trigger;
@@ -32,15 +34,15 @@ import org.magicwerk.brownies.collections.function.Trigger;
  * automatically like in TreeSet.
  *
  * @author Thomas Mauch
- * @version $Id: SetList.java 1815 2013-08-09 00:05:35Z origo $
+ * @version $Id$
  *
- * @see Table1List
+ * @see Key1List
  * @param <E> type of elements stored in the list
  * @param <K> type of key
  */
-public class Table1Collection<E,K> extends TableCollectionImpl<E> {
+public class Key1List<E,K> extends KeyListImpl<E> {
 
-    /** UID for serialization. */
+    /** UID Key1Listization. */
     private static final long serialVersionUID = 6181488174454611419L;
 
     /**
@@ -107,6 +109,11 @@ public class Table1Collection<E,K> extends TableCollectionImpl<E> {
         }
 
         @Override
+        public Builder<E,K> withElemOrderBy(Class<?> type) {
+        	return (Builder<E,K>) super.withElemOrderBy(type);
+        }
+
+        @Override
         public Builder<E,K> withElemNull(boolean allowNull) {
         	return (Builder<E,K>) super.withElemNull(allowNull);
         }
@@ -159,6 +166,11 @@ public class Table1Collection<E,K> extends TableCollectionImpl<E> {
         }
 
         @Override
+        public Builder<E,K> withKeyOrderBy(Class<?> type) {
+        	return (Builder<E,K>) super.withKeyOrderBy(type);
+        }
+
+        @Override
         public Builder<E,K> withKeyNull(boolean allowNull) {
         	return (Builder<E,K>) super.withKeyNull(allowNull);
         }
@@ -184,8 +196,8 @@ public class Table1Collection<E,K> extends TableCollectionImpl<E> {
         }
 
         @Override
-        public Builder<E,K> withKeySort(Comparator<? super E> comparator, boolean sortNullsFirst) {
-        	return (Builder<E,K>) super.withKeySort(comparator, sortNullsFirst);
+        public Builder<E,K> withKeySort(Comparator<? super E> comparator, boolean comparatorSortsNull) {
+        	return (Builder<E,K>) super.withKeySort(comparator, comparatorSortsNull);
         }
 
         @Override
@@ -199,39 +211,40 @@ public class Table1Collection<E,K> extends TableCollectionImpl<E> {
         }
 
         /**
-         * @return created SetList
+         * @return created list
          */
-        public Table1Collection<E,K> build() {
+        public Key1List<E,K> build() {
         	if (tableColl == null) {
-               	tableColl = new Table1Collection<E,K>();
+               	tableColl = new KeyCollectionImpl<E>();
         	}
-        	build(tableColl, false);
-        	fill(tableColl);
-        	return (Table1Collection<E,K>) tableColl;
+        	build(tableColl, true);
+        	Key1List<E,K> list = new Key1List<E,K>();
+        	fill(tableColl, list);
+        	return list;
         }
     }
 
     /**
-     * Private constructor.
+     * Private constructor used by builder.
      */
-    private Table1Collection() {
+    private Key1List() {
     }
 
     @Override
     public Object clone() {
     	return copy();
     }
-    
+
     @Override
-    public Table1Collection<E,K> copy() {
-        Table1Collection<E,K> copy = new Table1Collection<E,K>();
+    public Key1List<E,K> copy() {
+    	Key1List<E,K> copy = new Key1List<E,K>();
         copy.initCopy(this);
         return copy;
     }
 
     @Override
-    public Table1Collection<E,K> crop() {
-        Table1Collection<E,K> copy = new Table1Collection<E,K>();
+    public Key1List<E,K> crop() {
+    	Key1List<E,K> copy = new Key1List<E,K>();
         copy.initCrop(this);
         return copy;
     }
@@ -259,6 +272,10 @@ public class Table1Collection<E,K> extends TableCollectionImpl<E> {
 	}
 
     //-- Key methods
+
+    public int indexOfKey(K key) {
+    	return super.indexOfKey(1, key);
+    }
 
     public boolean containsKey(K key) {
     	return super.containsKey(1, key);

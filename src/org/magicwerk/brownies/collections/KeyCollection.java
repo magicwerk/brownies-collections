@@ -33,10 +33,10 @@ import org.magicwerk.brownies.collections.function.Trigger;
  * @author Thomas Mauch
  * @version $Id: SetList.java 1815 2013-08-09 00:05:35Z origo $
  *
- * @see Table1List
+ * @see Key1List
  * @param <E> type of elements stored in the list
  */
-public class TableCollection<E> extends TableCollectionImpl<E> {
+public class KeyCollection<E> extends KeyCollectionImpl<E> {
 
     /** UID for serialization. */
     private static final long serialVersionUID = 6181488174454611419L;
@@ -149,21 +149,21 @@ public class TableCollection<E> extends TableCollectionImpl<E> {
          *
          * @return created collection
          */
-        public TableCollection<E> build() {
+        public KeyCollection<E> build() {
         	// Constructs builder if there is none
         	if (tableColl == null) {
-               	tableColl = new TableCollection<E>();
+               	tableColl = new KeyCollection<E>();
         	}
         	build(tableColl, false);
         	fill(tableColl);
-        	return (TableCollection<E>) tableColl;
+        	return (KeyCollection<E>) tableColl;
         }
     }
 
     /**
      * Private constructor used by builder.
      */
-    private TableCollection() {
+    private KeyCollection() {
     }
 
     @Override
@@ -172,15 +172,15 @@ public class TableCollection<E> extends TableCollectionImpl<E> {
     }
 
 	@Override
-    public TableCollection<E> copy() {
-        TableCollection<E> copy = new TableCollection<E>();
+    public KeyCollection<E> copy() {
+        KeyCollection<E> copy = new KeyCollection<E>();
         copy.initCopy(this);
         return copy;
     }
 
 	@Override
-    public TableCollection<E> crop() {
-        TableCollection<E> copy = new TableCollection<E>();
+    public KeyCollection<E> crop() {
+        KeyCollection<E> copy = new KeyCollection<E>();
         copy.initCrop(this);
         return copy;
     }

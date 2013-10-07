@@ -13,15 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id$
+ * $Id: SetList.java 1815 2013-08-09 00:05:35Z origo $
  */
 package org.magicwerk.brownies.collections;
 
 import java.util.Collection;
 import java.util.Comparator;
 
-import org.magicwerk.brownies.collections.Table2Collection.Builder;
-import org.magicwerk.brownies.collections.TableCollectionImpl.BuilderImpl;
 import org.magicwerk.brownies.collections.function.Mapper;
 import org.magicwerk.brownies.collections.function.Predicate;
 import org.magicwerk.brownies.collections.function.Trigger;
@@ -34,13 +32,13 @@ import org.magicwerk.brownies.collections.function.Trigger;
  * automatically like in TreeSet.
  *
  * @author Thomas Mauch
- * @version $Id$
+ * @version $Id: SetList.java 1815 2013-08-09 00:05:35Z origo $
  *
- * @see Table1List
+ * @see Key1List
  * @param <E> type of elements stored in the list
  * @param <K> type of key
  */
-public class Table1List<E,K> extends TableListImpl<E> {
+public class Key1Collection<E,K> extends KeyCollectionImpl<E> {
 
     /** UID for serialization. */
     private static final long serialVersionUID = 6181488174454611419L;
@@ -109,11 +107,6 @@ public class Table1List<E,K> extends TableListImpl<E> {
         }
 
         @Override
-        public Builder<E,K> withElemOrderBy(Class<?> type) {
-        	return (Builder<E,K>) super.withElemOrderBy(type);
-        }
-
-        @Override
         public Builder<E,K> withElemNull(boolean allowNull) {
         	return (Builder<E,K>) super.withElemNull(allowNull);
         }
@@ -166,11 +159,6 @@ public class Table1List<E,K> extends TableListImpl<E> {
         }
 
         @Override
-        public Builder<E,K> withKeyOrderBy(Class<?> type) {
-        	return (Builder<E,K>) super.withKeyOrderBy(type);
-        }
-
-        @Override
         public Builder<E,K> withKeyNull(boolean allowNull) {
         	return (Builder<E,K>) super.withKeyNull(allowNull);
         }
@@ -196,8 +184,8 @@ public class Table1List<E,K> extends TableListImpl<E> {
         }
 
         @Override
-        public Builder<E,K> withKeySort(Comparator<? super E> comparator, boolean comparatorSortsNull) {
-        	return (Builder<E,K>) super.withKeySort(comparator, comparatorSortsNull);
+        public Builder<E,K> withKeySort(Comparator<? super E> comparator, boolean sortNullsFirst) {
+        	return (Builder<E,K>) super.withKeySort(comparator, sortNullsFirst);
         }
 
         @Override
@@ -211,40 +199,39 @@ public class Table1List<E,K> extends TableListImpl<E> {
         }
 
         /**
-         * @return created list
+         * @return created SetList
          */
-        public Table1List<E,K> build() {
+        public Key1Collection<E,K> build() {
         	if (tableColl == null) {
-               	tableColl = new TableCollectionImpl<E>();
+               	tableColl = new Key1Collection<E,K>();
         	}
-        	build(tableColl, true);
-        	Table1List<E,K> list = new Table1List<E,K>();
-        	fill(tableColl, list);
-        	return list;
+        	build(tableColl, false);
+        	fill(tableColl);
+        	return (Key1Collection<E,K>) tableColl;
         }
     }
 
     /**
-     * Private constructor used by builder.
+     * Private constructor.
      */
-    private Table1List() {
+    private Key1Collection() {
     }
 
     @Override
     public Object clone() {
     	return copy();
     }
-
+    
     @Override
-    public Table1List<E,K> copy() {
-    	Table1List<E,K> copy = new Table1List<E,K>();
+    public Key1Collection<E,K> copy() {
+        Key1Collection<E,K> copy = new Key1Collection<E,K>();
         copy.initCopy(this);
         return copy;
     }
 
     @Override
-    public Table1List<E,K> crop() {
-    	Table1List<E,K> copy = new Table1List<E,K>();
+    public Key1Collection<E,K> crop() {
+        Key1Collection<E,K> copy = new Key1Collection<E,K>();
         copy.initCrop(this);
         return copy;
     }
@@ -272,10 +259,6 @@ public class Table1List<E,K> extends TableListImpl<E> {
 	}
 
     //-- Key methods
-
-    public int indexOfKey(K key) {
-    	return super.indexOfKey(1, key);
-    }
 
     public boolean containsKey(K key) {
     	return super.containsKey(1, key);

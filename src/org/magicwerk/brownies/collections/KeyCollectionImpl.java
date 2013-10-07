@@ -54,7 +54,7 @@ import org.magicwerk.brownies.collections.helper.SortedLists;
  * @see GapList
  * @param <E> type of elements stored in the list
  */
-public class TableCollectionImpl<E> implements Collection<E> {
+public class KeyCollectionImpl<E> implements Collection<E> {
 
 	/**
      * Implementation of builder.
@@ -86,7 +86,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
         }
 
     	// KeyList to build
-    	TableCollectionImpl<E> tableColl;
+    	KeyCollectionImpl<E> tableColl;
     	// -- constraint
         boolean allowNullElem = true;
         Predicate<E> constraint;
@@ -797,7 +797,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
          *
          * @param tableColl collection to initialize
          */
-        void build(TableCollectionImpl<E> tableColl, boolean list) {
+        void build(KeyCollectionImpl<E> tableColl, boolean list) {
         	tableColl.allowNullElem = allowNullElem;
             tableColl.constraint = constraint;
             tableColl.insertTrigger = insertTrigger;
@@ -853,7 +853,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
             tableColl.orderByKey = orderByKey;
         }
 
-        void fill(TableCollectionImpl<E> tableColl) {
+        void fill(KeyCollectionImpl<E> tableColl) {
             if (collection != null) {
             	tableColl.addAll(collection);
             } else if (array != null) {
@@ -861,8 +861,8 @@ public class TableCollectionImpl<E> implements Collection<E> {
             }
         }
 
-        void fill(TableCollectionImpl<E> tableColl, TableListImpl<E> tableList) {
-        	tableList.tableColl = tableColl;
+        void fill(KeyCollectionImpl<E> tableColl, KeyListImpl<E> tableList) {
+        	tableList.keyColl = tableColl;
         	if (tableColl.orderByKey == 0) {
         		tableList.forward = (GapList<E>) tableColl.keyMaps[0].keysList;
                 if (collection != null) {
@@ -972,7 +972,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
 	    }
 
 	    @SuppressWarnings("unchecked")
-		Iterator<E> iteratorValues(TableCollectionImpl<E> tableColl) {
+		Iterator<E> iteratorValues(KeyCollectionImpl<E> tableColl) {
 	    	if (keysMap != null) {
 	    		return (Iterator<E>) new KeyMapIter(tableColl, this, keysMap);
 	    	} else {
@@ -982,13 +982,13 @@ public class TableCollectionImpl<E> implements Collection<E> {
 
 	    static class KeysListIter<E,K> implements Iterator<E> {
 
-	    	TableCollectionImpl<E> tableColl;
+	    	KeyCollectionImpl<E> tableColl;
 	    	KeyMap<E,K> keyMap;
 	    	GapList<E> list;
 	    	Iterator<E> iter;
 	    	E elem;
 
-			public KeysListIter(TableCollectionImpl<E> tableColl, KeyMap<E,K> keyMap, GapList<E> list) {
+			public KeysListIter(KeyCollectionImpl<E> tableColl, KeyMap<E,K> keyMap, GapList<E> list) {
 	    		this.tableColl = tableColl;
 	    		this.keyMap = keyMap;
 				this.list = list;
@@ -1016,14 +1016,14 @@ public class TableCollectionImpl<E> implements Collection<E> {
 
 	    static class KeyMapIter<E,K> implements Iterator<E> {
 
-	    	TableCollectionImpl<E> tableColl;
+	    	KeyCollectionImpl<E> tableColl;
 	    	KeyMap<E,K> keyMap;
 	    	Iterator<Object> mapIter;
 	    	Iterator<E> listIter;
 	    	boolean hasElem;
 	    	E elem;
 
-	    	public KeyMapIter(TableCollectionImpl<E> tableColl, KeyMap<E,K> keyMap, Map<K,Object> map) {
+	    	public KeyMapIter(KeyCollectionImpl<E> tableColl, KeyMap<E,K> keyMap, Map<K,Object> map) {
 	    		this.tableColl = tableColl;
 	    		this.keyMap = keyMap;
 	    		this.mapIter = map.values().iterator();
@@ -1301,7 +1301,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
     Trigger<E> insertTrigger;
     Trigger<E> deleteTrigger;
 
-    TableCollectionImpl() {
+    KeyCollectionImpl() {
     }
 
     /**
@@ -1309,7 +1309,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
      *
      * @param that source object
      */
-    void initCopy(TableCollectionImpl<E> that) {
+    void initCopy(KeyCollectionImpl<E> that) {
     	size = that.size;
     	if (that.keyMaps != null) {
 	    	keyMaps = new KeyMap[that.keyMaps.length];
@@ -1331,7 +1331,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
      *
      * @param that source object
      */
-    void initCrop(TableCollectionImpl<E> that) {
+    void initCrop(KeyCollectionImpl<E> that) {
     	size = that.size;
     	if (that.keyMaps != null) {
 	    	keyMaps = new KeyMap[that.keyMaps.length];
@@ -1731,7 +1731,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
      *
      * @return  an empty copy of this instance
      */
-    public TableCollectionImpl copy() {
+    public KeyCollectionImpl copy() {
     	// Derived classes must implement
     	throw new UnsupportedOperationException();
     }
@@ -1742,7 +1742,7 @@ public class TableCollectionImpl<E> implements Collection<E> {
      *
      * @return  a copy of this instance
      */
-    public TableCollectionImpl crop() {
+    public KeyCollectionImpl crop() {
     	// Derived classes must implement
     	throw new UnsupportedOperationException();
     }
