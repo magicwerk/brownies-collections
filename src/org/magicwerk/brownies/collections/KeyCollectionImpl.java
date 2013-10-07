@@ -24,6 +24,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -86,7 +87,7 @@ public class KeyCollectionImpl<E> implements Collection<E> {
         }
 
     	// KeyList to build
-    	KeyCollectionImpl<E> tableColl;
+    	KeyCollectionImpl<E> keyColl;
     	// -- constraint
         boolean allowNullElem = true;
         Predicate<E> constraint;
@@ -99,6 +100,7 @@ public class KeyCollectionImpl<E> implements Collection<E> {
         Collection<? extends E> collection;
         E[] array;
         int capacity;
+        boolean count;
 
         // Interface
 
@@ -188,6 +190,11 @@ public class KeyCollectionImpl<E> implements Collection<E> {
 
         //-- Element key
 
+        protected BuilderImpl<E> withElemDuplicateCount(boolean count) {
+        	this.count = count;
+        	return this;
+        }
+
         /**
          * Add element map (with ident mapper).
          *
@@ -218,7 +225,7 @@ public class KeyCollectionImpl<E> implements Collection<E> {
          * @param type	primitive type to use for map
          * @return		this (fluent interface)
          */
-        // only for TableList
+        // only for KeyList
         protected BuilderImpl<E> withElemOrderBy(Class<?> type) {
             return withKeyOrderBy(0, type);
         }
@@ -407,111 +414,6 @@ public class KeyCollectionImpl<E> implements Collection<E> {
         	withKeyDuplicates(keyIndex, false, true);
             return this;
         }
-
-        // -- Key
-        // -- The methods for Key and Key1 are exactly the same, except the naming
-
-        /**
-         * Add key map.
-         *
-         * @param mapper	mapper to use
-         * @return			this (fluent interface)
-         */
-        protected BuilderImpl<E> withKey(Mapper mapper) {
-            return withKey(1, mapper);
-        }
-
-        /**
-         * Add key map.
-         *
-         * @param orderBy	true to force the collection to have the order of this map
-         * @return			this (fluent interface)
-         */
-        protected BuilderImpl<E> withKeyOrderBy(boolean orderBy) {
-            return withKeyOrderBy(1, orderBy);
-        }
-
-        /**
-         * Specify element type to use.
-         *
-         * @param type	type to use
-         * @return		this (fluent interface)
-         */
-        // only for TableListImpl
-        protected BuilderImpl<E> withKeyOrderBy(Class<?> type) {
-            return withKeyOrderBy(1, type);
-        }
-
-        /**
-         * Specify whether null elements are allowed or not.
-         * A null element will have a null key.
-         *
-         * @param allowNull true to allow null elements, false to disallow
-         * @return          this (fluent interfaces)
-         */
-        protected BuilderImpl<E> withKeyNull(boolean allowNull) {
-        	return withKeyNull(1, allowNull);
-        }
-
-        /**
-         * Specify whether duplicates are allowed or not.
-         *
-         * @param allowDuplicates   true to allow duplicates
-         * @return              	this (fluent interfaces)
-         */
-        protected BuilderImpl<E> withKeyDuplicates(boolean allowDuplicates) {
-            return withKeyDuplicates(1, allowDuplicates, allowDuplicates);
-        }
-
-        /**
-         * Specify whether duplicates are allowed or not.
-         *
-         * @param allowDuplicates		true to allow duplicates
-         * @param allowDuplicatesNull	true to allow duplicate null values
-         * @return						this (fluent interfaces)
-         */
-        protected BuilderImpl<E> withKeyDuplicates(boolean allowDuplicates, boolean allowDuplicatesNull) {
-            return withKeyDuplicates(1, allowDuplicates, allowDuplicatesNull);
-        }
-
-        /**
-         * Determines that list should be sorted.
-         *
-         * @return        this (fluent interface)
-         */
-        protected BuilderImpl<E> withKeySort(boolean sort) {
-        	return withKeySort(1, sort);
-        }
-
-        /**
-         * Set comparator to use for sorting.
-         *
-         * @param comparator    comparator to use for sorting
-         * @return              this (fluent interface)
-         */
-        protected BuilderImpl<E> withKeySort(Comparator<? super E> comparator) {
-        	return withKeySort(1, comparator);
-        }
-
-        /**
-         * Set comparator to use for sorting.
-         *
-         * @param comparator            comparator to use for sorting
-         * @param sortNullsFirst   		true if comparator sorts null, false if not
-         * @return                      this (fluent interface)
-         */
-        protected BuilderImpl<E> withKeySort(Comparator<? super E> comparator, boolean sortNullsFirst) {
-            return withKeySort(1, comparator, sortNullsFirst);
-        }
-
-        protected BuilderImpl<E> withPrimaryKey() {
-        	return withPrimaryKey(1);
-        }
-
-        protected BuilderImpl<E> withUniqueKey() {
-            return withUniqueKey(1);
-        }
-
 
         // -- Key1
         // -- The methods for Key and Key1 are exactly the same, except the naming
@@ -795,13 +697,13 @@ public class KeyCollectionImpl<E> implements Collection<E> {
         /**
          * Initialize TableCollection with specified options.
          *
-         * @param tableColl collection to initialize
+         * @param keyColl collection to initialize
          */
-        void build(KeyCollectionImpl<E> tableColl, boolean list) {
-        	tableColl.allowNullElem = allowNullElem;
-            tableColl.constraint = constraint;
-            tableColl.insertTrigger = insertTrigger;
-            tableColl.deleteTrigger = deleteTrigger;
+        void build(KeyCollectionImpl<E> keyColl, boolean list) {
+        	keyColl.allowNullElem = allowNullElem;
+            keyColl.constraint = constraint;
+            keyColl.insertTrigger = insertTrigger;
+            keyColl.deleteTrigger = deleteTrigger;
 
             int orderByKey = -1;
             int size = keyMapBuilders.size();
@@ -812,7 +714,7 @@ public class KeyCollectionImpl<E> implements Collection<E> {
             	}
             }
             if (size > 0) {
-	            tableColl.keyMaps = new KeyMap[size];
+	            keyColl.keyMaps = new KeyMap[size];
 	            for (int i=0; i<size; i++) {
 	            	KeyMapBuilder kmb = keyMapBuilders.get(i);
 	            	if (kmb == null) {
@@ -833,7 +735,10 @@ public class KeyCollectionImpl<E> implements Collection<E> {
 		            			throw new IllegalArgumentException("No mapper for key " + i + " defined");
 	                		}
 	                	}
-		            	tableColl.keyMaps[i] = buildKeyMap(kmb, list);
+		            	keyColl.keyMaps[i] = buildKeyMap(kmb, list);
+		            	if (i == 0) {
+		            		keyColl.keyMaps[i].count = count;
+		            	}
 	            	}
 	            }
             }
@@ -841,16 +746,16 @@ public class KeyCollectionImpl<E> implements Collection<E> {
             // TableCollectionImpl must have a defined order,
             // TableListImpl will use the list order
             if (orderByKey == -1 && !list) {
-	            if (tableColl.keyMaps != null) {
-	            	if (tableColl.keyMaps[0] != null) {
+	            if (keyColl.keyMaps != null) {
+	            	if (keyColl.keyMaps[0] != null) {
 	            		orderByKey = 0;
 	            	} else {
-	            		assert(tableColl.keyMaps[1] != null);
+	            		assert(keyColl.keyMaps[1] != null);
 	            		orderByKey = 1;
 	            	}
             	}
             }
-            tableColl.orderByKey = orderByKey;
+            keyColl.orderByKey = orderByKey;
         }
 
         void fill(KeyCollectionImpl<E> tableColl) {
@@ -901,6 +806,7 @@ public class KeyCollectionImpl<E> implements Collection<E> {
 	    Map<K, Object> keysMap;
 	    /** Key storage if sorted */
 	    GapList<K> keysList;
+	    boolean count;
 
 	    KeyMap() {
 	    }
@@ -912,6 +818,7 @@ public class KeyCollectionImpl<E> implements Collection<E> {
 	    	copy.allowDuplicates = allowDuplicates;
 	    	copy.allowDuplicatesNull = allowDuplicatesNull;
 	    	copy.comparator = comparator;
+	    	copy.count = count;
 	    	if (keysMap != null) {
 	    		if (keysMap instanceof HashMap) {
 	    			copy.keysMap = (Map) ((HashMap) keysMap).clone();
@@ -931,6 +838,7 @@ public class KeyCollectionImpl<E> implements Collection<E> {
 	    	copy.allowDuplicates = allowDuplicates;
 	    	copy.allowDuplicatesNull = allowDuplicatesNull;
 	    	copy.comparator = comparator;
+	    	copy.count = count;
 	    	if (keysMap != null) {
 	    		if (keysMap instanceof HashMap) {
 	    			copy.keysMap = new HashMap();
@@ -964,6 +872,7 @@ public class KeyCollectionImpl<E> implements Collection<E> {
 	    }
 
 	    boolean containsValue(Object value) {
+	    	assert(count == false);
 	    	if (keysMap != null) {
     			return keysMap.containsValue(value);
 	    	} else {
@@ -974,8 +883,13 @@ public class KeyCollectionImpl<E> implements Collection<E> {
 	    @SuppressWarnings("unchecked")
 		Iterator<E> iteratorValues(KeyCollectionImpl<E> tableColl) {
 	    	if (keysMap != null) {
-	    		return (Iterator<E>) new KeyMapIter(tableColl, this, keysMap);
+	    		if (count) {
+	    			return (Iterator<E>) new KeyMapCountIter(tableColl, this, keysMap);
+	    		} else {
+	    			return (Iterator<E>) new KeyMapIter(tableColl, this, keysMap);
+	    		}
 	    	} else {
+	    		// TODO use KeysListIter?
 	    		return (Iterator<E>) keysList.unmodifiableList().iterator();
 	    	}
 	    }
@@ -1058,16 +972,13 @@ public class KeyCollectionImpl<E> implements Collection<E> {
 					}
 				}
 				if (!hasNext) {
-					if (mapIter.hasNext()) {
-						Object o = mapIter.next();
-						if (o instanceof GapList) {
-							listIter = ((GapList) o).iterator();
-							elem = listIter.next();
-						} else {
-							elem = (E) o;
-						}
+					// This call can fail with NoSuchElementException
+					Object o = mapIter.next();
+					if (o instanceof GapList) {
+						listIter = ((GapList) o).iterator();
+						elem = listIter.next();
 					} else {
-						listIter = null;
+						elem = (E) o;
 					}
 				}
 				hasElem = true;
@@ -1079,6 +990,8 @@ public class KeyCollectionImpl<E> implements Collection<E> {
 				if (!hasElem) {
 					throw new IllegalStateException("No current element to remove");
 				}
+				hasElem = false;
+				
 				if (listIter != null) {
 					listIter.remove();
 				} else {
@@ -1086,7 +999,71 @@ public class KeyCollectionImpl<E> implements Collection<E> {
 				}
 				tableColl.remove(elem, keyMap);
 			}
+	    }
 
+	    static class KeyMapCountIter<E,K> implements Iterator<E> {
+
+	    	KeyCollectionImpl<E> tableColl;
+	    	KeyMap<E,K> keyMap;
+	    	Map<K,Object> map;
+	    	Iterator<Entry<K, Object>> mapIter;
+	    	E elem;
+	    	int count;
+	    	boolean hasElem;
+
+	    	public KeyMapCountIter(KeyCollectionImpl<E> tableColl, KeyMap<E,K> keyMap, Map<K,Object> map) {
+	    		this.tableColl = tableColl;
+	    		this.keyMap = keyMap;
+	    		this.map = map;
+	    		this.mapIter = map.entrySet().iterator();
+	    	}
+
+			@Override
+			public boolean hasNext() {
+				boolean hasNext = false;
+				if (count > 0) {
+					hasNext = true;
+				}
+				if (!hasNext) {
+					hasNext = mapIter.hasNext();
+				}
+				return hasNext;
+			}
+
+			@Override
+			public E next() {
+				// Reset hasElem so it is false if a call to Iterator.next()
+				// fails with NoSuchElementException
+				hasElem = false;
+
+				if (count > 0) {
+					count--;
+				} else {
+					// This call can fail with NoSuchElementException
+					Entry<K, Object> o = mapIter.next();
+					elem = (E) o.getKey();
+					count = (Integer) o.getValue();
+					count--;
+				}
+
+				hasElem = true;
+				return elem;
+			}
+
+			@Override
+			public void remove() {
+				if (!hasElem) {
+					throw new IllegalStateException("No current element to remove");
+				}
+				hasElem = false;
+				
+				Integer val = (Integer) map.get(elem);
+				if (val == 1) {
+					mapIter.remove();
+				} else {
+					map.put((K) elem, val-1);
+				}
+			}
 	    }
 
 	    private void add(K key, E elem) {
@@ -1111,21 +1088,30 @@ public class KeyCollectionImpl<E> implements Collection<E> {
 	        	}
 
                 // New key
-    			Object obj = keysMap.get(key);
-    		    if (obj == null) {
-    		    	if (!keysMap.containsKey(key)) {
-    		    		keysMap.put(key, elem);
-    		        } else {
-    		            GapList<E> list = (GapList<E>) new KeyMapList(null, elem);
-    		            keysMap.put(key, list);
-    		    	}
-    		    } else if (obj instanceof GapList) {
-    	            GapList<E> list = (GapList<E>) obj;
-    	            list.add(elem);
-    	        } else {
-    	            GapList<E> list = (GapList<E>) new KeyMapList(obj, elem);
-    	            keysMap.put(key, list);
-    	        }
+	        	if (count) {
+	    			Integer val = (Integer) keysMap.get(key);
+	    		    if (val == null) {
+    		    		keysMap.put(key, 1);
+	    		    } else {
+    		    		keysMap.put(key, val+1);
+	    		    }
+	        	} else {
+	    			Object obj = keysMap.get(key);
+	    		    if (obj == null) {
+	    		    	if (!keysMap.containsKey(key)) {
+	    		    		keysMap.put(key, elem);
+	    		        } else {
+	    		            GapList<E> list = (GapList<E>) new KeyMapList(null, elem);
+	    		            keysMap.put(key, list);
+	    		    	}
+	    		    } else if (obj instanceof GapList) {
+	    	            GapList<E> list = (GapList<E>) obj;
+	    	            list.add(elem);
+	    	        } else {
+	    	            GapList<E> list = (GapList<E>) new KeyMapList(obj, elem);
+	    	            keysMap.put(key, list);
+	    	        }
+	        	}
 
 	        } else {
 	            // Sorted keys
@@ -1160,9 +1146,10 @@ public class KeyCollectionImpl<E> implements Collection<E> {
 	    }
 
 	    /**
-	     * @param key		key of object to remove
-	     * @param value		value of object to remove
-	     * @return			removed object
+	     * @param key			key of object to remove
+	     * @param matchValue	true if value must match to remove entry
+	     * @param value			value of object to remove
+	     * @return				removed object
 	     */
 	    Option<E> remove(Object key, boolean matchValue, Object value) {
 	    	// If list cannot contain null, handle null explicitly to prevent NPE
@@ -1176,26 +1163,37 @@ public class KeyCollectionImpl<E> implements Collection<E> {
 	        	if (!keysMap.containsKey(key)) {
 	        		return Option.EMPTY();
 	        	}
-	        	E elem = null;
-	            Object obj = keysMap.get(key);
-		        if (obj instanceof GapList) {
-		            GapList<E> list = (GapList<E>) obj;
-		            if (matchValue) {
-		            	if (!list.remove(value)) {
-		            		return Option.EMPTY();
-		            	} else {
-		            		elem = (E) value;
-		            	}
+	        	if (count) {
+	        		assert(!matchValue || key == value);
+		            Integer val = (Integer) keysMap.get(key);
+		            if (val == 1) {
+		            	keysMap.remove(key);
 		            } else {
-		            	elem = list.removeFirst();
+		            	keysMap.put((K) key, val-1);
 		            }
-		            if (list.isEmpty()) {
-		                keysMap.remove(key);
-		            }
-		        } else {
-		            elem = (E) keysMap.remove(key);
-		        }
-		        return new Option(elem);
+			        return new Option(key);
+	        	} else {
+		        	E elem = null;
+		            Object obj = keysMap.get(key);
+			        if (obj instanceof GapList) {
+			            GapList<E> list = (GapList<E>) obj;
+			            if (matchValue) {
+			            	if (!list.remove(value)) {
+			            		return Option.EMPTY();
+			            	} else {
+			            		elem = (E) value;
+			            	}
+			            } else {
+			            	elem = list.removeFirst();
+			            }
+			            if (list.isEmpty()) {
+			                keysMap.remove(key);
+			            }
+			        } else {
+			            elem = (E) keysMap.remove(key);
+			        }
+			        return new Option(elem);
+	        	}
 	    	} else {
 	    		assert(mapper == IdentMapper.INSTANCE);
 	    		assert(key == value);
@@ -1365,12 +1363,18 @@ public class KeyCollectionImpl<E> implements Collection<E> {
     private void doDebugCheck(KeyMap keyMap) {
     	if (keyMap.keysMap != null) {
     		int count = 0;
-    		for (Object obj: keyMap.keysMap.values()) {
-    			if (obj instanceof GapList) {
-    				count += ((GapList) obj).size();
-    			} else {
-    				count++;
-    			}
+    		if (keyMap.count) {
+	    		for (Object val: keyMap.keysMap.values()) {
+    				count += ((Integer) val);
+	    		}
+    		} else {
+	    		for (Object obj: keyMap.keysMap.values()) {
+	    			if (obj instanceof GapList) {
+	    				count += ((GapList) obj).size();
+	    			} else {
+	    				count++;
+	    			}
+	    		}
     		}
     		assert(count == size());
     	} else if (keyMap.keysList != null) {
@@ -1574,6 +1578,13 @@ public class KeyCollectionImpl<E> implements Collection<E> {
 		return remove(elem, null);
 	}
 
+    /**
+     * Remove element.
+     *
+     * @param elem		element to remove
+     * @param ignore	KeyMap to ignore (null to add element to all maps)
+     * @return			true if element has been removed
+     */
 	boolean remove(Object elem, KeyMap ignore) {
         boolean removed = doRemove(elem, ignore);
         if (removed) {
@@ -1699,6 +1710,13 @@ public class KeyCollectionImpl<E> implements Collection<E> {
 		return buf.toString();
 	}
 
+    /**
+     * Remove element.
+     *
+     * @param elem		element to remove
+     * @param ignore	KeyMap to ignore (null to add element to all maps)
+     * @return			true if element has been removed
+     */
 	boolean doRemove(Object elem, KeyMap ignore) {
         E removed = null;
         boolean first = true;
@@ -1788,6 +1806,7 @@ public class KeyCollectionImpl<E> implements Collection<E> {
      * Add element.
      *
      * @param elem		element to add
+     * @param ignore	KeyMap to ignore (null to add element to all maps)
      */
     void doAdd(E elem, KeyMap ignore) {
     	IllegalArgumentException error = null;
@@ -1805,6 +1824,7 @@ public class KeyCollectionImpl<E> implements Collection<E> {
     			error = e;
     		}
     	}
+    	// If an error occurred, roll back changes
     	if (error != null) {
     		for (i--; i>=0; i--) {
     			if (keyMaps[i] != null) {
@@ -1962,16 +1982,24 @@ public class KeyCollectionImpl<E> implements Collection<E> {
 
         if (keyMap.keysMap != null) {
             // not sorted
-            Object obj = keyMap.keysMap.get(key);
-            if (obj == null) {
-                return 0;
-            } else if (obj instanceof GapList) {
-                GapList<E> list = (GapList<E>) obj;
-                return list.size();
-            } else {
-                return 1;
-            }
-
+        	if (keyMap.count) {
+	            Integer val = (Integer) keyMap.keysMap.get(key);
+	            if (val == null) {
+	                return 0;
+	            } else {
+	            	return val;
+	            }
+        	} else {
+	            Object obj = keyMap.keysMap.get(key);
+	            if (obj == null) {
+	                return 0;
+	            } else if (obj instanceof GapList) {
+	                GapList<E> list = (GapList<E>) obj;
+	                return list.size();
+	            } else {
+	                return 1;
+	            }
+        	}
         } else {
             // sorted
             int index = SortedLists.binarySearchGet(keyMap.keysList, key, keyMap.comparator);

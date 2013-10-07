@@ -20,7 +20,6 @@ package org.magicwerk.brownies.collections;
 import java.util.Collection;
 import java.util.Comparator;
 
-import org.magicwerk.brownies.collections.Key2Collection.Builder;
 import org.magicwerk.brownies.collections.KeyCollectionImpl.BuilderImpl;
 import org.magicwerk.brownies.collections.function.Mapper;
 import org.magicwerk.brownies.collections.function.Predicate;
@@ -156,70 +155,70 @@ public class Key1List<E,K> extends KeyListImpl<E> {
         // -- Key
 
         // @Override
-        public Builder<E,K> withKey(Mapper<E,K> mapper) {
-        	return (Builder<E,K>) super.withKey(mapper);
+        public Builder<E,K> withKey1(Mapper<E,K> mapper) {
+        	return (Builder<E,K>) super.withKey1(mapper);
         }
 
         // @Override
-        public Builder<E,K> withKeyOrderBy(boolean orderBy) {
-        	return (Builder<E,K>) super.withKeyOrderBy(orderBy);
+        public Builder<E,K> withKey1OrderBy(boolean orderBy) {
+        	return (Builder<E,K>) super.withKey1OrderBy(orderBy);
         }
 
         @Override
-        public Builder<E,K> withKeyOrderBy(Class<?> type) {
-        	return (Builder<E,K>) super.withKeyOrderBy(type);
+        public Builder<E,K> withKey1OrderBy(Class<?> type) {
+        	return (Builder<E,K>) super.withKey1OrderBy(type);
         }
 
         @Override
-        public Builder<E,K> withKeyNull(boolean allowNull) {
-        	return (Builder<E,K>) super.withKeyNull(allowNull);
+        public Builder<E,K> withKey1Null(boolean allowNull) {
+        	return (Builder<E,K>) super.withKey1Null(allowNull);
         }
 
         @Override
-        public Builder<E,K> withKeyDuplicates(boolean allowDuplicates) {
-        	return (Builder<E,K>) super.withKeyDuplicates(allowDuplicates);
+        public Builder<E,K> withKey1Duplicates(boolean allowDuplicates) {
+        	return (Builder<E,K>) super.withKey1Duplicates(allowDuplicates);
         }
 
         @Override
-        public Builder<E,K> withKeyDuplicates(boolean allowDuplicates, boolean allowDuplicatesNull) {
-        	return (Builder<E,K>) super.withKeyDuplicates(allowDuplicates, allowDuplicatesNull);
+        public Builder<E,K> withKey1Duplicates(boolean allowDuplicates, boolean allowDuplicatesNull) {
+        	return (Builder<E,K>) super.withKey1Duplicates(allowDuplicates, allowDuplicatesNull);
         }
 
         @Override
-        public Builder<E,K> withKeySort(boolean sort) {
-        	return (Builder<E,K>) super.withKeySort(sort);
+        public Builder<E,K> withKey1Sort(boolean sort) {
+        	return (Builder<E,K>) super.withKey1Sort(sort);
         }
 
         @Override
-        public Builder<E,K> withKeySort(Comparator<? super E> comparator) {
-        	return (Builder<E,K>) super.withKeySort(comparator);
+        public Builder<E,K> withKey1Sort(Comparator<? super E> comparator) {
+        	return (Builder<E,K>) super.withKey1Sort(comparator);
         }
 
         @Override
-        public Builder<E,K> withKeySort(Comparator<? super E> comparator, boolean comparatorSortsNull) {
-        	return (Builder<E,K>) super.withKeySort(comparator, comparatorSortsNull);
+        public Builder<E,K> withKey1Sort(Comparator<? super E> comparator, boolean comparatorSortsNull) {
+        	return (Builder<E,K>) super.withKey1Sort(comparator, comparatorSortsNull);
         }
 
         @Override
-        public Builder<E,K> withPrimaryKey() {
-        	return (Builder<E,K>) super.withPrimaryKey();
+        public Builder<E,K> withPrimaryKey1() {
+        	return (Builder<E,K>) super.withPrimaryKey1();
         }
 
         @Override
-        public Builder<E,K> withUniqueKey() {
-        	return (Builder<E,K>) super.withUniqueKey();
+        public Builder<E,K> withUniqueKey1() {
+        	return (Builder<E,K>) super.withUniqueKey1();
         }
 
         /**
          * @return created list
          */
         public Key1List<E,K> build() {
-        	if (tableColl == null) {
-               	tableColl = new KeyCollectionImpl<E>();
+        	if (keyColl == null) {
+               	keyColl = new KeyCollectionImpl<E>();
         	}
-        	build(tableColl, true);
+        	build(keyColl, true);
         	Key1List<E,K> list = new Key1List<E,K>();
-        	fill(tableColl, list);
+        	fill(keyColl, list);
         	return list;
         }
     }

@@ -95,6 +95,11 @@ public class KeyCollection<E> extends KeyCollectionImpl<E> {
         //-- Element key
 
         @Override
+        public Builder<E> withElemDuplicateCount(boolean count) {
+        	return (Builder<E>) super.withElemDuplicateCount(count);
+        }
+
+        @Override
         public Builder<E> withElem() {
         	return (Builder<E>) super.withElem();
         }
@@ -151,12 +156,12 @@ public class KeyCollection<E> extends KeyCollectionImpl<E> {
          */
         public KeyCollection<E> build() {
         	// Constructs builder if there is none
-        	if (tableColl == null) {
-               	tableColl = new KeyCollection<E>();
+        	if (keyColl == null) {
+               	keyColl = new KeyCollection<E>();
         	}
-        	build(tableColl, false);
-        	fill(tableColl);
-        	return (KeyCollection<E>) tableColl;
+        	build(keyColl, false);
+        	fill(keyColl);
+        	return (KeyCollection<E>) keyColl;
         }
     }
 
