@@ -20,6 +20,7 @@ package org.magicwerk.brownies.collections;
 import java.util.Collection;
 import java.util.Comparator;
 
+import org.magicwerk.brownies.collections.KeyCollection.Builder;
 import org.magicwerk.brownies.collections.function.Mapper;
 import org.magicwerk.brownies.collections.function.Predicate;
 import org.magicwerk.brownies.collections.function.Trigger;
@@ -95,6 +96,11 @@ public class Key2Collection<E,K1,K2> extends KeyCollectionImpl<E> {
         	return (Builder<E,K1,K2>) super.withElements(elements);
         }
 
+        @Override
+        public Builder<E,K1,K2> withMaxSize(int maxSize) {
+        	return (Builder<E,K1,K2>) super.withMaxSize(maxSize);
+        }
+
         //-- Element key
 
         @Override
@@ -149,7 +155,7 @@ public class Key2Collection<E,K1,K2> extends KeyCollectionImpl<E> {
 
         // -- Key1
 
-        // @Override
+        //@Override
         public Builder<E,K1,K2> withKey1(Mapper<E,K1> mapper) {
         	return (Builder<E,K1,K2>) super.withKey1(mapper);
         }
@@ -337,7 +343,7 @@ public class Key2Collection<E,K1,K2> extends KeyCollectionImpl<E> {
 		return super.removeAllByKey(1, key);
 	}
 
-	public GapList<K1> getAllDistinctKeys1() {
+	public GapList<K1> getDistinctKeys1() {
 		return (GapList<K1>) super.getDistinctKeys(1);
 	}
 

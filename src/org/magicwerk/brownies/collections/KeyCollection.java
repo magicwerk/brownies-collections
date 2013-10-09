@@ -92,11 +92,16 @@ public class KeyCollection<E> extends KeyCollectionImpl<E> {
         	return (Builder<E>) super.withElements(elements);
         }
 
+        @Override
+        public Builder<E> withMaxSize(int maxSize) {
+        	return (Builder<E>) super.withMaxSize(maxSize);
+        }
+
         //-- Element key
 
         @Override
-        public Builder<E> withElemDuplicateCount(boolean count) {
-        	return (Builder<E>) super.withElemDuplicateCount(count);
+        public Builder<E> withElemCount(boolean count) {
+        	return (Builder<E>) super.withElemCount(count);
         }
 
         @Override

@@ -28,12 +28,14 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.magicwerk.brownies.collections.exceptions.DuplicateKeyException;
 import org.magicwerk.brownies.collections.function.Mapper;
 import org.magicwerk.brownies.collections.function.Predicate;
 import org.magicwerk.brownies.collections.function.Trigger;
 import org.magicwerk.brownies.collections.helper.CollectionAsSet;
 import org.magicwerk.brownies.collections.helper.GapLists;
 import org.magicwerk.brownies.collections.helper.IdentMapper;
+import org.magicwerk.brownies.collections.helper.KeyCollectionAsSet;
 import org.magicwerk.brownies.collections.helper.NaturalComparator;
 import org.magicwerk.brownies.collections.helper.NullComparator;
 import org.magicwerk.brownies.collections.helper.Option;
@@ -87,7 +89,7 @@ public class KeyCollectionImpl<E> implements Collection<E> {
         }
 
     	// KeyList to build
-    	KeyCollectionImpl<E> keyColl;
+    	KeyCollectionImpl keyColl;
     	// -- constraint
         boolean allowNullElem = true;
         Predicate<E> constraint;
@@ -100,6 +102,8 @@ public class KeyCollectionImpl<E> implements Collection<E> {
         Collection<? extends E> collection;
         E[] array;
         int capacity;
+        int maxSize;
+        boolean movingWindow;
         boolean count;
 
         // Interface
@@ -188,9 +192,43 @@ public class KeyCollectionImpl<E> implements Collection<E> {
             return this;
         }
 
+        /**
+         * Specify maximum size of collection.
+         * If an attempt is made to add more elements, an exception is thrown.
+         *
+         * @param maxSize	maximum size
+         * @return			this (fluent interface)
+         */
+        protected BuilderImpl<E> withMaxSize(int maxSize) {
+            this.maxSize = maxSize;
+            this.movingWindow = false;
+            return this;
+        }
+
+        /**
+         * Specify maximum size of collection.
+         * If an attempt is made to add more elements, an exception is thrown.
+         *
+         * @param maxSize	maximum size
+         * @return			this (fluent interface)
+         */
+        protected BuilderImpl<E> withWindowSize(int maxSize) {
+            this.maxSize = maxSize;
+            this.movingWindow = true;
+            return this;
+        }
+
         //-- Element key
 
-        protected BuilderImpl<E> withElemDuplicateCount(boolean count) {
+        /**
+         * Specifies that the collection only count the number
+         * of occurrences of equal elements, but not the elements
+         * themselves.
+         *
+         * @param count	true to count only number of occurrences
+         * @return		this (fluent interface)
+         */
+        protected BuilderImpl<E> withElemCount(boolean count) {
         	this.count = count;
         	return this;
         }
@@ -424,7 +462,7 @@ public class KeyCollectionImpl<E> implements Collection<E> {
          * @param mapper	mapper to use
          * @return			this (fluent interface)
          */
-        protected BuilderImpl<E> withKey1(Mapper mapper) {
+        protected BuilderImpl<E> withKey1(Mapper<E,?> mapper) {
             return withKey(1, mapper);
         }
 
@@ -699,11 +737,13 @@ public class KeyCollectionImpl<E> implements Collection<E> {
          *
          * @param keyColl collection to initialize
          */
-        void build(KeyCollectionImpl<E> keyColl, boolean list) {
+        void build(KeyCollectionImpl keyColl, boolean list) {
         	keyColl.allowNullElem = allowNullElem;
             keyColl.constraint = constraint;
             keyColl.insertTrigger = insertTrigger;
             keyColl.deleteTrigger = deleteTrigger;
+            keyColl.maxSize = maxSize;
+            keyColl.movingWindow = movingWindow;
 
             int orderByKey = -1;
             int size = keyMapBuilders.size();
@@ -758,7 +798,7 @@ public class KeyCollectionImpl<E> implements Collection<E> {
             keyColl.orderByKey = orderByKey;
         }
 
-        void fill(KeyCollectionImpl<E> tableColl) {
+        void fill(KeyCollectionImpl tableColl) {
             if (collection != null) {
             	tableColl.addAll(collection);
             } else if (array != null) {
@@ -766,7 +806,7 @@ public class KeyCollectionImpl<E> implements Collection<E> {
             }
         }
 
-        void fill(KeyCollectionImpl<E> tableColl, KeyListImpl<E> tableList) {
+        void fill(KeyCollectionImpl tableColl, KeyListImpl tableList) {
         	tableList.keyColl = tableColl;
         	if (tableColl.orderByKey == 0) {
         		tableList.forward = (GapList<E>) tableColl.keyMaps[0].keysList;
@@ -881,7 +921,7 @@ public class KeyCollectionImpl<E> implements Collection<E> {
 	    }
 
 	    @SuppressWarnings("unchecked")
-		Iterator<E> iteratorValues(KeyCollectionImpl<E> tableColl) {
+		Iterator<E> iteratorValues(KeyCollectionImpl tableColl) {
 	    	if (keysMap != null) {
 	    		if (count) {
 	    			return (Iterator<E>) new KeyMapCountIter(tableColl, this, keysMap);
@@ -896,13 +936,13 @@ public class KeyCollectionImpl<E> implements Collection<E> {
 
 	    static class KeysListIter<E,K> implements Iterator<E> {
 
-	    	KeyCollectionImpl<E> tableColl;
+	    	KeyCollectionImpl tableColl;
 	    	KeyMap<E,K> keyMap;
 	    	GapList<E> list;
 	    	Iterator<E> iter;
 	    	E elem;
 
-			public KeysListIter(KeyCollectionImpl<E> tableColl, KeyMap<E,K> keyMap, GapList<E> list) {
+			public KeysListIter(KeyCollectionImpl tableColl, KeyMap<E,K> keyMap, GapList<E> list) {
 	    		this.tableColl = tableColl;
 	    		this.keyMap = keyMap;
 				this.list = list;
@@ -930,14 +970,14 @@ public class KeyCollectionImpl<E> implements Collection<E> {
 
 	    static class KeyMapIter<E,K> implements Iterator<E> {
 
-	    	KeyCollectionImpl<E> tableColl;
+	    	KeyCollectionImpl tableColl;
 	    	KeyMap<E,K> keyMap;
 	    	Iterator<Object> mapIter;
 	    	Iterator<E> listIter;
 	    	boolean hasElem;
 	    	E elem;
 
-	    	public KeyMapIter(KeyCollectionImpl<E> tableColl, KeyMap<E,K> keyMap, Map<K,Object> map) {
+	    	public KeyMapIter(KeyCollectionImpl tableColl, KeyMap<E,K> keyMap, Map<K,Object> map) {
 	    		this.tableColl = tableColl;
 	    		this.keyMap = keyMap;
 	    		this.mapIter = map.values().iterator();
@@ -991,7 +1031,7 @@ public class KeyCollectionImpl<E> implements Collection<E> {
 					throw new IllegalStateException("No current element to remove");
 				}
 				hasElem = false;
-				
+
 				if (listIter != null) {
 					listIter.remove();
 				} else {
@@ -1003,7 +1043,7 @@ public class KeyCollectionImpl<E> implements Collection<E> {
 
 	    static class KeyMapCountIter<E,K> implements Iterator<E> {
 
-	    	KeyCollectionImpl<E> tableColl;
+	    	KeyCollectionImpl tableColl;
 	    	KeyMap<E,K> keyMap;
 	    	Map<K,Object> map;
 	    	Iterator<Entry<K, Object>> mapIter;
@@ -1011,7 +1051,7 @@ public class KeyCollectionImpl<E> implements Collection<E> {
 	    	int count;
 	    	boolean hasElem;
 
-	    	public KeyMapCountIter(KeyCollectionImpl<E> tableColl, KeyMap<E,K> keyMap, Map<K,Object> map) {
+	    	public KeyMapCountIter(KeyCollectionImpl tableColl, KeyMap<E,K> keyMap, Map<K,Object> map) {
 	    		this.tableColl = tableColl;
 	    		this.keyMap = keyMap;
 	    		this.map = map;
@@ -1056,7 +1096,7 @@ public class KeyCollectionImpl<E> implements Collection<E> {
 					throw new IllegalStateException("No current element to remove");
 				}
 				hasElem = false;
-				
+
 				Integer val = (Integer) map.get(elem);
 				if (val == 1) {
 					mapIter.remove();
@@ -1275,6 +1315,8 @@ public class KeyCollectionImpl<E> implements Collection<E> {
      * The size is cached, as the key maps do not know the size if duplicates are allowed.
      */
     int size;
+    int maxSize;
+    boolean movingWindow;
     /**
      * Maps for element and all defined keys.
      * Index 0 is reseverd for the elem key using an IdentMapper.
@@ -1287,11 +1329,6 @@ public class KeyCollectionImpl<E> implements Collection<E> {
      * If an order key is defined for a TableList, it must be implemented as list.
      */
     int orderByKey;
-    /**
-     * True if key map which defines order is implem
-     * Only
-     */
-    //boolean orderedList;
 	// -- null
     boolean allowNullElem;
     Predicate<E> constraint;
@@ -1307,7 +1344,7 @@ public class KeyCollectionImpl<E> implements Collection<E> {
      *
      * @param that source object
      */
-    void initCopy(KeyCollectionImpl<E> that) {
+    void initCopy(KeyCollectionImpl that) {
     	size = that.size;
     	if (that.keyMaps != null) {
 	    	keyMaps = new KeyMap[that.keyMaps.length];
@@ -1329,7 +1366,7 @@ public class KeyCollectionImpl<E> implements Collection<E> {
      *
      * @param that source object
      */
-    void initCrop(KeyCollectionImpl<E> that) {
+    void initCrop(KeyCollectionImpl that) {
     	size = that.size;
     	if (that.keyMaps != null) {
 	    	keyMaps = new KeyMap[that.keyMaps.length];
@@ -1505,7 +1542,7 @@ public class KeyCollectionImpl<E> implements Collection<E> {
     //
 
     /**
-     * Checks whether element is allowed.
+     * Checks whether element is allowed in collection.
      *
      * @param elem element to check
      * @throws IllegalArgumentException if the element is not allowed
@@ -1549,7 +1586,7 @@ public class KeyCollectionImpl<E> implements Collection<E> {
     }
 
     static void errorDuplicateKey() {
-		throw new IllegalArgumentException("Constraint violation: duplicate key not allowed");
+		throw new DuplicateKeyException();
     }
 
     static void errorInvalidData() {
@@ -1560,9 +1597,17 @@ public class KeyCollectionImpl<E> implements Collection<E> {
 		throw new IllegalArgumentException("Invalid index for sorted list");
     }
 
+    static void errorMaxSize() {
+		throw new IllegalArgumentException("Maximum size reached");
+    }
+
     @Override
     public boolean add(E elem) {
+        // This method is also used by addAll()
     	checkElemAllowed(elem);
+    	if (maxSize != 0 && size >= maxSize) {
+    		errorMaxSize();
+    	}
     	doAdd(elem, null);
     	size++;
         if (DEBUG_CHECK) debugCheck();
@@ -1765,16 +1810,22 @@ public class KeyCollectionImpl<E> implements Collection<E> {
     	throw new UnsupportedOperationException();
     }
 
+    /**
+     * Returns a set view
+     * @return
+     */
     public Set<E> asSet() {
-    	return new CollectionAsSet(this, false);
+    	return new KeyCollectionAsSet(this, false);
     }
 
     @Override
     public void clear() {
-    	for (KeyMap<E,Object> keyMap: keyMaps) {
-    		if (keyMap != null) {
-    			doClear(keyMap);
-    		}
+    	if (keyMaps != null) {
+	    	for (KeyMap<E,Object> keyMap: keyMaps) {
+	    		if (keyMap != null) {
+	    			doClear(keyMap);
+	    		}
+	    	}
     	}
     	size = 0;
     }

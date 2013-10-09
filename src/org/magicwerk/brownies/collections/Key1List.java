@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.Comparator;
 
 import org.magicwerk.brownies.collections.KeyCollectionImpl.BuilderImpl;
+import org.magicwerk.brownies.collections.KeyList.Builder;
 import org.magicwerk.brownies.collections.function.Mapper;
 import org.magicwerk.brownies.collections.function.Predicate;
 import org.magicwerk.brownies.collections.function.Trigger;
@@ -93,6 +94,16 @@ public class Key1List<E,K> extends KeyListImpl<E> {
         @Override
         public Builder<E,K> withElements(E... elements) {
         	return (Builder<E,K>) super.withElements(elements);
+        }
+
+        @Override
+        public Builder<E,K> withMaxSize(int maxSize) {
+        	return (Builder<E,K>) super.withMaxSize(maxSize);
+        }
+
+        @Override
+        public Builder<E,K> withWindowSize(int maxSize) {
+        	return (Builder<E,K>) super.withWindowSize(maxSize);
         }
 
         //-- Element key

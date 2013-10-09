@@ -95,6 +95,16 @@ public class Key2List<E,K1,K2> extends KeyListImpl<E> {
         	return (Builder<E,K1,K2>) super.withElements(elements);
         }
 
+        @Override
+        public Builder<E,K1,K2> withMaxSize(int maxSize) {
+        	return (Builder<E,K1,K2>) super.withMaxSize(maxSize);
+        }
+
+        @Override
+        public Builder<E,K1,K2> withWindowSize(int maxSize) {
+        	return (Builder<E,K1,K2>) super.withWindowSize(maxSize);
+        }
+
         //-- Element key
 
         @Override

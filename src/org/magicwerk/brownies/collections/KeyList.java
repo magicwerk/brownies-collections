@@ -99,6 +99,16 @@ public class KeyList<E> extends KeyListImpl<E> {
         	return (Builder<E>) super.withElements(elements);
         }
 
+        @Override
+        public Builder<E> withMaxSize(int maxSize) {
+        	return (Builder<E>) super.withMaxSize(maxSize);
+        }
+
+        @Override
+        public Builder<E> withWindowSize(int maxSize) {
+        	return (Builder<E>) super.withWindowSize(maxSize);
+        }
+
         //-- Element key
 
         @Override
@@ -163,7 +173,7 @@ public class KeyList<E> extends KeyListImpl<E> {
          */
         public KeyList<E> build() {
         	if (keyColl == null) {
-               	keyColl = new KeyCollectionImpl<E>();
+               	keyColl = new KeyCollectionImpl();
         	}
         	build(keyColl, true);
         	KeyList<E> list = new KeyList();

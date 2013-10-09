@@ -35,7 +35,7 @@ import org.magicwerk.brownies.collections.helper.CollectionAsSet;
  */
 public class KeyListImpl<E> extends GapList<E> {
 
-    KeyCollectionImpl keyColl;
+    KeyCollectionImpl<E> keyColl;
     GapList<E> forward;
 
     /** If true the invariants the GapList are checked for debugging */
@@ -52,7 +52,7 @@ public class KeyListImpl<E> extends GapList<E> {
     /**
      * Do not use. Use Builder instead.
      */
-    public static <E> KeyListImpl<E> create() {
+    public static <E> GapList<E> create() {
         throw new UnsupportedOperationException();
     }
 
@@ -99,7 +99,7 @@ public class KeyListImpl<E> extends GapList<E> {
 	 * @param that source object
 	 */
 	@SuppressWarnings("unchecked")
-    void initCrop(KeyListImpl<E> that) {
+    void initCrop(KeyListImpl that) {
 	    // GapList
 	    init(new Object[DEFAULT_CAPACITY], 0);
 
@@ -113,7 +113,7 @@ public class KeyListImpl<E> extends GapList<E> {
      *
      * @param that source object
      */
-    void initCopy(KeyListImpl<E> that) {
+    void initCopy(KeyListImpl that) {
         // GapList
         init(that.toArray(), that.size());
 
@@ -178,9 +178,8 @@ public class KeyListImpl<E> extends GapList<E> {
     /**
      * {@inheritDoc}
      * <p><i>
-     * Note that the behavior of the operation regarding duplicate values is controlled by the duplicate mode.
+     * Note that the behavior of the operation depends on the defined constraints.
      * </i></p>
-     * @see DuplicateMode
      */
     // This method is only overwritten to change the Javadoc comment.
     @Override
@@ -191,9 +190,8 @@ public class KeyListImpl<E> extends GapList<E> {
     /**
      * {@inheritDoc}
      * <p><i>
-     * Note that the behavior of the operation regarding duplicate values is controlled by the duplicate mode.
+     * Note that the behavior of the operation depends on the defined constraints.
      * </i></p>
-     * @see DuplicateMode
      */
     // This method is only overwritten to change the Javadoc comment.
     @Override
@@ -204,9 +202,8 @@ public class KeyListImpl<E> extends GapList<E> {
     /**
      * {@inheritDoc}
      * <p><i>
-     * Note that the behavior of the operation regarding duplicate values is controlled by the duplicate mode.
+     * Note that the behavior of the operation depends on the defined constraints.
      * </i></p>
-     * @see DuplicateMode
      */
     // This method is only overwritten to change the Javadoc comment.
     @Override
@@ -228,14 +225,41 @@ public class KeyListImpl<E> extends GapList<E> {
      *
      * @return  an empty copy of this instance
      */
-    public KeyListImpl<E> crop() {
+    public KeyListImpl crop() {
     	// Derived classes must implement
     	throw new UnsupportedOperationException();
     }
 
     @Override
+    public void ensureCapacity(int minCapacity) {
+        // Make sure that we never allocate more slots than needed.
+        // The add methods make sure that we never use to many slots.
+    	if (keyColl.maxSize != 0) {
+    		minCapacity = Math.min(minCapacity, keyColl.maxSize);
+    	}
+        super.ensureCapacity(minCapacity);
+    }
+
+    @Override
     protected boolean doAdd(int index, E elem) {
+    	// This method is also called by doAdd(E)
     	keyColl.checkElemAllowed(elem);
+
+    	if (keyColl.maxSize != 0 && size() >= keyColl.maxSize) {
+    		if (keyColl.movingWindow) {
+    			if (index == 0) {
+    				// the element inserted at position 0 will removed again due to the limited size
+    				return false;
+    			}
+    			if (index == -1) {
+    				index = size()-1;
+    			}
+   				doRemove(0);
+   				index = index-1;
+    		} else {
+    			keyColl.errorMaxSize();
+    		}
+    	}
 
 		if (keyColl.isSortedList()) {
 			if (index == -1) {
@@ -261,16 +285,50 @@ public class KeyListImpl<E> extends GapList<E> {
         return true;
     }
 
-    @Override
+//	// Fast doAddAll() implementation for window size
+//	protected boolean doAddAll(int index, E[] array) {
+//        checkIndexAdd(index);
+//
+//        int addSize = array.length;
+//		if (addSize == 0) {
+//			return false;
+//		}
+//		int overlap = size()+addSize - maxSize;
+//		if (overlap > 0) {
+//			if (index >= overlap) {
+//				super.remove(0, overlap);
+//			} else {
+//				super.remove(0, index);
+//			}
+//			index = index - overlap;
+//		}
+//		if (index >= 0) {
+//			for (int i=0; i<addSize; i++) {
+//				super.doAdd(index+i, array[i]);
+//			}
+//		} else {
+//			for (int i=0; i<addSize+index; i++) {
+//				super.doAdd(0, array[i-index]);
+//			}
+//		}
+//		return true;
+//	}
+
+	@Override
 	protected boolean doAddAll(int index, E[] array) {
     	// delegate to doAdd()
 		if (array.length == 0) {
 			return false;
 		}
 		for (E elem: array) {
+			int size = size();
 			doAdd(index, elem);
 			if (index != -1) {
-			    index++;
+				// If size has not changed, this is a list with max size,
+				// so there is no need to increment the insert index
+				if (size() != size) {
+					index++;
+				}
 			}
 		}
 		return true;
