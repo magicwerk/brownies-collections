@@ -13,8 +13,8 @@ import java.util.Set;
  * @version $Id$
  */
 public class CollectionAsSet<K> implements Set<K> {
-    private Collection<K> coll;
-    private boolean immutable;
+    Collection<K> coll;
+    boolean immutable;
 
     public CollectionAsSet(Collection<K> coll, boolean immutable) {
     	if (coll == null) {
@@ -82,7 +82,7 @@ public class CollectionAsSet<K> implements Set<K> {
 
 	// Set: write methods
 
-    private void checkMutable() {
+    void checkMutable() {
     	if (immutable) {
     		throw new UnsupportedOperationException("Set is immutable");
     	}
