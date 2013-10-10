@@ -165,7 +165,7 @@ public class KeyCollection<E> extends KeyCollectionImpl<E> {
                	keyColl = new KeyCollection<E>();
         	}
         	build(keyColl, false);
-        	fill(keyColl);
+        	init(keyColl);
         	return (KeyCollection<E>) keyColl;
         }
     }

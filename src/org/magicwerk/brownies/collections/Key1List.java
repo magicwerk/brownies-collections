@@ -235,7 +235,7 @@ public class Key1List<E,K> extends KeyListImpl<E> {
         	if (keyList == null) {
         		keyList = new Key1List<E,K>();
         	}
-        	fill(keyColl, keyList);
+        	init(keyColl, keyList);
         	return (Key1List<E, K>) keyList;
         }
     }

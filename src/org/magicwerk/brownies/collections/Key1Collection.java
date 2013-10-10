@@ -213,7 +213,7 @@ public class Key1Collection<E,K> extends KeyCollectionImpl<E> {
                	keyColl = new Key1Collection<E,K>();
         	}
         	build(keyColl, false);
-        	fill(keyColl);
+        	init(keyColl);
         	return (Key1Collection<E,K>) keyColl;
         }
     }

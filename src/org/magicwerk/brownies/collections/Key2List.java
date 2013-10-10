@@ -285,7 +285,7 @@ public class Key2List<E,K1,K2> extends KeyListImpl<E> {
         	}
         	build(keyColl, true);
         	Key2List<E,K1,K2> list = new Key2List();
-        	fill(keyColl, list);
+        	init(keyColl, list);
         	return list;
         }
     }

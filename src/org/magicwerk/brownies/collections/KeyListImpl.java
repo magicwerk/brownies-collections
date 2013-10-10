@@ -126,11 +126,15 @@ public class KeyListImpl<E> extends GapList<E> {
     }
 
     protected void beforeInsert(E elem) {
-    	keyColl.beforeInsert(elem);
+        if (keyColl.insertTrigger != null) {
+            keyColl.insertTrigger.handle(elem);
+        }
     }
 
     protected void beforeDelete(E elem) {
-    	keyColl.beforeDelete(elem);
+        if (keyColl.deleteTrigger != null) {
+            keyColl.deleteTrigger.handle(elem);
+        }
     }
 
     //-- Read

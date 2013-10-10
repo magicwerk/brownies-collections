@@ -735,6 +735,7 @@ public class KeyCollectionImpl<E> implements Collection<E> {
          * Initialize TableCollection with specified options.
          *
          * @param keyColl collection to initialize
+         * @param list    true if a KeyListImpl is built up
          */
         void build(KeyCollectionImpl keyColl, boolean list) {
         	keyColl.allowNullElem = allowNullElem;
@@ -797,32 +798,33 @@ public class KeyCollectionImpl<E> implements Collection<E> {
             keyColl.orderByKey = orderByKey;
         }
 
-        void fill(KeyCollectionImpl tableColl) {
+        void init(KeyCollectionImpl keyColl) {
             if (collection != null) {
-            	tableColl.addAll(collection);
+            	keyColl.addAll(collection);
             } else if (array != null) {
-            	tableColl.addAll((Collection<? extends E>) Arrays.asList(array));
+            	keyColl.addAll((Collection<? extends E>) Arrays.asList(array));
             }
         }
 
-        void fill(KeyCollectionImpl tableColl, KeyListImpl tableList) {
-        	tableList.keyColl = tableColl;
-        	if (tableColl.orderByKey == 0) {
-        		tableList.forward = (GapList<E>) tableColl.keyMaps[0].keysList;
+        void init(KeyCollectionImpl keyColl, KeyListImpl keyList) {
+        	keyList.keyColl = keyColl;
+        	keyColl.triggerHandler = keyList;
+        	if (keyColl.orderByKey == 0) {
+        		keyList.forward = (GapList<E>) keyColl.keyMaps[0].keysList;
                 if (collection != null) {
-                	tableColl.addAll(collection);
+                	keyColl.addAll(collection);
                 } else if (array != null) {
-                	tableColl.addAll((Collection<? extends E>) Arrays.asList(array));
+                	keyColl.addAll((Collection<? extends E>) Arrays.asList(array));
                 }
         	} else {
         		if (collection != null) {
-        			tableList.init(collection);
+        			keyList.init(collection);
         		} else if (array != null) {
-        			tableList.init((Collection<? extends E>) Arrays.asList(array));
+        			keyList.init((Collection<? extends E>) Arrays.asList(array));
         		} else if (capacity != 0) {
-        			tableList.init(capacity);
+        			keyList.init(capacity);
         		} else {
-        			tableList.init();
+        			keyList.init();
         		}
         	}
         }
@@ -1334,7 +1336,11 @@ public class KeyCollectionImpl<E> implements Collection<E> {
     // -- handlers
     Trigger<E> insertTrigger;
     Trigger<E> deleteTrigger;
+    KeyListImpl triggerHandler;
 
+    /**
+     * Private constructor.
+     */
     KeyCollectionImpl() {
     }
 
@@ -1601,13 +1607,17 @@ public class KeyCollectionImpl<E> implements Collection<E> {
     }
 
     protected void beforeInsert(E elem) {
-    	if (insertTrigger != null) {
+        if (triggerHandler != null) {
+            triggerHandler.beforeInsert(elem);
+        } else if (insertTrigger != null) {
    			insertTrigger.handle(elem);
     	}
     }
 
     protected void beforeDelete(E elem) {
-    	if (deleteTrigger != null) {
+        if (triggerHandler != null) {
+            triggerHandler.beforeDelete(elem);
+        } else if (deleteTrigger != null) {
    			deleteTrigger.handle(elem);
     	}
     }
@@ -1639,9 +1649,7 @@ public class KeyCollectionImpl<E> implements Collection<E> {
      * @return			true if element has been removed
      */
 	boolean remove(Object elem, KeyMap ignore) {
-    	if (deleteTrigger != null) {
-    		deleteTrigger.handle((E) elem);
-    	}
+	    beforeDelete((E) elem);
         boolean removed = doRemove(elem, ignore);
         if (removed) {
         	size--;
