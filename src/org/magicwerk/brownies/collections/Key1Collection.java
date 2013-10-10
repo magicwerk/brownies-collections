@@ -19,6 +19,7 @@ package org.magicwerk.brownies.collections;
 
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Map;
 
 import org.magicwerk.brownies.collections.KeyCollection.Builder;
 import org.magicwerk.brownies.collections.function.Mapper;
@@ -240,6 +241,10 @@ public class Key1Collection<E,K> extends KeyCollectionImpl<E> {
         Key1Collection<E,K> copy = new Key1Collection<E,K>();
         copy.initCrop(this);
         return copy;
+    }
+
+    public Map<K,E> asMap() {
+    	return new KeyCollectionAsMap<E,K>(this, 1, false);
     }
 
     //-- Element methods

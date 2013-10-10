@@ -32,10 +32,8 @@ import org.magicwerk.brownies.collections.exceptions.DuplicateKeyException;
 import org.magicwerk.brownies.collections.function.Mapper;
 import org.magicwerk.brownies.collections.function.Predicate;
 import org.magicwerk.brownies.collections.function.Trigger;
-import org.magicwerk.brownies.collections.helper.CollectionAsSet;
 import org.magicwerk.brownies.collections.helper.GapLists;
 import org.magicwerk.brownies.collections.helper.IdentMapper;
-import org.magicwerk.brownies.collections.helper.KeyCollectionAsSet;
 import org.magicwerk.brownies.collections.helper.NaturalComparator;
 import org.magicwerk.brownies.collections.helper.NullComparator;
 import org.magicwerk.brownies.collections.helper.Option;
@@ -90,6 +88,7 @@ public class KeyCollectionImpl<E> implements Collection<E> {
 
     	// KeyList to build
     	KeyCollectionImpl keyColl;
+    	KeyListImpl keyList;
     	// -- constraint
         boolean allowNullElem = true;
         Predicate<E> constraint;
@@ -1601,9 +1600,22 @@ public class KeyCollectionImpl<E> implements Collection<E> {
 		throw new IllegalArgumentException("Maximum size reached");
     }
 
+    protected void beforeInsert(E elem) {
+    	if (insertTrigger != null) {
+   			insertTrigger.handle(elem);
+    	}
+    }
+
+    protected void beforeDelete(E elem) {
+    	if (deleteTrigger != null) {
+   			deleteTrigger.handle(elem);
+    	}
+    }
+
     @Override
     public boolean add(E elem) {
         // This method is also used by addAll()
+    	beforeInsert(elem);
     	checkElemAllowed(elem);
     	if (maxSize != 0 && size >= maxSize) {
     		errorMaxSize();
@@ -1611,10 +1623,6 @@ public class KeyCollectionImpl<E> implements Collection<E> {
     	doAdd(elem, null);
     	size++;
         if (DEBUG_CHECK) debugCheck();
-
-    	if (insertTrigger != null) {
-   			insertTrigger.handle(elem);
-    	}
     	return true;
     }
 
@@ -1631,14 +1639,14 @@ public class KeyCollectionImpl<E> implements Collection<E> {
      * @return			true if element has been removed
      */
 	boolean remove(Object elem, KeyMap ignore) {
+    	if (deleteTrigger != null) {
+    		deleteTrigger.handle((E) elem);
+    	}
         boolean removed = doRemove(elem, ignore);
         if (removed) {
         	size--;
             if (DEBUG_CHECK) debugCheck();
 
-        	if (deleteTrigger != null) {
-        		deleteTrigger.handle((E) elem);
-        	}
         }
         return removed;
 	}
@@ -1811,8 +1819,13 @@ public class KeyCollectionImpl<E> implements Collection<E> {
     }
 
     /**
-     * Returns a set view
-     * @return
+     * Returns a set view of the collection.
+     * Note that this method does not check whether the collection really
+     * is really a set as defined by the Set interface. It makes only sure
+     * that the add() method will return false instead of throwing a
+     * DuplicateKeyException.
+     *
+     * @return set view
      */
     public Set<E> asSet() {
     	return new KeyCollectionAsSet(this, false);

@@ -20,7 +20,6 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.Set;
 
-import org.magicwerk.brownies.collections.helper.CollectionAsSet;
 
 
 /**
@@ -124,6 +123,14 @@ public class KeyListImpl<E> extends GapList<E> {
 
     public Set<E> asSet() {
     	return new CollectionAsSet(this, false);
+    }
+
+    protected void beforeInsert(E elem) {
+    	keyColl.beforeInsert(elem);
+    }
+
+    protected void beforeDelete(E elem) {
+    	keyColl.beforeDelete(elem);
     }
 
     //-- Read

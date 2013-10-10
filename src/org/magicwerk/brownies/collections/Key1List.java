@@ -55,6 +55,10 @@ public class Key1List<E,K> extends KeyListImpl<E> {
         public Builder() {
         }
 
+        Builder(Key1List<E,K> keyList) {
+        	this.keyList = keyList;
+        }
+
         // -- Constraint
 
         @Override
@@ -228,16 +232,22 @@ public class Key1List<E,K> extends KeyListImpl<E> {
                	keyColl = new KeyCollectionImpl<E>();
         	}
         	build(keyColl, true);
-        	Key1List<E,K> list = new Key1List<E,K>();
-        	fill(keyColl, list);
-        	return list;
+        	if (keyList == null) {
+        		keyList = new Key1List<E,K>();
+        	}
+        	fill(keyColl, keyList);
+        	return (Key1List<E, K>) keyList;
         }
     }
 
     /**
      * Private constructor used by builder.
      */
-    private Key1List() {
+    protected Key1List() {
+    }
+
+    protected Builder<E,K> getBuilder() {
+    	return new Builder<E,K>(this);
     }
 
     @Override

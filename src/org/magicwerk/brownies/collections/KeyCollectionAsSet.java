@@ -1,4 +1,4 @@
-package org.magicwerk.brownies.collections.helper;
+package org.magicwerk.brownies.collections;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -6,7 +6,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.magicwerk.brownies.collections.KeyCollectionImpl;
 import org.magicwerk.brownies.collections.exceptions.DuplicateKeyException;
 
 /**
