@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: BrowniesException.java 265 2011-01-23 22:48:08Z thmauch $
+ * $Id$
  */
 package org.magicwerk.brownies.collections.exceptions;
 

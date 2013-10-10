@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: KeyList.java 1829 2013-08-20 06:45:35Z origo $
+ * $Id$
  */
 package org.magicwerk.brownies.collections;
 
@@ -50,7 +50,7 @@ import org.magicwerk.brownies.collections.helper.SortedLists;
  * - if an exception is thrown in the trigger, the change already made to the collection is not undone
  *
  * @author Thomas Mauch
- * @version $Id: KeyList.java 1829 2013-08-20 06:45:35Z origo $
+ * @version $Id$
  *
  * @see GapList
  * @param <E> type of elements stored in the list
@@ -1606,6 +1606,14 @@ public class KeyCollectionImpl<E> implements Collection<E> {
 		throw new IllegalArgumentException("Maximum size reached");
     }
 
+    /**
+     * This method is called before a new element is added.
+     * If the addition should not happen, an exception can be thrown.
+     * Per default, this method calls the registered insert trigger.
+     * However the method can also be overwritten when appropriate.
+     *
+     * @param elem	element to insert
+     */
     protected void beforeInsert(E elem) {
         if (triggerHandler != null) {
             triggerHandler.beforeInsert(elem);
@@ -1614,6 +1622,14 @@ public class KeyCollectionImpl<E> implements Collection<E> {
     	}
     }
 
+    /**
+     * This method is called before an existing element is removed.
+     * If the deletion should not happen, an exception can be thrown.
+     * Per default, this method calls the registered delete trigger.
+     * However the method can also be overwritten when appropriate.
+     *
+     * @param elem	element to insert
+     */
     protected void beforeDelete(E elem) {
         if (triggerHandler != null) {
             triggerHandler.beforeDelete(elem);
@@ -2239,7 +2255,7 @@ public class KeyCollectionImpl<E> implements Collection<E> {
                     break;
                 }
             }
-            GapList<E> removed = (GapList<E>) keyMap.keysList.get(start, index-start);
+            GapList<E> removed = (GapList<E>) keyMap.keysList.getAll(start, index-start);
             keyMap.keysList.remove(start, index-start);
             return removed;
         }

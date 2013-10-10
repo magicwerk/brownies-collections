@@ -13,18 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: TypeTools.java 1775 2013-07-10 22:53:57Z origo $
+ * $Id$
  */
 package org.magicwerk.brownies.collections.helper;
 
 import java.util.Comparator;
 
+/**
+ * The NaturalComparator will compare object using their natural order.
+ *
+ * @param <T>	element type
+ *
+ * @author Thomas Mauch
+ * @version $Id$
+ */
 public class NaturalComparator<T> implements Comparator<T> {
+	/**
+	 * Singleton instance.
+	 */
 	public static final NaturalComparator INSTANCE = new NaturalComparator();
 
+	/**
+	 * Prevent construction.
+	 */
 	private NaturalComparator() {
 	}
 
+	@Override
     public int compare(T o1, T o2) {
         return ((Comparable) o1).compareTo(o2);
     }

@@ -1,9 +1,30 @@
+/*
+ * Copyright 2013 by Thomas Mauch
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * $Id$
+ */
 package org.magicwerk.brownies.collections.function;
 
 /**
- * The Handler interface is used to customize the behavior
- * of onAttach() and onDetach(). These methods cannot be
- * overridden as the concrete instances are created by builders.
+ * The Trigger interface is used by methods for implementing
+ * trigger like functionality.
+ *
+ * @param <E>	element type
+ *
+ * @author Thomas Mauch
+ * @version $Id$
  */
 public interface Trigger<E> {
     /**
@@ -11,5 +32,5 @@ public interface Trigger<E> {
      *
      * @param elem element to handle
      */
-    public void handle(E elem);
+    void handle(E elem);
 }

@@ -61,10 +61,6 @@ public class CharObjGapList extends GapList<Character> {
 		return new CharObjGapList(elems);
 	}
 
-//	public CharObjGapList(INIT init) {
-//		super(false, null);
-//	}
-
 	public CharObjGapList() {
 		super(false, null);
 		init();
@@ -353,7 +349,7 @@ public class CharObjGapList extends GapList<Character> {
 	}
 
 	@Override
-	public GapList<Character> get(int index, int len) {
+	public GapList<Character> getAll(int index, int len) {
 		char[] elems = list.getArray(index, len);
 		return GapList.create(toWrapper(elems));
 	}

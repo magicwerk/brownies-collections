@@ -61,10 +61,6 @@ public class ByteObjGapList extends GapList<Byte> {
 		return new ByteObjGapList(elems);
 	}
 
-//	public ByteObjGapList(INIT init) {
-//		super(false, null);
-//	}
-
 	public ByteObjGapList() {
 		super(false, null);
 		init();
@@ -353,7 +349,7 @@ public class ByteObjGapList extends GapList<Byte> {
 	}
 
 	@Override
-	public GapList<Byte> get(int index, int len) {
+	public GapList<Byte> getAll(int index, int len) {
 		byte[] elems = list.getArray(index, len);
 		return GapList.create(toWrapper(elems));
 	}

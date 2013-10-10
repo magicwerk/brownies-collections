@@ -61,10 +61,6 @@ public class ShortObjGapList extends GapList<Short> {
 		return new ShortObjGapList(elems);
 	}
 
-//	public ShortObjGapList(INIT init) {
-//		super(false, null);
-//	}
-
 	public ShortObjGapList() {
 		super(false, null);
 		init();
@@ -353,7 +349,7 @@ public class ShortObjGapList extends GapList<Short> {
 	}
 
 	@Override
-	public GapList<Short> get(int index, int len) {
+	public GapList<Short> getAll(int index, int len) {
 		short[] elems = list.getArray(index, len);
 		return GapList.create(toWrapper(elems));
 	}

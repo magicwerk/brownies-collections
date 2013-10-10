@@ -61,10 +61,6 @@ public class BooleanObjGapList extends GapList<Boolean> {
 		return new BooleanObjGapList(elems);
 	}
 
-//	public BooleanObjGapList(INIT init) {
-//		super(false, null);
-//	}
-
 	public BooleanObjGapList() {
 		super(false, null);
 		init();
@@ -353,7 +349,7 @@ public class BooleanObjGapList extends GapList<Boolean> {
 	}
 
 	@Override
-	public GapList<Boolean> get(int index, int len) {
+	public GapList<Boolean> getAll(int index, int len) {
 		boolean[] elems = list.getArray(index, len);
 		return GapList.create(toWrapper(elems));
 	}

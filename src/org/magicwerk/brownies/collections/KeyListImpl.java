@@ -32,9 +32,17 @@ import java.util.Set;
  * @see GapList
  * @param <E> type of elements stored in the list
  */
+@SuppressWarnings("static-access")
 public class KeyListImpl<E> extends GapList<E> {
 
+    /**
+     * Key collection used for key storage.
+     */
     KeyCollectionImpl<E> keyColl;
+    /**
+     * If forward is not null, the pointed to list stores the data for this instance
+     * of KeyListImpl. The inherited GapList will not be used and be empty.
+     */
     GapList<E> forward;
 
     /** If true the invariants the GapList are checked for debugging */
@@ -88,6 +96,9 @@ public class KeyListImpl<E> extends GapList<E> {
     	}
     }
 
+    /**
+     * Constructor.
+     */
     KeyListImpl() {
     	super(false, null);
     }
@@ -97,13 +108,12 @@ public class KeyListImpl<E> extends GapList<E> {
 	 *
 	 * @param that source object
 	 */
-	@SuppressWarnings("unchecked")
-    void initCrop(KeyListImpl that) {
+    void initCrop(KeyListImpl<E> that) {
 	    // GapList
 	    init(new Object[DEFAULT_CAPACITY], 0);
 
 	    // TableCollection
-	    keyColl = new KeyCollectionImpl();
+	    keyColl = new KeyCollectionImpl<E>();
 	    keyColl.initCopy(that.keyColl);
 	}
 
@@ -112,25 +122,50 @@ public class KeyListImpl<E> extends GapList<E> {
      *
      * @param that source object
      */
-    void initCopy(KeyListImpl that) {
+    void initCopy(KeyListImpl<E> that) {
         // GapList
         init(that.toArray(), that.size());
 
 	    // TableCollection
-	    keyColl = new KeyCollectionImpl();
+	    keyColl = new KeyCollectionImpl<E>();
 	    keyColl.initCrop(that.keyColl);
     }
 
+    /**
+     * Returns a set view of the collection.
+     * Note that this method does not check whether the collection really
+     * is really a set as defined by the Set interface. It makes only sure
+     * that the add() method will return false instead of throwing a
+     * DuplicateKeyException.
+     *
+     * @return set view
+     */
     public Set<E> asSet() {
-    	return new CollectionAsSet(this, false);
+    	return new CollectionAsSet<E>(this, false);
     }
 
+    /**
+     * This method is called before a new element is added.
+     * If the addition should not happen, an exception can be thrown.
+     * Per default, this method calls the registered insert trigger.
+     * However the method can also be overwritten when appropriate.
+     *
+     * @param elem	element to insert
+     */
     protected void beforeInsert(E elem) {
         if (keyColl.insertTrigger != null) {
             keyColl.insertTrigger.handle(elem);
         }
     }
 
+    /**
+     * This method is called before an existing element is removed.
+     * If the deletion should not happen, an exception can be thrown.
+     * Per default, this method calls the registered delete trigger.
+     * However the method can also be overwritten when appropriate.
+     *
+     * @param elem	element to insert
+     */
     protected void beforeDelete(E elem) {
         if (keyColl.deleteTrigger != null) {
             keyColl.deleteTrigger.handle(elem);
@@ -236,7 +271,7 @@ public class KeyListImpl<E> extends GapList<E> {
      *
      * @return  an empty copy of this instance
      */
-    public KeyListImpl crop() {
+    public KeyListImpl<E> crop() {
     	// Derived classes must implement
     	throw new UnsupportedOperationException();
     }
@@ -251,7 +286,7 @@ public class KeyListImpl<E> extends GapList<E> {
         super.ensureCapacity(minCapacity);
     }
 
-    @Override
+	@Override
     protected boolean doAdd(int index, E elem) {
     	// This method is also called by doAdd(E)
     	keyColl.checkElemAllowed(elem);
@@ -411,7 +446,8 @@ public class KeyListImpl<E> extends GapList<E> {
     	}
     }
 
-    @Override
+	@Override
+    @SuppressWarnings("unchecked")
     public int indexOf(Object elem) {
     	if (keyColl.isSortedList()) {
     		return keyColl.indexOfSorted((E) elem);
@@ -423,22 +459,26 @@ public class KeyListImpl<E> extends GapList<E> {
     /**
      * Find given key and return its index.
      *
-     * @param key   key to find
-     * @return      index of key or -1 if not found
+     * @param keyIndex	key index
+     * @param key   	key to find
+     * @return      	index of key or -1 if not found
      */
-    public <K> int indexOfKey(int keyIndex, K key) {
+    public int indexOfKey(int keyIndex, Object key) {
     	return indexOfKey(keyIndex, key, 0);
     }
+
     /**
      * Find given key and return its index.
      *
-     * @param key   key to find
-     * @return      index of key or -1 if not found
+     * @param keyIndex	key index
+     * @param key   	key to find
+     * @param start		start index for search
+     * @return      	index of key or -1 if not found
      */
-    public <K> int indexOfKey(int keyIndex, K key, int start) {
+    public int indexOfKey(int keyIndex, Object key, int start) {
     	int size = size();
     	for (int i=start; i<size; i++) {
-    		K elemKey = (K) keyColl.getKey(keyIndex, doGet(i));
+    		Object elemKey = keyColl.getKey(keyIndex, doGet(i));
     		if (equalsElem(elemKey, key)) {
     			return i;
     		}
@@ -449,10 +489,11 @@ public class KeyListImpl<E> extends GapList<E> {
     /**
      * Checks whether the specified key exists in this list.
      *
-     * @param key key to look for
-     * @return  true if the key exists, otherwise false
+     * @param keyIndex	key index
+     * @param key 		key to look for
+     * @return  		true if the key exists, otherwise false
      */
-    public <K> boolean containsKey(int keyIndex, K key) {
+    public boolean containsKey(int keyIndex, Object key) {
         return indexOfKey(keyIndex, key) != -1;
     }
 
@@ -461,8 +502,9 @@ public class KeyListImpl<E> extends GapList<E> {
      * If there are several values for this key, the first is returned.
      * If the key is not found, null is returned.
      *
-     * @param key   key to find
-     * @return      value of specified key or null
+     * @param keyIndex	key index
+	 * @param key   	key to find
+     * @return      	value of specified key or null
      */
     public E getByKey(int keyIndex, Object key) {
     	return (E) keyColl.getByKey(keyIndex, key);
@@ -471,10 +513,10 @@ public class KeyListImpl<E> extends GapList<E> {
     /**
      * Returns a list with all elements with the specified key.
      *
-     * @param key   key which elements must have
-     * @return      list with all keys (null if key is null)
+     * @param keyIndex	key index
+     * @param key   	key which elements must have
+     * @return      	list with all keys (null if key is null)
      */
-    @SuppressWarnings("unchecked")
     public GapList<E> getAllByKey(int keyIndex, Object key) {
     	return keyColl.getAllByKey(keyIndex, key);
     }
@@ -482,8 +524,9 @@ public class KeyListImpl<E> extends GapList<E> {
     /**
      * Returns number of elements with specified key.
      *
-     * @param key   key which elements must have
-     * @return      number of elements with key
+     * @param keyIndex	key index
+     * @param key   	key which elements must have
+     * @return      	number of elements with key
      */
     public int getCountByKey(int keyIndex, Object key) {
     	return keyColl.getCountByKey(keyIndex, key);
@@ -493,8 +536,9 @@ public class KeyListImpl<E> extends GapList<E> {
      * Removes element by key.
      * If there are duplicates, only one element is removed.
      *
-     * @param key   key of element to remove
-     * @return      removed element or null if no element has been removed
+     * @param keyIndex	key index
+     * @param key   	key of element to remove
+     * @return      	removed element or null if no element has been removed
      */
     protected E removeByKey(int keyIndex, Object key) {
     	// TODO what about if null has been removed -> return Option
@@ -552,7 +596,7 @@ public class KeyListImpl<E> extends GapList<E> {
     @Override
     public void sort(int index, int len, Comparator<? super E> comparator) {
     	// If this is sorted list, the comparator must be equal to the specified one
-    	Comparator sortComparator = keyColl.getSortComparator();
+    	Comparator<?> sortComparator = keyColl.getSortComparator();
     	if (sortComparator != null) {
     		if (sortComparator != comparator) {
         		throw new IllegalArgumentException("Different comparator specified for sorted list");

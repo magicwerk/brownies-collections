@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: TypeTools.java 1775 2013-07-10 22:53:57Z origo $
+ * $Id$
  */
 package org.magicwerk.brownies.collections.helper;
 
-
-
 /**
+ * The Option class allows to distinguish between a null value and no value.
  *
+ * @param <T>	element type
  *
  * @author Thomas Mauch
  * @version $Id$
@@ -39,6 +39,10 @@ public class Option<T> {
 	private boolean hasValue;
 	private T value;
 
+
+	/**
+	 * Prevent construction (use EMPTY)
+	 */
 	private Option() {
 	}
 
@@ -56,7 +60,10 @@ public class Option<T> {
 	}
 
 	/**
-	 * @return
+	 * Returns stored value.
+	 * If no value is stored, an exception is thrown.
+	 *
+	 * @return stored value
 	 * @throws IllegalArgumentException if no value is stored
 	 */
 	public T getValue() {

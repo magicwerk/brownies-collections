@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: TypeTools.java 1775 2013-07-10 22:53:57Z origo $
+ * $Id$
  */
 package org.magicwerk.brownies.collections.helper;
 
@@ -24,7 +24,7 @@ import java.util.Arrays;
  * which are missing in java.util.Arrays, e.g. sort() and binarySearch().
  *
  * @author Thomas Mauch
- * @version $Id: TypeTools.java 1775 2013-07-10 22:53:57Z origo $
+ * @version $Id$
  */
 public class ArraysHelper {
 	// --- Sort

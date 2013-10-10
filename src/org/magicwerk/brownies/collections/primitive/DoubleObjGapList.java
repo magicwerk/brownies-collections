@@ -61,10 +61,6 @@ public class DoubleObjGapList extends GapList<Double> {
 		return new DoubleObjGapList(elems);
 	}
 
-//	public DoubleObjGapList(INIT init) {
-//		super(false, null);
-//	}
-
 	public DoubleObjGapList() {
 		super(false, null);
 		init();
@@ -353,7 +349,7 @@ public class DoubleObjGapList extends GapList<Double> {
 	}
 
 	@Override
-	public GapList<Double> get(int index, int len) {
+	public GapList<Double> getAll(int index, int len) {
 		double[] elems = list.getArray(index, len);
 		return GapList.create(toWrapper(elems));
 	}
