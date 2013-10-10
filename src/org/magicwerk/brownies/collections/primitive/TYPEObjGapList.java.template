@@ -61,10 +61,6 @@ public class NAMETYPEObjGapList extends GapList<WRAPPERTYPE> {
 		return new NAMETYPEObjGapList(elems);
 	}
 
-//	public NAMETYPEObjGapList(INIT init) {
-//		super(false, null);
-//	}
-
 	public NAMETYPEObjGapList() {
 		super(false, null);
 		init();
@@ -353,7 +349,7 @@ public class NAMETYPEObjGapList extends GapList<WRAPPERTYPE> {
 	}
 
 	@Override
-	public GapList<WRAPPERTYPE> get(int index, int len) {
+	public GapList<WRAPPERTYPE> getAll(int index, int len) {
 		SIMPLETYPE[] elems = list.getArray(index, len);
 		return GapList.create(toWrapper(elems));
 	}

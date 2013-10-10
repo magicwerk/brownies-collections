@@ -61,10 +61,6 @@ public class LongObjGapList extends GapList<Long> {
 		return new LongObjGapList(elems);
 	}
 
-//	public LongObjGapList(INIT init) {
-//		super(false, null);
-//	}
-
 	public LongObjGapList() {
 		super(false, null);
 		init();
@@ -353,7 +349,7 @@ public class LongObjGapList extends GapList<Long> {
 	}
 
 	@Override
-	public GapList<Long> get(int index, int len) {
+	public GapList<Long> getAll(int index, int len) {
 		long[] elems = list.getArray(index, len);
 		return GapList.create(toWrapper(elems));
 	}

@@ -13,21 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: TypeTools.java 1775 2013-07-10 22:53:57Z origo $
+ * $Id$
  */
 package org.magicwerk.brownies.collections.helper;
 
 import java.util.Comparator;
 
 /**
+ * The AnyComparator can compare elements of any object type,
+ * even if they do not implement Comparable. As the comparison
+ * bases on the identity hash code, order is not stable
+ * after serialization.
  *
+ * @param <T>	element type
  *
  * @author Thomas Mauch
  * @version $Id$
  */
 public class AnyComparator<T> implements Comparator<T> {
+	/**
+	 * Singleton instance.
+	 */
 	public static final AnyComparator INSTANCE = new AnyComparator();
 
+	/**
+	 * Prevent construction.
+	 */
 	private AnyComparator() {
 	}
 

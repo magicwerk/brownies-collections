@@ -61,10 +61,6 @@ public class FloatObjGapList extends GapList<Float> {
 		return new FloatObjGapList(elems);
 	}
 
-//	public FloatObjGapList(INIT init) {
-//		super(false, null);
-//	}
-
 	public FloatObjGapList() {
 		super(false, null);
 		init();
@@ -353,7 +349,7 @@ public class FloatObjGapList extends GapList<Float> {
 	}
 
 	@Override
-	public GapList<Float> get(int index, int len) {
+	public GapList<Float> getAll(int index, int len) {
 		float[] elems = list.getArray(index, len);
 		return GapList.create(toWrapper(elems));
 	}

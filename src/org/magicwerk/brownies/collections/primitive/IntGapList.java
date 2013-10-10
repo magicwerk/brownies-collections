@@ -165,6 +165,9 @@ public class IntGapList implements Cloneable, Serializable {
         	error();
         }
 
+        /**
+         * Throw exception if an attempt is made to change an immutable list.
+         */
         private void error() {
             throw new UnsupportedOperationException("list is immutable");
         }
@@ -173,6 +176,7 @@ public class IntGapList implements Cloneable, Serializable {
     /** UID for serialization */
     private static final long serialVersionUID = -4477005565661968383L;
 
+    /** Default capacity for list */
     static final int DEFAULT_CAPACITY = 10;
 
 	/** Array holding raw data */
@@ -196,7 +200,7 @@ public class IntGapList implements Cloneable, Serializable {
     /**
      * Create new list.
      *
-     * @return          created array list
+     * @return          created list
      * @param        type of elements stored in the list
      */
     // This separate method is needed as the varargs variant creates the IntGapList with specific size
@@ -204,23 +208,37 @@ public class IntGapList implements Cloneable, Serializable {
         return new IntGapList();
     }
 
+    /**
+     * Create new list with specified capacity.
+     *
+     * @param capacity  capacity
+     * @return          created list
+     * @param        type of elements stored in the list
+     */
     public static  IntGapList create(int capacity) {
         return new IntGapList(capacity);
     }
 
-	public static  IntGapList create(Collection<Integer> elements) {
-		return new IntGapList(elements);
+    /**
+     * Create new list with specified elements.
+     *
+     * @param coll      collection with element
+     * @return          created list
+     * @param        type of elements stored in the list
+     */
+	public static  IntGapList create(Collection<Integer> coll) {
+		return new IntGapList(coll);
 	}
 
 	/**
-	 * Create new list and add elements.
+	 * Create new list with specified elements.
 	 *
-	 * @param elems 	elements to add
-	 * @return 			created array list
+	 * @param elems 	array with elements
+	 * @return 			created list
 	 * @param  		type of elements stored in the list
 	 */
-	public static  IntGapList create(int... elements) {
-		return new IntGapList(elements);
+	public static  IntGapList create(int... elems) {
+		return new IntGapList(elems);
 	}
 
 	/**
@@ -378,19 +396,37 @@ public class IntGapList implements Cloneable, Serializable {
 		init(that);
 	}
 
+	/**
+	 * Initialize the list to be empty.
+	 */
 	public void init() {
 		init(new int[DEFAULT_CAPACITY], 0);
 	}
 
+	/**
+     * Initialize the list to be empty with specified capacity.
+     *
+	 * @param capacity capacity
+	 */
 	public void init(int capacity) {
 		init(new int[capacity], 0);
 	}
 
+	/**
+	 * Initialize the list to contain the specified elements only.
+	 *
+	 * @param coll collection with elements
+	 */
 	public void init(Collection<Integer> coll) {
 		int[] array = toArray(coll);
 		init(array, array.length);
 	}
 
+	/**
+     * Initialize the list to contain the specified elements only.
+     *
+	 * @param elems array with elements
+	 */
 	public void init(int... elems) {
 		int[] array = elems.clone();
 		init(array, array.length);
@@ -1461,6 +1497,7 @@ return (int) val;
      * @return <tt>true</tt> if this list changed as a result of the call
      * @throws NullPointerException if the specified list is (int)0
      */
+    @SuppressWarnings("unchecked")
     public boolean addAll(IntGapList list) {
         return doAddAll(-1, (int[]) list.toArray());
     }
@@ -1478,7 +1515,8 @@ return (int) val;
      * @throws IndexOutOfBoundsException if the index is invalid
      * @throws NullPointerException if the specified collection is (int)0
      */
-	public boolean addAll(int index, IntGapList list) {
+	@SuppressWarnings("unchecked")
+    public boolean addAll(int index, IntGapList list) {
 		checkIndexAdd(index);
 
 		return doAddAll(index, (int[]) list.toArray());
@@ -1792,20 +1830,6 @@ return (int) val;
 
     // -- Readers --
 
-    /*
-     Question:
-       How should the methods returning several elements be named?
-
-     Answer:
-       - get() vs getAll(): for consistency with setAll(), the name
-         should be getAll(). On the other hand, we only use the suffix "all"
-         if the methods have the same number of arguments (e.g. addAll()),
-         so this prefers get().
-       - However we need two methods returning a list and an array with the
-         same signature, so we use get() for the list one and name the second
-         one getArray().
-     */
-
     /**
      * Returns specified range of elements from list.
      *
@@ -1813,7 +1837,7 @@ return (int) val;
      * @param len   number of elements to retrieve
      * @return      IntGapList containing the specified range of elements from list
      */
-    public IntGapList get(int index, int len) {
+    public IntGapList getAll(int index, int len) {
         checkRange(index, len);
 
         IntGapList list = new IntGapList(len);
@@ -1891,6 +1915,12 @@ return (int) val;
         doSetAll(index, elems);
     }
 
+    /**
+     * Replaces the specified elements.
+     *
+     * @param index index of first element to set
+     * @param elems elements to set
+     */
     protected void doSetAll(int index, int[] elems) {
         for (int i=0; i<elems.length; i++) {
             doSet(index+i, elems[i]);
@@ -1909,6 +1939,12 @@ return (int) val;
     	doRemoveAll(index, len);
 	}
 
+    /**
+     * Remove specified range of elements from list.
+     *
+     * @param index index of first element to remove
+     * @param len   number of elements to remove
+     */
 	protected void doRemoveAll(int index, int len) {
 		if (len == size()) {
 			doModify();

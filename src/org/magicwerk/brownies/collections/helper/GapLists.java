@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: TypeTools.java 1775 2013-07-10 22:53:57Z origo $
+ * $Id$
  */
 package org.magicwerk.brownies.collections.helper;
 

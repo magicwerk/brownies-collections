@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: SetList.java 1815 2013-08-09 00:05:35Z origo $
+ * $Id$
  */
 package org.magicwerk.brownies.collections;
 
@@ -31,7 +31,7 @@ import org.magicwerk.brownies.collections.function.Trigger;
  * automatically like in TreeSet.
  *
  * @author Thomas Mauch
- * @version $Id: SetList.java 1815 2013-08-09 00:05:35Z origo $
+ * @version $Id$
  *
  * @see Key1List
  * @param <E> type of elements stored in the list

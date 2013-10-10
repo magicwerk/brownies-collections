@@ -165,6 +165,9 @@ public class BooleanGapList implements Cloneable, Serializable {
         	error();
         }
 
+        /**
+         * Throw exception if an attempt is made to change an immutable list.
+         */
         private void error() {
             throw new UnsupportedOperationException("list is immutable");
         }
@@ -173,6 +176,7 @@ public class BooleanGapList implements Cloneable, Serializable {
     /** UID for serialization */
     private static final long serialVersionUID = -4477005565661968383L;
 
+    /** Default capacity for list */
     static final int DEFAULT_CAPACITY = 10;
 
 	/** Array holding raw data */
@@ -196,7 +200,7 @@ public class BooleanGapList implements Cloneable, Serializable {
     /**
      * Create new list.
      *
-     * @return          created array list
+     * @return          created list
      * @param        type of elements stored in the list
      */
     // This separate method is needed as the varargs variant creates the BooleanGapList with specific size
@@ -204,23 +208,37 @@ public class BooleanGapList implements Cloneable, Serializable {
         return new BooleanGapList();
     }
 
+    /**
+     * Create new list with specified capacity.
+     *
+     * @param capacity  capacity
+     * @return          created list
+     * @param        type of elements stored in the list
+     */
     public static  BooleanGapList create(int capacity) {
         return new BooleanGapList(capacity);
     }
 
-	public static  BooleanGapList create(Collection<Boolean> elements) {
-		return new BooleanGapList(elements);
+    /**
+     * Create new list with specified elements.
+     *
+     * @param coll      collection with element
+     * @return          created list
+     * @param        type of elements stored in the list
+     */
+	public static  BooleanGapList create(Collection<Boolean> coll) {
+		return new BooleanGapList(coll);
 	}
 
 	/**
-	 * Create new list and add elements.
+	 * Create new list with specified elements.
 	 *
-	 * @param elems 	elements to add
-	 * @return 			created array list
+	 * @param elems 	array with elements
+	 * @return 			created list
 	 * @param  		type of elements stored in the list
 	 */
-	public static  BooleanGapList create(boolean... elements) {
-		return new BooleanGapList(elements);
+	public static  BooleanGapList create(boolean... elems) {
+		return new BooleanGapList(elems);
 	}
 
 	/**
@@ -378,19 +396,37 @@ public class BooleanGapList implements Cloneable, Serializable {
 		init(that);
 	}
 
+	/**
+	 * Initialize the list to be empty.
+	 */
 	public void init() {
 		init(new boolean[DEFAULT_CAPACITY], 0);
 	}
 
+	/**
+     * Initialize the list to be empty with specified capacity.
+     *
+	 * @param capacity capacity
+	 */
 	public void init(int capacity) {
 		init(new boolean[capacity], 0);
 	}
 
+	/**
+	 * Initialize the list to contain the specified elements only.
+	 *
+	 * @param coll collection with elements
+	 */
 	public void init(Collection<Boolean> coll) {
 		boolean[] array = toArray(coll);
 		init(array, array.length);
 	}
 
+	/**
+     * Initialize the list to contain the specified elements only.
+     *
+	 * @param elems array with elements
+	 */
 	public void init(boolean... elems) {
 		boolean[] array = elems.clone();
 		init(array, array.length);
@@ -1461,6 +1497,7 @@ return val ? 1231 : 1237;
      * @return <tt>true</tt> if this list changed as a result of the call
      * @throws NullPointerException if the specified list is (boolean)false
      */
+    @SuppressWarnings("unchecked")
     public boolean addAll(BooleanGapList list) {
         return doAddAll(-1, (boolean[]) list.toArray());
     }
@@ -1478,7 +1515,8 @@ return val ? 1231 : 1237;
      * @throws IndexOutOfBoundsException if the index is invalid
      * @throws NullPointerException if the specified collection is (boolean)false
      */
-	public boolean addAll(int index, BooleanGapList list) {
+	@SuppressWarnings("unchecked")
+    public boolean addAll(int index, BooleanGapList list) {
 		checkIndexAdd(index);
 
 		return doAddAll(index, (boolean[]) list.toArray());
@@ -1792,20 +1830,6 @@ return val ? 1231 : 1237;
 
     // -- Readers --
 
-    /*
-     Question:
-       How should the methods returning several elements be named?
-
-     Answer:
-       - get() vs getAll(): for consistency with setAll(), the name
-         should be getAll(). On the other hand, we only use the suffix "all"
-         if the methods have the same number of arguments (e.g. addAll()),
-         so this prefers get().
-       - However we need two methods returning a list and an array with the
-         same signature, so we use get() for the list one and name the second
-         one getArray().
-     */
-
     /**
      * Returns specified range of elements from list.
      *
@@ -1813,7 +1837,7 @@ return val ? 1231 : 1237;
      * @param len   number of elements to retrieve
      * @return      BooleanGapList containing the specified range of elements from list
      */
-    public BooleanGapList get(int index, int len) {
+    public BooleanGapList getAll(int index, int len) {
         checkRange(index, len);
 
         BooleanGapList list = new BooleanGapList(len);
@@ -1891,6 +1915,12 @@ return val ? 1231 : 1237;
         doSetAll(index, elems);
     }
 
+    /**
+     * Replaces the specified elements.
+     *
+     * @param index index of first element to set
+     * @param elems elements to set
+     */
     protected void doSetAll(int index, boolean[] elems) {
         for (int i=0; i<elems.length; i++) {
             doSet(index+i, elems[i]);
@@ -1909,6 +1939,12 @@ return val ? 1231 : 1237;
     	doRemoveAll(index, len);
 	}
 
+    /**
+     * Remove specified range of elements from list.
+     *
+     * @param index index of first element to remove
+     * @param len   number of elements to remove
+     */
 	protected void doRemoveAll(int index, int len) {
 		if (len == size()) {
 			doModify();

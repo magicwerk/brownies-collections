@@ -1,5 +1,5 @@
 /*
- * Copyright 2010 by Thomas Mauch
+ * Copyright 2013 by Thomas Mauch
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,34 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: BrowniesException.java 265 2011-01-23 22:48:08Z thmauch $
+ * $Id$
  */
 package org.magicwerk.brownies.collections.exceptions;
 
 
 /**
- * All exceptions explicitly thrown in the Brownies library are of type BrowniesException.
- * Checked exception are caught and wrapped.
- * 
+ * All exceptions thrown in KeyCollection/KeyList implementations
+ * are of type KeyException.
+ *
  * @author Thomas Mauch
- * @version $Id: BrowniesException.java 265 2011-01-23 22:48:08Z thmauch $
+ * @version $Id$
  */
 @SuppressWarnings("serial")
-public class KeyException extends RuntimeException { 
-	
+public class KeyException extends RuntimeException {
+
 	public KeyException() {
-	} 
+	}
 
 	public KeyException(String msg) {
 		super(msg);
-	} 
+	}
 
 	public KeyException(Throwable t) {
 		super(t);
-	} 
-	
+	}
+
 	public KeyException(String msg, Throwable t) {
 		super(msg, t);
-	} 
-	
-} 
+	}
+
+}

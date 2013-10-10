@@ -165,6 +165,9 @@ public class DoubleGapList implements Cloneable, Serializable {
         	error();
         }
 
+        /**
+         * Throw exception if an attempt is made to change an immutable list.
+         */
         private void error() {
             throw new UnsupportedOperationException("list is immutable");
         }
@@ -173,6 +176,7 @@ public class DoubleGapList implements Cloneable, Serializable {
     /** UID for serialization */
     private static final long serialVersionUID = -4477005565661968383L;
 
+    /** Default capacity for list */
     static final int DEFAULT_CAPACITY = 10;
 
 	/** Array holding raw data */
@@ -196,7 +200,7 @@ public class DoubleGapList implements Cloneable, Serializable {
     /**
      * Create new list.
      *
-     * @return          created array list
+     * @return          created list
      * @param        type of elements stored in the list
      */
     // This separate method is needed as the varargs variant creates the DoubleGapList with specific size
@@ -204,23 +208,37 @@ public class DoubleGapList implements Cloneable, Serializable {
         return new DoubleGapList();
     }
 
+    /**
+     * Create new list with specified capacity.
+     *
+     * @param capacity  capacity
+     * @return          created list
+     * @param        type of elements stored in the list
+     */
     public static  DoubleGapList create(int capacity) {
         return new DoubleGapList(capacity);
     }
 
-	public static  DoubleGapList create(Collection<Double> elements) {
-		return new DoubleGapList(elements);
+    /**
+     * Create new list with specified elements.
+     *
+     * @param coll      collection with element
+     * @return          created list
+     * @param        type of elements stored in the list
+     */
+	public static  DoubleGapList create(Collection<Double> coll) {
+		return new DoubleGapList(coll);
 	}
 
 	/**
-	 * Create new list and add elements.
+	 * Create new list with specified elements.
 	 *
-	 * @param elems 	elements to add
-	 * @return 			created array list
+	 * @param elems 	array with elements
+	 * @return 			created list
 	 * @param  		type of elements stored in the list
 	 */
-	public static  DoubleGapList create(double... elements) {
-		return new DoubleGapList(elements);
+	public static  DoubleGapList create(double... elems) {
+		return new DoubleGapList(elems);
 	}
 
 	/**
@@ -378,19 +396,37 @@ public class DoubleGapList implements Cloneable, Serializable {
 		init(that);
 	}
 
+	/**
+	 * Initialize the list to be empty.
+	 */
 	public void init() {
 		init(new double[DEFAULT_CAPACITY], 0);
 	}
 
+	/**
+     * Initialize the list to be empty with specified capacity.
+     *
+	 * @param capacity capacity
+	 */
 	public void init(int capacity) {
 		init(new double[capacity], 0);
 	}
 
+	/**
+	 * Initialize the list to contain the specified elements only.
+	 *
+	 * @param coll collection with elements
+	 */
 	public void init(Collection<Double> coll) {
 		double[] array = toArray(coll);
 		init(array, array.length);
 	}
 
+	/**
+     * Initialize the list to contain the specified elements only.
+     *
+	 * @param elems array with elements
+	 */
 	public void init(double... elems) {
 		double[] array = elems.clone();
 		init(array, array.length);
@@ -1461,6 +1497,7 @@ return (int) val;
      * @return <tt>true</tt> if this list changed as a result of the call
      * @throws NullPointerException if the specified list is (double)0
      */
+    @SuppressWarnings("unchecked")
     public boolean addAll(DoubleGapList list) {
         return doAddAll(-1, (double[]) list.toArray());
     }
@@ -1478,7 +1515,8 @@ return (int) val;
      * @throws IndexOutOfBoundsException if the index is invalid
      * @throws NullPointerException if the specified collection is (double)0
      */
-	public boolean addAll(int index, DoubleGapList list) {
+	@SuppressWarnings("unchecked")
+    public boolean addAll(int index, DoubleGapList list) {
 		checkIndexAdd(index);
 
 		return doAddAll(index, (double[]) list.toArray());
@@ -1792,20 +1830,6 @@ return (int) val;
 
     // -- Readers --
 
-    /*
-     Question:
-       How should the methods returning several elements be named?
-
-     Answer:
-       - get() vs getAll(): for consistency with setAll(), the name
-         should be getAll(). On the other hand, we only use the suffix "all"
-         if the methods have the same number of arguments (e.g. addAll()),
-         so this prefers get().
-       - However we need two methods returning a list and an array with the
-         same signature, so we use get() for the list one and name the second
-         one getArray().
-     */
-
     /**
      * Returns specified range of elements from list.
      *
@@ -1813,7 +1837,7 @@ return (int) val;
      * @param len   number of elements to retrieve
      * @return      DoubleGapList containing the specified range of elements from list
      */
-    public DoubleGapList get(int index, int len) {
+    public DoubleGapList getAll(int index, int len) {
         checkRange(index, len);
 
         DoubleGapList list = new DoubleGapList(len);
@@ -1891,6 +1915,12 @@ return (int) val;
         doSetAll(index, elems);
     }
 
+    /**
+     * Replaces the specified elements.
+     *
+     * @param index index of first element to set
+     * @param elems elements to set
+     */
     protected void doSetAll(int index, double[] elems) {
         for (int i=0; i<elems.length; i++) {
             doSet(index+i, elems[i]);
@@ -1909,6 +1939,12 @@ return (int) val;
     	doRemoveAll(index, len);
 	}
 
+    /**
+     * Remove specified range of elements from list.
+     *
+     * @param index index of first element to remove
+     * @param len   number of elements to remove
+     */
 	protected void doRemoveAll(int index, int len) {
 		if (len == size()) {
 			doModify();

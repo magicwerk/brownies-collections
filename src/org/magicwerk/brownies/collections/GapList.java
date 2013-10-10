@@ -1859,20 +1859,6 @@ public class GapList<E> extends AbstractList<E>
 
     // -- Readers --
 
-    /*
-     Question:
-       How should the methods returning several elements be named?
-
-     Answer:
-       - get() vs getAll(): for consistency with setAll(), the name
-         should be getAll(). On the other hand, we only use the suffix "all"
-         if the methods have the same number of arguments (e.g. addAll()),
-         so this prefers get().
-       - However we need two methods returning a list and an array with the
-         same signature, so we use get() for the list one and name the second
-         one getArray().
-     */
-
     /**
      * Returns specified range of elements from list.
      *
@@ -1880,7 +1866,7 @@ public class GapList<E> extends AbstractList<E>
      * @param len   number of elements to retrieve
      * @return      GapList containing the specified range of elements from list
      */
-    public GapList<E> get(int index, int len) {
+    public GapList<E> getAll(int index, int len) {
         checkRange(index, len);
 
         GapList<E> list = new GapList<E>(len);

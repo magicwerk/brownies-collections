@@ -19,6 +19,7 @@ package org.magicwerk.brownies.collections;
 
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Map;
 
 import org.magicwerk.brownies.collections.KeyCollectionImpl.BuilderImpl;
 import org.magicwerk.brownies.collections.KeyList.Builder;
