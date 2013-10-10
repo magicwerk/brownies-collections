@@ -266,7 +266,7 @@ public class Key2Collection<E,K1,K2> extends KeyCollectionImpl<E> {
                	keyColl = new Key2Collection<E,K1,K2>();
         	}
         	build(keyColl, false);
-        	fill(keyColl);
+        	init(keyColl);
         	return (Key2Collection<E,K1,K2>) keyColl;
         }
     }

@@ -177,7 +177,7 @@ public class KeyList<E> extends KeyListImpl<E> {
         	}
         	build(keyColl, true);
         	KeyList<E> list = new KeyList();
-        	fill(keyColl, list);
+        	init(keyColl, list);
         	return list;
         }
     }
