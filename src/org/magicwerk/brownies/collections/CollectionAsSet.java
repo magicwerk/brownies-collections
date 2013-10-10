@@ -1,4 +1,4 @@
-package org.magicwerk.brownies.collections.helper;
+package org.magicwerk.brownies.collections;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -70,6 +70,8 @@ public class CollectionAsSet<K> implements Set<K> {
 	public boolean containsAll(Collection<?> c) {
 		return coll.containsAll(c);
 	}
+
+	// Set: iterator methods
 
 	@Override
 	public Iterator<K> iterator() {
