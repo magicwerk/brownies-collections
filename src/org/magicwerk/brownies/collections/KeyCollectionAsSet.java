@@ -17,6 +17,8 @@
  */
 package org.magicwerk.brownies.collections;
 
+import java.util.Collection;
+
 import org.magicwerk.brownies.collections.exceptions.DuplicateKeyException;
 
 /**
@@ -40,6 +42,18 @@ public class KeyCollectionAsSet<E> extends CollectionAsSet<E> {
 		catch (DuplicateKeyException ex) {
 			return false;
 		}
+	}
+
+	@Override
+	public boolean addAll(Collection<? extends E> c) {
+		checkMutable();
+		boolean changed = false;
+		for (E e: c) {
+			if (add(e)) {
+				changed = true;
+			}
+		}
+		return changed;
 	}
 
 }

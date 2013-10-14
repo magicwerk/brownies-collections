@@ -17,6 +17,7 @@
  */
 package org.magicwerk.brownies.collections;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -55,7 +56,7 @@ import org.magicwerk.brownies.collections.helper.SortedLists;
  * @see GapList
  * @param <E> type of elements stored in the list
  */
-public class KeyCollectionImpl<E> implements Collection<E> {
+public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
 
 	/**
      * Implementation of builder.
@@ -818,9 +819,11 @@ public class KeyCollectionImpl<E> implements Collection<E> {
                 }
         	} else {
         		if (collection != null) {
-        			keyList.init(collection);
+        			keyList.init(capacity);
+        			keyList.addAll(collection);
         		} else if (array != null) {
-        			keyList.init((Collection<? extends E>) Arrays.asList(array));
+        			keyList.init(capacity);
+        			keyList.addAll(array);
         		} else if (capacity != 0) {
         			keyList.init(capacity);
         		} else {

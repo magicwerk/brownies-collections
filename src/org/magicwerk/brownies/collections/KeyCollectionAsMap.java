@@ -19,11 +19,11 @@ package org.magicwerk.brownies.collections;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-
+import java.util.Map.Entry;
 
 /**
  * Implements a Map based on a KeyCollection key.
@@ -31,36 +31,67 @@ import java.util.Set;
  * @author Thomas Mauch
  * @version $Id$
  */
-public class KeyCollectionAsMap<E,K> implements Map<K,E> {
+public class KeyCollectionAsMap<E, K> implements Map<K, E> {
 	KeyCollectionImpl<E> coll;
 	int keyIndex;
-    boolean immutable;
+	boolean immutable;
 
-    public KeyCollectionAsMap(KeyCollectionImpl<E> coll, int keyIndex, boolean immutable) {
-    	if (coll == null) {
-    		throw new IllegalArgumentException("Collection may not be null");
-    	}
-        this.coll = coll;
-        this.keyIndex = keyIndex;
-        this.immutable = immutable;
-    }
+	public KeyCollectionAsMap(KeyCollectionImpl<E> coll, int keyIndex, boolean immutable) {
+		if (coll == null) {
+			throw new IllegalArgumentException("Collection may not be null");
+		}
+		this.coll = coll;
+		this.keyIndex = keyIndex;
+		this.immutable = immutable;
+	}
 
-    @Override
-    public boolean equals(Object obj) {
-    	return coll.equals(obj);
-    }
+	@Override
+	public boolean equals(Object o) {
+		// Copied from AbstractMap
+		if (o == this) {
+			return true;
+		}
+		if (!(o instanceof Map)) {
+			return false;
+		}
+		Map<K, E> m = (Map<K, E>) o;
+		if (m.size() != size()) {
+			return false;
+		}
+		try {
+			Iterator<Entry<K, E>> i = entrySet().iterator();
+			while (i.hasNext()) {
+				Entry<K, E> e = i.next();
+				K key = e.getKey();
+				E value = e.getValue();
+				if (value == null) {
+					if (!(m.get(key) == null && m.containsKey(key)))
+						return false;
+				} else {
+					if (!value.equals(m.get(key)))
+						return false;
+				}
+			}
+		} catch (ClassCastException unused) {
+			return false;
+		} catch (NullPointerException unused) {
+			return false;
+		}
 
-    @Override
-    public int hashCode() {
-    	return coll.hashCode();
-    }
+		return true;
+	}
 
-    @Override
-    public String toString() {
-    	return coll.toString();
-    }
+	@Override
+	public int hashCode() {
+		return coll.hashCode();
+	}
 
-    // Map: read methods
+	@Override
+	public String toString() {
+		return coll.toString();
+	}
+
+	// Map: read methods
 
 	@Override
 	public int size() {
@@ -89,18 +120,18 @@ public class KeyCollectionAsMap<E,K> implements Map<K,E> {
 
 	// Map: iterator methods
 
-    /**
-     * {@inheritDoc}
-     * <p><i>
-     * Note that the returned set is immutable.
-     * </i></p>
-     */
+	/**
+	 * {@inheritDoc}
+	 * <p><i>
+	 * Note that the returned set is immutable.
+	 * </i></p>
+	 */
 	@Override
 	public Set<K> keySet() {
 		return new CollectionAsSet(coll.getDistinctKeys(keyIndex), true);
 	}
 
-	static class MapEntry<K,E> implements Entry<K,E> {
+	static class MapEntry<K, E> implements Entry<K, E> {
 		K key;
 		E elem;
 
@@ -131,19 +162,19 @@ public class KeyCollectionAsMap<E,K> implements Map<K,E> {
 
 	}
 
-    /**
-     * {@inheritDoc}
-     * <p><i>
-     * Note that the returned set is immutable.
-     * </i></p>
-     */
+	/**
+	 * {@inheritDoc}
+	 * <p><i>
+	 * Note that the returned set is immutable.
+	 * </i></p>
+	 */
 	@Override
-	public Set<Entry<K,E>> entrySet() {
+	public Set<Entry<K, E>> entrySet() {
 		List<K> keys = (List<K>) coll.getDistinctKeys(keyIndex);
-		List<Entry<K,E>> entries = GapList.create(keys.size());
-		for (K key: keys) {
+		List<Entry<K, E>> entries = GapList.create(keys.size());
+		for (K key : keys) {
 			E elem = coll.getByKey(keyIndex, key);
-			entries.add(new MapEntry<K,E>(key, elem));
+			entries.add(new MapEntry<K, E>(key, elem));
 		}
 		return new CollectionAsSet(entries, true);
 	}
@@ -159,11 +190,11 @@ public class KeyCollectionAsMap<E,K> implements Map<K,E> {
 
 	// Map: write methods
 
-    void checkMutable() {
-    	if (immutable) {
-    		throw new UnsupportedOperationException("Map is immutable");
-    	}
-    }
+	void checkMutable() {
+		if (immutable) {
+			throw new UnsupportedOperationException("Map is immutable");
+		}
+	}
 
 	@Override
 	public void clear() {
@@ -195,7 +226,7 @@ public class KeyCollectionAsMap<E,K> implements Map<K,E> {
 
 	@Override
 	public void putAll(Map<? extends K, ? extends E> map) {
-		for (Entry<? extends K, ? extends E> entry: map.entrySet()) {
+		for (Entry<? extends K, ? extends E> entry : map.entrySet()) {
 			put(entry.getKey(), entry.getValue());
 		}
 	}
