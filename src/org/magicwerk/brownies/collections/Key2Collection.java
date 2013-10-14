@@ -19,6 +19,7 @@ package org.magicwerk.brownies.collections;
 
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Map;
 import java.util.Set;
 
 import org.magicwerk.brownies.collections.KeyCollection.Builder;
@@ -296,19 +297,6 @@ public class Key2Collection<E,K1,K2> extends KeyCollectionImpl<E> {
         return copy;
     }
 
-    /**
-     * Returns a set view of the collection.
-     * Note that this method does not check whether the collection really
-     * is really a set as defined by the Set interface. It makes only sure
-     * that the add() method will return false instead of throwing a
-     * DuplicateKeyException.
-     *
-     * @return set view
-     */
-    public Set<E> asMap() {
-    	return new KeyCollectionAsSet(this, false);
-    }
-
     //-- Element methods
 
 	public E get(E key) {
@@ -332,6 +320,10 @@ public class Key2Collection<E,K1,K2> extends KeyCollectionImpl<E> {
 	}
 
     //-- Key1 methods
+
+    public Map<K1,E> asMap1() {
+    	return new KeyCollectionAsMap<E,K1>(this, 1, false);
+    }
 
     public boolean containsKey1(K1 key) {
     	return super.containsKey(1, key);
@@ -362,6 +354,10 @@ public class Key2Collection<E,K1,K2> extends KeyCollectionImpl<E> {
 	}
 
     //-- Key2 methods
+
+    public Map<K1,E> asMap2() {
+    	return new KeyCollectionAsMap<E,K1>(this, 1, false);
+    }
 
     public boolean containsKey2(K2 key) {
     	return super.containsKey(2, key);

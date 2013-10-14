@@ -92,6 +92,9 @@ public class KeyListImpl<E> extends GapList<E> {
     	if (forward != null) {
     		assert(super.size() == 0);
     	} else {
+    		if (super.size() != keyColl.size()) {
+    			super.size();
+    		}
     		assert(super.size() == keyColl.size());
     	}
     }

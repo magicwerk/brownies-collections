@@ -294,35 +294,35 @@ public class Key1List<E,K> extends KeyListImpl<E> {
 
     //-- Key methods
 
-    public int indexOfKey(K key) {
+    public int indexOfKey1(K key) {
     	return super.indexOfKey(1, key);
     }
 
-    public boolean containsKey(K key) {
+    public boolean containsKey1(K key) {
     	return super.containsKey(1, key);
     }
 
-	public E getByKey(K key) {
+	public E getByKey1(K key) {
 		return super.getByKey(1, key);
 	}
 
-	public GapList<E> getAllByKey(K key) {
+	public GapList<E> getAllByKey1(K key) {
 		return super.getAllByKey(1, key);
 	}
 
-	public int getCountByKey(K key) {
+	public int getCountByKey1(K key) {
 		return super.getCountByKey(1, key);
 	}
 
-	public E removeByKey(K key) {
+	public E removeByKey1(K key) {
 		return super.removeByKey(1, key);
 	}
 
-	public GapList<E> removeAllByKey(K key) {
+	public GapList<E> removeAllByKey1(K key) {
 		return super.removeAllByKey(1, key);
 	}
 
-	public GapList<K> getDistinctKeys() {
+	public GapList<K> getDistinctKeys1() {
 		return (GapList<K>) super.getDistinctKeys(1);
 	}
 

@@ -243,10 +243,6 @@ public class Key1Collection<E,K> extends KeyCollectionImpl<E> {
         return copy;
     }
 
-    public Map<K,E> asMap() {
-    	return new KeyCollectionAsMap<E,K>(this, 1, false);
-    }
-
     //-- Element methods
 
 	public E get(E key) {
@@ -271,31 +267,35 @@ public class Key1Collection<E,K> extends KeyCollectionImpl<E> {
 
     //-- Key methods
 
-    public boolean containsKey(K key) {
+    public Map<K,E> asMap1() {
+    	return new KeyCollectionAsMap<E,K>(this, 1, false);
+    }
+
+    public boolean containsKey1(K key) {
     	return super.containsKey(1, key);
     }
 
-	public E getByKey(K key) {
+	public E getByKey1(K key) {
 		return super.getByKey(1, key);
 	}
 
-	public GapList<E> getAllByKey(K key) {
+	public GapList<E> getAllByKey1(K key) {
 		return super.getAllByKey(1, key);
 	}
 
-	public int getCountByKey(K key) {
+	public int getCountByKey1(K key) {
 		return super.getCountByKey(1, key);
 	}
 
-	public E removeByKey(K key) {
+	public E removeByKey1(K key) {
 		return super.removeByKey(1, key);
 	}
 
-	public GapList<E> removeAllByKey(K key) {
+	public GapList<E> removeAllByKey1(K key) {
 		return super.removeAllByKey(1, key);
 	}
 
-	public GapList<K> getDistinctKeys() {
+	public GapList<K> getDistinctKeys1() {
 		return (GapList<K>) super.getDistinctKeys(1);
 	}
 

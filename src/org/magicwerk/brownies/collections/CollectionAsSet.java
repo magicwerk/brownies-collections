@@ -42,6 +42,10 @@ public class CollectionAsSet<K> implements Set<K> {
 
     @Override
     public boolean equals(Object obj) {
+    	// as in AbstractSet.java:
+    	if (!(obj instanceof Set)) {
+    	    return false;
+    	}
     	return coll.equals(obj);
     }
 
