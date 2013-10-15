@@ -17,6 +17,7 @@
  */
 package org.magicwerk.brownies.collections;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -31,7 +32,7 @@ import java.util.Map.Entry;
  * @author Thomas Mauch
  * @version $Id$
  */
-public class KeyCollectionAsMap<E, K> implements Map<K, E> {
+public class KeyCollectionAsMap<E, K> implements Map<K, E>, Serializable {
 	KeyCollectionImpl<E> coll;
 	int keyIndex;
 	boolean immutable;

@@ -17,6 +17,7 @@
  */
 package org.magicwerk.brownies.collections;
 
+import java.io.Serializable;
 import java.util.Collection;
 
 import org.magicwerk.brownies.collections.exceptions.DuplicateKeyException;
@@ -27,7 +28,7 @@ import org.magicwerk.brownies.collections.exceptions.DuplicateKeyException;
  * @author Thomas Mauch
  * @version $Id$
  */
-public class KeyCollectionAsSet<E> extends CollectionAsSet<E> {
+public class KeyCollectionAsSet<E> extends CollectionAsSet<E> implements Serializable {
 
     public KeyCollectionAsSet(KeyCollectionImpl<E> coll, boolean immutable) {
     	super(coll, immutable);
