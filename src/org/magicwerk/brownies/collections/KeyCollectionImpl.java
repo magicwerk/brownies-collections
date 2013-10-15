@@ -831,9 +831,9 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
         		}
         	}
         }
-   }
+    }
 
-    static class KeyMap<E,K> {
+    static class KeyMap<E,K> implements Serializable {
 	    /** A mapper to extract keys out of element for a MapList. For a SetList, this is always an IdentMapper. */
 	    Mapper<E,K> mapper;
 	    /** True to allow null keys */
@@ -1018,8 +1018,8 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
 				if (!hasNext) {
 					// This call can fail with NoSuchElementException
 					Object o = mapIter.next();
-					if (o instanceof GapList) {
-						listIter = ((GapList) o).iterator();
+					if (o instanceof KeyMapList) {
+						listIter = ((KeyMapList) o).iterator();
 						elem = listIter.next();
 					} else {
 						elem = (E) o;
@@ -1148,7 +1148,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
 	    		            GapList<E> list = (GapList<E>) new KeyMapList(null, elem);
 	    		            keysMap.put(key, list);
 	    		    	}
-	    		    } else if (obj instanceof GapList) {
+	    		    } else if (obj instanceof KeyMapList) {
 	    	            GapList<E> list = (GapList<E>) obj;
 	    	            list.add(elem);
 	    	        } else {
@@ -1219,7 +1219,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
 	        	} else {
 		        	E elem = null;
 		            Object obj = keysMap.get(key);
-			        if (obj instanceof GapList) {
+			        if (obj instanceof KeyMapList) {
 			            GapList<E> list = (GapList<E>) obj;
 			            if (matchValue) {
 			            	if (!list.remove(value)) {
@@ -1983,11 +1983,11 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
         if (keyMap.keysMap != null) {
             // not sorted
             Object obj = keyMap.keysMap.get(key);
-            if (obj instanceof GapList) {
+            if (obj instanceof KeyMapList) {
                 GapList<E> list = (GapList<E>) obj;
                 return list.getFirst();
             } else {
-                return (E) keyMap.keysMap.get(key);
+                return (E) obj;
             }
 
         } else {
@@ -2024,7 +2024,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
             Object obj = keyMap.keysMap.get(key);
             if (obj == null) {
                 return GapList.EMPTY();
-            } else if (obj instanceof GapList) {
+            } else if (obj instanceof KeyMapList) {
                 GapList<E> list = (GapList<E>) obj;
                 return list.unmodifiableList();
             } else {
@@ -2084,7 +2084,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
 	            Object obj = keyMap.keysMap.get(key);
 	            if (obj == null) {
 	                return 0;
-	            } else if (obj instanceof GapList) {
+	            } else if (obj instanceof KeyMapList) {
 	                GapList<E> list = (GapList<E>) obj;
 	                return list.size();
 	            } else {
@@ -2187,18 +2187,10 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
     }
 
     /**
-     * Remove element with specified key from key map.
-     *
-     * @param keyMap		key map
-     * @param key			key to remove
-     * @param removeElems
-     * @return				removed element or null
-     */
-     /**
      * Removes element by key.
      * If there are duplicates, all elements are removed.
      *
-     * @param keyIndex
+     * @param keyIndex	key index
      * @param key   	key of element to remove
      * @return      	true if elements have been removed, false otherwise
      */
@@ -2219,6 +2211,14 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
         return removeds;
     }
 
+    /**
+     * Removes element by key.
+     * If there are duplicates, all elements are removed.
+     *
+     * @param keyMap	key map
+     * @param key   	key of element to remove
+     * @return      	true if elements have been removed, false otherwise
+     */
     private <K> GapList<E> doRemoveAllByKey(KeyMap<E,K> keyMap, K key) {
     	// If list cannot contain null, handle null explicitly to prevent NPE
     	if (key == null) {
@@ -2234,7 +2234,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
             Object obj = keyMap.keysMap.remove(key);
             int num;
             GapList<E> removed = GapList.create();
-            if (obj instanceof GapList) {
+            if (obj instanceof KeyMapList) {
                 removed = (GapList<E>) obj;
                 num = removed.size();
             } else {

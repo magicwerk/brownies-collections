@@ -17,6 +17,8 @@
  */
 package org.magicwerk.brownies.collections.helper;
 
+import java.io.Serializable;
+
 import org.magicwerk.brownies.collections.function.Mapper;
 
 /**
@@ -27,7 +29,7 @@ import org.magicwerk.brownies.collections.function.Mapper;
  * @author Thomas Mauch
  * @version $Id$
  */
-public class IdentMapper<E> implements Mapper<E, E> {
+public class IdentMapper<E> implements Mapper<E, E>, Serializable {
 
 	/** Singleton instance */
     public static final IdentMapper INSTANCE = new IdentMapper();
