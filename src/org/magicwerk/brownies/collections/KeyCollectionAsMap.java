@@ -24,7 +24,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Map.Entry;
 
 /**
  * Implements a Map based on a KeyCollection key.
@@ -171,7 +170,7 @@ public class KeyCollectionAsMap<E, K> implements Map<K, E>, Serializable {
 	 */
 	@Override
 	public Set<Entry<K, E>> entrySet() {
-		List<K> keys = (List<K>) coll.getDistinctKeys(keyIndex);
+		Set<K> keys = (Set<K>) coll.getDistinctKeys(keyIndex);
 		List<Entry<K, E>> entries = GapList.create(keys.size());
 		for (K key : keys) {
 			E elem = coll.getByKey(keyIndex, key);

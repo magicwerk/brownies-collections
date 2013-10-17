@@ -19,16 +19,16 @@ package org.magicwerk.brownies.collections;
 
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Set;
 
 import org.magicwerk.brownies.collections.function.Predicate;
 import org.magicwerk.brownies.collections.function.Trigger;
 
 
 /**
- * Think about SetList as of a Set where you can also access the
- * elements by index. Typically the elements are in the order
- * specified by the list, but you can also let them order
- * automatically like in TreeSet.
+ * KeyCollection implements a collection.
+ * It can provide fast access to its elements like a Set.
+ * The elements allowed in the list can be constraint (null/duplicate values).
  *
  * @author Thomas Mauch
  * @version $Id$
@@ -36,10 +36,8 @@ import org.magicwerk.brownies.collections.function.Trigger;
  * @see Key1List
  * @param <E> type of elements stored in the list
  */
+@SuppressWarnings("serial")
 public class KeyCollection<E> extends KeyCollectionImpl<E> {
-
-    /** UID for serialization. */
-    private static final long serialVersionUID = 6181488174454611419L;
 
     /**
      * Builder to construct TableCollection instances.
@@ -49,6 +47,15 @@ public class KeyCollection<E> extends KeyCollectionImpl<E> {
          * Default constructor.
          */
         public Builder() {
+        }
+
+        /**
+         * Private constructor used if extending KeyCollection.
+         *
+         * @param keyColl	key collection
+         */
+        Builder(KeyCollection<E> keyColl) {
+        	this.keyColl = keyColl;
         }
 
         // -- Constraint
@@ -155,12 +162,10 @@ public class KeyCollection<E> extends KeyCollectionImpl<E> {
         }
 
         /**
-         * Create collection with specified options.
-         *
          * @return created collection
          */
-        public KeyCollection<E> build() {
-        	// Constructs builder if there is none
+        @SuppressWarnings("unchecked")
+		public KeyCollection<E> build() {
         	if (keyColl == null) {
                	keyColl = new KeyCollection<E>();
         	}
@@ -174,6 +179,13 @@ public class KeyCollection<E> extends KeyCollectionImpl<E> {
      * Private constructor used by builder.
      */
     private KeyCollection() {
+    }
+
+    /**
+     * @return builder to use in extending classes
+     */
+    protected Builder<E> getBuilder() {
+    	return new Builder<E>(this);
     }
 
     @Override
@@ -197,24 +209,24 @@ public class KeyCollection<E> extends KeyCollectionImpl<E> {
 
     //-- Element methods
 
-	public E get(E key) {
-		return super.getByKey(0, key);
+	@Override
+	public GapList<E> getAll(E elem) {
+		return super.getAll(elem);
 	}
 
-	public GapList<E> getAll(E key) {
-		return super.getAllByKey(0, key);
+	@Override
+	public int getCount(E elem) {
+		return super.getCount(elem);
 	}
 
-	public int getCount(E key) {
-		return super.getCountByKey(0, key);
+	@Override
+	public GapList<E> removeAll(E elem) {
+		return super.removeAll(elem);
 	}
 
-	public GapList<E> removeAll(E key) {
-		return super.removeAllByKey(0, key);
-	}
-
-	public GapList<E> getDistinct() {
-		return (GapList<E>) super.getDistinctKeys(0);
+	@Override
+	public Set<E> getDistinct() {
+		return super.getDistinct();
 	}
 
 }
