@@ -19,35 +19,31 @@ package org.magicwerk.brownies.collections;
 
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.Map;
+import java.util.Set;
 
 import org.magicwerk.brownies.collections.KeyCollectionImpl.BuilderImpl;
-import org.magicwerk.brownies.collections.KeyList.Builder;
 import org.magicwerk.brownies.collections.function.Mapper;
 import org.magicwerk.brownies.collections.function.Predicate;
 import org.magicwerk.brownies.collections.function.Trigger;
 
 
 /**
- * Think about SetList as of a Set where you can also access the
- * elements by index. Typically the elements are in the order
- * specified by the list, but you can also let them order
- * automatically like in TreeSet.
+ * Key2List implements a key list with 1 key.
+ * This key can be accessed fast.
+ * It can provide fast access to its elements like a Set.
+ * The elements allowed in the list can be constraint (null/duplicate values).
  *
  * @author Thomas Mauch
  * @version $Id$
  *
- * @see Key1List
  * @param <E> type of elements stored in the list
  * @param <K> type of key
  */
+@SuppressWarnings("serial")
 public class Key1List<E,K> extends KeyListImpl<E> {
 
-    /** UID Key1Listization. */
-    private static final long serialVersionUID = 6181488174454611419L;
-
     /**
-     * Builder to construct MapCollection instances.
+     * Builder to construct Key1List instances.
      */
     public static class Builder<E,K> extends BuilderImpl<E> {
         /**
@@ -56,6 +52,11 @@ public class Key1List<E,K> extends KeyListImpl<E> {
         public Builder() {
         }
 
+        /**
+         * Private constructor used if extending Key1List.
+         *
+         * @param keyList	key list
+         */
         Builder(Key1List<E,K> keyList) {
         	this.keyList = keyList;
         }
@@ -228,7 +229,8 @@ public class Key1List<E,K> extends KeyListImpl<E> {
         /**
          * @return created list
          */
-        public Key1List<E,K> build() {
+        @SuppressWarnings("unchecked")
+		public Key1List<E,K> build() {
         	if (keyColl == null) {
                	keyColl = new KeyCollectionImpl<E>();
         	}
@@ -237,7 +239,7 @@ public class Key1List<E,K> extends KeyListImpl<E> {
         		keyList = new Key1List<E,K>();
         	}
         	init(keyColl, keyList);
-        	return (Key1List<E, K>) keyList;
+        	return (Key1List<E,K>) keyList;
         }
     }
 
@@ -247,6 +249,9 @@ public class Key1List<E,K> extends KeyListImpl<E> {
     protected Key1List() {
     }
 
+    /**
+     * @return builder to use in extending classes
+     */
     protected Builder<E,K> getBuilder() {
     	return new Builder<E,K>(this);
     }
@@ -272,58 +277,110 @@ public class Key1List<E,K> extends KeyListImpl<E> {
 
     //-- Element methods
 
-	public E get(E key) {
-		return super.getByKey(0, key);
+	@Override
+	public GapList<E> getAll(E elem) {
+		return super.getAll(elem);
 	}
 
-	public GapList<E> getAll(E key) {
-		return super.getAllByKey(0, key);
+	@Override
+	public int getCount(E elem) {
+		return super.getCount(elem);
 	}
 
-	public int getCount(E key) {
-		return super.getCountByKey(0, key);
+	@Override
+	public GapList<E> removeAll(E elem) {
+		return super.removeAll(elem);
 	}
 
-	public GapList<E> removeAll(E key) {
-		return super.removeAllByKey(0, key);
-	}
-
-	public GapList<E> getDistinct() {
-		return (GapList<E>) super.getDistinctKeys(0);
+	@Override
+	public Set<E> getDistinct() {
+		return (Set<E>) super.getDistinct();
 	}
 
     //-- Key methods
 
+    /**
+     * Returns index of first element in list with specified key.
+     *
+     * @param key	key
+     * @return		index of first element, -1 if no such element exists
+     */
     public int indexOfKey1(K key) {
     	return super.indexOfKey(1, key);
     }
 
+	/**
+	 * Checks whether an element with specified key exists.
+	 *
+	 * @param key	key
+	 * @return		true if element with specified key exists, otherwise false
+	 */
     public boolean containsKey1(K key) {
     	return super.containsKey(1, key);
     }
 
+	/**
+	 * Returns element with specified key.
+	 * If there are several elements with the same key, the one added first will be returned.
+	 *
+	 * @param key	key
+	 * @return		element with specified key or null
+	 */
 	public E getByKey1(K key) {
 		return super.getByKey(1, key);
 	}
 
+	/**
+	 * Returns all elements with specified key.
+	 * The returned list is immutable.
+	 *
+	 * @param key	key
+	 * @return		all elements with specified key (never null)
+	 */
 	public GapList<E> getAllByKey1(K key) {
 		return super.getAllByKey(1, key);
 	}
 
+	/**
+	 * Returns the number of elements with specified key.
+	 *
+	 * @param key	key
+	 * @return		number of elements with specified key
+	 */
 	public int getCountByKey1(K key) {
 		return super.getCountByKey(1, key);
 	}
 
+	/**
+	 * Removes element with specified key.
+	 * If there are several elements with the same key, the one added first will be removed.
+	 *
+	 * @param key	key
+	 * @return		element with specified key or null
+	 */
 	public E removeByKey1(K key) {
 		return super.removeByKey(1, key);
 	}
 
+	/**
+	 * Removes all elements with specified key.
+	 *
+	 * @param key	key
+	 * @return		removed elements with specified key (never null)
+	 */
 	public GapList<E> removeAllByKey1(K key) {
 		return super.removeAllByKey(1, key);
 	}
 
-	public GapList<K> getDistinctKeys1() {
-		return (GapList<K>) super.getDistinctKeys(1);
+	/**
+	 * Returns all distinct keys in the same order as in the key map.
+	 * The returned set is immutable.
+	 *
+	 * @return		distinct keys
+	 */
+	@SuppressWarnings("unchecked")
+	public Set<K> getDistinctKeys1() {
+		return (Set<K>) super.getDistinctKeys(1);
 	}
 
 }

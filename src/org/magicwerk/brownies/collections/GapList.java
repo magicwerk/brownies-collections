@@ -58,11 +58,6 @@ public class GapList<E> extends AbstractList<E>
 		// Additional interfaces of LinkedList
 		Deque<E> {
 
-	// Guide to subclass GapList
-	// You need to overwrite the following methods:
-	// - size(): return size
-	// - get(int): check index, return element
-	// - doGet,
 
     /*
      * Helper variables to enable code for debugging.
@@ -77,11 +72,8 @@ public class GapList<E> extends AbstractList<E>
     /** If true the internal state of the GapList is traced out for debugging */
     private static final boolean DEBUG_DUMP = false;
 
-    // Alternative declarations for debugging:
-    //static boolean DEBUG_CHECK = true;
-    //static boolean DEBUG_TRACE = true;
-    //static boolean DEBUG_DUMP = true;
 
+    // -- EMPTY --
 
     // Cannot make a static reference to the non-static type E:
     // public static GapList<E> EMPTY = GapList.create().unmodifiableList();

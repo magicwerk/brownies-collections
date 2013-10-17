@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.magicwerk.brownies.collections.exceptions.DuplicateKeyException;
 import org.magicwerk.brownies.collections.function.Mapper;
@@ -1269,17 +1270,16 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
 			return list;
 		}
 
-		GapList<Object> getDistinctKeys() {
+		Set<K> getDistinctKeys() {
 	        if (keysMap != null) {
-	            GapList<Object> list = new GapList<Object>(keysMap.keySet());
-	            return list;
+	            return Collections.unmodifiableSet(keysMap.keySet());
 	        } else {
 	            K lastKey = null;
-	            GapList<Object> list = new GapList<Object>();
+	            TreeSet<K> set = new TreeSet<K>(comparator);
 	            for (int i=0; i<keysList.size(); i++) {
 	                K key = keysList.get(i);
 	                boolean add = false;
-	                if (list.isEmpty()) {
+	                if (set.isEmpty()) {
 	                    add = true;
 	                } else {
 	                    if (key != null) {
@@ -1289,11 +1289,11 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
 	                    }
 	                }
 	                if (add) {
-	                    list.add(key);
+	                    set.add(key);
 	                    lastKey = key;
 	                }
 	            }
-	            return list;
+	            return Collections.unmodifiableSet(set);
 	        }
 		}
     }
@@ -1312,7 +1312,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
     //-- KeyCollection --
 
     /** If true the invariants the GapList are checked for debugging */
-    private static final boolean DEBUG_CHECK = true;
+    private static final boolean DEBUG_CHECK = false;
 
     /**
      * Size of collection.
@@ -1900,6 +1900,9 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
      * @param ignore	KeyMap to ignore (null to add element to all maps)
      */
     void doAdd(E elem, KeyMap ignore) {
+    	if (keyMaps == null) {
+    		return;
+    	}
     	IllegalArgumentException error = null;
 		int i = 0;
     	if (keyMaps != null) {
@@ -1945,7 +1948,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
      *
      * @return list containing all distinct keys
      */
-    protected GapList<?> getDistinctKeys(int keyIndex) {
+    protected Set<?> getDistinctKeys(int keyIndex) {
     	return getKeyMap(keyIndex).getDistinctKeys();
     }
 
@@ -2046,7 +2049,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
                         break;
                     }
                 }
-                return list;
+                return list.unmodifiableList();
             } else {
                 return GapList.EMPTY();
             }
@@ -2264,7 +2267,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
         }
     }
 
-	// As in AbstractSet
+	// As in AbstractCollection
 	@Override
 	public boolean equals(Object o) {
 		if (o == this) {
@@ -2286,7 +2289,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
 		}
 	}
 
-	// As in AbstractSet
+	// As in AbstractCollection
 	@Override
 	public int hashCode() {
 		int h = 0;
@@ -2299,5 +2302,52 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
 		}
 		return h;
 	}
+
+    //-- Element methods
+
+	/**
+	 * Returns all equal elements.
+	 * The returned list is immutable.
+	 *
+	 * @param elem	element
+	 * @return		all equal elements (never null)
+	 */
+	protected GapList<E> getAll(E elem) {
+		return getAllByKey(0, elem);
+	}
+
+	/**
+	 * Returns the number of equal elements.
+	 *
+	 * @param elem	element
+	 * @return		number of equal elements
+	 */
+	protected int getCount(E elem) {
+		return getCountByKey(0, elem);
+	}
+
+	/**
+	 * Removes all equal elements.
+	 *
+	 * @param elem	element
+	 * @return		removed equal elements (never null)
+	 */
+	protected GapList<E> removeAll(E elem) {
+		return removeAllByKey(0, elem);
+	}
+
+	/**
+	 * Returns all distinct elements in the same order as in the collection.
+	 * The returned set is immutable.
+	 *
+	 * @return		distinct elements
+	 */
+	protected Set<E> getDistinct() {
+		return (Set<E>) getDistinctKeys(0);
+	}
+
+    //-- Key methods
+	// The key methods can not be defined here.
+	// Due to the generic type parameters, the methods cannot be overridden.
 
 }

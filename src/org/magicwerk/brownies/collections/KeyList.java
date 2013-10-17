@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 by Thomas Mauch
+ * Copyright 2013 by Thomas Mauch
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,43 +19,43 @@ package org.magicwerk.brownies.collections;
 
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
-import org.magicwerk.brownies.collections.KeyCollection.Builder;
 import org.magicwerk.brownies.collections.KeyCollectionImpl.BuilderImpl;
 import org.magicwerk.brownies.collections.function.Predicate;
 import org.magicwerk.brownies.collections.function.Trigger;
-import org.magicwerk.brownies.collections.helper.IdentMapper;
 
 
 /**
- * Think about SetList as of a Set where you can also access the
- * elements by index. Typically the elements are in the order
- * specified by the list, but you can also let them order
- * automatically like in TreeSet.
- *
+ * KeyList implements a list.
+ * It can provide fast access to its elements like a Set.
+ * The elements allowed in the list can be constraint (null/duplicate values).
  *
  * @author Thomas Mauch
  * @version $Id$
  *
- * @see Key1List
  * @param <E> type of elements stored in the list
  */
+@SuppressWarnings("serial")
 public class KeyList<E> extends KeyListImpl<E> {
 
-    /** UID forKeyListation. */
-    private static final long serialVersionUID = 6181488174454611419L;
-
     /**
-     * Builder to construct TableCollection instances.
+     * Builder to construct KeyList instances.
      */
     public static class Builder<E> extends BuilderImpl<E> {
         /**
          * Default constructor.
          */
         public Builder() {
+        }
+
+        /**
+         * Private constructor used if extending KeyList.
+         *
+         * @param keyList	key list
+         */
+        Builder(KeyList<E> keyList) {
+        	this.keyList = keyList;
         }
 
         // -- Constraint
@@ -173,10 +173,10 @@ public class KeyList<E> extends KeyListImpl<E> {
          */
         public KeyList<E> build() {
         	if (keyColl == null) {
-               	keyColl = new KeyCollectionImpl();
+               	keyColl = new KeyCollectionImpl<E>();
         	}
         	build(keyColl, true);
-        	KeyList<E> list = new KeyList();
+        	KeyList<E> list = new KeyList<E>();
         	init(keyColl, list);
         	return list;
         }
@@ -186,6 +186,13 @@ public class KeyList<E> extends KeyListImpl<E> {
      * Private constructor used by builder.
      */
     private KeyList() {
+    }
+
+    /**
+     * @return builder to use in extending classes
+     */
+    protected Builder<E> getBuilder() {
+    	return new Builder<E>(this);
     }
 
     @Override
@@ -209,24 +216,24 @@ public class KeyList<E> extends KeyListImpl<E> {
 
     //-- Element methods
 
-	public E get(E key) {
-		return super.getByKey(0, key);
+    @Override
+	public GapList<E> getAll(E elem) {
+		return super.getAll(elem);
 	}
 
-	public GapList<E> getAll(E key) {
-		return super.getAllByKey(0, key);
+    @Override
+	public int getCount(E elem) {
+		return super.getCount(elem);
 	}
 
-	public int getCount(E key) {
-		return super.getCountByKey(0, key);
+    @Override
+	public GapList<E> removeAll(E elem) {
+		return super.removeAll(elem);
 	}
 
-	public GapList<E> removeAll(E key) {
-		return super.removeAllByKey(0, key);
-	}
-
-	public GapList<E> getDistinct() {
-		return (GapList<E>) super.getDistinctKeys(0);
+    @Override
+	public Set<E> getDistinct() {
+		return super.getDistinct();
 	}
 
 }

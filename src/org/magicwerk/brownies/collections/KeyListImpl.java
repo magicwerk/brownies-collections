@@ -46,7 +46,7 @@ public class KeyListImpl<E> extends GapList<E> {
     GapList<E> forward;
 
     /** If true the invariants the GapList are checked for debugging */
-    private static final boolean DEBUG_CHECK = true;
+    private static final boolean DEBUG_CHECK = false;
 
 
     /*
@@ -334,35 +334,6 @@ public class KeyListImpl<E> extends GapList<E> {
         return true;
     }
 
-//	// Fast doAddAll() implementation for window size
-//	protected boolean doAddAll(int index, E[] array) {
-//        checkIndexAdd(index);
-//
-//        int addSize = array.length;
-//		if (addSize == 0) {
-//			return false;
-//		}
-//		int overlap = size()+addSize - maxSize;
-//		if (overlap > 0) {
-//			if (index >= overlap) {
-//				super.remove(0, overlap);
-//			} else {
-//				super.remove(0, index);
-//			}
-//			index = index - overlap;
-//		}
-//		if (index >= 0) {
-//			for (int i=0; i<addSize; i++) {
-//				super.doAdd(index+i, array[i]);
-//			}
-//		} else {
-//			for (int i=0; i<addSize+index; i++) {
-//				super.doAdd(0, array[i-index]);
-//			}
-//		}
-//		return true;
-//	}
-
 	@Override
 	protected boolean doAddAll(int index, E[] array) {
     	// delegate to doAdd()
@@ -584,7 +555,7 @@ public class KeyListImpl<E> extends GapList<E> {
      * @param keyIndex 	key index
      * @return 			list containing all distinct keys
      */
-    public GapList<?> getDistinctKeys(int keyIndex) {
+    public Set<?> getDistinctKeys(int keyIndex) {
     	return keyColl.getDistinctKeys(keyIndex);
     }
 
@@ -609,7 +580,54 @@ public class KeyListImpl<E> extends GapList<E> {
     	}
     }
 
-    //-- Invalidate
+    //-- Element methods
+
+	/**
+	 * Returns all equal elements.
+	 * The returned list is immutable.
+	 *
+	 * @param elem	element
+	 * @return		all equal elements (never null)
+	 */
+	protected GapList<E> getAll(E elem) {
+		return getAllByKey(0, elem);
+	}
+
+	/**
+	 * Returns the number of equal elements.
+	 *
+	 * @param elem	element
+	 * @return		number of equal elements
+	 */
+	protected int getCount(E elem) {
+		return getCountByKey(0, elem);
+	}
+
+	/**
+	 * Removes all equal elements.
+	 *
+	 * @param elem	element
+	 * @return		removed equal elements (never null)
+	 */
+	protected GapList<E> removeAll(E elem) {
+		return removeAllByKey(0, elem);
+	}
+
+	/**
+	 * Returns all distinct elements in the same order as in the collection.
+	 * The returned set is immutable.
+	 *
+	 * @return		distinct elements
+	 */
+	protected Set<E> getDistinct() {
+		return (Set<E>) getDistinctKeys(0);
+	}
+
+    //-- Key methods
+	// The key methods can not be defined here.
+	// Due to the generic type parameters, the methods cannot be overridden.
+
+	//-- Invalidate
 
     //
 //  public void invalidate(E elem) {
@@ -679,4 +697,34 @@ public class KeyListImpl<E> extends GapList<E> {
 //  	}
 //  	return key;
 //  }
+
+//	// Fast doAddAll() implementation for window size
+//	protected boolean doAddAll(int index, E[] array) {
+//        checkIndexAdd(index);
+//
+//        int addSize = array.length;
+//		if (addSize == 0) {
+//			return false;
+//		}
+//		int overlap = size()+addSize - maxSize;
+//		if (overlap > 0) {
+//			if (index >= overlap) {
+//				super.remove(0, overlap);
+//			} else {
+//				super.remove(0, index);
+//			}
+//			index = index - overlap;
+//		}
+//		if (index >= 0) {
+//			for (int i=0; i<addSize; i++) {
+//				super.doAdd(index+i, array[i]);
+//			}
+//		} else {
+//			for (int i=0; i<addSize+index; i++) {
+//				super.doAdd(0, array[i-index]);
+//			}
+//		}
+//		return true;
+//	}
+
 }
