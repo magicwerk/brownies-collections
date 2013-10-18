@@ -20,6 +20,9 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.Set;
 
+import org.magicwerk.brownies.collections.KeyCollectionImpl.KeyMap;
+import org.magicwerk.brownies.collections.helper.Option;
+
 
 
 /**
@@ -92,9 +95,6 @@ public class KeyListImpl<E> extends GapList<E> {
     	if (forward != null) {
     		assert(super.size() == 0);
     	} else {
-    		if (super.size() != keyColl.size()) {
-    			super.size();
-    		}
     		assert(super.size() == keyColl.size());
     	}
     }
@@ -117,7 +117,9 @@ public class KeyListImpl<E> extends GapList<E> {
 
 	    // TableCollection
 	    keyColl = new KeyCollectionImpl<E>();
-	    keyColl.initCopy(that.keyColl);
+	    keyColl.initCrop(that.keyColl);
+
+	    if (DEBUG_CHECK) debugCheck();
 	}
 
     /**
@@ -131,7 +133,9 @@ public class KeyListImpl<E> extends GapList<E> {
 
 	    // TableCollection
 	    keyColl = new KeyCollectionImpl<E>();
-	    keyColl.initCrop(that.keyColl);
+	    keyColl.initCopy(that.keyColl);
+
+	    if (DEBUG_CHECK) debugCheck();
     }
 
     /**
@@ -515,17 +519,45 @@ public class KeyListImpl<E> extends GapList<E> {
      * @return      	removed element or null if no element has been removed
      */
     protected E removeByKey(int keyIndex, Object key) {
-    	// TODO what about if null has been removed -> return Option
-    	E removed = (E) keyColl.removeByKey(keyIndex, key);
-    	if (!keyColl.isSortedList()) {
-    		int index = super.indexOf(removed);
-    		if (index == -1) {
-    			keyColl.errorInvalidData();
-    		}
-    		super.doRemove(index);
+    	Option<E> removed = keyColl.doRemoveByKey(keyIndex, key);
+    	if (removed.hasValue()) {
+	    	if (forward == null) {
+	    		int index = super.indexOf(removed.getValue());
+	    		if (index == -1) {
+	    			keyColl.errorInvalidData();
+	    		}
+	    		super.doRemove(index);
+	    	}
     	}
         if (DEBUG_CHECK) debugCheck();
-        return removed;
+        return removed.getValueOrNull();
+    }
+
+    protected E putByKey(int keyIndex, E elem) {
+    	boolean add = true;
+    	int index;
+    	if (keyIndex == 0 && (keyColl.keyMaps == null || keyColl.keyMaps[0] == null)) {
+    		index = indexOf(elem);
+    	} else {
+    		Object key = keyColl.getKey(keyIndex, elem);
+    		index = indexOfKey(keyIndex, key);
+    	}
+    	if (index != -1) {
+    		KeyMap keyMap = keyColl.getKeyMap(keyIndex);
+    		if (elem != null) {
+    			add = keyMap.allowDuplicates;
+    		} else {
+    			add = keyMap.allowDuplicatesNull;
+    		}
+    	}
+
+    	E replaced = null;
+    	if (add) {
+    		doAdd(-1, elem);
+    	} else {
+    		replaced = doSet(index, elem);
+    	}
+    	return replaced;
     }
 
     /**
@@ -621,6 +653,20 @@ public class KeyListImpl<E> extends GapList<E> {
 	 */
 	protected Set<E> getDistinct() {
 		return (Set<E>) getDistinctKeys(0);
+	}
+
+	/**
+	 * Adds or replaces element with specified key.
+	 * If there is no element with specified key, the element is added.
+	 * If there is an element with specified key and no duplicates
+	 * are allowed, the existing element is replaced.
+	 * If duplicates are allowed, the element is added.
+	 *
+	 * @param elem	element
+	 * @return		element which has been replaced or null otherwise
+	 */
+	protected E put(E elem) {
+		return putByKey(0, elem);
 	}
 
     //-- Key methods

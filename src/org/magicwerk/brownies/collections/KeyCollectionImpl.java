@@ -31,6 +31,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.magicwerk.brownies.collections.exceptions.DuplicateKeyException;
+import org.magicwerk.brownies.collections.exceptions.KeyException;
 import org.magicwerk.brownies.collections.function.Mapper;
 import org.magicwerk.brownies.collections.function.Predicate;
 import org.magicwerk.brownies.collections.function.Trigger;
@@ -418,7 +419,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
             return this;
         }
 
-        protected BuilderImpl<E> withKeySort(int keyIndex, Comparator<? super E> comparator) {
+        protected BuilderImpl<E> withKeySort(int keyIndex, Comparator<?> comparator) {
         	KeyMapBuilder kmb = getKeyMapBuilder(keyIndex);
         	if (kmb.sort != null) {
         		throw new IllegalArgumentException("Sort already set");
@@ -430,7 +431,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
         	return this;
         }
 
-        protected BuilderImpl<E> withKeySort(int keyIndex, Comparator<? super E> comparator, boolean sortNullsFirst) {
+        protected BuilderImpl<E> withKeySort(int keyIndex, Comparator<?> comparator, boolean sortNullsFirst) {
         	KeyMapBuilder kmb = getKeyMapBuilder(keyIndex);
         	if (kmb.sort != null) {
         		throw new IllegalArgumentException("Sort already set");
@@ -520,27 +521,6 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
         }
 
         /**
-         * Set comparator to use for sorting.
-         *
-         * @param comparator    comparator to use for sorting
-         * @return              this (fluent interface)
-         */
-        protected BuilderImpl<E> withKey1Sort(Comparator<? super E> comparator) {
-        	return withKeySort(1, comparator);
-        }
-
-        /**
-         * Set comparator to use for sorting.
-         *
-         * @param comparator            comparator to use for sorting
-         * @param sortNullsFirst   		true if comparator sorts null, false if not
-         * @return                      this (fluent interface)
-         */
-        protected BuilderImpl<E> withKey1Sort(Comparator<? super E> comparator, boolean sortNullsFirst) {
-            return withKeySort(1, comparator, sortNullsFirst);
-        }
-
-        /**
          * Specify this key to be a primary key.
          * This is identical to calling
          * withKey1Null(false) and withKey1Duplicates(false).
@@ -627,27 +607,6 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
         }
 
         /**
-         * Set comparator to use for sorting.
-         *
-         * @param comparator    comparator to use for sorting
-         * @return              this (fluent interface)
-         */
-        protected BuilderImpl<E> withKey2Sort(Comparator<? super E> comparator) {
-        	return withKeySort(2, comparator);
-        }
-
-        /**
-         * Set comparator to use for sorting.
-         *
-         * @param comparator           comparator to use for sorting
-         * @param sortNullsFirst	   true to sort nulls first, false for last
-         * @return                     this (fluent interface)
-         */
-        protected BuilderImpl<E> withKey2Sort(Comparator<? super E> comparator, boolean sortNullsFirst) {
-        	return withKeySort(2, comparator, sortNullsFirst);
-        }
-
-        /**
          * Specify this key to be a primary key.
          * This is identical to calling
          * withKey2Null(false) and withKey2Duplicates(false).
@@ -706,9 +665,9 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
         	if (isTrue(keyMapBuilder.sort) || isTrue(keyMapBuilder.orderBy)) {
                 if (keyMapBuilder.comparator == null) {
                 	if (keyMap.allowNull) {
-                    	keyMap.comparator = new NullComparator(NaturalComparator.INSTANCE, keyMapBuilder.sortNullsFirst);
+                    	keyMap.comparator = new NullComparator(NaturalComparator.INSTANCE(), keyMapBuilder.sortNullsFirst);
                 	} else {
-                    	keyMap.comparator = NaturalComparator.INSTANCE;
+                    	keyMap.comparator = NaturalComparator.INSTANCE();
                 	}
                 } else {
                     if (!keyMapBuilder.comparatorSortsNull && keyMap.allowNull) {
@@ -723,13 +682,13 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
         		if (keyMapBuilder.orderByType == null) {
             		keyMap.keysList = new GapList<Object>();
         		} else {
-                	if (keyMapBuilder.comparator != null && keyMapBuilder.comparator != NaturalComparator.INSTANCE) {
+                	if (keyMapBuilder.comparator != null && keyMapBuilder.comparator != NaturalComparator.INSTANCE()) {
                 		throw new IllegalArgumentException("Only natural comparator supported for list type");
                 	}
                 	if (isTrue(keyMapBuilder.allowNull)) {
                 		throw new IllegalArgumentException("Null values are not supported for primitive list type");
                 	}
-                	keyMap.comparator = NaturalComparator.INSTANCE;
+                	keyMap.comparator = NaturalComparator.INSTANCE();
         			keyMap.keysList = (GapList<Object>) GapLists.createWrapperList(keyMapBuilder.orderByType);
         		}
         	} else if (keyMap.comparator != null) {
@@ -1383,7 +1342,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
      * @param that source object
      */
     void initCrop(KeyCollectionImpl that) {
-    	size = that.size;
+    	size = 0;
     	if (that.keyMaps != null) {
 	    	keyMaps = new KeyMap[that.keyMaps.length];
 	    	for (int i=0; i<keyMaps.length; i++) {
@@ -1590,15 +1549,15 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
     }
 
     static void errorNullElement() {
-		throw new IllegalArgumentException("Constraint violation: null element not allowed");
+		throw new KeyException("Constraint violation: null element not allowed");
     }
 
     static void errorConstraintElement() {
-		throw new IllegalArgumentException("Constraint violation: element not allowed");
+		throw new KeyException("Constraint violation: element not allowed");
     }
 
     static void errorNullKey() {
-		throw new IllegalArgumentException("Constraint violation: null key not allowed");
+		throw new KeyException("Constraint violation: null key not allowed");
     }
 
     static void errorDuplicateKey() {
@@ -1606,15 +1565,15 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
     }
 
     static void errorInvalidData() {
-		throw new IllegalArgumentException("Invalid data: call update() on change of key data");
+		throw new KeyException("Invalid data: call update() on change of key data");
     }
 
     static void errorInvalidIndex() {
-		throw new IllegalArgumentException("Invalid index for sorted list");
+		throw new KeyException("Invalid index for sorted list");
     }
 
     static void errorMaxSize() {
-		throw new IllegalArgumentException("Maximum size reached");
+		throw new KeyException("Maximum size reached");
     }
 
     /**
@@ -1911,7 +1870,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
     	if (keyMaps == null) {
     		return;
     	}
-    	IllegalArgumentException error = null;
+    	RuntimeException error = null;
 		int i = 0;
     	if (keyMaps != null) {
     		try {
@@ -1922,7 +1881,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
 		    		}
 		    	}
     		}
-    		catch (IllegalArgumentException e) {
+    		catch (RuntimeException e) {
     			error = e;
     		}
     	}
@@ -1961,7 +1920,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
     }
 
     void checkKeyMap(int keyIndex) {
-    	if (keyMaps == null || keyIndex >= keyMaps.length || keyIndex < 0) {
+    	if (keyMaps == null || keyIndex >= keyMaps.length || keyIndex < 0 || keyMaps[keyIndex] == null) {
     		throw new IllegalArgumentException("Invalid key index: " + keyIndex);
     	}
     }
@@ -2178,7 +2137,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
      * @param key   	key of element to remove
      * @return      	removed element or null if no element has been removed
      */
-    protected E removeByKey(int keyIndex, Object key) {
+    protected Option<E> doRemoveByKey(int keyIndex, Object key) {
     	checkKeyMap(keyIndex);
     	Option<E> removed = keyMaps[keyIndex].remove(key, false, null);
     	if (removed.hasValue()) {
@@ -2194,7 +2153,46 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
     		size--;
     	}
         if (DEBUG_CHECK) debugCheck();
-        return removed.getValueOrNull();
+        return removed;
+    }
+
+    protected E removeByKey(int keyIndex, Object key) {
+    	return doRemoveByKey(keyIndex, key).getValueOrNull();
+    }
+
+    /**
+     * Puts element in collection using specified key map.
+     *
+     * @param keyIndex	key index
+     * @param elem		elem
+     * @return			element which has been replace, null otherwise
+     */
+    protected E putByKey(int keyIndex, E elem) {
+    	checkKeyMap(keyIndex);
+		Object k = keyMaps[keyIndex].getKey(elem);
+		boolean add = false;
+    	if (!containsKey(keyIndex, k)) {
+    		add = true;
+    	} else {
+    		if (elem != null) {
+    			add = keyMaps[keyIndex].allowDuplicates;
+    		} else {
+    			add = keyMaps[keyIndex].allowDuplicatesNull;
+    		}
+    	}
+
+    	Option<E> oldElem = new Option(null);
+    	if (!add) {
+    		oldElem = doRemoveByKey(keyIndex, elem);
+    	}
+    	try {
+    		add(elem);
+    	}
+       	catch (RuntimeException e) {
+       		add(oldElem.getValue());
+       		throw e;
+       	}
+    	return oldElem.getValue();
     }
 
     /**
@@ -2352,6 +2350,20 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
 	 */
 	protected Set<E> getDistinct() {
 		return (Set<E>) getDistinctKeys(0);
+	}
+
+	/**
+	 * Adds or replaces element with specified key.
+	 * If there is no element with specified key, the element is added.
+	 * If there is an element with specified key and no duplicates
+	 * are allowed, the existing element is replaced.
+	 * If duplicates are allowed, the element is added.
+	 *
+	 * @param elem	element
+	 * @return		element which has been replaced or null otherwise
+	 */
+	protected E put(E elem) {
+		return putByKey(0, elem);
 	}
 
     //-- Key methods

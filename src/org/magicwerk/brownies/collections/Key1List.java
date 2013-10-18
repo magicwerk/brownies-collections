@@ -211,14 +211,25 @@ public class Key1List<E,K> extends KeyListImpl<E> {
         	return (Builder<E,K>) super.withKey1Sort(sort);
         }
 
-        @Override
-        public Builder<E,K> withKey1Sort(Comparator<? super E> comparator) {
-        	return (Builder<E,K>) super.withKey1Sort(comparator);
+        /**
+         * Set comparator to use for sorting.
+         *
+         * @param comparator    comparator to use for sorting
+         * @return              this (fluent interface)
+         */
+        public Builder<E,K> withKey1Sort(Comparator<? super K> comparator) {
+        	return (Builder<E,K>) super.withKeySort(1, comparator);
         }
 
-        @Override
-        public Builder<E,K> withKey1Sort(Comparator<? super E> comparator, boolean comparatorSortsNull) {
-        	return (Builder<E,K>) super.withKey1Sort(comparator, comparatorSortsNull);
+        /**
+         * Set comparator to use for sorting.
+         *
+         * @param comparator            comparator to use for sorting
+         * @param sortNullsFirst   		true if null will be sorted first, false for last
+         * @return                      this (fluent interface)
+         */
+        public Builder<E,K> withKey1Sort(Comparator<? super K> comparator, boolean sortNullsFirst) {
+        	return (Builder<E,K>) super.withKeySort(1, comparator, sortNullsFirst);
         }
 
         @Override
@@ -300,6 +311,11 @@ public class Key1List<E,K> extends KeyListImpl<E> {
 	@Override
 	public Set<E> getDistinct() {
 		return (Set<E>) super.getDistinct();
+	}
+
+	@Override
+	public E put(E elem) {
+		return super.put(elem);
 	}
 
     //-- Key methods
@@ -386,6 +402,20 @@ public class Key1List<E,K> extends KeyListImpl<E> {
 	@SuppressWarnings("unchecked")
 	public Set<K> getDistinctKeys1() {
 		return (Set<K>) super.getDistinctKeys(1);
+	}
+
+	/**
+	 * Adds or replaces element with specified key.
+	 * If there is no element with specified key, the element is added.
+	 * If there is an element with specified key and no duplicates
+	 * are allowed, the existing element is replaced.
+	 * If duplicates are allowed, the element is added.
+	 *
+	 * @param elem	element
+	 * @return		element which has been replaced or null otherwise
+	 */
+    public E putByKey1(E elem) {
+		return super.putByKey(1, elem);
 	}
 
 }

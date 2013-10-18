@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.magicwerk.brownies.collections.helper.Option;
+
 /**
  * Implements a Map based on a KeyCollection key.
  *
