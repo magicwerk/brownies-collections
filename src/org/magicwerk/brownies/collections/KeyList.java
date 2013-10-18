@@ -236,4 +236,8 @@ public class KeyList<E> extends KeyListImpl<E> {
 		return super.getDistinct();
 	}
 
+    @Override
+    public E put(E elem) {
+    	return super.put(elem);
+    }
 }

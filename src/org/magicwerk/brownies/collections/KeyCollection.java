@@ -229,4 +229,9 @@ public class KeyCollection<E> extends KeyCollectionImpl<E> {
 		return super.getDistinct();
 	}
 
+	@Override
+	public E put(E elem) {
+		return super.put(elem);
+	}
+
 }

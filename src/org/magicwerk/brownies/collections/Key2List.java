@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.Set;
 
+import org.magicwerk.brownies.collections.Key1List.Builder;
 import org.magicwerk.brownies.collections.KeyCollectionImpl.BuilderImpl;
 import org.magicwerk.brownies.collections.function.Mapper;
 import org.magicwerk.brownies.collections.function.Predicate;
@@ -212,16 +213,26 @@ public class Key2List<E,K1,K2> extends KeyListImpl<E> {
         	return (Builder<E,K1,K2>) super.withKey1Sort(sort);
         }
 
-        @Override
-        public Builder<E,K1,K2> withKey1Sort(Comparator<? super E> comparator) {
-        	return (Builder<E,K1,K2>) super.withKey1Sort(comparator);
+        /**
+         * Set comparator to use for sorting.
+         *
+         * @param comparator    comparator to use for sorting
+         * @return              this (fluent interface)
+         */
+        public Builder<E,K1,K2> withKey1Sort(Comparator<? super K1> comparator) {
+        	return (Builder<E,K1,K2>) super.withKeySort(1, comparator);
         }
 
-        @Override
-        public Builder<E,K1,K2> withKey1Sort(Comparator<? super E> comparator, boolean sortNullsFirst) {
-        	return (Builder<E,K1,K2>) super.withKey1Sort(comparator, sortNullsFirst);
+        /**
+         * Set comparator to use for sorting.
+         *
+         * @param comparator            comparator to use for sorting
+         * @param sortNullsFirst   		true if null will be sorted first, false for last
+         * @return                      this (fluent interface)
+         */
+        public Builder<E,K1,K2> withKey1Sort(Comparator<? super K1> comparator, boolean sortNullsFirst) {
+        	return (Builder<E,K1,K2>) super.withKeySort(1, comparator, sortNullsFirst);
         }
-
         @Override
         public Builder<E,K1,K2> withPrimaryKey1() {
         	return (Builder<E,K1,K2>) super.withPrimaryKey1();
@@ -274,16 +285,26 @@ public class Key2List<E,K1,K2> extends KeyListImpl<E> {
         	return (Builder<E,K1,K2>) super.withKey2Sort(sort);
         }
 
-        @Override
-        public Builder<E,K1,K2> withKey2Sort(Comparator<? super E> comparator) {
-        	return (Builder<E,K1,K2>) super.withKey2Sort(comparator);
+        /**
+         * Set comparator to use for sorting.
+         *
+         * @param comparator    comparator to use for sorting
+         * @return              this (fluent interface)
+         */
+        public Builder<E,K1,K2> withKey2Sort(Comparator<? super K2> comparator) {
+        	return (Builder<E,K1,K2>) super.withKeySort(1, comparator);
         }
 
-        @Override
-        public Builder<E,K1,K2> withKey2Sort(Comparator<? super E> comparator, boolean sortNullsFirst) {
-        	return (Builder<E,K1,K2>) super.withKey2Sort(comparator, sortNullsFirst);
+        /**
+         * Set comparator to use for sorting.
+         *
+         * @param comparator            comparator to use for sorting
+         * @param sortNullsFirst   		true if null will be sorted first, false for last
+         * @return                      this (fluent interface)
+         */
+        public Builder<E,K1,K2> withKey2Sort(Comparator<? super K2> comparator, boolean sortNullsFirst) {
+        	return (Builder<E,K1,K2>) super.withKeySort(1, comparator, sortNullsFirst);
         }
-
         @Override
         public Builder<E,K1,K2> withPrimaryKey2() {
         	return (Builder<E,K1,K2>) super.withPrimaryKey2();
@@ -360,6 +381,11 @@ public class Key2List<E,K1,K2> extends KeyListImpl<E> {
 	@Override
 	public Set<E> getDistinct() {
 		return super.getDistinct();
+	}
+
+	@Override
+	public E put(E elem) {
+		return super.put(elem);
 	}
 
     //-- Key1 methods
@@ -448,6 +474,20 @@ public class Key2List<E,K1,K2> extends KeyListImpl<E> {
 		return (Set<K1>) super.getDistinctKeys(1);
 	}
 
+	/**
+	 * Adds or replaces element with specified key.
+	 * If there is no element with specified key, the element is added.
+	 * If there is an element with specified key and no duplicates
+	 * are allowed, the existing element is replaced.
+	 * If duplicates are allowed, the element is added.
+	 *
+	 * @param elem	element
+	 * @return		element which has been replaced or null otherwise
+	 */
+    public E putByKey1(E elem) {
+		return super.putByKey(1, elem);
+	}
+
     //-- Key2 methods
 
     /**
@@ -532,6 +572,20 @@ public class Key2List<E,K1,K2> extends KeyListImpl<E> {
 	@SuppressWarnings("unchecked")
 	public Set<K2> getDistinctKeys2() {
 		return (Set<K2>) super.getDistinctKeys(2);
+	}
+
+	/**
+	 * Adds or replaces element with specified key.
+	 * If there is no element with specified key, the element is added.
+	 * If there is an element with specified key and no duplicates
+	 * are allowed, the existing element is replaced.
+	 * If duplicates are allowed, the element is added.
+	 *
+	 * @param elem	element
+	 * @return		element which has been replaced or null otherwise
+	 */
+    public E putByKey2(E elem) {
+		return super.putByKey(2, elem);
 	}
 
 }

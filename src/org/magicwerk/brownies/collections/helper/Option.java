@@ -73,4 +73,9 @@ public class Option<T> {
 		return value;
 	}
 
+	@Override
+	public String toString() {
+		return "Option [hasValue=" + hasValue + ", value=" + value + "]";
+	}
+
 }

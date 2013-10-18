@@ -401,7 +401,7 @@ public class LongObjGapList extends GapList<Long> {
 
 	@Override
 	public void sort(int index, int len, Comparator comparator) {
-		if (comparator != null && comparator != NaturalComparator.INSTANCE) {
+		if (comparator != null && comparator != NaturalComparator.INSTANCE()) {
 			throw new IllegalArgumentException("Only natural comparator (null) allowed");
 		}
 		list.sort(index, len);
@@ -409,7 +409,7 @@ public class LongObjGapList extends GapList<Long> {
 
 	@Override
 	public <K> int binarySearch(int index, int len, K key, Comparator<? super K> comparator) {
-		if (comparator != null && comparator != NaturalComparator.INSTANCE) {
+		if (comparator != null && comparator != NaturalComparator.INSTANCE()) {
 			throw new IllegalArgumentException("Only natural comparator (null) allowed");
 		}
 		return list.binarySearch(index, len, (Long) key);
