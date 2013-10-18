@@ -163,12 +163,17 @@ public class Key2Collection<E,K1,K2> extends KeyCollectionImpl<E> {
 
         // -- Key1
 
-        //@Override
+        /**
+         * Add key map.
+         *
+         * @param mapper	mapper to use
+         * @return			this (fluent interface)
+         */
         public Builder<E,K1,K2> withKey1(Mapper<E,K1> mapper) {
-        	return (Builder<E,K1,K2>) super.withKey1(mapper);
+        	return (Builder<E,K1,K2>) super.withKey(1, mapper);
         }
 
-        // @Override
+        @Override
         public Builder<E,K1,K2> withKey1OrderBy(boolean orderBy) {
         	return (Builder<E,K1,K2>) super.withKey1OrderBy(orderBy);
         }
@@ -215,12 +220,17 @@ public class Key2Collection<E,K1,K2> extends KeyCollectionImpl<E> {
 
         // -- Key2
 
-        // @Override
+        /**
+         * Add key map.
+         *
+         * @param mapper	mapper to use
+         * @return			this (fluent interface)
+         */
         public Builder<E,K1,K2> withKey2(Mapper<E,K2> mapper) {
-        	return (Builder<E,K1,K2>) super.withKey2(mapper);
+        	return (Builder<E,K1,K2>) super.withKey(2, mapper);
         }
 
-        // @Override
+        @Override
         public Builder<E,K1,K2> withKey2OrderBy(boolean orderBy) {
         	return (Builder<E,K1,K2>) super.withKey2OrderBy(orderBy);
         }

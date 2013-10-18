@@ -169,14 +169,19 @@ public class Key1List<E,K> extends KeyListImpl<E> {
         	return (Builder<E,K>) super.withUniqueElem();
         }
 
-        // -- Key
+        // -- Key1
 
-        // @Override
+        /**
+         * Add key map.
+         *
+         * @param mapper	mapper to use
+         * @return			this (fluent interface)
+         */
         public Builder<E,K> withKey1(Mapper<E,K> mapper) {
-        	return (Builder<E,K>) super.withKey1(mapper);
+        	return (Builder<E,K>) super.withKey(1, mapper);
         }
 
-        // @Override
+        @Override
         public Builder<E,K> withKey1OrderBy(boolean orderBy) {
         	return (Builder<E,K>) super.withKey1OrderBy(orderBy);
         }

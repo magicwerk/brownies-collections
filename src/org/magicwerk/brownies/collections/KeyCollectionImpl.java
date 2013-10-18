@@ -455,17 +455,6 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
         }
 
         // -- Key1
-        // -- The methods for Key and Key1 are exactly the same, except the naming
-
-        /**
-         * Add key map.
-         *
-         * @param mapper	mapper to use
-         * @return			this (fluent interface)
-         */
-        protected BuilderImpl<E> withKey1(Mapper<E,?> mapper) {
-            return withKey(1, mapper);
-        }
 
         /**
          * Add key map.
@@ -523,6 +512,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
         /**
          * Determines that list should be sorted.
          *
+         * @param sort	  ture to sort list
          * @return        this (fluent interface)
          */
         protected BuilderImpl<E> withKey1Sort(boolean sort) {
@@ -550,25 +540,29 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
             return withKeySort(1, comparator, sortNullsFirst);
         }
 
+        /**
+         * Specify this key to be a primary key.
+         * This is identical to calling
+         * withKey1Null(false) and withKey1Duplicates(false).
+         *
+         * @return	this (fluent interface)
+         */
         protected BuilderImpl<E> withPrimaryKey1() {
         	return withPrimaryKey(1);
         }
 
+        /**
+         * Specify this key to be a unique key.
+         * This is identical to calling
+         * withKey1Null(true) and withKey1Duplicates(false, true).
+         *
+         * @return	this (fluent interface)
+         */
         protected BuilderImpl<E> withUniqueKey1() {
             return withUniqueKey(1);
         }
 
         // -- Key2
-
-        /**
-         * Add key map.
-         *
-         * @param mapper	mapper to use
-         * @return			this (fluent interface)
-         */
-        protected BuilderImpl<E> withKey2(Mapper mapper) {
-            return withKey(2, mapper);
-        }
 
         /**
          * Add key map.
@@ -653,10 +647,24 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
         	return withKeySort(2, comparator, sortNullsFirst);
         }
 
+        /**
+         * Specify this key to be a primary key.
+         * This is identical to calling
+         * withKey2Null(false) and withKey2Duplicates(false).
+         *
+         * @return	this (fluent interface)
+         */
         protected BuilderImpl<E> withPrimaryKey2() {
         	return withPrimaryKey(2);
         }
 
+        /**
+         * Specify this key to be a unique key.
+         * This is identical to calling
+         * withKey1Null(true) and withKey1Duplicates(false, true).
+         *
+         * @return	this (fluent interface)
+         */
         protected BuilderImpl<E> withUniqueKey2() {
             return withUniqueKey(2);
         }
