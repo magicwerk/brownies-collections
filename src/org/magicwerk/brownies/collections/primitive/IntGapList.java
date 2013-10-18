@@ -58,11 +58,6 @@ import java.util.ListIterator;
  */
 public class IntGapList implements Cloneable, Serializable {
 
-	// Guide to subclass IntGapList
-	// You need to overwrite the following methods:
-	// - size(): return size
-	// - get(int): check index, return element
-	// - doGet,
 
     /*
      * Helper variables to enable code for debugging.
@@ -77,11 +72,8 @@ public class IntGapList implements Cloneable, Serializable {
     /** If true the internal state of the IntGapList is traced out for debugging */
     private static final boolean DEBUG_DUMP = false;
 
-    // Alternative declarations for debugging:
-    //static boolean DEBUG_CHECK = true;
-    //static boolean DEBUG_TRACE = true;
-    //static boolean DEBUG_DUMP = true;
 
+    // -- EMPTY --
 
     // Cannot make a static reference to the non-static type int:
     // public static IntGapList EMPTY = IntGapList.create().unmodifiableList();
