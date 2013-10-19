@@ -1964,7 +1964,12 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
             // sorted
             int index = SortedLists.binarySearchGet(keyMap.keysList, key, keyMap.comparator);
             if (index >= 0) {
-                return (E) keyMap.keysList.doGet(index);
+            	if (triggerHandler.forward == null) {
+            		return (E) triggerHandler.doGet(index);
+            	} else {
+            		assert(triggerHandler.forward == keyMap.keysList);
+            		return (E) keyMap.keysList.doGet(index);
+            	}
             } else {
                 return null;
             }
