@@ -17,12 +17,14 @@
 		<delete file="${build.dir}/brownies-collections-with-all.jar" />
 		<delete file="${build.dir}/brownies-collections-with-deps.jar" />
 
+		<!--
         <if>
             <isset property="release.dir" />
             <then>
             	<antcall target="post-build-0.9.x" />
             </then>
       	</if>
+      	-->
 	</target>
 
 	<target name="post-build-0.9.x">
