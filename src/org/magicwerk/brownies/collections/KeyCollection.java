@@ -90,13 +90,13 @@ public class KeyCollection<E> extends KeyCollectionImpl<E> {
         }
 
         @Override
-        public Builder<E> withElements(Collection<? extends E> elements) {
-        	return (Builder<E>) super.withElements(elements);
+        public Builder<E> withContent(Collection<? extends E> elements) {
+        	return (Builder<E>) super.withContent(elements);
         }
 
         @Override
-        public Builder<E> withElements(E... elements) {
-        	return (Builder<E>) super.withElements(elements);
+        public Builder<E> withContent(E... elements) {
+        	return (Builder<E>) super.withContent(elements);
         }
 
         @Override
@@ -112,8 +112,8 @@ public class KeyCollection<E> extends KeyCollectionImpl<E> {
         }
 
         @Override
-        public Builder<E> withElem() {
-        	return (Builder<E>) super.withElem();
+        public Builder<E> withElemSet() {
+        	return (Builder<E>) super.withElemSet();
         }
 
         @Override
@@ -232,6 +232,11 @@ public class KeyCollection<E> extends KeyCollectionImpl<E> {
 	@Override
 	public E put(E elem) {
 		return super.put(elem);
+	}
+
+	@Override
+	public void invalidate(E elem) {
+		super.invalidate(elem);
 	}
 
 }

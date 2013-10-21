@@ -1138,14 +1138,9 @@ public class GapList<E> extends AbstractList<E>
 	public void trimToSize() {
         doModify();
 
-    	if (size == values.length) {
-            return;
+    	if (size < values.length) {
+    		init(toArray(), size);
     	}
-		values = (E[]) toArray();
-		start = 0;
-		gapStart = 0;
-		gapSize = 0;
-		end = size;
     }
 
     @Override

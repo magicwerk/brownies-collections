@@ -96,13 +96,13 @@ public class Key2Collection<E,K1,K2> extends KeyCollectionImpl<E> {
         }
 
         @Override
-        public Builder<E,K1,K2> withElements(Collection<? extends E> elements) {
-        	return (Builder<E,K1,K2>) super.withElements(elements);
+        public Builder<E,K1,K2> withContent(Collection<? extends E> elements) {
+        	return (Builder<E,K1,K2>) super.withContent(elements);
         }
 
         @Override
-        public Builder<E,K1,K2> withElements(E... elements) {
-        	return (Builder<E,K1,K2>) super.withElements(elements);
+        public Builder<E,K1,K2> withContent(E... elements) {
+        	return (Builder<E,K1,K2>) super.withContent(elements);
         }
 
         @Override
@@ -113,8 +113,8 @@ public class Key2Collection<E,K1,K2> extends KeyCollectionImpl<E> {
         //-- Element key
 
         @Override
-        public Builder<E,K1,K2> withElem() {
-        	return (Builder<E,K1,K2>) super.withElem();
+        public Builder<E,K1,K2> withElemSet() {
+        	return (Builder<E,K1,K2>) super.withElemSet();
         }
 
         @Override
@@ -170,8 +170,8 @@ public class Key2Collection<E,K1,K2> extends KeyCollectionImpl<E> {
          * @param mapper	mapper to use
          * @return			this (fluent interface)
          */
-        public Builder<E,K1,K2> withKey1(Mapper<E,K1> mapper) {
-        	return (Builder<E,K1,K2>) super.withKey(1, mapper);
+        public Builder<E,K1,K2> withKey1Map(Mapper<E,K1> mapper) {
+        	return (Builder<E,K1,K2>) super.withKeyMap(1, mapper);
         }
 
         @Override
@@ -238,8 +238,8 @@ public class Key2Collection<E,K1,K2> extends KeyCollectionImpl<E> {
          * @param mapper	mapper to use
          * @return			this (fluent interface)
          */
-        public Builder<E,K1,K2> withKey2(Mapper<E,K2> mapper) {
-        	return (Builder<E,K1,K2>) super.withKey(2, mapper);
+        public Builder<E,K1,K2> withKey2Map(Mapper<E,K2> mapper) {
+        	return (Builder<E,K1,K2>) super.withKeyMap(2, mapper);
         }
 
         @Override
@@ -370,6 +370,11 @@ public class Key2Collection<E,K1,K2> extends KeyCollectionImpl<E> {
 		return super.put(elem);
 	}
 
+	@Override
+	public void invalidate(E elem) {
+		super.invalidate(elem);
+	}
+
     //-- Key1 methods
 
     /**
@@ -408,7 +413,6 @@ public class Key2Collection<E,K1,K2> extends KeyCollectionImpl<E> {
 
 	/**
 	 * Returns all elements with specified key.
-	 * The returned list is immutable.
 	 *
 	 * @param key	key
 	 * @return		all elements with specified key (never null)
@@ -450,7 +454,6 @@ public class Key2Collection<E,K1,K2> extends KeyCollectionImpl<E> {
 
 	/**
 	 * Returns all distinct keys in the same order as in the key map.
-	 * The returned set is immutable.
 	 *
 	 * @return		distinct keys
 	 */
@@ -472,6 +475,18 @@ public class Key2Collection<E,K1,K2> extends KeyCollectionImpl<E> {
     public E putByKey1(E elem) {
 		return super.putByKey(1, elem);
 	}
+
+    /**
+     * Invalidate key value of element.
+     * You must call an invalidate method if an element's key value has changed after adding it to the collection.
+     *
+     * @param oldKey	old key value
+     * @param newKey	new key value
+     * @param elem		element to invalidate (can be null if there are no duplicates with this key)
+     */
+    public void invalidateKey1(K1 oldKey, K1 newKey, E elem) {
+    	super.invalidateKey(1, oldKey, newKey, elem);
+    }
 
     //-- Key2 methods
 
@@ -511,7 +526,6 @@ public class Key2Collection<E,K1,K2> extends KeyCollectionImpl<E> {
 
 	/**
 	 * Returns all elements with specified key.
-	 * The returned list is immutable.
 	 *
 	 * @param key	key
 	 * @return		all elements with specified key (never null)
@@ -553,7 +567,6 @@ public class Key2Collection<E,K1,K2> extends KeyCollectionImpl<E> {
 
 	/**
 	 * Returns all distinct keys in the same order as in the key map.
-	 * The returned set is immutable.
 	 *
 	 * @return		distinct keys
 	 */
@@ -575,5 +588,17 @@ public class Key2Collection<E,K1,K2> extends KeyCollectionImpl<E> {
     public E putByKey2(E elem) {
 		return super.putByKey(2, elem);
 	}
+
+    /**
+     * Invalidate key value of element.
+     * You must call an invalidate method if an element's key value has changed after adding it to the collection.
+     *
+     * @param oldKey	old key value
+     * @param newKey	new key value
+     * @param elem		element to invalidate (can be null if there are no duplicates with this key)
+     */
+    public void invalidateKey2(K2 oldKey, K2 newKey, E elem) {
+    	super.invalidateKey(2, oldKey, newKey, elem);
+    }
 
 }

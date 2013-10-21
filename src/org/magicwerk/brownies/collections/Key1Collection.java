@@ -95,13 +95,13 @@ public class Key1Collection<E,K> extends KeyCollectionImpl<E> {
         }
 
         @Override
-        public Builder<E,K> withElements(Collection<? extends E> elements) {
-        	return (Builder<E,K>) super.withElements(elements);
+        public Builder<E,K> withContent(Collection<? extends E> elements) {
+        	return (Builder<E,K>) super.withContent(elements);
         }
 
         @Override
-        public Builder<E,K> withElements(E... elements) {
-        	return (Builder<E,K>) super.withElements(elements);
+        public Builder<E,K> withContent(E... elements) {
+        	return (Builder<E,K>) super.withContent(elements);
         }
 
         @Override
@@ -112,8 +112,8 @@ public class Key1Collection<E,K> extends KeyCollectionImpl<E> {
         //-- Element key
 
         @Override
-        public Builder<E,K> withElem() {
-        	return (Builder<E,K>) super.withElem();
+        public Builder<E,K> withElemSet() {
+        	return (Builder<E,K>) super.withElemSet();
         }
 
         @Override
@@ -169,8 +169,8 @@ public class Key1Collection<E,K> extends KeyCollectionImpl<E> {
          * @param mapper	mapper to use
          * @return			this (fluent interface)
          */
-        public Builder<E,K> withKey1(Mapper<E,K> mapper) {
-            return (Builder<E,K>) withKey(1, mapper);
+        public Builder<E,K> withKey1Map(Mapper<E,K> mapper) {
+            return (Builder<E,K>) withKeyMap(1, mapper);
         }
 
         @Override
@@ -302,6 +302,11 @@ public class Key1Collection<E,K> extends KeyCollectionImpl<E> {
 		return super.put(elem);
 	}
 
+	@Override
+	public void invalidate(E elem) {
+		super.invalidate(elem);
+	}
+
     //-- Key methods
 
     /**
@@ -340,7 +345,6 @@ public class Key1Collection<E,K> extends KeyCollectionImpl<E> {
 
 	/**
 	 * Returns all elements with specified key.
-	 * The returned list is immutable.
 	 *
 	 * @param key	key
 	 * @return		all elements with specified key (never null)
@@ -382,7 +386,6 @@ public class Key1Collection<E,K> extends KeyCollectionImpl<E> {
 
 	/**
 	 * Returns all distinct keys in the same order as in the key map.
-	 * The returned set is immutable.
 	 *
 	 * @return		distinct keys
 	 */
@@ -403,5 +406,17 @@ public class Key1Collection<E,K> extends KeyCollectionImpl<E> {
     public E puByKey1(E elem) {
 		return super.putByKey(1, elem);
 	}
+
+    /**
+     * Invalidate key value of element.
+     * You must call an invalidate method if an element's key value has changed after adding it to the collection.
+     *
+     * @param oldKey	old key value
+     * @param newKey	new key value
+     * @param elem		element to invalidate (can be null if there are no duplicates with this key)
+     */
+    public void invalidateKey1(K oldKey, K newKey, E elem) {
+    	super.invalidateKey(1, oldKey, newKey, elem);
+    }
 
 }

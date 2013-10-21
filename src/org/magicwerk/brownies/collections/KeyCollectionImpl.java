@@ -23,10 +23,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -178,7 +180,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
          * @param elements	initial elements
          * @return			this (fluent interface)
          */
-        protected BuilderImpl<E> withElements(Collection<? extends E> elements) {
+        protected BuilderImpl<E> withContent(Collection<? extends E> elements) {
             this.collection = elements;
             return this;
         }
@@ -189,7 +191,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
          * @param elements	initial elements
          * @return			this (fluent interface)
          */
-        protected BuilderImpl<E> withElements(E... elements) {
+        protected BuilderImpl<E> withContent(E... elements) {
             this.array = elements;
             return this;
         }
@@ -240,8 +242,8 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
          *
          * @return			this (fluent interface)
          */
-        protected BuilderImpl<E> withElem() {
-            return withKey(0, IdentMapper.INSTANCE);
+        protected BuilderImpl<E> withElemSet() {
+            return withKeyMap(0, IdentMapper.INSTANCE);
         }
 
         /**
@@ -350,7 +352,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
 
         //
 
-        protected BuilderImpl<E> withKey(int keyIndex, Mapper mapper) {
+        protected BuilderImpl<E> withKeyMap(int keyIndex, Mapper mapper) {
         	if (mapper == null) {
         		throw new IllegalArgumentException("Mapper may not be null");
         	}
@@ -718,7 +720,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
             int size = keyMapBuilders.size();
             if (size == 0) {
             	if (!list) {
-            		withElem();
+            		withElemSet();
             		size++;
             	}
             }
@@ -777,7 +779,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
 
         void init(KeyCollectionImpl keyColl, KeyListImpl keyList) {
         	keyList.keyColl = keyColl;
-        	keyColl.triggerHandler = keyList;
+        	keyColl.keyList = keyList;
         	if (keyColl.orderByKey == 0) {
         		keyList.forward = (GapList<E>) keyColl.keyMaps[0].keysList;
                 if (collection != null) {
@@ -1163,7 +1165,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
 	     * @param value			value of object to remove
 	     * @return				removed object
 	     */
-	    Option<E> remove(Object key, boolean matchValue, Object value) {
+	    Option<E> remove(Object key, boolean matchValue, Object value, KeyCollectionImpl keyColl) {
 	    	// If list cannot contain null, handle null explicitly to prevent NPE
 	    	if (key == null) {
 	    		if (!allowNull) {
@@ -1207,14 +1209,13 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
 			        return new Option(elem);
 	        	}
 	    	} else {
-	    		assert(mapper == IdentMapper.INSTANCE);
-	    		assert(key == value);
 	    		int index = keysList.binarySearch(key, (Comparator<Object>) comparator);
 	    		E elem = null;
 	    		if (index < 0) {
 	    			return Option.EMPTY();
 	    		}
-    			elem = (E) keysList.remove(index);
+	    		elem = (E) keyColl.keyList.doGet(index);
+    			keysList.remove(index);
 	    		return new Option(elem);
 	    	}
 	    }
@@ -1239,7 +1240,14 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
 
 		Set<K> getDistinctKeys() {
 	        if (keysMap != null) {
-	            return Collections.unmodifiableSet(keysMap.keySet());
+	        	Set<K> set = keysMap.keySet();
+	        	if (comparator != null) {
+	        		TreeSet treeSet = new TreeSet(comparator);
+	        		treeSet.addAll(set);
+	        		return treeSet;
+	        	} else {
+	        		return new HashSet(set);
+	        	}
 	        } else {
 	            K lastKey = null;
 	            TreeSet<K> set = new TreeSet<K>(comparator);
@@ -1260,7 +1268,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
 	                    lastKey = key;
 	                }
 	            }
-	            return Collections.unmodifiableSet(set);
+	            return set;
 	        }
 		}
     }
@@ -1306,7 +1314,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
     // -- handlers
     Trigger<E> insertTrigger;
     Trigger<E> deleteTrigger;
-    KeyListImpl triggerHandler;
+    KeyListImpl keyList;
 
     /**
      * Private constructor.
@@ -1362,7 +1370,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
      * Private method to check invariant of GapList.
      * It is only used for debugging.
      */
-    private void debugCheck() {
+    void debugCheck() {
     	if (keyMaps != null) {
     		for (KeyMap<E,?> keyMap: keyMaps) {
     			if (keyMap != null) {
@@ -1390,6 +1398,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
     		}
     		assert(count == size());
     	} else if (keyMap.keysList != null) {
+    		assert(keyMap.keysList.size() == size());
     		GapList<?> copy = keyMap.keysList.copy();
     		copy.sort(keyMap.comparator);
     		assert(copy.equals(keyMap.keysList));
@@ -1585,8 +1594,8 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
      * @param elem	element to insert
      */
     protected void beforeInsert(E elem) {
-        if (triggerHandler != null) {
-            triggerHandler.beforeInsert(elem);
+        if (keyList != null) {
+            keyList.beforeInsert(elem);
         } else if (insertTrigger != null) {
    			insertTrigger.handle(elem);
     	}
@@ -1601,8 +1610,8 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
      * @param elem	element to insert
      */
     protected void beforeDelete(E elem) {
-        if (triggerHandler != null) {
-            triggerHandler.beforeDelete(elem);
+        if (keyList != null) {
+            keyList.beforeDelete(elem);
         } else if (deleteTrigger != null) {
    			deleteTrigger.handle(elem);
     	}
@@ -1771,7 +1780,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
 	        for (int i=0; i<keyMaps.length; i++) {
 	        	if (keyMaps[i] != null && keyMaps[i] != ignore) {
 		       		Object key = keyMaps[i].getKey((E) elem);
-		       		Option<E> obj = keyMaps[i].remove(key, true, elem);
+		       		Option<E> obj = keyMaps[i].remove(key, true, elem, this);
 		       		if (first) {
 		       			if (!obj.hasValue()) {
 		       				return false;
@@ -1890,7 +1899,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
     		for (i--; i>=0; i--) {
     			if (keyMaps[i] != null) {
     				Object key = keyMaps[i].getKey(elem);
-    				keyMaps[i].remove(key, true, elem);
+    				keyMaps[i].remove(key, true, elem, this);
     			}
     		}
     		if (error != null) {
@@ -1964,10 +1973,10 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
             // sorted
             int index = SortedLists.binarySearchGet(keyMap.keysList, key, keyMap.comparator);
             if (index >= 0) {
-            	if (triggerHandler.forward == null) {
-            		return (E) triggerHandler.doGet(index);
+            	if (keyList.forward == null) {
+            		return (E) keyList.doGet(index);
             	} else {
-            		assert(triggerHandler.forward == keyMap.keysList);
+            		assert(keyList.forward == keyMap.keysList);
             		return (E) keyMap.keysList.doGet(index);
             	}
             } else {
@@ -1998,10 +2007,10 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
             // not sorted
             Object obj = keyMap.keysMap.get(key);
             if (obj == null) {
-                return GapList.EMPTY();
+                return GapList.create();
             } else if (obj instanceof KeyMapList) {
                 GapList<E> list = (GapList<E>) obj;
-                return list.unmodifiableList();
+                return list.copy();
             } else {
                 return (GapList<E>) GapList.create(keyMap.keysMap.get(key));
             }
@@ -2021,9 +2030,9 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
                         break;
                     }
                 }
-                return list.unmodifiableList();
+                return list;
             } else {
-                return GapList.EMPTY();
+                return GapList.create();
             }
         }
     }
@@ -2088,18 +2097,63 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
         }
     }
 
-    public void invalidate(E elem) {
-        for (int i=0; i<keyMaps.length; i++) {
-    		Object key = invalidate(keyMaps[i], elem);
+    /**
+     * Invalidate element, i.e. all keys of the element are extracted
+     * again and stored in the key maps. Old key values are removed
+     * if needed.
+     * You must call an invalidate method if an element's key value has changed after adding it to the collection.
+     *
+     * @param elem element to invalidate
+     */
+    protected void invalidate(E elem) {
+    	if (keyMaps != null) {
+    		for (int i=0; i<keyMaps.length; i++) {
+    			if (keyMaps[i] != null) {
+    				Option<Object> key = invalidate(keyMaps[i], elem);
+    				if (key.hasValue()) {
+    					keyMaps[i].add(key.getValue(), elem);
+    				}
+    			}
+    		}
         }
+        if (DEBUG_CHECK) debugCheck();
     }
 
     /**
-     * @param keyMap
-     * @param elem
+     * Invalidate key value of element.
+     * You must call an invalidate method if an element's key value has changed after adding it to the collection.
+     *
+     * @param keyIndex	key index
+     * @param oldKey	old key value
+     * @param newKey	new key value
+     * @param elem		element to invalidate (can be null if there are no duplicates with this key)
+     */
+    protected void invalidateKey(int keyIndex, Object oldKey, Object newKey, E elem) {
+    	doInvalidateKey(keyIndex, oldKey, newKey, elem);
+    }
+
+    E doInvalidateKey(int keyIndex, Object oldKey, Object newKey, E elem) {
+    	KeyMap keyMap = getKeyMap(keyIndex);
+    	Option<Object> removed;
+    	if (elem == null) {
+    		removed = keyMap.remove(oldKey, false, null, this);
+    	} else {
+    		removed = keyMap.remove(oldKey, true, elem, this);
+    	}
+    	if (!removed.hasValue()) {
+    		errorInvalidData();
+    	}
+    	keyMap.add(newKey, removed.getValue());
+        if (DEBUG_CHECK) debugCheck();
+    	return (E) removed.getValue();
+    }
+
+    /**
+     * @param keyMap	key map
+     * @param elem		elem to invalidate
      * @return			null if key for keyMap and element is correct, else key which must be added to keymap
      */
-    private Object invalidate(KeyMap keyMap, Object elem) {
+    private Option<Object> invalidate(KeyMap keyMap, Object elem) {
     	boolean allowDuplicates = keyMap.allowDuplicates;
     	Object key = keyMap.getKey(elem);
 
@@ -2109,7 +2163,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
     		    Map.Entry entry = iter.next();
     		    if (GapList.equalsElem(elem, entry.getValue())) {
     		    	if (GapList.equalsElem(key, entry.getKey())) {
-    		    		return null;
+    		    		return Option.EMPTY();
     		    	}
     		        iter.remove();
     		        if (!allowDuplicates) {
@@ -2120,9 +2174,9 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
     	} else {
     		assert(keyMap.keysList != null);
     		for (int i=0; i<keyMap.keysList.size(); i++) {
-    			if (GapList.equalsElem(elem, keyMap.keysList.doGet(i))) {
+    			if (GapList.equalsElem(elem, keyList.doGet(i))) {
     				if (GapList.equalsElem(key, keyMap.keysList.get(i))) {
-    					return null;
+    					return Option.EMPTY();
     				}
     				keyMap.keysList.remove(i);
     		        if (!allowDuplicates) {
@@ -2131,7 +2185,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
     			}
     		}
     	}
-    	return key;
+    	return new Option(key);
     }
 
     /**
@@ -2144,14 +2198,14 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
      */
     protected Option<E> doRemoveByKey(int keyIndex, Object key) {
     	checkKeyMap(keyIndex);
-    	Option<E> removed = keyMaps[keyIndex].remove(key, false, null);
+    	Option<E> removed = keyMaps[keyIndex].remove(key, false, null, this);
     	if (removed.hasValue()) {
     		for (int i=0; i<keyMaps.length; i++) {
     			if (i != keyIndex) {
         			if (keyMaps[i] != null) {
         				E value = removed.getValue();
         				Object k = keyMaps[i].getKey(value);
-        				keyMaps[i].remove(k, true, value);
+        				keyMaps[i].remove(k, true, value, this);
         			}
     			}
     		}
@@ -2318,7 +2372,6 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
 
 	/**
 	 * Returns all equal elements.
-	 * The returned list is immutable.
 	 *
 	 * @param elem	element
 	 * @return		all equal elements (never null)
@@ -2349,7 +2402,6 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
 
 	/**
 	 * Returns all distinct elements in the same order as in the collection.
-	 * The returned set is immutable.
 	 *
 	 * @return		distinct elements
 	 */
@@ -2358,9 +2410,9 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
 	}
 
 	/**
-	 * Adds or replaces element with specified key.
-	 * If there is no element with specified key, the element is added.
-	 * If there is an element with specified key and no duplicates
+	 * Adds or replaces element.
+	 * If there is no such element, the element is added.
+	 * If there is such an element and no duplicates
 	 * are allowed, the existing element is replaced.
 	 * If duplicates are allowed, the element is added.
 	 *
