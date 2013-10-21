@@ -92,6 +92,7 @@ public class KeyListImpl<E> extends GapList<E> {
      * It is only used for debugging.
      */
     private void debugCheck() {
+    	keyColl.debugCheck();
     	if (forward != null) {
     		assert(super.size() == 0);
     	} else {
@@ -557,6 +558,7 @@ public class KeyListImpl<E> extends GapList<E> {
     	} else {
     		replaced = doSet(index, elem);
     	}
+        if (DEBUG_CHECK) debugCheck();
     	return replaced;
     }
 
@@ -656,9 +658,9 @@ public class KeyListImpl<E> extends GapList<E> {
 	}
 
 	/**
-	 * Adds or replaces element with specified key.
-	 * If there is no element with specified key, the element is added.
-	 * If there is an element with specified key and no duplicates
+	 * Adds or replaces element.
+	 * If there is no such element, the element is added.
+	 * If there is such an element key and no duplicates
 	 * are allowed, the existing element is replaced.
 	 * If duplicates are allowed, the element is added.
 	 *
@@ -668,6 +670,49 @@ public class KeyListImpl<E> extends GapList<E> {
 	protected E put(E elem) {
 		return putByKey(0, elem);
 	}
+
+    /**
+     * Invalidate element, i.e. all keys of the element are extracted
+     * again and stored in the key maps. Old key values are removed
+     * if needed.
+     * You must call an invalidate method if an element's key value has changed after adding it to the collection.
+     *
+     * @param elem element to invalidate
+     */
+    protected void invalidate(E elem) {
+    	keyColl.invalidate(elem);
+    	if (keyColl.isSortedList() && forward == null) {
+    		int oldIndex = super.indexOf(elem);
+    		int newIndex = keyColl.indexOfSorted(elem);
+    		if (oldIndex != newIndex) {
+    			super.doRemove(oldIndex);
+    			if (oldIndex < newIndex) {
+    				newIndex--;
+    			}
+    			super.doAdd(newIndex, elem);
+    		}
+    	}
+        if (DEBUG_CHECK) debugCheck();
+   }
+
+    /**
+     * Invalidate key value of element.
+     * You must call an invalidate method if an element's key value has changed after adding it to the collection.
+     *
+     * @param keyIndex	key index
+     * @param oldKey	old key value
+     * @param newKey	new key value
+     * @param elem		element to invalidate (can be null if there are no duplicates with this key)
+     */
+    protected void invalidateKey(int keyIndex, Object oldKey, Object newKey, E elem) {
+    	elem = keyColl.doInvalidateKey(keyIndex, oldKey, newKey, elem);
+    	if (keyColl.orderByKey == keyIndex && forward == null) {
+    		super.doRemove(super.indexOf(elem));
+    		int index = keyColl.indexOfSorted(elem);
+    		super.doAdd(index, elem);
+    	}
+        if (DEBUG_CHECK) debugCheck();
+    }
 
     //-- Key methods
 	// The key methods can not be defined here.

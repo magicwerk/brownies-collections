@@ -90,13 +90,13 @@ public class KeyList<E> extends KeyListImpl<E> {
         }
 
         @Override
-        public Builder<E> withElements(Collection<? extends E> elements) {
-        	return (Builder<E>) super.withElements(elements);
+        public Builder<E> withContent(Collection<? extends E> elements) {
+        	return (Builder<E>) super.withContent(elements);
         }
 
         @Override
-        public Builder<E> withElements(E... elements) {
-        	return (Builder<E>) super.withElements(elements);
+        public Builder<E> withContent(E... elements) {
+        	return (Builder<E>) super.withContent(elements);
         }
 
         @Override
@@ -112,8 +112,8 @@ public class KeyList<E> extends KeyListImpl<E> {
         //-- Element key
 
         @Override
-        public Builder<E> withElem() {
-        	return (Builder<E>) super.withElem();
+        public Builder<E> withElemSet() {
+        	return (Builder<E>) super.withElemSet();
         }
 
         @Override
