@@ -224,6 +224,7 @@
 	</target>
 
 	<target name="build-simple-type-base">
+
 		<replaceregexp file="${dst.file}" flags="s"
 		               match="^"
 		               replace="// ---${NL}// --- DO NOT EDIT${NL}// --- AUTOMATICALLY GENERATED FILE${NL}// ---${NL}" />
@@ -402,6 +403,29 @@
         <replaceregexp file="${dst.file}" flags="g"
                        match="Arrays\.binarySearch"
                        replace="ArraysHelper.binarySearch" />
+
+		<!-- Fix comment -->
+<property name="comment">
+/**
+ * ${name}GapList is a variation of GapList which uses primitive
+ * values for storage. This allows to save memory and improve execution
+ * speed. Use ${name}ObjGapList to combine these features with the
+ * ability to access it using the standard List interface.
+ * &lt;p&gt;
+ * &lt;strong&gt;Note that this implementation is not synchronized.&lt;/strong&gt;
+ * &lt;/p>
+ *
+ * @author Thomas Mauch
+ * @version $Id$
+ *
+ * @see	    org.magicwerk.brownies.collections.GapList
+ * @see	    org.magicwerk.brownies.collections.primitive.${name}ObjGapList
+ */
+</property>
+		<replaceregexp file="${dst.file}" flags="s"
+		               match="\/\*\*.+?\*\/"
+		               replace="${comment}" />
+
 	</target>
 
     <!-- Special handling of double  -->

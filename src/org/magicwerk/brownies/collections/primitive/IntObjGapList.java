@@ -29,6 +29,21 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
 
+/**
+ * IntObjGapList implements the List interface and uses an instance
+ * of IntGapList for storage. It therefore allows to use the advantages
+ * of primitive collections like saved memory and improved execution
+ * speed when standard list collections are expected.
+ * <p>
+ * <strong>Note that this implementation is not synchronized.</strong>
+ * </p>
+ *
+ * @author Thomas Mauch
+ * @version $Id$
+ *
+ * @see	    org.magicwerk.brownies.collections.GapList
+ * @see	    org.magicwerk.brownies.collections.primitive.IntGapList
+ */
 public class IntObjGapList extends GapList<Integer> {
 
 	IntGapList list;
