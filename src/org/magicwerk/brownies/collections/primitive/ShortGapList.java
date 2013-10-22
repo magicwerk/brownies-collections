@@ -38,13 +38,12 @@ import java.util.ListIterator;
 
 
 
+
 /**
- * ShortGapList combines the strengths of both ArrayList and LinkedList.
- * It is implemented to offer both efficient random access to elements
- * by index (as ArrayList does) and at the same time efficient adding
- * and removing elements to and from beginning and end (as LinkedList does).
- * It also exploits the locality of reference often seen in applications
- * to further improve performance, e.g. for iterating over the list.
+ * ShortGapList is a variation of GapList which uses primitive
+ * values for storage. This allows to save memory and improve execution
+ * speed. Use ShortObjGapList to combine these features with the
+ * ability to access it using the standard List interface.
  * <p>
  * <strong>Note that this implementation is not synchronized.</strong>
  * </p>
@@ -52,10 +51,10 @@ import java.util.ListIterator;
  * @author Thomas Mauch
  * @version $Id$
  *
- * @see	    java.util.List
- * @see	    java.util.ArrayList
- * @see	    java.util.LinkedList
+ * @see	    org.magicwerk.brownies.collections.GapList
+ * @see	    org.magicwerk.brownies.collections.primitive.ShortObjGapList
  */
+
 public class ShortGapList implements Cloneable, Serializable {
 
 
@@ -1136,14 +1135,9 @@ public class ShortGapList implements Cloneable, Serializable {
 	public void trimToSize() {
         doModify();
 
-    	if (size == values.length) {
-            return;
+    	if (size < values.length) {
+    		init(toArray(), size);
     	}
-		values = (short[]) toArray();
-		start = 0;
-		gapStart = 0;
-		gapSize = 0;
-		end = size;
     }
 
     
