@@ -1595,11 +1595,17 @@ public class GapList<E> extends AbstractList<E>
 
     @Override
     public E removeFirst() {
+        if (size() == 0) {
+            throw new NoSuchElementException();
+        }
     	return doRemove(0);
     }
 
     @Override
     public E removeLast() {
+        if (size() == 0) {
+            throw new NoSuchElementException();
+        }
     	return doRemove(size()-1);
     }
 
