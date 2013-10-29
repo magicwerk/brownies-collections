@@ -1571,43 +1571,10 @@ public class GapList<E> extends AbstractList<E>
 		return new ListIter(index);
 	}
 
-	// List operations
-
-    @Override
-    public E getFirst() {
-    	return doGet(0);
-    }
-
-    @Override
-    public E getLast() {
-    	return doGet(size()-1);
-    }
-
-    @Override
-    public void addFirst(E elem) {
-    	add(0, elem);
-    }
-
-    @Override
-    public void addLast(E elem) {
-    	add(elem);
-    }
-
-    @Override
-    public E removeFirst() {
-        if (size() == 0) {
-            throw new NoSuchElementException();
-        }
-    	return doRemove(0);
-    }
-
-    @Override
-    public E removeLast() {
-        if (size() == 0) {
-            throw new NoSuchElementException();
-        }
-    	return doRemove(size()-1);
-    }
+	@Override
+	public Iterator<E> descendingIterator() {
+		return new Iter(false);
+	}
 
     // Queue operations
 
@@ -1621,7 +1588,11 @@ public class GapList<E> extends AbstractList<E>
 
     @Override
     public E element() {
-        return getFirst();
+    	// inline version of getFirst():
+        if (size() == 0) {
+            throw new NoSuchElementException();
+        }
+    	return doGet(0);
     }
 
     @Override
@@ -1629,35 +1600,82 @@ public class GapList<E> extends AbstractList<E>
         if (size() == 0) {
             return null;
         }
-        return removeFirst();
+    	return doRemove(0);
     }
 
 	@Override
     public E remove() {
-        return removeFirst();
+		// inline version of removeFirst():
+        if (size() == 0) {
+            throw new NoSuchElementException();
+        }
+    	return doRemove(0);
     }
 
 	@Override
     public boolean offer(E elem) {
-        return add(elem);
+    	// inline version of add(elem):
+    	return doAdd(-1, elem);
     }
 
     // Deque operations
 
-	@Override
-	public Iterator<E> descendingIterator() {
-		return new Iter(false);
-	}
+    @Override
+    public E getFirst() {
+        if (size() == 0) {
+            throw new NoSuchElementException();
+        }
+    	return doGet(0);
+    }
+
+    @Override
+    public E getLast() {
+    	int size = size();
+        if (size == 0) {
+            throw new NoSuchElementException();
+        }
+    	return doGet(size-1);
+    }
+
+    @Override
+    public void addFirst(E elem) {
+    	doAdd(0, elem);
+    }
+
+    @Override
+    public void addLast(E elem) {
+    	// inline version of add(elem):
+    	doAdd(-1, elem);
+    }
+
+    @Override
+    public E removeFirst() {
+        if (size() == 0) {
+            throw new NoSuchElementException();
+        }
+    	return doRemove(0);
+    }
+
+    @Override
+    public E removeLast() {
+    	int size = size();
+        if (size == 0) {
+            throw new NoSuchElementException();
+        }
+    	return doRemove(size-1);
+    }
 
 	@Override
 	public boolean offerFirst(E elem) {
-        addFirst(elem);
+        // inline version of addFirst(elem):
+    	doAdd(0, elem);
         return true;
 	}
 
 	@Override
 	public boolean offerLast(E elem) {
-        addLast(elem);
+        // inline version of addLast(elem):
+    	doAdd(-1, elem);
         return true;
 	}
 
@@ -1666,15 +1684,16 @@ public class GapList<E> extends AbstractList<E>
         if (size() == 0) {
             return null;
         }
-        return getFirst();
+        return doGet(0);
 	}
 
 	@Override
 	public E peekLast() {
-        if (size() == 0) {
+		int size = size();
+        if (size == 0) {
             return null;
         }
-        return getLast();
+        return doGet(size-1);
 	}
 
 	@Override
@@ -1682,25 +1701,32 @@ public class GapList<E> extends AbstractList<E>
         if (size() == 0) {
             return null;
         }
-        return removeFirst();
+        return doRemove(0);
 	}
 
 	@Override
 	public E pollLast() {
-        if (size() == 0) {
+		int size = size();
+        if (size == 0) {
             return null;
         }
-        return removeLast();
+        return doRemove(size-1);
 	}
 
 	@Override
 	public E pop() {
-        return removeFirst();
+        // inline version of removeFirst():
+        if (size() == 0) {
+            throw new NoSuchElementException();
+        }
+    	return doRemove(0);
+
 	}
 
 	@Override
 	public void push(E elem) {
-        addFirst(elem);
+        // inline version of addFirst();
+    	doAdd(0, elem);
 	}
 
 	@Override
