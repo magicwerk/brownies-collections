@@ -329,9 +329,9 @@ public class Key2List<E,K1,K2> extends KeyListImpl<E> {
     }
 
     /**
-     * Private constructor used by builder.
+     * Protected constructor used by builder or derived collections.
      */
-    private Key2List() {
+    protected Key2List() {
     }
 
     /**
@@ -343,19 +343,19 @@ public class Key2List<E,K1,K2> extends KeyListImpl<E> {
 
     @Override
     public Object clone() {
-    	return copy();
+        return copy();
     }
 
     @Override
     public Key2List<E,K1,K2> copy() {
-    	Key2List<E,K1,K2> copy = new Key2List<E,K1,K2>();
+    	Key2List<E,K1,K2> copy = (Key2List<E, K1, K2>) super.clone();
         copy.initCopy(this);
         return copy;
     }
 
     @Override
     public Key2List<E,K1,K2> crop() {
-    	Key2List<E,K1,K2> copy = new Key2List<E,K1,K2>();
+    	Key2List<E,K1,K2> copy = (Key2List<E, K1, K2>) super.clone();
         copy.initCrop(this);
         return copy;
     }

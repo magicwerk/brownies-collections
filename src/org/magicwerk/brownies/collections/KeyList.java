@@ -183,9 +183,9 @@ public class KeyList<E> extends KeyListImpl<E> {
     }
 
     /**
-     * Private constructor used by builder.
+     * Protected constructor used by builder or derived collections.
      */
-    private KeyList() {
+    protected KeyList() {
     }
 
     /**
@@ -202,14 +202,14 @@ public class KeyList<E> extends KeyListImpl<E> {
 
     @Override
     public KeyList<E> copy() {
-        KeyList<E> copy = new KeyList<E>();
+        KeyList<E> copy = (KeyList<E>) super.clone();
         copy.initCopy(this);
         return copy;
     }
 
     @Override
     public KeyList<E> crop() {
-        KeyList<E> crop = new KeyList<E>();
+        KeyList<E> crop = (KeyList<E>) super.clone();
         crop.initCrop(this);
         return crop;
     }

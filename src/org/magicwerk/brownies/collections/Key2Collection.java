@@ -312,9 +312,9 @@ public class Key2Collection<E,K1,K2> extends KeyCollectionImpl<E> {
     }
 
     /**
-     * Private constructor.
+     * Protected constructor used by builder or derived collections.
      */
-    private Key2Collection() {
+    protected Key2Collection() {
     }
 
     /**
@@ -331,14 +331,14 @@ public class Key2Collection<E,K1,K2> extends KeyCollectionImpl<E> {
 
     @Override
     public Key2Collection<E,K1,K2> copy() {
-        Key2Collection<E,K1,K2> copy = new Key2Collection<E,K1,K2>();
+        Key2Collection<E,K1,K2> copy = (Key2Collection<E,K1,K2>) super.clone();
         copy.initCopy(this);
         return copy;
     }
 
     @Override
     public Key2Collection<E,K1,K2> crop() {
-        Key2Collection<E,K1,K2> copy = new Key2Collection<E,K1,K2>();
+        Key2Collection<E,K1,K2> copy = (Key2Collection<E,K1,K2>) super.clone();
         copy.initCrop(this);
         return copy;
     }
