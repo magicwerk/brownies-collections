@@ -176,9 +176,9 @@ public class KeyCollection<E> extends KeyCollectionImpl<E> {
     }
 
     /**
-     * Private constructor used by builder.
+     * Protected constructor used by builder or derived collections.
      */
-    private KeyCollection() {
+    protected KeyCollection() {
     }
 
     /**
@@ -195,14 +195,14 @@ public class KeyCollection<E> extends KeyCollectionImpl<E> {
 
 	@Override
     public KeyCollection<E> copy() {
-        KeyCollection<E> copy = new KeyCollection<E>();
+        KeyCollection<E> copy = (KeyCollection<E>) super.clone();
         copy.initCopy(this);
         return copy;
     }
 
 	@Override
     public KeyCollection<E> crop() {
-        KeyCollection<E> copy = new KeyCollection<E>();
+        KeyCollection<E> copy = (KeyCollection<E>) super.clone();
         copy.initCrop(this);
         return copy;
     }

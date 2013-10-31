@@ -60,7 +60,7 @@ import org.magicwerk.brownies.collections.helper.SortedLists;
  * @see GapList
  * @param <E> type of elements stored in the list
  */
-public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
+public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Cloneable {
 
 	/**
      * Implementation of builder.
@@ -1799,7 +1799,17 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable {
         return true;
 	}
 
-    /**
+    @Override
+    protected Object clone() {
+		try {
+			return super.clone();
+		}
+		catch (CloneNotSupportedException e) {
+		    // This shouldn't happen, since we are Cloneable
+		    throw new AssertionError(e);
+		}
+    }
+   /**
      * Returns a copy of this collection.
      * The new collection will use the same comparator, ordering, etc.
      *
