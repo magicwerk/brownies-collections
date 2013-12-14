@@ -108,6 +108,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         int capacity;
         int maxSize;
         boolean movingWindow;
+        /** True to count only number of occurrences of equal elements */
         boolean count;
 
         // Interface
@@ -225,9 +226,8 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         //-- Element key
 
         /**
-         * Specifies that the collection only count the number
-         * of occurrences of equal elements, but not the elements
-         * themselves.
+         * Specifies that the collection only counts the number of occurrences
+         * of equal elements, but does not store the elements themselves.
          *
          * @param count	true to count only number of occurrences
          * @return		this (fluent interface)
@@ -804,12 +804,13 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     }
 
     static class KeyMap<E,K> implements Serializable {
-	    /** A mapper to extract keys out of element for a MapList. For a SetList, this is always an IdentMapper. */
+	    /** A mapper to extract keys out of element. For the element itself , this is always an IdentMapper. */
 	    Mapper<E,K> mapper;
 	    /** True to allow null keys */
 	    boolean allowNull;
-	    /** True to allow duplicate values. This also allows duplicate null values, but they are not distinct. */
+	    /** True to allow duplicate values if they are not null */
 	    boolean allowDuplicates;
+	    /** True to allow duplicate null values */
 	    boolean allowDuplicatesNull;
 	    /** Comparator to use for sorting (if null, elements are not sorted) */
 	    Comparator<K> comparator;
@@ -820,6 +821,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	    Map<K, Object> keysMap;
 	    /** Key storage if sorted */
 	    GapList<K> keysList;
+	    /** True to count only number of occurrences of equal elements */
 	    boolean count;
 
 	    KeyMap() {
@@ -1304,8 +1306,8 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     KeyMap<E, Object>[] keyMaps;
     /**
      * Index of key map which defines order
-     * (-1 for no order, only possible for TableList).
-     * If an order key is defined for a TableList, it must be implemented as list.
+     * (-1 for no order, only possible for KeyList).
+     * If an order key is defined for a KeyList, it must be implemented as KeyMap.keysList.
      */
     int orderByKey;
 	// -- null
@@ -1515,6 +1517,13 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     	return (index < 0) ? -1 : index;
     }
 
+    /**
+     * Returns comparator used for sorting.
+     * If there is no sorting because the elements are stored in a HashMap
+     * or because the order is determined by the list order, null is returned.
+     *
+     * @return comparator used for sorting, null if there is no sorting
+     */
     Comparator getSortComparator() {
     	if (orderByKey == -1) {
     		return null;
