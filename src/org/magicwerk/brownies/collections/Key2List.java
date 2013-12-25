@@ -178,7 +178,7 @@ public class Key2List<E,K1,K2> extends KeyListImpl<E> {
          * @param mapper	mapper to use
          * @return			this (fluent interface)
          */
-        public Builder<E,K1,K2> withKey1Map(Mapper<E,K1> mapper) {
+        public Builder<E,K1,K2> withKey1Map(Mapper<? super E,K1> mapper) {
         	return (Builder<E,K1,K2>) super.withKeyMap(1, mapper);
         }
 
@@ -250,7 +250,7 @@ public class Key2List<E,K1,K2> extends KeyListImpl<E> {
          * @param mapper	mapper to use
          * @return			this (fluent interface)
          */
-        public Builder<E,K1,K2> withKey2Map(Mapper<E,K1> mapper) {
+        public Builder<E,K1,K2> withKey2Map(Mapper<? super E,K1> mapper) {
         	return (Builder<E,K1,K2>) super.withKeyMap(2, mapper);
         }
 
@@ -342,22 +342,13 @@ public class Key2List<E,K1,K2> extends KeyListImpl<E> {
     }
 
     @Override
-    public Object clone() {
-        return copy();
-    }
-
-    @Override
     public Key2List<E,K1,K2> copy() {
-    	Key2List<E,K1,K2> copy = (Key2List<E, K1, K2>) super.clone();
-        copy.initCopy(this);
-        return copy;
+    	return (Key2List<E, K1, K2>) super.copy();
     }
 
     @Override
     public Key2List<E,K1,K2> crop() {
-    	Key2List<E,K1,K2> copy = (Key2List<E, K1, K2>) super.clone();
-        copy.initCrop(this);
-        return copy;
+    	return (Key2List<E, K1, K2>) super.crop();
     }
 
     //-- Element methods

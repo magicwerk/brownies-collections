@@ -177,7 +177,7 @@ public class Key1List<E,K> extends KeyListImpl<E> {
          * @param mapper	mapper to use
          * @return			this (fluent interface)
          */
-        public Builder<E,K> withKey1Map(Mapper<E,K> mapper) {
+        public Builder<E,K> withKey1Map(Mapper<? super E,K> mapper) {
         	return (Builder<E,K>) super.withKeyMap(1, mapper);
         }
 
@@ -273,22 +273,13 @@ public class Key1List<E,K> extends KeyListImpl<E> {
     }
 
     @Override
-    public Object clone() {
-        return copy();
-    }
-
-    @Override
     public Key1List<E,K> copy() {
-    	Key1List<E,K> copy = (Key1List<E,K>) super.clone();
-        copy.initCopy(this);
-        return copy;
+    	return (Key1List<E,K>) super.copy();
     }
 
     @Override
     public Key1List<E,K> crop() {
-    	Key1List<E,K> copy = (Key1List<E,K>) super.clone();
-        copy.initCrop(this);
-        return copy;
+    	return (Key1List<E,K>) super.crop();
     }
 
     //-- Element methods

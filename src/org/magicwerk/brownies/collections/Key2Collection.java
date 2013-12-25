@@ -170,7 +170,7 @@ public class Key2Collection<E,K1,K2> extends KeyCollectionImpl<E> {
          * @param mapper	mapper to use
          * @return			this (fluent interface)
          */
-        public Builder<E,K1,K2> withKey1Map(Mapper<E,K1> mapper) {
+        public Builder<E,K1,K2> withKey1Map(Mapper<? super E,K1> mapper) {
         	return (Builder<E,K1,K2>) super.withKeyMap(1, mapper);
         }
 
@@ -238,7 +238,7 @@ public class Key2Collection<E,K1,K2> extends KeyCollectionImpl<E> {
          * @param mapper	mapper to use
          * @return			this (fluent interface)
          */
-        public Builder<E,K1,K2> withKey2Map(Mapper<E,K2> mapper) {
+        public Builder<E,K1,K2> withKey2Map(Mapper<? super E,K2> mapper) {
         	return (Builder<E,K1,K2>) super.withKeyMap(2, mapper);
         }
 
@@ -325,22 +325,13 @@ public class Key2Collection<E,K1,K2> extends KeyCollectionImpl<E> {
     }
 
     @Override
-    public Object clone() {
-    	return copy();
-    }
-
-    @Override
     public Key2Collection<E,K1,K2> copy() {
-        Key2Collection<E,K1,K2> copy = (Key2Collection<E,K1,K2>) super.clone();
-        copy.initCopy(this);
-        return copy;
+        return (Key2Collection<E,K1,K2>) super.copy();
     }
 
     @Override
     public Key2Collection<E,K1,K2> crop() {
-        Key2Collection<E,K1,K2> copy = (Key2Collection<E,K1,K2>) super.clone();
-        copy.initCrop(this);
-        return copy;
+        return (Key2Collection<E,K1,K2>) super.crop();
     }
 
     //-- Element methods
