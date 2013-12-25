@@ -479,9 +479,7 @@ public class GapList<E> extends AbstractList<E>
     public Object clone() {
 		try {
 			GapList<E> list = (GapList<E>) super.clone();
-			// Do not simply clone the array, but make sure its capacity
-			// is equal to the size (as in ArrayList)
-		    list.init(toArray(), size());
+			list.initClone(this);
 			if (DEBUG_CHECK) list.debugCheck();
 		    return list;
 		}
@@ -490,6 +488,20 @@ public class GapList<E> extends AbstractList<E>
 		    throw new AssertionError(e);
 		}
     }
+
+	/**
+	 * Initialize this object after the bitwise copy has been made
+	 * by Object.clone().
+	 *
+	 * @param that	source object
+	 */
+	@SuppressWarnings("unchecked")
+	protected void initClone(Object that) {
+		GapList<E> list = (GapList<E>) that;
+		// Do not simply clone the array, but make sure its capacity
+		// is equal to the size (as in ArrayList)
+		init(list.toArray(), list.size());
+	}
 
 	/**
 	 * Normalize data of GapList so the elements are found

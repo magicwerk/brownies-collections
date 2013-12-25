@@ -87,6 +87,12 @@ public class KeyListImpl<E> extends GapList<E> {
         throw new UnsupportedOperationException();
     }
 
+    @Override
+	void init(Object[] values, int size) {
+    	assert(forward == null);
+        super.init(values, size);
+	}
+
     /**
      * Private method to check invariant of GapList.
      * It is only used for debugging.
@@ -107,36 +113,79 @@ public class KeyListImpl<E> extends GapList<E> {
     	super(false, null);
     }
 
+	@Override
+    public Object clone() {
+    	return copy();
+    }
+
+    @Override
+    public KeyListImpl copy() {
+    	KeyListImpl copy = (KeyListImpl) super.clone();
+        copy.initCopy(this);
+        return copy;
+    }
+
+    /**
+     * Returns a copy this list but without elements.
+     * The new list will use the same comparator, ordering, etc.
+     *
+     * @return  an empty copy of this list
+     */
+    public KeyListImpl crop() {
+    	KeyListImpl crop = (KeyListImpl) super.clone();
+        crop.initCrop(this);
+        return crop;
+    }
 	/**
 	 * Initialize object for crop() operation.
 	 *
 	 * @param that source object
 	 */
     void initCrop(KeyListImpl<E> that) {
-	    // GapList
-	    init(new Object[DEFAULT_CAPACITY], 0);
-
 	    // TableCollection
 	    keyColl = new KeyCollectionImpl<E>();
 	    keyColl.initCrop(that.keyColl);
+	    if (keyColl.keyList != null) {
+	    	keyColl.keyList = this;
+	    }
+
+	    // GapList
+	    if (that.forward != null) {
+	    	assert(that.forward == that.keyColl.keyMaps[0].keysList);
+	    	forward = (GapList<E>) keyColl.keyMaps[0].keysList;
+	    } else {
+	    	super.init();
+	    }
 
 	    if (DEBUG_CHECK) debugCheck();
 	}
 
-    /**
+	/**
      * Initialize object for copy() operation.
      *
      * @param that source object
      */
     void initCopy(KeyListImpl<E> that) {
-        // GapList
-        init(that.toArray(), that.size());
-
 	    // TableCollection
 	    keyColl = new KeyCollectionImpl<E>();
 	    keyColl.initCopy(that.keyColl);
+	    if (keyColl.keyList != null) {
+	    	keyColl.keyList = this;
+	    }
 
-	    if (DEBUG_CHECK) debugCheck();
+        // GapList
+	    if (that.forward != null) {
+	    	assert(that.forward == that.keyColl.keyMaps[0].keysList);
+	    	forward = (GapList<E>) keyColl.keyMaps[0].keysList;
+	    } else {
+	    	super.initClone(that);
+	    }
+
+        if (DEBUG_CHECK) debugCheck();
+    }
+
+    @Override
+    protected void initClone(Object that) {
     }
 
     /**
@@ -271,17 +320,6 @@ public class KeyListImpl<E> extends GapList<E> {
     	if (forward == null) {
     		super.clear();
     	}
-    }
-
-    /**
-     * Returns a copy this list but without elements.
-     * The new list will use the same comparator, ordering, etc.
-     *
-     * @return  an empty copy of this instance
-     */
-    public KeyListImpl<E> crop() {
-    	// Derived classes must implement
-    	throw new UnsupportedOperationException();
     }
 
     @Override

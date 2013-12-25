@@ -114,10 +114,12 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         // Interface
 
         /**
-         * Specify element constraint.
+         * Specifies whether null elements are allowed or not.
+         * A null element will have a null key.
+         * This method has the same effect as {@link #withElemNull}.
          *
-         * @param allowNull	true to allow null values
-         * @return 			this (fluent interface)
+         * @param allowNull true to allow null elements, false to disallow
+         * @return          this (fluent interfaces)
          */
         protected BuilderImpl<E> withNull(boolean allowNull) {
         	this.allowNullElem = allowNull;
@@ -275,12 +277,13 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         /**
          * Specifies whether null elements are allowed or not.
          * A null element will have a null key.
+         * This method has the same effect as {@link #withNull}.
          *
          * @param allowNull true to allow null elements, false to disallow
          * @return          this (fluent interfaces)
          */
         protected BuilderImpl<E> withElemNull(boolean allowNull) {
-        	return withKeyNull(0, allowNull);
+        	return withNull(allowNull);
         }
 
         /**
@@ -639,14 +642,15 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 
         KeyMapBuilder<E, Object> getKeyMapBuilder(int index) {
         	int size = keyMapBuilders.size();
-        	if (index >= size) {
-        		KeyMapBuilder kmb = new KeyMapBuilder();
-        		if (index == 1 && size == 0) {
-            		keyMapBuilders.add(0, null);
-        		}
-        		keyMapBuilders.add(index, kmb);
+    		for (int i=size; i<=index; i++) {
+    			keyMapBuilders.add(i, null);
+    		}
+        	KeyMapBuilder kmb = keyMapBuilders.get(index);
+        	if (kmb == null) {
+        		kmb = new KeyMapBuilder();
+        		keyMapBuilders.set(index, kmb);
         	}
-        	return keyMapBuilders.get(index);
+        	return kmb;
         }
 
         boolean isTrue(Boolean b) {
@@ -706,7 +710,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
          * Initialize TableCollection with specified options.
          *
          * @param keyColl collection to initialize
-         * @param list    true if a KeyListImpl is built up
+         * @param list    true if a KeyListImpl is built up, false for KeyCollectionImpl
          */
         void build(KeyCollectionImpl keyColl, boolean list) {
         	keyColl.allowNullElem = allowNullElem;
@@ -769,6 +773,12 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
             keyColl.orderByKey = orderByKey;
         }
 
+        /**
+         * This method is called if a KeyCollection, Key1Collection, Key2Collection is initialized.
+         *
+         * @param keyColl
+         * @param keyList
+         */
         void init(KeyCollectionImpl keyColl) {
             if (collection != null) {
             	keyColl.addAll(collection);
@@ -777,6 +787,12 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
             }
         }
 
+        /**
+         * This method is called if a KeyList, Key1List, Key2List is initialized.
+         *
+         * @param keyColl
+         * @param keyList
+         */
         void init(KeyCollectionImpl keyColl, KeyListImpl keyList) {
         	keyList.keyColl = keyColl;
         	keyColl.keyList = keyList;
@@ -797,7 +813,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         		} else if (capacity != 0) {
         			keyList.init(capacity);
         		} else {
-        			keyList.init();
+        			keyList.init(GapList.DEFAULT_CAPACITY);
         		}
         	}
         }
@@ -1316,6 +1332,10 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     // -- handlers
     Trigger<E> insertTrigger;
     Trigger<E> deleteTrigger;
+    /**
+     * Back pointer to KeyListImpl if this object is used to implement a KeyList, Key1List, Key2List.
+     * Otherwise null if it is part of a KeyCollection, Key1Collection, Key2Collection.
+     */
     KeyListImpl keyList;
 
     /**
@@ -1808,37 +1828,55 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         return true;
 	}
 
-    @Override
-    protected Object clone() {
+    /**
+     * Returns a copy of this collection with all its elements.
+     * The new collection will use the same comparator, ordering, etc.
+     *
+     * @return  a copy of this collection
+     */
+    public KeyCollectionImpl copy() {
 		try {
-			return super.clone();
+			KeyCollectionImpl copy = (KeyCollectionImpl) super.clone();
+			copy.initCopy(this);
+			return copy;
 		}
 		catch (CloneNotSupportedException e) {
 		    // This shouldn't happen, since we are Cloneable
 		    throw new AssertionError(e);
 		}
     }
-   /**
-     * Returns a copy of this collection.
+
+    /**
+     * Returns a copy of this collection but without elements.
      * The new collection will use the same comparator, ordering, etc.
      *
-     * @return  an empty copy of this instance
+     * @return  an empty copy of this collection
      */
-    public KeyCollectionImpl copy() {
-    	// Derived classes must implement
-    	throw new UnsupportedOperationException();
+    public KeyCollectionImpl crop() {
+    	try {
+	    	KeyCollectionImpl copy = (KeyCollectionImpl) super.clone();
+	        copy.initCrop(this);
+	        return copy;
+		}
+		catch (CloneNotSupportedException e) {
+		    // This shouldn't happen, since we are Cloneable
+		    throw new AssertionError(e);
+		}
+    }
+
+    @Override
+    protected Object clone() {
+    	return copy();
     }
 
     /**
-     * Returns a copy of this collection.
-     * The new collection will use the same comparator, ordering, etc.
-     *
-     * @return  a copy of this instance
-     */
-    public KeyCollectionImpl crop() {
-    	// Derived classes must implement
-    	throw new UnsupportedOperationException();
-    }
+	 * Initialize this object after the bitwise copy has been made
+	 * by Object.clone().
+	 *
+	 * @param that	source object
+	 */
+	protected void initClone(Object that) {
+	}
 
     /**
      * Returns a set view of the collection.
@@ -1963,8 +2001,9 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
      * If there are several values for this key, the first is returned.
      * If the key is not found, null is returned.
      *
-     * @param key   key to find
-     * @return      value of specified key or null
+     * @param keyIndex 	key index
+     * @param key   	key to find
+     * @return      	value of specified key or null
      */
     protected E getByKey(int keyIndex, Object key) {
     	return getByKey(getKeyMap(keyIndex), key);
@@ -2007,8 +2046,9 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     /**
      * Returns a list with all elements with the specified key.
      *
-     * @param key   key which elements must have
-     * @return      list with all keys (null if key is null)
+     * @param keyIndex	key index
+     * @param key   	key which elements must have
+     * @return      	list with all keys (null if key is null)
      */
     protected GapList<E> getAllByKey(int keyIndex, Object key) {
     	return doGetAllByKey(getKeyMap(keyIndex), key);
@@ -2059,8 +2099,9 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     /**
      * Returns number of elements with specified key.
      *
-     * @param key   key which elements must have
-     * @return      number of elements with key (-1 if key is null)
+     * @param keyIndex 	key index
+     * @param key   	key which elements must have
+     * @return      	number of elements with key (-1 if key is null)
      */
     protected int getCountByKey(int keyIndex, Object key) {
     	return getCountByKey(getKeyMap(keyIndex), key);

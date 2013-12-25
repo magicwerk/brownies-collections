@@ -196,22 +196,13 @@ public class KeyList<E> extends KeyListImpl<E> {
     }
 
     @Override
-    public Object clone() {
-    	return copy();
-    }
-
-    @Override
     public KeyList<E> copy() {
-        KeyList<E> copy = (KeyList<E>) super.clone();
-        copy.initCopy(this);
-        return copy;
+        return (KeyList<E>) super.copy();
     }
 
     @Override
     public KeyList<E> crop() {
-        KeyList<E> crop = (KeyList<E>) super.clone();
-        crop.initCrop(this);
-        return crop;
+        return (KeyList<E>) super.crop();
     }
 
     //-- Element methods

@@ -188,23 +188,14 @@ public class KeyCollection<E> extends KeyCollectionImpl<E> {
     	return new Builder<E>(this);
     }
 
-    @Override
-    public Object clone() {
-    	return copy();
-    }
-
 	@Override
     public KeyCollection<E> copy() {
-        KeyCollection<E> copy = (KeyCollection<E>) super.clone();
-        copy.initCopy(this);
-        return copy;
+        return (KeyCollection<E>) super.copy();
     }
 
 	@Override
     public KeyCollection<E> crop() {
-        KeyCollection<E> copy = (KeyCollection<E>) super.clone();
-        copy.initCrop(this);
-        return copy;
+        return (KeyCollection<E>) super.crop();
     }
 
     //-- Element methods
