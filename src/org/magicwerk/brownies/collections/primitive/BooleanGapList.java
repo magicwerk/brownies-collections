@@ -35,7 +35,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
-
+import java.util.NoSuchElementException;
 
 
 
@@ -476,9 +476,7 @@ public class BooleanGapList implements Cloneable, Serializable {
     public Object clone() {
 		try {
 			BooleanGapList list = (BooleanGapList) super.clone();
-			// Do not simply clone the array, but make sure its capacity
-			// is equal to the size (as in ArrayList)
-		    list.init(toArray(), size());
+			list.initClone(this);
 			if (DEBUG_CHECK) list.debugCheck();
 		    return list;
 		}
@@ -487,6 +485,19 @@ public class BooleanGapList implements Cloneable, Serializable {
 		    throw new AssertionError(e);
 		}
     }
+
+	/**
+	 * Initialize this object after the bitwise copy has been made
+	 * by boolean.clone().
+	 *
+	 * @param that	source object
+	 */
+	@SuppressWarnings("unchecked")
+	protected void initClone(BooleanGapList that) {
+		// Do not simply clone the array, but make sure its capacity
+		// is equal to the size (as in ArrayList)
+		init(that.toArray(), that.size());
+	}
 
 	/**
 	 * Normalize data of BooleanGapList so the elements are found
@@ -1543,37 +1554,8 @@ return val ? 1231 : 1237;
     
 	
 
-	// List operations
-
-    
-    public boolean getFirst() {
-    	return doGet(0);
-    }
-
-    
-    public boolean getLast() {
-    	return doGet(size()-1);
-    }
-
-    
-    public void addFirst(boolean elem) {
-    	add(0, elem);
-    }
-
-    
-    public void addLast(boolean elem) {
-    	add(elem);
-    }
-
-    
-    public boolean removeFirst() {
-    	return doRemove(0);
-    }
-
-    
-    public boolean removeLast() {
-    	return doRemove(size()-1);
-    }
+	
+	
 
     // Queue operations
 
@@ -1587,7 +1569,11 @@ return val ? 1231 : 1237;
 
     
     public boolean element() {
-        return getFirst();
+    	// inline version of getFirst():
+        if (size() == 0) {
+            throw new NoSuchElementException();
+        }
+    	return doGet(0);
     }
 
     
@@ -1595,33 +1581,82 @@ return val ? 1231 : 1237;
         if (size() == 0) {
             return (boolean)false;
         }
-        return removeFirst();
+    	return doRemove(0);
     }
 
 	
     public boolean remove() {
-        return removeFirst();
+		// inline version of removeFirst():
+        if (size() == 0) {
+            throw new NoSuchElementException();
+        }
+    	return doRemove(0);
     }
 
 	
     public boolean offer(boolean elem) {
-        return add(elem);
+    	// inline version of add(elem):
+    	return doAdd(-1, elem);
     }
 
     // Deque operations
 
-	
-	
+    
+    public boolean getFirst() {
+        if (size() == 0) {
+            throw new NoSuchElementException();
+        }
+    	return doGet(0);
+    }
+
+    
+    public boolean getLast() {
+    	int size = size();
+        if (size == 0) {
+            throw new NoSuchElementException();
+        }
+    	return doGet(size-1);
+    }
+
+    
+    public void addFirst(boolean elem) {
+    	doAdd(0, elem);
+    }
+
+    
+    public void addLast(boolean elem) {
+    	// inline version of add(elem):
+    	doAdd(-1, elem);
+    }
+
+    
+    public boolean removeFirst() {
+        if (size() == 0) {
+            throw new NoSuchElementException();
+        }
+    	return doRemove(0);
+    }
+
+    
+    public boolean removeLast() {
+    	int size = size();
+        if (size == 0) {
+            throw new NoSuchElementException();
+        }
+    	return doRemove(size-1);
+    }
 
 	
 	public boolean offerFirst(boolean elem) {
-        addFirst(elem);
+        // inline version of addFirst(elem):
+    	doAdd(0, elem);
         return true;
 	}
 
 	
 	public boolean offerLast(boolean elem) {
-        addLast(elem);
+        // inline version of addLast(elem):
+    	doAdd(-1, elem);
         return true;
 	}
 
@@ -1630,15 +1665,16 @@ return val ? 1231 : 1237;
         if (size() == 0) {
             return (boolean)false;
         }
-        return getFirst();
+        return doGet(0);
 	}
 
 	
 	public boolean peekLast() {
-        if (size() == 0) {
+		int size = size();
+        if (size == 0) {
             return (boolean)false;
         }
-        return getLast();
+        return doGet(size-1);
 	}
 
 	
@@ -1646,25 +1682,32 @@ return val ? 1231 : 1237;
         if (size() == 0) {
             return (boolean)false;
         }
-        return removeFirst();
+        return doRemove(0);
 	}
 
 	
 	public boolean pollLast() {
-        if (size() == 0) {
+		int size = size();
+        if (size == 0) {
             return (boolean)false;
         }
-        return removeLast();
+        return doRemove(size-1);
 	}
 
 	
 	public boolean pop() {
-        return removeFirst();
+        // inline version of removeFirst():
+        if (size() == 0) {
+            throw new NoSuchElementException();
+        }
+    	return doRemove(0);
+
 	}
 
 	
 	public void push(boolean elem) {
-        addFirst(elem);
+        // inline version of addFirst();
+    	doAdd(0, elem);
 	}
 
 	
@@ -2367,6 +2410,13 @@ return val ? 1231 : 1237;
 	 * It is only used for debugging.
 	 */
 	private void debugCheck() {
+		// If the BooleanGapList is not used for storing content in KeyListImpl, values may be (boolean)false
+		if (values == null) {
+			assert(size == 0 && start == 0 && end == 0);
+			assert(gapSize == 0 && gapStart == 0 && gapIndex == 0);
+			return;
+		}
+
 		assert(size >= 0 && size <= values.length);
 		assert(start >=0 && (start < values.length || values.length == 0));
 		assert(end >= 0 && (end < values.length || values.length == 0));

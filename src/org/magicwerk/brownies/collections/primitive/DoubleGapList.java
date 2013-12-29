@@ -35,7 +35,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
-
+import java.util.NoSuchElementException;
 
 
 
@@ -476,9 +476,7 @@ public class DoubleGapList implements Cloneable, Serializable {
     public Object clone() {
 		try {
 			DoubleGapList list = (DoubleGapList) super.clone();
-			// Do not simply clone the array, but make sure its capacity
-			// is equal to the size (as in ArrayList)
-		    list.init(toArray(), size());
+			list.initClone(this);
 			if (DEBUG_CHECK) list.debugCheck();
 		    return list;
 		}
@@ -487,6 +485,19 @@ public class DoubleGapList implements Cloneable, Serializable {
 		    throw new AssertionError(e);
 		}
     }
+
+	/**
+	 * Initialize this object after the bitwise copy has been made
+	 * by double.clone().
+	 *
+	 * @param that	source object
+	 */
+	@SuppressWarnings("unchecked")
+	protected void initClone(DoubleGapList that) {
+		// Do not simply clone the array, but make sure its capacity
+		// is equal to the size (as in ArrayList)
+		init(that.toArray(), that.size());
+	}
 
 	/**
 	 * Normalize data of DoubleGapList so the elements are found
@@ -1543,37 +1554,8 @@ return (int) val;
     
 	
 
-	// List operations
-
-    
-    public double getFirst() {
-    	return doGet(0);
-    }
-
-    
-    public double getLast() {
-    	return doGet(size()-1);
-    }
-
-    
-    public void addFirst(double elem) {
-    	add(0, elem);
-    }
-
-    
-    public void addLast(double elem) {
-    	add(elem);
-    }
-
-    
-    public double removeFirst() {
-    	return doRemove(0);
-    }
-
-    
-    public double removeLast() {
-    	return doRemove(size()-1);
-    }
+	
+	
 
     // Queue operations
 
@@ -1587,7 +1569,11 @@ return (int) val;
 
     
     public double element() {
-        return getFirst();
+    	// inline version of getFirst():
+        if (size() == 0) {
+            throw new NoSuchElementException();
+        }
+    	return doGet(0);
     }
 
     
@@ -1595,33 +1581,82 @@ return (int) val;
         if (size() == 0) {
             return (double)0;
         }
-        return removeFirst();
+    	return doRemove(0);
     }
 
 	
     public double remove() {
-        return removeFirst();
+		// inline version of removeFirst():
+        if (size() == 0) {
+            throw new NoSuchElementException();
+        }
+    	return doRemove(0);
     }
 
 	
     public boolean offer(double elem) {
-        return add(elem);
+    	// inline version of add(elem):
+    	return doAdd(-1, elem);
     }
 
     // Deque operations
 
-	
-	
+    
+    public double getFirst() {
+        if (size() == 0) {
+            throw new NoSuchElementException();
+        }
+    	return doGet(0);
+    }
+
+    
+    public double getLast() {
+    	int size = size();
+        if (size == 0) {
+            throw new NoSuchElementException();
+        }
+    	return doGet(size-1);
+    }
+
+    
+    public void addFirst(double elem) {
+    	doAdd(0, elem);
+    }
+
+    
+    public void addLast(double elem) {
+    	// inline version of add(elem):
+    	doAdd(-1, elem);
+    }
+
+    
+    public double removeFirst() {
+        if (size() == 0) {
+            throw new NoSuchElementException();
+        }
+    	return doRemove(0);
+    }
+
+    
+    public double removeLast() {
+    	int size = size();
+        if (size == 0) {
+            throw new NoSuchElementException();
+        }
+    	return doRemove(size-1);
+    }
 
 	
 	public boolean offerFirst(double elem) {
-        addFirst(elem);
+        // inline version of addFirst(elem):
+    	doAdd(0, elem);
         return true;
 	}
 
 	
 	public boolean offerLast(double elem) {
-        addLast(elem);
+        // inline version of addLast(elem):
+    	doAdd(-1, elem);
         return true;
 	}
 
@@ -1630,15 +1665,16 @@ return (int) val;
         if (size() == 0) {
             return (double)0;
         }
-        return getFirst();
+        return doGet(0);
 	}
 
 	
 	public double peekLast() {
-        if (size() == 0) {
+		int size = size();
+        if (size == 0) {
             return (double)0;
         }
-        return getLast();
+        return doGet(size-1);
 	}
 
 	
@@ -1646,25 +1682,32 @@ return (int) val;
         if (size() == 0) {
             return (double)0;
         }
-        return removeFirst();
+        return doRemove(0);
 	}
 
 	
 	public double pollLast() {
-        if (size() == 0) {
+		int size = size();
+        if (size == 0) {
             return (double)0;
         }
-        return removeLast();
+        return doRemove(size-1);
 	}
 
 	
 	public double pop() {
-        return removeFirst();
+        // inline version of removeFirst():
+        if (size() == 0) {
+            throw new NoSuchElementException();
+        }
+    	return doRemove(0);
+
 	}
 
 	
 	public void push(double elem) {
-        addFirst(elem);
+        // inline version of addFirst();
+    	doAdd(0, elem);
 	}
 
 	
@@ -2367,6 +2410,13 @@ return (int) val;
 	 * It is only used for debugging.
 	 */
 	private void debugCheck() {
+		// If the DoubleGapList is not used for storing content in KeyListImpl, values may be (double)0
+		if (values == null) {
+			assert(size == 0 && start == 0 && end == 0);
+			assert(gapSize == 0 && gapStart == 0 && gapIndex == 0);
+			return;
+		}
+
 		assert(size >= 0 && size <= values.length);
 		assert(start >=0 && (start < values.length || values.length == 0));
 		assert(end >= 0 && (end < values.length || values.length == 0));

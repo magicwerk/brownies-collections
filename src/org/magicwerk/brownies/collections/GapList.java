@@ -496,11 +496,10 @@ public class GapList<E> extends AbstractList<E>
 	 * @param that	source object
 	 */
 	@SuppressWarnings("unchecked")
-	protected void initClone(Object that) {
-		GapList<E> list = (GapList<E>) that;
+	protected void initClone(GapList<E> that) {
 		// Do not simply clone the array, but make sure its capacity
 		// is equal to the size (as in ArrayList)
-		init(list.toArray(), list.size());
+		init(that.toArray(), that.size());
 	}
 
 	/**
@@ -2441,6 +2440,13 @@ public class GapList<E> extends AbstractList<E>
 	 * It is only used for debugging.
 	 */
 	private void debugCheck() {
+		// If the GapList is not used for storing content in KeyListImpl, values may be null
+		if (values == null) {
+			assert(size == 0 && start == 0 && end == 0);
+			assert(gapSize == 0 && gapStart == 0 && gapIndex == 0);
+			return;
+		}
+
 		assert(size >= 0 && size <= values.length);
 		assert(start >=0 && (start < values.length || values.length == 0));
 		assert(end >= 0 && (end < values.length || values.length == 0));

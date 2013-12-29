@@ -27,82 +27,6 @@
       	-->
 	</target>
 
-	<target name="post-build-0.9.x">
-		<!-- TODO: Used for 0.9.x, remove this for next major release -->
-		<!-- Remove files for KeyList and SortedList -->
-	    <property name="tmp.bin.jar" value="${build.dir}/brownies-collections.jar" />
-        <property name="tmp.bin.dir" value="${build.dir}/brownies-collections.jar.tmp" />
-		<unjar src="${tmp.bin.jar}" dest="${tmp.bin.dir}" />
-		<delete>
-			 <fileset dir="${tmp.bin.dir}" includes="**/Key*, **/Set*, **/Map*, **/Sorted*"/>
-		</delete>
-		<delete file="${tmp.bin.jar}" />
-		<jar file="${tmp.bin.jar}" basedir="${tmp.bin.dir}" />
-        <delete dir="${tmp.bin.dir}" />
-
-        <property name="tmp.src.jar" value="${build.dir}/brownies-collections-sources.jar" />
-        <property name="tmp.src.dir" value="${build.dir}/brownies-collections-sources.jar.tmp" />
-        <unjar src="${tmp.src.jar}" dest="${tmp.src.dir}" />
-        <delete>
-             <fileset dir="${tmp.src.dir}" includes="**/Key*, **/Set*, **/Map*, **/Sorted*"/>
-        </delete>
-        <delete file="${tmp.src.jar}" />
-        <jar file="${tmp.src.jar}" basedir="${tmp.src.dir}" />
-        <delete dir="${tmp.src.dir}" />
-	</target>
-
-	<target name="build-doc">
-        <if>
-            <isset property="release.dir" />
-            <then>
-            	<antcall target="build-doc-0.9.x" />
-            </then>
-        	<else>
-        		<ant antfile="${Brownies-Dev.dir}/build-lib.xml" target="build-doc" />
-        	</else>
-      	</if>
-	</target>
-
-    <!-- TODO: Execute manually for 0.9.x to fix Javadoc -->
-    <target name="build-doc-0.9.x" depends="prepare-doc">
-        <delete dir="build/doc-src" />
-	    <mkdir dir="build/doc-src" />
-	   	<copy todir="build/doc-src">
-	   	   <fileset dir="src" excludes="**/Key*, **/Set*, **/Map*, **/Sorted*" />
-	   	</copy>
-        <delete dir="${build.dir}/doc" />
-            <javadoc
-            	executable="${javadoc.executable}"
-                access="public"
-                author="true"
-                destdir="${build.dir}/doc"
-                doctitle="${lib.title}"
-                nodeprecated="false"
-                nodeprecatedlist="false"
-                noindex="false"
-                nonavbar="false"
-                notree="false"
-                packagenames="${lib.package}.*"
-                source="1.6"
-            	sourcepath="build/doc-src:${rt.src.dir}"
-                splitindex="true"
-                use="true"
-                version="true">
-                <classpath refid="lib.classpath" />
-            </javadoc>
-            <jar destfile="${build.dir}/${lib.name}-javadoc.jar">
-                <fileset dir="${build.dir}/doc" />
-            </jar>
-
-    	<!--
-	    <copy file="build/brownies-collections-javadoc.jar" tofile="D:\Java\Sources\Origo-Magicwerk\Brownies-Dev\build\snapshot\brownies-collections-20120724-javadoc.jar" />
-	   	<copy file="build/brownies-collections-javadoc.jar" tofile="D:\Java\Sources\Origo-Magicwerk\Brownies-Dev\build\release\brownies-collections-0.9.1-javadoc.jar" />
-
-	    <delete dir="D:\Java\Build\Origo-Magicwerk\Brownies-Collections\build\doc" />
-        <copydir src="build/doc" dest="D:\Java\Build\Origo-Magicwerk\Brownies-Collections\build\doc" />
-		-->
-	    </target>
-
 	<!--
 	Create Java source in package org.magicwerk.brownies.collections.primitive
 	-->
@@ -234,7 +158,7 @@
 
 		<!-- Negative lookahead: match all java.util imports, except java.util.Collection -->
 		<replaceregexp file="${dst.file}" flags="mg"
-		               match="^import java\.util\.(?!(Collection|Arrays|List|Iterator)).*?$"
+		               match="^import java\.util\.(?!(Collection|Arrays|List|Iterator|NoSuchElementException)).*?$"
 		               replace="" />
 		<replaceregexp file="${dst.file}" flags="g"
 		               match="(\W+)@Override(\W+)"
@@ -386,7 +310,7 @@
 
 		<!-- Replace null using negative lookbehind -->
 		<replaceregexp file="${dst.file}" flags="g"
-		               match="(?&lt;!(init\(|newValues != ))null(\W+)"
+		               match="(?&lt;!(init\(|newValues != |values == ))null(\W+)"
 		               replace="(${type})${defval}\2" />
 
         <!-- Fix ensureCapacity() -->
@@ -442,5 +366,81 @@
 		               replace="static int hashCodeElem(${type} val\) {${NL}return val ? 1231 : 1237;" />
 	</target>
 
+	<!-- ==================== UNUSED ==================== -->
+	<!--
+	Example targets how to remove files from build
+	-->
+	<target name="post-build-0.9.x">
+	    <property name="tmp.bin.jar" value="${build.dir}/brownies-collections.jar" />
+        <property name="tmp.bin.dir" value="${build.dir}/brownies-collections.jar.tmp" />
+		<unjar src="${tmp.bin.jar}" dest="${tmp.bin.dir}" />
+		<delete>
+			 <fileset dir="${tmp.bin.dir}" includes="**/Key*, **/Set*, **/Map*, **/Sorted*"/>
+		</delete>
+		<delete file="${tmp.bin.jar}" />
+		<jar file="${tmp.bin.jar}" basedir="${tmp.bin.dir}" />
+        <delete dir="${tmp.bin.dir}" />
+
+        <property name="tmp.src.jar" value="${build.dir}/brownies-collections-sources.jar" />
+        <property name="tmp.src.dir" value="${build.dir}/brownies-collections-sources.jar.tmp" />
+        <unjar src="${tmp.src.jar}" dest="${tmp.src.dir}" />
+        <delete>
+             <fileset dir="${tmp.src.dir}" includes="**/Key*, **/Set*, **/Map*, **/Sorted*"/>
+        </delete>
+        <delete file="${tmp.src.jar}" />
+        <jar file="${tmp.src.jar}" basedir="${tmp.src.dir}" />
+        <delete dir="${tmp.src.dir}" />
+	</target>
+
+	<target name="build-doc">
+        <if>
+            <isset property="release.dir" />
+            <then>
+            	<antcall target="build-doc-0.9.x" />
+            </then>
+        	<else>
+        		<ant antfile="${Brownies-Dev.dir}/build-lib.xml" target="build-doc" />
+        	</else>
+      	</if>
+	</target>
+
+    <target name="build-doc-0.9.x" depends="prepare-doc">
+        <delete dir="build/doc-src" />
+	    <mkdir dir="build/doc-src" />
+	   	<copy todir="build/doc-src">
+	   	   <fileset dir="src" excludes="**/Key*, **/Set*, **/Map*, **/Sorted*" />
+	   	</copy>
+        <delete dir="${build.dir}/doc" />
+            <javadoc
+            	executable="${javadoc.executable}"
+                access="public"
+                author="true"
+                destdir="${build.dir}/doc"
+                doctitle="${lib.title}"
+                nodeprecated="false"
+                nodeprecatedlist="false"
+                noindex="false"
+                nonavbar="false"
+                notree="false"
+                packagenames="${lib.package}.*"
+                source="1.6"
+            	sourcepath="build/doc-src:${rt.src.dir}"
+                splitindex="true"
+                use="true"
+                version="true">
+                <classpath refid="lib.classpath" />
+            </javadoc>
+            <jar destfile="${build.dir}/${lib.name}-javadoc.jar">
+                <fileset dir="${build.dir}/doc" />
+            </jar>
+
+    	<!--
+	    <copy file="build/brownies-collections-javadoc.jar" tofile="D:\Java\Sources\Origo-Magicwerk\Brownies-Dev\build\snapshot\brownies-collections-20120724-javadoc.jar" />
+	   	<copy file="build/brownies-collections-javadoc.jar" tofile="D:\Java\Sources\Origo-Magicwerk\Brownies-Dev\build\release\brownies-collections-0.9.1-javadoc.jar" />
+
+	    <delete dir="D:\Java\Build\Origo-Magicwerk\Brownies-Collections\build\doc" />
+        <copydir src="build/doc" dest="D:\Java\Build\Origo-Magicwerk\Brownies-Collections\build\doc" />
+		-->
+	</target>
 
 </project>
