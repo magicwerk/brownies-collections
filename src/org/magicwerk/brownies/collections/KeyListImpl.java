@@ -185,7 +185,7 @@ public class KeyListImpl<E> extends GapList<E> {
     }
 
     @Override
-    protected void initClone(Object that) {
+    protected void initClone(GapList<E> that) {
     }
 
     /**
