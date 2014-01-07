@@ -52,6 +52,7 @@ public class Key1Collection<E,K> extends KeyCollectionImpl<E> {
          * Default constructor.
          */
         public Builder() {
+        	this(null);
         }
 
         /**
@@ -61,6 +62,7 @@ public class Key1Collection<E,K> extends KeyCollectionImpl<E> {
          */
         Builder(Key1Collection<E,K> keyColl) {
         	this.keyColl = keyColl;
+        	initKeyMapBuilder(1);
         }
 
         // -- Constraint

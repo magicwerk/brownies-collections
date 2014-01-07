@@ -107,7 +107,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         E[] array;
         int capacity;
         int maxSize;
-        boolean movingWindow;
+        Boolean movingWindow;
         /** True to count only number of occurrences of equal elements */
         boolean count;
 
@@ -118,7 +118,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
          * A null element will have a null key.
          * This method has the same effect as {@link #withElemNull}.
          *
-         * @param allowNull true to allow null elements, false to disallow
+         * @param allowNull true to allow null elements (default), false to disallow
          * @return          this (fluent interfaces)
          */
         protected BuilderImpl<E> withNull(boolean allowNull) {
@@ -132,7 +132,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         /**
          * Specify element constraint.
          *
-         * @param constraint	constraint element must satisfy
+         * @param constraint	constraint element must satisfy, null for none (default)
          * @return 				this (fluent interface)
          */
         protected BuilderImpl<E> withConstraint(Predicate<E> constraint) {
@@ -145,7 +145,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         /**
          * Specify insert trigger.
          *
-         * @param trigger	insert trigger method
+         * @param trigger	insert trigger method, null for none (default)
          * @return			this (fluent interface)
          */
         protected BuilderImpl<E> withInsertTrigger(Trigger<E> trigger) {
@@ -156,7 +156,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         /**
          * Specify delete trigger.
          *
-         * @param trigger	delete trigger method
+         * @param trigger	delete trigger method, null for none (default)
          * @return			this (fluent interface)
          */
         protected BuilderImpl<E> withDeleteTrigger(Trigger<E> trigger) {
@@ -207,19 +207,25 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
          * @return			this (fluent interface)
          */
         protected BuilderImpl<E> withMaxSize(int maxSize) {
+        	if (movingWindow != null) {
+        		throw new IllegalArgumentException("maximum or window size alreay set");
+        	}
             this.maxSize = maxSize;
             this.movingWindow = false;
             return this;
         }
 
         /**
-         * Specify maximum size of collection.
-         * If an attempt is made to add more elements, an exception is thrown.
+         * Specify maximum window size of collection.
+         * If an attempt is made to add and additional element, the first element is removed.
          *
-         * @param maxSize	maximum size
+         * @param maxSize	maximum window size
          * @return			this (fluent interface)
          */
         protected BuilderImpl<E> withWindowSize(int maxSize) {
+        	if (movingWindow != null) {
+        		throw new IllegalArgumentException("maximum or window size alreay set");
+        	}
             this.maxSize = maxSize;
             this.movingWindow = true;
             return this;
@@ -231,7 +237,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
          * Specifies that the collection only counts the number of occurrences
          * of equal elements, but does not store the elements themselves.
          *
-         * @param count	true to count only number of occurrences
+         * @param count	true to count only number of occurrences (default is false)
          * @return		this (fluent interface)
          */
         protected BuilderImpl<E> withElemCount(boolean count) {
@@ -255,6 +261,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
          * values, the used comparator will sort them last.
          *
          * @param orderBy	if true the collection will have the order of this map
+         * 					(default is false, only one map can have this option set)
          * @return			this (fluent interface)
          */
         protected BuilderImpl<E> withElemOrderBy(boolean orderBy) {
@@ -266,7 +273,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
          * The map will store values of the primitive type specified like <code>int</code>.
          * The map will be sorted using the natural comparator and no null values are allowed.
          *
-         * @param type	primitive type to use for map
+         * @param type	primitive type to use for map (only one map can have the order by option set)
          * @return		this (fluent interface)
          */
         // only for KeyList
@@ -279,7 +286,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
          * A null element will have a null key.
          * This method has the same effect as {@link #withNull}.
          *
-         * @param allowNull true to allow null elements, false to disallow
+         * @param allowNull true to allow null elements, false to disallow (default is true)
          * @return          this (fluent interfaces)
          */
         protected BuilderImpl<E> withElemNull(boolean allowNull) {
@@ -289,7 +296,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         /**
          * Specify whether duplicates are allowed or not.
          *
-         * @param allowDuplicates   true to allow duplicates
+         * @param allowDuplicates   true to allow duplicates (default is true)
          * @return              	this (fluent interfaces)
          */
         protected BuilderImpl<E> withElemDuplicates(boolean allowDuplicates) {
@@ -299,8 +306,8 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         /**
          * Specify whether duplicates are allowed or not.
          *
-         * @param allowDuplicates		true to allow duplicates
-         * @param allowDuplicatesNull	true to allow duplicate null values
+         * @param allowDuplicates		true to allow duplicates (default is true)
+         * @param allowDuplicatesNull	true to allow duplicate null values (default is true)
          * @return						this (fluent interfaces)
          */
         protected BuilderImpl<E> withElemDuplicates(boolean allowDuplicates, boolean allowDuplicatesNull) {
@@ -311,7 +318,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
          * Specify that the collection should be sorted using the natural comparator.
          * If the collection supports null values, they are sorted last.
          *
-         * @param sort    true to sorted, false for unsorted
+         * @param sort    true to sorted, false for unsorted (default is false)
          * @return        this (fluent interface)
          */
         protected BuilderImpl<E> withElemSort(boolean sort) {
@@ -345,10 +352,24 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         	return withKeySort(0, comparator, sortNullsFirst);
         }
 
+        /**
+         * Specify the element to be a primary key.
+         * This is identical to calling
+         * withElemNull(false) and withElemDuplicates(false).
+         *
+         * @return	this (fluent interface)
+         */
         protected BuilderImpl<E> withPrimaryElem() {
         	return withPrimaryKey(0);
         }
 
+        /**
+         * Specify the element to be a unique key.
+         * This is identical to calling
+         * withElemNull(true) and withElemDuplicates(false, true).
+         *
+         * @return	this (fluent interface)
+         */
         protected BuilderImpl<E> withUniqueElem() {
             return withUniqueKey(0);
         }
@@ -478,7 +499,6 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
          * @param type	type to use
          * @return		this (fluent interface)
          */
-        // only for TableListImpl
         protected BuilderImpl<E> withKey1OrderBy(Class<?> type) {
             return withKeyOrderBy(1, type);
         }
@@ -636,6 +656,15 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 
         //-- Implementation
 
+        /**
+         * @param numKeys	number of keys
+         */
+        void initKeyMapBuilder(int numKeys) {
+        	assert(numKeys >= 0);
+        	// add 1 for elem key
+        	keyMapBuilders.init(numKeys+1, null);
+        }
+
         boolean hasElemMapBuilder() {
         	return keyMapBuilders.size() > 0 && keyMapBuilders.get(0) != null;
         }
@@ -718,14 +747,15 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
             keyColl.insertTrigger = insertTrigger;
             keyColl.deleteTrigger = deleteTrigger;
             keyColl.maxSize = maxSize;
-            keyColl.movingWindow = movingWindow;
+            keyColl.movingWindow = isTrue(movingWindow);
 
             int orderByKey = -1;
             int size = keyMapBuilders.size();
-            if (size == 0) {
+            if (size == 1 && keyMapBuilders.get(0) == null) {
             	if (!list) {
             		withElemSet();
-            		size++;
+            	} else {
+            		size = 0;
             	}
             }
             if (size > 0) {
@@ -832,10 +862,11 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	    Comparator<K> comparator;
 	    /**
 	     * Key storage if not sorted. The values are single elements or a list of elements.
-	     * Note that we cannot use TreeMap as K may not be comparable
+	     * Note that we cannot use TreeMap as K may not be comparable.
+	     * One of keysMap or keysList is used.
 	     */
 	    Map<K, Object> keysMap;
-	    /** Key storage if sorted */
+	    /** Key storage if this is a sorted KeyListImpl. */
 	    GapList<K> keysList;
 	    /** True to count only number of occurrences of equal elements */
 	    boolean count;
@@ -913,51 +944,13 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	    }
 
 	    @SuppressWarnings("unchecked")
-		Iterator<E> iteratorValues(KeyCollectionImpl tableColl) {
-	    	if (keysMap != null) {
-	    		if (count) {
-	    			return (Iterator<E>) new KeyMapCountIter(tableColl, this, keysMap);
-	    		} else {
-	    			return (Iterator<E>) new KeyMapIter(tableColl, this, keysMap);
-	    		}
-	    	} else {
-	    		// TODO use KeysListIter?
-	    		return (Iterator<E>) keysList.unmodifiableList().iterator();
-	    	}
-	    }
-
-	    static class KeysListIter<E,K> implements Iterator<E> {
-
-	    	KeyCollectionImpl tableColl;
-	    	KeyMap<E,K> keyMap;
-	    	GapList<E> list;
-	    	Iterator<E> iter;
-	    	E elem;
-
-			public KeysListIter(KeyCollectionImpl tableColl, KeyMap<E,K> keyMap, GapList<E> list) {
-	    		this.tableColl = tableColl;
-	    		this.keyMap = keyMap;
-				this.list = list;
-				this.iter = list.iterator();
-			}
-
-			@Override
-			public boolean hasNext() {
-				return iter.hasNext();
-			}
-
-			@Override
-			public E next() {
-				elem = iter.next();
-				return elem;
-			}
-
-			@Override
-			public void remove() {
-				iter.remove();
-				tableColl.remove(elem, keyMap);
-			}
-
+		Iterator<E> iteratorValues(KeyCollectionImpl keyColl) {
+	    	assert(keysMap != null);
+    		if (count) {
+    			return (Iterator<E>) new KeyMapCountIter(keyColl, this, keysMap);
+    		} else {
+    			return (Iterator<E>) new KeyMapIter(keyColl, this, keysMap);
+    		}
 	    }
 
 	    static class KeyMapIter<E,K> implements Iterator<E> {
@@ -1035,7 +1028,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 
 	    static class KeyMapCountIter<E,K> implements Iterator<E> {
 
-	    	KeyCollectionImpl tableColl;
+	    	KeyCollectionImpl keyColl;
 	    	KeyMap<E,K> keyMap;
 	    	Map<K,Object> map;
 	    	Iterator<Entry<K, Object>> mapIter;
@@ -1043,8 +1036,8 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	    	int count;
 	    	boolean hasElem;
 
-	    	public KeyMapCountIter(KeyCollectionImpl tableColl, KeyMap<E,K> keyMap, Map<K,Object> map) {
-	    		this.tableColl = tableColl;
+	    	public KeyMapCountIter(KeyCollectionImpl keyColl, KeyMap<E,K> keyMap, Map<K,Object> map) {
+	    		this.keyColl = keyColl;
 	    		this.keyMap = keyMap;
 	    		this.map = map;
 	    		this.mapIter = map.entrySet().iterator();
@@ -1098,7 +1091,13 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 			}
 	    }
 
-	    private void add(K key, E elem) {
+	    /**
+	     * Add element to key map.
+	     *
+	     * @param key	key of element
+	     * @param elem	element
+	     */
+	    void add(K key, E elem) {
 	    	if (key == null) {
 	    		if (!allowNull) {
 	    			errorNullKey();
@@ -1178,9 +1177,12 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	    }
 
 	    /**
+	     * Remove element from key map.
+	     *
 	     * @param key			key of object to remove
 	     * @param matchValue	true if value must match to remove entry
 	     * @param value			value of object to remove
+	     * @param keyColl		key collection which stores object
 	     * @return				removed object
 	     */
 	    Option<E> remove(Object key, boolean matchValue, Object value, KeyCollectionImpl keyColl) {
@@ -1294,7 +1296,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     /**
      * List type used to store multiple elements.
      * We need this distinct type to distinguish it from a normal GapList
-     * in a KeyCollection<GapList<String>>.
+     * in a KeyCollection&lt;GapList&lt;String&gt;&gt;.
      */
     static class KeyMapList<E> extends GapList<E> {
     	public KeyMapList(E... elems) {
@@ -1316,7 +1318,8 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     boolean movingWindow;
     /**
      * Maps for element and all defined keys.
-     * Index 0 is reseverd for the elem key using an IdentMapper.
+     * keyMaps may be null for a KeyListImpl without keys.
+     * Index 0 is reserved for the elem key using an IdentMapper.
      * If there is no elem key, keyMaps[0] contains null.
      */
     KeyMap<E, Object>[] keyMaps;
@@ -1429,7 +1432,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     	}
     }
 
-    // for TableListImpl
+    // for KeyListImpl
 
     Object getKey(int keyIndex, E elem) {
     	return keyMaps[keyIndex].getKey(elem);
@@ -1438,6 +1441,10 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     boolean isSortedList() {
     	return orderByKey != -1;
     }
+
+	boolean hasElemSet() {
+		return keyMaps != null && keyMaps[0] != null;
+	}
 
     void checkIndex(int loIndex, int hiIndex, E elem) {
    		KeyMap keyMap = keyMaps[orderByKey];
@@ -1480,9 +1487,12 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     	}
     }
 
+    // Called from KeyListImpl.doAdd
     void addSorted(int index, E elem) {
-   		// Check whether index is correct for adding element in a sorted list
+    	// Check whether index is correct for adding element in a sorted list
     	checkIndex(index-1, index, elem);
+
+    	beforeInsert(elem);
 
     	// Index is correct
    		KeyMap keyMap = keyMaps[orderByKey];
@@ -1494,6 +1504,14 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
    		size++;
    }
 
+    // Called from KeyListImpl.doAdd
+    void addUnsorted(E elem) {
+    	beforeInsert(elem);
+    	doAdd(elem, null);
+    	size++;
+    }
+
+    // Called from KeyListImpl.doSet
    	void setSorted(int index, E elem, E oldElem) {
    		// Check whether index is correct for setting element in a sorted list
     	checkIndex(index-1, index+1, elem);
@@ -1503,7 +1521,9 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     	Object key = keyMap.getKey(elem);
     	GapList<Object> list = keyMap.keysList;
 
+    	beforeDelete(oldElem);
     	doRemove(oldElem, keyMap);
+    	beforeInsert(elem);
     	try {
     		doAdd(elem, keyMap);
     	}
@@ -1622,10 +1642,8 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
      *
      * @param elem	element to insert
      */
-    protected void beforeInsert(E elem) {
-        if (keyList != null) {
-            keyList.beforeInsert(elem);
-        } else if (insertTrigger != null) {
+    void beforeInsert(E elem) {
+        if (insertTrigger != null) {
    			insertTrigger.handle(elem);
     	}
     }
@@ -1639,9 +1657,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
      * @param elem	element to insert
      */
     protected void beforeDelete(E elem) {
-        if (keyList != null) {
-            keyList.beforeDelete(elem);
-        } else if (deleteTrigger != null) {
+        if (deleteTrigger != null) {
    			deleteTrigger.handle(elem);
     	}
     }
@@ -1969,17 +1985,19 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     /**
      * Checks whether the specified key exists in this list.
      *
-     * @param key key to look for
-     * @return  true if the key exists, otherwise false
+     * @param keyIndex  key index
+     * @param key 		key to look for
+     * @return  		true if the key exists, otherwise false
      */
-    public <K> boolean containsKey(int keyIndex, K key) {
+    protected <K> boolean containsKey(int keyIndex, K key) {
         return getKeyMap(keyIndex).containsKey(key);
     }
 
     /**
      * Returns list containing all distinct keys.
      *
-     * @return list containing all distinct keys
+     * @param keyIndex	key index
+     * @return 			list containing all distinct keys
      */
     protected Set<?> getDistinctKeys(int keyIndex) {
     	return getKeyMap(keyIndex).getDistinctKeys();

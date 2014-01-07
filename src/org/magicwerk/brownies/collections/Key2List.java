@@ -51,6 +51,7 @@ public class Key2List<E,K1,K2> extends KeyListImpl<E> {
          * Default constructor.
          */
         public Builder() {
+        	this(null);
         }
 
         /**
@@ -60,6 +61,7 @@ public class Key2List<E,K1,K2> extends KeyListImpl<E> {
          */
         Builder(Key2List<E,K1,K2> keyList) {
         	this.keyList = keyList;
+        	initKeyMapBuilder(2);
         }
 
         // -- Constraint
