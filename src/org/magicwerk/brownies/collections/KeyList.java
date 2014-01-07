@@ -47,6 +47,7 @@ public class KeyList<E> extends KeyListImpl<E> {
          * Default constructor.
          */
         public Builder() {
+        	this(null);
         }
 
         /**
@@ -56,6 +57,7 @@ public class KeyList<E> extends KeyListImpl<E> {
          */
         Builder(KeyList<E> keyList) {
         	this.keyList = keyList;
+        	initKeyMapBuilder(0);
         }
 
         // -- Constraint

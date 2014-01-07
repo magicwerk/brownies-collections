@@ -201,34 +201,6 @@ public class KeyListImpl<E> extends GapList<E> {
     	return new CollectionAsSet<E>(this, false);
     }
 
-    /**
-     * This method is called before a new element is added.
-     * If the addition should not happen, an exception can be thrown.
-     * Per default, this method calls the registered insert trigger.
-     * However the method can also be overwritten when appropriate.
-     *
-     * @param elem	element to insert
-     */
-    protected void beforeInsert(E elem) {
-        if (keyColl.insertTrigger != null) {
-            keyColl.insertTrigger.handle(elem);
-        }
-    }
-
-    /**
-     * This method is called before an existing element is removed.
-     * If the deletion should not happen, an exception can be thrown.
-     * Per default, this method calls the registered delete trigger.
-     * However the method can also be overwritten when appropriate.
-     *
-     * @param elem	element to insert
-     */
-    protected void beforeDelete(E elem) {
-        if (keyColl.deleteTrigger != null) {
-            keyColl.deleteTrigger.handle(elem);
-        }
-    }
-
     //-- Read
 
     @Override
@@ -275,6 +247,15 @@ public class KeyListImpl<E> extends GapList<E> {
     		super.doGetAll(array, index, len);
     	}
     }
+
+	@Override
+	public boolean contains(Object elem) {
+		if (keyColl.hasElemSet()) {
+			return keyColl.contains(elem);
+		} else {
+			return super.contains(elem);
+		}
+	}
 
     //--
 
@@ -365,9 +346,9 @@ public class KeyListImpl<E> extends GapList<E> {
 	    		super.doAdd(index, elem);
 			}
 		} else {
-			keyColl.add(elem);
+			keyColl.addUnsorted(elem);
 			if (index == -1) {
-				// Element is already added to tableColl
+				// Element is already added to keyColl
 				index = keyColl.size()-1;
 			}
     		super.doAdd(index, elem);
