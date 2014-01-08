@@ -2364,7 +2364,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
      *
      * @param keyMap	key map
      * @param key   	key of element to remove
-     * @return      	true if elements have been removed, false otherwise
+     * @return      	list with all removed elements
      */
     private <K> GapList<E> doRemoveAllByKey(KeyMap<E,K> keyMap, K key) {
     	// If list cannot contain null, handle null explicitly to prevent NPE
@@ -2379,13 +2379,11 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         		return GapList.EMPTY();
         	}
             Object obj = keyMap.keysMap.remove(key);
-            int num;
-            GapList<E> removed = GapList.create();
+            GapList<E> removed;
             if (obj instanceof KeyMapList) {
-                removed = (GapList<E>) obj;
-                num = removed.size();
+                removed = GapList.create((GapList<E>) obj);
             } else {
-                num = 1; // FIXME removed object is not returned
+            	removed = GapList.create((E) obj);
             }
             return removed;
 
