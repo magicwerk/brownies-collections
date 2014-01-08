@@ -1105,43 +1105,45 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	    	}
 	        if (keysMap != null) {
 	            // Keys not sorted
-	        	boolean add = false;
-	        	if (!keysMap.containsKey(key)) {
-	        		add = true;
+	        	Object newElem = (count ? 1 : elem);
+	        	int oldSize = keysMap.size();
+	        	Object oldElem = keysMap.put(key, newElem);
+	        	boolean hasOldElem;
+	        	if (oldElem != null) {
+	        		hasOldElem = true;
 	        	} else {
-	                if (allowDuplicates ||
-	                	(key == null && allowDuplicatesNull)) {
-	                	add = true;
-	                }
-	        	}
-	        	if (!add) {
-	        		errorDuplicateKey();
+	        		if (key == null) {
+	        			hasOldElem = (keysMap.size() == oldSize);
+	        		} else {
+	        			hasOldElem = false;
+	        		}
 	        	}
 
-                // New key
-	        	if (count) {
-	    			Integer val = (Integer) keysMap.get(key);
-	    		    if (val == null) {
-    		    		keysMap.put(key, 1);
-	    		    } else {
-    		    		keysMap.put(key, val+1);
-	    		    }
+	        	if (!hasOldElem) {
+	        		// There was no old element, so it was correct to just add the new one
+
 	        	} else {
-	    			Object obj = keysMap.get(key);
-	    		    if (obj == null) {
-	    		    	if (!keysMap.containsKey(key)) {
-	    		    		keysMap.put(key, elem);
-	    		        } else {
-	    		            GapList<E> list = (GapList<E>) new KeyMapList(null, elem);
-	    		            keysMap.put(key, list);
-	    		    	}
-	    		    } else if (obj instanceof KeyMapList) {
-	    	            GapList<E> list = (GapList<E>) obj;
-	    	            list.add(elem);
-	    	        } else {
-	    	            GapList<E> list = (GapList<E>) new KeyMapList(obj, elem);
+	        		if (!(allowDuplicates || (key == null && allowDuplicatesNull))) {
+	        			// Revert change and raise error
+	        			keysMap.put(key, oldElem);
+		        		errorDuplicateKey();
+	        		}
+
+		        	if (count) {
+		    		    if (oldElem != null) {
+			    			Integer val = (Integer) oldElem;
+	    		    		keysMap.put(key, val+1);
+		    		    }
+		        	} else {
+		        		GapList<E> list;
+		        		if (oldElem instanceof KeyMapList) {
+		        			list = (GapList<E>) oldElem;
+		        			list.add(elem);
+		        		} else {
+		    	            list = (GapList<E>) new KeyMapList(oldElem, elem);
+		        		}
 	    	            keysMap.put(key, list);
-	    	        }
+		        	}
 	        	}
 
 	        } else {
@@ -1954,19 +1956,18 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     	}
     	RuntimeException error = null;
 		int i = 0;
-    	if (keyMaps != null) {
-    		try {
-		    	for (i=0; i<keyMaps.length; i++) {
-		    		if (keyMaps[i] != null && keyMaps[i] != ignore) {
-		    			Object key = keyMaps[i].getKey(elem);
-		    			keyMaps[i].add(key, elem);
-		    		}
-		    	}
-    		}
-    		catch (RuntimeException e) {
-    			error = e;
-    		}
-    	}
+		try {
+	    	for (i=0; i<keyMaps.length; i++) {
+	    		if (keyMaps[i] != null && keyMaps[i] != ignore) {
+	    			Object key = keyMaps[i].getKey(elem);
+	    			keyMaps[i].add(key, elem);
+	    		}
+	    	}
+		}
+		catch (RuntimeException e) {
+			error = e;
+		}
+
     	// If an error occurred, roll back changes
     	if (error != null) {
     		for (i--; i>=0; i--) {
@@ -2384,7 +2385,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
                 removed = (GapList<E>) obj;
                 num = removed.size();
             } else {
-                num = 1;
+                num = 1; // FIXME removed object is not returned
             }
             return removed;
 
