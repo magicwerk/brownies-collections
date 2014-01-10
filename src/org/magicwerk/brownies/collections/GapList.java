@@ -355,48 +355,51 @@ public class GapList<E> extends AbstractList<E>
     }
 
 	/**
-	 * Default constructor.
+	 * Construct a list with the default initial capacity.
 	 */
 	public GapList() {
 		init();
 	}
 
 	/**
-	 * Construct a list with specified capacity.
+     * Construct a list with specified initial capacity.
 	 *
-	 * @param capacity	capacity to use
+	 * @param capacity	capacity
 	 */
 	public GapList(int capacity) {
 		init(capacity);
 	}
 
 	/**
-	 * Copy constructor.
+	 * Construct a list to contain the specified elements.
+	 * The list will have an initial capacity to hold these elements.
 	 *
-	 * @param that	source object to copy
+	 * @param coll	collection with elements
 	 */
-	public GapList(Collection<? extends E> that) {
-		init(that);
+	public GapList(Collection<? extends E> coll) {
+		init(coll);
 	}
 
 	/**
-	 * Copy constructor.
+	 * Construct a list to contain the specified elements.
+	 * The list will have an initial capacity to hold these elements.
 	 *
-	 * @param that	source object to copy
+	 * @param elems	array with elements
 	 */
-	public GapList(E... that) {
-		init(that);
+	public GapList(E... elems) {
+		init(elems);
 	}
 
 	/**
 	 * Initialize the list to be empty.
+	 * The list will have the default initial capacity.
 	 */
 	public void init() {
 		init(new Object[DEFAULT_CAPACITY], 0);
 	}
 
 	/**
-     * Initialize the list to be empty with specified capacity.
+     * Initialize the list to be empty with specified initial capacity.
      *
 	 * @param capacity capacity
 	 */
@@ -406,6 +409,7 @@ public class GapList<E> extends AbstractList<E>
 
 	/**
 	 * Initialize the list to contain the specified elements only.
+	 * The list will have an initial capacity to hold these elements.
 	 *
 	 * @param coll collection with elements
 	 */
@@ -416,6 +420,7 @@ public class GapList<E> extends AbstractList<E>
 
 	/**
      * Initialize the list to contain the specified elements only.
+	 * The list will have an initial capacity to hold these elements.
      *
 	 * @param elems array with elements
 	 */
@@ -432,7 +437,7 @@ public class GapList<E> extends AbstractList<E>
 	 */
 	static Object[] toArray(Collection<?> coll) {
     	Object[] values = coll.toArray();
-    	// toArray() might (incorrectly) not return Object[] (see bug 6260652)
+    	// as in ArrayList: toArray() might (incorrectly) not return Object[] (see bug 6260652)
     	if (values.getClass() != Object[].class) {
     		values = Arrays.copyOf(values, values.length, Object[].class);
 	    }
@@ -495,7 +500,6 @@ public class GapList<E> extends AbstractList<E>
 	 *
 	 * @param that	source object
 	 */
-	@SuppressWarnings("unchecked")
 	protected void initClone(GapList<E> that) {
 		// Do not simply clone the array, but make sure its capacity
 		// is equal to the size (as in ArrayList)
@@ -1145,7 +1149,6 @@ public class GapList<E> extends AbstractList<E>
      */
 	// Note: Provide this method to make transition from ArrayList as
 	//       smooth as possible
-    @SuppressWarnings("unchecked")
 	public void trimToSize() {
         doModify();
 
