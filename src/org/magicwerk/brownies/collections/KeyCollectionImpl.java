@@ -1316,7 +1316,9 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
      * The size is cached, as the key maps do not know the size if duplicates are allowed.
      */
     int size;
+    /** Maximum absolute or windows size, 0 if this list has no size restriction */
     int maxSize;
+    /** If maxSize is >0, this boolean indicates whether the size is for window (true) or absolute (false) */
     boolean movingWindow;
     /**
      * Maps for element and all defined keys.
@@ -1331,8 +1333,13 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
      * If an order key is defined for a KeyList, it must be implemented as KeyMap.keysList.
      */
     int orderByKey;
-	// -- null
+	/**
+	 * True to allow null elements, false to reject them.
+	 */
     boolean allowNullElem;
+    /**
+     * All elements in the list must fulfill this predicate, if null, all elements are allowed
+     */
     Predicate<E> constraint;
     // -- handlers
     Trigger<E> insertTrigger;
