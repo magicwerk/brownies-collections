@@ -678,7 +678,7 @@ public class GapList<E> extends AbstractList<E>
 	 * @return      true if element has been added (GapList.add() will always return true)
 	 */
 	protected boolean doAdd(int index, E elem) {
-        ensureCapacity(size() + 1);
+        doEnsureCapacity(size + 1);
 
 		if (index == -1) {
 		    index = size;
@@ -1110,6 +1110,17 @@ public class GapList<E> extends AbstractList<E>
 
 		doModify();
 
+		doEnsureCapacity(minCapacity);
+    }
+
+    /**
+     * Increases the capacity of this <tt>GapList</tt> instance, if
+     * necessary, to ensure that it can hold at least the number of elements
+     * specified by the minimum capacity argument.
+     *
+     * @param   minCapacity   the desired minimum capacity
+     */
+    protected void doEnsureCapacity(int minCapacity) {
 		// Note: Same behavior as in ArrayList.ensureCapacity()
 		int oldCapacity = values.length;
 		if (minCapacity <= oldCapacity) {
@@ -1554,7 +1565,7 @@ public class GapList<E> extends AbstractList<E>
      * @return      true if elements have been added, false otherwise
      */
 	protected boolean doAddAll(int index, E[] array) {
-        ensureCapacity(size() + array.length);
+        doEnsureCapacity(size() + array.length);
 
 		if (array.length == 0) {
 			return false;
