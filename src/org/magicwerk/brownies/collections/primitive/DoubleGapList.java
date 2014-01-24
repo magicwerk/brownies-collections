@@ -354,48 +354,51 @@ public class DoubleGapList implements Cloneable, Serializable {
     }
 
 	/**
-	 * Default constructor.
+	 * Construct a list with the default initial capacity.
 	 */
 	public DoubleGapList() {
 		init();
 	}
 
 	/**
-	 * Construct a list with specified capacity.
+     * Construct a list with specified initial capacity.
 	 *
-	 * @param capacity	capacity to use
+	 * @param capacity	capacity
 	 */
 	public DoubleGapList(int capacity) {
 		init(capacity);
 	}
 
 	/**
-	 * Copy constructor.
+	 * Construct a list to contain the specified elements.
+	 * The list will have an initial capacity to hold these elements.
 	 *
-	 * @param that	source object to copy
+	 * @param coll	collection with elements
 	 */
-	public DoubleGapList(Collection<Double> that) {
-		init(that);
+	public DoubleGapList(Collection<Double> coll) {
+		init(coll);
 	}
 
 	/**
-	 * Copy constructor.
+	 * Construct a list to contain the specified elements.
+	 * The list will have an initial capacity to hold these elements.
 	 *
-	 * @param that	source object to copy
+	 * @param elems	array with elements
 	 */
-	public DoubleGapList(double... that) {
-		init(that);
+	public DoubleGapList(double... elems) {
+		init(elems);
 	}
 
 	/**
 	 * Initialize the list to be empty.
+	 * The list will have the default initial capacity.
 	 */
 	public void init() {
 		init(new double[DEFAULT_CAPACITY], 0);
 	}
 
 	/**
-     * Initialize the list to be empty with specified capacity.
+     * Initialize the list to be empty with specified initial capacity.
      *
 	 * @param capacity capacity
 	 */
@@ -405,6 +408,7 @@ public class DoubleGapList implements Cloneable, Serializable {
 
 	/**
 	 * Initialize the list to contain the specified elements only.
+	 * The list will have an initial capacity to hold these elements.
 	 *
 	 * @param coll collection with elements
 	 */
@@ -415,6 +419,7 @@ public class DoubleGapList implements Cloneable, Serializable {
 
 	/**
      * Initialize the list to contain the specified elements only.
+	 * The list will have an initial capacity to hold these elements.
      *
 	 * @param elems array with elements
 	 */
@@ -492,7 +497,6 @@ public class DoubleGapList implements Cloneable, Serializable {
 	 *
 	 * @param that	source object
 	 */
-	@SuppressWarnings("unchecked")
 	protected void initClone(DoubleGapList that) {
 		// Do not simply clone the array, but make sure its capacity
 		// is equal to the size (as in ArrayList)
@@ -671,7 +675,7 @@ public class DoubleGapList implements Cloneable, Serializable {
 	 * @return      true if element has been added (DoubleGapList.add() will always return true)
 	 */
 	protected boolean doAdd(int index, double elem) {
-        ensureCapacity(size() + 1);
+        doEnsureCapacity(size + 1);
 
 		if (index == -1) {
 		    index = size;
@@ -1103,6 +1107,17 @@ public class DoubleGapList implements Cloneable, Serializable {
 
 		doModify();
 
+		doEnsureCapacity(minCapacity);
+    }
+
+    /**
+     * Increases the capacity of this <tt>DoubleGapList</tt> instance, if
+     * necessary, to ensure that it can hold at least the number of elements
+     * specified by the minimum capacity argument.
+     *
+     * @param   minCapacity   the desired minimum capacity
+     */
+    protected void doEnsureCapacity(int minCapacity) {
 		// Note: Same behavior as in ArrayList.ensureCapacity()
 		int oldCapacity = values.length;
 		if (minCapacity <= oldCapacity) {
@@ -1142,7 +1157,6 @@ public class DoubleGapList implements Cloneable, Serializable {
      */
 	// Note: Provide this method to make transition from ArrayList as
 	//       smooth as possible
-    @SuppressWarnings("unchecked")
 	public void trimToSize() {
         doModify();
 
@@ -1529,7 +1543,7 @@ return (int) val;
      * @return      true if elements have been added, false otherwise
      */
 	protected boolean doAddAll(int index, double[] array) {
-        ensureCapacity(size() + array.length);
+        doEnsureCapacity(size() + array.length);
 
 		if (array.length == 0) {
 			return false;
