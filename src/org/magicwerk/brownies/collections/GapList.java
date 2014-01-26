@@ -51,13 +51,7 @@ import java.util.RandomAccess;
  * @see	    java.util.ArrayList
  * @see	    java.util.LinkedList
  */
-public class GapList<E> extends IGapList<E>
-	implements
-		// All interfaces of ArrayList
-		List<E>, RandomAccess, Cloneable, Serializable,
-		// Additional interfaces of LinkedList
-		Deque<E> {
-
+public class GapList<E> extends IGapList<E> {
 
     /*
      * Helper variables to enable code for debugging.
@@ -508,7 +502,13 @@ public class GapList<E> extends IGapList<E>
 		return size;
 	}
 
-	@Override
+	/**
+	 * Returns capacity of this GapList.
+	 * Note that two GapLists are considered equal even if they have a distinct capacity.
+	 * Also the capacity can be changed by operations like clone() etc.
+	 *
+	 * @return capacity of this GapList
+	 */
 	public int capacity() {
 		return values.length;
 	}
