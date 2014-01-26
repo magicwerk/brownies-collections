@@ -1,11 +1,10 @@
 package org.magicwerk.brownies.collections;
 
-import java.util.AbstractList;
-import java.util.Arrays;
+import java.io.Serializable;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Deque;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -22,10 +21,9 @@ public class BigList<T>
 
     /**
 	 *
-	 * @param <T>
 	 */
 	@SuppressWarnings("serial")
-	static class BigListBlock<T> {
+	static class BigListBlock<T> implements Serializable {
 		private GapList<T> values;
 		private int refCount;
 
@@ -93,13 +91,29 @@ public class BigList<T>
 	/** Number of elements stored in this BigList */
 	private int size;
 	/** Index of current block */
-	private transient BigListBlock<T> currBlock;
+	private BigListBlock<T> currBlock;
 	/** Index of current block */
-	private transient int currBlockIndex;
+	private int currBlockIndex;
 	/** Index of first element in currBlock for the whole BigList */
-	private transient int currBlockStart;
+	private int currBlockStart;
 	/** Index of last element in currBlock for the whole BigList */
-	private transient int currBlockEnd;
+	private int currBlockEnd;
+
+	/**
+	 * Create new list with specified elements.
+	 *
+	 * @param elems 	array with elements
+	 * @return 			created list
+	 * @param <E> 		type of elements stored in the list
+	 */
+	public static <E> BigList<E> create(E... elems) {
+		// TOOD improve
+		BigList<E> list = new BigList<E>();
+		for (E elem: elems) {
+			list.add(elem);
+		}
+		return list;
+	}
 
 	/**
 	 * Default constructor.
@@ -162,24 +176,26 @@ public class BigList<T>
 	}
 
 	@Override
-	public T get(int index) {
-		if (index < 0 || index >= size) {
-			throw new IllegalArgumentException();
-		}
+	protected T doGet(int index) {
 		int pos = getBlockIndex(index);
 		return currBlock.get(pos);
 	}
 
 	@Override
-	public T set(int index, T element) {
-		if (index < 0 || index >= size) {
-			throw new IllegalArgumentException();
-		}
-
+	protected T doSet(int index, T elem) {
 		int pos = getBlockIndexWrite(index);
 		BigListBlock<T> block = blocks.get(currBlockIndex);
 		T oldElem = block.get(pos);
-		block.set(pos, element);
+		block.set(pos, elem);
+		return oldElem;
+	}
+
+	@Override
+	protected T doReSet(int index, T elem) {
+		int pos = getBlockIndexWrite(index);
+		BigListBlock<T> block = blocks.get(currBlockIndex);
+		T oldElem = block.get(pos);
+		block.set(pos, elem);
 		return oldElem;
 	}
 
@@ -303,6 +319,9 @@ public class BigList<T>
 
 	@Override
 	protected boolean doAdd(int index, T element) {
+		if (index == -1) {
+			index = size;
+		}
 		int pos = getBlockIndexWrite(index);
 
 		// Insert in current block
@@ -351,6 +370,12 @@ public class BigList<T>
 			int currBlockSize = currBlock.size();
 			size -= currBlockSize;
 			len -= currBlockSize;
+			if (len == 0) {
+				assert(currBlockIndex == 0);
+				assert(currBlockStart == 0);
+				currBlockEnd = 0;
+				return;
+			}
 			blocks.remove(currBlockIndex);
 			if (currBlockIndex < blocks.size()) {
 				currBlock = blocks.get(currBlockIndex);
@@ -435,33 +460,7 @@ public class BigList<T>
         return array;
     }
 
-    public void sort(Comparator<? super T> comparator) {
-    	if (size < blockSize) {
-    		assert(blocks.size() == 1);
-    		blocks.get(0).values.sort(comparator);
-    	} else {
-    		try {
-    			//LOG.debug("normal sort");
-    			T[] data = (T[]) toArray();
-    			Arrays.sort(data, comparator);
-    			for (int i=0; i<size; i++) {
-    				set(i, data[i]);
-    			}
-    		}
-    		catch (OutOfMemoryError e) {
-    			//LOG.debug("inplace sort");
-    			new InternalSort<T>(this, comparator).sort();
-    		}
-    	}
-    }
-
 	/**/
-
-	@Override
-	public Iterator<T> descendingIterator() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
 	@Override
 	public IGapList<T> unmodifiableList() {
@@ -476,63 +475,43 @@ public class BigList<T>
 	}
 
 	@Override
-	public int capacity() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	protected T doGet(int index) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	protected T doSet(int index, T elem) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	protected T doReSet(int index, T elem) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	protected void doEnsureCapacity(int minCapacity) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void trimToSize() {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	protected <T> void doGetAll(T[] array, int index, int len) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public IGapList<T> doCreate(int capacity) {
-		// TODO Auto-generated method stub
-		return null;
+		// TODO make sure if content fits in one block, array is allocated directly
+		return new BigList(this.blockSize);
 	}
 
 	@Override
 	public void sort(int index, int len, Comparator<? super T> comparator) {
-		// TODO Auto-generated method stub
-
+		if (index != 0 || len != size()) {
+			throw new IllegalArgumentException();
+		}
+    	if (size < blockSize) {
+    		assert(blocks.size() == 1);
+    		blocks.get(0).values.sort(comparator);
+    	} else {
+    		Collections.sort(this, comparator);
+    	}
 	}
 
 	@Override
 	public <K> int binarySearch(int index, int len, K key, Comparator<? super K> comparator) {
-		// TODO Auto-generated method stub
-		return 0;
+		if (index != 0 || len != size()) {
+			throw new IllegalArgumentException();
+		}
+    	if (size < blockSize) {
+    		assert(blocks.size() == 1);
+    		return blocks.get(0).values.binarySearch(key, comparator);
+    	} else {
+    		return Collections.binarySearch((List<K>) this, key, comparator);
+    	}
 	}
 
 }

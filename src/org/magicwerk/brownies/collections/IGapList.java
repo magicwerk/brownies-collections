@@ -132,15 +132,6 @@ public abstract class IGapList<E> extends AbstractList<E>
 	@Override
 	abstract public int size();
 
-	/**
-	 * Returns capacity of this GapList.
-	 * Note that two GapLists are considered equal even if they have a distinct capacity.
-	 * Also the capacity can be changed by operations like clone() etc.
-	 *
-	 * @return capacity of this GapList
-	 */
-	abstract public int capacity();
-
     @Override
     public E get(int index) {
     	checkIndex(index);
@@ -170,6 +161,7 @@ public abstract class IGapList<E> extends AbstractList<E>
 
     @Override
 	public E set(int index, E elem) {
+    	checkIndex(index);
 		return doSet(index, elem);
 	}
 
@@ -532,7 +524,11 @@ public abstract class IGapList<E> extends AbstractList<E>
 	 * @param len	number of elements to copy
 	 * @param <T> type of elements stored in the list
 	 */
-	abstract protected <T> void doGetAll(T[] array, int index, int len);
+	protected <T> void doGetAll(T[] array, int index, int len) {
+		for (int i=0; i<len; i++) {
+			array[index+i] = (T) doGet(index+i);
+		}
+	}
 
     /**
      * Adds all of the elements in the specified collection into this list.
