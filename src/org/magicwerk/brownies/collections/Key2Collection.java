@@ -493,7 +493,7 @@ public class Key2Collection<E,K1,K2> extends KeyCollectionImpl<E> {
      * @return map view to key map
      */
     public Map<K2,E> asMap2() {
-    	return new KeyCollectionAsMap<E,K2>(this, 1, false);
+    	return new KeyCollectionAsMap<E,K2>(this, 2, false);
     }
 
 	/**
