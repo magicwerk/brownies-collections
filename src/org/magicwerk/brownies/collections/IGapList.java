@@ -23,11 +23,13 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Deque;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.RandomAccess;
+import java.util.Set;
 
 /**
  * GapList combines the strengths of both ArrayList and LinkedList.
@@ -343,6 +345,55 @@ public abstract class IGapList<E> extends AbstractList<E>
 	    }
 	}
 
+	/**
+	 * Counts how many times the specified element is contained in the list.
+	 *
+	 * @param elem	element to count
+	 * @return		count how many times the specified element is contained in the list
+	 */
+	public int getCount(E elem) {
+		int count = 0;
+		int size = size();
+		for (int i=0; i<size; i++) {
+			if (equalsElem(doGet(i), elem)) {
+				count++;
+			}
+		}
+		return count;
+	}
+
+	/**
+	 * Returns all elements in the list equal to the specified element.
+	 *
+	 * @param elem	element to look for
+	 * @return		all elements in the list equal to the specified element
+	 */
+    public IGapList<E> getAll(E elem) {
+        IGapList<E> list = doCreate(-1);
+		int size = size();
+		for (int i=0; i<size; i++) {
+			E e = doGet(i);
+			if (equalsElem(e, elem)) {
+				list.add(e);
+			}
+		}
+        return list;
+    }
+
+	/**
+	 * Returns distinct elements in the list.
+	 *
+	 * @return		distinct elements in the list
+	 */
+    public Set<E> getDistinct() {
+        Set<E> set = new HashSet<E>();
+		int size = size();
+		for (int i=0; i<size; i++) {
+			set.add(doGet(i));
+		}
+        return set;
+    }
+
 	@Override
 	public int indexOf(Object elem) {
 		int size = size();
@@ -424,6 +475,29 @@ public abstract class IGapList<E> extends AbstractList<E>
 			}
 		}
 		return modified;
+    }
+
+	/**
+	 * Removes all equal elements.
+	 *
+	 * @param elem	element
+	 * @return		removed equal elements (never null)
+	 */
+    public IGapList<E> removeAll(E elem) {
+	    // Note that this method is already implemented in AbstractCollection.
+		// It has been duplicated so the method is also available in the primitive classes.
+	    IGapList<E> list = doCreate(-1);
+	    int size = size();
+		for (int i=0; i<size; i++) {
+			E e = doGet(i);
+			if (equalsElem(elem, e)) {
+				list.add(e);
+				doRemove(i);
+				size--;
+				i--;
+			}
+		}
+		return list;
     }
 
     /**
@@ -943,6 +1017,12 @@ public abstract class IGapList<E> extends AbstractList<E>
 
     // -- Readers --
 
+    /**
+     * Create list with specified capacity.
+     *
+     * @param capacity	initial capacity (use -1 for default capacity)
+     * @return			created list
+     */
     abstract public IGapList<E> doCreate(int capacity);
 
     /**

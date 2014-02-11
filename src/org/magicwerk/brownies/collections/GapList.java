@@ -423,21 +423,6 @@ public class GapList<E> extends IGapList<E> {
 		init(array, array.length);
 	}
 
-	/**
-	 * Copies the collection values into an array.
-	 *
-	 * @param coll   collection of values
-	 * @return       array containing the collection values
-	 */
-	static Object[] toArray(Collection<?> coll) {
-    	Object[] values = coll.toArray();
-    	// as in ArrayList: toArray() might (incorrectly) not return Object[] (see bug 6260652)
-    	if (values.getClass() != Object[].class) {
-    		values = Arrays.copyOf(values, values.length, Object[].class);
-	    }
-    	return values;
-	}
-
 	@Override
     public GapList<E> copy() {
 	    return (GapList<E>) super.copy();
@@ -1094,6 +1079,9 @@ public class GapList<E> extends IGapList<E> {
 
     @Override
     public IGapList<E> doCreate(int capacity) {
+    	if (capacity == -1) {
+    		capacity = DEFAULT_CAPACITY;
+    	}
     	return new GapList<E>(capacity);
     }
 

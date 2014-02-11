@@ -635,45 +635,40 @@ public class KeyListImpl<E> extends GapList<E> {
 
     //-- Element methods
 
-	/**
-	 * Returns all equal elements.
-	 * The returned list is immutable.
-	 *
-	 * @param elem	element
-	 * @return		all equal elements (never null)
-	 */
-	protected GapList<E> getAll(E elem) {
-		return getAllByKey(0, elem);
+    @Override
+	public GapList<E> getAll(E elem) {
+		if (keyColl.hasElemSet()) {
+			return getAllByKey(0, elem);
+		} else {
+			return (GapList<E>) super.getAll(elem);
+		}
 	}
 
-	/**
-	 * Returns the number of equal elements.
-	 *
-	 * @param elem	element
-	 * @return		number of equal elements
-	 */
-	protected int getCount(E elem) {
-		return getCountByKey(0, elem);
+	@Override
+	public int getCount(E elem) {
+		if (keyColl.hasElemSet()) {
+			return getCountByKey(0, elem);
+		} else {
+			return super.getCount(elem);
+		}
 	}
 
-	/**
-	 * Removes all equal elements.
-	 *
-	 * @param elem	element
-	 * @return		removed equal elements (never null)
-	 */
-	protected GapList<E> removeAll(E elem) {
-		return removeAllByKey(0, elem);
+	@Override
+	public GapList<E> removeAll(E elem) {
+		if (keyColl.hasElemSet()) {
+			return removeAllByKey(0, elem);
+		} else {
+			return (GapList<E>) super.removeAll(elem);
+		}
 	}
 
-	/**
-	 * Returns all distinct elements in the same order as in the collection.
-	 * The returned set is immutable.
-	 *
-	 * @return		distinct elements
-	 */
-	protected Set<E> getDistinct() {
-		return (Set<E>) getDistinctKeys(0);
+	@Override
+	public Set<E> getDistinct() {
+		if (keyColl.hasElemSet()) {
+			return (Set<E>) getDistinctKeys(0);
+		} else {
+			return super.getDistinct();
+		}
 	}
 
 	/**
