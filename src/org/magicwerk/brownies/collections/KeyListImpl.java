@@ -325,7 +325,7 @@ public class KeyListImpl<E> extends GapList<E> {
     				return false;
     			}
     			if (index == -1) {
-    				index = size()-1;
+    				index = size();
     			}
    				doRemove(0);
    				index = index-1;
