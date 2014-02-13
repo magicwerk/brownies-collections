@@ -19,6 +19,7 @@ package org.magicwerk.brownies.collections;
 
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Map;
 import java.util.Set;
 
 import org.magicwerk.brownies.collections.KeyCollectionImpl.BuilderImpl;
@@ -293,7 +294,7 @@ public class Key2List<E,K1,K2> extends KeyListImpl<E> {
          * @return              this (fluent interface)
          */
         public Builder<E,K1,K2> withKey2Sort(Comparator<? super K2> comparator) {
-        	return (Builder<E,K1,K2>) super.withKeySort(1, comparator);
+        	return (Builder<E,K1,K2>) super.withKeySort(2, comparator);
         }
 
         /**
@@ -304,7 +305,7 @@ public class Key2List<E,K1,K2> extends KeyListImpl<E> {
          * @return                      this (fluent interface)
          */
         public Builder<E,K1,K2> withKey2Sort(Comparator<? super K2> comparator, boolean sortNullsFirst) {
-        	return (Builder<E,K1,K2>) super.withKeySort(1, comparator, sortNullsFirst);
+        	return (Builder<E,K1,K2>) super.withKeySort(2, comparator, sortNullsFirst);
         }
 
         @Override
@@ -382,6 +383,15 @@ public class Key2List<E,K1,K2> extends KeyListImpl<E> {
 	}
 
     //-- Key1 methods
+
+    /**
+     * Returns an immutable map view to the key map.
+     *
+     * @return map view to key map
+     */
+    public Map<K1,E> asMap1() {
+    	return new KeyCollectionAsMap<E,K1>(this.keyColl, 1, true);
+    }
 
     /**
      * Returns index of first element in list with specified key.
@@ -492,6 +502,15 @@ public class Key2List<E,K1,K2> extends KeyListImpl<E> {
     }
 
     //-- Key2 methods
+
+    /**
+     * Returns an immutable map view to the key map.
+     *
+     * @return map view to key map
+     */
+    public Map<K2,E> asMap2() {
+    	return new KeyCollectionAsMap<E,K2>(this.keyColl, 2, true);
+    }
 
     /**
      * Returns index of first element in list with specified key.
