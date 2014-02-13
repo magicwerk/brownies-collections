@@ -252,7 +252,7 @@ public class Key2List<E,K1,K2> extends KeyListImpl<E> {
          * @param mapper	mapper to use
          * @return			this (fluent interface)
          */
-        public Builder<E,K1,K2> withKey2Map(Mapper<? super E,K1> mapper) {
+        public Builder<E,K1,K2> withKey2Map(Mapper<? super E,K2> mapper) {
         	return (Builder<E,K1,K2>) super.withKeyMap(2, mapper);
         }
 
@@ -306,6 +306,7 @@ public class Key2List<E,K1,K2> extends KeyListImpl<E> {
         public Builder<E,K1,K2> withKey2Sort(Comparator<? super K2> comparator, boolean sortNullsFirst) {
         	return (Builder<E,K1,K2>) super.withKeySort(1, comparator, sortNullsFirst);
         }
+
         @Override
         public Builder<E,K1,K2> withPrimaryKey2() {
         	return (Builder<E,K1,K2>) super.withPrimaryKey2();
