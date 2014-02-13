@@ -276,7 +276,7 @@ public class Key2Collection<E,K1,K2> extends KeyCollectionImpl<E> {
          * @return              this (fluent interface)
          */
         public Builder<E,K1,K2> withKey2Sort(Comparator<? super K2> comparator) {
-        	return (Builder<E,K1,K2>) super.withKeySort(1, comparator);
+        	return (Builder<E,K1,K2>) super.withKeySort(2, comparator);
         }
 
         /**
@@ -287,7 +287,7 @@ public class Key2Collection<E,K1,K2> extends KeyCollectionImpl<E> {
          * @return                      this (fluent interface)
          */
         public Builder<E,K1,K2> withKey2Sort(Comparator<? super K2> comparator, boolean sortNullsFirst) {
-        	return (Builder<E,K1,K2>) super.withKeySort(1, comparator, sortNullsFirst);
+        	return (Builder<E,K1,K2>) super.withKeySort(2, comparator, sortNullsFirst);
         }
         @Override
         public Builder<E,K1,K2> withPrimaryKey2() {
