@@ -1242,10 +1242,10 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	    	}
 	    }
 
-		public GapList<Object> getValues(int size) {
+		public GapList<Object> getValues(int capacity) {
 			GapList<Object> list = null;
 	        if (keysMap != null) {
-	        	list = GapList.create(size);
+	        	list = GapList.create(capacity);
 	        	for (Object obj: keysMap.values()) {
 			        if (obj instanceof KeyMapList) {
 			        	list.addAll((GapList) obj);
@@ -1256,7 +1256,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	        } else {
 	        	list = (GapList<Object>) keysList.unmodifiableList();
 	        }
-        	assert(keysList.size() == size);
+        	assert(keysList.size() == capacity);
 			return list;
 		}
 
@@ -1603,18 +1603,6 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     	}
     }
 
-    public GapList<E> getElements() {
-    	GapList<E> list = GapList.create(size());
-    	for (Iterator<E> iter=iterator(); iter.hasNext(); ) {
-    		list.add(iter.next());
-    	}
-    	return list;
-    }
-
-    public GapList<Object> getKeyValues(int keyIndex) {
-    	return getKeyMap(keyIndex).getValues(size);
-    }
-
     static void errorNullElement() {
 		throw new KeyException("Constraint violation: null element not allowed");
     }
@@ -1742,6 +1730,23 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 		}
 		return added;
 	}
+
+    public GapList<Object> getKeyValues(int keyIndex) {
+    	return getKeyMap(keyIndex).getValues(size);
+    }
+
+    /**
+     * Returns all elements contained in this collection as list.
+     *
+     * @return all elements contained in this collection as list
+     */
+    public GapList<E> toList() {
+    	GapList<E> list = GapList.create(size());
+		for (E e : this) {
+			list.add(e);
+		}
+    	return list;
+    }
 
 	@Override
 	public Object[] toArray() {

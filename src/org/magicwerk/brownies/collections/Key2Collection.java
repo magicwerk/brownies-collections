@@ -289,6 +289,7 @@ public class Key2Collection<E,K1,K2> extends KeyCollectionImpl<E> {
         public Builder<E,K1,K2> withKey2Sort(Comparator<? super K2> comparator, boolean sortNullsFirst) {
         	return (Builder<E,K1,K2>) super.withKeySort(2, comparator, sortNullsFirst);
         }
+
         @Override
         public Builder<E,K1,K2> withPrimaryKey2() {
         	return (Builder<E,K1,K2>) super.withPrimaryKey2();
