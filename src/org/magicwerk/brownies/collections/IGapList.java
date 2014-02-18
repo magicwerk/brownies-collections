@@ -178,6 +178,8 @@ public abstract class IGapList<E> extends AbstractList<E>
      */
     abstract protected E doReSet(int index, E elem);
 
+    abstract protected E getDefaultElem();
+
     /**
      * This method is called internally before elements are allocated or freed.
      * Override if you need to validity checks.
@@ -484,8 +486,6 @@ public abstract class IGapList<E> extends AbstractList<E>
 	 * @return		removed equal elements (never null)
 	 */
     public IGapList<E> removeAll(E elem) {
-	    // Note that this method is already implemented in AbstractCollection.
-		// It has been duplicated so the method is also available in the primitive classes.
 	    IGapList<E> list = doCreate(-1);
 	    int size = size();
 		for (int i=0; i<size; i++) {
@@ -942,7 +942,7 @@ public abstract class IGapList<E> extends AbstractList<E>
      * @param <E> 		type of elements stored in the list
      * @throws 			IndexOutOfBoundsException if the ranges are invalid
      */
-    public static <E> void move(IGapList<? extends E> src, int srcIndex, IGapList<E> dst, int dstIndex, int len) {
+    public static <E> void move(IGapList<E> src, int srcIndex, IGapList<? super E> dst, int dstIndex, int len) {
         if (src == dst) {
             src.move(srcIndex, dstIndex, len);
 
@@ -950,8 +950,9 @@ public abstract class IGapList<E> extends AbstractList<E>
             src.checkRange(srcIndex, len);
             dst.checkRange(dstIndex, len);
 
+            E defaultElem = src.getDefaultElem();
     		for (int i=0; i<len; i++) {
-    			E elem = src.doReSet(srcIndex+i, null);
+    			E elem = src.doReSet(srcIndex+i, defaultElem);
     			dst.doSet(dstIndex+i, elem);
     		}
         }

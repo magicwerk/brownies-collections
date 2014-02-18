@@ -163,7 +163,7 @@ public class GapList<E> extends IGapList<E> {
     private static final long serialVersionUID = -4477005565661968383L;
 
     /** Default capacity for list */
-    static final int DEFAULT_CAPACITY = 10;
+    public static final int DEFAULT_CAPACITY = 10;
 
 	/** Array holding raw data */
 	private E[] values;
@@ -424,19 +424,16 @@ public class GapList<E> extends IGapList<E> {
 	}
 
 	@Override
+	public E getDefaultElem() {
+		return null;
+	}
+
+	@Override
     public GapList<E> copy() {
 	    return (GapList<E>) super.copy();
 	}
 
-    /**
-     * Returns an unmodifiable view of this list. This method allows
-     * modules to provide users with "read-only" access to internal lists.
-     * Query operations on the returned list "read through" to the specified
-     * list, and attempts to modify the returned list, whether direct or
-     * via its iterator, result in an UnsupportedOperationException.
-     *
-     * @return an unmodifiable view of the specified list
-     */
+	@Override
     public GapList<E> unmodifiableList() {
         // Naming as in java.util.Collections#unmodifiableList
         return new ImmutableGapList<E>(this);

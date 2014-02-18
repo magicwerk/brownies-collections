@@ -23,6 +23,7 @@ package org.magicwerk.brownies.collections.primitive;
 
 import org.magicwerk.brownies.collections.primitive.NAMETYPEGapList;
 import org.magicwerk.brownies.collections.GapList;
+import org.magicwerk.brownies.collections.IGapList;
 import org.magicwerk.brownies.collections.helper.NaturalComparator;
 
 import java.util.Collection;
@@ -44,7 +45,7 @@ import java.util.Iterator;
  * @see	    org.magicwerk.brownies.collections.GapList
  * @see	    org.magicwerk.brownies.collections.primitive.NAMETYPEGapList
  */
-public class NAMETYPEObjGapList extends GapList<WRAPPERTYPE> {
+public class NAMETYPEObjGapList extends IGapList<WRAPPERTYPE> {
 
 	NAMETYPEGapList list;
 
@@ -98,7 +99,6 @@ public class NAMETYPEObjGapList extends GapList<WRAPPERTYPE> {
 	}
 
 	public NAMETYPEObjGapList() {
-		super(false, null);
 		init();
 	}
 
@@ -107,7 +107,6 @@ public class NAMETYPEObjGapList extends GapList<WRAPPERTYPE> {
 	}
 
 	public NAMETYPEObjGapList(int capacity) {
-		super(false, null);
 		init(capacity);
 	}
 
@@ -116,7 +115,6 @@ public class NAMETYPEObjGapList extends GapList<WRAPPERTYPE> {
 	}
 
 	public NAMETYPEObjGapList(WRAPPERTYPE... elems) {
-		super(false, null);
 		init(elems);
 	}
 
@@ -125,18 +123,16 @@ public class NAMETYPEObjGapList extends GapList<WRAPPERTYPE> {
 	}
 
 	public NAMETYPEObjGapList(Collection<? extends WRAPPERTYPE> elems) {
-		super(false, null);
 		init(elems);
 	}
+
 	public void init(Collection<? extends WRAPPERTYPE> elems) {
 		list = new NAMETYPEGapList(toPrimitive(elems));
 	}
 
 	@Override
-	public Object clone() {
-		NAMETYPEObjGapList list = (NAMETYPEObjGapList) super.clone();
-		list.list = (NAMETYPEGapList) list.list.clone();
-		return list;
+	protected void initClone(IGapList<WRAPPERTYPE> that) {
+		list = (NAMETYPEGapList) ((NAMETYPEObjGapList)that).list.clone();
 	}
 
 	@Override
@@ -145,11 +141,31 @@ public class NAMETYPEObjGapList extends GapList<WRAPPERTYPE> {
 	}
 
 	@Override
+	public WRAPPERTYPE getDefaultElem() {
+		return list.getDefaultElem();
+	}
+
+    @Override
+    public IGapList<WRAPPERTYPE> doCreate(int capacity) {
+    	if (capacity == -1) {
+    		capacity = GapList.DEFAULT_CAPACITY;
+    	}
+    	return new NAMETYPEObjGapList(capacity);
+    }
+
+
+	@Override
 	public int size() {
 		return list.size();
 	}
 
-	@Override
+	/**
+	 * Returns capacity of this GapList.
+	 * Note that two GapLists are considered equal even if they have a distinct capacity.
+	 * Also the capacity can be changed by operations like clone() etc.
+	 *
+	 * @return capacity of this GapList
+	 */
 	public int capacity() {
 		return list.capacity();
 	}
@@ -160,47 +176,47 @@ public class NAMETYPEObjGapList extends GapList<WRAPPERTYPE> {
 	}
 
 	@Override
-	public WRAPPERTYPE doGet(int index) {
+	protected WRAPPERTYPE doGet(int index) {
 		return list.doGet(index);
 	}
 
 	@Override
-	public void doGetAll(Object[] elems, int index, int len) {
+	protected void doGetAll(Object[] elems, int index, int len) {
 		list.doGetAll(toPrimitive((WRAPPERTYPE[]) elems), index, len);
 	}
 
 	@Override
-	public boolean doAdd(int index, WRAPPERTYPE elem) {
+	protected boolean doAdd(int index, WRAPPERTYPE elem) {
 		return list.doAdd(index, elem);
 	}
 
 	@Override
-	public boolean doAddAll(int index, WRAPPERTYPE[] elem) {
+	protected boolean doAddAll(int index, WRAPPERTYPE[] elem) {
 		return list.doAddAll(index, toPrimitive(elem));
 	}
 
 	@Override
-	public WRAPPERTYPE doSet(int index, WRAPPERTYPE elem) {
+	protected WRAPPERTYPE doSet(int index, WRAPPERTYPE elem) {
 		return list.doSet(index, elem);
 	}
 
 	@Override
-	public void doSetAll(int index, WRAPPERTYPE[] elem) {
+	protected void doSetAll(int index, WRAPPERTYPE[] elem) {
 		list.doSetAll(index, toPrimitive(elem));
 	}
 
 	@Override
-	public WRAPPERTYPE doRemove(int index) {
+	protected WRAPPERTYPE doRemove(int index) {
 		return list.doRemove(index);
 	}
 
 	@Override
-	public void doRemoveAll(int index, int len) {
+	protected void doRemoveAll(int index, int len) {
 		list.doRemoveAll(index, len);
 	}
 
 	@Override
-	public WRAPPERTYPE doReSet(int index, WRAPPERTYPE elem) {
+	protected WRAPPERTYPE doReSet(int index, WRAPPERTYPE elem) {
 		return list.doReSet(index, elem);
 	}
 
@@ -211,8 +227,8 @@ public class NAMETYPEObjGapList extends GapList<WRAPPERTYPE> {
     }
 
 	@Override
-	public void ensureCapacity(int minCapacity) {
-		list.ensureCapacity(minCapacity);
+	protected void doEnsureCapacity(int minCapacity) {
+		list.doEnsureCapacity(minCapacity);
 	}
 
 	@Override
@@ -293,7 +309,7 @@ public class NAMETYPEObjGapList extends GapList<WRAPPERTYPE> {
 	}
 
 	@Override
-	public boolean removeAll(GapList<?> coll) {
+	public boolean removeAll(IGapList<?> coll) {
 		return list.removeAll((Collection<WRAPPERTYPE>) coll);
 	}
 
@@ -303,7 +319,7 @@ public class NAMETYPEObjGapList extends GapList<WRAPPERTYPE> {
 	}
 
 	@Override
-	public boolean retainAll(GapList<?> coll) {
+	public boolean retainAll(IGapList<?> coll) {
 		return list.retainAll((Collection<WRAPPERTYPE>) coll);
 	}
 
@@ -357,13 +373,13 @@ public class NAMETYPEObjGapList extends GapList<WRAPPERTYPE> {
 	}
 
 	@Override
-	public boolean addAll(GapList<? extends WRAPPERTYPE> list2) {
+	public boolean addAll(IGapList<? extends WRAPPERTYPE> list2) {
 		SIMPLETYPE[] e = toPrimitive(list2);
 		return list.addAll(e);
 	}
 
 	@Override
-	public boolean addAll(int index, GapList<? extends WRAPPERTYPE> list2) {
+	public boolean addAll(int index, IGapList<? extends WRAPPERTYPE> list2) {
 		SIMPLETYPE[] e = toPrimitive(list2);
 		return list.addAll(index, e);
 	}
@@ -397,7 +413,7 @@ public class NAMETYPEObjGapList extends GapList<WRAPPERTYPE> {
 	}
 
 	@Override
-	public void setAll(int index, GapList<? extends WRAPPERTYPE> list2) {
+	public void setAll(int index, IGapList<? extends WRAPPERTYPE> list2) {
 		SIMPLETYPE[] e = toPrimitive(list2);
 		list.setAll(index, e);
 	}
@@ -430,36 +446,80 @@ public class NAMETYPEObjGapList extends GapList<WRAPPERTYPE> {
 		return list.binarySearch(index, len, (WRAPPERTYPE) key);
 	}
 
-    public GapList<WRAPPERTYPE> unmodifiableList() {
-        return new ImmutableGapList<WRAPPERTYPE>(this) {
-			{
-        		NAMETYPEGapList list = NAMETYPEObjGapList.this.list;
-			}
-
-			@Override
-			public int size() {
-				return list.size();
-			}
-
-			@Override
-			public int capacity() {
-				return list.capacity();
-			}
-
-			@Override
-			public WRAPPERTYPE get(int index) {
-				return list.get(index);
-			}
-
-			@Override
-			public WRAPPERTYPE doGet(int index) {
-				return list.doGet(index);
-			}
-
-			@Override
-			public void doGetAll(Object[] elems, int index, int len) {
-				list.doGetAll(toPrimitive((WRAPPERTYPE[]) elems), index, len);
-			}
-        };
+    public NAMETYPEObjGapList unmodifiableList() {
+        return new ImmutableNAMETYPEObjGapList(this);
     }
+
+    /**
+     * An immutable version of a GapList.
+     * Note that the client cannot change the list,
+     * but the content may change if the underlying list is changed.
+     */
+    protected static class ImmutableNAMETYPEObjGapList extends NAMETYPEObjGapList {
+
+        /** UID for serialization */
+        private static final long serialVersionUID = -1352274047348922584L;
+
+        /**
+         * Private constructor used internally.
+         *
+         * @param that  list to create an immutable view of
+         */
+        protected ImmutableNAMETYPEObjGapList(NAMETYPEObjGapList that) {
+            super(that);
+        }
+
+        @Override
+        protected boolean doAdd(int index, WRAPPERTYPE elem) {
+        	error();
+        	return false;
+        }
+
+        @Override
+        protected boolean doAddAll(int index, WRAPPERTYPE[] elems) {
+        	error();
+        	return false;
+        }
+
+        @Override
+        protected WRAPPERTYPE doSet(int index, WRAPPERTYPE elem) {
+        	error();
+        	return null;
+        }
+
+        @Override
+        protected void doSetAll(int index, WRAPPERTYPE[] elems) {
+        	error();
+        }
+
+        @Override
+        protected WRAPPERTYPE doReSet(int index, WRAPPERTYPE elem) {
+        	error();
+        	return null;
+        }
+
+        @Override
+        protected WRAPPERTYPE doRemove(int index) {
+        	error();
+        	return null;
+        }
+
+        @Override
+        protected void doRemoveAll(int index, int len) {
+        	error();
+        }
+
+        @Override
+        protected void doModify() {
+        	error();
+        }
+
+        /**
+         * Throw exception if an attempt is made to change an immutable list.
+         */
+        private void error() {
+            throw new UnsupportedOperationException("list is immutable");
+        }
+    }
+
 }
