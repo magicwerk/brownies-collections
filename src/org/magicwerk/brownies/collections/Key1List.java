@@ -19,6 +19,7 @@ package org.magicwerk.brownies.collections;
 
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Map;
 import java.util.Set;
 
 import org.magicwerk.brownies.collections.KeyCollectionImpl.BuilderImpl;
@@ -312,6 +313,15 @@ public class Key1List<E,K> extends KeyListImpl<E> {
 	}
 
     //-- Key methods
+
+    /**
+     * Returns an immutable map view to the key map.
+     *
+     * @return map view to key map
+     */
+    public Map<K,E> asMap1() {
+    	return new KeyCollectionAsMap<E,K>(this.keyColl, 1, true);
+    }
 
     /**
      * Returns index of first element in list with specified key.
