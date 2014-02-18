@@ -17,7 +17,7 @@
  */
 package org.magicwerk.brownies.collections.helper;
 
-import org.magicwerk.brownies.collections.GapList;
+import org.magicwerk.brownies.collections.IGapList;
 import org.magicwerk.brownies.collections.primitive.BooleanObjGapList;
 import org.magicwerk.brownies.collections.primitive.ByteObjGapList;
 import org.magicwerk.brownies.collections.primitive.CharObjGapList;
@@ -41,7 +41,7 @@ public class GapLists {
      * @return		create wrapping GapList
      * @throws 		IllegalArgumentException if no primitive type is specified
      */
-    public static GapList<?> createWrapperList(Class<?> type) {
+    public static IGapList<?> createWrapperList(Class<?> type) {
     	if (type == int.class) {
     		return new IntObjGapList();
     	} else if (type == long.class) {

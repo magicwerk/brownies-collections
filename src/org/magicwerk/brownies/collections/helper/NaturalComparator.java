@@ -40,6 +40,9 @@ public class NaturalComparator<T> implements Comparator<T> {
     public static <T> NaturalComparator<T> INSTANCE() {
         return INSTANCE;
     }
+    public static <T> NaturalComparator<T> INSTANCE(Class<T> c) {
+        return INSTANCE;
+    }
 
 	/**
 	 * Prevent construction.
