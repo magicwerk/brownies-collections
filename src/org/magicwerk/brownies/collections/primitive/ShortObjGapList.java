@@ -23,6 +23,7 @@ package org.magicwerk.brownies.collections.primitive;
 
 import org.magicwerk.brownies.collections.primitive.ShortGapList;
 import org.magicwerk.brownies.collections.GapList;
+import org.magicwerk.brownies.collections.IGapList;
 import org.magicwerk.brownies.collections.helper.NaturalComparator;
 
 import java.util.Collection;
@@ -44,7 +45,7 @@ import java.util.Iterator;
  * @see	    org.magicwerk.brownies.collections.GapList
  * @see	    org.magicwerk.brownies.collections.primitive.ShortGapList
  */
-public class ShortObjGapList extends GapList<Short> {
+public class ShortObjGapList extends IGapList<Short> {
 
 	ShortGapList list;
 
@@ -98,7 +99,6 @@ public class ShortObjGapList extends GapList<Short> {
 	}
 
 	public ShortObjGapList() {
-		super(false, null);
 		init();
 	}
 
@@ -107,7 +107,6 @@ public class ShortObjGapList extends GapList<Short> {
 	}
 
 	public ShortObjGapList(int capacity) {
-		super(false, null);
 		init(capacity);
 	}
 
@@ -116,7 +115,6 @@ public class ShortObjGapList extends GapList<Short> {
 	}
 
 	public ShortObjGapList(Short... elems) {
-		super(false, null);
 		init(elems);
 	}
 
@@ -125,18 +123,16 @@ public class ShortObjGapList extends GapList<Short> {
 	}
 
 	public ShortObjGapList(Collection<? extends Short> elems) {
-		super(false, null);
 		init(elems);
 	}
+
 	public void init(Collection<? extends Short> elems) {
 		list = new ShortGapList(toPrimitive(elems));
 	}
 
 	@Override
-	public Object clone() {
-		ShortObjGapList list = (ShortObjGapList) super.clone();
-		list.list = (ShortGapList) list.list.clone();
-		return list;
+	protected void initClone(IGapList<Short> that) {
+		list = (ShortGapList) ((ShortObjGapList)that).list.clone();
 	}
 
 	@Override
@@ -145,11 +141,31 @@ public class ShortObjGapList extends GapList<Short> {
 	}
 
 	@Override
+	public Short getDefaultElem() {
+		return list.getDefaultElem();
+	}
+
+    @Override
+    public IGapList<Short> doCreate(int capacity) {
+    	if (capacity == -1) {
+    		capacity = GapList.DEFAULT_CAPACITY;
+    	}
+    	return new ShortObjGapList(capacity);
+    }
+
+
+	@Override
 	public int size() {
 		return list.size();
 	}
 
-	@Override
+	/**
+	 * Returns capacity of this GapList.
+	 * Note that two GapLists are considered equal even if they have a distinct capacity.
+	 * Also the capacity can be changed by operations like clone() etc.
+	 *
+	 * @return capacity of this GapList
+	 */
 	public int capacity() {
 		return list.capacity();
 	}
@@ -160,47 +176,47 @@ public class ShortObjGapList extends GapList<Short> {
 	}
 
 	@Override
-	public Short doGet(int index) {
+	protected Short doGet(int index) {
 		return list.doGet(index);
 	}
 
 	@Override
-	public void doGetAll(Object[] elems, int index, int len) {
+	protected void doGetAll(Object[] elems, int index, int len) {
 		list.doGetAll(toPrimitive((Short[]) elems), index, len);
 	}
 
 	@Override
-	public boolean doAdd(int index, Short elem) {
+	protected boolean doAdd(int index, Short elem) {
 		return list.doAdd(index, elem);
 	}
 
 	@Override
-	public boolean doAddAll(int index, Short[] elem) {
+	protected boolean doAddAll(int index, Short[] elem) {
 		return list.doAddAll(index, toPrimitive(elem));
 	}
 
 	@Override
-	public Short doSet(int index, Short elem) {
+	protected Short doSet(int index, Short elem) {
 		return list.doSet(index, elem);
 	}
 
 	@Override
-	public void doSetAll(int index, Short[] elem) {
+	protected void doSetAll(int index, Short[] elem) {
 		list.doSetAll(index, toPrimitive(elem));
 	}
 
 	@Override
-	public Short doRemove(int index) {
+	protected Short doRemove(int index) {
 		return list.doRemove(index);
 	}
 
 	@Override
-	public void doRemoveAll(int index, int len) {
+	protected void doRemoveAll(int index, int len) {
 		list.doRemoveAll(index, len);
 	}
 
 	@Override
-	public Short doReSet(int index, Short elem) {
+	protected Short doReSet(int index, Short elem) {
 		return list.doReSet(index, elem);
 	}
 
@@ -211,8 +227,8 @@ public class ShortObjGapList extends GapList<Short> {
     }
 
 	@Override
-	public void ensureCapacity(int minCapacity) {
-		list.ensureCapacity(minCapacity);
+	protected void doEnsureCapacity(int minCapacity) {
+		list.doEnsureCapacity(minCapacity);
 	}
 
 	@Override
@@ -293,7 +309,7 @@ public class ShortObjGapList extends GapList<Short> {
 	}
 
 	@Override
-	public boolean removeAll(GapList<?> coll) {
+	public boolean removeAll(IGapList<?> coll) {
 		return list.removeAll((Collection<Short>) coll);
 	}
 
@@ -303,7 +319,7 @@ public class ShortObjGapList extends GapList<Short> {
 	}
 
 	@Override
-	public boolean retainAll(GapList<?> coll) {
+	public boolean retainAll(IGapList<?> coll) {
 		return list.retainAll((Collection<Short>) coll);
 	}
 
@@ -357,13 +373,13 @@ public class ShortObjGapList extends GapList<Short> {
 	}
 
 	@Override
-	public boolean addAll(GapList<? extends Short> list2) {
+	public boolean addAll(IGapList<? extends Short> list2) {
 		short[] e = toPrimitive(list2);
 		return list.addAll(e);
 	}
 
 	@Override
-	public boolean addAll(int index, GapList<? extends Short> list2) {
+	public boolean addAll(int index, IGapList<? extends Short> list2) {
 		short[] e = toPrimitive(list2);
 		return list.addAll(index, e);
 	}
@@ -397,7 +413,7 @@ public class ShortObjGapList extends GapList<Short> {
 	}
 
 	@Override
-	public void setAll(int index, GapList<? extends Short> list2) {
+	public void setAll(int index, IGapList<? extends Short> list2) {
 		short[] e = toPrimitive(list2);
 		list.setAll(index, e);
 	}
@@ -430,36 +446,80 @@ public class ShortObjGapList extends GapList<Short> {
 		return list.binarySearch(index, len, (Short) key);
 	}
 
-    public GapList<Short> unmodifiableList() {
-        return new ImmutableGapList<Short>(this) {
-			{
-        		ShortGapList list = ShortObjGapList.this.list;
-			}
-
-			@Override
-			public int size() {
-				return list.size();
-			}
-
-			@Override
-			public int capacity() {
-				return list.capacity();
-			}
-
-			@Override
-			public Short get(int index) {
-				return list.get(index);
-			}
-
-			@Override
-			public Short doGet(int index) {
-				return list.doGet(index);
-			}
-
-			@Override
-			public void doGetAll(Object[] elems, int index, int len) {
-				list.doGetAll(toPrimitive((Short[]) elems), index, len);
-			}
-        };
+    public ShortObjGapList unmodifiableList() {
+        return new ImmutableShortObjGapList(this);
     }
+
+    /**
+     * An immutable version of a GapList.
+     * Note that the client cannot change the list,
+     * but the content may change if the underlying list is changed.
+     */
+    protected static class ImmutableShortObjGapList extends ShortObjGapList {
+
+        /** UID for serialization */
+        private static final long serialVersionUID = -1352274047348922584L;
+
+        /**
+         * Private constructor used internally.
+         *
+         * @param that  list to create an immutable view of
+         */
+        protected ImmutableShortObjGapList(ShortObjGapList that) {
+            super(that);
+        }
+
+        @Override
+        protected boolean doAdd(int index, Short elem) {
+        	error();
+        	return false;
+        }
+
+        @Override
+        protected boolean doAddAll(int index, Short[] elems) {
+        	error();
+        	return false;
+        }
+
+        @Override
+        protected Short doSet(int index, Short elem) {
+        	error();
+        	return null;
+        }
+
+        @Override
+        protected void doSetAll(int index, Short[] elems) {
+        	error();
+        }
+
+        @Override
+        protected Short doReSet(int index, Short elem) {
+        	error();
+        	return null;
+        }
+
+        @Override
+        protected Short doRemove(int index) {
+        	error();
+        	return null;
+        }
+
+        @Override
+        protected void doRemoveAll(int index, int len) {
+        	error();
+        }
+
+        @Override
+        protected void doModify() {
+        	error();
+        }
+
+        /**
+         * Throw exception if an attempt is made to change an immutable list.
+         */
+        private void error() {
+            throw new UnsupportedOperationException("list is immutable");
+        }
+    }
+
 }

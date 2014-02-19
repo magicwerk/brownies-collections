@@ -94,7 +94,9 @@
 	@params name, type, wrapper, deval
 	-->
 	<target name="build-type">
+		<!--
 		<antcall target="build-simple-type" />
+		-->
 		<antcall target="build-object-type" />
 	</target>
 

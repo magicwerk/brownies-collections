@@ -600,7 +600,7 @@ public abstract class IGapList<E> extends AbstractList<E>
 	 */
 	protected <T> void doGetAll(T[] array, int index, int len) {
 		for (int i=0; i<len; i++) {
-			array[index+i] = (T) doGet(index+i);
+			array[i] = (T) doGet(index+i);
 		}
 	}
 
