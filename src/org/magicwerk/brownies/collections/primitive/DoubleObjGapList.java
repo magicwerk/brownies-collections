@@ -23,6 +23,7 @@ package org.magicwerk.brownies.collections.primitive;
 
 import org.magicwerk.brownies.collections.primitive.DoubleGapList;
 import org.magicwerk.brownies.collections.GapList;
+import org.magicwerk.brownies.collections.IGapList;
 import org.magicwerk.brownies.collections.helper.NaturalComparator;
 
 import java.util.Collection;
@@ -44,7 +45,7 @@ import java.util.Iterator;
  * @see	    org.magicwerk.brownies.collections.GapList
  * @see	    org.magicwerk.brownies.collections.primitive.DoubleGapList
  */
-public class DoubleObjGapList extends GapList<Double> {
+public class DoubleObjGapList extends IGapList<Double> {
 
 	DoubleGapList list;
 
@@ -98,7 +99,6 @@ public class DoubleObjGapList extends GapList<Double> {
 	}
 
 	public DoubleObjGapList() {
-		super(false, null);
 		init();
 	}
 
@@ -107,7 +107,6 @@ public class DoubleObjGapList extends GapList<Double> {
 	}
 
 	public DoubleObjGapList(int capacity) {
-		super(false, null);
 		init(capacity);
 	}
 
@@ -116,7 +115,6 @@ public class DoubleObjGapList extends GapList<Double> {
 	}
 
 	public DoubleObjGapList(Double... elems) {
-		super(false, null);
 		init(elems);
 	}
 
@@ -125,18 +123,16 @@ public class DoubleObjGapList extends GapList<Double> {
 	}
 
 	public DoubleObjGapList(Collection<? extends Double> elems) {
-		super(false, null);
 		init(elems);
 	}
+
 	public void init(Collection<? extends Double> elems) {
 		list = new DoubleGapList(toPrimitive(elems));
 	}
 
 	@Override
-	public Object clone() {
-		DoubleObjGapList list = (DoubleObjGapList) super.clone();
-		list.list = (DoubleGapList) list.list.clone();
-		return list;
+	protected void initClone(IGapList<Double> that) {
+		list = (DoubleGapList) ((DoubleObjGapList)that).list.clone();
 	}
 
 	@Override
@@ -145,11 +141,31 @@ public class DoubleObjGapList extends GapList<Double> {
 	}
 
 	@Override
+	public Double getDefaultElem() {
+		return list.getDefaultElem();
+	}
+
+    @Override
+    public IGapList<Double> doCreate(int capacity) {
+    	if (capacity == -1) {
+    		capacity = GapList.DEFAULT_CAPACITY;
+    	}
+    	return new DoubleObjGapList(capacity);
+    }
+
+
+	@Override
 	public int size() {
 		return list.size();
 	}
 
-	@Override
+	/**
+	 * Returns capacity of this GapList.
+	 * Note that two GapLists are considered equal even if they have a distinct capacity.
+	 * Also the capacity can be changed by operations like clone() etc.
+	 *
+	 * @return capacity of this GapList
+	 */
 	public int capacity() {
 		return list.capacity();
 	}
@@ -160,47 +176,47 @@ public class DoubleObjGapList extends GapList<Double> {
 	}
 
 	@Override
-	public Double doGet(int index) {
+	protected Double doGet(int index) {
 		return list.doGet(index);
 	}
 
 	@Override
-	public void doGetAll(Object[] elems, int index, int len) {
+	protected void doGetAll(Object[] elems, int index, int len) {
 		list.doGetAll(toPrimitive((Double[]) elems), index, len);
 	}
 
 	@Override
-	public boolean doAdd(int index, Double elem) {
+	protected boolean doAdd(int index, Double elem) {
 		return list.doAdd(index, elem);
 	}
 
 	@Override
-	public boolean doAddAll(int index, Double[] elem) {
+	protected boolean doAddAll(int index, Double[] elem) {
 		return list.doAddAll(index, toPrimitive(elem));
 	}
 
 	@Override
-	public Double doSet(int index, Double elem) {
+	protected Double doSet(int index, Double elem) {
 		return list.doSet(index, elem);
 	}
 
 	@Override
-	public void doSetAll(int index, Double[] elem) {
+	protected void doSetAll(int index, Double[] elem) {
 		list.doSetAll(index, toPrimitive(elem));
 	}
 
 	@Override
-	public Double doRemove(int index) {
+	protected Double doRemove(int index) {
 		return list.doRemove(index);
 	}
 
 	@Override
-	public void doRemoveAll(int index, int len) {
+	protected void doRemoveAll(int index, int len) {
 		list.doRemoveAll(index, len);
 	}
 
 	@Override
-	public Double doReSet(int index, Double elem) {
+	protected Double doReSet(int index, Double elem) {
 		return list.doReSet(index, elem);
 	}
 
@@ -211,8 +227,8 @@ public class DoubleObjGapList extends GapList<Double> {
     }
 
 	@Override
-	public void ensureCapacity(int minCapacity) {
-		list.ensureCapacity(minCapacity);
+	protected void doEnsureCapacity(int minCapacity) {
+		list.doEnsureCapacity(minCapacity);
 	}
 
 	@Override
@@ -293,7 +309,7 @@ public class DoubleObjGapList extends GapList<Double> {
 	}
 
 	@Override
-	public boolean removeAll(GapList<?> coll) {
+	public boolean removeAll(IGapList<?> coll) {
 		return list.removeAll((Collection<Double>) coll);
 	}
 
@@ -303,7 +319,7 @@ public class DoubleObjGapList extends GapList<Double> {
 	}
 
 	@Override
-	public boolean retainAll(GapList<?> coll) {
+	public boolean retainAll(IGapList<?> coll) {
 		return list.retainAll((Collection<Double>) coll);
 	}
 
@@ -357,13 +373,13 @@ public class DoubleObjGapList extends GapList<Double> {
 	}
 
 	@Override
-	public boolean addAll(GapList<? extends Double> list2) {
+	public boolean addAll(IGapList<? extends Double> list2) {
 		double[] e = toPrimitive(list2);
 		return list.addAll(e);
 	}
 
 	@Override
-	public boolean addAll(int index, GapList<? extends Double> list2) {
+	public boolean addAll(int index, IGapList<? extends Double> list2) {
 		double[] e = toPrimitive(list2);
 		return list.addAll(index, e);
 	}
@@ -397,7 +413,7 @@ public class DoubleObjGapList extends GapList<Double> {
 	}
 
 	@Override
-	public void setAll(int index, GapList<? extends Double> list2) {
+	public void setAll(int index, IGapList<? extends Double> list2) {
 		double[] e = toPrimitive(list2);
 		list.setAll(index, e);
 	}
@@ -430,36 +446,80 @@ public class DoubleObjGapList extends GapList<Double> {
 		return list.binarySearch(index, len, (Double) key);
 	}
 
-    public GapList<Double> unmodifiableList() {
-        return new ImmutableGapList<Double>(this) {
-			{
-        		DoubleGapList list = DoubleObjGapList.this.list;
-			}
-
-			@Override
-			public int size() {
-				return list.size();
-			}
-
-			@Override
-			public int capacity() {
-				return list.capacity();
-			}
-
-			@Override
-			public Double get(int index) {
-				return list.get(index);
-			}
-
-			@Override
-			public Double doGet(int index) {
-				return list.doGet(index);
-			}
-
-			@Override
-			public void doGetAll(Object[] elems, int index, int len) {
-				list.doGetAll(toPrimitive((Double[]) elems), index, len);
-			}
-        };
+    public DoubleObjGapList unmodifiableList() {
+        return new ImmutableDoubleObjGapList(this);
     }
+
+    /**
+     * An immutable version of a GapList.
+     * Note that the client cannot change the list,
+     * but the content may change if the underlying list is changed.
+     */
+    protected static class ImmutableDoubleObjGapList extends DoubleObjGapList {
+
+        /** UID for serialization */
+        private static final long serialVersionUID = -1352274047348922584L;
+
+        /**
+         * Private constructor used internally.
+         *
+         * @param that  list to create an immutable view of
+         */
+        protected ImmutableDoubleObjGapList(DoubleObjGapList that) {
+            super(that);
+        }
+
+        @Override
+        protected boolean doAdd(int index, Double elem) {
+        	error();
+        	return false;
+        }
+
+        @Override
+        protected boolean doAddAll(int index, Double[] elems) {
+        	error();
+        	return false;
+        }
+
+        @Override
+        protected Double doSet(int index, Double elem) {
+        	error();
+        	return null;
+        }
+
+        @Override
+        protected void doSetAll(int index, Double[] elems) {
+        	error();
+        }
+
+        @Override
+        protected Double doReSet(int index, Double elem) {
+        	error();
+        	return null;
+        }
+
+        @Override
+        protected Double doRemove(int index) {
+        	error();
+        	return null;
+        }
+
+        @Override
+        protected void doRemoveAll(int index, int len) {
+        	error();
+        }
+
+        @Override
+        protected void doModify() {
+        	error();
+        }
+
+        /**
+         * Throw exception if an attempt is made to change an immutable list.
+         */
+        private void error() {
+            throw new UnsupportedOperationException("list is immutable");
+        }
+    }
+
 }

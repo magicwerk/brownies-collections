@@ -23,6 +23,7 @@ package org.magicwerk.brownies.collections.primitive;
 
 import org.magicwerk.brownies.collections.primitive.ByteGapList;
 import org.magicwerk.brownies.collections.GapList;
+import org.magicwerk.brownies.collections.IGapList;
 import org.magicwerk.brownies.collections.helper.NaturalComparator;
 
 import java.util.Collection;
@@ -44,7 +45,7 @@ import java.util.Iterator;
  * @see	    org.magicwerk.brownies.collections.GapList
  * @see	    org.magicwerk.brownies.collections.primitive.ByteGapList
  */
-public class ByteObjGapList extends GapList<Byte> {
+public class ByteObjGapList extends IGapList<Byte> {
 
 	ByteGapList list;
 
@@ -98,7 +99,6 @@ public class ByteObjGapList extends GapList<Byte> {
 	}
 
 	public ByteObjGapList() {
-		super(false, null);
 		init();
 	}
 
@@ -107,7 +107,6 @@ public class ByteObjGapList extends GapList<Byte> {
 	}
 
 	public ByteObjGapList(int capacity) {
-		super(false, null);
 		init(capacity);
 	}
 
@@ -116,7 +115,6 @@ public class ByteObjGapList extends GapList<Byte> {
 	}
 
 	public ByteObjGapList(Byte... elems) {
-		super(false, null);
 		init(elems);
 	}
 
@@ -125,18 +123,16 @@ public class ByteObjGapList extends GapList<Byte> {
 	}
 
 	public ByteObjGapList(Collection<? extends Byte> elems) {
-		super(false, null);
 		init(elems);
 	}
+
 	public void init(Collection<? extends Byte> elems) {
 		list = new ByteGapList(toPrimitive(elems));
 	}
 
 	@Override
-	public Object clone() {
-		ByteObjGapList list = (ByteObjGapList) super.clone();
-		list.list = (ByteGapList) list.list.clone();
-		return list;
+	protected void initClone(IGapList<Byte> that) {
+		list = (ByteGapList) ((ByteObjGapList)that).list.clone();
 	}
 
 	@Override
@@ -145,11 +141,31 @@ public class ByteObjGapList extends GapList<Byte> {
 	}
 
 	@Override
+	public Byte getDefaultElem() {
+		return list.getDefaultElem();
+	}
+
+    @Override
+    public IGapList<Byte> doCreate(int capacity) {
+    	if (capacity == -1) {
+    		capacity = GapList.DEFAULT_CAPACITY;
+    	}
+    	return new ByteObjGapList(capacity);
+    }
+
+
+	@Override
 	public int size() {
 		return list.size();
 	}
 
-	@Override
+	/**
+	 * Returns capacity of this GapList.
+	 * Note that two GapLists are considered equal even if they have a distinct capacity.
+	 * Also the capacity can be changed by operations like clone() etc.
+	 *
+	 * @return capacity of this GapList
+	 */
 	public int capacity() {
 		return list.capacity();
 	}
@@ -160,47 +176,47 @@ public class ByteObjGapList extends GapList<Byte> {
 	}
 
 	@Override
-	public Byte doGet(int index) {
+	protected Byte doGet(int index) {
 		return list.doGet(index);
 	}
 
 	@Override
-	public void doGetAll(Object[] elems, int index, int len) {
+	protected void doGetAll(Object[] elems, int index, int len) {
 		list.doGetAll(toPrimitive((Byte[]) elems), index, len);
 	}
 
 	@Override
-	public boolean doAdd(int index, Byte elem) {
+	protected boolean doAdd(int index, Byte elem) {
 		return list.doAdd(index, elem);
 	}
 
 	@Override
-	public boolean doAddAll(int index, Byte[] elem) {
+	protected boolean doAddAll(int index, Byte[] elem) {
 		return list.doAddAll(index, toPrimitive(elem));
 	}
 
 	@Override
-	public Byte doSet(int index, Byte elem) {
+	protected Byte doSet(int index, Byte elem) {
 		return list.doSet(index, elem);
 	}
 
 	@Override
-	public void doSetAll(int index, Byte[] elem) {
+	protected void doSetAll(int index, Byte[] elem) {
 		list.doSetAll(index, toPrimitive(elem));
 	}
 
 	@Override
-	public Byte doRemove(int index) {
+	protected Byte doRemove(int index) {
 		return list.doRemove(index);
 	}
 
 	@Override
-	public void doRemoveAll(int index, int len) {
+	protected void doRemoveAll(int index, int len) {
 		list.doRemoveAll(index, len);
 	}
 
 	@Override
-	public Byte doReSet(int index, Byte elem) {
+	protected Byte doReSet(int index, Byte elem) {
 		return list.doReSet(index, elem);
 	}
 
@@ -211,8 +227,8 @@ public class ByteObjGapList extends GapList<Byte> {
     }
 
 	@Override
-	public void ensureCapacity(int minCapacity) {
-		list.ensureCapacity(minCapacity);
+	protected void doEnsureCapacity(int minCapacity) {
+		list.doEnsureCapacity(minCapacity);
 	}
 
 	@Override
@@ -293,7 +309,7 @@ public class ByteObjGapList extends GapList<Byte> {
 	}
 
 	@Override
-	public boolean removeAll(GapList<?> coll) {
+	public boolean removeAll(IGapList<?> coll) {
 		return list.removeAll((Collection<Byte>) coll);
 	}
 
@@ -303,7 +319,7 @@ public class ByteObjGapList extends GapList<Byte> {
 	}
 
 	@Override
-	public boolean retainAll(GapList<?> coll) {
+	public boolean retainAll(IGapList<?> coll) {
 		return list.retainAll((Collection<Byte>) coll);
 	}
 
@@ -357,13 +373,13 @@ public class ByteObjGapList extends GapList<Byte> {
 	}
 
 	@Override
-	public boolean addAll(GapList<? extends Byte> list2) {
+	public boolean addAll(IGapList<? extends Byte> list2) {
 		byte[] e = toPrimitive(list2);
 		return list.addAll(e);
 	}
 
 	@Override
-	public boolean addAll(int index, GapList<? extends Byte> list2) {
+	public boolean addAll(int index, IGapList<? extends Byte> list2) {
 		byte[] e = toPrimitive(list2);
 		return list.addAll(index, e);
 	}
@@ -397,7 +413,7 @@ public class ByteObjGapList extends GapList<Byte> {
 	}
 
 	@Override
-	public void setAll(int index, GapList<? extends Byte> list2) {
+	public void setAll(int index, IGapList<? extends Byte> list2) {
 		byte[] e = toPrimitive(list2);
 		list.setAll(index, e);
 	}
@@ -430,36 +446,80 @@ public class ByteObjGapList extends GapList<Byte> {
 		return list.binarySearch(index, len, (Byte) key);
 	}
 
-    public GapList<Byte> unmodifiableList() {
-        return new ImmutableGapList<Byte>(this) {
-			{
-        		ByteGapList list = ByteObjGapList.this.list;
-			}
-
-			@Override
-			public int size() {
-				return list.size();
-			}
-
-			@Override
-			public int capacity() {
-				return list.capacity();
-			}
-
-			@Override
-			public Byte get(int index) {
-				return list.get(index);
-			}
-
-			@Override
-			public Byte doGet(int index) {
-				return list.doGet(index);
-			}
-
-			@Override
-			public void doGetAll(Object[] elems, int index, int len) {
-				list.doGetAll(toPrimitive((Byte[]) elems), index, len);
-			}
-        };
+    public ByteObjGapList unmodifiableList() {
+        return new ImmutableByteObjGapList(this);
     }
+
+    /**
+     * An immutable version of a GapList.
+     * Note that the client cannot change the list,
+     * but the content may change if the underlying list is changed.
+     */
+    protected static class ImmutableByteObjGapList extends ByteObjGapList {
+
+        /** UID for serialization */
+        private static final long serialVersionUID = -1352274047348922584L;
+
+        /**
+         * Private constructor used internally.
+         *
+         * @param that  list to create an immutable view of
+         */
+        protected ImmutableByteObjGapList(ByteObjGapList that) {
+            super(that);
+        }
+
+        @Override
+        protected boolean doAdd(int index, Byte elem) {
+        	error();
+        	return false;
+        }
+
+        @Override
+        protected boolean doAddAll(int index, Byte[] elems) {
+        	error();
+        	return false;
+        }
+
+        @Override
+        protected Byte doSet(int index, Byte elem) {
+        	error();
+        	return null;
+        }
+
+        @Override
+        protected void doSetAll(int index, Byte[] elems) {
+        	error();
+        }
+
+        @Override
+        protected Byte doReSet(int index, Byte elem) {
+        	error();
+        	return null;
+        }
+
+        @Override
+        protected Byte doRemove(int index) {
+        	error();
+        	return null;
+        }
+
+        @Override
+        protected void doRemoveAll(int index, int len) {
+        	error();
+        }
+
+        @Override
+        protected void doModify() {
+        	error();
+        }
+
+        /**
+         * Throw exception if an attempt is made to change an immutable list.
+         */
+        private void error() {
+            throw new UnsupportedOperationException("list is immutable");
+        }
+    }
+
 }

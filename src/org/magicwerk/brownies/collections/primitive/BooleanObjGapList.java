@@ -23,6 +23,7 @@ package org.magicwerk.brownies.collections.primitive;
 
 import org.magicwerk.brownies.collections.primitive.BooleanGapList;
 import org.magicwerk.brownies.collections.GapList;
+import org.magicwerk.brownies.collections.IGapList;
 import org.magicwerk.brownies.collections.helper.NaturalComparator;
 
 import java.util.Collection;
@@ -44,7 +45,7 @@ import java.util.Iterator;
  * @see	    org.magicwerk.brownies.collections.GapList
  * @see	    org.magicwerk.brownies.collections.primitive.BooleanGapList
  */
-public class BooleanObjGapList extends GapList<Boolean> {
+public class BooleanObjGapList extends IGapList<Boolean> {
 
 	BooleanGapList list;
 
@@ -98,7 +99,6 @@ public class BooleanObjGapList extends GapList<Boolean> {
 	}
 
 	public BooleanObjGapList() {
-		super(false, null);
 		init();
 	}
 
@@ -107,7 +107,6 @@ public class BooleanObjGapList extends GapList<Boolean> {
 	}
 
 	public BooleanObjGapList(int capacity) {
-		super(false, null);
 		init(capacity);
 	}
 
@@ -116,7 +115,6 @@ public class BooleanObjGapList extends GapList<Boolean> {
 	}
 
 	public BooleanObjGapList(Boolean... elems) {
-		super(false, null);
 		init(elems);
 	}
 
@@ -125,18 +123,16 @@ public class BooleanObjGapList extends GapList<Boolean> {
 	}
 
 	public BooleanObjGapList(Collection<? extends Boolean> elems) {
-		super(false, null);
 		init(elems);
 	}
+
 	public void init(Collection<? extends Boolean> elems) {
 		list = new BooleanGapList(toPrimitive(elems));
 	}
 
 	@Override
-	public Object clone() {
-		BooleanObjGapList list = (BooleanObjGapList) super.clone();
-		list.list = (BooleanGapList) list.list.clone();
-		return list;
+	protected void initClone(IGapList<Boolean> that) {
+		list = (BooleanGapList) ((BooleanObjGapList)that).list.clone();
 	}
 
 	@Override
@@ -145,11 +141,31 @@ public class BooleanObjGapList extends GapList<Boolean> {
 	}
 
 	@Override
+	public Boolean getDefaultElem() {
+		return list.getDefaultElem();
+	}
+
+    @Override
+    public IGapList<Boolean> doCreate(int capacity) {
+    	if (capacity == -1) {
+    		capacity = GapList.DEFAULT_CAPACITY;
+    	}
+    	return new BooleanObjGapList(capacity);
+    }
+
+
+	@Override
 	public int size() {
 		return list.size();
 	}
 
-	@Override
+	/**
+	 * Returns capacity of this GapList.
+	 * Note that two GapLists are considered equal even if they have a distinct capacity.
+	 * Also the capacity can be changed by operations like clone() etc.
+	 *
+	 * @return capacity of this GapList
+	 */
 	public int capacity() {
 		return list.capacity();
 	}
@@ -160,47 +176,47 @@ public class BooleanObjGapList extends GapList<Boolean> {
 	}
 
 	@Override
-	public Boolean doGet(int index) {
+	protected Boolean doGet(int index) {
 		return list.doGet(index);
 	}
 
 	@Override
-	public void doGetAll(Object[] elems, int index, int len) {
+	protected void doGetAll(Object[] elems, int index, int len) {
 		list.doGetAll(toPrimitive((Boolean[]) elems), index, len);
 	}
 
 	@Override
-	public boolean doAdd(int index, Boolean elem) {
+	protected boolean doAdd(int index, Boolean elem) {
 		return list.doAdd(index, elem);
 	}
 
 	@Override
-	public boolean doAddAll(int index, Boolean[] elem) {
+	protected boolean doAddAll(int index, Boolean[] elem) {
 		return list.doAddAll(index, toPrimitive(elem));
 	}
 
 	@Override
-	public Boolean doSet(int index, Boolean elem) {
+	protected Boolean doSet(int index, Boolean elem) {
 		return list.doSet(index, elem);
 	}
 
 	@Override
-	public void doSetAll(int index, Boolean[] elem) {
+	protected void doSetAll(int index, Boolean[] elem) {
 		list.doSetAll(index, toPrimitive(elem));
 	}
 
 	@Override
-	public Boolean doRemove(int index) {
+	protected Boolean doRemove(int index) {
 		return list.doRemove(index);
 	}
 
 	@Override
-	public void doRemoveAll(int index, int len) {
+	protected void doRemoveAll(int index, int len) {
 		list.doRemoveAll(index, len);
 	}
 
 	@Override
-	public Boolean doReSet(int index, Boolean elem) {
+	protected Boolean doReSet(int index, Boolean elem) {
 		return list.doReSet(index, elem);
 	}
 
@@ -211,8 +227,8 @@ public class BooleanObjGapList extends GapList<Boolean> {
     }
 
 	@Override
-	public void ensureCapacity(int minCapacity) {
-		list.ensureCapacity(minCapacity);
+	protected void doEnsureCapacity(int minCapacity) {
+		list.doEnsureCapacity(minCapacity);
 	}
 
 	@Override
@@ -293,7 +309,7 @@ public class BooleanObjGapList extends GapList<Boolean> {
 	}
 
 	@Override
-	public boolean removeAll(GapList<?> coll) {
+	public boolean removeAll(IGapList<?> coll) {
 		return list.removeAll((Collection<Boolean>) coll);
 	}
 
@@ -303,7 +319,7 @@ public class BooleanObjGapList extends GapList<Boolean> {
 	}
 
 	@Override
-	public boolean retainAll(GapList<?> coll) {
+	public boolean retainAll(IGapList<?> coll) {
 		return list.retainAll((Collection<Boolean>) coll);
 	}
 
@@ -357,13 +373,13 @@ public class BooleanObjGapList extends GapList<Boolean> {
 	}
 
 	@Override
-	public boolean addAll(GapList<? extends Boolean> list2) {
+	public boolean addAll(IGapList<? extends Boolean> list2) {
 		boolean[] e = toPrimitive(list2);
 		return list.addAll(e);
 	}
 
 	@Override
-	public boolean addAll(int index, GapList<? extends Boolean> list2) {
+	public boolean addAll(int index, IGapList<? extends Boolean> list2) {
 		boolean[] e = toPrimitive(list2);
 		return list.addAll(index, e);
 	}
@@ -397,7 +413,7 @@ public class BooleanObjGapList extends GapList<Boolean> {
 	}
 
 	@Override
-	public void setAll(int index, GapList<? extends Boolean> list2) {
+	public void setAll(int index, IGapList<? extends Boolean> list2) {
 		boolean[] e = toPrimitive(list2);
 		list.setAll(index, e);
 	}
@@ -430,36 +446,80 @@ public class BooleanObjGapList extends GapList<Boolean> {
 		return list.binarySearch(index, len, (Boolean) key);
 	}
 
-    public GapList<Boolean> unmodifiableList() {
-        return new ImmutableGapList<Boolean>(this) {
-			{
-        		BooleanGapList list = BooleanObjGapList.this.list;
-			}
-
-			@Override
-			public int size() {
-				return list.size();
-			}
-
-			@Override
-			public int capacity() {
-				return list.capacity();
-			}
-
-			@Override
-			public Boolean get(int index) {
-				return list.get(index);
-			}
-
-			@Override
-			public Boolean doGet(int index) {
-				return list.doGet(index);
-			}
-
-			@Override
-			public void doGetAll(Object[] elems, int index, int len) {
-				list.doGetAll(toPrimitive((Boolean[]) elems), index, len);
-			}
-        };
+    public BooleanObjGapList unmodifiableList() {
+        return new ImmutableBooleanObjGapList(this);
     }
+
+    /**
+     * An immutable version of a GapList.
+     * Note that the client cannot change the list,
+     * but the content may change if the underlying list is changed.
+     */
+    protected static class ImmutableBooleanObjGapList extends BooleanObjGapList {
+
+        /** UID for serialization */
+        private static final long serialVersionUID = -1352274047348922584L;
+
+        /**
+         * Private constructor used internally.
+         *
+         * @param that  list to create an immutable view of
+         */
+        protected ImmutableBooleanObjGapList(BooleanObjGapList that) {
+            super(that);
+        }
+
+        @Override
+        protected boolean doAdd(int index, Boolean elem) {
+        	error();
+        	return false;
+        }
+
+        @Override
+        protected boolean doAddAll(int index, Boolean[] elems) {
+        	error();
+        	return false;
+        }
+
+        @Override
+        protected Boolean doSet(int index, Boolean elem) {
+        	error();
+        	return null;
+        }
+
+        @Override
+        protected void doSetAll(int index, Boolean[] elems) {
+        	error();
+        }
+
+        @Override
+        protected Boolean doReSet(int index, Boolean elem) {
+        	error();
+        	return null;
+        }
+
+        @Override
+        protected Boolean doRemove(int index) {
+        	error();
+        	return null;
+        }
+
+        @Override
+        protected void doRemoveAll(int index, int len) {
+        	error();
+        }
+
+        @Override
+        protected void doModify() {
+        	error();
+        }
+
+        /**
+         * Throw exception if an attempt is made to change an immutable list.
+         */
+        private void error() {
+            throw new UnsupportedOperationException("list is immutable");
+        }
+    }
+
 }

@@ -7,6 +7,9 @@ import java.util.Comparator;
 import java.util.Deque;
 import java.util.List;
 
+import org.magicwerk.brownies.collections.GapList.ImmutableGapList;
+import org.magicwerk.brownies.collections.helper.InternalSort;
+
 /**
  * The first block (GapList) used grows dynamcically, all others
  * are allocated with fixed size. This is necessary to prevent starving
@@ -18,6 +21,78 @@ import java.util.List;
 public class BigList<T>
     extends IGapList<T>
     implements List<T>, Deque<T> {
+
+    /**
+     * An immutable version of a GapList.
+     * Note that the client cannot change the list,
+     * but the content may change if the underlying list is changed.
+     */
+    protected static class ImmutableBigList<E> extends BigList<E> {
+
+        /** UID for serialization */
+        private static final long serialVersionUID = -1352274047348922584L;
+
+        /**
+         * Private constructor used internally.
+         *
+         * @param that  list to create an immutable view of
+         */
+        protected ImmutableBigList(BigList<E> that) {
+            super(true, that);
+        }
+
+        @Override
+        protected boolean doAdd(int index, E elem) {
+        	error();
+        	return false;
+        }
+
+        @Override
+        protected boolean doAddAll(int index, E[] elems) {
+        	error();
+        	return false;
+        }
+
+        @Override
+        protected E doSet(int index, E elem) {
+        	error();
+        	return null;
+        }
+
+        @Override
+        protected void doSetAll(int index, E[] elems) {
+        	error();
+        }
+
+        @Override
+        protected E doReSet(int index, E elem) {
+        	error();
+        	return null;
+        }
+
+        @Override
+        protected E doRemove(int index) {
+        	error();
+        	return null;
+        }
+
+        @Override
+        protected void doRemoveAll(int index, int len) {
+        	error();
+        }
+
+        @Override
+        protected void doModify() {
+        	error();
+        }
+
+        /**
+         * Throw exception if an attempt is made to change an immutable list.
+         */
+        private void error() {
+            throw new UnsupportedOperationException("list is immutable");
+        }
+    };
 
     /**
 	 *
@@ -99,6 +174,25 @@ public class BigList<T>
 	/** Index of last element in currBlock for the whole BigList */
 	private int currBlockEnd;
 
+    /**
+     * Constructor used internally, e.g. for ImmutableBigList.
+     *
+     * @param copy true to copy all instance values from source,
+     *             if false nothing is done
+     * @param that list to copy
+     */
+    protected BigList(boolean copy, BigList<T> that) {
+        if (copy) {
+            this.blocks = that.blocks;
+            this.blockSize = that.blockSize;
+            this.size = that.size;
+            this.currBlock = that.currBlock;
+            this.currBlockIndex = that.currBlockIndex;
+            this.currBlockStart = that.currBlockStart;
+            this.currBlockEnd = that.currBlockEnd;
+        }
+    }
+
 	/**
 	 * Create new list with specified elements.
 	 *
@@ -138,18 +232,7 @@ public class BigList<T>
 	}
 
     public BigList(BigList<T> that) {
-        blockSize = that.blockSize;
-
-		blocks = new GapList<BigListBlock<T>>(that.blocks);
-		for (BigListBlock block: blocks) {
-			block.ref();
-		}
-		size = that.size;
-
-		currBlock = blocks.get(0);
-		currBlockIndex = 0;
-		currBlockStart = 0;
-		currBlockEnd = currBlock.size();
+    	initClone(that);
     }
 
     public BigList(Collection<T> that) {
@@ -163,6 +246,35 @@ public class BigList<T>
             add((T) elem);
         }
         assert(size() == that.size());
+    }
+
+	@Override
+	protected void initClone(IGapList<T> that) {
+		BigList<T> bigList = (BigList<T>) that;
+        blockSize = bigList.blockSize;
+
+		blocks = new GapList<BigListBlock<T>>(bigList.blocks);
+		for (BigListBlock block: blocks) {
+			block.ref();
+		}
+		size = bigList.size;
+
+		currBlock = blocks.get(0);
+		currBlockIndex = 0;
+		currBlockStart = 0;
+		currBlockEnd = currBlock.size();
+	}
+
+	@Override
+	public T getDefaultElem() {
+		return null;
+	}
+
+    @Override
+    protected void finalize() {
+    	for (BigListBlock<T> block: blocks) {
+    		block.unref();
+    	}
     }
 
     private void check() {
@@ -452,34 +564,29 @@ public class BigList<T>
 		//LOG.debug(toString());
 	}
 
-    public Object[] toArray() {
-        Object[] array = new Object[size];
-        for (int i=0; i<size(); i++) {
-            array[i] = get(i);
-        }
-        return array;
-    }
-
 	/**/
 
-	@Override
-	public IGapList<T> unmodifiableList() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	protected void initClone(IGapList<T> that) {
-		// TODO Auto-generated method stub
-
-	}
+    @Override
+    public BigList<T> unmodifiableList() {
+        // Naming as in java.util.Collections#unmodifiableList
+        return new ImmutableBigList<T>(this);
+    }
 
 	@Override
 	protected void doEnsureCapacity(int minCapacity) {
+		if (blocks.size() == 1) {
+			if (minCapacity > blockSize) {
+				minCapacity = blockSize;
+			}
+			blocks.get(0).values.doEnsureCapacity(minCapacity);
+		}
 	}
 
 	@Override
 	public void trimToSize() {
+		if (blocks.size() == 1) {
+			blocks.get(0).values.trimToSize();
+		}
 	}
 
 	@Override
@@ -490,24 +597,20 @@ public class BigList<T>
 
 	@Override
 	public void sort(int index, int len, Comparator<? super T> comparator) {
-		if (index != 0 || len != size()) {
-			throw new IllegalArgumentException();
-		}
-    	if (size < blockSize) {
-    		assert(blocks.size() == 1);
-    		blocks.get(0).values.sort(comparator);
+    	checkRange(index, len);
+
+    	if (blocks.size() == 0) {
+    		blocks.get(0).values.sort(index, len, comparator);
     	} else {
-    		Collections.sort(this, comparator);
+    		InternalSort.sort(this, comparator, index, index+len);
     	}
 	}
 
 	@Override
 	public <K> int binarySearch(int index, int len, K key, Comparator<? super K> comparator) {
-		if (index != 0 || len != size()) {
-			throw new IllegalArgumentException();
-		}
-    	if (size < blockSize) {
-    		assert(blocks.size() == 1);
+    	checkRange(index, len);
+
+    	if (blocks.size() == 1) {
     		return blocks.get(0).values.binarySearch(key, comparator);
     	} else {
     		return Collections.binarySearch((List<K>) this, key, comparator);

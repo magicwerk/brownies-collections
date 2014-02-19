@@ -23,6 +23,7 @@ package org.magicwerk.brownies.collections.primitive;
 
 import org.magicwerk.brownies.collections.primitive.LongGapList;
 import org.magicwerk.brownies.collections.GapList;
+import org.magicwerk.brownies.collections.IGapList;
 import org.magicwerk.brownies.collections.helper.NaturalComparator;
 
 import java.util.Collection;
@@ -44,7 +45,7 @@ import java.util.Iterator;
  * @see	    org.magicwerk.brownies.collections.GapList
  * @see	    org.magicwerk.brownies.collections.primitive.LongGapList
  */
-public class LongObjGapList extends GapList<Long> {
+public class LongObjGapList extends IGapList<Long> {
 
 	LongGapList list;
 
@@ -98,7 +99,6 @@ public class LongObjGapList extends GapList<Long> {
 	}
 
 	public LongObjGapList() {
-		super(false, null);
 		init();
 	}
 
@@ -107,7 +107,6 @@ public class LongObjGapList extends GapList<Long> {
 	}
 
 	public LongObjGapList(int capacity) {
-		super(false, null);
 		init(capacity);
 	}
 
@@ -116,7 +115,6 @@ public class LongObjGapList extends GapList<Long> {
 	}
 
 	public LongObjGapList(Long... elems) {
-		super(false, null);
 		init(elems);
 	}
 
@@ -125,18 +123,16 @@ public class LongObjGapList extends GapList<Long> {
 	}
 
 	public LongObjGapList(Collection<? extends Long> elems) {
-		super(false, null);
 		init(elems);
 	}
+
 	public void init(Collection<? extends Long> elems) {
 		list = new LongGapList(toPrimitive(elems));
 	}
 
 	@Override
-	public Object clone() {
-		LongObjGapList list = (LongObjGapList) super.clone();
-		list.list = (LongGapList) list.list.clone();
-		return list;
+	protected void initClone(IGapList<Long> that) {
+		list = (LongGapList) ((LongObjGapList)that).list.clone();
 	}
 
 	@Override
@@ -145,11 +141,31 @@ public class LongObjGapList extends GapList<Long> {
 	}
 
 	@Override
+	public Long getDefaultElem() {
+		return list.getDefaultElem();
+	}
+
+    @Override
+    public IGapList<Long> doCreate(int capacity) {
+    	if (capacity == -1) {
+    		capacity = GapList.DEFAULT_CAPACITY;
+    	}
+    	return new LongObjGapList(capacity);
+    }
+
+
+	@Override
 	public int size() {
 		return list.size();
 	}
 
-	@Override
+	/**
+	 * Returns capacity of this GapList.
+	 * Note that two GapLists are considered equal even if they have a distinct capacity.
+	 * Also the capacity can be changed by operations like clone() etc.
+	 *
+	 * @return capacity of this GapList
+	 */
 	public int capacity() {
 		return list.capacity();
 	}
@@ -160,47 +176,47 @@ public class LongObjGapList extends GapList<Long> {
 	}
 
 	@Override
-	public Long doGet(int index) {
+	protected Long doGet(int index) {
 		return list.doGet(index);
 	}
 
 	@Override
-	public void doGetAll(Object[] elems, int index, int len) {
+	protected void doGetAll(Object[] elems, int index, int len) {
 		list.doGetAll(toPrimitive((Long[]) elems), index, len);
 	}
 
 	@Override
-	public boolean doAdd(int index, Long elem) {
+	protected boolean doAdd(int index, Long elem) {
 		return list.doAdd(index, elem);
 	}
 
 	@Override
-	public boolean doAddAll(int index, Long[] elem) {
+	protected boolean doAddAll(int index, Long[] elem) {
 		return list.doAddAll(index, toPrimitive(elem));
 	}
 
 	@Override
-	public Long doSet(int index, Long elem) {
+	protected Long doSet(int index, Long elem) {
 		return list.doSet(index, elem);
 	}
 
 	@Override
-	public void doSetAll(int index, Long[] elem) {
+	protected void doSetAll(int index, Long[] elem) {
 		list.doSetAll(index, toPrimitive(elem));
 	}
 
 	@Override
-	public Long doRemove(int index) {
+	protected Long doRemove(int index) {
 		return list.doRemove(index);
 	}
 
 	@Override
-	public void doRemoveAll(int index, int len) {
+	protected void doRemoveAll(int index, int len) {
 		list.doRemoveAll(index, len);
 	}
 
 	@Override
-	public Long doReSet(int index, Long elem) {
+	protected Long doReSet(int index, Long elem) {
 		return list.doReSet(index, elem);
 	}
 
@@ -211,8 +227,8 @@ public class LongObjGapList extends GapList<Long> {
     }
 
 	@Override
-	public void ensureCapacity(int minCapacity) {
-		list.ensureCapacity(minCapacity);
+	protected void doEnsureCapacity(int minCapacity) {
+		list.doEnsureCapacity(minCapacity);
 	}
 
 	@Override
@@ -293,7 +309,7 @@ public class LongObjGapList extends GapList<Long> {
 	}
 
 	@Override
-	public boolean removeAll(GapList<?> coll) {
+	public boolean removeAll(IGapList<?> coll) {
 		return list.removeAll((Collection<Long>) coll);
 	}
 
@@ -303,7 +319,7 @@ public class LongObjGapList extends GapList<Long> {
 	}
 
 	@Override
-	public boolean retainAll(GapList<?> coll) {
+	public boolean retainAll(IGapList<?> coll) {
 		return list.retainAll((Collection<Long>) coll);
 	}
 
@@ -357,13 +373,13 @@ public class LongObjGapList extends GapList<Long> {
 	}
 
 	@Override
-	public boolean addAll(GapList<? extends Long> list2) {
+	public boolean addAll(IGapList<? extends Long> list2) {
 		long[] e = toPrimitive(list2);
 		return list.addAll(e);
 	}
 
 	@Override
-	public boolean addAll(int index, GapList<? extends Long> list2) {
+	public boolean addAll(int index, IGapList<? extends Long> list2) {
 		long[] e = toPrimitive(list2);
 		return list.addAll(index, e);
 	}
@@ -397,7 +413,7 @@ public class LongObjGapList extends GapList<Long> {
 	}
 
 	@Override
-	public void setAll(int index, GapList<? extends Long> list2) {
+	public void setAll(int index, IGapList<? extends Long> list2) {
 		long[] e = toPrimitive(list2);
 		list.setAll(index, e);
 	}
@@ -430,36 +446,80 @@ public class LongObjGapList extends GapList<Long> {
 		return list.binarySearch(index, len, (Long) key);
 	}
 
-    public GapList<Long> unmodifiableList() {
-        return new ImmutableGapList<Long>(this) {
-			{
-        		LongGapList list = LongObjGapList.this.list;
-			}
-
-			@Override
-			public int size() {
-				return list.size();
-			}
-
-			@Override
-			public int capacity() {
-				return list.capacity();
-			}
-
-			@Override
-			public Long get(int index) {
-				return list.get(index);
-			}
-
-			@Override
-			public Long doGet(int index) {
-				return list.doGet(index);
-			}
-
-			@Override
-			public void doGetAll(Object[] elems, int index, int len) {
-				list.doGetAll(toPrimitive((Long[]) elems), index, len);
-			}
-        };
+    public LongObjGapList unmodifiableList() {
+        return new ImmutableLongObjGapList(this);
     }
+
+    /**
+     * An immutable version of a GapList.
+     * Note that the client cannot change the list,
+     * but the content may change if the underlying list is changed.
+     */
+    protected static class ImmutableLongObjGapList extends LongObjGapList {
+
+        /** UID for serialization */
+        private static final long serialVersionUID = -1352274047348922584L;
+
+        /**
+         * Private constructor used internally.
+         *
+         * @param that  list to create an immutable view of
+         */
+        protected ImmutableLongObjGapList(LongObjGapList that) {
+            super(that);
+        }
+
+        @Override
+        protected boolean doAdd(int index, Long elem) {
+        	error();
+        	return false;
+        }
+
+        @Override
+        protected boolean doAddAll(int index, Long[] elems) {
+        	error();
+        	return false;
+        }
+
+        @Override
+        protected Long doSet(int index, Long elem) {
+        	error();
+        	return null;
+        }
+
+        @Override
+        protected void doSetAll(int index, Long[] elems) {
+        	error();
+        }
+
+        @Override
+        protected Long doReSet(int index, Long elem) {
+        	error();
+        	return null;
+        }
+
+        @Override
+        protected Long doRemove(int index) {
+        	error();
+        	return null;
+        }
+
+        @Override
+        protected void doRemoveAll(int index, int len) {
+        	error();
+        }
+
+        @Override
+        protected void doModify() {
+        	error();
+        }
+
+        /**
+         * Throw exception if an attempt is made to change an immutable list.
+         */
+        private void error() {
+            throw new UnsupportedOperationException("list is immutable");
+        }
+    }
+
 }
