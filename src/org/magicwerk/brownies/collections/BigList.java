@@ -316,8 +316,8 @@ public class BigList<T>
 	 * This method also sets currBlock to remember this last used block.
 	 * If the block is shared, a copy is made and used for modifications.
 	 *
-	 * @param index
-	 * @return
+	 * @param index	list index
+	 * @return		relative index within block
 	 */
 	private int getBlockIndexWrite(int index) {
 		int i = getBlockIndex(index);
@@ -333,8 +333,8 @@ public class BigList<T>
 	 * Returns index in block where the element with specified index is located.
 	 * This method also sets currBlock to remember this last used block.
 	 *
-	 * @param index
-	 * @return
+	 * @param index	list index
+	 * @return		relative index within block
 	 */
 	private int getBlockIndex(int index) {
 		// Determine block where specified index is located and store it in currBlock
@@ -343,8 +343,8 @@ public class BigList<T>
 			return index - currBlockStart;
 		}
 
-        // Add at end
         if (index == size) {
+            // Add at end
         	if (currBlockEnd == index) {
                 if (currBlockEnd-currBlockStart == blockSize) {
                 	currBlock = new BigListBlock<T>(blockSize);
@@ -364,6 +364,7 @@ public class BigList<T>
             return index - currBlockStart;
 
         } else if (index == 0) {
+        	// Add at head
         	if (currBlockStart == 0) {
                 if (currBlockEnd-currBlockStart == blockSize) {
                 	currBlock = new BigListBlock<T>(blockSize);
