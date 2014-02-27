@@ -7,8 +7,9 @@ import java.util.Comparator;
 import java.util.Deque;
 import java.util.List;
 
-import org.magicwerk.brownies.collections.GapList.ImmutableGapList;
 import org.magicwerk.brownies.collections.helper.InternalSort;
+import org.magicwerk.brownies.collections.helper.TreeList;
+import org.magicwerk.brownies.collections.helper.TreeList.AVLNode;
 
 /**
  * The first block (GapList) used grows dynamcically, all others
@@ -98,21 +99,21 @@ public class BigList<T>
 	 *
 	 */
 	@SuppressWarnings("serial")
-	static class BigListBlock<T> implements Serializable {
+	static class Block<T> implements Serializable {
 		private GapList<T> values;
 		private int refCount;
 
-		public BigListBlock() {
+		public Block() {
 			values = new GapList<T>();
 			refCount = 1;
 		}
 
-		public BigListBlock(int capacity) {
+		public Block(int capacity) {
 			values = new GapList<T>(capacity);
 			refCount = 1;
 		}
 
-		public BigListBlock(BigListBlock<T> that) {
+		public Block(Block<T> that) {
 			values = new GapList<T>(that.values.capacity());
 			values.addAll(that.values);
 			refCount = 1;
@@ -159,20 +160,19 @@ public class BigList<T>
 	/** Default block size */
 	private static int BLOCK_SIZE = 100*1000;
 
-	/** List with block containing the elements */
-	private GapList<BigListBlock<T>> blocks = new GapList<BigListBlock<T>>();
 	/** Number of elements stored at maximum in a block */
 	private int blockSize;
 	/** Number of elements stored in this BigList */
 	private int size;
-	/** Index of current block */
-	private BigListBlock<T> currBlock;
-	/** Index of current block */
-	private int currBlockIndex;
+	/** List with block containing the elements */
+	private TreeList<Block<T>> blocks = new TreeList<Block<T>>();
+	//private int currBlockIndex;
 	/** Index of first element in currBlock for the whole BigList */
 	private int currBlockStart;
 	/** Index of last element in currBlock for the whole BigList */
 	private int currBlockEnd;
+	private AVLNode<Block<T>> currNode;
+	private Block<T> currBlock;
 
     /**
      * Constructor used internally, e.g. for ImmutableBigList.
@@ -186,8 +186,8 @@ public class BigList<T>
             this.blocks = that.blocks;
             this.blockSize = that.blockSize;
             this.size = that.size;
+            this.currNode = that.currNode;
             this.currBlock = that.currBlock;
-            this.currBlockIndex = that.currBlockIndex;
             this.currBlockStart = that.currBlockStart;
             this.currBlockEnd = that.currBlockEnd;
         }
@@ -226,9 +226,8 @@ public class BigList<T>
 		this.blockSize = blockSize;
 
 		// First block will grow until it reaches blockSize
-		blocks = new GapList<BigListBlock<T>>();
-		currBlock = new BigListBlock<T>();
-		blocks.add(currBlock);
+		blocks = new TreeList<Block<T>>();
+//		currBlock = new Block<T>();
 	}
 
     public BigList(BigList<T> that) {
@@ -238,9 +237,9 @@ public class BigList<T>
     public BigList(Collection<T> that) {
         blockSize = BLOCK_SIZE;
 
-		blocks = new GapList<BigListBlock<T>>();
-		currBlock = new BigListBlock<T>();
-		blocks.add(currBlock);
+		blocks = new TreeList<Block<T>>();
+		currBlock = new Block<T>();
+		blocks.add(0, currBlock);
 
         for (Object elem: that.toArray()) {
             add((T) elem);
@@ -253,14 +252,19 @@ public class BigList<T>
 		BigList<T> bigList = (BigList<T>) that;
         blockSize = bigList.blockSize;
 
-		blocks = new GapList<BigListBlock<T>>(bigList.blocks);
-		for (BigListBlock block: blocks) {
+        int size = 0;
+		blocks = new TreeList<Block<T>>();
+		AVLNode<Block<T>> node = bigList.blocks.root.min();
+		while (node != null) {
+			Block<T> block = node.getValue();
 			block.ref();
+			blocks.add(size, block);
+			size += block.size();
 		}
-		size = bigList.size;
+		assert(size == bigList.size);
 
-		currBlock = blocks.get(0);
-		currBlockIndex = 0;
+		currNode = blocks.root;
+		currBlock = currNode.getValue();
 		currBlockStart = 0;
 		currBlockEnd = currBlock.size();
 	}
@@ -272,12 +276,15 @@ public class BigList<T>
 
     @Override
     protected void finalize() {
-    	for (BigListBlock<T> block: blocks) {
-    		block.unref();
-    	}
+    	// TODO
+//    	for (Block<T> block: blocks) {
+//    		block.unref();
+//    	}
     }
 
     private void check() {
+    	assert(currNode.getValue() == currBlock);
+    	assert(currNode.relativePosition == currBlockEnd);
     	assert(currBlockStart >= 0 && currBlockEnd <= size && currBlockStart <= currBlockEnd);
     	assert(currBlockEnd - currBlockStart <= blockSize);
 	}
@@ -296,18 +303,16 @@ public class BigList<T>
 	@Override
 	protected T doSet(int index, T elem) {
 		int pos = getBlockIndexWrite(index);
-		BigListBlock<T> block = blocks.get(currBlockIndex);
-		T oldElem = block.get(pos);
-		block.set(pos, elem);
+		T oldElem = currBlock.get(pos);
+		currBlock.set(pos, elem);
 		return oldElem;
 	}
 
 	@Override
 	protected T doReSet(int index, T elem) {
 		int pos = getBlockIndexWrite(index);
-		BigListBlock<T> block = blocks.get(currBlockIndex);
-		T oldElem = block.get(pos);
-		block.set(pos, elem);
+		T oldElem = currBlock.get(pos);
+		currBlock.set(pos, elem);
 		return oldElem;
 	}
 
@@ -323,8 +328,8 @@ public class BigList<T>
 		int i = getBlockIndex(index);
 		if (currBlock.isShared()) {
 			currBlock.unref();
-			currBlock = new BigListBlock<T>(currBlock);
-			blocks.set(currBlockIndex, currBlock);
+			currBlock = new Block<T>(currBlock);
+			currNode.setValue(currBlock);
 		}
 		return i;
 	}
@@ -333,7 +338,7 @@ public class BigList<T>
 	 * Returns index in block where the element with specified index is located.
 	 * This method also sets currBlock to remember this last used block.
 	 *
-	 * @param index	list index
+	 * @param index	list index (0 <= index <= size())
 	 * @return		relative index within block
 	 */
 	private int getBlockIndex(int index) {
@@ -344,90 +349,26 @@ public class BigList<T>
 		}
 
         if (index == size) {
-            // Add at end
-        	if (currBlockEnd == index) {
-                if (currBlockEnd-currBlockStart == blockSize) {
-                	currBlock = new BigListBlock<T>(blockSize);
-                    blocks.addLast(currBlock);
-                    currBlockIndex = blocks.size()-1;
-                    currBlockEnd = size;
-                    currBlockStart = size;
-                    return 0;
-                } else {
-                	return index - currBlockStart;
-                }
-        	}
-            currBlockIndex = blocks.size()-1;
-    		currBlock = blocks.get(currBlockIndex);
+    		currNode = blocks.root.max();
+    		currBlock = currNode.getValue();
             currBlockEnd = size;
             currBlockStart = size - currBlock.size();
             return index - currBlockStart;
 
         } else if (index == 0) {
-        	// Add at head
-        	if (currBlockStart == 0) {
-                if (currBlockEnd-currBlockStart == blockSize) {
-                	currBlock = new BigListBlock<T>(blockSize);
-                    blocks.addFirst(currBlock);
-                    currBlockIndex = 0;
-                    currBlockEnd = 0;
-                    currBlockStart = 0;
-                    return 0;
-                } else {
-                	return 0;
-                }
-        	}
-            currBlockIndex = 0;
-    		currBlock = blocks.get(0);
+        	currNode = blocks.root.min();
+    		currBlock = currNode.getValue();
             currBlockEnd = currBlock.size();
             currBlockStart = 0;
             return 0;
         }
 
-		boolean up;
-		if (index < currBlockStart) {
-		    if (index < currBlockStart/2) {
-		        // search from start to current block
-                currBlockIndex = 0;
-	    		currBlock = blocks.get(currBlockIndex);
-		        currBlockStart = 0;
-		        currBlockEnd = currBlock.size();
-                up = true;
-		    } else {
-		        // search from current block to start
-		        up = false;
-		    }
-		} else {
-		    int right = size - currBlockEnd;
-		    if (index < currBlockEnd+right/2) {
-		        // search from current block to end
-		        up = true;
-		    } else {
-		        // search from end to current block
-		        currBlockIndex = blocks.size()-1;
-	    		currBlock = blocks.get(currBlockIndex);
-		        currBlockEnd = size;
-		        currBlockStart = size - currBlock.size();
-		        up = false;
-		    }
-		}
-
-		while (true) {
-	        if (index >= currBlockStart && index < currBlockEnd) {
-	            return index - currBlockStart;
-	        }
-		    if (up) {
-		        currBlockStart = currBlockEnd;
-		        currBlockIndex++;
-	    		currBlock = blocks.get(currBlockIndex);
-                currBlockEnd += currBlock.size();
-		    } else {
-		        currBlockEnd = currBlockStart;
-		        currBlockIndex--;
-	    		currBlock = blocks.get(currBlockIndex);
-                currBlockStart -= currBlock.size();
-		    }
-		}
+        int[] endIndex = new int[1];
+        currNode = blocks.getIn(index, endIndex);
+        currBlock = currNode.getValue();
+        currBlockEnd = endIndex[0];
+        currBlockStart = currBlockEnd - currBlock.size();
+        return index - currBlockStart;
 	}
 
 	@Override
@@ -439,33 +380,44 @@ public class BigList<T>
 
 		// Insert in current block
 		if (currBlock.size() < blockSize) {
+			currNode.relativePosition++;
 			currBlock.add(pos, element);
 			currBlockEnd++;
 
 		} else {
-			BigListBlock<T> block2 = new BigListBlock<T>(blockSize);
-			blocks.add(currBlockIndex+1, block2);
-			int len = blockSize/2;
-			int len2 = currBlock.size()-len;
-			for (int i=0; i<len2; i++) {
-			    block2.values.add(null); // TODO Add method to GapList
-			}
-			GapList.copy(currBlock.values, len, block2.values, 0, len2);
-			currBlock.values.remove(len, len2);
-
-			if (pos < len) {
-				// Insert element in first block
-				currBlockEnd -= len2;
-				currBlock.add(pos, element);
-				currBlockEnd++;
+			// TODO special case index 0 and index == size()
+			Block<T> block2 = new Block<T>(blockSize);
+			if (index == size || index == 0) {
+				blocks.add(size, block2);
+				block2.add(0, element);
 			} else {
-				// Insert element in second block
-				currBlockIndex++;
-				currBlock = blocks.get(currBlockIndex);
-				currBlockStart += len;
-				pos -= len;
-				block2.add(pos, element);
-				currBlockEnd++;
+				int len = blockSize/2;
+				currNode.relativePosition -= len;
+
+				int len2 = currBlock.size()-len;
+				for (int i=0; i<len2; i++) {
+				    block2.values.add(null); // TODO Add method to GapList
+				}
+				GapList.copy(currBlock.values, len, block2.values, 0, len2);
+				currBlock.values.remove(len, len2);
+				blocks.add(currNode.relativePosition+len, block2);
+
+				if (pos < len) {
+					// Insert element in first block
+					currBlockEnd -= len2;
+					currBlock.add(pos, element);
+					currNode.relativePosition++;
+					currBlockEnd++;
+				} else {
+					// Insert element in second block
+					currBlock = block2;
+					currNode = currNode.next();
+					assert(currNode.getValue() == currBlock);
+					currBlockStart += len;
+					pos -= len;
+					block2.add(pos, element);
+					currBlockEnd++;
+				}
 			}
 		}
 		size++;
@@ -478,28 +430,27 @@ public class BigList<T>
 
 	@Override
 	protected void doRemoveAll(int index, int len) {
-		// Remove whole blocks
-		while (index <= currBlockStart && index+len >= currBlockEnd) {
-			int currBlockSize = currBlock.size();
-			size -= currBlockSize;
-			len -= currBlockSize;
-			if (len == 0) {
-				assert(currBlockIndex == 0);
-				assert(currBlockStart == 0);
-				currBlockEnd = 0;
-				return;
-			}
-			blocks.remove(currBlockIndex);
-			if (currBlockIndex < blocks.size()) {
-				currBlock = blocks.get(currBlockIndex);
-				currBlockEnd = currBlockStart + currBlock.size();
-			} else {
-				currBlockIndex--;
-				currBlock = blocks.get(currBlockIndex);
-				currBlockEnd = size;
-				currBlockStart = currBlockEnd - currBlock.size();
-			}
-		}
+//		// Remove whole blocks
+//		while (index <= currBlockStart && index+len >= currBlockEnd) {
+//			int currBlockSize = currBlock.size();
+//			size -= currBlockSize;
+//			len -= currBlockSize;
+//			if (len == 0) {
+//				assert(currBlockStart == 0);
+//				currBlockEnd = 0;
+//				return;
+//			}
+//			blocks.remove(currBlockIndex);
+//			if (currBlockIndex < blocks.size()) {
+//				currBlock = blocks.get(currBlockIndex);
+//				currBlockEnd = currBlockStart + currBlock.size();
+//			} else {
+//				currBlockIndex--;
+//				currBlock = blocks.get(currBlockIndex);
+//				currBlockEnd = size;
+//				currBlockStart = currBlockEnd - currBlock.size();
+//			}
+//		}
 
 		// Remove remaining elements
 		for (int i=0; i<len; i++) {
@@ -514,28 +465,29 @@ public class BigList<T>
 		size--;
 
 		if (currBlock.size() < blockSize/3) {
-			BigListBlock<T> leftBlock;
-			if (currBlockIndex > 0 && blocks.get(currBlockIndex-1).size() < blockSize/3) {
+			AVLNode<Block<T>> leftNode = currNode.previous();
+			// TODO performance
+			if (leftNode != null && leftNode.getValue().size() < blockSize/3) {
 				// Merge with left block
 			    int len = currBlock.size();
-			    int dstSize = blocks.get(currBlockIndex-1).size();
+			    int dstSize = leftNode.getValue().size();
 	            for (int i=0; i<len; i++) {
-	                blocks.get(currBlockIndex-1).values.add(null); // TODO Add method to GapList
+	                leftNode.getValue().values.add(null); // TODO Add method to GapList
 	            }
-				GapList.copy(currBlock.values, 0, blocks.get(currBlockIndex-1).values, dstSize, len);
-				blocks.remove(currBlockIndex);
-				currBlockIndex--;
-				currBlock = blocks.get(currBlockIndex);
+				GapList.copy(currBlock.values, 0, leftNode.getValue().values, dstSize, len);
+				blocks.remove(currBlockEnd);
+				currBlock = leftNode.getValue();
 				currBlockStart -= dstSize;
-			} else if (currBlockIndex < blocks.size()-1 && blocks.get(currBlockIndex+1).size() < blockSize/3) {
+
+			} else if (currNode.next() != null && currNode.next().getValue().size() < blockSize/3) {
 				// Merge with right block
-			    int len = blocks.get(currBlockIndex+1).values.size();
+			    int len = currNode.next().getValue().values.size();
 			    int dstSize = currBlock.values.size();
 	            for (int i=0; i<len; i++) {
 	            	currBlock.values.add(null); // TODO Add method to GapList
 	            }
-				GapList.copy(blocks.get(currBlockIndex+1).values, 0, currBlock.values, dstSize, len);
-				blocks.remove(currBlockIndex+1);
+				GapList.copy(currNode.next().getValue().values, 0, currBlock.values, dstSize, len);
+				blocks.remove(currBlockEnd+len);
 				currBlockEnd += len;
 			}
 		}
@@ -579,14 +531,14 @@ public class BigList<T>
 			if (minCapacity > blockSize) {
 				minCapacity = blockSize;
 			}
-			blocks.get(0).values.doEnsureCapacity(minCapacity);
+			currBlock.values.doEnsureCapacity(minCapacity);
 		}
 	}
 
 	@Override
 	public void trimToSize() {
 		if (blocks.size() == 1) {
-			blocks.get(0).values.trimToSize();
+			currBlock.values.trimToSize();
 		}
 	}
 
@@ -601,7 +553,7 @@ public class BigList<T>
     	checkRange(index, len);
 
     	if (blocks.size() == 0) {
-    		blocks.get(0).values.sort(index, len, comparator);
+    		currBlock.values.sort(index, len, comparator);
     	} else {
     		InternalSort.sort(this, comparator, index, index+len);
     	}
@@ -612,7 +564,7 @@ public class BigList<T>
     	checkRange(index, len);
 
     	if (blocks.size() == 1) {
-    		return blocks.get(0).values.binarySearch(key, comparator);
+    		return currBlock.values.binarySearch(key, comparator);
     	} else {
     		return Collections.binarySearch((List<K>) this, key, comparator);
     	}
