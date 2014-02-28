@@ -197,6 +197,7 @@ public class RangeList<E> {
      * @param index  the index to add before
      * @param obj  the element to add
      */
+
     public void add(final int index, final E obj) {
         //modCount++;
         //checkInterval(index, 0, size());
@@ -308,9 +309,9 @@ public class RangeList<E> {
         /** Flag indicating that left reference is not a subtree but the predecessor. */
         private boolean leftIsPrevious;
         /** The right child node or the successor if {@link #rightIsNext}. */
-        private AVLNode<E> right;
+        public AVLNode<E> right;
         /** Flag indicating that right reference is not a subtree but the successor. */
-        private boolean rightIsNext;
+        public boolean rightIsNext;
         /** How many levels of left/right are below this one. */
         private int height;
         /** The relative position, root holds absolute position. */
@@ -425,6 +426,7 @@ public class RangeList<E> {
         }
 
         AVLNode<E> getIn(final int index, int[] idx) {
+        	assert(index >= 0);
         	if (relativePosition == 0) {
         		return this;
         	}
@@ -432,17 +434,32 @@ public class RangeList<E> {
         		idx[0] = relativePosition; // root
         	}
         	AVLNode<E> leftNode = getLeftSubTree();
-        	int leftIndex = (leftNode == null) ? 0 : relativePosition+leftNode.relativePosition;
-        	if (index >= leftIndex && index < relativePosition) {
+        	int leftIndex = (leftNode == null) ? 0 : idx[0]+leftNode.relativePosition;
+        	if (index >= leftIndex && index < idx[0]) {
         		return this;
         	}
-            final int indexRelativeToMe = index - relativePosition;
-            final AVLNode<E> nextNode = indexRelativeToMe < 0 ? getLeftSubTree() : getRightSubTree();
-            if (nextNode == null) {
-            	return this;
-            }
-            idx[0] += nextNode.relativePosition;
-            return nextNode.getIn(indexRelativeToMe, idx);
+        	if (index < idx[0]) {
+        		AVLNode<E> nextNode = getLeftSubTree();
+                if (nextNode == null) {
+                	return this;
+                }
+                idx[0] += nextNode.relativePosition;
+                return nextNode.getIn(index, idx);
+        	} else {
+        		AVLNode<E> nextNode = getRightSubTree();
+                if (nextNode == null) {
+                	return this;
+                }
+                idx[0] += nextNode.relativePosition;
+                return nextNode.getIn(index, idx);
+        	}
+            //final int indexRelativeToMe = index - relativePosition;
+            //final AVLNode<E> nextNode = indexRelativeToMe < 0 ? getLeftSubTree() : getRightSubTree();
+            //if (nextNode == null) {
+//            	return this;
+            //}
+            //idx[0] += nextNode.relativePosition;
+            //return nextNode.getIn(indexRelativeToMe, idx);
         }
 
         /**
@@ -555,14 +572,14 @@ public class RangeList<E> {
         /**
          * Gets the left node, returning null if its a faedelung.
          */
-        private AVLNode<E> getLeftSubTree() {
+        public AVLNode<E> getLeftSubTree() {
             return leftIsPrevious ? null : left;
         }
 
         /**
          * Gets the right node, returning null if its a faedelung.
          */
-        private AVLNode<E> getRightSubTree() {
+        public AVLNode<E> getRightSubTree() {
             return rightIsNext ? null : right;
         }
 
@@ -1004,147 +1021,5 @@ public class RangeList<E> {
                 .toString();
         }
     }
-
-//    /**
-//     * A list iterator over the linked list.
-//     */
-//    static class TreeListIterator<E> implements ListIterator<E>, OrderedIterator<E> {
-//        /** The parent list */
-//        private final TreeList<E> parent;
-//        /**
-//         * Cache of the next node that will be returned by {@link #next()}.
-//         */
-//        private AVLNode<E> next;
-//        /**
-//         * The index of the next node to be returned.
-//         */
-//        private int nextIndex;
-//        /**
-//         * Cache of the last node that was returned by {@link #next()}
-//         * or {@link #previous()}.
-//         */
-//        private AVLNode<E> current;
-//        /**
-//         * The index of the last node that was returned.
-//         */
-//        private int currentIndex;
-//        /**
-//         * The modification count that the list is expected to have. If the list
-//         * doesn't have this count, then a
-//         * {@link java.util.ConcurrentModificationException} may be thrown by
-//         * the operations.
-//         */
-//        private int expectedModCount;
-//
-//        /**
-//         * Create a ListIterator for a list.
-//         *
-//         * @param parent  the parent list
-//         * @param fromIndex  the index to start at
-//         */
-//        protected TreeListIterator(final TreeList<E> parent, final int fromIndex) throws IndexOutOfBoundsException {
-//            super();
-//            this.parent = parent;
-//            this.expectedModCount = parent.modCount;
-//            this.next = parent.root == null ? null : parent.root.get(fromIndex);
-//            this.nextIndex = fromIndex;
-//            this.currentIndex = -1;
-//        }
-//
-//        /**
-//         * Checks the modification count of the list is the value that this
-//         * object expects.
-//         *
-//         * @throws ConcurrentModificationException If the list's modification
-//         * count isn't the value that was expected.
-//         */
-//        protected void checkModCount() {
-//            if (parent.modCount != expectedModCount) {
-//                throw new ConcurrentModificationException();
-//            }
-//        }
-//
-//        public boolean hasNext() {
-//            return nextIndex < parent.size();
-//        }
-//
-//        public E next() {
-//            checkModCount();
-//            if (!hasNext()) {
-//                throw new NoSuchElementException("No element at index " + nextIndex + ".");
-//            }
-//            if (next == null) {
-//                next = parent.root.get(nextIndex);
-//            }
-//            final E value = next.getValue();
-//            current = next;
-//            currentIndex = nextIndex++;
-//            next = next.next();
-//            return value;
-//        }
-//
-//        public boolean hasPrevious() {
-//            return nextIndex > 0;
-//        }
-//
-//        public E previous() {
-//            checkModCount();
-//            if (!hasPrevious()) {
-//                throw new NoSuchElementException("Already at start of list.");
-//            }
-//            if (next == null) {
-//                next = parent.root.get(nextIndex - 1);
-//            } else {
-//                next = next.previous();
-//            }
-//            final E value = next.getValue();
-//            current = next;
-//            currentIndex = --nextIndex;
-//            return value;
-//        }
-//
-//        public int nextIndex() {
-//            return nextIndex;
-//        }
-//
-//        public int previousIndex() {
-//            return nextIndex() - 1;
-//        }
-//
-//        public void remove() {
-//            checkModCount();
-//            if (currentIndex == -1) {
-//                throw new IllegalStateException();
-//            }
-//            parent.remove(currentIndex);
-//            if (nextIndex != currentIndex) {
-//                // remove() following next()
-//                nextIndex--;
-//            }
-//            // the AVL node referenced by next may have become stale after a remove
-//            // reset it now: will be retrieved by next call to next()/previous() via nextIndex
-//            next = null;
-//            current = null;
-//            currentIndex = -1;
-//            expectedModCount++;
-//        }
-//
-//        public void set(final E obj) {
-//            checkModCount();
-//            if (current == null) {
-//                throw new IllegalStateException();
-//            }
-//            current.setValue(obj);
-//        }
-//
-//        public void add(final E obj) {
-//            checkModCount();
-//            parent.add(nextIndex, obj);
-//            current = null;
-//            currentIndex = -1;
-//            nextIndex++;
-//            expectedModCount++;
-//        }
-//    }
 
 }

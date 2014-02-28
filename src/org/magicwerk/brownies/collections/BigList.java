@@ -8,8 +8,8 @@ import java.util.Deque;
 import java.util.List;
 
 import org.magicwerk.brownies.collections.helper.InternalSort;
-import org.magicwerk.brownies.collections.helper.TreeList;
-import org.magicwerk.brownies.collections.helper.TreeList.AVLNode;
+import org.magicwerk.brownies.collections.helper.RangeList;
+import org.magicwerk.brownies.collections.helper.RangeList.AVLNode;
 
 /**
  * The first block (GapList) used grows dynamcically, all others
@@ -150,6 +150,10 @@ public class BigList<T>
 		public T remove(int index) {
 			return values.remove(index);
 		}
+
+		public String toString() {
+			return values.toString();
+		}
 	}
 
 	/** Set to true for debugging during developping */
@@ -165,7 +169,7 @@ public class BigList<T>
 	/** Number of elements stored in this BigList */
 	private int size;
 	/** List with block containing the elements */
-	private TreeList<Block<T>> blocks = new TreeList<Block<T>>();
+	private RangeList<Block<T>> blocks;
 	//private int currBlockIndex;
 	/** Index of first element in currBlock for the whole BigList */
 	private int currBlockStart;
@@ -226,8 +230,10 @@ public class BigList<T>
 		this.blockSize = blockSize;
 
 		// First block will grow until it reaches blockSize
-		blocks = new TreeList<Block<T>>();
-//		currBlock = new Block<T>();
+		blocks = new RangeList<Block<T>>();
+		currBlock = new Block<T>();
+		blocks.add(0, currBlock);
+		currNode = blocks.root;
 	}
 
     public BigList(BigList<T> that) {
@@ -237,7 +243,7 @@ public class BigList<T>
     public BigList(Collection<T> that) {
         blockSize = BLOCK_SIZE;
 
-		blocks = new TreeList<Block<T>>();
+		blocks = new RangeList<Block<T>>();
 		currBlock = new Block<T>();
 		blocks.add(0, currBlock);
 
@@ -253,13 +259,13 @@ public class BigList<T>
         blockSize = bigList.blockSize;
 
         int size = 0;
-		blocks = new TreeList<Block<T>>();
+		blocks = new RangeList<Block<T>>();
 		AVLNode<Block<T>> node = bigList.blocks.root.min();
 		while (node != null) {
 			Block<T> block = node.getValue();
 			block.ref();
-			blocks.add(size, block);
 			size += block.size();
+			blocks.add(size, block);
 		}
 		assert(size == bigList.size);
 
@@ -343,32 +349,76 @@ public class BigList<T>
 	 */
 	private int getBlockIndex(int index) {
 		// Determine block where specified index is located and store it in currBlock
-		if (index >= currBlockStart && index < currBlockEnd) {
-			// currBlock is already set correctly
-			return index - currBlockStart;
-		}
+//		if (index >= currBlockStart && index < currBlockEnd) {
+//			// currBlock is already set correctly
+//			return index - currBlockStart;
+//		}
 
-        if (index == size) {
-    		currNode = blocks.root.max();
-    		currBlock = currNode.getValue();
-            currBlockEnd = size;
-            currBlockStart = size - currBlock.size();
-            return index - currBlockStart;
-
-        } else if (index == 0) {
-        	currNode = blocks.root.min();
-    		currBlock = currNode.getValue();
-            currBlockEnd = currBlock.size();
-            currBlockStart = 0;
-            return 0;
-        }
+//        if (index == size) {
+//        	if (currBlockEnd != size) {
+//        		currNode = blocks.root.max();
+//        		currBlock = currNode.getValue();
+//        		currBlockEnd = size;
+//        		currBlockStart = size - currBlock.size();
+//        	}
+//        	return index - currBlockStart;
+//
+//        } else if (index == 0) {
+//        	if (currBlockStart != 0) {
+//        		currNode = blocks.root.min();
+//        		currBlock = currNode.getValue();
+//        		currBlockEnd = currBlock.size();
+//        		currBlockStart = 0;
+//        	}
+//            return 0;
+//        }
 
         int[] endIndex = new int[1];
         currNode = blocks.getIn(index, endIndex);
         currBlock = currNode.getValue();
+//        currBlockStart = endIndex[0];
+//        currBlockEnd = currBlockStart + currBlock.size();
         currBlockEnd = endIndex[0];
         currBlockStart = currBlockEnd - currBlock.size();
         return index - currBlockStart;
+	}
+
+	void checkTree() {
+		AVLNode node = blocks.root;
+		int index = node.relativePosition;
+		while (node.previous() != null) {
+			node = node.previous();
+			index += node.relativePosition;
+		}
+		Block<T> block = (Block<T>) node.getValue();
+		assert(block.size() == index);
+		int lastIndex = index;
+		while (true) {
+			if (node.right== null) {
+				break;
+			}
+            if (node.rightIsNext || node.right == null) {
+    			index -= node.relativePosition;
+                node = node.right;
+            } else {
+                node = node.right;
+                index += node.relativePosition;
+                while (node.getLeftSubTree() != null) {
+                	node = node.getLeftSubTree();
+                    index += node.relativePosition;
+                }
+            }
+
+           // if (node == null) {
+           // 	break;
+           // }
+
+			//node = node.next();
+			block = (Block<T>) node.getValue();
+			assert(block.size() == index-lastIndex);
+			lastIndex = index;
+		}
+		assert(index == size());
 	}
 
 	@Override
@@ -376,46 +426,76 @@ public class BigList<T>
 		if (index == -1) {
 			index = size;
 		}
-		int pos = getBlockIndexWrite(index);
-
-		// Insert in current block
-		if (currBlock.size() < blockSize) {
-			currNode.relativePosition++;
-			currBlock.add(pos, element);
-			currBlockEnd++;
-
+		if (index == size && blocks.root.max().getValue().size() == blockSize) {
+			// Insert new block at tail
+			Block<T> block = new Block<T>(blockSize);
+			block.add(0, element);
+			blocks.add(size+1, block);
+		} else if (index == 0 && blocks.root.min().getValue().size() == blockSize) {
+			// Insert new block at head
+			Block<T> block = new Block<T>(blockSize);
+			block.add(0, element);
+			int size = blocks.root.min().getValue().size();
+			blocks.add(1, block);
+			blocks.root.min().relativePosition = -size;
 		} else {
-			// TODO special case index 0 and index == size()
-			Block<T> block2 = new Block<T>(blockSize);
-			if (index == size || index == 0) {
-				blocks.add(size, block2);
-				block2.add(0, element);
-			} else {
-				int len = blockSize/2;
-				currNode.relativePosition -= len;
+			int pos = getBlockIndexWrite(index);
 
-				int len2 = currBlock.size()-len;
-				for (int i=0; i<len2; i++) {
-				    block2.values.add(null); // TODO Add method to GapList
+			// Insert in current block
+			if (currBlock.size() < blockSize) {
+				if (currNode.relativePosition > 0) {
+					if (currNode != blocks.root) {
+						currNode.relativePosition++;
+					}
+					AVLNode left = currNode.previous();
+					if (left != null) {
+						left.relativePosition--;
+					}
 				}
+				if (index < blocks.root.relativePosition || blocks.root == currNode) {
+					blocks.root.relativePosition++;
+				}
+				currBlock.add(pos, element);
+				currBlockEnd++;
+
+			} else {
+				// Split block for insert
+				Block<T> block2 = new Block<T>(blockSize);
+				int len2 = blockSize/2;
+				int len = blockSize-len2;
+
+			    block2.values.init(len2, null);
 				GapList.copy(currBlock.values, len, block2.values, 0, len2);
 				currBlock.values.remove(len, len2);
-				blocks.add(currNode.relativePosition+len, block2);
+
+				if (currNode.relativePosition > 0) {
+					currNode.relativePosition -= len2;
+				} else {
+					blocks.root.relativePosition -= len2;
+				}
+				blocks.add(currBlockEnd, block2);
 
 				if (pos < len) {
 					// Insert element in first block
-					currBlockEnd -= len2;
 					currBlock.add(pos, element);
-					currNode.relativePosition++;
-					currBlockEnd++;
+					if (currNode.relativePosition > 0) {
+						currNode.relativePosition++;
+					} else {
+						blocks.root.relativePosition++;
+					}
+					currBlockEnd = currBlockEnd - len2 + 1;
 				} else {
 					// Insert element in second block
 					currBlock = block2;
+					block2.add(pos-len, element);
 					currNode = currNode.next();
 					assert(currNode.getValue() == currBlock);
+					if (currNode.relativePosition > 0) {
+						currNode.relativePosition++;
+					} else {
+						blocks.root.relativePosition++;
+					}
 					currBlockStart += len;
-					pos -= len;
-					block2.add(pos, element);
 					currBlockEnd++;
 				}
 			}
@@ -424,6 +504,7 @@ public class BigList<T>
 
 		if (DUMP) dump();
 		if (CHECK) check();
+		checkTree(); //TODO
 
 		return true;
 	}
@@ -464,10 +545,21 @@ public class BigList<T>
 		currBlockEnd--;
 		size--;
 
-		if (currBlock.size() < blockSize/3) {
+		if (currBlock.size() >= blockSize/3) {
+			if (currNode.relativePosition > 0) {
+				currNode.relativePosition--;
+				AVLNode left = blocks.root.previous();
+				if (left != null) {
+					left.relativePosition++;
+				}
+			} else {
+				blocks.root.relativePosition--;
+			}
+
+		} else {
 			AVLNode<Block<T>> leftNode = currNode.previous();
 			// TODO performance
-			if (leftNode != null && leftNode.getValue().size() < blockSize/3) {
+			if (leftNode != null && leftNode.getValue().size() <= blockSize/3+1) {
 				// Merge with left block
 			    int len = currBlock.size();
 			    int dstSize = leftNode.getValue().size();
@@ -479,7 +571,7 @@ public class BigList<T>
 				currBlock = leftNode.getValue();
 				currBlockStart -= dstSize;
 
-			} else if (currNode.next() != null && currNode.next().getValue().size() < blockSize/3) {
+			} else if (currNode.next() != null && currNode.next().getValue().size() <= blockSize/3+1) {
 				// Merge with right block
 			    int len = currNode.next().getValue().values.size();
 			    int dstSize = currBlock.values.size();
