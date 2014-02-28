@@ -24,6 +24,8 @@ import java.util.Iterator;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
 
+import javax.xml.soap.Node;
+
 /**
  * A <code>List</code> implementation that is optimised for fast insertions and
  * removals at any index in the list.
@@ -54,7 +56,7 @@ import java.util.NoSuchElementException;
  */
 //Based on org.apache.commons.collections4.list.TreeList
 @SuppressWarnings("deprecation") // replace ArrayStack by ArrayDeque when moving to Java 1.6
-public class TreeList<E> {
+public class RangeList<E> {
 //    add; toArray; iterator; insert; get; indexOf; remove
 //    TreeList = 1260;7360;3080;  160;   170;3400;  170;
 //   ArrayList =  220;1480;1760; 6870;    50;1540; 7200;
@@ -70,7 +72,7 @@ public class TreeList<E> {
     /**
      * Constructs a new empty list.
      */
-    public TreeList() {
+    public RangeList() {
         super();
     }
 
@@ -80,7 +82,7 @@ public class TreeList<E> {
      * @param coll  the collection to copy
      * @throws NullPointerException if the collection is null
      */
-    public TreeList(final Collection<? extends E> coll) {
+    public RangeList(final Collection<? extends E> coll) {
         super();
         if (!coll.isEmpty()) {
             root = new AVLNode<E>(coll);
@@ -422,19 +424,25 @@ public class TreeList<E> {
             return nextNode.get2(indexRelativeToMe);
         }
 
-        /**
-         * Locate the element with the given index relative to the
-         * offset of the parent of this node.
-         */
         AVLNode<E> getIn(final int index, int[] idx) {
-        	idx[0] += relativePosition;
-            int indexRelativeToMe = index - relativePosition;
-            AVLNode<E> node = indexRelativeToMe <= 0 ? getLeftSubTree() : getRightSubTree();
-            node = node.getIn(indexRelativeToMe, idx);
-            if (node == null) {
+        	if (relativePosition == 0) {
+        		return this;
+        	}
+        	if (idx[0] == 0) {
+        		idx[0] = relativePosition; // root
+        	}
+        	AVLNode<E> leftNode = getLeftSubTree();
+        	int leftIndex = (leftNode == null) ? 0 : relativePosition+leftNode.relativePosition;
+        	if (index >= leftIndex && index < relativePosition) {
+        		return this;
+        	}
+            final int indexRelativeToMe = index - relativePosition;
+            final AVLNode<E> nextNode = indexRelativeToMe < 0 ? getLeftSubTree() : getRightSubTree();
+            if (nextNode == null) {
             	return this;
             }
-            return node;
+            idx[0] += nextNode.relativePosition;
+            return nextNode.getIn(indexRelativeToMe, idx);
         }
 
         /**
@@ -504,12 +512,14 @@ public class TreeList<E> {
          * @param obj is the object to be stored in the position.
          */
         AVLNode<E> insert(final int index, final E obj) {
+        	assert(relativePosition != 0);
             final int indexRelativeToMe = index - relativePosition;
 
             if (indexRelativeToMe <= 0) {
                 return insertOnLeft(indexRelativeToMe, obj);
+            } else {
+            	return insertOnRight(indexRelativeToMe, obj);
             }
-            return insertOnRight(indexRelativeToMe, obj);
         }
 
         private AVLNode<E> insertOnLeft(final int indexRelativeToMe, final E obj) {
