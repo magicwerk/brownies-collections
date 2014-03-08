@@ -99,7 +99,7 @@ public class BigList<T>
 	 *
 	 */
 	@SuppressWarnings("serial")
-	static class Block<T> implements Serializable {
+	public static class Block<T> implements Serializable {
 		private GapList<T> values;
 		private int refCount;
 
@@ -380,45 +380,103 @@ public class BigList<T>
 //        currBlockEnd = currBlockStart + currBlock.size();
         currBlockEnd = endIndex[0];
         currBlockStart = currBlockEnd - currBlock.size();
+        assert(index >= currBlockStart);
         return index - currBlockStart;
 	}
 
 	void checkTree() {
 		AVLNode node = blocks.root;
 		int index = node.relativePosition;
-		while (node.previous() != null) {
-			node = node.previous();
+		while (node.left != null) {
+			node = node.left;
 			index += node.relativePosition;
 		}
 		Block<T> block = (Block<T>) node.getValue();
 		assert(block.size() == index);
 		int lastIndex = index;
-		while (true) {
-			if (node.right== null) {
-				break;
+
+		while (lastIndex < size()) {
+			node = blocks.root;
+			index = node.relativePosition;
+			int searchIndex = lastIndex+1;
+			while (true) {
+				block = (Block<T>) node.getValue();
+				if (searchIndex > index-block.size() && searchIndex <= index) {
+					break;
+				} else if (searchIndex < index) {
+					if (node.left != null && node.left.height<node.height) {
+						node = node.left;
+					} else {
+						break;
+					}
+				} else {
+					if (node.right != null && node.right.height<node.height) {
+						node = node.right;
+					} else {
+						break;
+					}
+				}
+				index += node.relativePosition;
 			}
-            if (node.rightIsNext || node.right == null) {
-    			index -= node.relativePosition;
-                node = node.right;
-            } else {
-                node = node.right;
-                index += node.relativePosition;
-                while (node.getLeftSubTree() != null) {
-                	node = node.getLeftSubTree();
-                    index += node.relativePosition;
-                }
-            }
-
-           // if (node == null) {
-           // 	break;
-           // }
-
-			//node = node.next();
 			block = (Block<T>) node.getValue();
 			assert(block.size() == index-lastIndex);
 			lastIndex = index;
 		}
 		assert(index == size());
+
+//		while (true) {
+//			if (node.right== null) {
+//				break;
+//			}
+//            if (node.rightIsNext || node.right == null) {
+//                node = node.right;
+//                if (node == blocks.root) {
+//                	index = node.relativePosition;
+//                } else {
+//                	if (node.relativePosition > 0) {
+//                		index += node.relativePosition;
+//                	} else {
+//            			index -= node.left.relativePosition;
+//                	}
+//                }
+//            } else {
+//                node = node.right;
+//                index += node.relativePosition;
+//                while (node.getLeftSubTree() != null) {
+//                	node = node.getLeftSubTree();
+//                    index += node.relativePosition;
+//                }
+//            }
+//
+//           // if (node == null) {
+//           // 	break;
+//           // }
+//
+//			//node = node.next();
+//			block = (Block<T>) node.getValue();
+//			assert(block.size() == index-lastIndex);
+//			lastIndex = index;
+//		}
+	}
+
+	void changeNode(AVLNode node, int add) {
+		AVLNode nextTop = node.nextTop();
+		if (nextTop != null) {
+			nextTop.relativePosition += add;
+		}
+		AVLNode prevTop = node.prevTop();
+		if (prevTop != null) {
+			if (prevTop != this.blocks.root) {
+				prevTop.relativePosition -= add;
+			}
+		}
+		if (node.relativePosition >= 0) {
+			node.relativePosition += add;
+		}
+		AVLNode prevDown = node.prevDown();
+		if (prevDown != null) {
+			prevDown.relativePosition -= add;
+		}
 	}
 
 	@Override
@@ -435,26 +493,14 @@ public class BigList<T>
 			// Insert new block at head
 			Block<T> block = new Block<T>(blockSize);
 			block.add(0, element);
-			int size = blocks.root.min().getValue().size();
 			blocks.add(1, block);
-			blocks.root.min().relativePosition = -size;
+			blocks.root.min().relativePosition = -blockSize;
 		} else {
 			int pos = getBlockIndexWrite(index);
 
 			// Insert in current block
 			if (currBlock.size() < blockSize) {
-				if (currNode.relativePosition > 0) {
-					if (currNode != blocks.root) {
-						currNode.relativePosition++;
-					}
-					AVLNode left = currNode.previous();
-					if (left != null) {
-						left.relativePosition--;
-					}
-				}
-				if (index < blocks.root.relativePosition || blocks.root == currNode) {
-					blocks.root.relativePosition++;
-				}
+				changeNode(currNode, 1);
 				currBlock.add(pos, element);
 				currBlockEnd++;
 
@@ -468,33 +514,20 @@ public class BigList<T>
 				GapList.copy(currBlock.values, len, block2.values, 0, len2);
 				currBlock.values.remove(len, len2);
 
-				if (currNode.relativePosition > 0) {
-					currNode.relativePosition -= len2;
-				} else {
-					blocks.root.relativePosition -= len2;
-				}
+				changeNode(currNode, -len2);
 				blocks.add(currBlockEnd, block2);
 
 				if (pos < len) {
 					// Insert element in first block
 					currBlock.add(pos, element);
-					if (currNode.relativePosition > 0) {
-						currNode.relativePosition++;
-					} else {
-						blocks.root.relativePosition++;
-					}
+					changeNode(currNode, 1);
 					currBlockEnd = currBlockEnd - len2 + 1;
 				} else {
 					// Insert element in second block
 					currBlock = block2;
 					block2.add(pos-len, element);
 					currNode = currNode.next();
-					assert(currNode.getValue() == currBlock);
-					if (currNode.relativePosition > 0) {
-						currNode.relativePosition++;
-					} else {
-						blocks.root.relativePosition++;
-					}
+					changeNode(currNode, 1);
 					currBlockStart += len;
 					currBlockEnd++;
 				}
