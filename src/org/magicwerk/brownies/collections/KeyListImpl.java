@@ -46,7 +46,7 @@ public class KeyListImpl<E> extends GapList<E> {
      * If forward is not null, the pointed to list stores the data for this instance
      * of KeyListImpl. The inherited GapList will not be used and be empty.
      */
-    GapList<E> forward;
+    IGapList<E> forward;
 
     /** If true the invariants the GapList are checked for debugging */
     private static final boolean DEBUG_CHECK = false;

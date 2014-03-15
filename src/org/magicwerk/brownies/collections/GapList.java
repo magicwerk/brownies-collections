@@ -484,13 +484,7 @@ public class GapList<E> extends IGapList<E> {
 		return size;
 	}
 
-	/**
-	 * Returns capacity of this GapList.
-	 * Note that two GapLists are considered equal even if they have a distinct capacity.
-	 * Also the capacity can be changed by operations like clone() etc.
-	 *
-	 * @return capacity of this GapList
-	 */
+	@Override
 	public int capacity() {
 		return values.length;
 	}
