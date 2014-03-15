@@ -31,6 +31,9 @@ import java.util.NoSuchElementException;
 import java.util.RandomAccess;
 import java.util.Set;
 
+import org.magicwerk.brownies.collections.function.Mapper;
+import org.magicwerk.brownies.collections.function.Predicate;
+
 /**
  * GapList combines the strengths of both ArrayList and LinkedList.
  * It is implemented to offer both efficient random access to elements
@@ -133,6 +136,15 @@ public abstract class IGapList<E> extends AbstractList<E>
 
 	@Override
 	abstract public int size();
+
+	/**
+	 * Returns capacity of this GapList.
+	 * Note that two GapLists are considered equal even if they have a distinct capacity.
+	 * Also the capacity can be changed by operations like clone() etc.
+	 *
+	 * @return capacity of this GapList
+	 */
+	abstract public int capacity();
 
     @Override
     public E get(int index) {
@@ -394,6 +406,24 @@ public abstract class IGapList<E> extends AbstractList<E>
 			set.add(doGet(i));
 		}
         return set;
+    }
+
+    public <R> GapList<R> map(Mapper<E,R> mapper) {
+    	GapList list = GapList.create(size());
+    	for (E e: this) {
+    		list.add(mapper.getKey(e));
+    	}
+    	return list;
+    }
+
+    public GapList<E> filter(Predicate<? super E> predicate) {
+    	GapList<E> list = GapList.create();
+    	for (E e: this) {
+    		if (predicate.allow(e)) {
+    			list.add(e);
+    		}
+    	}
+    	return list;
     }
 
 	@Override

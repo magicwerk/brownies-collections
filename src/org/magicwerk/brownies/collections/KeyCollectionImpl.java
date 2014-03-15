@@ -284,13 +284,12 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         /**
          * Specifies whether null elements are allowed or not.
          * A null element will have a null key.
-         * This method has the same effect as {@link #withNull}.
          *
          * @param allowNull true to allow null elements, false to disallow (default is true)
          * @return          this (fluent interfaces)
          */
         protected BuilderImpl<E> withElemNull(boolean allowNull) {
-        	return withNull(allowNull);
+        	return withKeyNull(0, allowNull);
         }
 
         /**
@@ -724,7 +723,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
                 		throw new IllegalArgumentException("Null values are not supported for primitive list type");
                 	}
                 	keyMap.comparator = NaturalComparator.INSTANCE();
-        			keyMap.keysList = (GapList<Object>) GapLists.createWrapperList(keyMapBuilder.orderByType);
+        			keyMap.keysList = (IGapList<Object>) GapLists.createWrapperList(keyMapBuilder.orderByType);
         		}
         	} else if (keyMap.comparator != null) {
         		keyMap.keysMap = new TreeMap(keyMap.comparator);
@@ -827,7 +826,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         	keyList.keyColl = keyColl;
         	keyColl.keyList = keyList;
         	if (keyColl.orderByKey == 0) {
-        		keyList.forward = (GapList<E>) keyColl.keyMaps[0].keysList;
+        		keyList.forward = (IGapList<E>) keyColl.keyMaps[0].keysList;
                 if (collection != null) {
                 	keyColl.addAll(collection);
                 } else if (array != null) {
@@ -867,7 +866,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	     */
 	    Map<K, Object> keysMap;
 	    /** Key storage if this is a sorted KeyListImpl. */
-	    GapList<K> keysList;
+	    IGapList<K> keysList;
 	    /** True to count only number of occurrences of equal elements */
 	    boolean count;
 
@@ -1433,7 +1432,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     		assert(count == size());
     	} else if (keyMap.keysList != null) {
     		assert(keyMap.keysList.size() == size());
-    		GapList<?> copy = keyMap.keysList.copy();
+    		IGapList<?> copy = keyMap.keysList.copy();
     		copy.sort(keyMap.comparator);
     		assert(copy.equals(keyMap.keysList));
     	} else {
@@ -1458,7 +1457,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     void checkIndex(int loIndex, int hiIndex, E elem) {
    		KeyMap keyMap = keyMaps[orderByKey];
     	Object key = keyMap.getKey(elem);
-    	GapList<Object> list = keyMap.keysList;
+    	IGapList<Object> list = keyMap.keysList;
     	Comparator<Object> comp = keyMap.comparator;
     	if (loIndex >= 0) {
     		int cmp = comp.compare(list.doGet(loIndex), key);
@@ -1506,7 +1505,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     	// Index is correct
    		KeyMap keyMap = keyMaps[orderByKey];
     	Object key = keyMap.getKey(elem);
-    	GapList<Object> list = keyMap.keysList;
+    	IGapList<Object> list = keyMap.keysList;
 
    		doAdd(elem, keyMap);
     	list.doAdd(index, key);
@@ -1528,7 +1527,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     	// Index is correct
    		KeyMap keyMap = keyMaps[orderByKey];
     	Object key = keyMap.getKey(elem);
-    	GapList<Object> list = keyMap.keysList;
+    	IGapList<Object> list = keyMap.keysList;
 
     	beforeDelete(oldElem);
     	doRemove(oldElem, keyMap);

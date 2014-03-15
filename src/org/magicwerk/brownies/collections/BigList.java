@@ -301,14 +301,19 @@ public class BigList<T>
 	}
 
 	@Override
+	public int capacity() {
+		return -1;	// TODO
+	}
+
+	@Override
 	protected T doGet(int index) {
-		int pos = getBlockIndex(index);
+		int pos = getBlockIndex(index, false, 0);
 		return currBlock.get(pos);
 	}
 
 	@Override
 	protected T doSet(int index, T elem) {
-		int pos = getBlockIndexWrite(index);
+		int pos = getBlockIndex(index, true, 0);
 		T oldElem = currBlock.get(pos);
 		currBlock.set(pos, elem);
 		return oldElem;
@@ -316,7 +321,7 @@ public class BigList<T>
 
 	@Override
 	protected T doReSet(int index, T elem) {
-		int pos = getBlockIndexWrite(index);
+		int pos = getBlockIndex(index, true, 0);
 		T oldElem = currBlock.get(pos);
 		currBlock.set(pos, elem);
 		return oldElem;
@@ -330,15 +335,10 @@ public class BigList<T>
 	 * @param index	list index
 	 * @return		relative index within block
 	 */
-	private int getBlockIndexWrite(int index) {
-		int i = getBlockIndex(index);
-		if (currBlock.isShared()) {
-			currBlock.unref();
-			currBlock = new Block<T>(currBlock);
-			currNode.setValue(currBlock);
-		}
-		return i;
-	}
+//	private int getBlockIndexWrite2(int index) {
+//		int i = getBlockIndex(index, false, 0);
+//		return i;
+//	}
 
 	/**
 	 * Returns index in block where the element with specified index is located.
@@ -347,7 +347,7 @@ public class BigList<T>
 	 * @param index	list index (0 <= index <= size())
 	 * @return		relative index within block
 	 */
-	private int getBlockIndex(int index) {
+	private int getBlockIndex(int index, boolean write, int modify) {
 		// Determine block where specified index is located and store it in currBlock
 //		if (index >= currBlockStart && index < currBlockEnd) {
 //			// currBlock is already set correctly
@@ -374,13 +374,23 @@ public class BigList<T>
 //        }
 
         int[] endIndex = new int[1];
-        currNode = blocks.getIn(index, endIndex);
+//        currNode = blocks.getIn(index, endIndex);
+        currNode = blocks.access(index, modify, endIndex);
         currBlock = currNode.getValue();
 //        currBlockStart = endIndex[0];
 //        currBlockEnd = currBlockStart + currBlock.size();
         currBlockEnd = endIndex[0];
         currBlockStart = currBlockEnd - currBlock.size();
         assert(index >= currBlockStart);
+
+        if (write) {
+			if (currBlock.isShared()) {
+				currBlock.unref();
+				currBlock = new Block<T>(currBlock);
+				currNode.setValue(currBlock);
+			}
+	    }
+
         return index - currBlockStart;
 	}
 
@@ -496,39 +506,53 @@ public class BigList<T>
 			blocks.add(1, block);
 			blocks.root.min().relativePosition = -blockSize;
 		} else {
-			int pos = getBlockIndexWrite(index);
+			int pos = getBlockIndex(index, true, 1);
 
 			// Insert in current block
 			if (currBlock.size() < blockSize) {
-				changeNode(currNode, 1);
+				//changeNode(currNode, 1);
 				currBlock.add(pos, element);
 				currBlockEnd++;
 
 			} else {
 				// Split block for insert
-				Block<T> block2 = new Block<T>(blockSize);
-				int len2 = blockSize/2;
-				int len = blockSize-len2;
+				Block<T> nextBlock = new Block<T>(blockSize);
+				int nextBlockLen = blockSize/2;
+				int blockLen = blockSize - nextBlockLen;
+				nextBlock.values.init(nextBlockLen, null);
+				GapList.copy(currBlock.values, blockLen, nextBlock.values, 0, nextBlockLen);
+				currBlock.values.remove(nextBlockLen, blockSize-nextBlockLen);
 
-			    block2.values.init(len2, null);
-				GapList.copy(currBlock.values, len, block2.values, 0, len2);
-				currBlock.values.remove(len, len2);
+				//assert(n.equals(currNode.previous()));
 
-				changeNode(currNode, -len2);
-				blocks.add(currBlockEnd, block2);
+				if (currNode.relativePosition < 0) {
+					currNode.relativePosition += (nextBlockLen+1);
+				} else {
+					currNode.relativePosition -= (nextBlockLen+1);
+				}
 
-				if (pos < len) {
+				if (pos < blockLen) {
 					// Insert element in first block
+					blocks.add(currBlockEnd, nextBlock);
+					if (currNode.relativePosition > 0) {
+						currNode.relativePosition += 1;
+					} else {
+						currNode.relativePosition -= 1;
+					}
 					currBlock.add(pos, element);
-					changeNode(currNode, 1);
-					currBlockEnd = currBlockEnd - len2 + 1;
+					currBlockEnd = currBlockStart+blockLen+1;
 				} else {
 					// Insert element in second block
-					currBlock = block2;
-					block2.add(pos-len, element);
+					blocks.add(currBlockEnd, nextBlock);
 					currNode = currNode.next();
-					changeNode(currNode, 1);
-					currBlockStart += len;
+					if (currNode.relativePosition > 0) {
+						currNode.relativePosition += 1;
+					} else {
+						currNode.relativePosition -= 1;
+					}
+					currBlock = nextBlock;
+					currBlock.add(pos-blockLen, element);
+					currBlockStart += blockLen;
 					currBlockEnd++;
 				}
 			}
@@ -573,7 +597,7 @@ public class BigList<T>
 	}
 
 	protected T doRemove(int index) {
-		int pos = getBlockIndexWrite(index);
+		int pos = getBlockIndex(index, true, -1);
 		T oldElem = currBlock.remove(pos);
 		currBlockEnd--;
 		size--;
