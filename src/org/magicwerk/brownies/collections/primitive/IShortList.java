@@ -56,7 +56,7 @@ import org.magicwerk.brownies.collections.function.Predicate;
  * @see	    java.util.ArrayList
  * @see	    java.util.LinkedList
  */
-public abstract class IShortList<E> implements Cloneable, Serializable {
+public abstract class IShortList implements Cloneable, Serializable {
 
     /**
 	 * Copies the collection values into an array.
@@ -537,7 +537,7 @@ public IShortList removeAll(short elem) {
     /**
      * @see #removeAll(Collection)
      */
-public boolean removeAll(IShortList<?> coll) {
+public boolean removeAll(IShortList coll) {
     // There is a special implementation accepting a GapList   
     // so the method is also available in the primitive classes.   
     boolean modified = false;
@@ -573,7 +573,7 @@ public boolean retainAll(Collection<Short> coll) {
     /**
      * @see #retainAll(Collection)
      */
-public boolean retainAll(IShortList<?> coll) {
+public boolean retainAll(IShortList coll) {
     // There is a special implementation accepting a GapList   
     // so the method is also available in the primitive classes.   
     boolean modified = false;
@@ -953,7 +953,7 @@ public boolean removeLastOccurrence(short elem) {
      * @param <E> 		type of elements stored in the list
      * @throws 			IndexOutOfBoundsException if the ranges are invalid
      */
-public static void move(IShortList src, int srcIndex, IShortList<Short> dst, int dstIndex, int len) {
+public static void move(IShortList src, int srcIndex, IShortList dst, int dstIndex, int len) {
     if (src == dst) {
         src.move(srcIndex, dstIndex, len);
     } else {

@@ -56,7 +56,7 @@ import org.magicwerk.brownies.collections.function.Predicate;
  * @see	    java.util.ArrayList
  * @see	    java.util.LinkedList
  */
-public abstract class ILongList<E> implements Cloneable, Serializable {
+public abstract class ILongList implements Cloneable, Serializable {
 
     /**
 	 * Copies the collection values into an array.
@@ -537,7 +537,7 @@ public ILongList removeAll(long elem) {
     /**
      * @see #removeAll(Collection)
      */
-public boolean removeAll(ILongList<?> coll) {
+public boolean removeAll(ILongList coll) {
     // There is a special implementation accepting a GapList   
     // so the method is also available in the primitive classes.   
     boolean modified = false;
@@ -573,7 +573,7 @@ public boolean retainAll(Collection<Long> coll) {
     /**
      * @see #retainAll(Collection)
      */
-public boolean retainAll(ILongList<?> coll) {
+public boolean retainAll(ILongList coll) {
     // There is a special implementation accepting a GapList   
     // so the method is also available in the primitive classes.   
     boolean modified = false;
@@ -953,7 +953,7 @@ public boolean removeLastOccurrence(long elem) {
      * @param <E> 		type of elements stored in the list
      * @throws 			IndexOutOfBoundsException if the ranges are invalid
      */
-public static void move(ILongList src, int srcIndex, ILongList<Long> dst, int dstIndex, int len) {
+public static void move(ILongList src, int srcIndex, ILongList dst, int dstIndex, int len) {
     if (src == dst) {
         src.move(srcIndex, dstIndex, len);
     } else {

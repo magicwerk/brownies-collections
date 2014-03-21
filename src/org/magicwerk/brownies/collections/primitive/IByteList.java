@@ -56,7 +56,7 @@ import org.magicwerk.brownies.collections.function.Predicate;
  * @see	    java.util.ArrayList
  * @see	    java.util.LinkedList
  */
-public abstract class IByteList<E> implements Cloneable, Serializable {
+public abstract class IByteList implements Cloneable, Serializable {
 
     /**
 	 * Copies the collection values into an array.
@@ -537,7 +537,7 @@ public IByteList removeAll(byte elem) {
     /**
      * @see #removeAll(Collection)
      */
-public boolean removeAll(IByteList<?> coll) {
+public boolean removeAll(IByteList coll) {
     // There is a special implementation accepting a GapList   
     // so the method is also available in the primitive classes.   
     boolean modified = false;
@@ -573,7 +573,7 @@ public boolean retainAll(Collection<Byte> coll) {
     /**
      * @see #retainAll(Collection)
      */
-public boolean retainAll(IByteList<?> coll) {
+public boolean retainAll(IByteList coll) {
     // There is a special implementation accepting a GapList   
     // so the method is also available in the primitive classes.   
     boolean modified = false;
@@ -953,7 +953,7 @@ public boolean removeLastOccurrence(byte elem) {
      * @param <E> 		type of elements stored in the list
      * @throws 			IndexOutOfBoundsException if the ranges are invalid
      */
-public static void move(IByteList src, int srcIndex, IByteList<Byte> dst, int dstIndex, int len) {
+public static void move(IByteList src, int srcIndex, IByteList dst, int dstIndex, int len) {
     if (src == dst) {
         src.move(srcIndex, dstIndex, len);
     } else {
