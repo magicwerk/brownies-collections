@@ -32,6 +32,8 @@ import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.RandomAccess;
 
+import org.magicwerk.brownies.collections.function.Mapper;
+
 /**
  * GapList combines the strengths of both ArrayList and LinkedList.
  * It is implemented to offer both efficient random access to elements
@@ -563,6 +565,21 @@ public class GapList<E> extends IList<E> {
 		}
 		checkIndexAdd(index);
 		doAdd(index, elem);
+	}
+
+	@Override
+	public GapList<E> getAll(int index, int len) {
+		return (GapList<E>) super.getAll(index, len);
+	}
+
+	@Override
+	public GapList<E> getAll(E elem) {
+		return (GapList<E>) super.getAll(elem);
+	}
+
+	@Override
+    public <R> GapList<R> mappedList(Mapper<E,R> mapper) {
+		return (GapList<R>) super.mappedList(mapper);
 	}
 
 	@Override

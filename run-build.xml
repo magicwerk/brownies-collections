@@ -38,9 +38,12 @@
 	<target name="post-build-0.9.x">
 	    <property name="tmp.bin.jar" value="${build.dir}/brownies-collections.jar" />
         <property name="tmp.bin.dir" value="${build.dir}/brownies-collections.jar.tmp" />
+
+		<property name="skipFiles-0.9.x" value="**/Big*" />
+
 		<unjar src="${tmp.bin.jar}" dest="${tmp.bin.dir}" />
 		<delete>
-			 <fileset dir="${tmp.bin.dir}" includes="**/Key*, **/Set*, **/Map*, **/Sorted*"/>
+			 <fileset dir="${tmp.bin.dir}" includes="${skipFiles-0.9.x}"/>
 		</delete>
 		<delete file="${tmp.bin.jar}" />
 		<jar file="${tmp.bin.jar}" basedir="${tmp.bin.dir}" />
@@ -50,7 +53,7 @@
         <property name="tmp.src.dir" value="${build.dir}/brownies-collections-sources.jar.tmp" />
         <unjar src="${tmp.src.jar}" dest="${tmp.src.dir}" />
         <delete>
-             <fileset dir="${tmp.src.dir}" includes="**/Key*, **/Set*, **/Map*, **/Sorted*"/>
+             <fileset dir="${tmp.src.dir}" includes="${skipFiles-0.9.x}"/>
         </delete>
         <delete file="${tmp.src.jar}" />
         <jar file="${tmp.src.jar}" basedir="${tmp.src.dir}" />
@@ -73,7 +76,7 @@
         <delete dir="build/doc-src" />
 	    <mkdir dir="build/doc-src" />
 	   	<copy todir="build/doc-src">
-	   	   <fileset dir="src" excludes="**/Key*, **/Set*, **/Map*, **/Sorted*" />
+	   	   <fileset dir="src" excludes="${skipFiles-0.9.x}" />
 	   	</copy>
         <delete dir="${build.dir}/doc" />
             <javadoc

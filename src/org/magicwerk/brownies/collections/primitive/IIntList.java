@@ -56,7 +56,7 @@ import org.magicwerk.brownies.collections.function.Predicate;
  * @see	    java.util.ArrayList
  * @see	    java.util.LinkedList
  */
-public abstract class IIntList<E> implements Cloneable, Serializable {
+public abstract class IIntList implements Cloneable, Serializable {
 
     /**
 	 * Copies the collection values into an array.
@@ -537,7 +537,7 @@ public IIntList removeAll(int elem) {
     /**
      * @see #removeAll(Collection)
      */
-public boolean removeAll(IIntList<?> coll) {
+public boolean removeAll(IIntList coll) {
     // There is a special implementation accepting a GapList   
     // so the method is also available in the primitive classes.   
     boolean modified = false;
@@ -573,7 +573,7 @@ public boolean retainAll(Collection<Integer> coll) {
     /**
      * @see #retainAll(Collection)
      */
-public boolean retainAll(IIntList<?> coll) {
+public boolean retainAll(IIntList coll) {
     // There is a special implementation accepting a GapList   
     // so the method is also available in the primitive classes.   
     boolean modified = false;
@@ -953,7 +953,7 @@ public boolean removeLastOccurrence(int elem) {
      * @param <E> 		type of elements stored in the list
      * @throws 			IndexOutOfBoundsException if the ranges are invalid
      */
-public static void move(IIntList src, int srcIndex, IIntList<Integer> dst, int dstIndex, int len) {
+public static void move(IIntList src, int srcIndex, IIntList dst, int dstIndex, int len) {
     if (src == dst) {
         src.move(srcIndex, dstIndex, len);
     } else {

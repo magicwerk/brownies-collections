@@ -56,7 +56,7 @@ import org.magicwerk.brownies.collections.function.Predicate;
  * @see	    java.util.ArrayList
  * @see	    java.util.LinkedList
  */
-public abstract class IDoubleList<E> implements Cloneable, Serializable {
+public abstract class IDoubleList implements Cloneable, Serializable {
 
     /**
 	 * Copies the collection values into an array.
@@ -538,7 +538,7 @@ public IDoubleList removeAll(double elem) {
     /**
      * @see #removeAll(Collection)
      */
-public boolean removeAll(IDoubleList<?> coll) {
+public boolean removeAll(IDoubleList coll) {
     // There is a special implementation accepting a GapList   
     // so the method is also available in the primitive classes.   
     boolean modified = false;
@@ -574,7 +574,7 @@ public boolean retainAll(Collection<Double> coll) {
     /**
      * @see #retainAll(Collection)
      */
-public boolean retainAll(IDoubleList<?> coll) {
+public boolean retainAll(IDoubleList coll) {
     // There is a special implementation accepting a GapList   
     // so the method is also available in the primitive classes.   
     boolean modified = false;
@@ -954,7 +954,7 @@ public boolean removeLastOccurrence(double elem) {
      * @param <E> 		type of elements stored in the list
      * @throws 			IndexOutOfBoundsException if the ranges are invalid
      */
-public static void move(IDoubleList src, int srcIndex, IDoubleList<Double> dst, int dstIndex, int len) {
+public static void move(IDoubleList src, int srcIndex, IDoubleList dst, int dstIndex, int len) {
     if (src == dst) {
         src.move(srcIndex, dstIndex, len);
     } else {

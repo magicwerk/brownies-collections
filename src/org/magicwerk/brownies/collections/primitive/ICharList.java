@@ -56,7 +56,7 @@ import org.magicwerk.brownies.collections.function.Predicate;
  * @see	    java.util.ArrayList
  * @see	    java.util.LinkedList
  */
-public abstract class ICharList<E> implements Cloneable, Serializable {
+public abstract class ICharList implements Cloneable, Serializable {
 
     /**
 	 * Copies the collection values into an array.
@@ -537,7 +537,7 @@ public ICharList removeAll(char elem) {
     /**
      * @see #removeAll(Collection)
      */
-public boolean removeAll(ICharList<?> coll) {
+public boolean removeAll(ICharList coll) {
     // There is a special implementation accepting a GapList   
     // so the method is also available in the primitive classes.   
     boolean modified = false;
@@ -573,7 +573,7 @@ public boolean retainAll(Collection<Character> coll) {
     /**
      * @see #retainAll(Collection)
      */
-public boolean retainAll(ICharList<?> coll) {
+public boolean retainAll(ICharList coll) {
     // There is a special implementation accepting a GapList   
     // so the method is also available in the primitive classes.   
     boolean modified = false;
@@ -953,7 +953,7 @@ public boolean removeLastOccurrence(char elem) {
      * @param <E> 		type of elements stored in the list
      * @throws 			IndexOutOfBoundsException if the ranges are invalid
      */
-public static void move(ICharList src, int srcIndex, ICharList<Character> dst, int dstIndex, int len) {
+public static void move(ICharList src, int srcIndex, ICharList dst, int dstIndex, int len) {
     if (src == dst) {
         src.move(srcIndex, dstIndex, len);
     } else {

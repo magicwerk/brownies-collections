@@ -56,7 +56,7 @@ import org.magicwerk.brownies.collections.function.Predicate;
  * @see	    java.util.ArrayList
  * @see	    java.util.LinkedList
  */
-public abstract class IFloatList<E> implements Cloneable, Serializable {
+public abstract class IFloatList implements Cloneable, Serializable {
 
     /**
 	 * Copies the collection values into an array.
@@ -538,7 +538,7 @@ public IFloatList removeAll(float elem) {
     /**
      * @see #removeAll(Collection)
      */
-public boolean removeAll(IFloatList<?> coll) {
+public boolean removeAll(IFloatList coll) {
     // There is a special implementation accepting a GapList   
     // so the method is also available in the primitive classes.   
     boolean modified = false;
@@ -574,7 +574,7 @@ public boolean retainAll(Collection<Float> coll) {
     /**
      * @see #retainAll(Collection)
      */
-public boolean retainAll(IFloatList<?> coll) {
+public boolean retainAll(IFloatList coll) {
     // There is a special implementation accepting a GapList   
     // so the method is also available in the primitive classes.   
     boolean modified = false;
@@ -954,7 +954,7 @@ public boolean removeLastOccurrence(float elem) {
      * @param <E> 		type of elements stored in the list
      * @throws 			IndexOutOfBoundsException if the ranges are invalid
      */
-public static void move(IFloatList src, int srcIndex, IFloatList<Float> dst, int dstIndex, int len) {
+public static void move(IFloatList src, int srcIndex, IFloatList dst, int dstIndex, int len) {
     if (src == dst) {
         src.move(srcIndex, dstIndex, len);
     } else {

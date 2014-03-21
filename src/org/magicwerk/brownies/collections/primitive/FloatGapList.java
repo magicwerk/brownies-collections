@@ -17,7 +17,7 @@
  */
 package org.magicwerk.brownies.collections.primitive;
 import org.magicwerk.brownies.collections.helper.ArraysHelper;
-
+import org.magicwerk.brownies.collections.GapList;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.RandomAccess;
+import org.magicwerk.brownies.collections.function.Mapper;
 
 /**
  * FloatGapList combines the strengths of both ArrayList and LinkedList.
@@ -540,6 +541,21 @@ public void add(int index, float elem) {
     }
     checkIndexAdd(index);
     doAdd(index, elem);
+}
+
+    @Override
+public FloatGapList getAll(int index, int len) {
+    return (FloatGapList) super.getAll(index, len);
+}
+
+    @Override
+public FloatGapList getAll(float elem) {
+    return (FloatGapList) super.getAll(elem);
+}
+
+    @Override
+public <R> GapList<R> mappedList(Mapper<Float, R> mapper) {
+    return (GapList<R>) super.mappedList(mapper);
 }
 
     @Override

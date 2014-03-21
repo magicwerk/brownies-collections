@@ -56,7 +56,7 @@ import org.magicwerk.brownies.collections.function.Predicate;
  * @see	    java.util.ArrayList
  * @see	    java.util.LinkedList
  */
-public abstract class IBooleanList<E> implements Cloneable, Serializable {
+public abstract class IBooleanList implements Cloneable, Serializable {
 
     /**
 	 * Copies the collection values into an array.
@@ -538,7 +538,7 @@ public IBooleanList removeAll(boolean elem) {
     /**
      * @see #removeAll(Collection)
      */
-public boolean removeAll(IBooleanList<?> coll) {
+public boolean removeAll(IBooleanList coll) {
     // There is a special implementation accepting a GapList   
     // so the method is also available in the primitive classes.   
     boolean modified = false;
@@ -574,7 +574,7 @@ public boolean retainAll(Collection<Boolean> coll) {
     /**
      * @see #retainAll(Collection)
      */
-public boolean retainAll(IBooleanList<?> coll) {
+public boolean retainAll(IBooleanList coll) {
     // There is a special implementation accepting a GapList   
     // so the method is also available in the primitive classes.   
     boolean modified = false;
@@ -954,7 +954,7 @@ public boolean removeLastOccurrence(boolean elem) {
      * @param <E> 		type of elements stored in the list
      * @throws 			IndexOutOfBoundsException if the ranges are invalid
      */
-public static void move(IBooleanList src, int srcIndex, IBooleanList<Boolean> dst, int dstIndex, int len) {
+public static void move(IBooleanList src, int srcIndex, IBooleanList dst, int dstIndex, int len) {
     if (src == dst) {
         src.move(srcIndex, dstIndex, len);
     } else {
