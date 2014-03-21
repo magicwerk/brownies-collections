@@ -53,7 +53,7 @@ import java.util.RandomAccess;
  * @see	    java.util.ArrayList
  * @see	    java.util.LinkedList
  */
-public class CharGapList extends ICharGapList {
+public class CharGapList extends ICharList {
 
     /*
      * Helper variables to enable code for debugging.
@@ -309,6 +309,18 @@ private int[] physIndex(int idx0, int idx1) {
     }
 }
 
+    @Override
+protected void doAssign(ICharList that) {
+    CharGapList list = (CharGapList) that;
+    this.values = list.values;
+    this.size = list.size;
+    this.start = list.start;
+    this.end = list.end;
+    this.gapSize = list.gapSize;
+    this.gapIndex = list.gapIndex;
+    this.gapStart = list.gapStart;
+}
+
     /**
      * Constructor used internally, e.g. for ImmutableCharGapList.
      *
@@ -318,13 +330,7 @@ private int[] physIndex(int idx0, int idx1) {
      */
 protected CharGapList(boolean copy, CharGapList that){
     if (copy) {
-        this.values = that.values;
-        this.size = that.size;
-        this.start = that.start;
-        this.end = that.end;
-        this.gapSize = that.gapSize;
-        this.gapIndex = that.gapIndex;
-        this.gapStart = that.gapStart;
+        doAssign(that);
     }
 }
 
@@ -420,7 +426,7 @@ public CharGapList unmodifiableList() {
 }
 
     @Override
-protected void initClone(ICharGapList that) {
+protected void doClone(ICharList that) {
     // Do not simply clone the array, but make sure its capacity   
     // is equal to the size (as in ArrayList)   
     init(that.toArray(), that.size());
@@ -463,13 +469,7 @@ public int size() {
     return size;
 }
 
-    /**
-	 * Returns capacity of this CharGapList.
-	 * Note that two CharGapLists are considered equal even if they have a distinct capacity.
-	 * Also the capacity can be changed by operations like clone() etc.
-	 *
-	 * @return capacity of this CharGapList
-	 */
+    @Override
 public int capacity() {
     return values.length;
 }
@@ -1029,7 +1029,7 @@ private void readObject(ObjectInputStream ois) throws IOException, ClassNotFound
 }
 
     @Override
-public ICharGapList doCreate(int capacity) {
+public ICharList doCreate(int capacity) {
     if (capacity == -1) {
         capacity = DEFAULT_CAPACITY;
     }

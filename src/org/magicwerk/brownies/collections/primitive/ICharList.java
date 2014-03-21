@@ -17,6 +17,10 @@
  */
 package org.magicwerk.brownies.collections.primitive;
 
+import org.magicwerk.brownies.collections.IList;
+import org.magicwerk.brownies.collections.GapList;
+
+
 import java.io.Serializable;
 import java.util.AbstractList;
 import java.util.Arrays;
@@ -30,6 +34,8 @@ import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.RandomAccess;
 import java.util.Set;
+import org.magicwerk.brownies.collections.function.Mapper;
+import org.magicwerk.brownies.collections.function.Predicate;
 
 /**
  * GapList combines the strengths of both ArrayList and LinkedList.
@@ -50,7 +56,7 @@ import java.util.Set;
  * @see	    java.util.ArrayList
  * @see	    java.util.LinkedList
  */
-public abstract class IShortGapList<E> implements Cloneable, Serializable {
+public abstract class ICharList<E> implements Cloneable, Serializable {
 
     /**
 	 * Copies the collection values into an array.
@@ -58,11 +64,11 @@ public abstract class IShortGapList<E> implements Cloneable, Serializable {
 	 * @param coll   collection of values
 	 * @return       array containing the collection values
 	 */
-static short[] toArray(Collection<Short> coll) {
+static char[] toArray(Collection<Character> coll) {
     Object[] values = coll.toArray();
-    short[] v = new short[values.length];
+    char[] v = new char[values.length];
     for (int i = 0; i < values.length; i++) {
-        v[i] = (Short) values[i];
+        v[i] = (Character) values[i];
     }
     return v;
 }
@@ -76,8 +82,8 @@ static short[] toArray(Collection<Short> coll) {
      * @see #clone
      */
 @SuppressWarnings("unchecked")
-public IShortGapList copy() {
-    return (IShortGapList) clone();
+public ICharList copy() {
+    return (ICharList) clone();
 }
 
     /**
@@ -89,7 +95,7 @@ public IShortGapList copy() {
      *
      * @return an unmodifiable view of the specified list
      */
-public abstract IShortGapList unmodifiableList();
+public abstract ICharList unmodifiableList();
 
     /**
      * Returns a shallow copy of this <tt>GapList</tt> instance
@@ -103,8 +109,8 @@ public abstract IShortGapList unmodifiableList();
 
 public Object clone() {
     try {
-        IShortGapList list = (IShortGapList) super.clone();
-        list.initClone(this);
+        ICharList list = (ICharList) super.clone();
+        list.doClone(this);
         return list;
     } catch (CloneNotSupportedException e) {
         // This shouldn't happen, since we are Cloneable   
@@ -118,7 +124,7 @@ public Object clone() {
 	 *
 	 * @param that	source object
 	 */
-protected abstract void initClone(IShortGapList that);
+protected abstract void doClone(ICharList that);
 
     
 public void clear() {
@@ -128,8 +134,17 @@ public void clear() {
     
 public abstract int size();
 
+    /**
+	 * Returns capacity of this GapList.
+	 * Note that two GapLists are considered equal even if they have a distinct capacity.
+	 * Also the capacity can be changed by operations like clone() etc.
+	 *
+	 * @return capacity of this GapList
+	 */
+public abstract int capacity();
+
     
-public short get(int index) {
+public char get(int index) {
     checkIndex(index);
     return doGet(index);
 }
@@ -142,7 +157,7 @@ public short get(int index) {
      * @param index index of element to return
      * @return      the element at the specified position in this list
      */
-protected abstract short doGet(int index);
+protected abstract char doGet(int index);
 
     /**
      * Helper method for setting an element in the GapList.
@@ -153,10 +168,10 @@ protected abstract short doGet(int index);
      * @param elem  element to set
      * @return      old element which was at the position
      */
-protected abstract short doSet(int index, short elem);
+protected abstract char doSet(int index, char elem);
 
     
-public short set(int index, short elem) {
+public char set(int index, char elem) {
     checkIndex(index);
     return doSet(index, elem);
 }
@@ -170,9 +185,9 @@ public short set(int index, short elem) {
      * @param elem  element to set
      * @return      old element which was at the position
      */
-protected abstract short doReSet(int index, short elem);
+protected abstract char doReSet(int index, char elem);
 
-    protected abstract short getDefaultElem();
+    protected abstract char getDefaultElem();
 
     /**
      * This method is called internally before elements are allocated or freed.
@@ -182,12 +197,12 @@ protected void doModify() {
 }
 
     
-public boolean add(short elem) {
+public boolean add(char elem) {
     return doAdd(-1, elem);
 }
 
     
-public void add(int index, short elem) {
+public void add(int index, char elem) {
     checkIndexAdd(index);
     doAdd(index, elem);
 }
@@ -202,10 +217,10 @@ public void add(int index, short elem) {
 	 * @param elem	element to add
 	 * @return      true if element has been added (GapList.add() will always return true)
 	 */
-protected abstract boolean doAdd(int index, short elem);
+protected abstract boolean doAdd(int index, char elem);
 
     
-public short remove(int index) {
+public char remove(int index) {
     checkIndex(index);
     return doRemove(index);
 }
@@ -218,7 +233,7 @@ public short remove(int index) {
 	 * @param index	index of element to remove
 	 * @return		removed element
 	 */
-protected abstract short doRemove(int index);
+protected abstract char doRemove(int index);
 
     /**
      * Increases the capacity of this <tt>GapList</tt> instance, if
@@ -257,13 +272,13 @@ public boolean equals(Object obj) {
     if (obj == this) {
         return true;
     }
-    if (obj instanceof ShortObjGapList) {
-        obj = ((ShortObjGapList) obj).list;
+    if (obj instanceof CharObjGapList) {
+        obj = ((CharObjGapList) obj).list;
     }
-    if (!(obj instanceof ShortGapList)) {
+    if (!(obj instanceof CharGapList)) {
         return false;
     }
-    @SuppressWarnings("unchecked") ShortGapList list = (ShortGapList) obj;
+    @SuppressWarnings("unchecked") CharGapList list = (CharGapList) obj;
     int size = size();
     if (size != list.size()) {
         return false;
@@ -281,7 +296,7 @@ public int hashCode() {
     int hashCode = 1;
     int size = size();
     for (int i = 0; i < size; i++) {
-        short elem = doGet(i);
+        char elem = doGet(i);
         hashCode = 31 * hashCode + hashCodeElem(elem);
     }
     return hashCode;
@@ -315,7 +330,7 @@ public boolean isEmpty() {
 	 * @param elem2	second element
 	 * @return		true if the elements are equal, otherwise false
 	 */
-static boolean equalsElem(short elem1, short elem2) {
+static boolean equalsElem(char elem1, char elem2) {
     return elem1 == elem2;
 }
 
@@ -326,7 +341,7 @@ static boolean equalsElem(short elem1, short elem2) {
 	 * @param elem	element
 	 * @return		hash code for element
 	 */
-static int hashCodeElem(short elem) {
+static int hashCodeElem(char elem) {
     return (int) elem;
 }
 
@@ -336,7 +351,7 @@ static int hashCodeElem(short elem) {
 	 * @param elem	element to count
 	 * @return		count how many times the specified element is contained in the list
 	 */
-public int getCount(short elem) {
+public int getCount(char elem) {
     int count = 0;
     int size = size();
     for (int i = 0; i < size; i++) {
@@ -353,11 +368,11 @@ public int getCount(short elem) {
 	 * @param elem	element to look for
 	 * @return		all elements in the list equal to the specified element
 	 */
-public IShortGapList getAll(short elem) {
-    IShortGapList list = doCreate(-1);
+public ICharList getAll(char elem) {
+    ICharList list = doCreate(-1);
     int size = size();
     for (int i = 0; i < size; i++) {
-        short e = doGet(i);
+        char e = doGet(i);
         if (equalsElem(e, elem)) {
             list.add(e);
         }
@@ -379,8 +394,44 @@ public Set getDistinct() {
     return set;
 }
 
+    /**
+     * Create a new list by applying the specified mapper to all elements.
+     *
+     * @param mapper	mapper function
+     * @return			created list
+     */
+public <R> IList<R> mappedList(Mapper<Character, R> mapper) {
+    int size = size();
+    IList mappedList = new GapList(size);
+    for (int i = 0; i < size; i++) {
+        char e = doGet(i);
+        mappedList.add(mapper.getKey(e));
+    }
+    return mappedList;
+}
+
+    /**
+     * Filter the list using the specified predicate.
+     * Only element which are allowed remain in the list, the others are removed
+     *
+     * @param predicate predicate used for filtering
+     */
+public void filter(Predicate<Character> predicate) {
+    // It is typically faster to copy the allowed elements in a new list   
+    // than to remove the not allowed from the existing one   
+    ICharList list = doCreate(-1);
+    int size = size();
+    for (int i = 0; i < size; i++) {
+        char e = doGet(i);
+        if (predicate.allow(e)) {
+            list.add(e);
+        }
+    }
+    doAssign(list);
+}
+
     
-public int indexOf(short elem) {
+public int indexOf(char elem) {
     int size = size();
     for (int i = 0; i < size; i++) {
         if (equalsElem(doGet(i), elem)) {
@@ -391,7 +442,7 @@ public int indexOf(short elem) {
 }
 
     
-public int lastIndexOf(short elem) {
+public int lastIndexOf(char elem) {
     for (int i = size() - 1; i >= 0; i--) {
         if (equalsElem(doGet(i), elem)) {
             return i;
@@ -401,7 +452,7 @@ public int lastIndexOf(short elem) {
 }
 
     
-public boolean removeElem(short elem) {
+public boolean removeElem(char elem) {
     int index = indexOf(elem);
     if (index == -1) {
         return false;
@@ -411,7 +462,7 @@ public boolean removeElem(short elem) {
 }
 
     
-public boolean contains(short elem) {
+public boolean contains(char elem) {
     return indexOf(elem) != -1;
 }
 
@@ -421,11 +472,11 @@ public boolean contains(short elem) {
 	 * @param coll collection with elements to be contained
 	 * @return     true if any element is contained, false otherwise
 	 */
-public boolean containsAny(Collection<Short> coll) {
+public boolean containsAny(Collection<Character> coll) {
     // Note that the signature has been chosen as in List:   
-    // - boolean addAll(Collection<Short> c);   
-    // - boolean containsAll(Collection<Short> c);   
-    for (short elem : coll) {
+    // - boolean addAll(Collection<Character> c);   
+    // - boolean containsAll(Collection<Character> c);   
+    for (char elem : coll) {
         if (contains(elem)) {
             return true;
         }
@@ -434,10 +485,10 @@ public boolean containsAny(Collection<Short> coll) {
 }
 
     
-public boolean containsAll(Collection<Short> coll) {
+public boolean containsAll(Collection<Character> coll) {
     // Note that this method is already implemented in AbstractCollection.   
     // It has been duplicated so the method is also available in the primitive classes.   
-    for (short elem : coll) {
+    for (char elem : coll) {
         if (!contains(elem)) {
             return false;
         }
@@ -446,7 +497,7 @@ public boolean containsAll(Collection<Short> coll) {
 }
 
     
-public boolean removeAll(Collection<Short> coll) {
+public boolean removeAll(Collection<Character> coll) {
     // Note that this method is already implemented in AbstractCollection.   
     // It has been duplicated so the method is also available in the primitive classes.   
     boolean modified = false;
@@ -468,11 +519,11 @@ public boolean removeAll(Collection<Short> coll) {
 	 * @param elem	element
 	 * @return		removed equal elements (never null)
 	 */
-public IShortGapList removeAll(short elem) {
-    IShortGapList list = doCreate(-1);
+public ICharList removeAll(char elem) {
+    ICharList list = doCreate(-1);
     int size = size();
     for (int i = 0; i < size; i++) {
-        short e = doGet(i);
+        char e = doGet(i);
         if (equalsElem(elem, e)) {
             list.add(e);
             doRemove(i);
@@ -486,7 +537,7 @@ public IShortGapList removeAll(short elem) {
     /**
      * @see #removeAll(Collection)
      */
-public boolean removeAll(IShortGapList<?> coll) {
+public boolean removeAll(ICharList<?> coll) {
     // There is a special implementation accepting a GapList   
     // so the method is also available in the primitive classes.   
     boolean modified = false;
@@ -503,7 +554,7 @@ public boolean removeAll(IShortGapList<?> coll) {
 }
 
     
-public boolean retainAll(Collection<Short> coll) {
+public boolean retainAll(Collection<Character> coll) {
     // Note that this method is already implemented in AbstractCollection.   
     // It has been duplicated so the method is also available in the primitive classes.   
     boolean modified = false;
@@ -522,7 +573,7 @@ public boolean retainAll(Collection<Short> coll) {
     /**
      * @see #retainAll(Collection)
      */
-public boolean retainAll(IShortGapList<?> coll) {
+public boolean retainAll(ICharList<?> coll) {
     // There is a special implementation accepting a GapList   
     // so the method is also available in the primitive classes.   
     boolean modified = false;
@@ -539,9 +590,9 @@ public boolean retainAll(IShortGapList<?> coll) {
 }
 
     
-public short[] toArray() {
+public char[] toArray() {
     int size = size();
-    short[] array = new short[size];
+    char[] array = new char[size];
     doGetAll(array, 0, size);
     return array;
 }
@@ -553,22 +604,22 @@ public short[] toArray() {
 	 * @param len	number of elements to copy
 	 * @return		array the specified elements
 	 */
-public short[] toArray(int index, int len) {
-    short[] array = new short[len];
+public char[] toArray(int index, int len) {
+    char[] array = new char[len];
     doGetAll(array, index, len);
     return array;
 }
 
     @SuppressWarnings("unchecked")
 
-public short[] toArray(short[] array) {
+public char[] toArray(char[] array) {
     int size = size();
     if (array.length < size) {
-        array = (short[]) java.lang.reflect.Array.newInstance(array.getClass().getComponentType(), size);
+        array = (char[]) java.lang.reflect.Array.newInstance(array.getClass().getComponentType(), size);
     }
     doGetAll(array, 0, size);
     if (array.length > size) {
-        array[size] = (short) 0;
+        array[size] = (char) 0;
     }
     return array;
 }
@@ -581,7 +632,8 @@ public short[] toArray(short[] array) {
 	 * @param len	number of elements to copy
 	 * @param <T> type of elements stored in the list
 	 */
-protected void doGetAll(short[] array, int index, int len) {
+@SuppressWarnings("unchecked")
+protected void doGetAll(char[] array, int index, int len) {
     for (int i = 0; i < len; i++) {
         array[i] = doGet(index + i);
     }
@@ -597,11 +649,11 @@ protected void doGetAll(short[] array, int index, int len) {
      * @throws NullPointerException if the specified collection is null
      */
 
-public boolean addAll(Collection<Short> coll) {
+public boolean addAll(Collection<Character> coll) {
     // ArrayList.addAll() also first creates an array containing the   
     // collection elements. This guarantees that the list's capacity   
     // must only be increased once.   
-    @SuppressWarnings("unchecked") short[] array = (short[]) toArray(coll);
+    @SuppressWarnings("unchecked") char[] array = (char[]) toArray(coll);
     return doAddAll(-1, array);
 }
 
@@ -621,12 +673,12 @@ public boolean addAll(Collection<Short> coll) {
      * @throws NullPointerException if the specified collection is null
      */
 
-public boolean addAll(int index, Collection<Short> coll) {
+public boolean addAll(int index, Collection<Character> coll) {
     checkIndexAdd(index);
     // ArrayList.addAll() also first creates an array containing the   
     // collection elements. This guarantees that the list's capacity   
     // must only be increased once.   
-    @SuppressWarnings("unchecked") short[] array = (short[]) toArray(coll);
+    @SuppressWarnings("unchecked") char[] array = (char[]) toArray(coll);
     return doAddAll(index, array);
 }
 
@@ -636,7 +688,7 @@ public boolean addAll(int index, Collection<Short> coll) {
      * @param elems elements to be added to this list
      * @return <tt>true</tt> if this list changed as a result of the call
      */
-public boolean addAll(short... elems) {
+public boolean addAll(char... elems) {
     return doAddAll(-1, elems);
 }
 
@@ -652,7 +704,7 @@ public boolean addAll(short... elems) {
      * @return <tt>true</tt> if this list changed as a result of the call
      * @throws IndexOutOfBoundsException if the index is invalid
      */
-public boolean addAll(int index, short... elems) {
+public boolean addAll(int index, char... elems) {
     checkIndexAdd(index);
     return doAddAll(index, elems);
 }
@@ -665,8 +717,8 @@ public boolean addAll(int index, short... elems) {
      * @throws NullPointerException if the specified list is null
      */
 @SuppressWarnings("unchecked")
-public boolean addAll(IShortGapList list) {
-    return doAddAll(-1, (short[]) list.toArray());
+public boolean addAll(ICharList list) {
+    return doAddAll(-1, (char[]) list.toArray());
 }
 
     /**
@@ -683,9 +735,9 @@ public boolean addAll(IShortGapList list) {
      * @throws NullPointerException if the specified collection is null
      */
 @SuppressWarnings("unchecked")
-public boolean addAll(int index, IShortGapList list) {
+public boolean addAll(int index, ICharList list) {
     checkIndexAdd(index);
-    return doAddAll(index, (short[]) list.toArray());
+    return doAddAll(index, (char[]) list.toArray());
 }
 
     /**
@@ -697,12 +749,12 @@ public boolean addAll(int index, IShortGapList list) {
      * @param array array with elements to add
      * @return      true if elements have been added, false otherwise
      */
-protected boolean doAddAll(int index, short[] array) {
+protected boolean doAddAll(int index, char[] array) {
     doEnsureCapacity(size() + array.length);
     if (array.length == 0) {
         return false;
     }
-    for (short elem : array) {
+    for (char elem : array) {
         doAdd(index, elem);
         if (index != -1) {
             index++;
@@ -721,15 +773,15 @@ protected boolean doAddAll(int index, short[] array) {
 
     // Queue operations  
 
-public short peek() {
+public char peek() {
     if (size() == 0) {
-        return (short) 0;
+        return (char) 0;
     }
     return getFirst();
 }
 
     
-public short element() {
+public char element() {
     // inline version of getFirst():   
     if (size() == 0) {
         throw new NoSuchElementException();
@@ -738,15 +790,15 @@ public short element() {
 }
 
     
-public short poll() {
+public char poll() {
     if (size() == 0) {
-        return (short) 0;
+        return (char) 0;
     }
     return doRemove(0);
 }
 
     
-public short remove() {
+public char remove() {
     // inline version of removeFirst():   
     if (size() == 0) {
         throw new NoSuchElementException();
@@ -755,14 +807,14 @@ public short remove() {
 }
 
     
-public boolean offer(short elem) {
+public boolean offer(char elem) {
     // inline version of add(elem):   
     return doAdd(-1, elem);
 }
 
     // Deque operations  
 
-public short getFirst() {
+public char getFirst() {
     if (size() == 0) {
         throw new NoSuchElementException();
     }
@@ -770,7 +822,7 @@ public short getFirst() {
 }
 
     
-public short getLast() {
+public char getLast() {
     int size = size();
     if (size == 0) {
         throw new NoSuchElementException();
@@ -779,18 +831,18 @@ public short getLast() {
 }
 
     
-public void addFirst(short elem) {
+public void addFirst(char elem) {
     doAdd(0, elem);
 }
 
     
-public void addLast(short elem) {
+public void addLast(char elem) {
     // inline version of add(elem):   
     doAdd(-1, elem);
 }
 
     
-public short removeFirst() {
+public char removeFirst() {
     if (size() == 0) {
         throw new NoSuchElementException();
     }
@@ -798,7 +850,7 @@ public short removeFirst() {
 }
 
     
-public short removeLast() {
+public char removeLast() {
     int size = size();
     if (size == 0) {
         throw new NoSuchElementException();
@@ -807,55 +859,55 @@ public short removeLast() {
 }
 
     
-public boolean offerFirst(short elem) {
+public boolean offerFirst(char elem) {
     // inline version of addFirst(elem):   
     doAdd(0, elem);
     return true;
 }
 
     
-public boolean offerLast(short elem) {
+public boolean offerLast(char elem) {
     // inline version of addLast(elem):   
     doAdd(-1, elem);
     return true;
 }
 
     
-public short peekFirst() {
+public char peekFirst() {
     if (size() == 0) {
-        return (short) 0;
+        return (char) 0;
     }
     return doGet(0);
 }
 
     
-public short peekLast() {
+public char peekLast() {
     int size = size();
     if (size == 0) {
-        return (short) 0;
+        return (char) 0;
     }
     return doGet(size - 1);
 }
 
     
-public short pollFirst() {
+public char pollFirst() {
     if (size() == 0) {
-        return (short) 0;
+        return (char) 0;
     }
     return doRemove(0);
 }
 
     
-public short pollLast() {
+public char pollLast() {
     int size = size();
     if (size == 0) {
-        return (short) 0;
+        return (char) 0;
     }
     return doRemove(size - 1);
 }
 
     
-public short pop() {
+public char pop() {
     // inline version of removeFirst():   
     if (size() == 0) {
         throw new NoSuchElementException();
@@ -864,13 +916,13 @@ public short pop() {
 }
 
     
-public void push(short elem) {
+public void push(char elem) {
     // inline version of addFirst();   
     doAdd(0, elem);
 }
 
     
-public boolean removeFirstOccurrence(short elem) {
+public boolean removeFirstOccurrence(char elem) {
     int index = indexOf(elem);
     if (index == -1) {
         return false;
@@ -880,7 +932,7 @@ public boolean removeFirstOccurrence(short elem) {
 }
 
     
-public boolean removeLastOccurrence(short elem) {
+public boolean removeLastOccurrence(char elem) {
     int index = lastIndexOf(elem);
     if (index == -1) {
         return false;
@@ -901,15 +953,15 @@ public boolean removeLastOccurrence(short elem) {
      * @param <E> 		type of elements stored in the list
      * @throws 			IndexOutOfBoundsException if the ranges are invalid
      */
-public static void move(IShortGapList src, int srcIndex, IShortGapList<Short> dst, int dstIndex, int len) {
+public static void move(ICharList src, int srcIndex, ICharList<Character> dst, int dstIndex, int len) {
     if (src == dst) {
         src.move(srcIndex, dstIndex, len);
     } else {
         src.checkRange(srcIndex, len);
         dst.checkRange(dstIndex, len);
-        short defaultElem = src.getDefaultElem();
+        char defaultElem = src.getDefaultElem();
         for (int i = 0; i < len; i++) {
-            short elem = src.doReSet(srcIndex + i, defaultElem);
+            char elem = src.doReSet(srcIndex + i, defaultElem);
             dst.doSet(dstIndex + i, elem);
         }
     }
@@ -926,14 +978,14 @@ public static void move(IShortGapList src, int srcIndex, IShortGapList<Short> ds
      * @param <E> 		type of elements stored in the list
      * @throws 			IndexOutOfBoundsException if the ranges are invalid
      */
-public static void copy(IShortGapList src, int srcIndex, IShortGapList dst, int dstIndex, int len) {
+public static void copy(ICharList src, int srcIndex, ICharList dst, int dstIndex, int len) {
     if (src == dst) {
         src.copy(srcIndex, dstIndex, len);
     } else {
         src.checkRange(srcIndex, len);
         dst.checkRange(dstIndex, len);
         for (int i = 0; i < len; i++) {
-            short elem = src.doGet(srcIndex + i);
+            char elem = src.doGet(srcIndex + i);
             dst.doSet(dstIndex + i, elem);
         }
     }
@@ -950,7 +1002,7 @@ public static void copy(IShortGapList src, int srcIndex, IShortGapList dst, int 
      * @param <E> 		type of elements stored in the list
      * @throws 			IndexOutOfBoundsException if the ranges are invalid
      */
-public static void swap(IShortGapList src, int srcIndex, IShortGapList dst, int dstIndex, int len) {
+public static void swap(ICharList src, int srcIndex, ICharList dst, int dstIndex, int len) {
     if (src == dst) {
         src.swap(srcIndex, dstIndex, len);
     } else {
@@ -958,7 +1010,7 @@ public static void swap(IShortGapList src, int srcIndex, IShortGapList dst, int 
         dst.checkRange(dstIndex, len);
         if (src != dst) {
             for (int i = 0; i < len; i++) {
-                short swap = src.doGet(srcIndex + i);
+                char swap = src.doGet(srcIndex + i);
                 swap = dst.doSet(dstIndex + i, swap);
                 src.doSet(srcIndex + i, swap);
             }
@@ -974,7 +1026,15 @@ public static void swap(IShortGapList src, int srcIndex, IShortGapList dst, int 
      * @param capacity	initial capacity (use -1 for default capacity)
      * @return			created list
      */
-public abstract IShortGapList doCreate(int capacity);
+protected abstract ICharList doCreate(int capacity);
+
+    /**
+     * Assign this list the content of the that list.
+     * This is done by bitwise copying so the that list should not be user afterwards.
+     *
+     * @param that list to copy content from
+     */
+protected abstract void doAssign(ICharList that);
 
     /**
      * Returns specified range of elements from list.
@@ -983,9 +1043,9 @@ public abstract IShortGapList doCreate(int capacity);
      * @param len   number of elements to retrieve
      * @return      GapList containing the specified range of elements from list
      */
-public IShortGapList getAll(int index, int len) {
+public ICharList getAll(int index, int len) {
     checkRange(index, len);
-    IShortGapList list = doCreate(len);
+    ICharList list = doCreate(len);
     for (int i = 0; i < len; i++) {
         list.add(doGet(index + i));
     }
@@ -999,9 +1059,9 @@ public IShortGapList getAll(int index, int len) {
      * @param len   number of elements to retrieve
      * @return      GapList containing the specified range of elements from list
      */
-public short[] getArray(int index, int len) {
+public char[] getArray(int index, int len) {
     checkRange(index, len);
-    @SuppressWarnings("unchecked") short[] array = (short[]) new short[len];
+    @SuppressWarnings("unchecked") char[] array = (char[]) new char[len];
     for (int i = 0; i < len; i++) {
         array[i] = doGet(index + i);
     }
@@ -1015,7 +1075,7 @@ public short[] getArray(int index, int len) {
      * @param index index of first element to set
      * @param list  list with elements to set
      */
-public void setAll(int index, IShortGapList list) {
+public void setAll(int index, ICharList list) {
     // There is a special implementation accepting a GapList   
     // so the method is also available in the primitive classes.   
     int size = list.size();
@@ -1031,12 +1091,12 @@ public void setAll(int index, IShortGapList list) {
      * @param index index of first element to set
      * @param coll  collection with elements to set
      */
-public void setAll(int index, Collection<Short> coll) {
+public void setAll(int index, Collection<Character> coll) {
     checkRange(index, coll.size());
     // In contrary to addAll() there is no need to first create an array   
     // containing the collection elements, as the list will not grow.   
     int i = 0;
-    Iterator<Short> iter = coll.iterator();
+    Iterator<Character> iter = coll.iterator();
     while (iter.hasNext()) {
         doSet(index + i, iter.next());
         i++;
@@ -1049,7 +1109,7 @@ public void setAll(int index, Collection<Short> coll) {
      * @param index index of first element to set
      * @param elems elements to set
      */
-public void setAll(int index, short... elems) {
+public void setAll(int index, char... elems) {
     checkRange(index, elems.length);
     doSetAll(index, elems);
 }
@@ -1060,7 +1120,7 @@ public void setAll(int index, short... elems) {
      * @param index index of first element to set
      * @param elems elements to set
      */
-protected void doSetAll(int index, short[] elems) {
+protected void doSetAll(int index, char[] elems) {
     for (int i = 0; i < elems.length; i++) {
         doSet(index + i, elems[i]);
     }
@@ -1097,7 +1157,7 @@ protected void doRemoveAll(int index, int len) {
 	 * @param len  length of list
 	 * @param elem element which the list will contain
 	 */
-public void init(int len, short elem) {
+public void init(int len, char elem) {
     checkLength(len);
     int size = size();
     if (len < size) {
@@ -1120,7 +1180,7 @@ public void init(int len, short elem) {
      * @param len  length of list
      * @param elem element which will be used for extending the list
 	 */
-public void resize(int len, short elem) {
+public void resize(int len, char elem) {
     checkLength(len);
     int size = size();
     if (len < size) {
@@ -1139,7 +1199,7 @@ public void resize(int len, short elem) {
      * @param elem  element used for filling
      */
 // see java.util.Arrays#fill  
-public void fill(short elem) {
+public void fill(char elem) {
     int size = size();
     for (int i = 0; i < size; i++) {
         doSet(i, elem);
@@ -1154,7 +1214,7 @@ public void fill(short elem) {
      * @param elem	element used for filling
      */
 // see java.util.Arrays#fill  
-public void fill(int index, int len, short elem) {
+public void fill(int index, int len, char elem) {
     checkRange(index, len);
     for (int i = 0; i < len; i++) {
         doSet(index + i, elem);
@@ -1205,13 +1265,13 @@ public void move(int srcIndex, int dstIndex, int len) {
             doReSet(dstIndex + i, doGet(srcIndex + i));
         }
     }
-    // Set elements to (short) 0 after the move operation    
+    // Set elements to (char) 0 after the move operation    
     if (srcIndex < dstIndex) {
         int fill = Math.min(len, dstIndex - srcIndex);
-        fill(srcIndex, fill, (short) 0);
+        fill(srcIndex, fill, (char) 0);
     } else if (srcIndex > dstIndex) {
         int fill = Math.min(len, srcIndex - dstIndex);
-        fill(srcIndex + len - fill, fill, (short) 0);
+        fill(srcIndex + len - fill, fill, (char) 0);
     }
 }
 
@@ -1234,7 +1294,7 @@ public void reverse(int index, int len) {
     int pos2 = index + len - 1;
     int mid = len / 2;
     for (int i = 0; i < mid; i++) {
-        short swap = doGet(pos1);
+        char swap = doGet(pos1);
         swap = doReSet(pos2, swap);
         doReSet(pos1, swap);
         pos1++;
@@ -1257,7 +1317,7 @@ public void swap(int index1, int index2, int len) {
         throw new IllegalArgumentException("Swap ranges overlap");
     }
     for (int i = 0; i < len; i++) {
-        short swap = doGet(index1 + i);
+        char swap = doGet(index1 + i);
         swap = doReSet(index2 + i, swap);
         doReSet(index1 + i, swap);
     }
@@ -1299,7 +1359,7 @@ public void rotate(int index, int len, int distance) {
     }
     int num = 0;
     for (int start = 0; num != size; start++) {
-        short elem = doGet(index + start);
+        char elem = doGet(index + start);
         int i = start;
         do {
             i += distance;
@@ -1406,7 +1466,7 @@ public abstract void sort(int index, int len);
      *
      * @see Arrays#binarySearch
      */
-public int binarySearch(short key) {
+public int binarySearch(char key) {
     return binarySearch(0, size(), key);
 }
 
@@ -1431,7 +1491,7 @@ public int binarySearch(short key) {
      *
      * @see Arrays#binarySearch
      */
-public abstract int binarySearch(int index, int len, short key);
+public abstract int binarySearch(int index, int len, char key);
 
     //--- Arguments check methods  
 /**
