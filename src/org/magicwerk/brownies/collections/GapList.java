@@ -51,7 +51,7 @@ import java.util.RandomAccess;
  * @see	    java.util.ArrayList
  * @see	    java.util.LinkedList
  */
-public class GapList<E> extends IGapList<E> {
+public class GapList<E> extends IList<E> {
 
     /*
      * Helper variables to enable code for debugging.
@@ -329,6 +329,18 @@ public class GapList<E> extends IGapList<E> {
 		}
 	}
 
+	@Override
+	protected void doAssign(IList<E> that) {
+		GapList<E> list = (GapList<E>) that;
+        this.values = list.values;
+        this.size = list.size;
+        this.start = list.start;
+        this.end = list.end;
+        this.gapSize = list.gapSize;
+        this.gapIndex = list.gapIndex;
+        this.gapStart = list.gapStart;
+	}
+
     /**
      * Constructor used internally, e.g. for ImmutableGapList.
      *
@@ -338,13 +350,7 @@ public class GapList<E> extends IGapList<E> {
      */
     protected GapList(boolean copy, GapList<E> that) {
         if (copy) {
-            this.values = that.values;
-            this.size = that.size;
-            this.start = that.start;
-            this.end = that.end;
-            this.gapSize = that.gapSize;
-            this.gapIndex = that.gapIndex;
-            this.gapStart = that.gapStart;
+        	doAssign(that);
         }
     }
 
@@ -440,7 +446,7 @@ public class GapList<E> extends IGapList<E> {
     }
 
 	@Override
-	protected void initClone(IGapList<E> that) {
+	protected void doClone(IList<E> that) {
 		// Do not simply clone the array, but make sure its capacity
 		// is equal to the size (as in ArrayList)
 		init(that.toArray(), that.size());
@@ -1069,7 +1075,7 @@ public class GapList<E> extends IGapList<E> {
     }
 
     @Override
-    public IGapList<E> doCreate(int capacity) {
+    public IList<E> doCreate(int capacity) {
     	if (capacity == -1) {
     		capacity = DEFAULT_CAPACITY;
     	}

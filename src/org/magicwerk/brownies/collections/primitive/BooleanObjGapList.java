@@ -23,7 +23,7 @@ package org.magicwerk.brownies.collections.primitive;
 
 import org.magicwerk.brownies.collections.primitive.BooleanGapList;
 import org.magicwerk.brownies.collections.GapList;
-import org.magicwerk.brownies.collections.IGapList;
+import org.magicwerk.brownies.collections.IList;
 import org.magicwerk.brownies.collections.helper.NaturalComparator;
 
 import java.util.Collection;
@@ -45,7 +45,7 @@ import java.util.Iterator;
  * @see	    org.magicwerk.brownies.collections.GapList
  * @see	    org.magicwerk.brownies.collections.primitive.BooleanGapList
  */
-public class BooleanObjGapList extends IGapList<Boolean> {
+public class BooleanObjGapList extends IList<Boolean> {
 
 	BooleanGapList list;
 
@@ -131,8 +131,14 @@ public class BooleanObjGapList extends IGapList<Boolean> {
 	}
 
 	@Override
-	protected void initClone(IGapList<Boolean> that) {
+	protected void doClone(IList<Boolean> that) {
 		list = (BooleanGapList) ((BooleanObjGapList)that).list.clone();
+	}
+
+	@Override
+	protected void doAssign(IList<Boolean> that) {
+		BooleanObjGapList list = (BooleanObjGapList) that;
+        this.list = list.list;
 	}
 
 	@Override
@@ -146,7 +152,7 @@ public class BooleanObjGapList extends IGapList<Boolean> {
 	}
 
     @Override
-    public IGapList<Boolean> doCreate(int capacity) {
+    public IList<Boolean> doCreate(int capacity) {
     	if (capacity == -1) {
     		capacity = GapList.DEFAULT_CAPACITY;
     	}
@@ -309,7 +315,7 @@ public class BooleanObjGapList extends IGapList<Boolean> {
 	}
 
 	@Override
-	public boolean removeAll(IGapList<?> coll) {
+	public boolean removeAll(IList<?> coll) {
 		return list.removeAll((Collection<Boolean>) coll);
 	}
 
@@ -319,7 +325,7 @@ public class BooleanObjGapList extends IGapList<Boolean> {
 	}
 
 	@Override
-	public boolean retainAll(IGapList<?> coll) {
+	public boolean retainAll(IList<?> coll) {
 		return list.retainAll((Collection<Boolean>) coll);
 	}
 
@@ -373,13 +379,13 @@ public class BooleanObjGapList extends IGapList<Boolean> {
 	}
 
 	@Override
-	public boolean addAll(IGapList<? extends Boolean> list2) {
+	public boolean addAll(IList<? extends Boolean> list2) {
 		boolean[] e = toPrimitive(list2);
 		return list.addAll(e);
 	}
 
 	@Override
-	public boolean addAll(int index, IGapList<? extends Boolean> list2) {
+	public boolean addAll(int index, IList<? extends Boolean> list2) {
 		boolean[] e = toPrimitive(list2);
 		return list.addAll(index, e);
 	}
@@ -413,7 +419,7 @@ public class BooleanObjGapList extends IGapList<Boolean> {
 	}
 
 	@Override
-	public void setAll(int index, IGapList<? extends Boolean> list2) {
+	public void setAll(int index, IList<? extends Boolean> list2) {
 		boolean[] e = toPrimitive(list2);
 		list.setAll(index, e);
 	}

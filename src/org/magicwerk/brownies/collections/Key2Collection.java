@@ -372,6 +372,15 @@ public class Key2Collection<E,K1,K2> extends KeyCollectionImpl<E> {
     //-- Key1 methods
 
     /**
+     * Returns mapper for key map.
+     *
+     * @return      	mapper for key map
+     */
+	public Mapper<E,K1> getKey1Mapper() {
+		return (Mapper<E,K1>) super.getKeyMapper(1);
+	}
+
+    /**
      * Returns a map view to the key map.
      * The collection can be modified through the map as long
      * as the constraint are not violated.
@@ -483,6 +492,15 @@ public class Key2Collection<E,K1,K2> extends KeyCollectionImpl<E> {
     }
 
     //-- Key2 methods
+
+    /**
+     * Returns mapper for key map.
+     *
+     * @return      	mapper for key map
+     */
+	public Mapper<E,K2> getKey2Mapper() {
+		return (Mapper<E,K2>) super.getKeyMapper(2);
+	}
 
     /**
      * Returns a map view to the key map.

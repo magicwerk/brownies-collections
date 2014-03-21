@@ -23,7 +23,7 @@ package org.magicwerk.brownies.collections.primitive;
 
 import org.magicwerk.brownies.collections.primitive.ByteGapList;
 import org.magicwerk.brownies.collections.GapList;
-import org.magicwerk.brownies.collections.IGapList;
+import org.magicwerk.brownies.collections.IList;
 import org.magicwerk.brownies.collections.helper.NaturalComparator;
 
 import java.util.Collection;
@@ -45,7 +45,7 @@ import java.util.Iterator;
  * @see	    org.magicwerk.brownies.collections.GapList
  * @see	    org.magicwerk.brownies.collections.primitive.ByteGapList
  */
-public class ByteObjGapList extends IGapList<Byte> {
+public class ByteObjGapList extends IList<Byte> {
 
 	ByteGapList list;
 
@@ -131,8 +131,14 @@ public class ByteObjGapList extends IGapList<Byte> {
 	}
 
 	@Override
-	protected void initClone(IGapList<Byte> that) {
+	protected void doClone(IList<Byte> that) {
 		list = (ByteGapList) ((ByteObjGapList)that).list.clone();
+	}
+
+	@Override
+	protected void doAssign(IList<Byte> that) {
+		ByteObjGapList list = (ByteObjGapList) that;
+        this.list = list.list;
 	}
 
 	@Override
@@ -146,7 +152,7 @@ public class ByteObjGapList extends IGapList<Byte> {
 	}
 
     @Override
-    public IGapList<Byte> doCreate(int capacity) {
+    public IList<Byte> doCreate(int capacity) {
     	if (capacity == -1) {
     		capacity = GapList.DEFAULT_CAPACITY;
     	}
@@ -309,7 +315,7 @@ public class ByteObjGapList extends IGapList<Byte> {
 	}
 
 	@Override
-	public boolean removeAll(IGapList<?> coll) {
+	public boolean removeAll(IList<?> coll) {
 		return list.removeAll((Collection<Byte>) coll);
 	}
 
@@ -319,7 +325,7 @@ public class ByteObjGapList extends IGapList<Byte> {
 	}
 
 	@Override
-	public boolean retainAll(IGapList<?> coll) {
+	public boolean retainAll(IList<?> coll) {
 		return list.retainAll((Collection<Byte>) coll);
 	}
 
@@ -373,13 +379,13 @@ public class ByteObjGapList extends IGapList<Byte> {
 	}
 
 	@Override
-	public boolean addAll(IGapList<? extends Byte> list2) {
+	public boolean addAll(IList<? extends Byte> list2) {
 		byte[] e = toPrimitive(list2);
 		return list.addAll(e);
 	}
 
 	@Override
-	public boolean addAll(int index, IGapList<? extends Byte> list2) {
+	public boolean addAll(int index, IList<? extends Byte> list2) {
 		byte[] e = toPrimitive(list2);
 		return list.addAll(index, e);
 	}
@@ -413,7 +419,7 @@ public class ByteObjGapList extends IGapList<Byte> {
 	}
 
 	@Override
-	public void setAll(int index, IGapList<? extends Byte> list2) {
+	public void setAll(int index, IList<? extends Byte> list2) {
 		byte[] e = toPrimitive(list2);
 		list.setAll(index, e);
 	}

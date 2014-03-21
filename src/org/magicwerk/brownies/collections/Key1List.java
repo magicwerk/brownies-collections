@@ -315,6 +315,15 @@ public class Key1List<E,K> extends KeyListImpl<E> {
     //-- Key methods
 
     /**
+     * Returns mapper for key map.
+     *
+     * @return mapper for key map
+     */
+	public Mapper<E,K> getKey1Mapper() {
+		return (Mapper<E,K>) super.getKeyMapper(1);
+	}
+
+    /**
      * Returns an immutable map view to the key map.
      *
      * @return map view to key map

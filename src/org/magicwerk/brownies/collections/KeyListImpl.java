@@ -21,6 +21,7 @@ import java.util.Comparator;
 import java.util.Set;
 
 import org.magicwerk.brownies.collections.KeyCollectionImpl.KeyMap;
+import org.magicwerk.brownies.collections.function.Mapper;
 import org.magicwerk.brownies.collections.helper.Option;
 
 
@@ -46,7 +47,7 @@ public class KeyListImpl<E> extends GapList<E> {
      * If forward is not null, the pointed to list stores the data for this instance
      * of KeyListImpl. The inherited GapList will not be used and be empty.
      */
-    IGapList<E> forward;
+    IList<E> forward;
 
     /** If true the invariants the GapList are checked for debugging */
     private static final boolean DEBUG_CHECK = false;
@@ -178,14 +179,14 @@ public class KeyListImpl<E> extends GapList<E> {
 	    	assert(that.forward == that.keyColl.keyMaps[0].keysList);
 	    	forward = (GapList<E>) keyColl.keyMaps[0].keysList;
 	    } else {
-	    	super.initClone(that);
+	    	super.doClone(that);
 	    }
 
         if (DEBUG_CHECK) debugCheck();
     }
 
     @Override
-    protected void initClone(IGapList<E> that) {
+    protected void doClone(IList<E> that) {
     }
 
     /**
@@ -335,6 +336,7 @@ public class KeyListImpl<E> extends GapList<E> {
     	}
 
 		if (keyColl.isSortedList()) {
+			// Sorted list
 			if (index == -1) {
 				index = keyColl.binarySearchSorted(elem);
 				if (index < 0) {
@@ -346,6 +348,7 @@ public class KeyListImpl<E> extends GapList<E> {
 	    		super.doAdd(index, elem);
 			}
 		} else {
+			// Unsorted list
 			keyColl.addUnsorted(elem);
 			if (index == -1) {
 				// Element is already added to keyColl
@@ -493,6 +496,16 @@ public class KeyListImpl<E> extends GapList<E> {
      */
     public boolean containsKey(int keyIndex, Object key) {
         return indexOfKey(keyIndex, key) != -1;
+    }
+
+    /**
+     * Returns mapper for specified key map.
+     *
+     * @param keyIndex 	key index
+     * @return      	mapper for specified key map
+     */
+    public Mapper<E,Object> getKeyMapper(int keyIndex) {
+    	return keyColl.getKeyMapper(keyIndex);
     }
 
     /**

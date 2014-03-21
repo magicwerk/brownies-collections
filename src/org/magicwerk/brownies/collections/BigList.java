@@ -20,7 +20,7 @@ import org.magicwerk.brownies.collections.helper.RangeList.AVLNode;
  * @version $Id$
  */
 public class BigList<T>
-    extends IGapList<T>
+    extends IList<T>
     implements List<T>, Deque<T> {
 
     /**
@@ -237,7 +237,7 @@ public class BigList<T>
 	}
 
     public BigList(BigList<T> that) {
-    	initClone(that);
+    	doClone(that);
     }
 
     public BigList(Collection<T> that) {
@@ -253,8 +253,13 @@ public class BigList<T>
         assert(size() == that.size());
     }
 
+    @Override
+    protected void doAssign(IList<T> that) {
+    	//FIXME
+    }
+
 	@Override
-	protected void initClone(IGapList<T> that) {
+	protected void doClone(IList<T> that) {
 		BigList<T> bigList = (BigList<T>) that;
         blockSize = bigList.blockSize;
 
@@ -692,7 +697,7 @@ public class BigList<T>
 	}
 
 	@Override
-	public IGapList<T> doCreate(int capacity) {
+	public IList<T> doCreate(int capacity) {
 		// TODO make sure if content fits in one block, array is allocated directly
 		return new BigList(this.blockSize);
 	}

@@ -105,6 +105,11 @@ public class RangeList<E> {
         return root.getIn(index, endIndex);
     }
 
+    public AVLNode<E> access(final int index, int modify, int[] endIndex) {
+        //checkInterval(index, 0, size() - 1);
+        return root.access(index, modify, false, endIndex);
+    }
+
     /**
      * Gets the current size of the list.
      *
@@ -465,6 +470,62 @@ public class RangeList<E> {
             //return nextNode.getIn(indexRelativeToMe, idx);
         }
 
+        AVLNode<E> access(final int index, int modify, boolean wasLeft, int[] idx) {
+        	assert(index >= 0);
+        	if (relativePosition == 0) {
+        		if (modify != 0) {
+        			relativePosition += modify;
+        		}
+        		return this;
+        	}
+        	if (idx[0] == 0) {
+        		idx[0] = relativePosition; // root
+        	}
+        	AVLNode<E> leftNode = getLeftSubTree();
+        	int leftIndex = idx[0]-((BigList.Block) getValue()).size();
+        	if (index >= leftIndex && index < idx[0]) {
+    			if (relativePosition > 0) {
+    				relativePosition += modify;
+    			} else {
+    				relativePosition -= modify;
+    			}
+        		return this;
+        	}
+        	if (index < idx[0]) {
+        		// left
+        		AVLNode<E> nextNode = getLeftSubTree();
+        		if (nextNode == null || !wasLeft) {
+        			if (relativePosition > 0) {
+        				relativePosition += modify;
+        			} else {
+        				relativePosition -= modify;
+        			}
+        			wasLeft = true;
+        		}
+                if (nextNode == null) {
+                	return this;
+                }
+                idx[0] += nextNode.relativePosition;
+                return nextNode.access(index, modify, wasLeft, idx);
+        	} else {
+        		// right
+        		AVLNode<E> nextNode = getRightSubTree();
+        		if (nextNode == null || wasLeft) {
+        			if (relativePosition > 0) {
+        				relativePosition += modify;
+        			} else {
+        				relativePosition -= modify;
+        			}
+        			wasLeft = false;
+        		}
+                if (nextNode == null) {
+                	return this;
+                }
+                idx[0] += nextNode.relativePosition;
+                return nextNode.access(index, modify, wasLeft, idx);
+        	}
+        }
+
         /**
          * Locate the index that contains the specified object.
          */
@@ -582,23 +643,36 @@ public class RangeList<E> {
         	assert(relativePosition != 0);
             final int indexRelativeToMe = index - relativePosition;
 
-            if (indexRelativeToMe <= 0) {
+            if (indexRelativeToMe < 0) {
                 return insertOnLeft(indexRelativeToMe, obj);
             } else {
             	return insertOnRight(indexRelativeToMe, obj);
             }
         }
 
-        private AVLNode<E> insertOnLeft(final int indexRelativeToMe, final E obj) {
+        public AVLNode<E> insertOnLeft2(final int indexRelativeToMe, final E obj) {
+            if (getLeftSubTree() == null) {
+                setLeft(new AVLNode<E>(indexRelativeToMe, obj, this, left), null);
+            } else {
+                setLeft(left.insert(indexRelativeToMe, obj), null);
+            }
+            //if (relativePosition >= 0) {
+                //relativePosition++;
+            //}
+            final AVLNode<E> ret = balance();
+            recalcHeight();
+            return ret;
+        }
+
+        public AVLNode<E> insertOnLeft(final int indexRelativeToMe, final E obj) {
             if (getLeftSubTree() == null) {
                 setLeft(new AVLNode<E>(-1, obj, this, left), null);
             } else {
                 setLeft(left.insert(indexRelativeToMe, obj), null);
             }
-
-            if (relativePosition >= 0) {
-                relativePosition++;
-            }
+            //if (relativePosition >= 0) {
+                //relativePosition++;
+            //}
             final AVLNode<E> ret = balance();
             recalcHeight();
             return ret;
@@ -610,9 +684,9 @@ public class RangeList<E> {
             } else {
                 setRight(right.insert(indexRelativeToMe, obj), null);
             }
-            if (relativePosition < 0) {
-                relativePosition--;
-            }
+            //if (relativePosition < 0) {
+              //  relativePosition--;
+            //}
             final AVLNode<E> ret = balance();
             recalcHeight();
             return ret;

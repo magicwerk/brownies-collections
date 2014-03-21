@@ -23,7 +23,7 @@ package org.magicwerk.brownies.collections.primitive;
 
 import org.magicwerk.brownies.collections.primitive.IntGapList;
 import org.magicwerk.brownies.collections.GapList;
-import org.magicwerk.brownies.collections.IGapList;
+import org.magicwerk.brownies.collections.IList;
 import org.magicwerk.brownies.collections.helper.NaturalComparator;
 
 import java.util.Collection;
@@ -45,7 +45,7 @@ import java.util.Iterator;
  * @see	    org.magicwerk.brownies.collections.GapList
  * @see	    org.magicwerk.brownies.collections.primitive.IntGapList
  */
-public class IntObjGapList extends IGapList<Integer> {
+public class IntObjGapList extends IList<Integer> {
 
 	IntGapList list;
 
@@ -131,8 +131,14 @@ public class IntObjGapList extends IGapList<Integer> {
 	}
 
 	@Override
-	protected void initClone(IGapList<Integer> that) {
+	protected void doClone(IList<Integer> that) {
 		list = (IntGapList) ((IntObjGapList)that).list.clone();
+	}
+
+	@Override
+	protected void doAssign(IList<Integer> that) {
+		IntObjGapList list = (IntObjGapList) that;
+        this.list = list.list;
 	}
 
 	@Override
@@ -146,7 +152,7 @@ public class IntObjGapList extends IGapList<Integer> {
 	}
 
     @Override
-    public IGapList<Integer> doCreate(int capacity) {
+    public IList<Integer> doCreate(int capacity) {
     	if (capacity == -1) {
     		capacity = GapList.DEFAULT_CAPACITY;
     	}
@@ -309,7 +315,7 @@ public class IntObjGapList extends IGapList<Integer> {
 	}
 
 	@Override
-	public boolean removeAll(IGapList<?> coll) {
+	public boolean removeAll(IList<?> coll) {
 		return list.removeAll((Collection<Integer>) coll);
 	}
 
@@ -319,7 +325,7 @@ public class IntObjGapList extends IGapList<Integer> {
 	}
 
 	@Override
-	public boolean retainAll(IGapList<?> coll) {
+	public boolean retainAll(IList<?> coll) {
 		return list.retainAll((Collection<Integer>) coll);
 	}
 
@@ -373,13 +379,13 @@ public class IntObjGapList extends IGapList<Integer> {
 	}
 
 	@Override
-	public boolean addAll(IGapList<? extends Integer> list2) {
+	public boolean addAll(IList<? extends Integer> list2) {
 		int[] e = toPrimitive(list2);
 		return list.addAll(e);
 	}
 
 	@Override
-	public boolean addAll(int index, IGapList<? extends Integer> list2) {
+	public boolean addAll(int index, IList<? extends Integer> list2) {
 		int[] e = toPrimitive(list2);
 		return list.addAll(index, e);
 	}
@@ -413,7 +419,7 @@ public class IntObjGapList extends IGapList<Integer> {
 	}
 
 	@Override
-	public void setAll(int index, IGapList<? extends Integer> list2) {
+	public void setAll(int index, IList<? extends Integer> list2) {
 		int[] e = toPrimitive(list2);
 		list.setAll(index, e);
 	}

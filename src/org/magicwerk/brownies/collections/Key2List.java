@@ -385,6 +385,15 @@ public class Key2List<E,K1,K2> extends KeyListImpl<E> {
     //-- Key1 methods
 
     /**
+     * Returns mapper for key map.
+     *
+     * @return mapper for key map
+     */
+	public Mapper<E,K1> getKey1Mapper() {
+		return (Mapper<E,K1>) super.getKeyMapper(1);
+	}
+
+    /**
      * Returns an immutable map view to the key map.
      *
      * @return map view to key map
@@ -502,6 +511,15 @@ public class Key2List<E,K1,K2> extends KeyListImpl<E> {
     }
 
     //-- Key2 methods
+
+    /**
+     * Returns mapper for key map.
+     *
+     * @return mapper for key map
+     */
+	public Mapper<E,K2> getKey2Mapper() {
+		return (Mapper<E,K2>) super.getKeyMapper(2);
+	}
 
     /**
      * Returns an immutable map view to the key map.

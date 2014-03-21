@@ -23,7 +23,7 @@ package org.magicwerk.brownies.collections.primitive;
 
 import org.magicwerk.brownies.collections.primitive.CharGapList;
 import org.magicwerk.brownies.collections.GapList;
-import org.magicwerk.brownies.collections.IGapList;
+import org.magicwerk.brownies.collections.IList;
 import org.magicwerk.brownies.collections.helper.NaturalComparator;
 
 import java.util.Collection;
@@ -45,7 +45,7 @@ import java.util.Iterator;
  * @see	    org.magicwerk.brownies.collections.GapList
  * @see	    org.magicwerk.brownies.collections.primitive.CharGapList
  */
-public class CharObjGapList extends IGapList<Character> {
+public class CharObjGapList extends IList<Character> {
 
 	CharGapList list;
 
@@ -131,8 +131,14 @@ public class CharObjGapList extends IGapList<Character> {
 	}
 
 	@Override
-	protected void initClone(IGapList<Character> that) {
+	protected void doClone(IList<Character> that) {
 		list = (CharGapList) ((CharObjGapList)that).list.clone();
+	}
+
+	@Override
+	protected void doAssign(IList<Character> that) {
+		CharObjGapList list = (CharObjGapList) that;
+        this.list = list.list;
 	}
 
 	@Override
@@ -146,7 +152,7 @@ public class CharObjGapList extends IGapList<Character> {
 	}
 
     @Override
-    public IGapList<Character> doCreate(int capacity) {
+    public IList<Character> doCreate(int capacity) {
     	if (capacity == -1) {
     		capacity = GapList.DEFAULT_CAPACITY;
     	}
@@ -309,7 +315,7 @@ public class CharObjGapList extends IGapList<Character> {
 	}
 
 	@Override
-	public boolean removeAll(IGapList<?> coll) {
+	public boolean removeAll(IList<?> coll) {
 		return list.removeAll((Collection<Character>) coll);
 	}
 
@@ -319,7 +325,7 @@ public class CharObjGapList extends IGapList<Character> {
 	}
 
 	@Override
-	public boolean retainAll(IGapList<?> coll) {
+	public boolean retainAll(IList<?> coll) {
 		return list.retainAll((Collection<Character>) coll);
 	}
 
@@ -373,13 +379,13 @@ public class CharObjGapList extends IGapList<Character> {
 	}
 
 	@Override
-	public boolean addAll(IGapList<? extends Character> list2) {
+	public boolean addAll(IList<? extends Character> list2) {
 		char[] e = toPrimitive(list2);
 		return list.addAll(e);
 	}
 
 	@Override
-	public boolean addAll(int index, IGapList<? extends Character> list2) {
+	public boolean addAll(int index, IList<? extends Character> list2) {
 		char[] e = toPrimitive(list2);
 		return list.addAll(index, e);
 	}
@@ -413,7 +419,7 @@ public class CharObjGapList extends IGapList<Character> {
 	}
 
 	@Override
-	public void setAll(int index, IGapList<? extends Character> list2) {
+	public void setAll(int index, IList<? extends Character> list2) {
 		char[] e = toPrimitive(list2);
 		list.setAll(index, e);
 	}

@@ -303,6 +303,15 @@ public class Key1Collection<E,K> extends KeyCollectionImpl<E> {
     //-- Key methods
 
     /**
+     * Returns mapper for key map.
+     *
+     * @return      	mapper for key map
+     */
+	public Mapper<E,K> getKey1Mapper() {
+		return (Mapper<E,K>) super.getKeyMapper(1);
+	}
+
+    /**
      * Returns a map view to the key map.
      * The collection can be modified through the map as long
      * as the constraint are not violated.
@@ -312,7 +321,7 @@ public class Key1Collection<E,K> extends KeyCollectionImpl<E> {
      * @return map view to key map
      */
 	public Map<K,E> asMap1() {
-    	return (Map<K, E>) new KeyCollectionAsMap<E,Object>(this, 1, false);
+    	return (Map<K,E>) new KeyCollectionAsMap<E,Object>(this, 1, false);
     }
 
 	/**

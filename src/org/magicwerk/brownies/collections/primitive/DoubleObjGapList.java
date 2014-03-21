@@ -23,7 +23,7 @@ package org.magicwerk.brownies.collections.primitive;
 
 import org.magicwerk.brownies.collections.primitive.DoubleGapList;
 import org.magicwerk.brownies.collections.GapList;
-import org.magicwerk.brownies.collections.IGapList;
+import org.magicwerk.brownies.collections.IList;
 import org.magicwerk.brownies.collections.helper.NaturalComparator;
 
 import java.util.Collection;
@@ -45,7 +45,7 @@ import java.util.Iterator;
  * @see	    org.magicwerk.brownies.collections.GapList
  * @see	    org.magicwerk.brownies.collections.primitive.DoubleGapList
  */
-public class DoubleObjGapList extends IGapList<Double> {
+public class DoubleObjGapList extends IList<Double> {
 
 	DoubleGapList list;
 
@@ -131,8 +131,14 @@ public class DoubleObjGapList extends IGapList<Double> {
 	}
 
 	@Override
-	protected void initClone(IGapList<Double> that) {
+	protected void doClone(IList<Double> that) {
 		list = (DoubleGapList) ((DoubleObjGapList)that).list.clone();
+	}
+
+	@Override
+	protected void doAssign(IList<Double> that) {
+		DoubleObjGapList list = (DoubleObjGapList) that;
+        this.list = list.list;
 	}
 
 	@Override
@@ -146,7 +152,7 @@ public class DoubleObjGapList extends IGapList<Double> {
 	}
 
     @Override
-    public IGapList<Double> doCreate(int capacity) {
+    public IList<Double> doCreate(int capacity) {
     	if (capacity == -1) {
     		capacity = GapList.DEFAULT_CAPACITY;
     	}
@@ -309,7 +315,7 @@ public class DoubleObjGapList extends IGapList<Double> {
 	}
 
 	@Override
-	public boolean removeAll(IGapList<?> coll) {
+	public boolean removeAll(IList<?> coll) {
 		return list.removeAll((Collection<Double>) coll);
 	}
 
@@ -319,7 +325,7 @@ public class DoubleObjGapList extends IGapList<Double> {
 	}
 
 	@Override
-	public boolean retainAll(IGapList<?> coll) {
+	public boolean retainAll(IList<?> coll) {
 		return list.retainAll((Collection<Double>) coll);
 	}
 
@@ -373,13 +379,13 @@ public class DoubleObjGapList extends IGapList<Double> {
 	}
 
 	@Override
-	public boolean addAll(IGapList<? extends Double> list2) {
+	public boolean addAll(IList<? extends Double> list2) {
 		double[] e = toPrimitive(list2);
 		return list.addAll(e);
 	}
 
 	@Override
-	public boolean addAll(int index, IGapList<? extends Double> list2) {
+	public boolean addAll(int index, IList<? extends Double> list2) {
 		double[] e = toPrimitive(list2);
 		return list.addAll(index, e);
 	}
@@ -413,7 +419,7 @@ public class DoubleObjGapList extends IGapList<Double> {
 	}
 
 	@Override
-	public void setAll(int index, IGapList<? extends Double> list2) {
+	public void setAll(int index, IList<? extends Double> list2) {
 		double[] e = toPrimitive(list2);
 		list.setAll(index, e);
 	}
