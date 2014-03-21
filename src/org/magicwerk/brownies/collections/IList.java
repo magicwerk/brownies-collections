@@ -53,7 +53,7 @@ import org.magicwerk.brownies.collections.function.Predicate;
  * @see	    java.util.ArrayList
  * @see	    java.util.LinkedList
  */
-public abstract class IGapList<E> extends AbstractList<E>
+public abstract class IList<E> extends AbstractList<E>
 	implements
 		// All interfaces of ArrayList
 		List<E>, RandomAccess, Cloneable, Serializable,
@@ -84,8 +84,8 @@ public abstract class IGapList<E> extends AbstractList<E>
      * @see #clone
      */
 	@SuppressWarnings("unchecked")
-    public IGapList<E> copy() {
-	    return (IGapList<E>) clone();
+    public IList<E> copy() {
+	    return (IList<E>) clone();
 	}
 
     /**
@@ -97,7 +97,7 @@ public abstract class IGapList<E> extends AbstractList<E>
      *
      * @return an unmodifiable view of the specified list
      */
-    abstract public IGapList<E> unmodifiableList();
+    abstract public IList<E> unmodifiableList();
 
     /**
      * Returns a shallow copy of this <tt>GapList</tt> instance
@@ -111,8 +111,8 @@ public abstract class IGapList<E> extends AbstractList<E>
     @Override
     public Object clone() {
 		try {
-			IGapList<E> list = (IGapList<E>) super.clone();
-			list.initClone(this);
+			IList<E> list = (IList<E>) super.clone();
+			list.doClone(this);
 		    return list;
 		}
 		catch (CloneNotSupportedException e) {
@@ -127,7 +127,7 @@ public abstract class IGapList<E> extends AbstractList<E>
 	 *
 	 * @param that	source object
 	 */
-	abstract protected void initClone(IGapList<E> that);
+	abstract protected void doClone(IList<E> that);
 
 	@Override
 	public void clear() {
@@ -382,8 +382,8 @@ public abstract class IGapList<E> extends AbstractList<E>
 	 * @param elem	element to look for
 	 * @return		all elements in the list equal to the specified element
 	 */
-    public IGapList<E> getAll(E elem) {
-        IGapList<E> list = doCreate(-1);
+    public IList<E> getAll(E elem) {
+        IList<E> list = doCreate(-1);
 		int size = size();
 		for (int i=0; i<size; i++) {
 			E e = doGet(i);
@@ -408,22 +408,36 @@ public abstract class IGapList<E> extends AbstractList<E>
         return set;
     }
 
-    public <R> GapList<R> map(Mapper<E,R> mapper) {
-    	GapList list = GapList.create(size());
+    /**
+     * Create a new list by applying the specified mapper to all elements.
+     *
+     * @param mapper	mapper function
+     * @return			created list
+     */
+    public <R> IList<R> mappedList(Mapper<E,R> mapper) {
+    	IList list = doCreate(size());
     	for (E e: this) {
     		list.add(mapper.getKey(e));
     	}
     	return list;
     }
 
-    public GapList<E> filter(Predicate<? super E> predicate) {
-    	GapList<E> list = GapList.create();
+    /**
+     * Filter the list using the specified predicate.
+     * Only element which are allowed remain in the list, the others are removed
+     *
+     * @param predicate predicate used for filtering
+     */
+    public void filter(Predicate<? super E> predicate) {
+    	// It is typically faster to copy the allowed elements in a new list
+    	// than to remove the not allowed from the existing one
+    	IList<E> list = doCreate(-1);
     	for (E e: this) {
     		if (predicate.allow(e)) {
     			list.add(e);
     		}
     	}
-    	return list;
+    	doAssign(list);
     }
 
 	@Override
@@ -515,8 +529,8 @@ public abstract class IGapList<E> extends AbstractList<E>
 	 * @param elem	element
 	 * @return		removed equal elements (never null)
 	 */
-    public IGapList<E> removeAll(E elem) {
-	    IGapList<E> list = doCreate(-1);
+    public IList<E> removeAll(E elem) {
+	    IList<E> list = doCreate(-1);
 	    int size = size();
 		for (int i=0; i<size; i++) {
 			E e = doGet(i);
@@ -533,7 +547,7 @@ public abstract class IGapList<E> extends AbstractList<E>
     /**
      * @see #removeAll(Collection)
      */
-    public boolean removeAll(IGapList<?> coll) {
+    public boolean removeAll(IList<?> coll) {
     	// There is a special implementation accepting a GapList
     	// so the method is also available in the primitive classes.
 	    boolean modified = false;
@@ -569,7 +583,7 @@ public abstract class IGapList<E> extends AbstractList<E>
     /**
      * @see #retainAll(Collection)
      */
-    public boolean retainAll(IGapList<?> coll) {
+    public boolean retainAll(IList<?> coll) {
     	// There is a special implementation accepting a GapList
     	// so the method is also available in the primitive classes.
 	    boolean modified = false;
@@ -628,6 +642,7 @@ public abstract class IGapList<E> extends AbstractList<E>
 	 * @param len	number of elements to copy
 	 * @param <T> type of elements stored in the list
 	 */
+	@SuppressWarnings("unchecked")
 	protected <T> void doGetAll(T[] array, int index, int len) {
 		for (int i=0; i<len; i++) {
 			array[i] = (T) doGet(index+i);
@@ -716,7 +731,7 @@ public abstract class IGapList<E> extends AbstractList<E>
      * @throws NullPointerException if the specified list is null
      */
     @SuppressWarnings("unchecked")
-    public boolean addAll(IGapList<? extends E> list) {
+    public boolean addAll(IList<? extends E> list) {
         return doAddAll(-1, (E[]) list.toArray());
     }
 
@@ -734,7 +749,7 @@ public abstract class IGapList<E> extends AbstractList<E>
      * @throws NullPointerException if the specified collection is null
      */
 	@SuppressWarnings("unchecked")
-    public boolean addAll(int index, IGapList<? extends E> list) {
+    public boolean addAll(int index, IList<? extends E> list) {
 		checkIndexAdd(index);
 
 		return doAddAll(index, (E[]) list.toArray());
@@ -972,7 +987,7 @@ public abstract class IGapList<E> extends AbstractList<E>
      * @param <E> 		type of elements stored in the list
      * @throws 			IndexOutOfBoundsException if the ranges are invalid
      */
-    public static <E> void move(IGapList<E> src, int srcIndex, IGapList<? super E> dst, int dstIndex, int len) {
+    public static <E> void move(IList<E> src, int srcIndex, IList<? super E> dst, int dstIndex, int len) {
         if (src == dst) {
             src.move(srcIndex, dstIndex, len);
 
@@ -999,7 +1014,7 @@ public abstract class IGapList<E> extends AbstractList<E>
      * @param <E> 		type of elements stored in the list
      * @throws 			IndexOutOfBoundsException if the ranges are invalid
      */
-    public static <E> void copy(IGapList<? extends E> src, int srcIndex, IGapList<E> dst, int dstIndex, int len) {
+    public static <E> void copy(IList<? extends E> src, int srcIndex, IList<E> dst, int dstIndex, int len) {
         if (src == dst) {
             src.copy(srcIndex, dstIndex, len);
 
@@ -1025,7 +1040,7 @@ public abstract class IGapList<E> extends AbstractList<E>
      * @param <E> 		type of elements stored in the list
      * @throws 			IndexOutOfBoundsException if the ranges are invalid
      */
-    public static <E> void swap(IGapList<E> src, int srcIndex, IGapList<E> dst, int dstIndex, int len) {
+    public static <E> void swap(IList<E> src, int srcIndex, IList<E> dst, int dstIndex, int len) {
         if (src == dst) {
             src.swap(srcIndex, dstIndex, len);
 
@@ -1054,7 +1069,16 @@ public abstract class IGapList<E> extends AbstractList<E>
      * @param capacity	initial capacity (use -1 for default capacity)
      * @return			created list
      */
-    abstract public IGapList<E> doCreate(int capacity);
+    abstract protected IList<E> doCreate(int capacity);
+
+    /**
+     * Assign this list the content of the that list.
+     * This is done by bitwise copying so the that list should not be user afterwards.
+     *
+     * @param that list to copy content from
+     */
+	abstract protected void doAssign(IList<E> that);
+
 
     /**
      * Returns specified range of elements from list.
@@ -1063,10 +1087,10 @@ public abstract class IGapList<E> extends AbstractList<E>
      * @param len   number of elements to retrieve
      * @return      GapList containing the specified range of elements from list
      */
-    public IGapList<E> getAll(int index, int len) {
+    public IList<E> getAll(int index, int len) {
         checkRange(index, len);
 
-        IGapList<E> list = doCreate(len);
+        IList<E> list = doCreate(len);
         for (int i=0; i<len; i++) {
             list.add(doGet(index+i));
         }
@@ -1099,7 +1123,7 @@ public abstract class IGapList<E> extends AbstractList<E>
      * @param index index of first element to set
      * @param list  list with elements to set
      */
-    public void setAll(int index, IGapList<? extends E> list) {
+    public void setAll(int index, IList<? extends E> list) {
     	// There is a special implementation accepting a GapList
     	// so the method is also available in the primitive classes.
 	    int size = list.size();
@@ -1648,7 +1672,7 @@ public abstract class IGapList<E> extends AbstractList<E>
 			if (remove == -1) {
 				throw new IllegalStateException("No current element to remove");
 			}
-			IGapList.this.remove(remove);
+			IList.this.remove(remove);
 			if (index > remove) {
 				index--;
 			}
@@ -1695,7 +1719,7 @@ public abstract class IGapList<E> extends AbstractList<E>
 			if (index >= size()) {
 				throw new NoSuchElementException();
 			}
-			E elem = IGapList.this.get(index);
+			E elem = IList.this.get(index);
 			remove = index;
 			index++;
 			return elem;
@@ -1712,7 +1736,7 @@ public abstract class IGapList<E> extends AbstractList<E>
 				throw new NoSuchElementException();
 			}
 			index--;
-			E elem = IGapList.this.get(index);
+			E elem = IList.this.get(index);
 			remove = index;
 			return elem;
 		}
@@ -1727,7 +1751,7 @@ public abstract class IGapList<E> extends AbstractList<E>
 			if (remove == -1) {
 				throw new IllegalStateException("No current element to remove");
 			}
-			IGapList.this.remove(remove);
+			IList.this.remove(remove);
 			if (index > remove) {
 				index--;
 			}
@@ -1739,12 +1763,12 @@ public abstract class IGapList<E> extends AbstractList<E>
 			if (remove == -1) {
 				throw new IllegalStateException("No current element to set");
 			}
-			IGapList.this.set(remove, e);
+			IList.this.set(remove, e);
 		}
 
 		@Override
 		public void add(E e) {
-			IGapList.this.add(index, e);
+			IList.this.add(index, e);
 			index++;
 			remove = -1;
 		}

@@ -723,7 +723,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
                 		throw new IllegalArgumentException("Null values are not supported for primitive list type");
                 	}
                 	keyMap.comparator = NaturalComparator.INSTANCE();
-        			keyMap.keysList = (IGapList<Object>) GapLists.createWrapperList(keyMapBuilder.orderByType);
+        			keyMap.keysList = (IList<Object>) GapLists.createWrapperList(keyMapBuilder.orderByType);
         		}
         	} else if (keyMap.comparator != null) {
         		keyMap.keysMap = new TreeMap(keyMap.comparator);
@@ -826,7 +826,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         	keyList.keyColl = keyColl;
         	keyColl.keyList = keyList;
         	if (keyColl.orderByKey == 0) {
-        		keyList.forward = (IGapList<E>) keyColl.keyMaps[0].keysList;
+        		keyList.forward = (IList<E>) keyColl.keyMaps[0].keysList;
                 if (collection != null) {
                 	keyColl.addAll(collection);
                 } else if (array != null) {
@@ -866,7 +866,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	     */
 	    Map<K, Object> keysMap;
 	    /** Key storage if this is a sorted KeyListImpl. */
-	    IGapList<K> keysList;
+	    IList<K> keysList;
 	    /** True to count only number of occurrences of equal elements */
 	    boolean count;
 
@@ -1432,7 +1432,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     		assert(count == size());
     	} else if (keyMap.keysList != null) {
     		assert(keyMap.keysList.size() == size());
-    		IGapList<?> copy = keyMap.keysList.copy();
+    		IList<?> copy = keyMap.keysList.copy();
     		copy.sort(keyMap.comparator);
     		assert(copy.equals(keyMap.keysList));
     	} else {
@@ -1457,7 +1457,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     void checkIndex(int loIndex, int hiIndex, E elem) {
    		KeyMap keyMap = keyMaps[orderByKey];
     	Object key = keyMap.getKey(elem);
-    	IGapList<Object> list = keyMap.keysList;
+    	IList<Object> list = keyMap.keysList;
     	Comparator<Object> comp = keyMap.comparator;
     	if (loIndex >= 0) {
     		int cmp = comp.compare(list.doGet(loIndex), key);
@@ -1505,11 +1505,13 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     	// Index is correct
    		KeyMap keyMap = keyMaps[orderByKey];
     	Object key = keyMap.getKey(elem);
-    	IGapList<Object> list = keyMap.keysList;
+    	IList<Object> list = keyMap.keysList;
 
    		doAdd(elem, keyMap);
     	list.doAdd(index, key);
    		size++;
+
+   		afterInsert(elem);
    }
 
     // Called from KeyListImpl.doAdd
@@ -1517,6 +1519,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     	beforeInsert(elem);
     	doAdd(elem, null);
     	size++;
+    	afterInsert(elem);
     }
 
     // Called from KeyListImpl.doSet
@@ -1527,11 +1530,11 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     	// Index is correct
    		KeyMap keyMap = keyMaps[orderByKey];
     	Object key = keyMap.getKey(elem);
-    	IGapList<Object> list = keyMap.keysList;
+    	IList<Object> list = keyMap.keysList;
 
     	beforeDelete(oldElem);
-    	doRemove(oldElem, keyMap);
     	beforeInsert(elem);
+    	doRemove(oldElem, keyMap);
     	try {
     		doAdd(elem, keyMap);
     	}
@@ -1540,6 +1543,8 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     		throw e;
     	}
     	list.doSet(index, key);
+    	afterDelete(elem);
+    	afterInsert(elem);
     }
 
     int binarySearchSorted(E elem) {
@@ -1583,7 +1588,8 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     //
 
     /**
-     * Checks whether element is allowed in collection.
+     * Checks whether element is allowed in collection (null/constraint).
+     * The constraint is also checked if the element is null.
      *
      * @param elem element to check
      * @throws IllegalArgumentException if the element is not allowed
@@ -1593,11 +1599,10 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     		if (!allowNullElem) {
     			errorNullElement();
     		}
-    	} else {
-    		if (constraint != null) {
-    			if (!constraint.allow(elem)) {
-        			errorConstraintElement();
-    			}
+    	}
+    	if (constraint != null) {
+    		if (!constraint.allow(elem)) {
+       			errorConstraintElement();
     		}
     	}
     }
@@ -1633,12 +1638,18 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     /**
      * This method is called before a new element is added.
      * If the addition should not happen, an exception can be thrown.
-     * Per default, this method calls the registered insert trigger.
-     * However the method can also be overwritten when appropriate.
      *
      * @param elem	element to insert
      */
-    void beforeInsert(E elem) {
+    private void beforeInsert(E elem) {
+    }
+
+    /**
+     * This method is called after a new element has been added.
+     *
+     * @param elem	element which has been inserted
+     */
+    private void afterInsert(E elem) {
         if (insertTrigger != null) {
    			insertTrigger.handle(elem);
     	}
@@ -1647,12 +1658,18 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     /**
      * This method is called before an existing element is removed.
      * If the deletion should not happen, an exception can be thrown.
-     * Per default, this method calls the registered delete trigger.
-     * However the method can also be overwritten when appropriate.
      *
-     * @param elem	element to insert
+     * @param elem	element to delete
      */
-    protected void beforeDelete(E elem) {
+    private void beforeDelete(E elem) {
+    }
+
+    /**
+     * This method is called after an existing element has been removed.
+     *
+     * @param elem	element which has been deleted
+     */
+    private void afterDelete(E elem) {
         if (deleteTrigger != null) {
    			deleteTrigger.handle(elem);
     	}
@@ -1669,6 +1686,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     	doAdd(elem, null);
     	size++;
         if (DEBUG_CHECK) debugCheck();
+        afterInsert(elem);
     	return true;
     }
 
@@ -1690,8 +1708,8 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         if (removed) {
         	size--;
             if (DEBUG_CHECK) debugCheck();
-
         }
+        afterDelete((E) elem);
         return removed;
 	}
 
@@ -2027,7 +2045,18 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     }
 
     /**
-     * Returns value for given key.
+     * Returns mapper for specified key map.
+     *
+     * @param keyIndex 	key index
+     * @return      	mapper for specified key map
+     */
+    protected Mapper<E,Object> getKeyMapper(int keyIndex) {
+    	return getKeyMap(keyIndex).mapper;
+
+    }
+
+    /**
+     * Returns value for specified key.
      * If there are several values for this key, the first is returned.
      * If the key is not found, null is returned.
      *
