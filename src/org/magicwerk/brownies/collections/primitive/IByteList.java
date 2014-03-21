@@ -17,6 +17,10 @@
  */
 package org.magicwerk.brownies.collections.primitive;
 
+import org.magicwerk.brownies.collections.IList;
+import org.magicwerk.brownies.collections.GapList;
+
+
 import java.io.Serializable;
 import java.util.AbstractList;
 import java.util.Arrays;
@@ -30,6 +34,8 @@ import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.RandomAccess;
 import java.util.Set;
+import org.magicwerk.brownies.collections.function.Mapper;
+import org.magicwerk.brownies.collections.function.Predicate;
 
 /**
  * GapList combines the strengths of both ArrayList and LinkedList.
@@ -50,7 +56,7 @@ import java.util.Set;
  * @see	    java.util.ArrayList
  * @see	    java.util.LinkedList
  */
-public abstract class IFloatGapList<E> implements Cloneable, Serializable {
+public abstract class IByteList<E> implements Cloneable, Serializable {
 
     /**
 	 * Copies the collection values into an array.
@@ -58,11 +64,11 @@ public abstract class IFloatGapList<E> implements Cloneable, Serializable {
 	 * @param coll   collection of values
 	 * @return       array containing the collection values
 	 */
-static float[] toArray(Collection<Float> coll) {
+static byte[] toArray(Collection<Byte> coll) {
     Object[] values = coll.toArray();
-    float[] v = new float[values.length];
+    byte[] v = new byte[values.length];
     for (int i = 0; i < values.length; i++) {
-        v[i] = (Float) values[i];
+        v[i] = (Byte) values[i];
     }
     return v;
 }
@@ -76,8 +82,8 @@ static float[] toArray(Collection<Float> coll) {
      * @see #clone
      */
 @SuppressWarnings("unchecked")
-public IFloatGapList copy() {
-    return (IFloatGapList) clone();
+public IByteList copy() {
+    return (IByteList) clone();
 }
 
     /**
@@ -89,7 +95,7 @@ public IFloatGapList copy() {
      *
      * @return an unmodifiable view of the specified list
      */
-public abstract IFloatGapList unmodifiableList();
+public abstract IByteList unmodifiableList();
 
     /**
      * Returns a shallow copy of this <tt>GapList</tt> instance
@@ -103,8 +109,8 @@ public abstract IFloatGapList unmodifiableList();
 
 public Object clone() {
     try {
-        IFloatGapList list = (IFloatGapList) super.clone();
-        list.initClone(this);
+        IByteList list = (IByteList) super.clone();
+        list.doClone(this);
         return list;
     } catch (CloneNotSupportedException e) {
         // This shouldn't happen, since we are Cloneable   
@@ -118,7 +124,7 @@ public Object clone() {
 	 *
 	 * @param that	source object
 	 */
-protected abstract void initClone(IFloatGapList that);
+protected abstract void doClone(IByteList that);
 
     
 public void clear() {
@@ -128,8 +134,17 @@ public void clear() {
     
 public abstract int size();
 
+    /**
+	 * Returns capacity of this GapList.
+	 * Note that two GapLists are considered equal even if they have a distinct capacity.
+	 * Also the capacity can be changed by operations like clone() etc.
+	 *
+	 * @return capacity of this GapList
+	 */
+public abstract int capacity();
+
     
-public float get(int index) {
+public byte get(int index) {
     checkIndex(index);
     return doGet(index);
 }
@@ -142,7 +157,7 @@ public float get(int index) {
      * @param index index of element to return
      * @return      the element at the specified position in this list
      */
-protected abstract float doGet(int index);
+protected abstract byte doGet(int index);
 
     /**
      * Helper method for setting an element in the GapList.
@@ -153,10 +168,10 @@ protected abstract float doGet(int index);
      * @param elem  element to set
      * @return      old element which was at the position
      */
-protected abstract float doSet(int index, float elem);
+protected abstract byte doSet(int index, byte elem);
 
     
-public float set(int index, float elem) {
+public byte set(int index, byte elem) {
     checkIndex(index);
     return doSet(index, elem);
 }
@@ -170,9 +185,9 @@ public float set(int index, float elem) {
      * @param elem  element to set
      * @return      old element which was at the position
      */
-protected abstract float doReSet(int index, float elem);
+protected abstract byte doReSet(int index, byte elem);
 
-    protected abstract float getDefaultElem();
+    protected abstract byte getDefaultElem();
 
     /**
      * This method is called internally before elements are allocated or freed.
@@ -182,12 +197,12 @@ protected void doModify() {
 }
 
     
-public boolean add(float elem) {
+public boolean add(byte elem) {
     return doAdd(-1, elem);
 }
 
     
-public void add(int index, float elem) {
+public void add(int index, byte elem) {
     checkIndexAdd(index);
     doAdd(index, elem);
 }
@@ -202,10 +217,10 @@ public void add(int index, float elem) {
 	 * @param elem	element to add
 	 * @return      true if element has been added (GapList.add() will always return true)
 	 */
-protected abstract boolean doAdd(int index, float elem);
+protected abstract boolean doAdd(int index, byte elem);
 
     
-public float remove(int index) {
+public byte remove(int index) {
     checkIndex(index);
     return doRemove(index);
 }
@@ -218,7 +233,7 @@ public float remove(int index) {
 	 * @param index	index of element to remove
 	 * @return		removed element
 	 */
-protected abstract float doRemove(int index);
+protected abstract byte doRemove(int index);
 
     /**
      * Increases the capacity of this <tt>GapList</tt> instance, if
@@ -257,13 +272,13 @@ public boolean equals(Object obj) {
     if (obj == this) {
         return true;
     }
-    if (obj instanceof FloatObjGapList) {
-        obj = ((FloatObjGapList) obj).list;
+    if (obj instanceof ByteObjGapList) {
+        obj = ((ByteObjGapList) obj).list;
     }
-    if (!(obj instanceof FloatGapList)) {
+    if (!(obj instanceof ByteGapList)) {
         return false;
     }
-    @SuppressWarnings("unchecked") FloatGapList list = (FloatGapList) obj;
+    @SuppressWarnings("unchecked") ByteGapList list = (ByteGapList) obj;
     int size = size();
     if (size != list.size()) {
         return false;
@@ -281,7 +296,7 @@ public int hashCode() {
     int hashCode = 1;
     int size = size();
     for (int i = 0; i < size; i++) {
-        float elem = doGet(i);
+        byte elem = doGet(i);
         hashCode = 31 * hashCode + hashCodeElem(elem);
     }
     return hashCode;
@@ -315,7 +330,7 @@ public boolean isEmpty() {
 	 * @param elem2	second element
 	 * @return		true if the elements are equal, otherwise false
 	 */
-static boolean equalsElem(float elem1, float elem2) {
+static boolean equalsElem(byte elem1, byte elem2) {
     return elem1 == elem2;
 }
 
@@ -326,7 +341,7 @@ static boolean equalsElem(float elem1, float elem2) {
 	 * @param elem	element
 	 * @return		hash code for element
 	 */
-static int hashCodeElem(float elem) {
+static int hashCodeElem(byte elem) {
     return (int) elem;
 }
 
@@ -336,7 +351,7 @@ static int hashCodeElem(float elem) {
 	 * @param elem	element to count
 	 * @return		count how many times the specified element is contained in the list
 	 */
-public int getCount(float elem) {
+public int getCount(byte elem) {
     int count = 0;
     int size = size();
     for (int i = 0; i < size; i++) {
@@ -353,11 +368,11 @@ public int getCount(float elem) {
 	 * @param elem	element to look for
 	 * @return		all elements in the list equal to the specified element
 	 */
-public IFloatGapList getAll(float elem) {
-    IFloatGapList list = doCreate(-1);
+public IByteList getAll(byte elem) {
+    IByteList list = doCreate(-1);
     int size = size();
     for (int i = 0; i < size; i++) {
-        float e = doGet(i);
+        byte e = doGet(i);
         if (equalsElem(e, elem)) {
             list.add(e);
         }
@@ -379,8 +394,44 @@ public Set getDistinct() {
     return set;
 }
 
+    /**
+     * Create a new list by applying the specified mapper to all elements.
+     *
+     * @param mapper	mapper function
+     * @return			created list
+     */
+public <R> IList<R> mappedList(Mapper<Byte, R> mapper) {
+    int size = size();
+    IList mappedList = new GapList(size);
+    for (int i = 0; i < size; i++) {
+        byte e = doGet(i);
+        mappedList.add(mapper.getKey(e));
+    }
+    return mappedList;
+}
+
+    /**
+     * Filter the list using the specified predicate.
+     * Only element which are allowed remain in the list, the others are removed
+     *
+     * @param predicate predicate used for filtering
+     */
+public void filter(Predicate<Byte> predicate) {
+    // It is typically faster to copy the allowed elements in a new list   
+    // than to remove the not allowed from the existing one   
+    IByteList list = doCreate(-1);
+    int size = size();
+    for (int i = 0; i < size; i++) {
+        byte e = doGet(i);
+        if (predicate.allow(e)) {
+            list.add(e);
+        }
+    }
+    doAssign(list);
+}
+
     
-public int indexOf(float elem) {
+public int indexOf(byte elem) {
     int size = size();
     for (int i = 0; i < size; i++) {
         if (equalsElem(doGet(i), elem)) {
@@ -391,7 +442,7 @@ public int indexOf(float elem) {
 }
 
     
-public int lastIndexOf(float elem) {
+public int lastIndexOf(byte elem) {
     for (int i = size() - 1; i >= 0; i--) {
         if (equalsElem(doGet(i), elem)) {
             return i;
@@ -401,7 +452,7 @@ public int lastIndexOf(float elem) {
 }
 
     
-public boolean removeElem(float elem) {
+public boolean removeElem(byte elem) {
     int index = indexOf(elem);
     if (index == -1) {
         return false;
@@ -411,7 +462,7 @@ public boolean removeElem(float elem) {
 }
 
     
-public boolean contains(float elem) {
+public boolean contains(byte elem) {
     return indexOf(elem) != -1;
 }
 
@@ -421,11 +472,11 @@ public boolean contains(float elem) {
 	 * @param coll collection with elements to be contained
 	 * @return     true if any element is contained, false otherwise
 	 */
-public boolean containsAny(Collection<Float> coll) {
+public boolean containsAny(Collection<Byte> coll) {
     // Note that the signature has been chosen as in List:   
-    // - boolean addAll(Collection<Float> c);   
-    // - boolean containsAll(Collection<Float> c);   
-    for (float elem : coll) {
+    // - boolean addAll(Collection<Byte> c);   
+    // - boolean containsAll(Collection<Byte> c);   
+    for (byte elem : coll) {
         if (contains(elem)) {
             return true;
         }
@@ -434,10 +485,10 @@ public boolean containsAny(Collection<Float> coll) {
 }
 
     
-public boolean containsAll(Collection<Float> coll) {
+public boolean containsAll(Collection<Byte> coll) {
     // Note that this method is already implemented in AbstractCollection.   
     // It has been duplicated so the method is also available in the primitive classes.   
-    for (float elem : coll) {
+    for (byte elem : coll) {
         if (!contains(elem)) {
             return false;
         }
@@ -446,7 +497,7 @@ public boolean containsAll(Collection<Float> coll) {
 }
 
     
-public boolean removeAll(Collection<Float> coll) {
+public boolean removeAll(Collection<Byte> coll) {
     // Note that this method is already implemented in AbstractCollection.   
     // It has been duplicated so the method is also available in the primitive classes.   
     boolean modified = false;
@@ -468,11 +519,11 @@ public boolean removeAll(Collection<Float> coll) {
 	 * @param elem	element
 	 * @return		removed equal elements (never null)
 	 */
-public IFloatGapList removeAll(float elem) {
-    IFloatGapList list = doCreate(-1);
+public IByteList removeAll(byte elem) {
+    IByteList list = doCreate(-1);
     int size = size();
     for (int i = 0; i < size; i++) {
-        float e = doGet(i);
+        byte e = doGet(i);
         if (equalsElem(elem, e)) {
             list.add(e);
             doRemove(i);
@@ -486,7 +537,7 @@ public IFloatGapList removeAll(float elem) {
     /**
      * @see #removeAll(Collection)
      */
-public boolean removeAll(IFloatGapList<?> coll) {
+public boolean removeAll(IByteList<?> coll) {
     // There is a special implementation accepting a GapList   
     // so the method is also available in the primitive classes.   
     boolean modified = false;
@@ -503,7 +554,7 @@ public boolean removeAll(IFloatGapList<?> coll) {
 }
 
     
-public boolean retainAll(Collection<Float> coll) {
+public boolean retainAll(Collection<Byte> coll) {
     // Note that this method is already implemented in AbstractCollection.   
     // It has been duplicated so the method is also available in the primitive classes.   
     boolean modified = false;
@@ -522,7 +573,7 @@ public boolean retainAll(Collection<Float> coll) {
     /**
      * @see #retainAll(Collection)
      */
-public boolean retainAll(IFloatGapList<?> coll) {
+public boolean retainAll(IByteList<?> coll) {
     // There is a special implementation accepting a GapList   
     // so the method is also available in the primitive classes.   
     boolean modified = false;
@@ -539,9 +590,9 @@ public boolean retainAll(IFloatGapList<?> coll) {
 }
 
     
-public float[] toArray() {
+public byte[] toArray() {
     int size = size();
-    float[] array = new float[size];
+    byte[] array = new byte[size];
     doGetAll(array, 0, size);
     return array;
 }
@@ -553,22 +604,22 @@ public float[] toArray() {
 	 * @param len	number of elements to copy
 	 * @return		array the specified elements
 	 */
-public float[] toArray(int index, int len) {
-    float[] array = new float[len];
+public byte[] toArray(int index, int len) {
+    byte[] array = new byte[len];
     doGetAll(array, index, len);
     return array;
 }
 
     @SuppressWarnings("unchecked")
 
-public float[] toArray(float[] array) {
+public byte[] toArray(byte[] array) {
     int size = size();
     if (array.length < size) {
-        array = (float[]) java.lang.reflect.Array.newInstance(array.getClass().getComponentType(), size);
+        array = (byte[]) java.lang.reflect.Array.newInstance(array.getClass().getComponentType(), size);
     }
     doGetAll(array, 0, size);
     if (array.length > size) {
-        array[size] = 0;
+        array[size] = (byte) 0;
     }
     return array;
 }
@@ -581,7 +632,8 @@ public float[] toArray(float[] array) {
 	 * @param len	number of elements to copy
 	 * @param <T> type of elements stored in the list
 	 */
-protected void doGetAll(float[] array, int index, int len) {
+@SuppressWarnings("unchecked")
+protected void doGetAll(byte[] array, int index, int len) {
     for (int i = 0; i < len; i++) {
         array[i] = doGet(index + i);
     }
@@ -597,11 +649,11 @@ protected void doGetAll(float[] array, int index, int len) {
      * @throws NullPointerException if the specified collection is null
      */
 
-public boolean addAll(Collection<Float> coll) {
+public boolean addAll(Collection<Byte> coll) {
     // ArrayList.addAll() also first creates an array containing the   
     // collection elements. This guarantees that the list's capacity   
     // must only be increased once.   
-    @SuppressWarnings("unchecked") float[] array = (float[]) toArray(coll);
+    @SuppressWarnings("unchecked") byte[] array = (byte[]) toArray(coll);
     return doAddAll(-1, array);
 }
 
@@ -621,12 +673,12 @@ public boolean addAll(Collection<Float> coll) {
      * @throws NullPointerException if the specified collection is null
      */
 
-public boolean addAll(int index, Collection<Float> coll) {
+public boolean addAll(int index, Collection<Byte> coll) {
     checkIndexAdd(index);
     // ArrayList.addAll() also first creates an array containing the   
     // collection elements. This guarantees that the list's capacity   
     // must only be increased once.   
-    @SuppressWarnings("unchecked") float[] array = (float[]) toArray(coll);
+    @SuppressWarnings("unchecked") byte[] array = (byte[]) toArray(coll);
     return doAddAll(index, array);
 }
 
@@ -636,7 +688,7 @@ public boolean addAll(int index, Collection<Float> coll) {
      * @param elems elements to be added to this list
      * @return <tt>true</tt> if this list changed as a result of the call
      */
-public boolean addAll(float... elems) {
+public boolean addAll(byte... elems) {
     return doAddAll(-1, elems);
 }
 
@@ -652,7 +704,7 @@ public boolean addAll(float... elems) {
      * @return <tt>true</tt> if this list changed as a result of the call
      * @throws IndexOutOfBoundsException if the index is invalid
      */
-public boolean addAll(int index, float... elems) {
+public boolean addAll(int index, byte... elems) {
     checkIndexAdd(index);
     return doAddAll(index, elems);
 }
@@ -665,8 +717,8 @@ public boolean addAll(int index, float... elems) {
      * @throws NullPointerException if the specified list is null
      */
 @SuppressWarnings("unchecked")
-public boolean addAll(IFloatGapList list) {
-    return doAddAll(-1, (float[]) list.toArray());
+public boolean addAll(IByteList list) {
+    return doAddAll(-1, (byte[]) list.toArray());
 }
 
     /**
@@ -683,9 +735,9 @@ public boolean addAll(IFloatGapList list) {
      * @throws NullPointerException if the specified collection is null
      */
 @SuppressWarnings("unchecked")
-public boolean addAll(int index, IFloatGapList list) {
+public boolean addAll(int index, IByteList list) {
     checkIndexAdd(index);
-    return doAddAll(index, (float[]) list.toArray());
+    return doAddAll(index, (byte[]) list.toArray());
 }
 
     /**
@@ -697,12 +749,12 @@ public boolean addAll(int index, IFloatGapList list) {
      * @param array array with elements to add
      * @return      true if elements have been added, false otherwise
      */
-protected boolean doAddAll(int index, float[] array) {
+protected boolean doAddAll(int index, byte[] array) {
     doEnsureCapacity(size() + array.length);
     if (array.length == 0) {
         return false;
     }
-    for (float elem : array) {
+    for (byte elem : array) {
         doAdd(index, elem);
         if (index != -1) {
             index++;
@@ -721,15 +773,15 @@ protected boolean doAddAll(int index, float[] array) {
 
     // Queue operations  
 
-public float peek() {
+public byte peek() {
     if (size() == 0) {
-        return 0;
+        return (byte) 0;
     }
     return getFirst();
 }
 
     
-public float element() {
+public byte element() {
     // inline version of getFirst():   
     if (size() == 0) {
         throw new NoSuchElementException();
@@ -738,15 +790,15 @@ public float element() {
 }
 
     
-public float poll() {
+public byte poll() {
     if (size() == 0) {
-        return 0;
+        return (byte) 0;
     }
     return doRemove(0);
 }
 
     
-public float remove() {
+public byte remove() {
     // inline version of removeFirst():   
     if (size() == 0) {
         throw new NoSuchElementException();
@@ -755,14 +807,14 @@ public float remove() {
 }
 
     
-public boolean offer(float elem) {
+public boolean offer(byte elem) {
     // inline version of add(elem):   
     return doAdd(-1, elem);
 }
 
     // Deque operations  
 
-public float getFirst() {
+public byte getFirst() {
     if (size() == 0) {
         throw new NoSuchElementException();
     }
@@ -770,7 +822,7 @@ public float getFirst() {
 }
 
     
-public float getLast() {
+public byte getLast() {
     int size = size();
     if (size == 0) {
         throw new NoSuchElementException();
@@ -779,18 +831,18 @@ public float getLast() {
 }
 
     
-public void addFirst(float elem) {
+public void addFirst(byte elem) {
     doAdd(0, elem);
 }
 
     
-public void addLast(float elem) {
+public void addLast(byte elem) {
     // inline version of add(elem):   
     doAdd(-1, elem);
 }
 
     
-public float removeFirst() {
+public byte removeFirst() {
     if (size() == 0) {
         throw new NoSuchElementException();
     }
@@ -798,7 +850,7 @@ public float removeFirst() {
 }
 
     
-public float removeLast() {
+public byte removeLast() {
     int size = size();
     if (size == 0) {
         throw new NoSuchElementException();
@@ -807,55 +859,55 @@ public float removeLast() {
 }
 
     
-public boolean offerFirst(float elem) {
+public boolean offerFirst(byte elem) {
     // inline version of addFirst(elem):   
     doAdd(0, elem);
     return true;
 }
 
     
-public boolean offerLast(float elem) {
+public boolean offerLast(byte elem) {
     // inline version of addLast(elem):   
     doAdd(-1, elem);
     return true;
 }
 
     
-public float peekFirst() {
+public byte peekFirst() {
     if (size() == 0) {
-        return 0;
+        return (byte) 0;
     }
     return doGet(0);
 }
 
     
-public float peekLast() {
+public byte peekLast() {
     int size = size();
     if (size == 0) {
-        return 0;
+        return (byte) 0;
     }
     return doGet(size - 1);
 }
 
     
-public float pollFirst() {
+public byte pollFirst() {
     if (size() == 0) {
-        return 0;
+        return (byte) 0;
     }
     return doRemove(0);
 }
 
     
-public float pollLast() {
+public byte pollLast() {
     int size = size();
     if (size == 0) {
-        return 0;
+        return (byte) 0;
     }
     return doRemove(size - 1);
 }
 
     
-public float pop() {
+public byte pop() {
     // inline version of removeFirst():   
     if (size() == 0) {
         throw new NoSuchElementException();
@@ -864,13 +916,13 @@ public float pop() {
 }
 
     
-public void push(float elem) {
+public void push(byte elem) {
     // inline version of addFirst();   
     doAdd(0, elem);
 }
 
     
-public boolean removeFirstOccurrence(float elem) {
+public boolean removeFirstOccurrence(byte elem) {
     int index = indexOf(elem);
     if (index == -1) {
         return false;
@@ -880,7 +932,7 @@ public boolean removeFirstOccurrence(float elem) {
 }
 
     
-public boolean removeLastOccurrence(float elem) {
+public boolean removeLastOccurrence(byte elem) {
     int index = lastIndexOf(elem);
     if (index == -1) {
         return false;
@@ -901,15 +953,15 @@ public boolean removeLastOccurrence(float elem) {
      * @param <E> 		type of elements stored in the list
      * @throws 			IndexOutOfBoundsException if the ranges are invalid
      */
-public static void move(IFloatGapList src, int srcIndex, IFloatGapList<Float> dst, int dstIndex, int len) {
+public static void move(IByteList src, int srcIndex, IByteList<Byte> dst, int dstIndex, int len) {
     if (src == dst) {
         src.move(srcIndex, dstIndex, len);
     } else {
         src.checkRange(srcIndex, len);
         dst.checkRange(dstIndex, len);
-        float defaultElem = src.getDefaultElem();
+        byte defaultElem = src.getDefaultElem();
         for (int i = 0; i < len; i++) {
-            float elem = src.doReSet(srcIndex + i, defaultElem);
+            byte elem = src.doReSet(srcIndex + i, defaultElem);
             dst.doSet(dstIndex + i, elem);
         }
     }
@@ -926,14 +978,14 @@ public static void move(IFloatGapList src, int srcIndex, IFloatGapList<Float> ds
      * @param <E> 		type of elements stored in the list
      * @throws 			IndexOutOfBoundsException if the ranges are invalid
      */
-public static void copy(IFloatGapList src, int srcIndex, IFloatGapList dst, int dstIndex, int len) {
+public static void copy(IByteList src, int srcIndex, IByteList dst, int dstIndex, int len) {
     if (src == dst) {
         src.copy(srcIndex, dstIndex, len);
     } else {
         src.checkRange(srcIndex, len);
         dst.checkRange(dstIndex, len);
         for (int i = 0; i < len; i++) {
-            float elem = src.doGet(srcIndex + i);
+            byte elem = src.doGet(srcIndex + i);
             dst.doSet(dstIndex + i, elem);
         }
     }
@@ -950,7 +1002,7 @@ public static void copy(IFloatGapList src, int srcIndex, IFloatGapList dst, int 
      * @param <E> 		type of elements stored in the list
      * @throws 			IndexOutOfBoundsException if the ranges are invalid
      */
-public static void swap(IFloatGapList src, int srcIndex, IFloatGapList dst, int dstIndex, int len) {
+public static void swap(IByteList src, int srcIndex, IByteList dst, int dstIndex, int len) {
     if (src == dst) {
         src.swap(srcIndex, dstIndex, len);
     } else {
@@ -958,7 +1010,7 @@ public static void swap(IFloatGapList src, int srcIndex, IFloatGapList dst, int 
         dst.checkRange(dstIndex, len);
         if (src != dst) {
             for (int i = 0; i < len; i++) {
-                float swap = src.doGet(srcIndex + i);
+                byte swap = src.doGet(srcIndex + i);
                 swap = dst.doSet(dstIndex + i, swap);
                 src.doSet(srcIndex + i, swap);
             }
@@ -974,7 +1026,15 @@ public static void swap(IFloatGapList src, int srcIndex, IFloatGapList dst, int 
      * @param capacity	initial capacity (use -1 for default capacity)
      * @return			created list
      */
-public abstract IFloatGapList doCreate(int capacity);
+protected abstract IByteList doCreate(int capacity);
+
+    /**
+     * Assign this list the content of the that list.
+     * This is done by bitwise copying so the that list should not be user afterwards.
+     *
+     * @param that list to copy content from
+     */
+protected abstract void doAssign(IByteList that);
 
     /**
      * Returns specified range of elements from list.
@@ -983,9 +1043,9 @@ public abstract IFloatGapList doCreate(int capacity);
      * @param len   number of elements to retrieve
      * @return      GapList containing the specified range of elements from list
      */
-public IFloatGapList getAll(int index, int len) {
+public IByteList getAll(int index, int len) {
     checkRange(index, len);
-    IFloatGapList list = doCreate(len);
+    IByteList list = doCreate(len);
     for (int i = 0; i < len; i++) {
         list.add(doGet(index + i));
     }
@@ -999,9 +1059,9 @@ public IFloatGapList getAll(int index, int len) {
      * @param len   number of elements to retrieve
      * @return      GapList containing the specified range of elements from list
      */
-public float[] getArray(int index, int len) {
+public byte[] getArray(int index, int len) {
     checkRange(index, len);
-    @SuppressWarnings("unchecked") float[] array = (float[]) new float[len];
+    @SuppressWarnings("unchecked") byte[] array = (byte[]) new byte[len];
     for (int i = 0; i < len; i++) {
         array[i] = doGet(index + i);
     }
@@ -1015,7 +1075,7 @@ public float[] getArray(int index, int len) {
      * @param index index of first element to set
      * @param list  list with elements to set
      */
-public void setAll(int index, IFloatGapList list) {
+public void setAll(int index, IByteList list) {
     // There is a special implementation accepting a GapList   
     // so the method is also available in the primitive classes.   
     int size = list.size();
@@ -1031,12 +1091,12 @@ public void setAll(int index, IFloatGapList list) {
      * @param index index of first element to set
      * @param coll  collection with elements to set
      */
-public void setAll(int index, Collection<Float> coll) {
+public void setAll(int index, Collection<Byte> coll) {
     checkRange(index, coll.size());
     // In contrary to addAll() there is no need to first create an array   
     // containing the collection elements, as the list will not grow.   
     int i = 0;
-    Iterator<Float> iter = coll.iterator();
+    Iterator<Byte> iter = coll.iterator();
     while (iter.hasNext()) {
         doSet(index + i, iter.next());
         i++;
@@ -1049,7 +1109,7 @@ public void setAll(int index, Collection<Float> coll) {
      * @param index index of first element to set
      * @param elems elements to set
      */
-public void setAll(int index, float... elems) {
+public void setAll(int index, byte... elems) {
     checkRange(index, elems.length);
     doSetAll(index, elems);
 }
@@ -1060,7 +1120,7 @@ public void setAll(int index, float... elems) {
      * @param index index of first element to set
      * @param elems elements to set
      */
-protected void doSetAll(int index, float[] elems) {
+protected void doSetAll(int index, byte[] elems) {
     for (int i = 0; i < elems.length; i++) {
         doSet(index + i, elems[i]);
     }
@@ -1097,7 +1157,7 @@ protected void doRemoveAll(int index, int len) {
 	 * @param len  length of list
 	 * @param elem element which the list will contain
 	 */
-public void init(int len, float elem) {
+public void init(int len, byte elem) {
     checkLength(len);
     int size = size();
     if (len < size) {
@@ -1120,7 +1180,7 @@ public void init(int len, float elem) {
      * @param len  length of list
      * @param elem element which will be used for extending the list
 	 */
-public void resize(int len, float elem) {
+public void resize(int len, byte elem) {
     checkLength(len);
     int size = size();
     if (len < size) {
@@ -1139,7 +1199,7 @@ public void resize(int len, float elem) {
      * @param elem  element used for filling
      */
 // see java.util.Arrays#fill  
-public void fill(float elem) {
+public void fill(byte elem) {
     int size = size();
     for (int i = 0; i < size; i++) {
         doSet(i, elem);
@@ -1154,7 +1214,7 @@ public void fill(float elem) {
      * @param elem	element used for filling
      */
 // see java.util.Arrays#fill  
-public void fill(int index, int len, float elem) {
+public void fill(int index, int len, byte elem) {
     checkRange(index, len);
     for (int i = 0; i < len; i++) {
         doSet(index + i, elem);
@@ -1205,13 +1265,13 @@ public void move(int srcIndex, int dstIndex, int len) {
             doReSet(dstIndex + i, doGet(srcIndex + i));
         }
     }
-    // Set elements to 0 after the move operation    
+    // Set elements to (byte) 0 after the move operation    
     if (srcIndex < dstIndex) {
         int fill = Math.min(len, dstIndex - srcIndex);
-        fill(srcIndex, fill, 0);
+        fill(srcIndex, fill, (byte) 0);
     } else if (srcIndex > dstIndex) {
         int fill = Math.min(len, srcIndex - dstIndex);
-        fill(srcIndex + len - fill, fill, 0);
+        fill(srcIndex + len - fill, fill, (byte) 0);
     }
 }
 
@@ -1234,7 +1294,7 @@ public void reverse(int index, int len) {
     int pos2 = index + len - 1;
     int mid = len / 2;
     for (int i = 0; i < mid; i++) {
-        float swap = doGet(pos1);
+        byte swap = doGet(pos1);
         swap = doReSet(pos2, swap);
         doReSet(pos1, swap);
         pos1++;
@@ -1257,7 +1317,7 @@ public void swap(int index1, int index2, int len) {
         throw new IllegalArgumentException("Swap ranges overlap");
     }
     for (int i = 0; i < len; i++) {
-        float swap = doGet(index1 + i);
+        byte swap = doGet(index1 + i);
         swap = doReSet(index2 + i, swap);
         doReSet(index1 + i, swap);
     }
@@ -1299,7 +1359,7 @@ public void rotate(int index, int len, int distance) {
     }
     int num = 0;
     for (int start = 0; num != size; start++) {
-        float elem = doGet(index + start);
+        byte elem = doGet(index + start);
         int i = start;
         do {
             i += distance;
@@ -1406,7 +1466,7 @@ public abstract void sort(int index, int len);
      *
      * @see Arrays#binarySearch
      */
-public int binarySearch(float key) {
+public int binarySearch(byte key) {
     return binarySearch(0, size(), key);
 }
 
@@ -1431,7 +1491,7 @@ public int binarySearch(float key) {
      *
      * @see Arrays#binarySearch
      */
-public abstract int binarySearch(int index, int len, float key);
+public abstract int binarySearch(int index, int len, byte key);
 
     //--- Arguments check methods  
 /**

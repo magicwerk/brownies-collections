@@ -17,6 +17,10 @@
  */
 package org.magicwerk.brownies.collections.primitive;
 
+import org.magicwerk.brownies.collections.IList;
+import org.magicwerk.brownies.collections.GapList;
+
+
 import java.io.Serializable;
 import java.util.AbstractList;
 import java.util.Arrays;
@@ -30,6 +34,8 @@ import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.RandomAccess;
 import java.util.Set;
+import org.magicwerk.brownies.collections.function.Mapper;
+import org.magicwerk.brownies.collections.function.Predicate;
 
 /**
  * GapList combines the strengths of both ArrayList and LinkedList.
@@ -50,7 +56,7 @@ import java.util.Set;
  * @see	    java.util.ArrayList
  * @see	    java.util.LinkedList
  */
-public abstract class ICharGapList<E> implements Cloneable, Serializable {
+public abstract class IFloatList<E> implements Cloneable, Serializable {
 
     /**
 	 * Copies the collection values into an array.
@@ -58,11 +64,11 @@ public abstract class ICharGapList<E> implements Cloneable, Serializable {
 	 * @param coll   collection of values
 	 * @return       array containing the collection values
 	 */
-static char[] toArray(Collection<Character> coll) {
+static float[] toArray(Collection<Float> coll) {
     Object[] values = coll.toArray();
-    char[] v = new char[values.length];
+    float[] v = new float[values.length];
     for (int i = 0; i < values.length; i++) {
-        v[i] = (Character) values[i];
+        v[i] = (Float) values[i];
     }
     return v;
 }
@@ -76,8 +82,8 @@ static char[] toArray(Collection<Character> coll) {
      * @see #clone
      */
 @SuppressWarnings("unchecked")
-public ICharGapList copy() {
-    return (ICharGapList) clone();
+public IFloatList copy() {
+    return (IFloatList) clone();
 }
 
     /**
@@ -89,7 +95,7 @@ public ICharGapList copy() {
      *
      * @return an unmodifiable view of the specified list
      */
-public abstract ICharGapList unmodifiableList();
+public abstract IFloatList unmodifiableList();
 
     /**
      * Returns a shallow copy of this <tt>GapList</tt> instance
@@ -103,8 +109,8 @@ public abstract ICharGapList unmodifiableList();
 
 public Object clone() {
     try {
-        ICharGapList list = (ICharGapList) super.clone();
-        list.initClone(this);
+        IFloatList list = (IFloatList) super.clone();
+        list.doClone(this);
         return list;
     } catch (CloneNotSupportedException e) {
         // This shouldn't happen, since we are Cloneable   
@@ -118,7 +124,7 @@ public Object clone() {
 	 *
 	 * @param that	source object
 	 */
-protected abstract void initClone(ICharGapList that);
+protected abstract void doClone(IFloatList that);
 
     
 public void clear() {
@@ -128,8 +134,17 @@ public void clear() {
     
 public abstract int size();
 
+    /**
+	 * Returns capacity of this GapList.
+	 * Note that two GapLists are considered equal even if they have a distinct capacity.
+	 * Also the capacity can be changed by operations like clone() etc.
+	 *
+	 * @return capacity of this GapList
+	 */
+public abstract int capacity();
+
     
-public char get(int index) {
+public float get(int index) {
     checkIndex(index);
     return doGet(index);
 }
@@ -142,7 +157,7 @@ public char get(int index) {
      * @param index index of element to return
      * @return      the element at the specified position in this list
      */
-protected abstract char doGet(int index);
+protected abstract float doGet(int index);
 
     /**
      * Helper method for setting an element in the GapList.
@@ -153,10 +168,10 @@ protected abstract char doGet(int index);
      * @param elem  element to set
      * @return      old element which was at the position
      */
-protected abstract char doSet(int index, char elem);
+protected abstract float doSet(int index, float elem);
 
     
-public char set(int index, char elem) {
+public float set(int index, float elem) {
     checkIndex(index);
     return doSet(index, elem);
 }
@@ -170,9 +185,9 @@ public char set(int index, char elem) {
      * @param elem  element to set
      * @return      old element which was at the position
      */
-protected abstract char doReSet(int index, char elem);
+protected abstract float doReSet(int index, float elem);
 
-    protected abstract char getDefaultElem();
+    protected abstract float getDefaultElem();
 
     /**
      * This method is called internally before elements are allocated or freed.
@@ -182,12 +197,12 @@ protected void doModify() {
 }
 
     
-public boolean add(char elem) {
+public boolean add(float elem) {
     return doAdd(-1, elem);
 }
 
     
-public void add(int index, char elem) {
+public void add(int index, float elem) {
     checkIndexAdd(index);
     doAdd(index, elem);
 }
@@ -202,10 +217,10 @@ public void add(int index, char elem) {
 	 * @param elem	element to add
 	 * @return      true if element has been added (GapList.add() will always return true)
 	 */
-protected abstract boolean doAdd(int index, char elem);
+protected abstract boolean doAdd(int index, float elem);
 
     
-public char remove(int index) {
+public float remove(int index) {
     checkIndex(index);
     return doRemove(index);
 }
@@ -218,7 +233,7 @@ public char remove(int index) {
 	 * @param index	index of element to remove
 	 * @return		removed element
 	 */
-protected abstract char doRemove(int index);
+protected abstract float doRemove(int index);
 
     /**
      * Increases the capacity of this <tt>GapList</tt> instance, if
@@ -257,13 +272,13 @@ public boolean equals(Object obj) {
     if (obj == this) {
         return true;
     }
-    if (obj instanceof CharObjGapList) {
-        obj = ((CharObjGapList) obj).list;
+    if (obj instanceof FloatObjGapList) {
+        obj = ((FloatObjGapList) obj).list;
     }
-    if (!(obj instanceof CharGapList)) {
+    if (!(obj instanceof FloatGapList)) {
         return false;
     }
-    @SuppressWarnings("unchecked") CharGapList list = (CharGapList) obj;
+    @SuppressWarnings("unchecked") FloatGapList list = (FloatGapList) obj;
     int size = size();
     if (size != list.size()) {
         return false;
@@ -281,7 +296,7 @@ public int hashCode() {
     int hashCode = 1;
     int size = size();
     for (int i = 0; i < size; i++) {
-        char elem = doGet(i);
+        float elem = doGet(i);
         hashCode = 31 * hashCode + hashCodeElem(elem);
     }
     return hashCode;
@@ -315,8 +330,9 @@ public boolean isEmpty() {
 	 * @param elem2	second element
 	 * @return		true if the elements are equal, otherwise false
 	 */
-static boolean equalsElem(char elem1, char elem2) {
-    return elem1 == elem2;
+static boolean equalsElem(float elem1, float elem2) {
+    // as in Float.equals 
+    return Float.floatToIntBits(elem1) == Float.floatToIntBits(elem2);
 }
 
     /**
@@ -326,7 +342,7 @@ static boolean equalsElem(char elem1, char elem2) {
 	 * @param elem	element
 	 * @return		hash code for element
 	 */
-static int hashCodeElem(char elem) {
+static int hashCodeElem(float elem) {
     return (int) elem;
 }
 
@@ -336,7 +352,7 @@ static int hashCodeElem(char elem) {
 	 * @param elem	element to count
 	 * @return		count how many times the specified element is contained in the list
 	 */
-public int getCount(char elem) {
+public int getCount(float elem) {
     int count = 0;
     int size = size();
     for (int i = 0; i < size; i++) {
@@ -353,11 +369,11 @@ public int getCount(char elem) {
 	 * @param elem	element to look for
 	 * @return		all elements in the list equal to the specified element
 	 */
-public ICharGapList getAll(char elem) {
-    ICharGapList list = doCreate(-1);
+public IFloatList getAll(float elem) {
+    IFloatList list = doCreate(-1);
     int size = size();
     for (int i = 0; i < size; i++) {
-        char e = doGet(i);
+        float e = doGet(i);
         if (equalsElem(e, elem)) {
             list.add(e);
         }
@@ -379,8 +395,44 @@ public Set getDistinct() {
     return set;
 }
 
+    /**
+     * Create a new list by applying the specified mapper to all elements.
+     *
+     * @param mapper	mapper function
+     * @return			created list
+     */
+public <R> IList<R> mappedList(Mapper<Float, R> mapper) {
+    int size = size();
+    IList mappedList = new GapList(size);
+    for (int i = 0; i < size; i++) {
+        float e = doGet(i);
+        mappedList.add(mapper.getKey(e));
+    }
+    return mappedList;
+}
+
+    /**
+     * Filter the list using the specified predicate.
+     * Only element which are allowed remain in the list, the others are removed
+     *
+     * @param predicate predicate used for filtering
+     */
+public void filter(Predicate<Float> predicate) {
+    // It is typically faster to copy the allowed elements in a new list   
+    // than to remove the not allowed from the existing one   
+    IFloatList list = doCreate(-1);
+    int size = size();
+    for (int i = 0; i < size; i++) {
+        float e = doGet(i);
+        if (predicate.allow(e)) {
+            list.add(e);
+        }
+    }
+    doAssign(list);
+}
+
     
-public int indexOf(char elem) {
+public int indexOf(float elem) {
     int size = size();
     for (int i = 0; i < size; i++) {
         if (equalsElem(doGet(i), elem)) {
@@ -391,7 +443,7 @@ public int indexOf(char elem) {
 }
 
     
-public int lastIndexOf(char elem) {
+public int lastIndexOf(float elem) {
     for (int i = size() - 1; i >= 0; i--) {
         if (equalsElem(doGet(i), elem)) {
             return i;
@@ -401,7 +453,7 @@ public int lastIndexOf(char elem) {
 }
 
     
-public boolean removeElem(char elem) {
+public boolean removeElem(float elem) {
     int index = indexOf(elem);
     if (index == -1) {
         return false;
@@ -411,7 +463,7 @@ public boolean removeElem(char elem) {
 }
 
     
-public boolean contains(char elem) {
+public boolean contains(float elem) {
     return indexOf(elem) != -1;
 }
 
@@ -421,11 +473,11 @@ public boolean contains(char elem) {
 	 * @param coll collection with elements to be contained
 	 * @return     true if any element is contained, false otherwise
 	 */
-public boolean containsAny(Collection<Character> coll) {
+public boolean containsAny(Collection<Float> coll) {
     // Note that the signature has been chosen as in List:   
-    // - boolean addAll(Collection<Character> c);   
-    // - boolean containsAll(Collection<Character> c);   
-    for (char elem : coll) {
+    // - boolean addAll(Collection<Float> c);   
+    // - boolean containsAll(Collection<Float> c);   
+    for (float elem : coll) {
         if (contains(elem)) {
             return true;
         }
@@ -434,10 +486,10 @@ public boolean containsAny(Collection<Character> coll) {
 }
 
     
-public boolean containsAll(Collection<Character> coll) {
+public boolean containsAll(Collection<Float> coll) {
     // Note that this method is already implemented in AbstractCollection.   
     // It has been duplicated so the method is also available in the primitive classes.   
-    for (char elem : coll) {
+    for (float elem : coll) {
         if (!contains(elem)) {
             return false;
         }
@@ -446,7 +498,7 @@ public boolean containsAll(Collection<Character> coll) {
 }
 
     
-public boolean removeAll(Collection<Character> coll) {
+public boolean removeAll(Collection<Float> coll) {
     // Note that this method is already implemented in AbstractCollection.   
     // It has been duplicated so the method is also available in the primitive classes.   
     boolean modified = false;
@@ -468,11 +520,11 @@ public boolean removeAll(Collection<Character> coll) {
 	 * @param elem	element
 	 * @return		removed equal elements (never null)
 	 */
-public ICharGapList removeAll(char elem) {
-    ICharGapList list = doCreate(-1);
+public IFloatList removeAll(float elem) {
+    IFloatList list = doCreate(-1);
     int size = size();
     for (int i = 0; i < size; i++) {
-        char e = doGet(i);
+        float e = doGet(i);
         if (equalsElem(elem, e)) {
             list.add(e);
             doRemove(i);
@@ -486,7 +538,7 @@ public ICharGapList removeAll(char elem) {
     /**
      * @see #removeAll(Collection)
      */
-public boolean removeAll(ICharGapList<?> coll) {
+public boolean removeAll(IFloatList<?> coll) {
     // There is a special implementation accepting a GapList   
     // so the method is also available in the primitive classes.   
     boolean modified = false;
@@ -503,7 +555,7 @@ public boolean removeAll(ICharGapList<?> coll) {
 }
 
     
-public boolean retainAll(Collection<Character> coll) {
+public boolean retainAll(Collection<Float> coll) {
     // Note that this method is already implemented in AbstractCollection.   
     // It has been duplicated so the method is also available in the primitive classes.   
     boolean modified = false;
@@ -522,7 +574,7 @@ public boolean retainAll(Collection<Character> coll) {
     /**
      * @see #retainAll(Collection)
      */
-public boolean retainAll(ICharGapList<?> coll) {
+public boolean retainAll(IFloatList<?> coll) {
     // There is a special implementation accepting a GapList   
     // so the method is also available in the primitive classes.   
     boolean modified = false;
@@ -539,9 +591,9 @@ public boolean retainAll(ICharGapList<?> coll) {
 }
 
     
-public char[] toArray() {
+public float[] toArray() {
     int size = size();
-    char[] array = new char[size];
+    float[] array = new float[size];
     doGetAll(array, 0, size);
     return array;
 }
@@ -553,22 +605,22 @@ public char[] toArray() {
 	 * @param len	number of elements to copy
 	 * @return		array the specified elements
 	 */
-public char[] toArray(int index, int len) {
-    char[] array = new char[len];
+public float[] toArray(int index, int len) {
+    float[] array = new float[len];
     doGetAll(array, index, len);
     return array;
 }
 
     @SuppressWarnings("unchecked")
 
-public char[] toArray(char[] array) {
+public float[] toArray(float[] array) {
     int size = size();
     if (array.length < size) {
-        array = (char[]) java.lang.reflect.Array.newInstance(array.getClass().getComponentType(), size);
+        array = (float[]) java.lang.reflect.Array.newInstance(array.getClass().getComponentType(), size);
     }
     doGetAll(array, 0, size);
     if (array.length > size) {
-        array[size] = (char) 0;
+        array[size] = 0;
     }
     return array;
 }
@@ -581,7 +633,8 @@ public char[] toArray(char[] array) {
 	 * @param len	number of elements to copy
 	 * @param <T> type of elements stored in the list
 	 */
-protected void doGetAll(char[] array, int index, int len) {
+@SuppressWarnings("unchecked")
+protected void doGetAll(float[] array, int index, int len) {
     for (int i = 0; i < len; i++) {
         array[i] = doGet(index + i);
     }
@@ -597,11 +650,11 @@ protected void doGetAll(char[] array, int index, int len) {
      * @throws NullPointerException if the specified collection is null
      */
 
-public boolean addAll(Collection<Character> coll) {
+public boolean addAll(Collection<Float> coll) {
     // ArrayList.addAll() also first creates an array containing the   
     // collection elements. This guarantees that the list's capacity   
     // must only be increased once.   
-    @SuppressWarnings("unchecked") char[] array = (char[]) toArray(coll);
+    @SuppressWarnings("unchecked") float[] array = (float[]) toArray(coll);
     return doAddAll(-1, array);
 }
 
@@ -621,12 +674,12 @@ public boolean addAll(Collection<Character> coll) {
      * @throws NullPointerException if the specified collection is null
      */
 
-public boolean addAll(int index, Collection<Character> coll) {
+public boolean addAll(int index, Collection<Float> coll) {
     checkIndexAdd(index);
     // ArrayList.addAll() also first creates an array containing the   
     // collection elements. This guarantees that the list's capacity   
     // must only be increased once.   
-    @SuppressWarnings("unchecked") char[] array = (char[]) toArray(coll);
+    @SuppressWarnings("unchecked") float[] array = (float[]) toArray(coll);
     return doAddAll(index, array);
 }
 
@@ -636,7 +689,7 @@ public boolean addAll(int index, Collection<Character> coll) {
      * @param elems elements to be added to this list
      * @return <tt>true</tt> if this list changed as a result of the call
      */
-public boolean addAll(char... elems) {
+public boolean addAll(float... elems) {
     return doAddAll(-1, elems);
 }
 
@@ -652,7 +705,7 @@ public boolean addAll(char... elems) {
      * @return <tt>true</tt> if this list changed as a result of the call
      * @throws IndexOutOfBoundsException if the index is invalid
      */
-public boolean addAll(int index, char... elems) {
+public boolean addAll(int index, float... elems) {
     checkIndexAdd(index);
     return doAddAll(index, elems);
 }
@@ -665,8 +718,8 @@ public boolean addAll(int index, char... elems) {
      * @throws NullPointerException if the specified list is null
      */
 @SuppressWarnings("unchecked")
-public boolean addAll(ICharGapList list) {
-    return doAddAll(-1, (char[]) list.toArray());
+public boolean addAll(IFloatList list) {
+    return doAddAll(-1, (float[]) list.toArray());
 }
 
     /**
@@ -683,9 +736,9 @@ public boolean addAll(ICharGapList list) {
      * @throws NullPointerException if the specified collection is null
      */
 @SuppressWarnings("unchecked")
-public boolean addAll(int index, ICharGapList list) {
+public boolean addAll(int index, IFloatList list) {
     checkIndexAdd(index);
-    return doAddAll(index, (char[]) list.toArray());
+    return doAddAll(index, (float[]) list.toArray());
 }
 
     /**
@@ -697,12 +750,12 @@ public boolean addAll(int index, ICharGapList list) {
      * @param array array with elements to add
      * @return      true if elements have been added, false otherwise
      */
-protected boolean doAddAll(int index, char[] array) {
+protected boolean doAddAll(int index, float[] array) {
     doEnsureCapacity(size() + array.length);
     if (array.length == 0) {
         return false;
     }
-    for (char elem : array) {
+    for (float elem : array) {
         doAdd(index, elem);
         if (index != -1) {
             index++;
@@ -721,15 +774,15 @@ protected boolean doAddAll(int index, char[] array) {
 
     // Queue operations  
 
-public char peek() {
+public float peek() {
     if (size() == 0) {
-        return (char) 0;
+        return 0;
     }
     return getFirst();
 }
 
     
-public char element() {
+public float element() {
     // inline version of getFirst():   
     if (size() == 0) {
         throw new NoSuchElementException();
@@ -738,15 +791,15 @@ public char element() {
 }
 
     
-public char poll() {
+public float poll() {
     if (size() == 0) {
-        return (char) 0;
+        return 0;
     }
     return doRemove(0);
 }
 
     
-public char remove() {
+public float remove() {
     // inline version of removeFirst():   
     if (size() == 0) {
         throw new NoSuchElementException();
@@ -755,14 +808,14 @@ public char remove() {
 }
 
     
-public boolean offer(char elem) {
+public boolean offer(float elem) {
     // inline version of add(elem):   
     return doAdd(-1, elem);
 }
 
     // Deque operations  
 
-public char getFirst() {
+public float getFirst() {
     if (size() == 0) {
         throw new NoSuchElementException();
     }
@@ -770,7 +823,7 @@ public char getFirst() {
 }
 
     
-public char getLast() {
+public float getLast() {
     int size = size();
     if (size == 0) {
         throw new NoSuchElementException();
@@ -779,18 +832,18 @@ public char getLast() {
 }
 
     
-public void addFirst(char elem) {
+public void addFirst(float elem) {
     doAdd(0, elem);
 }
 
     
-public void addLast(char elem) {
+public void addLast(float elem) {
     // inline version of add(elem):   
     doAdd(-1, elem);
 }
 
     
-public char removeFirst() {
+public float removeFirst() {
     if (size() == 0) {
         throw new NoSuchElementException();
     }
@@ -798,7 +851,7 @@ public char removeFirst() {
 }
 
     
-public char removeLast() {
+public float removeLast() {
     int size = size();
     if (size == 0) {
         throw new NoSuchElementException();
@@ -807,55 +860,55 @@ public char removeLast() {
 }
 
     
-public boolean offerFirst(char elem) {
+public boolean offerFirst(float elem) {
     // inline version of addFirst(elem):   
     doAdd(0, elem);
     return true;
 }
 
     
-public boolean offerLast(char elem) {
+public boolean offerLast(float elem) {
     // inline version of addLast(elem):   
     doAdd(-1, elem);
     return true;
 }
 
     
-public char peekFirst() {
+public float peekFirst() {
     if (size() == 0) {
-        return (char) 0;
+        return 0;
     }
     return doGet(0);
 }
 
     
-public char peekLast() {
+public float peekLast() {
     int size = size();
     if (size == 0) {
-        return (char) 0;
+        return 0;
     }
     return doGet(size - 1);
 }
 
     
-public char pollFirst() {
+public float pollFirst() {
     if (size() == 0) {
-        return (char) 0;
+        return 0;
     }
     return doRemove(0);
 }
 
     
-public char pollLast() {
+public float pollLast() {
     int size = size();
     if (size == 0) {
-        return (char) 0;
+        return 0;
     }
     return doRemove(size - 1);
 }
 
     
-public char pop() {
+public float pop() {
     // inline version of removeFirst():   
     if (size() == 0) {
         throw new NoSuchElementException();
@@ -864,13 +917,13 @@ public char pop() {
 }
 
     
-public void push(char elem) {
+public void push(float elem) {
     // inline version of addFirst();   
     doAdd(0, elem);
 }
 
     
-public boolean removeFirstOccurrence(char elem) {
+public boolean removeFirstOccurrence(float elem) {
     int index = indexOf(elem);
     if (index == -1) {
         return false;
@@ -880,7 +933,7 @@ public boolean removeFirstOccurrence(char elem) {
 }
 
     
-public boolean removeLastOccurrence(char elem) {
+public boolean removeLastOccurrence(float elem) {
     int index = lastIndexOf(elem);
     if (index == -1) {
         return false;
@@ -901,15 +954,15 @@ public boolean removeLastOccurrence(char elem) {
      * @param <E> 		type of elements stored in the list
      * @throws 			IndexOutOfBoundsException if the ranges are invalid
      */
-public static void move(ICharGapList src, int srcIndex, ICharGapList<Character> dst, int dstIndex, int len) {
+public static void move(IFloatList src, int srcIndex, IFloatList<Float> dst, int dstIndex, int len) {
     if (src == dst) {
         src.move(srcIndex, dstIndex, len);
     } else {
         src.checkRange(srcIndex, len);
         dst.checkRange(dstIndex, len);
-        char defaultElem = src.getDefaultElem();
+        float defaultElem = src.getDefaultElem();
         for (int i = 0; i < len; i++) {
-            char elem = src.doReSet(srcIndex + i, defaultElem);
+            float elem = src.doReSet(srcIndex + i, defaultElem);
             dst.doSet(dstIndex + i, elem);
         }
     }
@@ -926,14 +979,14 @@ public static void move(ICharGapList src, int srcIndex, ICharGapList<Character> 
      * @param <E> 		type of elements stored in the list
      * @throws 			IndexOutOfBoundsException if the ranges are invalid
      */
-public static void copy(ICharGapList src, int srcIndex, ICharGapList dst, int dstIndex, int len) {
+public static void copy(IFloatList src, int srcIndex, IFloatList dst, int dstIndex, int len) {
     if (src == dst) {
         src.copy(srcIndex, dstIndex, len);
     } else {
         src.checkRange(srcIndex, len);
         dst.checkRange(dstIndex, len);
         for (int i = 0; i < len; i++) {
-            char elem = src.doGet(srcIndex + i);
+            float elem = src.doGet(srcIndex + i);
             dst.doSet(dstIndex + i, elem);
         }
     }
@@ -950,7 +1003,7 @@ public static void copy(ICharGapList src, int srcIndex, ICharGapList dst, int ds
      * @param <E> 		type of elements stored in the list
      * @throws 			IndexOutOfBoundsException if the ranges are invalid
      */
-public static void swap(ICharGapList src, int srcIndex, ICharGapList dst, int dstIndex, int len) {
+public static void swap(IFloatList src, int srcIndex, IFloatList dst, int dstIndex, int len) {
     if (src == dst) {
         src.swap(srcIndex, dstIndex, len);
     } else {
@@ -958,7 +1011,7 @@ public static void swap(ICharGapList src, int srcIndex, ICharGapList dst, int ds
         dst.checkRange(dstIndex, len);
         if (src != dst) {
             for (int i = 0; i < len; i++) {
-                char swap = src.doGet(srcIndex + i);
+                float swap = src.doGet(srcIndex + i);
                 swap = dst.doSet(dstIndex + i, swap);
                 src.doSet(srcIndex + i, swap);
             }
@@ -974,7 +1027,15 @@ public static void swap(ICharGapList src, int srcIndex, ICharGapList dst, int ds
      * @param capacity	initial capacity (use -1 for default capacity)
      * @return			created list
      */
-public abstract ICharGapList doCreate(int capacity);
+protected abstract IFloatList doCreate(int capacity);
+
+    /**
+     * Assign this list the content of the that list.
+     * This is done by bitwise copying so the that list should not be user afterwards.
+     *
+     * @param that list to copy content from
+     */
+protected abstract void doAssign(IFloatList that);
 
     /**
      * Returns specified range of elements from list.
@@ -983,9 +1044,9 @@ public abstract ICharGapList doCreate(int capacity);
      * @param len   number of elements to retrieve
      * @return      GapList containing the specified range of elements from list
      */
-public ICharGapList getAll(int index, int len) {
+public IFloatList getAll(int index, int len) {
     checkRange(index, len);
-    ICharGapList list = doCreate(len);
+    IFloatList list = doCreate(len);
     for (int i = 0; i < len; i++) {
         list.add(doGet(index + i));
     }
@@ -999,9 +1060,9 @@ public ICharGapList getAll(int index, int len) {
      * @param len   number of elements to retrieve
      * @return      GapList containing the specified range of elements from list
      */
-public char[] getArray(int index, int len) {
+public float[] getArray(int index, int len) {
     checkRange(index, len);
-    @SuppressWarnings("unchecked") char[] array = (char[]) new char[len];
+    @SuppressWarnings("unchecked") float[] array = (float[]) new float[len];
     for (int i = 0; i < len; i++) {
         array[i] = doGet(index + i);
     }
@@ -1015,7 +1076,7 @@ public char[] getArray(int index, int len) {
      * @param index index of first element to set
      * @param list  list with elements to set
      */
-public void setAll(int index, ICharGapList list) {
+public void setAll(int index, IFloatList list) {
     // There is a special implementation accepting a GapList   
     // so the method is also available in the primitive classes.   
     int size = list.size();
@@ -1031,12 +1092,12 @@ public void setAll(int index, ICharGapList list) {
      * @param index index of first element to set
      * @param coll  collection with elements to set
      */
-public void setAll(int index, Collection<Character> coll) {
+public void setAll(int index, Collection<Float> coll) {
     checkRange(index, coll.size());
     // In contrary to addAll() there is no need to first create an array   
     // containing the collection elements, as the list will not grow.   
     int i = 0;
-    Iterator<Character> iter = coll.iterator();
+    Iterator<Float> iter = coll.iterator();
     while (iter.hasNext()) {
         doSet(index + i, iter.next());
         i++;
@@ -1049,7 +1110,7 @@ public void setAll(int index, Collection<Character> coll) {
      * @param index index of first element to set
      * @param elems elements to set
      */
-public void setAll(int index, char... elems) {
+public void setAll(int index, float... elems) {
     checkRange(index, elems.length);
     doSetAll(index, elems);
 }
@@ -1060,7 +1121,7 @@ public void setAll(int index, char... elems) {
      * @param index index of first element to set
      * @param elems elements to set
      */
-protected void doSetAll(int index, char[] elems) {
+protected void doSetAll(int index, float[] elems) {
     for (int i = 0; i < elems.length; i++) {
         doSet(index + i, elems[i]);
     }
@@ -1097,7 +1158,7 @@ protected void doRemoveAll(int index, int len) {
 	 * @param len  length of list
 	 * @param elem element which the list will contain
 	 */
-public void init(int len, char elem) {
+public void init(int len, float elem) {
     checkLength(len);
     int size = size();
     if (len < size) {
@@ -1120,7 +1181,7 @@ public void init(int len, char elem) {
      * @param len  length of list
      * @param elem element which will be used for extending the list
 	 */
-public void resize(int len, char elem) {
+public void resize(int len, float elem) {
     checkLength(len);
     int size = size();
     if (len < size) {
@@ -1139,7 +1200,7 @@ public void resize(int len, char elem) {
      * @param elem  element used for filling
      */
 // see java.util.Arrays#fill  
-public void fill(char elem) {
+public void fill(float elem) {
     int size = size();
     for (int i = 0; i < size; i++) {
         doSet(i, elem);
@@ -1154,7 +1215,7 @@ public void fill(char elem) {
      * @param elem	element used for filling
      */
 // see java.util.Arrays#fill  
-public void fill(int index, int len, char elem) {
+public void fill(int index, int len, float elem) {
     checkRange(index, len);
     for (int i = 0; i < len; i++) {
         doSet(index + i, elem);
@@ -1205,13 +1266,13 @@ public void move(int srcIndex, int dstIndex, int len) {
             doReSet(dstIndex + i, doGet(srcIndex + i));
         }
     }
-    // Set elements to (char) 0 after the move operation    
+    // Set elements to 0 after the move operation    
     if (srcIndex < dstIndex) {
         int fill = Math.min(len, dstIndex - srcIndex);
-        fill(srcIndex, fill, (char) 0);
+        fill(srcIndex, fill, 0);
     } else if (srcIndex > dstIndex) {
         int fill = Math.min(len, srcIndex - dstIndex);
-        fill(srcIndex + len - fill, fill, (char) 0);
+        fill(srcIndex + len - fill, fill, 0);
     }
 }
 
@@ -1234,7 +1295,7 @@ public void reverse(int index, int len) {
     int pos2 = index + len - 1;
     int mid = len / 2;
     for (int i = 0; i < mid; i++) {
-        char swap = doGet(pos1);
+        float swap = doGet(pos1);
         swap = doReSet(pos2, swap);
         doReSet(pos1, swap);
         pos1++;
@@ -1257,7 +1318,7 @@ public void swap(int index1, int index2, int len) {
         throw new IllegalArgumentException("Swap ranges overlap");
     }
     for (int i = 0; i < len; i++) {
-        char swap = doGet(index1 + i);
+        float swap = doGet(index1 + i);
         swap = doReSet(index2 + i, swap);
         doReSet(index1 + i, swap);
     }
@@ -1299,7 +1360,7 @@ public void rotate(int index, int len, int distance) {
     }
     int num = 0;
     for (int start = 0; num != size; start++) {
-        char elem = doGet(index + start);
+        float elem = doGet(index + start);
         int i = start;
         do {
             i += distance;
@@ -1406,7 +1467,7 @@ public abstract void sort(int index, int len);
      *
      * @see Arrays#binarySearch
      */
-public int binarySearch(char key) {
+public int binarySearch(float key) {
     return binarySearch(0, size(), key);
 }
 
@@ -1431,7 +1492,7 @@ public int binarySearch(char key) {
      *
      * @see Arrays#binarySearch
      */
-public abstract int binarySearch(int index, int len, char key);
+public abstract int binarySearch(int index, int len, float key);
 
     //--- Arguments check methods  
 /**

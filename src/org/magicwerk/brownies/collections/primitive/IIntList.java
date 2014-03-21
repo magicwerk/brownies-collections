@@ -17,6 +17,10 @@
  */
 package org.magicwerk.brownies.collections.primitive;
 
+import org.magicwerk.brownies.collections.IList;
+import org.magicwerk.brownies.collections.GapList;
+
+
 import java.io.Serializable;
 import java.util.AbstractList;
 import java.util.Arrays;
@@ -30,6 +34,8 @@ import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.RandomAccess;
 import java.util.Set;
+import org.magicwerk.brownies.collections.function.Mapper;
+import org.magicwerk.brownies.collections.function.Predicate;
 
 /**
  * GapList combines the strengths of both ArrayList and LinkedList.
@@ -50,7 +56,7 @@ import java.util.Set;
  * @see	    java.util.ArrayList
  * @see	    java.util.LinkedList
  */
-public abstract class IBooleanGapList<E> implements Cloneable, Serializable {
+public abstract class IIntList<E> implements Cloneable, Serializable {
 
     /**
 	 * Copies the collection values into an array.
@@ -58,11 +64,11 @@ public abstract class IBooleanGapList<E> implements Cloneable, Serializable {
 	 * @param coll   collection of values
 	 * @return       array containing the collection values
 	 */
-static boolean[] toArray(Collection<Boolean> coll) {
+static int[] toArray(Collection<Integer> coll) {
     Object[] values = coll.toArray();
-    boolean[] v = new boolean[values.length];
+    int[] v = new int[values.length];
     for (int i = 0; i < values.length; i++) {
-        v[i] = (Boolean) values[i];
+        v[i] = (Integer) values[i];
     }
     return v;
 }
@@ -76,8 +82,8 @@ static boolean[] toArray(Collection<Boolean> coll) {
      * @see #clone
      */
 @SuppressWarnings("unchecked")
-public IBooleanGapList copy() {
-    return (IBooleanGapList) clone();
+public IIntList copy() {
+    return (IIntList) clone();
 }
 
     /**
@@ -89,7 +95,7 @@ public IBooleanGapList copy() {
      *
      * @return an unmodifiable view of the specified list
      */
-public abstract IBooleanGapList unmodifiableList();
+public abstract IIntList unmodifiableList();
 
     /**
      * Returns a shallow copy of this <tt>GapList</tt> instance
@@ -103,8 +109,8 @@ public abstract IBooleanGapList unmodifiableList();
 
 public Object clone() {
     try {
-        IBooleanGapList list = (IBooleanGapList) super.clone();
-        list.initClone(this);
+        IIntList list = (IIntList) super.clone();
+        list.doClone(this);
         return list;
     } catch (CloneNotSupportedException e) {
         // This shouldn't happen, since we are Cloneable   
@@ -118,7 +124,7 @@ public Object clone() {
 	 *
 	 * @param that	source object
 	 */
-protected abstract void initClone(IBooleanGapList that);
+protected abstract void doClone(IIntList that);
 
     
 public void clear() {
@@ -128,8 +134,17 @@ public void clear() {
     
 public abstract int size();
 
+    /**
+	 * Returns capacity of this GapList.
+	 * Note that two GapLists are considered equal even if they have a distinct capacity.
+	 * Also the capacity can be changed by operations like clone() etc.
+	 *
+	 * @return capacity of this GapList
+	 */
+public abstract int capacity();
+
     
-public boolean get(int index) {
+public int get(int index) {
     checkIndex(index);
     return doGet(index);
 }
@@ -142,7 +157,7 @@ public boolean get(int index) {
      * @param index index of element to return
      * @return      the element at the specified position in this list
      */
-protected abstract boolean doGet(int index);
+protected abstract int doGet(int index);
 
     /**
      * Helper method for setting an element in the GapList.
@@ -153,10 +168,10 @@ protected abstract boolean doGet(int index);
      * @param elem  element to set
      * @return      old element which was at the position
      */
-protected abstract boolean doSet(int index, boolean elem);
+protected abstract int doSet(int index, int elem);
 
     
-public boolean set(int index, boolean elem) {
+public int set(int index, int elem) {
     checkIndex(index);
     return doSet(index, elem);
 }
@@ -170,9 +185,9 @@ public boolean set(int index, boolean elem) {
      * @param elem  element to set
      * @return      old element which was at the position
      */
-protected abstract boolean doReSet(int index, boolean elem);
+protected abstract int doReSet(int index, int elem);
 
-    protected abstract boolean getDefaultElem();
+    protected abstract int getDefaultElem();
 
     /**
      * This method is called internally before elements are allocated or freed.
@@ -182,12 +197,12 @@ protected void doModify() {
 }
 
     
-public boolean add(boolean elem) {
+public boolean add(int elem) {
     return doAdd(-1, elem);
 }
 
     
-public void add(int index, boolean elem) {
+public void add(int index, int elem) {
     checkIndexAdd(index);
     doAdd(index, elem);
 }
@@ -202,10 +217,10 @@ public void add(int index, boolean elem) {
 	 * @param elem	element to add
 	 * @return      true if element has been added (GapList.add() will always return true)
 	 */
-protected abstract boolean doAdd(int index, boolean elem);
+protected abstract boolean doAdd(int index, int elem);
 
     
-public boolean remove(int index) {
+public int remove(int index) {
     checkIndex(index);
     return doRemove(index);
 }
@@ -218,7 +233,7 @@ public boolean remove(int index) {
 	 * @param index	index of element to remove
 	 * @return		removed element
 	 */
-protected abstract boolean doRemove(int index);
+protected abstract int doRemove(int index);
 
     /**
      * Increases the capacity of this <tt>GapList</tt> instance, if
@@ -257,13 +272,13 @@ public boolean equals(Object obj) {
     if (obj == this) {
         return true;
     }
-    if (obj instanceof BooleanObjGapList) {
-        obj = ((BooleanObjGapList) obj).list;
+    if (obj instanceof IntObjGapList) {
+        obj = ((IntObjGapList) obj).list;
     }
-    if (!(obj instanceof BooleanGapList)) {
+    if (!(obj instanceof IntGapList)) {
         return false;
     }
-    @SuppressWarnings("unchecked") BooleanGapList list = (BooleanGapList) obj;
+    @SuppressWarnings("unchecked") IntGapList list = (IntGapList) obj;
     int size = size();
     if (size != list.size()) {
         return false;
@@ -281,7 +296,7 @@ public int hashCode() {
     int hashCode = 1;
     int size = size();
     for (int i = 0; i < size; i++) {
-        boolean elem = doGet(i);
+        int elem = doGet(i);
         hashCode = 31 * hashCode + hashCodeElem(elem);
     }
     return hashCode;
@@ -315,7 +330,7 @@ public boolean isEmpty() {
 	 * @param elem2	second element
 	 * @return		true if the elements are equal, otherwise false
 	 */
-static boolean equalsElem(boolean elem1, boolean elem2) {
+static boolean equalsElem(int elem1, int elem2) {
     return elem1 == elem2;
 }
 
@@ -326,8 +341,8 @@ static boolean equalsElem(boolean elem1, boolean elem2) {
 	 * @param elem	element
 	 * @return		hash code for element
 	 */
-static int hashCodeElem(boolean elem) {
-    return (elem ? 1 : 0);
+static int hashCodeElem(int elem) {
+    return (int) elem;
 }
 
     /**
@@ -336,7 +351,7 @@ static int hashCodeElem(boolean elem) {
 	 * @param elem	element to count
 	 * @return		count how many times the specified element is contained in the list
 	 */
-public int getCount(boolean elem) {
+public int getCount(int elem) {
     int count = 0;
     int size = size();
     for (int i = 0; i < size; i++) {
@@ -353,11 +368,11 @@ public int getCount(boolean elem) {
 	 * @param elem	element to look for
 	 * @return		all elements in the list equal to the specified element
 	 */
-public IBooleanGapList getAll(boolean elem) {
-    IBooleanGapList list = doCreate(-1);
+public IIntList getAll(int elem) {
+    IIntList list = doCreate(-1);
     int size = size();
     for (int i = 0; i < size; i++) {
-        boolean e = doGet(i);
+        int e = doGet(i);
         if (equalsElem(e, elem)) {
             list.add(e);
         }
@@ -379,8 +394,44 @@ public Set getDistinct() {
     return set;
 }
 
+    /**
+     * Create a new list by applying the specified mapper to all elements.
+     *
+     * @param mapper	mapper function
+     * @return			created list
+     */
+public <R> IList<R> mappedList(Mapper<Integer, R> mapper) {
+    int size = size();
+    IList mappedList = new GapList(size);
+    for (int i = 0; i < size; i++) {
+        int e = doGet(i);
+        mappedList.add(mapper.getKey(e));
+    }
+    return mappedList;
+}
+
+    /**
+     * Filter the list using the specified predicate.
+     * Only element which are allowed remain in the list, the others are removed
+     *
+     * @param predicate predicate used for filtering
+     */
+public void filter(Predicate<Integer> predicate) {
+    // It is typically faster to copy the allowed elements in a new list   
+    // than to remove the not allowed from the existing one   
+    IIntList list = doCreate(-1);
+    int size = size();
+    for (int i = 0; i < size; i++) {
+        int e = doGet(i);
+        if (predicate.allow(e)) {
+            list.add(e);
+        }
+    }
+    doAssign(list);
+}
+
     
-public int indexOf(boolean elem) {
+public int indexOf(int elem) {
     int size = size();
     for (int i = 0; i < size; i++) {
         if (equalsElem(doGet(i), elem)) {
@@ -391,7 +442,7 @@ public int indexOf(boolean elem) {
 }
 
     
-public int lastIndexOf(boolean elem) {
+public int lastIndexOf(int elem) {
     for (int i = size() - 1; i >= 0; i--) {
         if (equalsElem(doGet(i), elem)) {
             return i;
@@ -401,7 +452,7 @@ public int lastIndexOf(boolean elem) {
 }
 
     
-public boolean removeElem(boolean elem) {
+public boolean removeElem(int elem) {
     int index = indexOf(elem);
     if (index == -1) {
         return false;
@@ -411,7 +462,7 @@ public boolean removeElem(boolean elem) {
 }
 
     
-public boolean contains(boolean elem) {
+public boolean contains(int elem) {
     return indexOf(elem) != -1;
 }
 
@@ -421,11 +472,11 @@ public boolean contains(boolean elem) {
 	 * @param coll collection with elements to be contained
 	 * @return     true if any element is contained, false otherwise
 	 */
-public boolean containsAny(Collection<Boolean> coll) {
+public boolean containsAny(Collection<Integer> coll) {
     // Note that the signature has been chosen as in List:   
-    // - boolean addAll(Collection<Boolean> c);   
-    // - boolean containsAll(Collection<Boolean> c);   
-    for (boolean elem : coll) {
+    // - boolean addAll(Collection<Integer> c);   
+    // - boolean containsAll(Collection<Integer> c);   
+    for (int elem : coll) {
         if (contains(elem)) {
             return true;
         }
@@ -434,10 +485,10 @@ public boolean containsAny(Collection<Boolean> coll) {
 }
 
     
-public boolean containsAll(Collection<Boolean> coll) {
+public boolean containsAll(Collection<Integer> coll) {
     // Note that this method is already implemented in AbstractCollection.   
     // It has been duplicated so the method is also available in the primitive classes.   
-    for (boolean elem : coll) {
+    for (int elem : coll) {
         if (!contains(elem)) {
             return false;
         }
@@ -446,7 +497,7 @@ public boolean containsAll(Collection<Boolean> coll) {
 }
 
     
-public boolean removeAll(Collection<Boolean> coll) {
+public boolean removeAll(Collection<Integer> coll) {
     // Note that this method is already implemented in AbstractCollection.   
     // It has been duplicated so the method is also available in the primitive classes.   
     boolean modified = false;
@@ -468,11 +519,11 @@ public boolean removeAll(Collection<Boolean> coll) {
 	 * @param elem	element
 	 * @return		removed equal elements (never null)
 	 */
-public IBooleanGapList removeAll(boolean elem) {
-    IBooleanGapList list = doCreate(-1);
+public IIntList removeAll(int elem) {
+    IIntList list = doCreate(-1);
     int size = size();
     for (int i = 0; i < size; i++) {
-        boolean e = doGet(i);
+        int e = doGet(i);
         if (equalsElem(elem, e)) {
             list.add(e);
             doRemove(i);
@@ -486,7 +537,7 @@ public IBooleanGapList removeAll(boolean elem) {
     /**
      * @see #removeAll(Collection)
      */
-public boolean removeAll(IBooleanGapList<?> coll) {
+public boolean removeAll(IIntList<?> coll) {
     // There is a special implementation accepting a GapList   
     // so the method is also available in the primitive classes.   
     boolean modified = false;
@@ -503,7 +554,7 @@ public boolean removeAll(IBooleanGapList<?> coll) {
 }
 
     
-public boolean retainAll(Collection<Boolean> coll) {
+public boolean retainAll(Collection<Integer> coll) {
     // Note that this method is already implemented in AbstractCollection.   
     // It has been duplicated so the method is also available in the primitive classes.   
     boolean modified = false;
@@ -522,7 +573,7 @@ public boolean retainAll(Collection<Boolean> coll) {
     /**
      * @see #retainAll(Collection)
      */
-public boolean retainAll(IBooleanGapList<?> coll) {
+public boolean retainAll(IIntList<?> coll) {
     // There is a special implementation accepting a GapList   
     // so the method is also available in the primitive classes.   
     boolean modified = false;
@@ -539,9 +590,9 @@ public boolean retainAll(IBooleanGapList<?> coll) {
 }
 
     
-public boolean[] toArray() {
+public int[] toArray() {
     int size = size();
-    boolean[] array = new boolean[size];
+    int[] array = new int[size];
     doGetAll(array, 0, size);
     return array;
 }
@@ -553,22 +604,22 @@ public boolean[] toArray() {
 	 * @param len	number of elements to copy
 	 * @return		array the specified elements
 	 */
-public boolean[] toArray(int index, int len) {
-    boolean[] array = new boolean[len];
+public int[] toArray(int index, int len) {
+    int[] array = new int[len];
     doGetAll(array, index, len);
     return array;
 }
 
     @SuppressWarnings("unchecked")
 
-public boolean[] toArray(boolean[] array) {
+public int[] toArray(int[] array) {
     int size = size();
     if (array.length < size) {
-        array = (boolean[]) java.lang.reflect.Array.newInstance(array.getClass().getComponentType(), size);
+        array = (int[]) java.lang.reflect.Array.newInstance(array.getClass().getComponentType(), size);
     }
     doGetAll(array, 0, size);
     if (array.length > size) {
-        array[size] = false;
+        array[size] = 0;
     }
     return array;
 }
@@ -581,7 +632,8 @@ public boolean[] toArray(boolean[] array) {
 	 * @param len	number of elements to copy
 	 * @param <T> type of elements stored in the list
 	 */
-protected void doGetAll(boolean[] array, int index, int len) {
+@SuppressWarnings("unchecked")
+protected void doGetAll(int[] array, int index, int len) {
     for (int i = 0; i < len; i++) {
         array[i] = doGet(index + i);
     }
@@ -597,11 +649,11 @@ protected void doGetAll(boolean[] array, int index, int len) {
      * @throws NullPointerException if the specified collection is null
      */
 
-public boolean addAll(Collection<Boolean> coll) {
+public boolean addAll(Collection<Integer> coll) {
     // ArrayList.addAll() also first creates an array containing the   
     // collection elements. This guarantees that the list's capacity   
     // must only be increased once.   
-    @SuppressWarnings("unchecked") boolean[] array = (boolean[]) toArray(coll);
+    @SuppressWarnings("unchecked") int[] array = (int[]) toArray(coll);
     return doAddAll(-1, array);
 }
 
@@ -621,12 +673,12 @@ public boolean addAll(Collection<Boolean> coll) {
      * @throws NullPointerException if the specified collection is null
      */
 
-public boolean addAll(int index, Collection<Boolean> coll) {
+public boolean addAll(int index, Collection<Integer> coll) {
     checkIndexAdd(index);
     // ArrayList.addAll() also first creates an array containing the   
     // collection elements. This guarantees that the list's capacity   
     // must only be increased once.   
-    @SuppressWarnings("unchecked") boolean[] array = (boolean[]) toArray(coll);
+    @SuppressWarnings("unchecked") int[] array = (int[]) toArray(coll);
     return doAddAll(index, array);
 }
 
@@ -636,7 +688,7 @@ public boolean addAll(int index, Collection<Boolean> coll) {
      * @param elems elements to be added to this list
      * @return <tt>true</tt> if this list changed as a result of the call
      */
-public boolean addAll(boolean... elems) {
+public boolean addAll(int... elems) {
     return doAddAll(-1, elems);
 }
 
@@ -652,7 +704,7 @@ public boolean addAll(boolean... elems) {
      * @return <tt>true</tt> if this list changed as a result of the call
      * @throws IndexOutOfBoundsException if the index is invalid
      */
-public boolean addAll(int index, boolean... elems) {
+public boolean addAll(int index, int... elems) {
     checkIndexAdd(index);
     return doAddAll(index, elems);
 }
@@ -665,8 +717,8 @@ public boolean addAll(int index, boolean... elems) {
      * @throws NullPointerException if the specified list is null
      */
 @SuppressWarnings("unchecked")
-public boolean addAll(IBooleanGapList list) {
-    return doAddAll(-1, (boolean[]) list.toArray());
+public boolean addAll(IIntList list) {
+    return doAddAll(-1, (int[]) list.toArray());
 }
 
     /**
@@ -683,9 +735,9 @@ public boolean addAll(IBooleanGapList list) {
      * @throws NullPointerException if the specified collection is null
      */
 @SuppressWarnings("unchecked")
-public boolean addAll(int index, IBooleanGapList list) {
+public boolean addAll(int index, IIntList list) {
     checkIndexAdd(index);
-    return doAddAll(index, (boolean[]) list.toArray());
+    return doAddAll(index, (int[]) list.toArray());
 }
 
     /**
@@ -697,12 +749,12 @@ public boolean addAll(int index, IBooleanGapList list) {
      * @param array array with elements to add
      * @return      true if elements have been added, false otherwise
      */
-protected boolean doAddAll(int index, boolean[] array) {
+protected boolean doAddAll(int index, int[] array) {
     doEnsureCapacity(size() + array.length);
     if (array.length == 0) {
         return false;
     }
-    for (boolean elem : array) {
+    for (int elem : array) {
         doAdd(index, elem);
         if (index != -1) {
             index++;
@@ -721,15 +773,15 @@ protected boolean doAddAll(int index, boolean[] array) {
 
     // Queue operations  
 
-public boolean peek() {
+public int peek() {
     if (size() == 0) {
-        return false;
+        return 0;
     }
     return getFirst();
 }
 
     
-public boolean element() {
+public int element() {
     // inline version of getFirst():   
     if (size() == 0) {
         throw new NoSuchElementException();
@@ -738,15 +790,15 @@ public boolean element() {
 }
 
     
-public boolean poll() {
+public int poll() {
     if (size() == 0) {
-        return false;
+        return 0;
     }
     return doRemove(0);
 }
 
     
-public boolean remove() {
+public int remove() {
     // inline version of removeFirst():   
     if (size() == 0) {
         throw new NoSuchElementException();
@@ -755,14 +807,14 @@ public boolean remove() {
 }
 
     
-public boolean offer(boolean elem) {
+public boolean offer(int elem) {
     // inline version of add(elem):   
     return doAdd(-1, elem);
 }
 
     // Deque operations  
 
-public boolean getFirst() {
+public int getFirst() {
     if (size() == 0) {
         throw new NoSuchElementException();
     }
@@ -770,7 +822,7 @@ public boolean getFirst() {
 }
 
     
-public boolean getLast() {
+public int getLast() {
     int size = size();
     if (size == 0) {
         throw new NoSuchElementException();
@@ -779,18 +831,18 @@ public boolean getLast() {
 }
 
     
-public void addFirst(boolean elem) {
+public void addFirst(int elem) {
     doAdd(0, elem);
 }
 
     
-public void addLast(boolean elem) {
+public void addLast(int elem) {
     // inline version of add(elem):   
     doAdd(-1, elem);
 }
 
     
-public boolean removeFirst() {
+public int removeFirst() {
     if (size() == 0) {
         throw new NoSuchElementException();
     }
@@ -798,7 +850,7 @@ public boolean removeFirst() {
 }
 
     
-public boolean removeLast() {
+public int removeLast() {
     int size = size();
     if (size == 0) {
         throw new NoSuchElementException();
@@ -807,55 +859,55 @@ public boolean removeLast() {
 }
 
     
-public boolean offerFirst(boolean elem) {
+public boolean offerFirst(int elem) {
     // inline version of addFirst(elem):   
     doAdd(0, elem);
     return true;
 }
 
     
-public boolean offerLast(boolean elem) {
+public boolean offerLast(int elem) {
     // inline version of addLast(elem):   
     doAdd(-1, elem);
     return true;
 }
 
     
-public boolean peekFirst() {
+public int peekFirst() {
     if (size() == 0) {
-        return false;
+        return 0;
     }
     return doGet(0);
 }
 
     
-public boolean peekLast() {
+public int peekLast() {
     int size = size();
     if (size == 0) {
-        return false;
+        return 0;
     }
     return doGet(size - 1);
 }
 
     
-public boolean pollFirst() {
+public int pollFirst() {
     if (size() == 0) {
-        return false;
+        return 0;
     }
     return doRemove(0);
 }
 
     
-public boolean pollLast() {
+public int pollLast() {
     int size = size();
     if (size == 0) {
-        return false;
+        return 0;
     }
     return doRemove(size - 1);
 }
 
     
-public boolean pop() {
+public int pop() {
     // inline version of removeFirst():   
     if (size() == 0) {
         throw new NoSuchElementException();
@@ -864,13 +916,13 @@ public boolean pop() {
 }
 
     
-public void push(boolean elem) {
+public void push(int elem) {
     // inline version of addFirst();   
     doAdd(0, elem);
 }
 
     
-public boolean removeFirstOccurrence(boolean elem) {
+public boolean removeFirstOccurrence(int elem) {
     int index = indexOf(elem);
     if (index == -1) {
         return false;
@@ -880,7 +932,7 @@ public boolean removeFirstOccurrence(boolean elem) {
 }
 
     
-public boolean removeLastOccurrence(boolean elem) {
+public boolean removeLastOccurrence(int elem) {
     int index = lastIndexOf(elem);
     if (index == -1) {
         return false;
@@ -901,15 +953,15 @@ public boolean removeLastOccurrence(boolean elem) {
      * @param <E> 		type of elements stored in the list
      * @throws 			IndexOutOfBoundsException if the ranges are invalid
      */
-public static void move(IBooleanGapList src, int srcIndex, IBooleanGapList<Boolean> dst, int dstIndex, int len) {
+public static void move(IIntList src, int srcIndex, IIntList<Integer> dst, int dstIndex, int len) {
     if (src == dst) {
         src.move(srcIndex, dstIndex, len);
     } else {
         src.checkRange(srcIndex, len);
         dst.checkRange(dstIndex, len);
-        boolean defaultElem = src.getDefaultElem();
+        int defaultElem = src.getDefaultElem();
         for (int i = 0; i < len; i++) {
-            boolean elem = src.doReSet(srcIndex + i, defaultElem);
+            int elem = src.doReSet(srcIndex + i, defaultElem);
             dst.doSet(dstIndex + i, elem);
         }
     }
@@ -926,14 +978,14 @@ public static void move(IBooleanGapList src, int srcIndex, IBooleanGapList<Boole
      * @param <E> 		type of elements stored in the list
      * @throws 			IndexOutOfBoundsException if the ranges are invalid
      */
-public static void copy(IBooleanGapList src, int srcIndex, IBooleanGapList dst, int dstIndex, int len) {
+public static void copy(IIntList src, int srcIndex, IIntList dst, int dstIndex, int len) {
     if (src == dst) {
         src.copy(srcIndex, dstIndex, len);
     } else {
         src.checkRange(srcIndex, len);
         dst.checkRange(dstIndex, len);
         for (int i = 0; i < len; i++) {
-            boolean elem = src.doGet(srcIndex + i);
+            int elem = src.doGet(srcIndex + i);
             dst.doSet(dstIndex + i, elem);
         }
     }
@@ -950,7 +1002,7 @@ public static void copy(IBooleanGapList src, int srcIndex, IBooleanGapList dst, 
      * @param <E> 		type of elements stored in the list
      * @throws 			IndexOutOfBoundsException if the ranges are invalid
      */
-public static void swap(IBooleanGapList src, int srcIndex, IBooleanGapList dst, int dstIndex, int len) {
+public static void swap(IIntList src, int srcIndex, IIntList dst, int dstIndex, int len) {
     if (src == dst) {
         src.swap(srcIndex, dstIndex, len);
     } else {
@@ -958,7 +1010,7 @@ public static void swap(IBooleanGapList src, int srcIndex, IBooleanGapList dst, 
         dst.checkRange(dstIndex, len);
         if (src != dst) {
             for (int i = 0; i < len; i++) {
-                boolean swap = src.doGet(srcIndex + i);
+                int swap = src.doGet(srcIndex + i);
                 swap = dst.doSet(dstIndex + i, swap);
                 src.doSet(srcIndex + i, swap);
             }
@@ -974,7 +1026,15 @@ public static void swap(IBooleanGapList src, int srcIndex, IBooleanGapList dst, 
      * @param capacity	initial capacity (use -1 for default capacity)
      * @return			created list
      */
-public abstract IBooleanGapList doCreate(int capacity);
+protected abstract IIntList doCreate(int capacity);
+
+    /**
+     * Assign this list the content of the that list.
+     * This is done by bitwise copying so the that list should not be user afterwards.
+     *
+     * @param that list to copy content from
+     */
+protected abstract void doAssign(IIntList that);
 
     /**
      * Returns specified range of elements from list.
@@ -983,9 +1043,9 @@ public abstract IBooleanGapList doCreate(int capacity);
      * @param len   number of elements to retrieve
      * @return      GapList containing the specified range of elements from list
      */
-public IBooleanGapList getAll(int index, int len) {
+public IIntList getAll(int index, int len) {
     checkRange(index, len);
-    IBooleanGapList list = doCreate(len);
+    IIntList list = doCreate(len);
     for (int i = 0; i < len; i++) {
         list.add(doGet(index + i));
     }
@@ -999,9 +1059,9 @@ public IBooleanGapList getAll(int index, int len) {
      * @param len   number of elements to retrieve
      * @return      GapList containing the specified range of elements from list
      */
-public boolean[] getArray(int index, int len) {
+public int[] getArray(int index, int len) {
     checkRange(index, len);
-    @SuppressWarnings("unchecked") boolean[] array = (boolean[]) new boolean[len];
+    @SuppressWarnings("unchecked") int[] array = (int[]) new int[len];
     for (int i = 0; i < len; i++) {
         array[i] = doGet(index + i);
     }
@@ -1015,7 +1075,7 @@ public boolean[] getArray(int index, int len) {
      * @param index index of first element to set
      * @param list  list with elements to set
      */
-public void setAll(int index, IBooleanGapList list) {
+public void setAll(int index, IIntList list) {
     // There is a special implementation accepting a GapList   
     // so the method is also available in the primitive classes.   
     int size = list.size();
@@ -1031,12 +1091,12 @@ public void setAll(int index, IBooleanGapList list) {
      * @param index index of first element to set
      * @param coll  collection with elements to set
      */
-public void setAll(int index, Collection<Boolean> coll) {
+public void setAll(int index, Collection<Integer> coll) {
     checkRange(index, coll.size());
     // In contrary to addAll() there is no need to first create an array   
     // containing the collection elements, as the list will not grow.   
     int i = 0;
-    Iterator<Boolean> iter = coll.iterator();
+    Iterator<Integer> iter = coll.iterator();
     while (iter.hasNext()) {
         doSet(index + i, iter.next());
         i++;
@@ -1049,7 +1109,7 @@ public void setAll(int index, Collection<Boolean> coll) {
      * @param index index of first element to set
      * @param elems elements to set
      */
-public void setAll(int index, boolean... elems) {
+public void setAll(int index, int... elems) {
     checkRange(index, elems.length);
     doSetAll(index, elems);
 }
@@ -1060,7 +1120,7 @@ public void setAll(int index, boolean... elems) {
      * @param index index of first element to set
      * @param elems elements to set
      */
-protected void doSetAll(int index, boolean[] elems) {
+protected void doSetAll(int index, int[] elems) {
     for (int i = 0; i < elems.length; i++) {
         doSet(index + i, elems[i]);
     }
@@ -1097,7 +1157,7 @@ protected void doRemoveAll(int index, int len) {
 	 * @param len  length of list
 	 * @param elem element which the list will contain
 	 */
-public void init(int len, boolean elem) {
+public void init(int len, int elem) {
     checkLength(len);
     int size = size();
     if (len < size) {
@@ -1120,7 +1180,7 @@ public void init(int len, boolean elem) {
      * @param len  length of list
      * @param elem element which will be used for extending the list
 	 */
-public void resize(int len, boolean elem) {
+public void resize(int len, int elem) {
     checkLength(len);
     int size = size();
     if (len < size) {
@@ -1139,7 +1199,7 @@ public void resize(int len, boolean elem) {
      * @param elem  element used for filling
      */
 // see java.util.Arrays#fill  
-public void fill(boolean elem) {
+public void fill(int elem) {
     int size = size();
     for (int i = 0; i < size; i++) {
         doSet(i, elem);
@@ -1154,7 +1214,7 @@ public void fill(boolean elem) {
      * @param elem	element used for filling
      */
 // see java.util.Arrays#fill  
-public void fill(int index, int len, boolean elem) {
+public void fill(int index, int len, int elem) {
     checkRange(index, len);
     for (int i = 0; i < len; i++) {
         doSet(index + i, elem);
@@ -1205,13 +1265,13 @@ public void move(int srcIndex, int dstIndex, int len) {
             doReSet(dstIndex + i, doGet(srcIndex + i));
         }
     }
-    // Set elements to false after the move operation    
+    // Set elements to 0 after the move operation    
     if (srcIndex < dstIndex) {
         int fill = Math.min(len, dstIndex - srcIndex);
-        fill(srcIndex, fill, false);
+        fill(srcIndex, fill, 0);
     } else if (srcIndex > dstIndex) {
         int fill = Math.min(len, srcIndex - dstIndex);
-        fill(srcIndex + len - fill, fill, false);
+        fill(srcIndex + len - fill, fill, 0);
     }
 }
 
@@ -1234,7 +1294,7 @@ public void reverse(int index, int len) {
     int pos2 = index + len - 1;
     int mid = len / 2;
     for (int i = 0; i < mid; i++) {
-        boolean swap = doGet(pos1);
+        int swap = doGet(pos1);
         swap = doReSet(pos2, swap);
         doReSet(pos1, swap);
         pos1++;
@@ -1257,7 +1317,7 @@ public void swap(int index1, int index2, int len) {
         throw new IllegalArgumentException("Swap ranges overlap");
     }
     for (int i = 0; i < len; i++) {
-        boolean swap = doGet(index1 + i);
+        int swap = doGet(index1 + i);
         swap = doReSet(index2 + i, swap);
         doReSet(index1 + i, swap);
     }
@@ -1299,7 +1359,7 @@ public void rotate(int index, int len, int distance) {
     }
     int num = 0;
     for (int start = 0; num != size; start++) {
-        boolean elem = doGet(index + start);
+        int elem = doGet(index + start);
         int i = start;
         do {
             i += distance;
@@ -1406,7 +1466,7 @@ public abstract void sort(int index, int len);
      *
      * @see Arrays#binarySearch
      */
-public int binarySearch(boolean key) {
+public int binarySearch(int key) {
     return binarySearch(0, size(), key);
 }
 
@@ -1431,7 +1491,7 @@ public int binarySearch(boolean key) {
      *
      * @see Arrays#binarySearch
      */
-public abstract int binarySearch(int index, int len, boolean key);
+public abstract int binarySearch(int index, int len, int key);
 
     //--- Arguments check methods  
 /**

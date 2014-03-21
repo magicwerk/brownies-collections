@@ -53,7 +53,7 @@ import java.util.RandomAccess;
  * @see	    java.util.ArrayList
  * @see	    java.util.LinkedList
  */
-public class DoubleGapList extends IDoubleGapList {
+public class DoubleGapList extends IDoubleList {
 
     /*
      * Helper variables to enable code for debugging.
@@ -309,6 +309,18 @@ private int[] physIndex(int idx0, int idx1) {
     }
 }
 
+    @Override
+protected void doAssign(IDoubleList that) {
+    DoubleGapList list = (DoubleGapList) that;
+    this.values = list.values;
+    this.size = list.size;
+    this.start = list.start;
+    this.end = list.end;
+    this.gapSize = list.gapSize;
+    this.gapIndex = list.gapIndex;
+    this.gapStart = list.gapStart;
+}
+
     /**
      * Constructor used internally, e.g. for ImmutableDoubleGapList.
      *
@@ -318,13 +330,7 @@ private int[] physIndex(int idx0, int idx1) {
      */
 protected DoubleGapList(boolean copy, DoubleGapList that){
     if (copy) {
-        this.values = that.values;
-        this.size = that.size;
-        this.start = that.start;
-        this.end = that.end;
-        this.gapSize = that.gapSize;
-        this.gapIndex = that.gapIndex;
-        this.gapStart = that.gapStart;
+        doAssign(that);
     }
 }
 
@@ -420,7 +426,7 @@ public DoubleGapList unmodifiableList() {
 }
 
     @Override
-protected void initClone(IDoubleGapList that) {
+protected void doClone(IDoubleList that) {
     // Do not simply clone the array, but make sure its capacity   
     // is equal to the size (as in ArrayList)   
     init(that.toArray(), that.size());
@@ -463,13 +469,7 @@ public int size() {
     return size;
 }
 
-    /**
-	 * Returns capacity of this DoubleGapList.
-	 * Note that two DoubleGapLists are considered equal even if they have a distinct capacity.
-	 * Also the capacity can be changed by operations like clone() etc.
-	 *
-	 * @return capacity of this DoubleGapList
-	 */
+    @Override
 public int capacity() {
     return values.length;
 }
@@ -1029,7 +1029,7 @@ private void readObject(ObjectInputStream ois) throws IOException, ClassNotFound
 }
 
     @Override
-public IDoubleGapList doCreate(int capacity) {
+public IDoubleList doCreate(int capacity) {
     if (capacity == -1) {
         capacity = DEFAULT_CAPACITY;
     }

@@ -415,11 +415,13 @@ public abstract class IList<E> extends AbstractList<E>
      * @return			created list
      */
     public <R> IList<R> mappedList(Mapper<E,R> mapper) {
-    	IList list = doCreate(size());
-    	for (E e: this) {
-    		list.add(mapper.getKey(e));
+		int size = size();
+    	IList mappedList = doCreate(size);
+		for (int i=0; i<size; i++) {
+			E e = doGet(i);
+			mappedList.add(mapper.getKey(e));
     	}
-    	return list;
+    	return mappedList;
     }
 
     /**
@@ -432,7 +434,9 @@ public abstract class IList<E> extends AbstractList<E>
     	// It is typically faster to copy the allowed elements in a new list
     	// than to remove the not allowed from the existing one
     	IList<E> list = doCreate(-1);
-    	for (E e: this) {
+		int size = size();
+		for (int i=0; i<size; i++) {
+			E e = doGet(i);
     		if (predicate.allow(e)) {
     			list.add(e);
     		}

@@ -17,6 +17,10 @@
  */
 package org.magicwerk.brownies.collections.primitive;
 
+import org.magicwerk.brownies.collections.IList;
+import org.magicwerk.brownies.collections.GapList;
+
+
 import java.io.Serializable;
 import java.util.AbstractList;
 import java.util.Arrays;
@@ -30,6 +34,8 @@ import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.RandomAccess;
 import java.util.Set;
+import org.magicwerk.brownies.collections.function.Mapper;
+import org.magicwerk.brownies.collections.function.Predicate;
 
 /**
  * GapList combines the strengths of both ArrayList and LinkedList.
@@ -50,7 +56,7 @@ import java.util.Set;
  * @see	    java.util.ArrayList
  * @see	    java.util.LinkedList
  */
-public abstract class ILongGapList<E> implements Cloneable, Serializable {
+public abstract class IShortList<E> implements Cloneable, Serializable {
 
     /**
 	 * Copies the collection values into an array.
@@ -58,11 +64,11 @@ public abstract class ILongGapList<E> implements Cloneable, Serializable {
 	 * @param coll   collection of values
 	 * @return       array containing the collection values
 	 */
-static long[] toArray(Collection<Long> coll) {
+static short[] toArray(Collection<Short> coll) {
     Object[] values = coll.toArray();
-    long[] v = new long[values.length];
+    short[] v = new short[values.length];
     for (int i = 0; i < values.length; i++) {
-        v[i] = (Long) values[i];
+        v[i] = (Short) values[i];
     }
     return v;
 }
@@ -76,8 +82,8 @@ static long[] toArray(Collection<Long> coll) {
      * @see #clone
      */
 @SuppressWarnings("unchecked")
-public ILongGapList copy() {
-    return (ILongGapList) clone();
+public IShortList copy() {
+    return (IShortList) clone();
 }
 
     /**
@@ -89,7 +95,7 @@ public ILongGapList copy() {
      *
      * @return an unmodifiable view of the specified list
      */
-public abstract ILongGapList unmodifiableList();
+public abstract IShortList unmodifiableList();
 
     /**
      * Returns a shallow copy of this <tt>GapList</tt> instance
@@ -103,8 +109,8 @@ public abstract ILongGapList unmodifiableList();
 
 public Object clone() {
     try {
-        ILongGapList list = (ILongGapList) super.clone();
-        list.initClone(this);
+        IShortList list = (IShortList) super.clone();
+        list.doClone(this);
         return list;
     } catch (CloneNotSupportedException e) {
         // This shouldn't happen, since we are Cloneable   
@@ -118,7 +124,7 @@ public Object clone() {
 	 *
 	 * @param that	source object
 	 */
-protected abstract void initClone(ILongGapList that);
+protected abstract void doClone(IShortList that);
 
     
 public void clear() {
@@ -128,8 +134,17 @@ public void clear() {
     
 public abstract int size();
 
+    /**
+	 * Returns capacity of this GapList.
+	 * Note that two GapLists are considered equal even if they have a distinct capacity.
+	 * Also the capacity can be changed by operations like clone() etc.
+	 *
+	 * @return capacity of this GapList
+	 */
+public abstract int capacity();
+
     
-public long get(int index) {
+public short get(int index) {
     checkIndex(index);
     return doGet(index);
 }
@@ -142,7 +157,7 @@ public long get(int index) {
      * @param index index of element to return
      * @return      the element at the specified position in this list
      */
-protected abstract long doGet(int index);
+protected abstract short doGet(int index);
 
     /**
      * Helper method for setting an element in the GapList.
@@ -153,10 +168,10 @@ protected abstract long doGet(int index);
      * @param elem  element to set
      * @return      old element which was at the position
      */
-protected abstract long doSet(int index, long elem);
+protected abstract short doSet(int index, short elem);
 
     
-public long set(int index, long elem) {
+public short set(int index, short elem) {
     checkIndex(index);
     return doSet(index, elem);
 }
@@ -170,9 +185,9 @@ public long set(int index, long elem) {
      * @param elem  element to set
      * @return      old element which was at the position
      */
-protected abstract long doReSet(int index, long elem);
+protected abstract short doReSet(int index, short elem);
 
-    protected abstract long getDefaultElem();
+    protected abstract short getDefaultElem();
 
     /**
      * This method is called internally before elements are allocated or freed.
@@ -182,12 +197,12 @@ protected void doModify() {
 }
 
     
-public boolean add(long elem) {
+public boolean add(short elem) {
     return doAdd(-1, elem);
 }
 
     
-public void add(int index, long elem) {
+public void add(int index, short elem) {
     checkIndexAdd(index);
     doAdd(index, elem);
 }
@@ -202,10 +217,10 @@ public void add(int index, long elem) {
 	 * @param elem	element to add
 	 * @return      true if element has been added (GapList.add() will always return true)
 	 */
-protected abstract boolean doAdd(int index, long elem);
+protected abstract boolean doAdd(int index, short elem);
 
     
-public long remove(int index) {
+public short remove(int index) {
     checkIndex(index);
     return doRemove(index);
 }
@@ -218,7 +233,7 @@ public long remove(int index) {
 	 * @param index	index of element to remove
 	 * @return		removed element
 	 */
-protected abstract long doRemove(int index);
+protected abstract short doRemove(int index);
 
     /**
      * Increases the capacity of this <tt>GapList</tt> instance, if
@@ -257,13 +272,13 @@ public boolean equals(Object obj) {
     if (obj == this) {
         return true;
     }
-    if (obj instanceof LongObjGapList) {
-        obj = ((LongObjGapList) obj).list;
+    if (obj instanceof ShortObjGapList) {
+        obj = ((ShortObjGapList) obj).list;
     }
-    if (!(obj instanceof LongGapList)) {
+    if (!(obj instanceof ShortGapList)) {
         return false;
     }
-    @SuppressWarnings("unchecked") LongGapList list = (LongGapList) obj;
+    @SuppressWarnings("unchecked") ShortGapList list = (ShortGapList) obj;
     int size = size();
     if (size != list.size()) {
         return false;
@@ -281,7 +296,7 @@ public int hashCode() {
     int hashCode = 1;
     int size = size();
     for (int i = 0; i < size; i++) {
-        long elem = doGet(i);
+        short elem = doGet(i);
         hashCode = 31 * hashCode + hashCodeElem(elem);
     }
     return hashCode;
@@ -315,7 +330,7 @@ public boolean isEmpty() {
 	 * @param elem2	second element
 	 * @return		true if the elements are equal, otherwise false
 	 */
-static boolean equalsElem(long elem1, long elem2) {
+static boolean equalsElem(short elem1, short elem2) {
     return elem1 == elem2;
 }
 
@@ -326,7 +341,7 @@ static boolean equalsElem(long elem1, long elem2) {
 	 * @param elem	element
 	 * @return		hash code for element
 	 */
-static int hashCodeElem(long elem) {
+static int hashCodeElem(short elem) {
     return (int) elem;
 }
 
@@ -336,7 +351,7 @@ static int hashCodeElem(long elem) {
 	 * @param elem	element to count
 	 * @return		count how many times the specified element is contained in the list
 	 */
-public int getCount(long elem) {
+public int getCount(short elem) {
     int count = 0;
     int size = size();
     for (int i = 0; i < size; i++) {
@@ -353,11 +368,11 @@ public int getCount(long elem) {
 	 * @param elem	element to look for
 	 * @return		all elements in the list equal to the specified element
 	 */
-public ILongGapList getAll(long elem) {
-    ILongGapList list = doCreate(-1);
+public IShortList getAll(short elem) {
+    IShortList list = doCreate(-1);
     int size = size();
     for (int i = 0; i < size; i++) {
-        long e = doGet(i);
+        short e = doGet(i);
         if (equalsElem(e, elem)) {
             list.add(e);
         }
@@ -379,8 +394,44 @@ public Set getDistinct() {
     return set;
 }
 
+    /**
+     * Create a new list by applying the specified mapper to all elements.
+     *
+     * @param mapper	mapper function
+     * @return			created list
+     */
+public <R> IList<R> mappedList(Mapper<Short, R> mapper) {
+    int size = size();
+    IList mappedList = new GapList(size);
+    for (int i = 0; i < size; i++) {
+        short e = doGet(i);
+        mappedList.add(mapper.getKey(e));
+    }
+    return mappedList;
+}
+
+    /**
+     * Filter the list using the specified predicate.
+     * Only element which are allowed remain in the list, the others are removed
+     *
+     * @param predicate predicate used for filtering
+     */
+public void filter(Predicate<Short> predicate) {
+    // It is typically faster to copy the allowed elements in a new list   
+    // than to remove the not allowed from the existing one   
+    IShortList list = doCreate(-1);
+    int size = size();
+    for (int i = 0; i < size; i++) {
+        short e = doGet(i);
+        if (predicate.allow(e)) {
+            list.add(e);
+        }
+    }
+    doAssign(list);
+}
+
     
-public int indexOf(long elem) {
+public int indexOf(short elem) {
     int size = size();
     for (int i = 0; i < size; i++) {
         if (equalsElem(doGet(i), elem)) {
@@ -391,7 +442,7 @@ public int indexOf(long elem) {
 }
 
     
-public int lastIndexOf(long elem) {
+public int lastIndexOf(short elem) {
     for (int i = size() - 1; i >= 0; i--) {
         if (equalsElem(doGet(i), elem)) {
             return i;
@@ -401,7 +452,7 @@ public int lastIndexOf(long elem) {
 }
 
     
-public boolean removeElem(long elem) {
+public boolean removeElem(short elem) {
     int index = indexOf(elem);
     if (index == -1) {
         return false;
@@ -411,7 +462,7 @@ public boolean removeElem(long elem) {
 }
 
     
-public boolean contains(long elem) {
+public boolean contains(short elem) {
     return indexOf(elem) != -1;
 }
 
@@ -421,11 +472,11 @@ public boolean contains(long elem) {
 	 * @param coll collection with elements to be contained
 	 * @return     true if any element is contained, false otherwise
 	 */
-public boolean containsAny(Collection<Long> coll) {
+public boolean containsAny(Collection<Short> coll) {
     // Note that the signature has been chosen as in List:   
-    // - boolean addAll(Collection<Long> c);   
-    // - boolean containsAll(Collection<Long> c);   
-    for (long elem : coll) {
+    // - boolean addAll(Collection<Short> c);   
+    // - boolean containsAll(Collection<Short> c);   
+    for (short elem : coll) {
         if (contains(elem)) {
             return true;
         }
@@ -434,10 +485,10 @@ public boolean containsAny(Collection<Long> coll) {
 }
 
     
-public boolean containsAll(Collection<Long> coll) {
+public boolean containsAll(Collection<Short> coll) {
     // Note that this method is already implemented in AbstractCollection.   
     // It has been duplicated so the method is also available in the primitive classes.   
-    for (long elem : coll) {
+    for (short elem : coll) {
         if (!contains(elem)) {
             return false;
         }
@@ -446,7 +497,7 @@ public boolean containsAll(Collection<Long> coll) {
 }
 
     
-public boolean removeAll(Collection<Long> coll) {
+public boolean removeAll(Collection<Short> coll) {
     // Note that this method is already implemented in AbstractCollection.   
     // It has been duplicated so the method is also available in the primitive classes.   
     boolean modified = false;
@@ -468,11 +519,11 @@ public boolean removeAll(Collection<Long> coll) {
 	 * @param elem	element
 	 * @return		removed equal elements (never null)
 	 */
-public ILongGapList removeAll(long elem) {
-    ILongGapList list = doCreate(-1);
+public IShortList removeAll(short elem) {
+    IShortList list = doCreate(-1);
     int size = size();
     for (int i = 0; i < size; i++) {
-        long e = doGet(i);
+        short e = doGet(i);
         if (equalsElem(elem, e)) {
             list.add(e);
             doRemove(i);
@@ -486,7 +537,7 @@ public ILongGapList removeAll(long elem) {
     /**
      * @see #removeAll(Collection)
      */
-public boolean removeAll(ILongGapList<?> coll) {
+public boolean removeAll(IShortList<?> coll) {
     // There is a special implementation accepting a GapList   
     // so the method is also available in the primitive classes.   
     boolean modified = false;
@@ -503,7 +554,7 @@ public boolean removeAll(ILongGapList<?> coll) {
 }
 
     
-public boolean retainAll(Collection<Long> coll) {
+public boolean retainAll(Collection<Short> coll) {
     // Note that this method is already implemented in AbstractCollection.   
     // It has been duplicated so the method is also available in the primitive classes.   
     boolean modified = false;
@@ -522,7 +573,7 @@ public boolean retainAll(Collection<Long> coll) {
     /**
      * @see #retainAll(Collection)
      */
-public boolean retainAll(ILongGapList<?> coll) {
+public boolean retainAll(IShortList<?> coll) {
     // There is a special implementation accepting a GapList   
     // so the method is also available in the primitive classes.   
     boolean modified = false;
@@ -539,9 +590,9 @@ public boolean retainAll(ILongGapList<?> coll) {
 }
 
     
-public long[] toArray() {
+public short[] toArray() {
     int size = size();
-    long[] array = new long[size];
+    short[] array = new short[size];
     doGetAll(array, 0, size);
     return array;
 }
@@ -553,22 +604,22 @@ public long[] toArray() {
 	 * @param len	number of elements to copy
 	 * @return		array the specified elements
 	 */
-public long[] toArray(int index, int len) {
-    long[] array = new long[len];
+public short[] toArray(int index, int len) {
+    short[] array = new short[len];
     doGetAll(array, index, len);
     return array;
 }
 
     @SuppressWarnings("unchecked")
 
-public long[] toArray(long[] array) {
+public short[] toArray(short[] array) {
     int size = size();
     if (array.length < size) {
-        array = (long[]) java.lang.reflect.Array.newInstance(array.getClass().getComponentType(), size);
+        array = (short[]) java.lang.reflect.Array.newInstance(array.getClass().getComponentType(), size);
     }
     doGetAll(array, 0, size);
     if (array.length > size) {
-        array[size] = 0;
+        array[size] = (short) 0;
     }
     return array;
 }
@@ -581,7 +632,8 @@ public long[] toArray(long[] array) {
 	 * @param len	number of elements to copy
 	 * @param <T> type of elements stored in the list
 	 */
-protected void doGetAll(long[] array, int index, int len) {
+@SuppressWarnings("unchecked")
+protected void doGetAll(short[] array, int index, int len) {
     for (int i = 0; i < len; i++) {
         array[i] = doGet(index + i);
     }
@@ -597,11 +649,11 @@ protected void doGetAll(long[] array, int index, int len) {
      * @throws NullPointerException if the specified collection is null
      */
 
-public boolean addAll(Collection<Long> coll) {
+public boolean addAll(Collection<Short> coll) {
     // ArrayList.addAll() also first creates an array containing the   
     // collection elements. This guarantees that the list's capacity   
     // must only be increased once.   
-    @SuppressWarnings("unchecked") long[] array = (long[]) toArray(coll);
+    @SuppressWarnings("unchecked") short[] array = (short[]) toArray(coll);
     return doAddAll(-1, array);
 }
 
@@ -621,12 +673,12 @@ public boolean addAll(Collection<Long> coll) {
      * @throws NullPointerException if the specified collection is null
      */
 
-public boolean addAll(int index, Collection<Long> coll) {
+public boolean addAll(int index, Collection<Short> coll) {
     checkIndexAdd(index);
     // ArrayList.addAll() also first creates an array containing the   
     // collection elements. This guarantees that the list's capacity   
     // must only be increased once.   
-    @SuppressWarnings("unchecked") long[] array = (long[]) toArray(coll);
+    @SuppressWarnings("unchecked") short[] array = (short[]) toArray(coll);
     return doAddAll(index, array);
 }
 
@@ -636,7 +688,7 @@ public boolean addAll(int index, Collection<Long> coll) {
      * @param elems elements to be added to this list
      * @return <tt>true</tt> if this list changed as a result of the call
      */
-public boolean addAll(long... elems) {
+public boolean addAll(short... elems) {
     return doAddAll(-1, elems);
 }
 
@@ -652,7 +704,7 @@ public boolean addAll(long... elems) {
      * @return <tt>true</tt> if this list changed as a result of the call
      * @throws IndexOutOfBoundsException if the index is invalid
      */
-public boolean addAll(int index, long... elems) {
+public boolean addAll(int index, short... elems) {
     checkIndexAdd(index);
     return doAddAll(index, elems);
 }
@@ -665,8 +717,8 @@ public boolean addAll(int index, long... elems) {
      * @throws NullPointerException if the specified list is null
      */
 @SuppressWarnings("unchecked")
-public boolean addAll(ILongGapList list) {
-    return doAddAll(-1, (long[]) list.toArray());
+public boolean addAll(IShortList list) {
+    return doAddAll(-1, (short[]) list.toArray());
 }
 
     /**
@@ -683,9 +735,9 @@ public boolean addAll(ILongGapList list) {
      * @throws NullPointerException if the specified collection is null
      */
 @SuppressWarnings("unchecked")
-public boolean addAll(int index, ILongGapList list) {
+public boolean addAll(int index, IShortList list) {
     checkIndexAdd(index);
-    return doAddAll(index, (long[]) list.toArray());
+    return doAddAll(index, (short[]) list.toArray());
 }
 
     /**
@@ -697,12 +749,12 @@ public boolean addAll(int index, ILongGapList list) {
      * @param array array with elements to add
      * @return      true if elements have been added, false otherwise
      */
-protected boolean doAddAll(int index, long[] array) {
+protected boolean doAddAll(int index, short[] array) {
     doEnsureCapacity(size() + array.length);
     if (array.length == 0) {
         return false;
     }
-    for (long elem : array) {
+    for (short elem : array) {
         doAdd(index, elem);
         if (index != -1) {
             index++;
@@ -721,15 +773,15 @@ protected boolean doAddAll(int index, long[] array) {
 
     // Queue operations  
 
-public long peek() {
+public short peek() {
     if (size() == 0) {
-        return 0;
+        return (short) 0;
     }
     return getFirst();
 }
 
     
-public long element() {
+public short element() {
     // inline version of getFirst():   
     if (size() == 0) {
         throw new NoSuchElementException();
@@ -738,15 +790,15 @@ public long element() {
 }
 
     
-public long poll() {
+public short poll() {
     if (size() == 0) {
-        return 0;
+        return (short) 0;
     }
     return doRemove(0);
 }
 
     
-public long remove() {
+public short remove() {
     // inline version of removeFirst():   
     if (size() == 0) {
         throw new NoSuchElementException();
@@ -755,14 +807,14 @@ public long remove() {
 }
 
     
-public boolean offer(long elem) {
+public boolean offer(short elem) {
     // inline version of add(elem):   
     return doAdd(-1, elem);
 }
 
     // Deque operations  
 
-public long getFirst() {
+public short getFirst() {
     if (size() == 0) {
         throw new NoSuchElementException();
     }
@@ -770,7 +822,7 @@ public long getFirst() {
 }
 
     
-public long getLast() {
+public short getLast() {
     int size = size();
     if (size == 0) {
         throw new NoSuchElementException();
@@ -779,18 +831,18 @@ public long getLast() {
 }
 
     
-public void addFirst(long elem) {
+public void addFirst(short elem) {
     doAdd(0, elem);
 }
 
     
-public void addLast(long elem) {
+public void addLast(short elem) {
     // inline version of add(elem):   
     doAdd(-1, elem);
 }
 
     
-public long removeFirst() {
+public short removeFirst() {
     if (size() == 0) {
         throw new NoSuchElementException();
     }
@@ -798,7 +850,7 @@ public long removeFirst() {
 }
 
     
-public long removeLast() {
+public short removeLast() {
     int size = size();
     if (size == 0) {
         throw new NoSuchElementException();
@@ -807,55 +859,55 @@ public long removeLast() {
 }
 
     
-public boolean offerFirst(long elem) {
+public boolean offerFirst(short elem) {
     // inline version of addFirst(elem):   
     doAdd(0, elem);
     return true;
 }
 
     
-public boolean offerLast(long elem) {
+public boolean offerLast(short elem) {
     // inline version of addLast(elem):   
     doAdd(-1, elem);
     return true;
 }
 
     
-public long peekFirst() {
+public short peekFirst() {
     if (size() == 0) {
-        return 0;
+        return (short) 0;
     }
     return doGet(0);
 }
 
     
-public long peekLast() {
+public short peekLast() {
     int size = size();
     if (size == 0) {
-        return 0;
+        return (short) 0;
     }
     return doGet(size - 1);
 }
 
     
-public long pollFirst() {
+public short pollFirst() {
     if (size() == 0) {
-        return 0;
+        return (short) 0;
     }
     return doRemove(0);
 }
 
     
-public long pollLast() {
+public short pollLast() {
     int size = size();
     if (size == 0) {
-        return 0;
+        return (short) 0;
     }
     return doRemove(size - 1);
 }
 
     
-public long pop() {
+public short pop() {
     // inline version of removeFirst():   
     if (size() == 0) {
         throw new NoSuchElementException();
@@ -864,13 +916,13 @@ public long pop() {
 }
 
     
-public void push(long elem) {
+public void push(short elem) {
     // inline version of addFirst();   
     doAdd(0, elem);
 }
 
     
-public boolean removeFirstOccurrence(long elem) {
+public boolean removeFirstOccurrence(short elem) {
     int index = indexOf(elem);
     if (index == -1) {
         return false;
@@ -880,7 +932,7 @@ public boolean removeFirstOccurrence(long elem) {
 }
 
     
-public boolean removeLastOccurrence(long elem) {
+public boolean removeLastOccurrence(short elem) {
     int index = lastIndexOf(elem);
     if (index == -1) {
         return false;
@@ -901,15 +953,15 @@ public boolean removeLastOccurrence(long elem) {
      * @param <E> 		type of elements stored in the list
      * @throws 			IndexOutOfBoundsException if the ranges are invalid
      */
-public static void move(ILongGapList src, int srcIndex, ILongGapList<Long> dst, int dstIndex, int len) {
+public static void move(IShortList src, int srcIndex, IShortList<Short> dst, int dstIndex, int len) {
     if (src == dst) {
         src.move(srcIndex, dstIndex, len);
     } else {
         src.checkRange(srcIndex, len);
         dst.checkRange(dstIndex, len);
-        long defaultElem = src.getDefaultElem();
+        short defaultElem = src.getDefaultElem();
         for (int i = 0; i < len; i++) {
-            long elem = src.doReSet(srcIndex + i, defaultElem);
+            short elem = src.doReSet(srcIndex + i, defaultElem);
             dst.doSet(dstIndex + i, elem);
         }
     }
@@ -926,14 +978,14 @@ public static void move(ILongGapList src, int srcIndex, ILongGapList<Long> dst, 
      * @param <E> 		type of elements stored in the list
      * @throws 			IndexOutOfBoundsException if the ranges are invalid
      */
-public static void copy(ILongGapList src, int srcIndex, ILongGapList dst, int dstIndex, int len) {
+public static void copy(IShortList src, int srcIndex, IShortList dst, int dstIndex, int len) {
     if (src == dst) {
         src.copy(srcIndex, dstIndex, len);
     } else {
         src.checkRange(srcIndex, len);
         dst.checkRange(dstIndex, len);
         for (int i = 0; i < len; i++) {
-            long elem = src.doGet(srcIndex + i);
+            short elem = src.doGet(srcIndex + i);
             dst.doSet(dstIndex + i, elem);
         }
     }
@@ -950,7 +1002,7 @@ public static void copy(ILongGapList src, int srcIndex, ILongGapList dst, int ds
      * @param <E> 		type of elements stored in the list
      * @throws 			IndexOutOfBoundsException if the ranges are invalid
      */
-public static void swap(ILongGapList src, int srcIndex, ILongGapList dst, int dstIndex, int len) {
+public static void swap(IShortList src, int srcIndex, IShortList dst, int dstIndex, int len) {
     if (src == dst) {
         src.swap(srcIndex, dstIndex, len);
     } else {
@@ -958,7 +1010,7 @@ public static void swap(ILongGapList src, int srcIndex, ILongGapList dst, int ds
         dst.checkRange(dstIndex, len);
         if (src != dst) {
             for (int i = 0; i < len; i++) {
-                long swap = src.doGet(srcIndex + i);
+                short swap = src.doGet(srcIndex + i);
                 swap = dst.doSet(dstIndex + i, swap);
                 src.doSet(srcIndex + i, swap);
             }
@@ -974,7 +1026,15 @@ public static void swap(ILongGapList src, int srcIndex, ILongGapList dst, int ds
      * @param capacity	initial capacity (use -1 for default capacity)
      * @return			created list
      */
-public abstract ILongGapList doCreate(int capacity);
+protected abstract IShortList doCreate(int capacity);
+
+    /**
+     * Assign this list the content of the that list.
+     * This is done by bitwise copying so the that list should not be user afterwards.
+     *
+     * @param that list to copy content from
+     */
+protected abstract void doAssign(IShortList that);
 
     /**
      * Returns specified range of elements from list.
@@ -983,9 +1043,9 @@ public abstract ILongGapList doCreate(int capacity);
      * @param len   number of elements to retrieve
      * @return      GapList containing the specified range of elements from list
      */
-public ILongGapList getAll(int index, int len) {
+public IShortList getAll(int index, int len) {
     checkRange(index, len);
-    ILongGapList list = doCreate(len);
+    IShortList list = doCreate(len);
     for (int i = 0; i < len; i++) {
         list.add(doGet(index + i));
     }
@@ -999,9 +1059,9 @@ public ILongGapList getAll(int index, int len) {
      * @param len   number of elements to retrieve
      * @return      GapList containing the specified range of elements from list
      */
-public long[] getArray(int index, int len) {
+public short[] getArray(int index, int len) {
     checkRange(index, len);
-    @SuppressWarnings("unchecked") long[] array = (long[]) new long[len];
+    @SuppressWarnings("unchecked") short[] array = (short[]) new short[len];
     for (int i = 0; i < len; i++) {
         array[i] = doGet(index + i);
     }
@@ -1015,7 +1075,7 @@ public long[] getArray(int index, int len) {
      * @param index index of first element to set
      * @param list  list with elements to set
      */
-public void setAll(int index, ILongGapList list) {
+public void setAll(int index, IShortList list) {
     // There is a special implementation accepting a GapList   
     // so the method is also available in the primitive classes.   
     int size = list.size();
@@ -1031,12 +1091,12 @@ public void setAll(int index, ILongGapList list) {
      * @param index index of first element to set
      * @param coll  collection with elements to set
      */
-public void setAll(int index, Collection<Long> coll) {
+public void setAll(int index, Collection<Short> coll) {
     checkRange(index, coll.size());
     // In contrary to addAll() there is no need to first create an array   
     // containing the collection elements, as the list will not grow.   
     int i = 0;
-    Iterator<Long> iter = coll.iterator();
+    Iterator<Short> iter = coll.iterator();
     while (iter.hasNext()) {
         doSet(index + i, iter.next());
         i++;
@@ -1049,7 +1109,7 @@ public void setAll(int index, Collection<Long> coll) {
      * @param index index of first element to set
      * @param elems elements to set
      */
-public void setAll(int index, long... elems) {
+public void setAll(int index, short... elems) {
     checkRange(index, elems.length);
     doSetAll(index, elems);
 }
@@ -1060,7 +1120,7 @@ public void setAll(int index, long... elems) {
      * @param index index of first element to set
      * @param elems elements to set
      */
-protected void doSetAll(int index, long[] elems) {
+protected void doSetAll(int index, short[] elems) {
     for (int i = 0; i < elems.length; i++) {
         doSet(index + i, elems[i]);
     }
@@ -1097,7 +1157,7 @@ protected void doRemoveAll(int index, int len) {
 	 * @param len  length of list
 	 * @param elem element which the list will contain
 	 */
-public void init(int len, long elem) {
+public void init(int len, short elem) {
     checkLength(len);
     int size = size();
     if (len < size) {
@@ -1120,7 +1180,7 @@ public void init(int len, long elem) {
      * @param len  length of list
      * @param elem element which will be used for extending the list
 	 */
-public void resize(int len, long elem) {
+public void resize(int len, short elem) {
     checkLength(len);
     int size = size();
     if (len < size) {
@@ -1139,7 +1199,7 @@ public void resize(int len, long elem) {
      * @param elem  element used for filling
      */
 // see java.util.Arrays#fill  
-public void fill(long elem) {
+public void fill(short elem) {
     int size = size();
     for (int i = 0; i < size; i++) {
         doSet(i, elem);
@@ -1154,7 +1214,7 @@ public void fill(long elem) {
      * @param elem	element used for filling
      */
 // see java.util.Arrays#fill  
-public void fill(int index, int len, long elem) {
+public void fill(int index, int len, short elem) {
     checkRange(index, len);
     for (int i = 0; i < len; i++) {
         doSet(index + i, elem);
@@ -1205,13 +1265,13 @@ public void move(int srcIndex, int dstIndex, int len) {
             doReSet(dstIndex + i, doGet(srcIndex + i));
         }
     }
-    // Set elements to 0 after the move operation    
+    // Set elements to (short) 0 after the move operation    
     if (srcIndex < dstIndex) {
         int fill = Math.min(len, dstIndex - srcIndex);
-        fill(srcIndex, fill, 0);
+        fill(srcIndex, fill, (short) 0);
     } else if (srcIndex > dstIndex) {
         int fill = Math.min(len, srcIndex - dstIndex);
-        fill(srcIndex + len - fill, fill, 0);
+        fill(srcIndex + len - fill, fill, (short) 0);
     }
 }
 
@@ -1234,7 +1294,7 @@ public void reverse(int index, int len) {
     int pos2 = index + len - 1;
     int mid = len / 2;
     for (int i = 0; i < mid; i++) {
-        long swap = doGet(pos1);
+        short swap = doGet(pos1);
         swap = doReSet(pos2, swap);
         doReSet(pos1, swap);
         pos1++;
@@ -1257,7 +1317,7 @@ public void swap(int index1, int index2, int len) {
         throw new IllegalArgumentException("Swap ranges overlap");
     }
     for (int i = 0; i < len; i++) {
-        long swap = doGet(index1 + i);
+        short swap = doGet(index1 + i);
         swap = doReSet(index2 + i, swap);
         doReSet(index1 + i, swap);
     }
@@ -1299,7 +1359,7 @@ public void rotate(int index, int len, int distance) {
     }
     int num = 0;
     for (int start = 0; num != size; start++) {
-        long elem = doGet(index + start);
+        short elem = doGet(index + start);
         int i = start;
         do {
             i += distance;
@@ -1406,7 +1466,7 @@ public abstract void sort(int index, int len);
      *
      * @see Arrays#binarySearch
      */
-public int binarySearch(long key) {
+public int binarySearch(short key) {
     return binarySearch(0, size(), key);
 }
 
@@ -1431,7 +1491,7 @@ public int binarySearch(long key) {
      *
      * @see Arrays#binarySearch
      */
-public abstract int binarySearch(int index, int len, long key);
+public abstract int binarySearch(int index, int len, short key);
 
     //--- Arguments check methods  
 /**
