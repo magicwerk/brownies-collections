@@ -1,11 +1,13 @@
 <project default="build">
 	<property name="release" value="0.9.5"/>
 	<property name="release-overwrite" value="false"/>
+	<property name="skipFiles-0.9.x" value="**/Big*" />
 
 	<property environment="env"/>
 	<import file="${env.BROWNIES_DEV}/build-lib.xml" />
 
     <property name="Brownies-Release.prj" value="Brownies-Collections" />
+
     <target name="do-build-release" depends="build" />
 
 	<!--
@@ -21,14 +23,7 @@
 		<delete file="${build.dir}/brownies-collections-with-all.jar" />
 		<delete file="${build.dir}/brownies-collections-with-deps.jar" />
 
-		<!--
-        <if>
-            <isset property="release.dir" />
-            <then>
-            	<antcall target="post-build-0.9.x" />
-            </then>
-      	</if>
-      	-->
+       	<antcall target="post-build-0.9.x" />
 	</target>
 
 	<!-- ==================== UNUSED ==================== -->
@@ -38,8 +33,6 @@
 	<target name="post-build-0.9.x">
 	    <property name="tmp.bin.jar" value="${build.dir}/brownies-collections.jar" />
         <property name="tmp.bin.dir" value="${build.dir}/brownies-collections.jar.tmp" />
-
-		<property name="skipFiles-0.9.x" value="**/Big*" />
 
 		<unjar src="${tmp.bin.jar}" dest="${tmp.bin.dir}" />
 		<delete>
@@ -61,15 +54,7 @@
 	</target>
 
 	<target name="build-doc">
-        <if>
-            <isset property="release.dir" />
-            <then>
-            	<antcall target="build-doc-0.9.x" />
-            </then>
-        	<else>
-        		<ant antfile="${Brownies-Dev.dir}/build-lib.xml" target="build-doc" />
-        	</else>
-      	</if>
+       	<antcall target="build-doc-0.9.x" />
 	</target>
 
     <target name="build-doc-0.9.x" depends="prepare-doc">
