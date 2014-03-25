@@ -1,5 +1,5 @@
 <project default="build">
-	<property name="release" value="0.9.5"/>
+	<property name="release" value="0.9.6"/>
 	<property name="release-overwrite" value="false"/>
 	<property name="skipFiles-0.9.x" value="**/Big*" />
 
