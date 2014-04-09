@@ -878,6 +878,7 @@ public class GapList<E> extends IList<E> {
 			// Remove gap if it is followed by only one element
 			if (gapSize > 0) {
 				if (gapIndex == index) {
+					// R0-1
 					end = gapStart;
 					gapSize = 0;
 				}
@@ -1019,7 +1020,8 @@ public class GapList<E> extends IList<E> {
 			}
 			start += grow;
 		}
-		if (end == 0 && size != 0) {
+		if (end == 0 && start == 0 && size != 0) {
+			// S1, S6
 			end = values.length;
 		}
 		values = newValues;
