@@ -20,17 +20,9 @@ package org.magicwerk.brownies.collections;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
-import java.util.AbstractList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.Deque;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.NoSuchElementException;
-import java.util.RandomAccess;
 
 import org.magicwerk.brownies.collections.function.Mapper;
 
@@ -891,6 +883,7 @@ public class GapList<E> extends IList<E> {
 			physIdx = start;
 			start++;
 			if (start >= values.length) {
+				// R1-1
 				start -= values.length;
 			}
 
@@ -899,6 +892,7 @@ public class GapList<E> extends IList<E> {
 				if (gapIndex == 1) {
 					start += gapSize;
 					if (start >= values.length) {
+						// R1-2
 						start -= values.length;
 					}
 					gapSize = 0;
