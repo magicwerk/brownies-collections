@@ -22,17 +22,9 @@ import org.magicwerk.brownies.collections.GapList;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
-import java.util.AbstractList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.Deque;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.NoSuchElementException;
-import java.util.RandomAccess;
 import org.magicwerk.brownies.collections.function.Mapper;
 
 /**
@@ -842,6 +834,7 @@ protected long doRemove(int index) {
         // Remove gap if it is followed by only one element   
         if (gapSize > 0) {
             if (gapIndex == index) {
+                // R0-1   
                 end = gapStart;
                 gapSize = 0;
             }
@@ -852,6 +845,7 @@ protected long doRemove(int index) {
         physIdx = start;
         start++;
         if (start >= values.length) {
+            // R1-1   
             start -= values.length;
         }
         // Remove gap if if it is preceded by only one element   
@@ -859,6 +853,7 @@ protected long doRemove(int index) {
             if (gapIndex == 1) {
                 start += gapSize;
                 if (start >= values.length) {
+                    // R1-2   
                     start -= values.length;
                 }
                 gapSize = 0;
@@ -976,7 +971,8 @@ protected void doEnsureCapacity(int minCapacity) {
         }
         start += grow;
     }
-    if (end == 0 && size != 0) {
+    if (end == 0 && start == 0 && size != 0) {
+        // S1, S6   
         end = values.length;
     }
     values = newValues;
