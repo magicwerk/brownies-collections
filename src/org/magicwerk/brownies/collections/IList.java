@@ -480,6 +480,13 @@ public abstract class IList<E> extends AbstractList<E>
 		return indexOf(elem) != -1;
 	}
 
+	public boolean addIfAbsent(E elem) {
+		if (contains(elem)) {
+			return false;
+		}
+		return add(elem);
+	}
+
 	/**
 	 * Returns true if any of the elements of the specified collection is contained in the list.
 	 *

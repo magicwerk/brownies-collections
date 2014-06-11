@@ -98,8 +98,10 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         boolean allowNullElem = true;
         Predicate<E> constraint;
         // -- triggers
-        Trigger<E> insertTrigger;
-        Trigger<E> deleteTrigger;
+        Trigger<E> beforeInsertTrigger;
+        Trigger<E> afterInsertTrigger;
+        Trigger<E> beforeDeleteTrigger;
+        Trigger<E> afterDeleteTrigger;
         // -- keys
     	GapList<KeyMapBuilder<E,Object>> keyMapBuilders = GapList.create();
         // -- content
@@ -148,8 +150,19 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
          * @param trigger	insert trigger method, null for none (default)
          * @return			this (fluent interface)
          */
-        protected BuilderImpl<E> withInsertTrigger(Trigger<E> trigger) {
-            this.insertTrigger = trigger;
+        protected BuilderImpl<E> withBeforeInsertTrigger(Trigger<E> trigger) {
+            this.beforeInsertTrigger = trigger;
+            return this;
+        }
+
+        /**
+         * Specify insert trigger.
+         *
+         * @param trigger	insert trigger method, null for none (default)
+         * @return			this (fluent interface)
+         */
+        protected BuilderImpl<E> withAfterInsertTrigger(Trigger<E> trigger) {
+            this.afterInsertTrigger = trigger;
             return this;
         }
 
@@ -159,8 +172,18 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
          * @param trigger	delete trigger method, null for none (default)
          * @return			this (fluent interface)
          */
-        protected BuilderImpl<E> withDeleteTrigger(Trigger<E> trigger) {
-            this.deleteTrigger = trigger;
+        protected BuilderImpl<E> withBeforeDeleteTrigger(Trigger<E> trigger) {
+            this.beforeDeleteTrigger = trigger;
+            return this;
+        }
+        /**
+         * Specify delete trigger.
+         *
+         * @param trigger	delete trigger method, null for none (default)
+         * @return			this (fluent interface)
+         */
+        protected BuilderImpl<E> withAfterDeleteTrigger(Trigger<E> trigger) {
+            this.afterDeleteTrigger = trigger;
             return this;
         }
 
@@ -743,8 +766,10 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         void build(KeyCollectionImpl keyColl, boolean list) {
         	keyColl.allowNullElem = allowNullElem;
             keyColl.constraint = constraint;
-            keyColl.insertTrigger = insertTrigger;
-            keyColl.deleteTrigger = deleteTrigger;
+            keyColl.beforeInsertTrigger = beforeInsertTrigger;
+            keyColl.afterInsertTrigger = afterInsertTrigger;
+            keyColl.beforeDeleteTrigger = beforeDeleteTrigger;
+            keyColl.afterDeleteTrigger = afterDeleteTrigger;
             keyColl.maxSize = maxSize;
             keyColl.movingWindow = isTrue(movingWindow);
 
@@ -1341,8 +1366,10 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
      */
     Predicate<E> constraint;
     // -- handlers
-    Trigger<E> insertTrigger;
-    Trigger<E> deleteTrigger;
+    Trigger<E> beforeInsertTrigger;
+    Trigger<E> afterInsertTrigger;
+    Trigger<E> beforeDeleteTrigger;
+    Trigger<E> afterDeleteTrigger;
     /**
      * Back pointer to KeyListImpl if this object is used to implement a KeyList, Key1List, Key2List.
      * Otherwise null if it is part of a KeyCollection, Key1Collection, Key2Collection.
@@ -1372,8 +1399,10 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     	}
     	allowNullElem = that.allowNullElem;
     	constraint = that.constraint;
-    	insertTrigger = that.insertTrigger;
-    	deleteTrigger = that.deleteTrigger;
+    	beforeInsertTrigger = that.beforeInsertTrigger;
+    	afterInsertTrigger = that.afterInsertTrigger;
+    	beforeDeleteTrigger = that.beforeDeleteTrigger;
+    	afterDeleteTrigger = that.afterDeleteTrigger;
     	orderByKey = that.orderByKey;
     }
 
@@ -1394,8 +1423,10 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     	}
     	allowNullElem = that.allowNullElem;
     	constraint = that.constraint;
-    	insertTrigger = that.insertTrigger;
-    	deleteTrigger = that.deleteTrigger;
+    	beforeInsertTrigger = that.beforeInsertTrigger;
+    	afterInsertTrigger = that.afterInsertTrigger;
+    	beforeDeleteTrigger = that.beforeDeleteTrigger;
+    	afterDeleteTrigger = that.afterDeleteTrigger;
     	orderByKey = that.orderByKey;
     }
 
@@ -1642,6 +1673,9 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
      * @param elem	element to insert
      */
     private void beforeInsert(E elem) {
+        if (beforeInsertTrigger != null) {
+        	beforeInsertTrigger.handle(elem);
+    	}
     }
 
     /**
@@ -1650,8 +1684,8 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
      * @param elem	element which has been inserted
      */
     private void afterInsert(E elem) {
-        if (insertTrigger != null) {
-   			insertTrigger.handle(elem);
+        if (afterInsertTrigger != null) {
+        	afterInsertTrigger.handle(elem);
     	}
     }
 
@@ -1662,6 +1696,9 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
      * @param elem	element to delete
      */
     private void beforeDelete(E elem) {
+        if (beforeDeleteTrigger != null) {
+        	beforeDeleteTrigger.handle(elem);
+    	}
     }
 
     /**
@@ -1670,8 +1707,8 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
      * @param elem	element which has been deleted
      */
     private void afterDelete(E elem) {
-        if (deleteTrigger != null) {
-   			deleteTrigger.handle(elem);
+        if (afterDeleteTrigger != null) {
+   			afterDeleteTrigger.handle(elem);
     	}
     }
 
