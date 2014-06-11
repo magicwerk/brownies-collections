@@ -80,13 +80,23 @@ public class Key1Collection<E,K> extends KeyCollectionImpl<E> {
         // -- Triggers
 
         @Override
-        public Builder<E,K> withInsertTrigger(Trigger<E> trigger) {
-        	return (Builder<E,K>) super.withInsertTrigger(trigger);
+        public Builder<E,K> withBeforeInsertTrigger(Trigger<E> trigger) {
+        	return (Builder<E,K>) super.withBeforeInsertTrigger(trigger);
         }
 
         @Override
-        public Builder<E,K> withDeleteTrigger(Trigger<E> trigger) {
-        	return (Builder<E,K>) super.withDeleteTrigger(trigger);
+        public Builder<E,K> withAfterInsertTrigger(Trigger<E> trigger) {
+        	return (Builder<E,K>) super.withAfterInsertTrigger(trigger);
+        }
+
+        @Override
+        public Builder<E,K> withBeforeDeleteTrigger(Trigger<E> trigger) {
+        	return (Builder<E,K>) super.withBeforeDeleteTrigger(trigger);
+        }
+
+        @Override
+        public Builder<E,K> withAfterDeleteTrigger(Trigger<E> trigger) {
+        	return (Builder<E,K>) super.withAfterDeleteTrigger(trigger);
         }
 
         //-- Content
