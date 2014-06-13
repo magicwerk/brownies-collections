@@ -2356,6 +2356,14 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     	checkKeyMap(keyIndex);
     	Option<E> removed = keyMaps[keyIndex].remove(key, false, null, this);
     	if (removed.hasValue()) {
+    		E elem = removed.getValue();
+    		try {
+    			beforeDelete(elem);
+    		}
+    		catch (RuntimeException e) {
+    			keyMaps[keyIndex].add(key, elem);
+    			throw e;
+    		}
     		for (int i=0; i<keyMaps.length; i++) {
     			if (i != keyIndex) {
         			if (keyMaps[i] != null) {
@@ -2366,6 +2374,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     			}
     		}
     		size--;
+    		afterDelete(elem);
     	}
         if (DEBUG_CHECK) debugCheck();
         return removed;
@@ -2379,8 +2388,8 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
      * Puts element in collection using specified key map.
      *
      * @param keyIndex	key index
-     * @param elem		elem
-     * @return			element which has been replace, null otherwise
+     * @param elem		element
+     * @return			element which has been replaced, null otherwise
      */
     protected E putByKey(int keyIndex, E elem) {
     	checkKeyMap(keyIndex);
