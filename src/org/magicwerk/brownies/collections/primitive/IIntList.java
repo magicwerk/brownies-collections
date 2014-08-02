@@ -467,6 +467,19 @@ public boolean contains(int elem) {
 }
 
     /**
+	 * Add elements if it is not already contained in the list.
+	 *
+	 * @param elem	element to add
+	 * @return		true if element has been added, false if not
+	 */
+public boolean addIfAbsent(int elem) {
+    if (contains(elem)) {
+        return false;
+    }
+    return add(elem);
+}
+
+    /**
 	 * Returns true if any of the elements of the specified collection is contained in the list.
 	 *
 	 * @param coll collection with elements to be contained
