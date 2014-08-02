@@ -1213,4 +1213,16 @@ private String debugPrint(char[] values) {
 	 */
 private void debugLog(String msg) {
 }
+	public static CharGapList create(String str) {
+		return new CharGapList(str);
+	}
+
+	public CharGapList(String str) {
+		init(str);
+	}
+
+	public void init(String str) {
+		char[] array = str.toCharArray();
+		init(array, array.length);
+	}
 }
