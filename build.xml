@@ -12,7 +12,7 @@
     <property name="Brownies-Swt.location" value="../Brownies-Swt"/>
     <property name="Brownies-Values.location" value="../Brownies-Values"/>
     <property name="EvalSwtStyledText.location" value="../../../Local-Magicwerk/EvalSwtStyledText"/>
-    <property name="ECLIPSE_HOME" value="../../../../Eclipse-JEE-3.7.1"/>
+    <property name="ECLIPSE_HOME" value="../../../../Eclipse/Eclipse-JEE-3.7.1"/>
     <property name="debuglevel" value="source,lines,vars"/>
     <property name="target" value="1.6"/>
     <property name="source" value="1.6"/>
@@ -23,7 +23,6 @@
         <mkdir dir="bin"/>
         <copy includeemptydirs="false" todir="bin">
             <fileset dir="src">
-                <exclude name="**/*.launch"/>
                 <exclude name="**/*.java"/>
             </fileset>
         </copy>
