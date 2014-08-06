@@ -1296,6 +1296,7 @@ public abstract class IList<E> extends AbstractList<E>
     /**
      * Copy specified elements.
      * Source and destination ranges may overlap.
+     * The size of the list does not change.
      *
      * @param srcIndex	index of first source element to copy
      * @param dstIndex	index of first destination element to copy
@@ -1318,8 +1319,8 @@ public abstract class IList<E> extends AbstractList<E>
 
     /**
      * Move specified elements.
-     * The elements which are moved away are set to null.
      * Source and destination ranges may overlap.
+     * The elements which are moved away are set to null, so the size of the list does not change.
      *
      * @param srcIndex	index of first source element to move
      * @param dstIndex	index of first destination element to move
@@ -1347,6 +1348,26 @@ public abstract class IList<E> extends AbstractList<E>
     	} else if (srcIndex > dstIndex) {
     		int fill = Math.min(len, srcIndex-dstIndex);
     		fill(srcIndex+len-fill, fill, null);
+    	}
+    }
+
+    /**
+     * Drag specified elements.
+     * Source and destination ranges may overlap.
+     * The size of the list does not change and it contains the same elements as before, but in changed order.
+     *
+     * @param srcIndex	index of first source element to move
+     * @param dstIndex	index of first destination element to move
+     * @param len		number of elements to move
+     */
+    public void drag(int srcIndex, int dstIndex, int len) {
+    	checkRange(srcIndex, len);
+    	checkRange(dstIndex, len);
+
+    	if (srcIndex < dstIndex) {
+    		doRotate(srcIndex, len+(dstIndex-srcIndex), dstIndex-srcIndex);
+    	} else if (srcIndex > dstIndex) {
+    		doRotate(dstIndex, len+(srcIndex-dstIndex), dstIndex-srcIndex);
     	}
     }
 
@@ -1391,7 +1412,7 @@ public abstract class IList<E> extends AbstractList<E>
     	checkRange(index2, len);
     	if ((index1 < index2 && index1+len > index2) ||
     		index1 > index2 && index2+len > index1) {
-    		throw new IllegalArgumentException("Swap ranges overlap");
+    		throw new IndexOutOfBoundsException("Swap ranges overlap");
     	}
 
     	for (int i=0; i<len; i++) {
@@ -1427,18 +1448,21 @@ public abstract class IList<E> extends AbstractList<E>
      */
     public void rotate(int index, int len, int distance) {
     	checkRange(index, len);
-
-    	int size = size();
-        distance = distance % size;
+    	doRotate(index, len, distance);
+    }
+    
+    protected void doRotate(int index, int len, int distance) {
+        distance = distance % len;
         if (distance < 0) {
-            distance += size;
+            distance += len;
         }
         if (distance == 0) {
             return;
         }
-
+        assert(distance >= 0 && distance < len);
+        
         int num = 0;
-        for (int start=0; num != size; start++) {
+        for (int start=0; num != len; start++) {
             E elem = doGet(index+start);
             int i = start;
             do {
