@@ -1139,6 +1139,7 @@ public abstract class IList<E> extends AbstractList<E>
      *
      * @param index index of first element to set
      * @param list  list with elements to set
+     * @throws 		IndexOutOfBoundsException if the range is invalid
      */
     public void setAll(int index, IList<? extends E> list) {
     	// There is a special implementation accepting a GapList
@@ -1175,6 +1176,7 @@ public abstract class IList<E> extends AbstractList<E>
      *
      * @param index index of first element to set
      * @param elems elements to set
+     * @throws 		IndexOutOfBoundsException if the range is invalid
      */
     public void setAll(int index, E... elems) {
         checkRange(index, elems.length);
@@ -1199,6 +1201,7 @@ public abstract class IList<E> extends AbstractList<E>
 	 *
 	 * @param index	index of first element to remove
 	 * @param len	number of elements to remove
+     * @throws 		IndexOutOfBoundsException if the range is invalid
 	 */
 	public void remove(int index, int len) {
     	checkRange(index, len);
@@ -1223,8 +1226,9 @@ public abstract class IList<E> extends AbstractList<E>
 	 * <code>len</code> and contain only the element <code>elem</code>.
 	 * The list will grow or shrink as needed.
 	 *
-	 * @param len  length of list
-	 * @param elem element which the list will contain
+	 * @param len  	length of list
+	 * @param elem 	element which the list will contain
+     * @throws 		IndexOutOfBoundsException if the range is invalid
 	 */
 	public void init(int len, E elem) {
 	    checkLength(len);
@@ -1247,8 +1251,9 @@ public abstract class IList<E> extends AbstractList<E>
      * <code>len</code>. If the list must grow, the specified
      * element <code>elem</code> will be used for filling.
      *
-     * @param len  length of list
-     * @param elem element which will be used for extending the list
+     * @param len  	length of list
+     * @param elem 	element which will be used for extending the list
+     * @throws 	 	IndexOutOfBoundsException if the range is invalid
 	 */
 	public void resize(int len, E elem) {
 	    checkLength(len);
@@ -1283,6 +1288,7 @@ public abstract class IList<E> extends AbstractList<E>
      * @param index	index of first element to fill
      * @param len	number of elements to fill
      * @param elem	element used for filling
+     * @throws 		IndexOutOfBoundsException if the range is invalid
      */
     // see java.util.Arrays#fill
     public void fill(int index, int len, E elem) {
@@ -1301,6 +1307,7 @@ public abstract class IList<E> extends AbstractList<E>
      * @param srcIndex	index of first source element to copy
      * @param dstIndex	index of first destination element to copy
      * @param len		number of elements to copy
+     * @throws 			IndexOutOfBoundsException if the ranges are invalid
      */
     public void copy(int srcIndex, int dstIndex, int len) {
     	checkRange(srcIndex, len);
@@ -1325,6 +1332,7 @@ public abstract class IList<E> extends AbstractList<E>
      * @param srcIndex	index of first source element to move
      * @param dstIndex	index of first destination element to move
      * @param len		number of elements to move
+     * @throws 			IndexOutOfBoundsException if the ranges are invalid
      */
     public void move(int srcIndex, int dstIndex, int len) {
     	checkRange(srcIndex, len);
@@ -1359,6 +1367,7 @@ public abstract class IList<E> extends AbstractList<E>
      * @param srcIndex	index of first source element to move
      * @param dstIndex	index of first destination element to move
      * @param len		number of elements to move
+     * @throws 			IndexOutOfBoundsException if the ranges are invalid
      */
     public void drag(int srcIndex, int dstIndex, int len) {
     	checkRange(srcIndex, len);
@@ -1383,6 +1392,7 @@ public abstract class IList<E> extends AbstractList<E>
      *
      * @param index	index of first element to reverse
      * @param len	number of elements to reverse
+     * @throws 			IndexOutOfBoundsException if the ranges are invalid
      */
     public void reverse(int index, int len) {
     	checkRange(index, len);
@@ -1405,7 +1415,7 @@ public abstract class IList<E> extends AbstractList<E>
      * @param index1	index of first element in first range to swap
      * @param index2	index of first element in second range to swap
      * @param len		number of elements to swap
-     * @throws 			IndexOutOfBoundsException if the ranges overlap
+     * @throws 			IndexOutOfBoundsException if the ranges are invalid
      */
     public void swap(int index1, int index2, int len) {
     	checkRange(index1, len);
@@ -1445,12 +1455,24 @@ public abstract class IList<E> extends AbstractList<E>
      * @param index		index of first element to rotate
      * @param len		number of elements to rotate
      * @param distance	distance to move the elements
+     * @throws 			IndexOutOfBoundsException if the ranges are invalid
      */
     public void rotate(int index, int len, int distance) {
     	checkRange(index, len);
     	doRotate(index, len, distance);
     }
-    
+
+    /**
+     * Internal method to rotate specified elements in the list.
+     * The distance argument can be positive or negative:
+     * If it is positive, the elements are moved towards the end,
+     * if negative, the elements are moved toward the beginning,
+     * if distance is 0, the list is not changed.
+     *
+     * @param index		index of first element to rotate
+     * @param len		number of elements to rotate
+     * @param distance	distance to move the elements
+     */
     protected void doRotate(int index, int len, int distance) {
         distance = distance % len;
         if (distance < 0) {
@@ -1460,7 +1482,7 @@ public abstract class IList<E> extends AbstractList<E>
             return;
         }
         assert(distance >= 0 && distance < len);
-        
+
         int num = 0;
         for (int start=0; num != len; start++) {
             E elem = doGet(index+start);
@@ -1495,6 +1517,7 @@ public abstract class IList<E> extends AbstractList<E>
      * @param len			number of elements to sort
      * @param comparator	comparator to use for sorting
      * 						(null means the elements natural ordering should be used)
+     * @throws 				IndexOutOfBoundsException if the range is invalid
      *
      * @see Arrays#sort
      */
@@ -1593,6 +1616,7 @@ public abstract class IList<E> extends AbstractList<E>
      *                      elements in the array are less than the specified key.  Note
      *                      that this guarantees that the return value will be &gt;= 0 if
      *                      and only if the key is found.
+     * @throws 				IndexOutOfBoundsException if the range is invalid
      *
      * @see Arrays#binarySearch
      */
