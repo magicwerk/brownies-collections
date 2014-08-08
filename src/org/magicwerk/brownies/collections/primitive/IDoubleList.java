@@ -1088,6 +1088,7 @@ public double[] getArray(int index, int len) {
      *
      * @param index index of first element to set
      * @param list  list with elements to set
+     * @throws 		IndexOutOfBoundsException if the range is invalid
      */
 public void setAll(int index, IDoubleList list) {
     // There is a special implementation accepting a GapList   
@@ -1122,6 +1123,7 @@ public void setAll(int index, Collection<Double> coll) {
      *
      * @param index index of first element to set
      * @param elems elements to set
+     * @throws 		IndexOutOfBoundsException if the range is invalid
      */
 public void setAll(int index, double... elems) {
     checkRange(index, elems.length);
@@ -1145,6 +1147,7 @@ protected void doSetAll(int index, double[] elems) {
 	 *
 	 * @param index	index of first element to remove
 	 * @param len	number of elements to remove
+     * @throws 		IndexOutOfBoundsException if the range is invalid
 	 */
 public void remove(int index, int len) {
     checkRange(index, len);
@@ -1168,8 +1171,9 @@ protected void doRemoveAll(int index, int len) {
 	 * <code>len</code> and contain only the element <code>elem</code>.
 	 * The list will grow or shrink as needed.
 	 *
-	 * @param len  length of list
-	 * @param elem element which the list will contain
+	 * @param len  	length of list
+	 * @param elem 	element which the list will contain
+     * @throws 		IndexOutOfBoundsException if the range is invalid
 	 */
 public void init(int len, double elem) {
     checkLength(len);
@@ -1191,8 +1195,9 @@ public void init(int len, double elem) {
      * <code>len</code>. If the list must grow, the specified
      * element <code>elem</code> will be used for filling.
      *
-     * @param len  length of list
-     * @param elem element which will be used for extending the list
+     * @param len  	length of list
+     * @param elem 	element which will be used for extending the list
+     * @throws 	 	IndexOutOfBoundsException if the range is invalid
 	 */
 public void resize(int len, double elem) {
     checkLength(len);
@@ -1226,6 +1231,7 @@ public void fill(double elem) {
      * @param index	index of first element to fill
      * @param len	number of elements to fill
      * @param elem	element used for filling
+     * @throws 		IndexOutOfBoundsException if the range is invalid
      */
 // see java.util.Arrays#fill  
 public void fill(int index, int len, double elem) {
@@ -1238,10 +1244,12 @@ public void fill(int index, int len, double elem) {
     /**
      * Copy specified elements.
      * Source and destination ranges may overlap.
+     * The size of the list does not change.
      *
      * @param srcIndex	index of first source element to copy
      * @param dstIndex	index of first destination element to copy
      * @param len		number of elements to copy
+     * @throws 			IndexOutOfBoundsException if the ranges are invalid
      */
 public void copy(int srcIndex, int dstIndex, int len) {
     checkRange(srcIndex, len);
@@ -1259,12 +1267,13 @@ public void copy(int srcIndex, int dstIndex, int len) {
 
     /**
      * Move specified elements.
-     * The elements which are moved away are set to null.
      * Source and destination ranges may overlap.
+     * The elements which are moved away are set to null, so the size of the list does not change.
      *
      * @param srcIndex	index of first source element to move
      * @param dstIndex	index of first destination element to move
      * @param len		number of elements to move
+     * @throws 			IndexOutOfBoundsException if the ranges are invalid
      */
 public void move(int srcIndex, int dstIndex, int len) {
     checkRange(srcIndex, len);
@@ -1290,6 +1299,26 @@ public void move(int srcIndex, int dstIndex, int len) {
 }
 
     /**
+     * Drag specified elements.
+     * Source and destination ranges may overlap.
+     * The size of the list does not change and it contains the same elements as before, but in changed order.
+     *
+     * @param srcIndex	index of first source element to move
+     * @param dstIndex	index of first destination element to move
+     * @param len		number of elements to move
+     * @throws 			IndexOutOfBoundsException if the ranges are invalid
+     */
+public void drag(int srcIndex, int dstIndex, int len) {
+    checkRange(srcIndex, len);
+    checkRange(dstIndex, len);
+    if (srcIndex < dstIndex) {
+        doRotate(srcIndex, len + (dstIndex - srcIndex), dstIndex - srcIndex);
+    } else if (srcIndex > dstIndex) {
+        doRotate(dstIndex, len + (srcIndex - dstIndex), dstIndex - srcIndex);
+    }
+}
+
+    /**
      * Reverses the order of all elements in the specified list.
      */
 public void reverse() {
@@ -1301,6 +1330,7 @@ public void reverse() {
      *
      * @param index	index of first element to reverse
      * @param len	number of elements to reverse
+     * @throws 			IndexOutOfBoundsException if the ranges are invalid
      */
 public void reverse(int index, int len) {
     checkRange(index, len);
@@ -1322,13 +1352,13 @@ public void reverse(int index, int len) {
      * @param index1	index of first element in first range to swap
      * @param index2	index of first element in second range to swap
      * @param len		number of elements to swap
-     * @throws 			IndexOutOfBoundsException if the ranges overlap
+     * @throws 			IndexOutOfBoundsException if the ranges are invalid
      */
 public void swap(int index1, int index2, int len) {
     checkRange(index1, len);
     checkRange(index2, len);
     if ((index1 < index2 && index1 + len > index2) || index1 > index2 && index2 + len > index1) {
-        throw new IllegalArgumentException("Swap ranges overlap");
+        throw new IndexOutOfBoundsException("Swap ranges overlap");
     }
     for (int i = 0; i < len; i++) {
         double swap = doGet(index1 + i);
@@ -1360,19 +1390,35 @@ public void rotate(int distance) {
      * @param index		index of first element to rotate
      * @param len		number of elements to rotate
      * @param distance	distance to move the elements
+     * @throws 			IndexOutOfBoundsException if the ranges are invalid
      */
 public void rotate(int index, int len, int distance) {
     checkRange(index, len);
-    int size = size();
-    distance = distance % size;
+    doRotate(index, len, distance);
+}
+
+    /**
+     * Internal method to rotate specified elements in the list.
+     * The distance argument can be positive or negative:
+     * If it is positive, the elements are moved towards the end,
+     * if negative, the elements are moved toward the beginning,
+     * if distance is 0, the list is not changed.
+     *
+     * @param index		index of first element to rotate
+     * @param len		number of elements to rotate
+     * @param distance	distance to move the elements
+     */
+protected void doRotate(int index, int len, int distance) {
+    distance = distance % len;
     if (distance < 0) {
-        distance += size;
+        distance += len;
     }
     if (distance == 0) {
         return;
     }
+    assert (distance >= 0 && distance < len);
     int num = 0;
-    for (int start = 0; num != size; start++) {
+    for (int start = 0; num != len; start++) {
         double elem = doGet(index + start);
         int i = start;
         do {
@@ -1405,6 +1451,7 @@ public void sort() {
      * @param len			number of elements to sort
      * @param comparator	comparator to use for sorting
      * 						(null means the elements natural ordering should be used)
+     * @throws 				IndexOutOfBoundsException if the range is invalid
      *
      * @see Arrays#sort
      */
@@ -1502,6 +1549,7 @@ public int binarySearch(double key) {
      *                      elements in the array are less than the specified key.  Note
      *                      that this guarantees that the return value will be &gt;= 0 if
      *                      and only if the key is found.
+     * @throws 				IndexOutOfBoundsException if the range is invalid
      *
      * @see Arrays#binarySearch
      */
