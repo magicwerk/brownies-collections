@@ -353,6 +353,26 @@ public class BigList<T>
 	 * @return		relative index within block
 	 */
 	private int getBlockIndex(int index, boolean write, int modify) {
+        int[] endIndex = new int[1];
+//        currNode = blocks.getIn(index, endIndex);
+        currNode = blocks.access(index, modify, endIndex);
+        currBlock = currNode.getValue();
+//        currBlockStart = endIndex[0];
+//        currBlockEnd = currBlockStart + currBlock.size();
+        currBlockEnd = endIndex[0];
+        currBlockStart = currBlockEnd - currBlock.size();
+        assert(index >= currBlockStart && index <= currBlockEnd);
+
+        if (write) {
+			if (currBlock.isShared()) {
+				currBlock.unref();
+				currBlock = new Block<T>(currBlock);
+				currNode.setValue(currBlock);
+			}
+	    }
+
+        return index - currBlockStart;
+
 		// Determine block where specified index is located and store it in currBlock
 //		if (index >= currBlockStart && index < currBlockEnd) {
 //			// currBlock is already set correctly
@@ -378,26 +398,7 @@ public class BigList<T>
 //            return 0;
 //        }
 
-        int[] endIndex = new int[1];
-//        currNode = blocks.getIn(index, endIndex);
-        currNode = blocks.access(index, modify, endIndex);
-        currBlock = currNode.getValue();
-//        currBlockStart = endIndex[0];
-//        currBlockEnd = currBlockStart + currBlock.size();
-        currBlockEnd = endIndex[0];
-        currBlockStart = currBlockEnd - currBlock.size();
-        assert(index >= currBlockStart);
-
-        if (write) {
-			if (currBlock.isShared()) {
-				currBlock.unref();
-				currBlock = new Block<T>(currBlock);
-				currNode.setValue(currBlock);
-			}
-	    }
-
-        return index - currBlockStart;
-	}
+}
 
 	void checkTree() {
 		AVLNode node = blocks.root;
@@ -509,18 +510,19 @@ public class BigList<T>
 			Block<T> block = new Block<T>(blockSize);
 			block.add(0, element);
 			blocks.add(1, block);
+			//blocks.root.relativePosition += 1;
 			blocks.root.min().relativePosition = -blockSize;
 		} else {
 			int pos = getBlockIndex(index, true, 1);
 
-			// Insert in current block
+			// There is still place in the current block: insert in current block
 			if (currBlock.size() < blockSize) {
 				//changeNode(currNode, 1);
 				currBlock.add(pos, element);
 				currBlockEnd++;
 
 			} else {
-				// Split block for insert
+				// No place any more in current block: split block for insert
 				Block<T> nextBlock = new Block<T>(blockSize);
 				int nextBlockLen = blockSize/2;
 				int blockLen = blockSize - nextBlockLen;
@@ -528,38 +530,56 @@ public class BigList<T>
 				GapList.copy(currBlock.values, blockLen, nextBlock.values, 0, nextBlockLen);
 				currBlock.values.remove(nextBlockLen, blockSize-nextBlockLen);
 
-				//assert(n.equals(currNode.previous()));
-
-				if (currNode.relativePosition < 0) {
-					currNode.relativePosition += (nextBlockLen+1);
-				} else {
-					currNode.relativePosition -= (nextBlockLen+1);
-				}
+				// Subtract 1 more because getBlockIndex() has already added 1
+				modify(-nextBlockLen-1);
+				blocks.add(currBlockEnd-nextBlockLen, nextBlock);
+				checkTree();
 
 				if (pos < blockLen) {
 					// Insert element in first block
-					blocks.add(currBlockEnd, nextBlock);
-					if (currNode.relativePosition > 0) {
-						currNode.relativePosition += 1;
-					} else {
-						currNode.relativePosition -= 1;
-					}
+					modify(1);
 					currBlock.add(pos, element);
 					currBlockEnd = currBlockStart+blockLen+1;
 				} else {
 					// Insert element in second block
-					blocks.add(currBlockEnd, nextBlock);
 					currNode = currNode.next();
-					if (currNode.relativePosition > 0) {
-						currNode.relativePosition += 1;
-					} else {
-						currNode.relativePosition -= 1;
-					}
+					modify(1);
 					currBlock = nextBlock;
 					currBlock.add(pos-blockLen, element);
 					currBlockStart += blockLen;
 					currBlockEnd++;
 				}
+
+				//				if (currNode.relativePosition < 0) {
+//					currNode.relativePosition += (nextBlockLen+1);
+//				} else {
+//					currNode.relativePosition -= (nextBlockLen+1);
+//				}
+//
+//				if (pos < blockLen) {
+//					// Insert element in first block
+//					blocks.add(currBlockEnd, nextBlock);
+//					if (currNode.relativePosition > 0) {
+//						currNode.relativePosition += 1;
+//					} else {
+//						currNode.relativePosition -= 1;
+//					}
+//					currBlock.add(pos, element);
+//					currBlockEnd = currBlockStart+blockLen+1;
+//				} else {
+//					// Insert element in second block
+//					blocks.add(currBlockEnd, nextBlock);
+//					currNode = currNode.next();
+//					if (currNode.relativePosition > 0) {
+//						currNode.relativePosition += 1;
+//					} else {
+//						currNode.relativePosition -= 1;
+//					}
+//					currBlock = nextBlock;
+//					currBlock.add(pos-blockLen, element);
+//					currBlockStart += blockLen;
+//					currBlockEnd++;
+//				}
 			}
 		}
 		size++;
@@ -569,6 +589,72 @@ public class BigList<T>
 		checkTree(); //TODO
 
 		return true;
+	}
+
+	void modify(int modify) {
+		if (currBlockEnd < blocks.root.relativePosition || currNode == blocks.root) {
+			blocks.root.relativePosition += modify;
+		}
+		if (currNode.relativePosition < 0) {
+			AVLNode<Block<T>> leftNode = currNode.getLeftSubTree();
+			if (leftNode != null) {
+				leftNode.relativePosition -= modify;
+			}
+			AVLNode<Block<T>> parent = currNode.parent();
+			assert(parent.getLeftSubTree() == currNode);
+			boolean parentRight = true;
+			while (true) {
+				AVLNode p = parent.parent();
+				if (p == null) {
+					break;
+				}
+				boolean pRight = (p.getLeftSubTree() == parent);
+				if (parentRight == true && pRight == false) {
+					parent.relativePosition += modify;
+				}
+				parent = p;
+				parentRight = pRight;
+			}
+		} else {
+			if (currNode != blocks.root) {
+				currNode.relativePosition += modify;
+			}
+			AVLNode<Block<T>> leftNode = currNode.getLeftSubTree();
+			if (leftNode != null) {
+				leftNode.relativePosition -= modify;
+			}
+			AVLNode<Block<T>> parent = currNode.parent();
+			if (parent != null) {
+				assert(parent.getRightSubTree() == currNode);
+				boolean parentLeft = true;
+				while (true) {
+					AVLNode p = parent.parent();
+					if (p == null) {
+						break;
+					}
+					boolean pLeft = (p.getRightSubTree() == parent);
+					if (parentLeft == true && pLeft == false) {
+						parent.relativePosition -= modify;
+					}
+					parent = p;
+					parentLeft = pLeft;
+				}
+			}
+		}
+
+//		if (node.relativePosition < 0) {
+//			blocks.root.relativePosition += modify;
+//			AVLNode<Block<T>> leftNode = node.getLeftSubTree();
+//			if (leftNode != null) {
+//				leftNode.relativePosition -= modify;
+//			}
+//		} else {
+//			node.relativePosition += modify;
+//			AVLNode<Block<T>> leftNode = node.getLeftSubTree();
+//			if (leftNode != null) {
+//				leftNode.relativePosition -= modify;
+//			}
+//		}
 	}
 
 	@Override
