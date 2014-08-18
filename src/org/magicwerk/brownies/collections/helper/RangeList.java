@@ -27,6 +27,7 @@ import java.util.NoSuchElementException;
 import javax.xml.soap.Node;
 
 import org.magicwerk.brownies.collections.BigList;
+import org.magicwerk.brownies.collections.BigList.Block;
 
 /**
  * A <code>List</code> implementation that is optimised for fast insertions and
@@ -59,10 +60,6 @@ import org.magicwerk.brownies.collections.BigList;
 //Based on org.apache.commons.collections4.list.TreeList
 @SuppressWarnings("deprecation") // replace ArrayStack by ArrayDeque when moving to Java 1.6
 public class RangeList<E> {
-//    add; toArray; iterator; insert; get; indexOf; remove
-//    TreeList = 1260;7360;3080;  160;   170;3400;  170;
-//   ArrayList =  220;1480;1760; 6870;    50;1540; 7200;
-//  LinkedList =  270;7360;3350;55860;290720;2910;55200;
 
     /** The root node in the AVL tree */
     public AVLNode<E> root;
@@ -70,29 +67,6 @@ public class RangeList<E> {
     /** The current size of the list */
     private int size;
 
-    //-----------------------------------------------------------------------
-    /**
-     * Constructs a new empty list.
-     */
-    public RangeList() {
-        super();
-    }
-
-    /**
-     * Constructs a new empty list that copies the specified collection.
-     *
-     * @param coll  the collection to copy
-     * @throws NullPointerException if the collection is null
-     */
-    public RangeList(final Collection<? extends E> coll) {
-        super();
-        if (!coll.isEmpty()) {
-            root = new AVLNode<E>(coll);
-            size = coll.size();
-        }
-    }
-
-    //-----------------------------------------------------------------------
     /**
      * Gets the element at the specified index.
      *
@@ -120,83 +94,6 @@ public class RangeList<E> {
         return size;
     }
 
-//    /**
-//     * Gets an iterator over the list.
-//     *
-//     * @return an iterator over the list
-//     */
-//    @Override
-//    public Iterator<E> iterator() {
-//        // override to go 75% faster
-//        return listIterator(0);
-//    }
-//
-//    /**
-//     * Gets a ListIterator over the list.
-//     *
-//     * @return the new iterator
-//     */
-//    @Override
-//    public ListIterator<E> listIterator() {
-//        // override to go 75% faster
-//        return listIterator(0);
-//    }
-//
-//    /**
-//     * Gets a ListIterator over the list.
-//     *
-//     * @param fromIndex  the index to start from
-//     * @return the new iterator
-//     */
-//    @Override
-//    public ListIterator<E> listIterator(final int fromIndex) {
-//        // override to go 75% faster
-//        // cannot use EmptyIterator as iterator.add() must work
-//        checkInterval(fromIndex, 0, size());
-//        return new TreeListIterator<E>(this, fromIndex);
-//    }
-
-    /**
-     * Searches for the index of an object in the list.
-     *
-     * @param object  the object to search
-     * @return the index of the object, -1 if not found
-     */
-    //@Override
-//    public int indexOf(final Object object) {
-//        // override to go 75% faster
-//        if (root == null) {
-//            return -1;
-//        }
-//        return root.indexOf(object, root.relativePosition);
-//    }
-
-    /**
-     * Searches for the presence of an object in the list.
-     *
-     * @param object  the object to check
-     * @return true if the object is found
-     */
-    //@Override
-//    public boolean contains(final Object object) {
-//        return indexOf(object) >= 0;
-//    }
-
-    /**
-     * Converts the list into an array.
-     *
-     * @return the list as an array
-     */
-    //@Override
-    public Object[] toArray() {
-        // override to go 20% faster
-        final Object[] array = new Object[size()];
-        if (root != null) {
-            root.toArray(array, root.relativePosition);
-        }
-        return array;
-    }
-
     //-----------------------------------------------------------------------
     /**
      * Adds a new element to the list.
@@ -215,46 +112,6 @@ public class RangeList<E> {
         }
         size++;
     }
-
-    /**
-     * Appends all of the elements in the specified collection to the end of this list,
-     * in the order that they are returned by the specified collection's Iterator.
-     * <p>
-     * This method runs in O(n + log m) time, where m is
-     * the size of this list and n is the size of {@code c}.
-     *
-     * @param c  the collection to be added to this list
-     * @return {@code true} if this list changed as a result of the call
-     * @throws NullPointerException {@inheritDoc}
-     */
-    //@Override
-//    public boolean addAll(final Collection<? extends E> c) {
-//        if (c.isEmpty()) {
-//            return false;
-//        }
-//        //modCount += c.size();
-//        final AVLNode<E> cTree = new AVLNode<E>(c);
-//        root = root == null ? cTree : root.addAll(cTree, size);
-//        size += c.size();
-//        return true;
-//    }
-
-    /**
-     * Sets the element at the specified index.
-     *
-     * @param index  the index to set
-     * @param obj  the object to store at the specified index
-     * @return the previous object at that index
-     * @throws IndexOutOfBoundsException if the index is invalid
-     */
-    //@Override
-//    public E set(final int index, final E obj) {
-//        checkInterval(index, 0, size() - 1);
-//        final AVLNode<E> node = root.get(index);
-//        final E result = node.value;
-//        node.setValue(obj);
-//        return result;
-//    }
 
     /**
      * Removes the element at the specified index.
@@ -483,11 +340,18 @@ public class RangeList<E> {
         	}
         	AVLNode<E> leftNode = getLeftSubTree();
         	int leftIndex = idx[0]-((BigList.Block) getValue()).size();
+        	assert(leftIndex >= 0);
         	if (index >= leftIndex && index < idx[0]) {
     			if (relativePosition > 0) {
     				relativePosition += modify;
+    				if (leftNode != null) {
+    					leftNode.relativePosition -= modify;
+    				}
     			} else {
-    				relativePosition -= modify;
+    				if (leftNode != null) {
+    					leftNode.relativePosition -= modify;
+    				}
+    			//	relativePosition -= modify;
     			}
         		return this;
         	}
@@ -573,6 +437,28 @@ public class RangeList<E> {
             return right.min();
         }
 
+        public AVLNode<E> parent() {
+        	AVLNode prev = this;
+        	AVLNode next = this;
+        	while (true) {
+        		if (prev != null) {
+        			prev = prev.previous();
+        			if (prev != null && prev.getRightSubTree() == this) {
+        				return prev;
+        			}
+        		}
+        		if (next != null) {
+	        		next = next.next();
+	        		if (next != null && next.getLeftSubTree() == this) {
+	        			return next;
+	        		}
+        		}
+        		if (prev == null && next == null) {
+        			return null;
+        		}
+        	}
+        }
+
     	public AVLNode<E> nextTop() {
     		AVLNode top = null;
     		int topHei = height;
@@ -583,8 +469,9 @@ public class RangeList<E> {
     				break;
     			}
     			if (next.height > topHei) {
-    				top = next;
-    				topHei = top.height;
+    				return next;
+    				//top = next;
+//    				topHei = top.height;
     			} else {
     				//break;
     			}
@@ -602,8 +489,9 @@ public class RangeList<E> {
     				break;
     			}
     			if (prev.height > topHei) {
-    				top = prev;
-    				topHei = top.height;
+    				return prev;
+    				//top = prev;
+    				//topHei = top.height;
     			} else {
     				//break;
     			}
@@ -650,29 +538,23 @@ public class RangeList<E> {
             }
         }
 
-        public AVLNode<E> insertOnLeft2(final int indexRelativeToMe, final E obj) {
+        private AVLNode<E> insertOnLeft(final int indexRelativeToMe, final E obj) {
             if (getLeftSubTree() == null) {
-                setLeft(new AVLNode<E>(indexRelativeToMe, obj, this, left), null);
+            	int pos;
+            	if (relativePosition >= 0) {
+            		pos = -relativePosition;
+            	} else {
+            		Block b = (Block) value;
+            		pos = -b.size();
+            		//pos = -1;
+            	}
+                setLeft(new AVLNode<E>(pos, obj, this, left), null);
             } else {
                 setLeft(left.insert(indexRelativeToMe, obj), null);
             }
-            //if (relativePosition >= 0) {
-                //relativePosition++;
-            //}
-            final AVLNode<E> ret = balance();
-            recalcHeight();
-            return ret;
-        }
-
-        public AVLNode<E> insertOnLeft(final int indexRelativeToMe, final E obj) {
-            if (getLeftSubTree() == null) {
-                setLeft(new AVLNode<E>(-1, obj, this, left), null);
-            } else {
-                setLeft(left.insert(indexRelativeToMe, obj), null);
+            if (relativePosition >= 0) {
+                relativePosition++;
             }
-            //if (relativePosition >= 0) {
-                //relativePosition++;
-            //}
             final AVLNode<E> ret = balance();
             recalcHeight();
             return ret;
@@ -684,9 +566,9 @@ public class RangeList<E> {
             } else {
                 setRight(right.insert(indexRelativeToMe, obj), null);
             }
-            //if (relativePosition < 0) {
-              //  relativePosition--;
-            //}
+            if (relativePosition < 0) {
+                relativePosition--;
+            }
             final AVLNode<E> ret = balance();
             recalcHeight();
             return ret;
@@ -903,6 +785,7 @@ public class RangeList<E> {
         }
 
         private AVLNode<E> rotateLeft() {
+        	assert(!rightIsNext);
             final AVLNode<E> newTop = right; // can't be faedelung!
             final AVLNode<E> movedNode = getRightSubTree().getLeftSubTree();
 
@@ -916,10 +799,14 @@ public class RangeList<E> {
             setOffset(newTop, newTopPosition);
             setOffset(this, myNewPosition);
             setOffset(movedNode, movedPosition);
+
+            assert(newTop.getLeftSubTree() == null || newTop.getLeftSubTree().relativePosition < 0);
+            assert(newTop.getRightSubTree() == null || newTop.getRightSubTree().relativePosition > 0);
             return newTop;
         }
 
         private AVLNode<E> rotateRight() {
+        	assert(!leftIsPrevious);
             final AVLNode<E> newTop = left; // can't be faedelung
             final AVLNode<E> movedNode = getLeftSubTree().getRightSubTree();
 
@@ -933,6 +820,9 @@ public class RangeList<E> {
             setOffset(newTop, newTopPosition);
             setOffset(this, myNewPosition);
             setOffset(movedNode, movedPosition);
+
+            assert(newTop.getLeftSubTree() == null || newTop.getLeftSubTree().relativePosition < 0);
+            assert(newTop.getRightSubTree() == null || newTop.getRightSubTree().relativePosition > 0);
             return newTop;
         }
 
@@ -1145,5 +1035,145 @@ public class RangeList<E> {
                 .toString();
         }
     }
+//  /**
+//  * Gets an iterator over the list.
+//  *
+//  * @return an iterator over the list
+//  */
+// @Override
+// public Iterator<E> iterator() {
+//     // override to go 75% faster
+//     return listIterator(0);
+// }
+//
+// /**
+//  * Gets a ListIterator over the list.
+//  *
+//  * @return the new iterator
+//  */
+// @Override
+// public ListIterator<E> listIterator() {
+//     // override to go 75% faster
+//     return listIterator(0);
+// }
+//
+// /**
+//  * Gets a ListIterator over the list.
+//  *
+//  * @param fromIndex  the index to start from
+//  * @return the new iterator
+//  */
+// @Override
+// public ListIterator<E> listIterator(final int fromIndex) {
+//     // override to go 75% faster
+//     // cannot use EmptyIterator as iterator.add() must work
+//     checkInterval(fromIndex, 0, size());
+//     return new TreeListIterator<E>(this, fromIndex);
+// }
+
+ /**
+  * Searches for the index of an object in the list.
+  *
+  * @param object  the object to search
+  * @return the index of the object, -1 if not found
+  */
+ //@Override
+// public int indexOf(final Object object) {
+//     // override to go 75% faster
+//     if (root == null) {
+//         return -1;
+//     }
+//     return root.indexOf(object, root.relativePosition);
+// }
+
+ /**
+  * Searches for the presence of an object in the list.
+  *
+  * @param object  the object to check
+  * @return true if the object is found
+  */
+ //@Override
+// public boolean contains(final Object object) {
+//     return indexOf(object) >= 0;
+// }
+
+    /**
+     * Converts the list into an array.
+     *
+     * @return the list as an array
+     */
+    //@Override
+//    public Object[] toArray() {
+//        // override to go 20% faster
+//        final Object[] array = new Object[size()];
+//        if (root != null) {
+//            root.toArray(array, root.relativePosition);
+//        }
+//        return array;
+//    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * Constructs a new empty list.
+     */
+//    public RangeList() {
+//        super();
+//    }
+
+    /**
+     * Constructs a new empty list that copies the specified collection.
+     *
+     * @param coll  the collection to copy
+     * @throws NullPointerException if the collection is null
+     */
+//    public RangeList(final Collection<? extends E> coll) {
+//        super();
+//        if (!coll.isEmpty()) {
+//            root = new AVLNode<E>(coll);
+//            size = coll.size();
+//        }
+//    }
+
+    //-----------------------------------------------------------------------
+
+    /**
+     * Appends all of the elements in the specified collection to the end of this list,
+     * in the order that they are returned by the specified collection's Iterator.
+     * <p>
+     * This method runs in O(n + log m) time, where m is
+     * the size of this list and n is the size of {@code c}.
+     *
+     * @param c  the collection to be added to this list
+     * @return {@code true} if this list changed as a result of the call
+     * @throws NullPointerException {@inheritDoc}
+     */
+    //@Override
+//    public boolean addAll(final Collection<? extends E> c) {
+//        if (c.isEmpty()) {
+//            return false;
+//        }
+//        //modCount += c.size();
+//        final AVLNode<E> cTree = new AVLNode<E>(c);
+//        root = root == null ? cTree : root.addAll(cTree, size);
+//        size += c.size();
+//        return true;
+//    }
+
+    /**
+     * Sets the element at the specified index.
+     *
+     * @param index  the index to set
+     * @param obj  the object to store at the specified index
+     * @return the previous object at that index
+     * @throws IndexOutOfBoundsException if the index is invalid
+     */
+    //@Override
+//    public E set(final int index, final E obj) {
+//        checkInterval(index, 0, size() - 1);
+//        final AVLNode<E> node = root.get(index);
+//        final E result = node.value;
+//        node.setValue(obj);
+//        return result;
+//    }
 
 }
