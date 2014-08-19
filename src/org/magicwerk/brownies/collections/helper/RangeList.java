@@ -205,7 +205,6 @@ public class RangeList<E> {
     				if (leftNode != null) {
     					leftNode.relativePosition -= modify;
     				}
-    			//	relativePosition -= modify;
     			}
         		return this;
         	}
@@ -231,6 +230,10 @@ public class RangeList<E> {
         		if (nextNode == null || wasLeft) {
         			if (relativePosition > 0) {
         				relativePosition += modify;
+       		        	AVLNode<E> left = getLeftSubTree();
+       					if (left != null) {
+       						left.relativePosition -= modify;
+        				}
         			} else {
         				relativePosition -= modify;
         			}
@@ -339,7 +342,8 @@ public class RangeList<E> {
                 setLeft(left.insert(indexRelativeToMe, obj), null);
             }
             if (relativePosition >= 0) {
-                relativePosition++;
+        		Block b = (Block) obj;
+                relativePosition += b.size();
             }
             final AVLNode<E> ret = balance();
             recalcHeight();
@@ -348,12 +352,14 @@ public class RangeList<E> {
 
         private AVLNode<E> insertOnRight(final int indexRelativeToMe, final E obj) {
             if (getRightSubTree() == null) {
-                setRight(new AVLNode<E>(+1, obj, right, this), null);
+            	Block b = (Block) obj;
+                setRight(new AVLNode<E>(b.size(), obj, right, this), null);
             } else {
                 setRight(right.insert(indexRelativeToMe, obj), null);
             }
             if (relativePosition < 0) {
-                relativePosition--;
+        		Block b = (Block) obj;
+                relativePosition -= b.size();
             }
             final AVLNode<E> ret = balance();
             recalcHeight();
