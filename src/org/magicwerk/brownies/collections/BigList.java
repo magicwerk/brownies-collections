@@ -667,43 +667,52 @@ public class BigList<T>
 		currBlockEnd--;
 		size--;
 
-		int bs = Math.max(blockSize/3, 1);
-		if (currBlock.size() >= bs) {
-//			if (currNode.relativePosition > 0) {
-//				currNode.relativePosition--;
-//				AVLNode left = blocks.root.previous();
-//				if (left != null) {
-//					left.relativePosition++;
-//				}
-//			} else {
-//				blocks.root.relativePosition--;
-//			}
+		int minBlockSize = Math.max(blockSize/3, 1);
+		if (currBlock.size() < minBlockSize) {
+			if (currBlock.size() == 0) {
+				// Position have already been updated, so just unlink this node
+				AVLNode parent = currNode.parent();
+				if (parent.left == currNode) {
+					parent.left = null;
+				} else {
+					assert(parent.right == currNode);
+					parent.right = null;
+				}
+				currNode.removeSelf();
+				currNode = blocks.root;
+				currBlock = currNode.getValue();
+				currBlockEnd = blocks.root.relativePosition;
+				currBlockStart = currBlockEnd - currBlock.size();
+				
+			} else {
+    			AVLNode<Block<T>> leftNode = currNode.previous();
+    			// TODO performance
+    			if (leftNode != null && leftNode.getValue().size() <= blockSize/3+1) {
+    				// Merge with left block
+    			    int len = currBlock.size();
+    			    int dstSize = leftNode.getValue().size();
+    	            for (int i=0; i<len; i++) {
+    	                leftNode.getValue().values.add(null); // TODO Add method to GapList
+    	            }
+    				GapList.copy(currBlock.values, 0, leftNode.getValue().values, dstSize, len);
+    				blocks.remove(currBlockEnd);
+    				currBlock = leftNode.getValue();
+    				currBlockStart -= dstSize;
 
-		} else {
-			AVLNode<Block<T>> leftNode = currNode.previous();
-			// TODO performance
-			if (leftNode != null && leftNode.getValue().size() <= blockSize/3+1) {
-				// Merge with left block
-			    int len = currBlock.size();
-			    int dstSize = leftNode.getValue().size();
-	            for (int i=0; i<len; i++) {
-	                leftNode.getValue().values.add(null); // TODO Add method to GapList
-	            }
-				GapList.copy(currBlock.values, 0, leftNode.getValue().values, dstSize, len);
-				blocks.remove(currBlockEnd);
-				currBlock = leftNode.getValue();
-				currBlockStart -= dstSize;
-
-			} else if (currNode.next() != null && currNode.next().getValue().size() <= blockSize/3+1) {
-				// Merge with right block
-			    int len = currNode.next().getValue().values.size();
-			    int dstSize = currBlock.values.size();
-	            for (int i=0; i<len; i++) {
-	            	currBlock.values.add(null); // TODO Add method to GapList
-	            }
-				GapList.copy(currNode.next().getValue().values, 0, currBlock.values, dstSize, len);
-				blocks.remove(currBlockEnd+len);
-				currBlockEnd += len;
+    			} else {
+        			AVLNode<Block<T>> rightNode = currNode.next();
+    				if (rightNode != null && rightNode.getValue().size() <= blockSize/3+1) {
+        				// Merge with right block
+        			    int len = rightNode.getValue().size();
+        			    int dstSize = currBlock.values.size();
+        	            for (int i=0; i<len; i++) {
+        	            	currBlock.values.add(null); // TODO Add method to GapList
+        	            }
+        				GapList.copy(rightNode.getValue().values, 0, currBlock.values, dstSize, len);
+        				blocks.remove(currBlockEnd+len);
+        				currBlockEnd += len;
+    				}
+    			}
 			}
 		}
 
