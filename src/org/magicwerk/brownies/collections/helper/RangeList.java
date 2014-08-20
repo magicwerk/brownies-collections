@@ -106,14 +106,9 @@ public class RangeList<E> {
      * @param index  the index to remove
      * @return the previous object at that index
      */
-    //@Override
     public void remove(final int index) {
-        //modCount++;
-        //checkInterval(index, 0, size() - 1);
-        //final E result = get(index);
         root = root.remove(index);
         size--;
-        //return result;
     }
 
     //-----------------------------------------------------------------------
@@ -275,6 +270,9 @@ public class RangeList<E> {
             return right.min();
         }
 
+        /**
+         * @return null if this is the root node
+         */
         public AVLNode<E> parent() {
         	AVLNode prev = this;
         	AVLNode next = this;
@@ -455,7 +453,7 @@ public class RangeList<E> {
          *
          * @return the node that replaces this one in the parent
          */
-        private AVLNode<E> removeSelf() {
+        public AVLNode<E> removeSelf() {
             if (getRightSubTree() == null && getLeftSubTree() == null) {
                 return null;
             }
