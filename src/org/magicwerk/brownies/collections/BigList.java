@@ -8,8 +8,6 @@ import java.util.Deque;
 import java.util.List;
 
 import org.magicwerk.brownies.collections.helper.InternalSort;
-import org.magicwerk.brownies.collections.helper.RangeList;
-import org.magicwerk.brownies.collections.helper.RangeList.AVLNode;
 
 /**
  * The first block (GapList) used grows dynamcically, all others
@@ -168,14 +166,18 @@ public class BigList<T>
 	private int blockSize;
 	/** Number of elements stored in this BigList */
 	private int size;
-	/** List with block containing the elements */
-	private RangeList<Block<T>> blocks;
+
+    /** The root node in the AVL tree */
+    private BlockNode<Block<T>> root;
+
+
+
 	//private int currBlockIndex;
 	/** Index of first element in currBlock for the whole BigList */
 	private int currBlockStart;
 	/** Index of last element in currBlock for the whole BigList */
 	private int currBlockEnd;
-	private AVLNode<Block<T>> currNode;
+	private BlockNode<Block<T>> currNode;
 	private Block<T> currBlock;
 
     /**
@@ -187,7 +189,7 @@ public class BigList<T>
      */
     protected BigList(boolean copy, BigList<T> that) {
         if (copy) {
-            this.blocks = that.blocks;
+            //this.blocks = that.blocks TODO
             this.blockSize = that.blockSize;
             this.size = that.size;
             this.currNode = that.currNode;
@@ -230,10 +232,9 @@ public class BigList<T>
 		this.blockSize = blockSize;
 
 		// First block will grow until it reaches blockSize
-		blocks = new RangeList<Block<T>>();
 		currBlock = new Block<T>();
-		blocks.add(0, currBlock);
-		currNode = blocks.root;
+		add1(0, currBlock);
+		currNode = root; // TODO
 	}
 
     public BigList(BigList<T> that) {
@@ -243,9 +244,10 @@ public class BigList<T>
     public BigList(Collection<T> that) {
         blockSize = BLOCK_SIZE;
 
-		blocks = new RangeList<Block<T>>();
+		//blocks = new RangeList<Block<T>>();
 		currBlock = new Block<T>();
-		blocks.add(0, currBlock);
+		add1(0, currBlock);
+		currNode = root; // TODO
 
         for (Object elem: that.toArray()) {
             add((T) elem);
@@ -260,24 +262,24 @@ public class BigList<T>
 
 	@Override
 	protected void doClone(IList<T> that) {
-		BigList<T> bigList = (BigList<T>) that;
-        blockSize = bigList.blockSize;
-
-        int size = 0;
-		blocks = new RangeList<Block<T>>();
-		AVLNode<Block<T>> node = bigList.blocks.root.min();
-		while (node != null) {
-			Block<T> block = node.getValue();
-			block.ref();
-			size += block.size();
-			blocks.add(size, block);
-		}
-		assert(size == bigList.size);
-
-		currNode = blocks.root;
-		currBlock = currNode.getValue();
-		currBlockStart = 0;
-		currBlockEnd = currBlock.size();
+//		BigList<T> bigList = (BigList<T>) that;
+//        blockSize = bigList.blockSize;
+//
+//        int size = 0;
+//		blocks = new RangeList<Block<T>>();
+//		AVLNode<Block<T>> node = bigList.blocks.root.min();
+//		while (node != null) {
+//			Block<T> block = node.getValue();
+//			block.ref();
+//			size += block.size();
+//			blocks.add(size, block);
+//		}
+//		assert(size == bigList.size);
+//
+//		currNode = blocks.root;
+//		currBlock = currNode.getValue();
+//		currBlockStart = 0;
+//		currBlockEnd = currBlock.size();
 	}
 
 	@Override
@@ -381,7 +383,7 @@ public class BigList<T>
 //        }
 
 		endIndex[0] = 0;
-        currNode = blocks.access(index, modify, endIndex);
+        currNode = access(index, modify, endIndex);
         currBlock = currNode.getValue();
         currBlockEnd = endIndex[0];
         currBlockStart = currBlockEnd - currBlock.size();
@@ -405,28 +407,38 @@ public class BigList<T>
 
 	static int c;
 
+	void checkNode(BlockNode node) {
+		BlockNode child = node.getLeftSubTree();
+		assert(child == null || child.parent == node);
+		child = node.getRightSubTree();
+		assert(child == null || child.parent == node);
+	}
+
 	boolean checkTree() {
 		if (true) {
 			//return true;
 		}
-		AVLNode node = blocks.root;
+		BlockNode<Block<T>> node = root;
+		checkNode(node);
 		int index = node.relativePosition;
 		while (node.left != null) {
 			node = node.left;
+			checkNode(node);
 			assert(node.relativePosition < 0);
 			index += node.relativePosition;
-			assert(((Block) node.getValue()).size() > 0);
+			assert((node.getValue()).size() > 0);
 		}
-		Block<T> block = (Block<T>) node.getValue();
+		Block<T> block = node.getValue();
 		assert(block.size() == index);
 		int lastIndex = index;
 
 		while (lastIndex < size()) {
-			node = blocks.root;
+			node = root;
 			index = node.relativePosition;
 			int searchIndex = lastIndex+1;
 			while (true) {
-				block = (Block<T>) node.getValue();
+				checkNode(node);
+				block = node.getValue();
 				assert(block.size() > 0);
 				if (searchIndex > index-block.size() && searchIndex <= index) {
 					break;
@@ -445,7 +457,7 @@ public class BigList<T>
 				}
 				index += node.relativePosition;
 			}
-			block = (Block<T>) node.getValue();
+			block = node.getValue();
 			assert(block.size() == index-lastIndex);
 			lastIndex = index;
 		}
@@ -459,18 +471,18 @@ public class BigList<T>
 		if (index == -1) {
 			index = size;
 		}
-		if (index == size && blocks.root.max().getValue().size() == blockSize) {
+		if (index == size && root.max().getValue().size() == blockSize) {
 			// Insert new block at tail
 			Block<T> block = new Block<T>(blockSize);
 			block.add(0, element);
-			blocks.add(size+1, block);
-		} else if (index == 0 && blocks.root.min().getValue().size() == blockSize) {
+			add1(size+1, block);
+		} else if (index == 0 && root.min().getValue().size() == blockSize) {
 			// Insert new block at head
 			Block<T> block = new Block<T>(blockSize);
 			block.add(0, element);
-			blocks.add(1, block);
+			add1(1, block);
 			//blocks.root.relativePosition += 1;
-			blocks.root.min().relativePosition = -blockSize;
+			root.min().relativePosition = -blockSize;
 		} else {
 			int pos = getBlockIndex(index, true, 1);
 
@@ -479,7 +491,7 @@ public class BigList<T>
 				//changeNode(currNode, 1);
 				currBlock.add(pos, element);
 				currBlockEnd++;
-				AVLNode<Block<T>> left = currNode.getLeftSubTree();
+				BlockNode<Block<T>> left = currNode.getLeftSubTree();
 				if (left != null) {
 					assert(left.relativePosition < 0);
 //					left.relativePosition--;
@@ -496,7 +508,7 @@ public class BigList<T>
 
 				// Subtract 1 more because getBlockIndex() has already added 1
 				modify(-nextBlockLen-1);
-				blocks.add(currBlockEnd-nextBlockLen, nextBlock);
+				add1(currBlockEnd-nextBlockLen, nextBlock);
 				assert(checkTree());
 
 				if (pos < blockLen) {
@@ -556,48 +568,48 @@ public class BigList<T>
 	}
 
 	void modify(int modify) {
-		if (currBlockEnd < blocks.root.relativePosition || currNode == blocks.root) {
-			blocks.root.relativePosition += modify;
+		if (currBlockEnd < root.relativePosition || currNode == root) {
+			root.relativePosition += modify;
 		}
 		if (currNode.relativePosition < 0) {
-			AVLNode<Block<T>> leftNode = currNode.getLeftSubTree();
+			BlockNode<Block<T>> leftNode = currNode.getLeftSubTree();
 			if (leftNode != null) {
 				leftNode.relativePosition -= modify;
 			}
-			AVLNode<Block<T>> parent = currNode.parent();
-			assert(parent.getLeftSubTree() == currNode);
+			BlockNode<Block<T>> pp = currNode.parent;
+			assert(pp.getLeftSubTree() == currNode);
 			boolean parentRight = true;
 			while (true) {
-				AVLNode p = parent.parent();
+				BlockNode p = pp.parent;
 				if (p == null) {
 					break;
 				}
-				boolean pRight = (p.getLeftSubTree() == parent);
+				boolean pRight = (p.getLeftSubTree() == pp);
 //				if (parentRight == true && pRight == false) {
 				if (parentRight != pRight) {
-					if (parent.relativePosition > 0) {
-						parent.relativePosition += modify;
+					if (pp.relativePosition > 0) {
+						pp.relativePosition += modify;
 					} else {
-						parent.relativePosition -= modify;
+						pp.relativePosition -= modify;
 					}
 				}
-				parent = p;
+				pp = p;
 				parentRight = pRight;
 			}
 		} else {
-			if (currNode != blocks.root) {
+			if (currNode != root) {
 				currNode.relativePosition += modify;
 			}
-			AVLNode<Block<T>> leftNode = currNode.getLeftSubTree();
+			BlockNode<Block<T>> leftNode = currNode.getLeftSubTree();
 			if (leftNode != null) {
 				leftNode.relativePosition -= modify;
 			}
-			AVLNode<Block<T>> parent = currNode.parent();
+			BlockNode<Block<T>> parent = currNode.parent;
 			if (parent != null) {
 				assert(parent.getRightSubTree() == currNode);
 				boolean parentLeft = true;
 				while (true) {
-					AVLNode p = parent.parent();
+					BlockNode p = parent.parent;
 					if (p == null) {
 						break;
 					}
@@ -670,22 +682,31 @@ public class BigList<T>
 		int minBlockSize = Math.max(blockSize/3, 1);
 		if (currBlock.size() < minBlockSize) {
 			if (currBlock.size() == 0) {
-				// Position have already been updated, so just unlink this node
-				AVLNode parent = currNode.parent();
-				if (parent.left == currNode) {
-					parent.left = null;
-				} else {
-					assert(parent.right == currNode);
-					parent.right = null;
+				if (!isOnlyRootBlock()) {
+					if (currNode == root) {
+						root = currNode.removeSelf();
+					} else {
+						BlockNode oldCurrNode = currNode;
+						BlockNode pp = currNode.parent;
+						currNode = currNode.removeSelf();
+						// Position have already been updated, so just unlink this node
+						if (pp != null) {
+							if (pp.left == oldCurrNode) {
+								pp.left = currNode;
+							} else {
+								assert(pp.right == oldCurrNode);
+								pp.right = currNode;
+							}
+						}
+					}
 				}
-				currNode.removeSelf();
-				currNode = blocks.root;
+				currNode = root; // TODO
 				currBlock = currNode.getValue();
-				currBlockEnd = blocks.root.relativePosition;
+				currBlockEnd = root.relativePosition;
 				currBlockStart = currBlockEnd - currBlock.size();
-				
+
 			} else {
-    			AVLNode<Block<T>> leftNode = currNode.previous();
+    			BlockNode<Block<T>> leftNode = currNode.previous();
     			// TODO performance
     			if (leftNode != null && leftNode.getValue().size() <= blockSize/3+1) {
     				// Merge with left block
@@ -695,12 +716,12 @@ public class BigList<T>
     	                leftNode.getValue().values.add(null); // TODO Add method to GapList
     	            }
     				GapList.copy(currBlock.values, 0, leftNode.getValue().values, dstSize, len);
-    				blocks.remove(currBlockEnd);
+    				remove1(currBlockEnd);
     				currBlock = leftNode.getValue();
     				currBlockStart -= dstSize;
 
     			} else {
-        			AVLNode<Block<T>> rightNode = currNode.next();
+        			BlockNode<Block<T>> rightNode = currNode.next();
     				if (rightNode != null && rightNode.getValue().size() <= blockSize/3+1) {
         				// Merge with right block
         			    int len = rightNode.getValue().size();
@@ -709,7 +730,7 @@ public class BigList<T>
         	            	currBlock.values.add(null); // TODO Add method to GapList
         	            }
         				GapList.copy(rightNode.getValue().values, 0, currBlock.values, dstSize, len);
-        				blocks.remove(currBlockEnd+len);
+        				remove1(currBlockEnd+len);
         				currBlockEnd += len;
     				}
     			}
@@ -739,7 +760,7 @@ public class BigList<T>
 
 	@Override
 	protected void doEnsureCapacity(int minCapacity) {
-		if (blocks.size() == 1) {
+		if (isOnlyRootBlock()) {
 			if (minCapacity > blockSize) {
 				minCapacity = blockSize;
 			}
@@ -749,7 +770,7 @@ public class BigList<T>
 
 	@Override
 	public void trimToSize() {
-		if (blocks.size() == 1) {
+		if (isOnlyRootBlock()) {
 			currBlock.values.trimToSize();
 		}
 	}
@@ -764,7 +785,7 @@ public class BigList<T>
 	public void sort(int index, int len, Comparator<? super T> comparator) {
     	checkRange(index, len);
 
-    	if (blocks.size() == 0) {
+    	if (isOnlyRootBlock()) {
     		currBlock.values.sort(index, len, comparator);
     	} else {
     		InternalSort.sort(this, comparator, index, index+len);
@@ -775,11 +796,614 @@ public class BigList<T>
 	public <K> int binarySearch(int index, int len, K key, Comparator<? super K> comparator) {
     	checkRange(index, len);
 
-    	if (blocks.size() == 1) {
+    	if (isOnlyRootBlock()) {
     		return currBlock.values.binarySearch(key, comparator);
     	} else {
     		return Collections.binarySearch((List<K>) this, key, comparator);
     	}
 	}
+
+	private boolean isOnlyRootBlock() {
+		return root.left == null && root.right == null;
+	}
+
+    public BlockNode<Block<T>> access(final int index, int modify, int[] endIndex) {
+        //checkInterval(index, 0, size() - 1);
+        return root.access(index, modify, false, endIndex);
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * Adds a new element to the list.
+     *
+     * @param index  the index to add before
+     * @param obj  the element to add
+     */
+
+    public void add1(int index, Block<T> obj) {
+        //modCount++;
+        //checkInterval(index, 0, size());
+        if (root == null) {
+            root = new BlockNode<Block<T>>(null, index, obj, null, null);
+        } else {
+            root = root.insert(index, obj);
+        }
+    }
+
+    /**
+     * Removes the element at the specified index.
+     *
+     * @param index  the index to remove
+     * @return the previous object at that index
+     */
+    public void remove1(final int index) {
+        root = root.remove(index);
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * Implements an AVLNode which keeps the offset updated.
+     * <p>
+     * This node contains the real work.
+     * TreeList is just there to implement {@link java.util.List}.
+     * The nodes don't know the index of the object they are holding.  They
+     * do know however their position relative to their parent node.
+     * This allows to calculate the index of a node while traversing the tree.
+     * <p>
+     * The Faedelung calculation stores a flag for both the left and right child
+     * to indicate if they are a child (false) or a link as in linked list (true).
+     */
+    public static class BlockNode<E> {
+    	BlockNode<E> parent;
+        /** The left child node or the predecessor if {@link #leftIsPrevious}.*/
+        public BlockNode<E> left;
+        /** Flag indicating that left reference is not a subtree but the predecessor. */
+        public boolean leftIsPrevious;
+        /** The right child node or the successor if {@link #rightIsNext}. */
+        public BlockNode<E> right;
+        /** Flag indicating that right reference is not a subtree but the successor. */
+        public boolean rightIsNext;
+        /** How many levels of left/right are below this one. */
+        public int height;
+        /** The relative position, root holds absolute position. */
+        public int relativePosition;
+        /** The stored element. */
+        private E value;
+
+        /**
+         * Constructs a new node with a relative position.
+         *
+         * @param relativePosition  the relative position of the node
+         * @param obj  the value for the node
+         * @param rightFollower the node with the value following this one
+         * @param leftFollower the node with the value leading this one
+         */
+        private BlockNode(BlockNode<E> parent, final int relativePosition, final E obj,
+                        final BlockNode<E> rightFollower, final BlockNode<E> leftFollower) {
+        	this.parent = parent;
+            this.relativePosition = relativePosition;
+            value = obj;
+            rightIsNext = true;
+            leftIsPrevious = true;
+            right = rightFollower;
+            left = leftFollower;
+        }
+
+        /**
+         * Gets the value.
+         *
+         * @return the value of this node
+         */
+        public E getValue() {
+            return value;
+        }
+
+        /**
+         * Sets the value.
+         *
+         * @param obj  the value to store
+         */
+        public void setValue(final E obj) {
+            this.value = obj;
+        }
+
+        private BlockNode<E> access(final int index, int modify, boolean wasLeft, int[] idx) {
+        	assert(index >= 0);
+        	if (relativePosition == 0) {
+        		if (modify != 0) {
+        			relativePosition += modify;
+        		}
+        		return this;
+        	}
+        	if (idx[0] == 0) {
+        		idx[0] = relativePosition; // root
+        	}
+        	BlockNode<E> leftNode = getLeftSubTree();
+        	int leftIndex = idx[0]-((BigList.Block) getValue()).size();
+        	assert(leftIndex >= 0);
+        	if (index >= leftIndex && index < idx[0]) {
+    			if (relativePosition > 0) {
+    				relativePosition += modify;
+    				if (leftNode != null) {
+    					leftNode.relativePosition -= modify;
+    				}
+    			} else {
+    				if (leftNode != null) {
+    					leftNode.relativePosition -= modify;
+    				}
+    			}
+        		return this;
+        	}
+        	if (index < idx[0]) {
+        		// left
+        		BlockNode<E> nextNode = getLeftSubTree();
+        		if (nextNode == null || !wasLeft) {
+        			if (relativePosition > 0) {
+        				relativePosition += modify;
+        			} else {
+        				relativePosition -= modify;
+        			}
+        			wasLeft = true;
+        		}
+                if (nextNode == null) {
+                	return this;
+                }
+                idx[0] += nextNode.relativePosition;
+                return nextNode.access(index, modify, wasLeft, idx);
+        	} else {
+        		// right
+        		BlockNode<E> nextNode = getRightSubTree();
+        		if (nextNode == null || wasLeft) {
+        			if (relativePosition > 0) {
+        				relativePosition += modify;
+       		        	BlockNode<E> left = getLeftSubTree();
+       					if (left != null) {
+       						left.relativePosition -= modify;
+        				}
+        			} else {
+        				relativePosition -= modify;
+        			}
+        			wasLeft = false;
+        		}
+                if (nextNode == null) {
+                	return this;
+                }
+                idx[0] += nextNode.relativePosition;
+                return nextNode.access(index, modify, wasLeft, idx);
+        	}
+        }
+
+        /**
+         * Stores the node and its children into the array specified.
+         *
+         * @param array the array to be filled
+         * @param index the index of this node
+         */
+        void toArray(final Object[] array, final int index) {
+            array[index] = value;
+            if (getLeftSubTree() != null) {
+                left.toArray(array, index + left.relativePosition);
+            }
+            if (getRightSubTree() != null) {
+                right.toArray(array, index + right.relativePosition);
+            }
+        }
+
+        /**
+         * Gets the next node in the list after this one.
+         *
+         * @return the next node
+         */
+        public BlockNode<E> next() {
+            if (rightIsNext || right == null) {
+                return right;
+            }
+            return right.min();
+        }
+
+        /**
+         * @return null if this is the root node
+         */
+//        public BlockNode<E> parent() {
+//        	BlockNode prev = this;
+//        	BlockNode next = this;
+//        	while (true) {
+//        		if (prev != null) {
+//        			prev = prev.previous();
+//        			if (prev != null && prev.getRightSubTree() == this) {
+//        				return prev;
+//        			}
+//        		}
+//        		if (next != null) {
+//	        		next = next.next();
+//	        		if (next != null && next.getLeftSubTree() == this) {
+//	        			return next;
+//	        		}
+//        		}
+//        		if (prev == null && next == null) {
+//        			return null;
+//        		}
+//        	}
+//        }
+
+        /**
+         * Gets the node in the list before this one.
+         *
+         * @return the previous node
+         */
+        public BlockNode<E> previous() {
+            if (leftIsPrevious || left == null) {
+                return left;
+            }
+            return left.max();
+        }
+
+        /**
+         * Inserts a node at the position index.
+         *
+         * @param index is the index of the position relative to the position of
+         * the parent node.
+         * @param obj is the object to be stored in the position.
+         */
+        private BlockNode<E> insert(final int index, final E obj) {
+        	assert(relativePosition != 0);
+            final int indexRelativeToMe = index - relativePosition;
+
+            if (indexRelativeToMe < 0) {
+                return insertOnLeft(indexRelativeToMe, obj);
+            } else {
+            	return insertOnRight(indexRelativeToMe, obj);
+            }
+        }
+
+        private BlockNode<E> insertOnLeft(final int indexRelativeToMe, final E obj) {
+            if (getLeftSubTree() == null) {
+            	int pos;
+            	if (relativePosition >= 0) {
+            		pos = -relativePosition;
+            	} else {
+            		Block b = (Block) value;
+            		pos = -b.size();
+            	}
+                setLeft(new BlockNode<E>(this, pos, obj, this, left), null);
+            } else {
+                setLeft(left.insert(indexRelativeToMe, obj), null);
+            }
+            if (relativePosition >= 0) {
+        		Block b = (Block) obj;
+                relativePosition += b.size();
+            }
+            final BlockNode<E> ret = balance();
+            recalcHeight();
+            return ret;
+        }
+
+        private BlockNode<E> insertOnRight(final int indexRelativeToMe, final E obj) {
+            if (getRightSubTree() == null) {
+            	Block b = (Block) obj;
+                setRight(new BlockNode<E>(this, b.size(), obj, right, this), null);
+            } else {
+                setRight(right.insert(indexRelativeToMe, obj), null);
+            }
+            if (relativePosition < 0) {
+        		Block b = (Block) obj;
+                relativePosition -= b.size();
+            }
+            final BlockNode<E> ret = balance();
+            recalcHeight();
+            return ret;
+        }
+
+        //-----------------------------------------------------------------------
+        /**
+         * Gets the left node, returning null if its a faedelung.
+         */
+        public BlockNode<E> getLeftSubTree() {
+            return leftIsPrevious ? null : left;
+        }
+
+        /**
+         * Gets the right node, returning null if its a faedelung.
+         */
+        public BlockNode<E> getRightSubTree() {
+            return rightIsNext ? null : right;
+        }
+
+        /**
+         * Gets the rightmost child of this node.
+         *
+         * @return the rightmost child (greatest index)
+         */
+        public BlockNode<E> max() {
+            return getRightSubTree() == null ? this : right.max();
+        }
+
+        /**
+         * Gets the leftmost child of this node.
+         *
+         * @return the leftmost child (smallest index)
+         */
+        public BlockNode<E> min() {
+            return getLeftSubTree() == null ? this : left.min();
+        }
+
+        /**
+         * Removes the node at a given position.
+         *
+         * @param index is the index of the element to be removed relative to the position of
+         * the parent node of the current node.
+         */
+        private BlockNode<E> remove(final int index) {
+            final int indexRelativeToMe = index - relativePosition;
+
+            if (indexRelativeToMe == 0) {
+                return removeSelf();
+            }
+            if (indexRelativeToMe > 0) {
+                setRight(right.remove(indexRelativeToMe), right.right);
+                if (relativePosition < 0) {
+                    relativePosition++;
+                }
+            } else {
+                setLeft(left.remove(indexRelativeToMe), left.left);
+                if (relativePosition > 0) {
+                    relativePosition--;
+                }
+            }
+            recalcHeight();
+            return balance();
+        }
+
+        private BlockNode<E> removeMax() {
+            if (getRightSubTree() == null) {
+                return removeSelf();
+            }
+            setRight(right.removeMax(), right.right);
+            if (relativePosition < 0) {
+                relativePosition++;
+            }
+            recalcHeight();
+            return balance();
+        }
+
+        private BlockNode<E> removeMin() {
+            if (getLeftSubTree() == null) {
+                return removeSelf();
+            }
+            setLeft(left.removeMin(), left.left);
+            if (relativePosition > 0) {
+                relativePosition--;
+            }
+            recalcHeight();
+            return balance();
+        }
+
+        /**
+         * Removes this node from the tree.
+         *
+         * @return the node that replaces this one in the parent (can be null)
+         */
+        public BlockNode<E> removeSelf() {
+        	BlockNode<E> p = parent;
+        	BlockNode<E> n = doRemoveSelf();
+        	if (n != null) {
+        		n.parent = p;
+        	}
+        	return n;
+        }
+
+        public BlockNode<E> doRemoveSelf() {
+            if (getRightSubTree() == null && getLeftSubTree() == null) {
+                return null;
+            }
+            if (getRightSubTree() == null) {
+                if (relativePosition > 0) {
+                    left.relativePosition += relativePosition + (relativePosition > 0 ? 0 : 1);
+                } else {
+                	left.relativePosition = relativePosition;
+                }
+                left.max().setRight(null, right);
+                return left;
+            }
+            if (getLeftSubTree() == null) {
+                //right.relativePosition += relativePosition - (relativePosition < 0 ? 0 : 1);
+                right.min().setLeft(null, left);
+                return right;
+            }
+
+            if (heightRightMinusLeft() > 0) {
+                // more on the right, so delete from the right
+                final BlockNode<E> rightMin = right.min();
+                value = rightMin.value;
+                if (leftIsPrevious) {
+                    left = rightMin.left;
+                }
+                right = right.removeMin();
+                if (relativePosition < 0) {
+                    relativePosition++;
+                }
+            } else {
+                // more on the left or equal, so delete from the left
+                final BlockNode<E> leftMax = left.max();
+                value = leftMax.value;
+                if (rightIsNext) {
+                    right = leftMax.right;
+                }
+                final BlockNode<E> leftPrevious = left.left;
+                left = left.removeMax();
+                if (left == null) {
+                    // special case where left that was deleted was a double link
+                    // only occurs when height difference is equal
+                    left = leftPrevious;
+                    leftIsPrevious = true;
+                }
+                if (relativePosition > 0) {
+                    //relativePosition--;
+                }
+            }
+            recalcHeight();
+            return this;
+        }
+
+        //-----------------------------------------------------------------------
+        /**
+         * Balances according to the AVL algorithm.
+         */
+        private BlockNode<E> balance() {
+            switch (heightRightMinusLeft()) {
+                case 1 :
+                case 0 :
+                case -1 :
+                    return this;
+                case -2 :
+                    if (left.heightRightMinusLeft() > 0) {
+                        setLeft(left.rotateLeft(), null);
+                    }
+                    return rotateRight();
+                case 2 :
+                    if (right.heightRightMinusLeft() < 0) {
+                        setRight(right.rotateRight(), null);
+                    }
+                    return rotateLeft();
+                default :
+                    throw new RuntimeException("tree inconsistent!");
+            }
+        }
+
+        /**
+         * Gets the relative position.
+         */
+        private int getOffset(final BlockNode<E> node) {
+            if (node == null) {
+                return 0;
+            }
+            return node.relativePosition;
+        }
+
+        /**
+         * Sets the relative position.
+         */
+        private int setOffset(final BlockNode<E> node, final int newOffest) {
+            if (node == null) {
+                return 0;
+            }
+            final int oldOffset = getOffset(node);
+            node.relativePosition = newOffest;
+            return oldOffset;
+        }
+
+        /**
+         * Sets the height by calculation.
+         */
+        private void recalcHeight() {
+            height = Math.max(
+                getLeftSubTree() == null ? -1 : getLeftSubTree().height,
+                getRightSubTree() == null ? -1 : getRightSubTree().height) + 1;
+        }
+
+        /**
+         * Returns the height of the node or -1 if the node is null.
+         */
+        private int getHeight(final BlockNode<E> node) {
+            return node == null ? -1 : node.height;
+        }
+
+        /**
+         * Returns the height difference right - left
+         */
+        private int heightRightMinusLeft() {
+            return getHeight(getRightSubTree()) - getHeight(getLeftSubTree());
+        }
+
+        private BlockNode<E> rotateLeft() {
+        	assert(!rightIsNext);
+            final BlockNode<E> newTop = right; // can't be faedelung!
+            final BlockNode<E> movedNode = getRightSubTree().getLeftSubTree();
+
+            final int newTopPosition = relativePosition + getOffset(newTop);
+            final int myNewPosition = -newTop.relativePosition;
+            final int movedPosition = getOffset(newTop) + getOffset(movedNode);
+
+            setRight(movedNode, newTop);
+            newTop.setLeft(this, null);
+            newTop.parent = this.parent;
+            this.parent = newTop;
+
+            setOffset(newTop, newTopPosition);
+            setOffset(this, myNewPosition);
+            setOffset(movedNode, movedPosition);
+
+            assert(newTop.getLeftSubTree() == null || newTop.getLeftSubTree().relativePosition < 0);
+            assert(newTop.getRightSubTree() == null || newTop.getRightSubTree().relativePosition > 0);
+            return newTop;
+        }
+
+        private BlockNode<E> rotateRight() {
+        	assert(!leftIsPrevious);
+            final BlockNode<E> newTop = left; // can't be faedelung
+            final BlockNode<E> movedNode = getLeftSubTree().getRightSubTree();
+
+            final int newTopPosition = relativePosition + getOffset(newTop);
+            final int myNewPosition = -newTop.relativePosition;
+            final int movedPosition = getOffset(newTop) + getOffset(movedNode);
+
+            setLeft(movedNode, newTop);
+            newTop.setRight(this, null);
+            newTop.parent = this.parent;
+            this.parent = newTop;
+
+            setOffset(newTop, newTopPosition);
+            setOffset(this, myNewPosition);
+            setOffset(movedNode, movedPosition);
+
+            assert(newTop.getLeftSubTree() == null || newTop.getLeftSubTree().relativePosition < 0);
+            assert(newTop.getRightSubTree() == null || newTop.getRightSubTree().relativePosition > 0);
+            return newTop;
+        }
+
+        /**
+         * Sets the left field to the node, or the previous node if that is null
+         *
+         * @param node  the new left subtree node
+         * @param previous  the previous node in the linked list
+         */
+        private void setLeft(final BlockNode<E> node, final BlockNode<E> previous) {
+            leftIsPrevious = node == null;
+            left = leftIsPrevious ? previous : node;
+            recalcHeight();
+        }
+
+        /**
+         * Sets the right field to the node, or the next node if that is null
+         *
+         * @param node  the new right subtree node
+         * @param next  the next node in the linked list
+         */
+        private void setRight(final BlockNode<E> node, final BlockNode<E> next) {
+            rightIsNext = node == null;
+            right = rightIsNext ? next : node;
+            recalcHeight();
+        }
+
+        /**
+         * Used for debugging.
+         */
+        @Override
+        public String toString() {
+            return new StringBuilder()
+                .append("AVLNode(")
+                .append(relativePosition)
+                .append(',')
+                .append(left != null)
+                .append(',')
+                .append(value)
+                .append(',')
+                .append(getRightSubTree() != null)
+                .append(", faedelung ")
+                .append(rightIsNext)
+                .append(" )")
+                .toString();
+        }
+    }
 
 }
