@@ -388,10 +388,6 @@ public class BigList<T>
         currBlockEnd = endIndex[0];
         currBlockStart = currBlockEnd - currBlock.size();
 
-        c++;	// FIXME
-        if (!(index >= currBlockStart && index <= currBlockEnd)) {
-        	System.out.printf("%s: %s, %s, %s\n", c, index, currBlockStart, currBlockEnd);
-        }
         assert(index >= currBlockStart && index <= currBlockEnd);
 
         if (write) {
@@ -405,8 +401,6 @@ public class BigList<T>
         return index - currBlockStart;
 	}
 
-	static int c;
-
 	void checkNode(BlockNode node) {
 		BlockNode child = node.getLeftSubTree();
 		assert(child == null || child.parent == node);
@@ -414,10 +408,34 @@ public class BigList<T>
 		assert(child == null || child.parent == node);
 	}
 
+	void checkHeight(BlockNode node) {
+		BlockNode left = node.getLeftSubTree();
+		BlockNode right = node.getRightSubTree();
+		if (left == null) {
+			if (right == null) {
+				assert(node.height == 0);
+			} else {
+				assert(right.height == node.height-1);
+				checkHeight(right);
+			}
+		} else {
+			if (right == null) {
+				assert(left.height == node.height-1);
+			} else {
+				assert(left.height == node.height-1 || left.height == node.height-2);
+				assert(right.height == node.height-1 || right.height == node.height-2);
+				assert(right.height == node.height-1 || left.height == node.height-1);
+			}
+			checkHeight(left);
+		}
+	}
+
 	boolean checkTree() {
 		if (true) {
 			//return true;
 		}
+		checkHeight(root);
+
 		BlockNode<Block<T>> node = root;
 		checkNode(node);
 		int index = node.relativePosition;
@@ -431,6 +449,7 @@ public class BigList<T>
 		Block<T> block = node.getValue();
 		assert(block.size() == index);
 		int lastIndex = index;
+
 
 		while (lastIndex < size()) {
 			node = root;
@@ -673,6 +692,28 @@ public class BigList<T>
 		}
 	}
 
+	BlockNode<Block<T>> doRemove(BlockNode<Block<T>> node) {
+		BlockNode<Block<T>> p = node.parent;
+		BlockNode<Block<T>> newNode = node.removeSelf();
+		while (p != null) {
+			assert(p.left == node || p.right == node);
+			if (p.left == node) {
+				p.left = newNode;
+			} else {
+				p.right = newNode;
+			}
+			node = p;
+			node.recalcHeight();
+			newNode = node.balance();
+//			if (p == newNode.parent) {
+//				newNode.parent = null;
+//				break; //FIXME
+//			}
+			p = newNode.parent;
+		}
+		return newNode;
+	}
+
 	protected T doRemove(int index) {
 		int pos = getBlockIndex(index, true, -1);
 		T oldElem = currBlock.remove(pos);
@@ -684,20 +725,22 @@ public class BigList<T>
 			if (currBlock.size() == 0) {
 				if (!isOnlyRootBlock()) {
 					if (currNode == root) {
-						root = currNode.removeSelf();
+						root = doRemove(currNode);
 					} else {
-						BlockNode oldCurrNode = currNode;
-						BlockNode pp = currNode.parent;
-						currNode = currNode.removeSelf();
+//						BlockNode oldCurrNode = currNode;
+//						BlockNode pp = currNode.parent;
+						//modify(1);
+						//remove1(currBlockEnd+1);
+						root = doRemove(currNode);
 						// Position have already been updated, so just unlink this node
-						if (pp != null) {
-							if (pp.left == oldCurrNode) {
-								pp.left = currNode;
-							} else {
-								assert(pp.right == oldCurrNode);
-								pp.right = currNode;
-							}
-						}
+//						if (pp != null) {
+//							if (pp.left == oldCurrNode) {
+//								pp.left = currNode;
+//							} else {
+//								assert(pp.right == oldCurrNode);
+//								pp.right = currNode;
+//							}
+//						}
 					}
 				}
 				currNode = root; // TODO
@@ -827,6 +870,7 @@ public class BigList<T>
             root = new BlockNode<Block<T>>(null, index, obj, null, null);
         } else {
             root = root.insert(index, obj);
+            root.parent = null;
         }
     }
 
@@ -1002,31 +1046,6 @@ public class BigList<T>
         }
 
         /**
-         * @return null if this is the root node
-         */
-//        public BlockNode<E> parent() {
-//        	BlockNode prev = this;
-//        	BlockNode next = this;
-//        	while (true) {
-//        		if (prev != null) {
-//        			prev = prev.previous();
-//        			if (prev != null && prev.getRightSubTree() == this) {
-//        				return prev;
-//        			}
-//        		}
-//        		if (next != null) {
-//	        		next = next.next();
-//	        		if (next != null && next.getLeftSubTree() == this) {
-//	        			return next;
-//	        		}
-//        		}
-//        		if (prev == null && next == null) {
-//        			return null;
-//        		}
-//        	}
-//        }
-
-        /**
          * Gets the node in the list before this one.
          *
          * @return the previous node
@@ -1160,19 +1179,19 @@ public class BigList<T>
             }
             setRight(right.removeMax(), right.right);
             if (relativePosition < 0) {
-                relativePosition++;
+                //relativePosition++;
             }
             recalcHeight();
             return balance();
         }
 
-        private BlockNode<E> removeMin() {
+        private BlockNode<E> removeMin(int size) {
             if (getLeftSubTree() == null) {
                 return removeSelf();
             }
-            setLeft(left.removeMin(), left.left);
+            setLeft(left.removeMin(size), left.left);
             if (relativePosition > 0) {
-                relativePosition--;
+                relativePosition -= size;
             }
             recalcHeight();
             return balance();
@@ -1187,6 +1206,7 @@ public class BigList<T>
         	BlockNode<E> p = parent;
         	BlockNode<E> n = doRemoveSelf();
         	if (n != null) {
+        		assert(p != n);
         		n.parent = p;
         	}
         	return n;
@@ -1200,13 +1220,17 @@ public class BigList<T>
                 if (relativePosition > 0) {
                     left.relativePosition += relativePosition + (relativePosition > 0 ? 0 : 1);
                 } else {
-                	left.relativePosition = relativePosition;
+                	left.relativePosition += relativePosition;
                 }
                 left.max().setRight(null, right);
                 return left;
             }
             if (getLeftSubTree() == null) {
-                //right.relativePosition += relativePosition - (relativePosition < 0 ? 0 : 1);
+            	if (relativePosition < 0) {
+                    right.relativePosition += relativePosition - (relativePosition < 0 ? 0 : 1);
+            	} else {
+            		//right.relativePosition += relativePosition;
+            	}
                 right.min().setLeft(null, left);
                 return right;
             }
@@ -1215,13 +1239,14 @@ public class BigList<T>
                 // more on the right, so delete from the right
                 final BlockNode<E> rightMin = right.min();
                 value = rightMin.value;
+                int bs = ((Block) value).size();
                 if (leftIsPrevious) {
                     left = rightMin.left;
                 }
-                right = right.removeMin();
-                if (relativePosition < 0) {
-                    relativePosition++;
-                }
+                right = right.removeMin(bs);
+                relativePosition += bs;
+           		left.relativePosition -= bs;
+           		//right.relativePosition -= ((Block) value).size()-1;
             } else {
                 // more on the left or equal, so delete from the left
                 final BlockNode<E> leftMax = left.max();
@@ -1236,6 +1261,10 @@ public class BigList<T>
                     // only occurs when height difference is equal
                     left = leftPrevious;
                     leftIsPrevious = true;
+                } else {
+                	if (left.relativePosition == 0) {
+                		left.relativePosition = -1;
+                	}
                 }
                 if (relativePosition > 0) {
                     //relativePosition--;
@@ -1324,9 +1353,10 @@ public class BigList<T>
             final int myNewPosition = -newTop.relativePosition;
             final int movedPosition = getOffset(newTop) + getOffset(movedNode);
 
+            BlockNode<E> p = this.parent;
             setRight(movedNode, newTop);
             newTop.setLeft(this, null);
-            newTop.parent = this.parent;
+            newTop.parent = p;
             this.parent = newTop;
 
             setOffset(newTop, newTopPosition);
@@ -1347,9 +1377,10 @@ public class BigList<T>
             final int myNewPosition = -newTop.relativePosition;
             final int movedPosition = getOffset(newTop) + getOffset(movedNode);
 
+            BlockNode<E> p = this.parent;
             setLeft(movedNode, newTop);
             newTop.setRight(this, null);
-            newTop.parent = this.parent;
+            newTop.parent = p;
             this.parent = newTop;
 
             setOffset(newTop, newTopPosition);
@@ -1368,8 +1399,14 @@ public class BigList<T>
          * @param previous  the previous node in the linked list
          */
         private void setLeft(final BlockNode<E> node, final BlockNode<E> previous) {
+        	assert(node != this && previous != this);
             leftIsPrevious = node == null;
-            left = leftIsPrevious ? previous : node;
+            if (leftIsPrevious) {
+            	left = previous;
+            } else {
+            	left = node;
+            	left.parent = this;
+            }
             recalcHeight();
         }
 
@@ -1380,8 +1417,14 @@ public class BigList<T>
          * @param next  the next node in the linked list
          */
         private void setRight(final BlockNode<E> node, final BlockNode<E> next) {
+        	assert(node != this && next != this);
             rightIsNext = node == null;
-            right = rightIsNext ? next : node;
+            if (rightIsNext) {
+            	right = next;
+            } else {
+            	right = node;
+            	right.parent = this;
+            }
             recalcHeight();
         }
 
@@ -1394,13 +1437,13 @@ public class BigList<T>
                 .append("AVLNode(")
                 .append(relativePosition)
                 .append(',')
-                .append(left != null)
+                .append(getRightSubTree() != null)
                 .append(',')
                 .append(value)
                 .append(',')
                 .append(getRightSubTree() != null)
-                .append(", faedelung ")
-                .append(rightIsNext)
+                .append(", height ")
+                .append(height)
                 .append(" )")
                 .toString();
         }
