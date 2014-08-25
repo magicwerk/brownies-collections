@@ -337,11 +337,11 @@ public class BigList<T>
 	private int getBlockIndex(int index, boolean write, int modify) {
 		// Determine block where specified index is located and store it in currBlock
 		boolean done = false;
-		if (modify == 0 && index >= currBlockStart && index < currBlockEnd) {
+		if (currNode != null && modify == 0 && index >= currBlockStart && index < currBlockEnd) {
 			// currBlock is already set correctly
 			done = true;
 		} else if (index == size) {
-        	if (currBlockEnd != size) {
+        	if (currNode == null || currBlockEnd != size) {
         		currNode = root.max();
         		currBlock = currNode.getValue();
         		currBlockEnd = size;
@@ -357,7 +357,7 @@ public class BigList<T>
 			done = true;
 
         } else if (index == 0) {
-        	if (currBlockStart != 0) {
+        	if (currNode == null || currBlockStart != 0) {
         		currNode = root.min();
         		currBlock = currNode.getValue();
         		currBlockEnd = currBlock.size();
@@ -419,9 +419,11 @@ public class BigList<T>
 	}
 
 	private void check() {
-    	assert(currNode.getValue() == currBlock);
-    	assert(currBlockStart >= 0 && currBlockEnd <= size && currBlockStart <= currBlockEnd);
-    	assert(currBlockStart + currBlock.size() == currBlockEnd);
+		if (currNode != null) {
+			assert(currNode.getValue() == currBlock);
+			assert(currBlockStart >= 0 && currBlockEnd <= size && currBlockStart <= currBlockEnd);
+			assert(currBlockStart + currBlock.size() == currBlockEnd);
+		}
 
     	checkHeight(root);
 
@@ -512,18 +514,18 @@ public class BigList<T>
 				currBlock.values.remove(blockLen, blockSize-blockLen);
 
 				// Subtract 1 more because getBlockIndex() has already added 1
-				modify(-nextBlockLen-1);
+				modify(currNode, -nextBlockLen-1);
 				add1(currBlockEnd-nextBlockLen, nextBlock);
 
 				if (pos < blockLen) {
 					// Insert element in first block
 					currBlock.add(pos, element);
 					currBlockEnd = currBlockStart+blockLen+1;
-					modify(1);
+					modify(currNode, 1);
 				} else {
 					// Insert element in second block
 					currNode = currNode.next();
-					modify(1);
+					modify(currNode, 1);
 					currBlock = nextBlock;
 					currBlock.add(pos-blockLen, element);
 					currBlockStart += blockLen;
@@ -539,17 +541,15 @@ public class BigList<T>
 		return true;
 	}
 
-	void modify(int modify) {
-		if (currBlockEnd < root.relativePosition || currNode == root) {
-			root.relativePosition += modify;
-		}
-		if (currNode.relativePosition < 0) {
-			BlockNode<Block<T>> leftNode = currNode.getLeftSubTree();
+	void modify(BlockNode<Block<T>> node, int modify) {
+		if (node.relativePosition < 0) {
+			// Left node
+			BlockNode<Block<T>> leftNode = node.getLeftSubTree();
 			if (leftNode != null) {
 				leftNode.relativePosition -= modify;
 			}
-			BlockNode<Block<T>> pp = currNode.parent;
-			assert(pp.getLeftSubTree() == currNode);
+			BlockNode<Block<T>> pp = node.parent;
+			assert(pp.getLeftSubTree() == node);
 			boolean parentRight = true;
 			while (true) {
 				BlockNode p = pp.parent;
@@ -568,17 +568,19 @@ public class BigList<T>
 				pp = p;
 				parentRight = pRight;
 			}
-		} else {
-			if (currNode != root) {
-				currNode.relativePosition += modify;
+			if (parentRight) {
+				root.relativePosition += modify;
 			}
-			BlockNode<Block<T>> leftNode = currNode.getLeftSubTree();
+		} else {
+			// Right node
+			node.relativePosition += modify;
+			BlockNode<Block<T>> leftNode = node.getLeftSubTree();
 			if (leftNode != null) {
 				leftNode.relativePosition -= modify;
 			}
-			BlockNode<Block<T>> parent = currNode.parent;
+			BlockNode<Block<T>> parent = node.parent;
 			if (parent != null) {
-				assert(parent.getRightSubTree() == currNode);
+				assert(parent.getRightSubTree() == node);
 				boolean parentLeft = true;
 				while (true) {
 					BlockNode p = parent.parent;
@@ -586,7 +588,6 @@ public class BigList<T>
 						break;
 					}
 					boolean pLeft = (p.getRightSubTree() == parent);
-					//if (parentLeft == true && pLeft == false) {
 					if (parentLeft != pLeft) {
 						if (parent.relativePosition > 0) {
 							parent.relativePosition += modify;
@@ -596,6 +597,9 @@ public class BigList<T>
 					}
 					parent = p;
 					parentLeft = pLeft;
+				}
+				if (!parentLeft) {
+					root.relativePosition += modify;
 				}
 			}
 		}
@@ -630,8 +634,9 @@ public class BigList<T>
 		}
 		if (len == 1) {
 			doRemove(index);
+			return;
 		}
-
+		int l = len;
 		int startPos = getBlockIndex(index, true, 0);
 		Block<T> startBlock = currBlock;
 		int endPos = getBlockIndex(index+len-1, true, 0);
@@ -643,7 +648,7 @@ public class BigList<T>
 			currBlockEnd -= len;
 			getBlockIndex(index, true, -len);
 			if (currBlock.values.isEmpty()) {
-				doRemove(currNode);
+				root = doRemove(currNode);
 			}
 		} else {
 			// Delete from start block
@@ -651,18 +656,22 @@ public class BigList<T>
 			startBlock.values.remove(startPos, startLen);
 			getBlockIndex(index, true, -startLen);
 			if (currBlock.values.isEmpty()) {
-				doRemove(currNode);
+				root = doRemove(currNode);
 			}
 			len -= startLen;
+			size -= startLen;
+			check();
 
 			while (true) {
 				// Delete middle blocks
-				currNode = currNode.getRightSubTree();
+				currNode = currNode.next();
 				if (currNode.getValue() == endBlock) {
 					break;
 				}
 				len -= currNode.getValue().size();
-				doRemove(currNode);
+				size -= currNode.getValue().size();
+				root = doRemove(currNode);
+				check();
 			}
 
 			// Delete from end block
@@ -672,7 +681,13 @@ public class BigList<T>
 			if (currBlock.values.isEmpty()) {
 				doRemove(currNode);
 			}
+			size -= len;
 		}
+		//size -= l;
+		currNode = null;
+
+		if (DUMP) dump();
+		if (CHECK) check();
 	}
 
 	protected T doRemove(int index) {
@@ -698,19 +713,9 @@ public class BigList<T>
     	            for (int i=0; i<len; i++) {
     	                leftNode.getValue().values.add(null); // TODO Add method to GapList
     	            }
-    	            if (leftNode.relativePosition > 0) {
-    	            	leftNode.relativePosition += len;
-    	            	BigList<T>.BlockNode<Block<T>> left = leftNode.getLeftSubTree();
-    	            	if (left != null) {
-    	            		left.relativePosition -= len;
-    	            	}
-    	            } else {
-    	            	BigList<T>.BlockNode<Block<T>> left = leftNode.getLeftSubTree();
-    	            	if (left != null) {
-    	            		left.relativePosition += len;
-    	            	}
-    	            }
     				GapList.copy(currBlock.values, 0, leftNode.getValue().values, dstSize, len);
+    				modify(leftNode, +len);
+    				modify(currNode, -len);
     				root = doRemove(currNode);
     				currNode = null;
 
@@ -722,19 +727,9 @@ public class BigList<T>
         	            for (int i=0; i<len; i++) {
         	            	rightNode.getValue().values.add(0, null); // TODO Add method to GapList
         	            }
-        	            if (currNode.relativePosition > 0) {
-        	            	rightNode.relativePosition += len;
-        	            	BigList<T>.BlockNode<Block<T>> left = rightNode.getLeftSubTree();
-        	            	if (left != null) {
-        	            		left.relativePosition -= len;
-        	            	}
-        	            } else {
-        	            	BigList<T>.BlockNode<Block<T>> left = rightNode.getLeftSubTree();
-        	            	if (left != null) {
-        	            		left.relativePosition -= len;
-        	            	}
-        	            }
         				GapList.copy(currBlock.values, 0, rightNode.getValue().values, 0, len);
+        				modify(rightNode, +len);
+        				modify(currNode, -len);
         				root = doRemove(currNode);
         				currNode = null;
     				}
