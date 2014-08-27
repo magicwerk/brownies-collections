@@ -419,11 +419,13 @@ public class BigList<T>
 	}
 
 	private void check() {
-		if (currNode != null) {
-			assert(currNode.getValue() == currBlock);
-			assert(currBlockStart >= 0 && currBlockEnd <= size && currBlockStart <= currBlockEnd);
-			assert(currBlockStart + currBlock.size() == currBlockEnd);
-		}
+		//if (true) {return; } //TODO
+
+//		if (currNode != null) {
+//			assert(currNode.getValue() == currBlock);
+//			assert(currBlockStart >= 0 && currBlockEnd <= size && currBlockStart <= currBlockEnd);
+//			assert(currBlockStart + currBlock.size() == currBlockEnd);
+//		}
 
     	checkHeight(root);
 
@@ -608,6 +610,7 @@ public class BigList<T>
 	BlockNode<Block<T>> doRemove(BlockNode<Block<T>> node) {
 		BlockNode<Block<T>> p = node.parent;
 		BlockNode<Block<T>> newNode = node.removeSelf();
+		BlockNode<Block<T>> n = newNode;
 		while (p != null) {
 			assert(p.left == node || p.right == node);
 			if (p.left == node) {
@@ -618,13 +621,10 @@ public class BigList<T>
 			node = p;
 			node.recalcHeight();
 			newNode = node.balance();
-//			if (p == newNode.parent) {
-//				newNode.parent = null;
-//				break; //FIXME
-//			}
 			p = newNode.parent;
 		}
-		return newNode;
+		root = newNode;
+		return n;
 	}
 
 	@Override
@@ -644,46 +644,43 @@ public class BigList<T>
 
 		if (startBlock == endBlock) {
 			// Delete from single block
-			currBlock.values.remove(startPos, len);
-			currBlockEnd -= len;
 			getBlockIndex(index, true, -len);
+			currBlock.values.remove(startPos, len);
 			if (currBlock.values.isEmpty()) {
-				root = doRemove(currNode);
+				doRemove(currNode);
 			}
+			size -= len;
 		} else {
 			// Delete from start block
+			check();
 			int startLen = startBlock.size()-startPos;
-			startBlock.values.remove(startPos, startLen);
 			getBlockIndex(index, true, -startLen);
+			startBlock.values.remove(startPos, startLen);
 			if (currBlock.values.isEmpty()) {
-				root = doRemove(currNode);
+				doRemove(currNode);
 			}
 			len -= startLen;
 			size -= startLen;
 			check();
 
-			while (true) {
-				// Delete middle blocks
-				currNode = currNode.next();
-				if (currNode.getValue() == endBlock) {
+			while (len > 0) {
+				currNode = null;
+				getBlockIndex(index, true, 0);
+				int s = currBlock.size();
+				if (s <= len) {
+					modify(currNode, -s);
+					doRemove(currNode);
+					len -= s;
+					size -= s;
+					check();
+				} else {
+					modify(currNode, len);
+					currBlock.values.remove(0, len);
+					size -= len;
 					break;
 				}
-				len -= currNode.getValue().size();
-				size -= currNode.getValue().size();
-				root = doRemove(currNode);
-				check();
 			}
-
-			// Delete from end block
-			assert(len == endBlock.size()-endPos);
-			endBlock.values.remove(endPos, len);
-			getBlockIndex(endPos, true, -len);
-			if (currBlock.values.isEmpty()) {
-				doRemove(currNode);
-			}
-			size -= len;
 		}
-		//size -= l;
 		currNode = null;
 
 		if (DUMP) dump();
@@ -700,7 +697,7 @@ public class BigList<T>
 		if (currBlock.size() < minBlockSize) {
 			if (currBlock.size() == 0) {
 				if (!isOnlyRootBlock()) {
-					root = doRemove(currNode);
+					doRemove(currNode);
     				currNode = null;
 				}
 			} else {
@@ -716,7 +713,7 @@ public class BigList<T>
     				GapList.copy(currBlock.values, 0, leftNode.getValue().values, dstSize, len);
     				modify(leftNode, +len);
     				modify(currNode, -len);
-    				root = doRemove(currNode);
+    				doRemove(currNode);
     				currNode = null;
 
     			} else {
@@ -730,7 +727,7 @@ public class BigList<T>
         				GapList.copy(currBlock.values, 0, rightNode.getValue().values, 0, len);
         				modify(rightNode, +len);
         				modify(currNode, -len);
-        				root = doRemove(currNode);
+        				doRemove(currNode);
         				currNode = null;
     				}
     			}
