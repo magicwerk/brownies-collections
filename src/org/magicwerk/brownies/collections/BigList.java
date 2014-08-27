@@ -1,6 +1,7 @@
 package org.magicwerk.brownies.collections;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -625,6 +626,116 @@ public class BigList<T>
 		}
 		root = newNode;
 		return n;
+	}
+
+	@Override
+	protected boolean doAddAll(int index, T[] array) {
+		if (array.length == 0) {
+			return false;
+		}
+		if (array.length == 1) {
+			return doAdd(index, array[0]);
+		}
+
+		check();
+
+		int addPos = getBlockIndex(index, true, 0);
+		Block<T> addBlock = currBlock;
+		int space = blockSize - addBlock.size();
+
+		int addLen = array.length;
+		if (addLen <= space) {
+			// All elements can be added to current block
+			currBlock.values.addAll(addPos, array);
+			modify(currNode, addLen);
+			size += addLen;
+
+		} else {
+			// Add elements to several blocks
+
+			// Handle first block
+			GapList<T> list = GapList.create(array);
+			int remove = currBlock.values.size()-addPos;
+			list.addAll(currBlock.values.getAll(addPos, remove));
+			currBlock.values.remove(addPos, remove);
+			int end = currBlockEnd;
+			modify(currNode, -remove);
+
+			int s = currBlock.values.size() + list.size();
+			int numBlocks = (s-1)/blockSize+1;
+			assert(numBlocks > 1);
+			int has = currBlock.values.size();
+			int should = s / numBlocks;
+			int start = 0;
+			end -= remove;
+			size -= remove;
+
+			if (has < should) {
+				// Elements must be added to first block
+				int add = should-has;
+				List<T> sublist = list.subList(0, add);
+				currBlock.values.addAll(addPos, sublist);
+				modify(currNode, add);
+				start += add;
+				assert(currBlock.values.size() == should);
+				s -= should;
+				numBlocks--;
+				end += add;
+				size += add;
+
+			} else if (has > should) {
+				// Elements must be moved from first to second block
+				Block<T> nextBlock = new Block<T>(blockSize);
+				int move = has-should;
+				nextBlock.values.addAll(currBlock.values.getAll(currBlock.values.size()-move, move));
+				currBlock.values.remove(currBlock.values.size()-move, move);
+				modify(currNode, -move);
+				assert(currBlock.values.size() == should);
+				s -= should;
+				numBlocks--;
+				size += move;
+				end += move;
+
+				should = s / numBlocks;
+				int add = should-move;
+				assert(add >= 0);
+				List<T> sublist = list.subList(0, add);
+				nextBlock.values.addAll(move, sublist);
+				start += add;
+				assert(nextBlock.values.size() == should);
+				s -= should;
+
+				numBlocks--;
+				size += add;
+				end += add;
+				add1(end, nextBlock);
+
+			} else {
+				s -= should;
+				numBlocks--;
+			}
+			check();
+
+			while (numBlocks > 0) {
+				int add = s / numBlocks;
+				assert(add > 0);
+				List<T> sublist = list.subList(start, start+add);
+				Block<T> nextBlock = new Block<T>(blockSize);
+				nextBlock.values.addAll(sublist);
+				start += add;
+				assert(nextBlock.values.size() == add);
+				s -= add;
+				end += should;
+				add1(end, nextBlock);
+				size += add;
+				numBlocks--;
+				check();
+			}
+		}
+
+		check();
+
+		return true;
 	}
 
 	@Override
