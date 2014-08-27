@@ -674,7 +674,7 @@ public class BigList<T>
 					size -= s;
 					check();
 				} else {
-					modify(currNode, len);
+					modify(currNode, -len);
 					currBlock.values.remove(0, len);
 					size -= len;
 					break;
