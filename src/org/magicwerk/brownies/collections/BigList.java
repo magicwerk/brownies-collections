@@ -1,5 +1,8 @@
 package org.magicwerk.brownies.collections;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
@@ -18,9 +21,9 @@ import org.magicwerk.brownies.collections.helper.InternalSort;
  * @author Thomas Mauch
  * @version $Id$
  */
-public class BigList<T>
-    extends IList<T>
-    implements List<T>, Deque<T> {
+public class BigList<E>
+    extends IList<E>
+    implements List<E>, Deque<E> {
 
     /**
      * An immutable version of a GapList.
@@ -122,8 +125,9 @@ public class BigList<T>
 			return refCount > 1;
 		}
 
-		public void ref() {
+		public Block<T> ref() {
 			refCount++;
+			return this;
 		}
 
 		public void unref() {
@@ -169,7 +173,7 @@ public class BigList<T>
 	private int size;
 
     /** The root node in the AVL tree */
-    private BlockNode<Block<T>> root;
+    private BlockNode<Block<E>> root;
 
 
 
@@ -178,8 +182,8 @@ public class BigList<T>
 	private int currBlockStart;
 	/** Index of last element in currBlock for the whole BigList */
 	private int currBlockEnd;
-	private BlockNode<Block<T>> currNode;
-	private Block<T> currBlock;
+	private BlockNode<Block<E>> currNode;
+	private Block<E> currBlock;
 
     /**
      * Constructor used internally, e.g. for ImmutableBigList.
@@ -188,7 +192,7 @@ public class BigList<T>
      *             if false nothing is done
      * @param that list to copy
      */
-    protected BigList(boolean copy, BigList<T> that) {
+    protected BigList(boolean copy, BigList<E> that) {
         if (copy) {
             //this.blocks = that.blocks TODO
             this.blockSize = that.blockSize;
@@ -230,61 +234,75 @@ public class BigList<T>
 	 * @param blockSize block size
 	 */
 	public BigList(int blockSize) {
+		init(blockSize);
+	}
+
+	void init(int blockSize) {
 		this.blockSize = blockSize;
 
 		// First block will grow until it reaches blockSize
-		currBlock = new Block<T>();
+		currBlock = new Block<E>();
 		add1(0, currBlock);
 		currNode = root; // TODO
 	}
 
-    public BigList(BigList<T> that) {
+    public BigList(BigList<E> that) {
     	doClone(that);
     }
 
-    public BigList(Collection<T> that) {
+    public BigList(Collection<E> that) {
         blockSize = BLOCK_SIZE;
 
 		//blocks = new RangeList<Block<T>>();
-		currBlock = new Block<T>();
+		currBlock = new Block<E>();
 		add1(0, currBlock);
 		currNode = root; // TODO
 
         for (Object elem: that.toArray()) {
-            add((T) elem);
+            add((E) elem);
         }
         assert(size() == that.size());
     }
 
     @Override
-    protected void doAssign(IList<T> that) {
-    	//FIXME
+    protected void doAssign(IList<E> that) {
+		BigList<E> list = (BigList<E>) that;
+        this.blockSize = list.blockSize;
+        this.currBlock = list.currBlock;
+        this.currBlockEnd = list.currBlockEnd;
+        this.currBlockStart = list.currBlockStart;
+        this.currNode = list.currNode;
+        this.root = list.root;
+        this.size = list.size;
     }
 
 	@Override
-	protected void doClone(IList<T> that) {
-//		BigList<T> bigList = (BigList<T>) that;
-//        blockSize = bigList.blockSize;
-//
-//        int size = 0;
-//		blocks = new RangeList<Block<T>>();
-//		AVLNode<Block<T>> node = bigList.blocks.root.min();
-//		while (node != null) {
-//			Block<T> block = node.getValue();
-//			block.ref();
-//			size += block.size();
-//			blocks.add(size, block);
-//		}
-//		assert(size == bigList.size);
-//
-//		currNode = blocks.root;
-//		currBlock = currNode.getValue();
-//		currBlockStart = 0;
-//		currBlockEnd = currBlock.size();
+	protected void doClone(IList<E> that) {
+		BigList<E> bigList = (BigList<E>) that;
+		bigList.check();
+
+		root = copy(bigList.root);
+        currNode = null;
+        check();
+	}
+
+	private BlockNode<Block<E>> copy(BlockNode<Block<E>> node) {
+		BlockNode<Block<E>> newNode = node.min();
+		int index = newNode.value.size();
+       	BlockNode<Block<E>> newRoot = new BlockNode<Block<E>>(null, index, newNode.value.ref(), null, null);
+       	while (true) {
+       		newNode = newNode.next();
+       		if (newNode == null) {
+       	       	return newRoot;
+       		}
+       		index += newNode.value.size();
+       		newRoot = newRoot.insert(index, newNode.value.ref());
+       		newRoot.parent = null;
+       	}
 	}
 
 	@Override
-	public T getDefaultElem() {
+	public E getDefaultElem() {
 		return null;
 	}
 
@@ -307,23 +325,23 @@ public class BigList<T>
 	}
 
 	@Override
-	protected T doGet(int index) {
+	protected E doGet(int index) {
 		int pos = getBlockIndex(index, false, 0);
 		return currBlock.get(pos);
 	}
 
 	@Override
-	protected T doSet(int index, T elem) {
+	protected E doSet(int index, E elem) {
 		int pos = getBlockIndex(index, true, 0);
-		T oldElem = currBlock.get(pos);
+		E oldElem = currBlock.get(pos);
 		currBlock.set(pos, elem);
 		return oldElem;
 	}
 
 	@Override
-	protected T doReSet(int index, T elem) {
+	protected E doReSet(int index, E elem) {
 		int pos = getBlockIndex(index, true, 0);
-		T oldElem = currBlock.get(pos);
+		E oldElem = currBlock.get(pos);
 		currBlock.set(pos, elem);
 		return oldElem;
 	}
@@ -350,7 +368,7 @@ public class BigList<T>
         	}
         	if (modify != 0) {
         		currNode.relativePosition += modify;
-        		BigList<T>.BlockNode<Block<T>> leftNode = currNode.getLeftSubTree();
+        		BigList<E>.BlockNode<Block<E>> leftNode = currNode.getLeftSubTree();
         		if (leftNode != null) {
         			leftNode.relativePosition -= modify;
         		}
@@ -382,7 +400,7 @@ public class BigList<T>
         if (write) {
 			if (currBlock.isShared()) {
 				currBlock.unref();
-				currBlock = new Block<T>(currBlock);
+				currBlock = new Block<E>(currBlock);
 				currNode.setValue(currBlock);
 			}
 	    }
@@ -420,7 +438,7 @@ public class BigList<T>
 	}
 
 	private void check() {
-		//if (true) {return; } //TODO
+		if (true) {return; } //TODO
 
 //		if (currNode != null) {
 //			assert(currNode.getValue() == currBlock);
@@ -428,9 +446,14 @@ public class BigList<T>
 //			assert(currBlockStart + currBlock.size() == currBlockEnd);
 //		}
 
+		if (root == null) {
+			assert(size == 0);
+			return;
+		}
+
     	checkHeight(root);
 
-		BlockNode<Block<T>> node = root;
+		BlockNode<Block<E>> node = root;
 		checkNode(node);
 		int index = node.relativePosition;
 		while (node.left != null) {
@@ -440,7 +463,7 @@ public class BigList<T>
 			index += node.relativePosition;
 			assert((node.getValue()).size() > 0);
 		}
-		Block<T> block = node.getValue();
+		Block<E> block = node.getValue();
 		assert(block.size() == index);
 		int lastIndex = index;
 
@@ -477,7 +500,7 @@ public class BigList<T>
 	}
 
 	@Override
-	protected boolean doAdd(int index, T element) {
+	protected boolean doAdd(int index, E element) {
 		if (index == -1) {
 			index = size;
 		}
@@ -501,7 +524,7 @@ public class BigList<T>
 				//changeNode(currNode, 1);
 				currBlock.add(pos, element);
 				currBlockEnd++;
-				BlockNode<Block<T>> left = currNode.getLeftSubTree();
+				BlockNode<Block<E>> left = currNode.getLeftSubTree();
 				if (left != null) {
 					assert(left.relativePosition < 0);
 //					left.relativePosition--;
@@ -509,7 +532,7 @@ public class BigList<T>
 
 			} else {
 				// No place any more in current block: split block for insert
-				Block<T> nextBlock = new Block<T>(blockSize);
+				Block<E> nextBlock = new Block<E>(blockSize);
 				int nextBlockLen = blockSize/2;
 				int blockLen = blockSize - nextBlockLen;
 				nextBlock.values.init(nextBlockLen, null);
@@ -544,14 +567,14 @@ public class BigList<T>
 		return true;
 	}
 
-	void modify(BlockNode<Block<T>> node, int modify) {
+	void modify(BlockNode<Block<E>> node, int modify) {
 		if (node.relativePosition < 0) {
 			// Left node
-			BlockNode<Block<T>> leftNode = node.getLeftSubTree();
+			BlockNode<Block<E>> leftNode = node.getLeftSubTree();
 			if (leftNode != null) {
 				leftNode.relativePosition -= modify;
 			}
-			BlockNode<Block<T>> pp = node.parent;
+			BlockNode<Block<E>> pp = node.parent;
 			assert(pp.getLeftSubTree() == node);
 			boolean parentRight = true;
 			while (true) {
@@ -577,11 +600,11 @@ public class BigList<T>
 		} else {
 			// Right node
 			node.relativePosition += modify;
-			BlockNode<Block<T>> leftNode = node.getLeftSubTree();
+			BlockNode<Block<E>> leftNode = node.getLeftSubTree();
 			if (leftNode != null) {
 				leftNode.relativePosition -= modify;
 			}
-			BlockNode<Block<T>> parent = node.parent;
+			BlockNode<Block<E>> parent = node.parent;
 			if (parent != null) {
 				assert(parent.getRightSubTree() == node);
 				boolean parentLeft = true;
@@ -608,10 +631,10 @@ public class BigList<T>
 		}
 	}
 
-	BlockNode<Block<T>> doRemove(BlockNode<Block<T>> node) {
-		BlockNode<Block<T>> p = node.parent;
-		BlockNode<Block<T>> newNode = node.removeSelf();
-		BlockNode<Block<T>> n = newNode;
+	BlockNode<Block<E>> doRemove(BlockNode<Block<E>> node) {
+		BlockNode<Block<E>> p = node.parent;
+		BlockNode<Block<E>> newNode = node.removeSelf();
+		BlockNode<Block<E>> n = newNode;
 		while (p != null) {
 			assert(p.left == node || p.right == node);
 			if (p.left == node) {
@@ -629,9 +652,12 @@ public class BigList<T>
 	}
 
 	@Override
-	protected boolean doAddAll(int index, T[] array) {
+	protected boolean doAddAll(int index, E[] array) {
 		if (array.length == 0) {
 			return false;
+		}
+		if (index == -1) {
+		    index = size;
 		}
 		if (array.length == 1) {
 			return doAdd(index, array[0]);
@@ -639,8 +665,9 @@ public class BigList<T>
 
 		check();
 
+		currNode = null;
 		int addPos = getBlockIndex(index, true, 0);
-		Block<T> addBlock = currBlock;
+		Block<E> addBlock = currBlock;
 		int space = blockSize - addBlock.size();
 
 		int addLen = array.length;
@@ -654,12 +681,16 @@ public class BigList<T>
 			// Add elements to several blocks
 
 			// Handle first block
-			GapList<T> list = GapList.create(array);
-			int remove = currBlock.values.size()-addPos;
-			list.addAll(currBlock.values.getAll(addPos, remove));
-			currBlock.values.remove(addPos, remove);
+			GapList<E> list = GapList.create(array);
 			int end = currBlockEnd;
-			modify(currNode, -remove);
+			int remove = currBlock.values.size()-addPos;
+			if (remove > 0) {
+				list.addAll(currBlock.values.getAll(addPos, remove));
+				currBlock.values.remove(addPos, remove);
+				modify(currNode, -remove);
+				size -= remove;
+				end -= remove;
+			}
 
 			int s = currBlock.values.size() + list.size();
 			int numBlocks = (s-1)/blockSize+1;
@@ -667,13 +698,11 @@ public class BigList<T>
 			int has = currBlock.values.size();
 			int should = s / numBlocks;
 			int start = 0;
-			end -= remove;
-			size -= remove;
 
 			if (has < should) {
 				// Elements must be added to first block
 				int add = should-has;
-				List<T> sublist = list.subList(0, add);
+				List<E> sublist = list.subList(0, add);
 				currBlock.values.addAll(addPos, sublist);
 				modify(currNode, add);
 				start += add;
@@ -685,7 +714,7 @@ public class BigList<T>
 
 			} else if (has > should) {
 				// Elements must be moved from first to second block
-				Block<T> nextBlock = new Block<T>(blockSize);
+				Block<E> nextBlock = new Block<E>(blockSize);
 				int move = has-should;
 				nextBlock.values.addAll(currBlock.values.getAll(currBlock.values.size()-move, move));
 				currBlock.values.remove(currBlock.values.size()-move, move);
@@ -693,13 +722,13 @@ public class BigList<T>
 				assert(currBlock.values.size() == should);
 				s -= should;
 				numBlocks--;
-				size += move;
-				end += move;
+				//size -= move;
+				//end -= move;
 
 				should = s / numBlocks;
 				int add = should-move;
 				assert(add >= 0);
-				List<T> sublist = list.subList(0, add);
+				List<E> sublist = list.subList(0, add);
 				nextBlock.values.addAll(move, sublist);
 				start += add;
 				assert(nextBlock.values.size() == should);
@@ -719,8 +748,8 @@ public class BigList<T>
 			while (numBlocks > 0) {
 				int add = s / numBlocks;
 				assert(add > 0);
-				List<T> sublist = list.subList(start, start+add);
-				Block<T> nextBlock = new Block<T>(blockSize);
+				List<E> sublist = list.subList(start, start+add);
+				Block<E> nextBlock = new Block<E>(blockSize);
 				nextBlock.values.addAll(sublist);
 				start += add;
 				assert(nextBlock.values.size() == add);
@@ -733,6 +762,7 @@ public class BigList<T>
 			}
 		}
 
+		currNode = null;
 		check();
 
 		return true;
@@ -749,9 +779,9 @@ public class BigList<T>
 		}
 		int l = len;
 		int startPos = getBlockIndex(index, true, 0);
-		Block<T> startBlock = currBlock;
+		Block<E> startBlock = currBlock;
 		int endPos = getBlockIndex(index+len-1, true, 0);
-		Block<T> endBlock = currBlock;
+		Block<E> endBlock = currBlock;
 
 		if (startBlock == endBlock) {
 			// Delete from single block
@@ -798,9 +828,9 @@ public class BigList<T>
 		if (CHECK) check();
 	}
 
-	protected T doRemove(int index) {
+	protected E doRemove(int index) {
 		int pos = getBlockIndex(index, true, -1);
-		T oldElem = currBlock.remove(pos);
+		E oldElem = currBlock.remove(pos);
 		currBlockEnd--;
 		size--;
 
@@ -812,7 +842,7 @@ public class BigList<T>
     				currNode = null;
 				}
 			} else {
-    			BlockNode<Block<T>> leftNode = currNode.previous();
+    			BlockNode<Block<E>> leftNode = currNode.previous();
     			// TODO performance
     			if (leftNode != null && leftNode.getValue().size() <= blockSize/3+1) {
     				// Merge with left block
@@ -828,7 +858,7 @@ public class BigList<T>
     				currNode = null;
 
     			} else {
-        			BlockNode<Block<T>> rightNode = currNode.next();
+        			BlockNode<Block<E>> rightNode = currNode.next();
     				if (rightNode != null && rightNode.getValue().size() <= blockSize/3+1) {
         				// Merge with right block
         			    int len = currBlock.size();
@@ -866,9 +896,9 @@ public class BigList<T>
 	/**/
 
     @Override
-    public BigList<T> unmodifiableList() {
+    public BigList<E> unmodifiableList() {
         // Naming as in java.util.Collections#unmodifiableList
-        return new ImmutableBigList<T>(this);
+        return new ImmutableBigList<E>(this);
     }
 
 	@Override
@@ -889,13 +919,13 @@ public class BigList<T>
 	}
 
 	@Override
-	public IList<T> doCreate(int capacity) {
+	public IList<E> doCreate(int capacity) {
 		// TODO make sure if content fits in one block, array is allocated directly
 		return new BigList(this.blockSize);
 	}
 
 	@Override
-	public void sort(int index, int len, Comparator<? super T> comparator) {
+	public void sort(int index, int len, Comparator<? super E> comparator) {
     	checkRange(index, len);
 
     	if (isOnlyRootBlock()) {
@@ -920,7 +950,7 @@ public class BigList<T>
 		return root.left == null && root.right == null;
 	}
 
-    public BlockNode<Block<T>> access(final int index, int modify) {
+    public BlockNode<Block<E>> access(final int index, int modify) {
         return root.access(index, modify, false);
     }
 
@@ -932,11 +962,9 @@ public class BigList<T>
      * @param obj  the element to add
      */
 
-    public void add1(int index, Block<T> obj) {
-        //modCount++;
-        //checkInterval(index, 0, size());
+    public void add1(int index, Block<E> obj) {
         if (root == null) {
-            root = new BlockNode<Block<T>>(null, index, obj, null, null);
+            root = new BlockNode<Block<E>>(null, index, obj, null, null);
         } else {
             root = root.insert(index, obj);
             root.parent = null;
@@ -949,8 +977,49 @@ public class BigList<T>
      * @param index  the index to remove
      * @return the previous object at that index
      */
-    public void remove1(final int index) {
+    public void remove1(int index) {
         root = root.remove(index);
+    }
+
+	// --- Serialization ---
+
+    /**
+     * Serialize a GapList object.
+     *
+     * @serialData The length of the array backing the <tt>GapList</tt>
+     *             instance is emitted (int), followed by all of its elements
+     *             (each an <tt>Object</tt>) in the proper order.
+     * @param oos  output stream for serialization
+     * @throws 	   IOException if serialization fails
+     */
+    private void writeObject(ObjectOutputStream oos) throws IOException {
+        oos.writeInt(blockSize);
+        // Write out array length
+	    int size = size();
+        oos.writeInt(size);
+
+        // Write out all elements in the proper order.
+        for (int i=0; i<size; i++) {
+        	oos.writeObject(doGet(i));
+        }
+    }
+
+    /**
+     * Deserialize a GapList object.
+ 	 *
+     * @param ois  input stream for serialization
+     * @throws 	   IOException if serialization fails
+     * @throws 	   ClassNotFoundException if serialization fails
+     */
+    @SuppressWarnings("unchecked")
+	private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
+        int blockSize = ois.readInt();
+        init(blockSize);
+
+        int size = ois.readInt();
+        for (int i=0; i<size; i++) {
+            add((E) ois.readObject());
+        }
     }
 
     //-----------------------------------------------------------------------
