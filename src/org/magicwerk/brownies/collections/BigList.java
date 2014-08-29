@@ -845,7 +845,6 @@ public class BigList<E>
 				}
 			} else {
     			BlockNode<E> leftNode = currNode.previous();
-    			// TODO performance
     			if (leftNode != null && leftNode.getValue().size() <= blockSize/3+1) {
     				// Merge with left block
     			    int len = currBlock.size();
@@ -865,7 +864,7 @@ public class BigList<E>
         				// Merge with right block
         			    int len = currBlock.size();
         	            for (int i=0; i<len; i++) {
-        	            	rightNode.getValue().values.add(0, null); // TODO Add method to GapList
+        	            	rightNode.getValue().values.add(0, null);
         	            }
         				GapList.copy(currBlock.values, 0, rightNode.getValue().values, 0, len);
         				modify(rightNode, +len);
@@ -956,7 +955,7 @@ public class BigList<E>
 		return root.left == null && root.right == null;
 	}
 
-    public BlockNode<E> access(int index, int modify) {
+    public BlockNode<E> access(final int index, int modify) {
         return root.access(index, modify, false);
     }
 
@@ -968,7 +967,7 @@ public class BigList<E>
      * @param obj  the element to add
      */
 
-    private void addBlock(int index, Block<E> obj) {
+    public void addBlock(int index, Block<E> obj) {
         if (root == null) {
             root = new BlockNode<E>(null, index, obj, null, null);
         } else {
@@ -983,14 +982,14 @@ public class BigList<E>
      * @param index  the index to remove
      * @return the previous object at that index
      */
-    private void removeBlock(int index) {
+    public void removeBlock(int index) {
         root = root.remove(index);
     }
 
 	// --- Serialization ---
 
     /**
-     * Serialize a GapList object.
+     * Serialize a BigList object.
      *
      * @serialData The length of the array backing the <tt>GapList</tt>
      *             instance is emitted (int), followed by all of its elements
@@ -1000,18 +999,16 @@ public class BigList<E>
      */
     private void writeObject(ObjectOutputStream oos) throws IOException {
         oos.writeInt(blockSize);
-        // Write out array length
 	    int size = size();
         oos.writeInt(size);
 
-        // Write out all elements in the proper order.
         for (int i=0; i<size; i++) {
         	oos.writeObject(doGet(i));
         }
     }
 
     /**
-     * Deserialize a GapList object.
+     * Deserialize a BigList object.
  	 *
      * @param ois  input stream for serialization
      * @throws 	   IOException if serialization fails
@@ -1021,7 +1018,6 @@ public class BigList<E>
 	private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
         int blockSize = ois.readInt();
         init(blockSize);
-
         int size = ois.readInt();
         for (int i=0; i<size; i++) {
             add((E) ois.readObject());
@@ -1091,7 +1087,7 @@ public class BigList<E>
          *
          * @param obj  the value to store
          */
-        public void setValue(final Block<E> obj) {
+        public void setValue(Block<E> obj) {
             this.value = obj;
         }
 
@@ -1107,7 +1103,7 @@ public class BigList<E>
         		currBlockEnd = relativePosition; // root
         	}
         	BlockNode<E> leftNode = getLeftSubTree();
-        	int leftIndex = currBlockEnd-((BigList.Block) getValue()).size();
+        	int leftIndex = currBlockEnd-value.size();
         	assert(leftIndex >= 0);
         	if (index >= leftIndex && index < currBlockEnd) {
     			if (relativePosition > 0) {
@@ -1219,7 +1215,7 @@ public class BigList<E>
             }
         }
 
-        private BlockNode<E> insertOnLeft(final int indexRelativeToMe, final Block<E> obj) {
+        private BlockNode<E> insertOnLeft(int indexRelativeToMe, Block<E> obj) {
             if (getLeftSubTree() == null) {
             	int pos;
             	if (relativePosition >= 0) {
@@ -1239,7 +1235,7 @@ public class BigList<E>
             return ret;
         }
 
-        private BlockNode<E> insertOnRight(final int indexRelativeToMe, final Block<E> obj) {
+        private BlockNode<E> insertOnRight(int indexRelativeToMe, Block<E> obj) {
             if (getRightSubTree() == null) {
                 setRight(new BlockNode<E>(this, obj.size(), obj, right, this), null);
             } else {
