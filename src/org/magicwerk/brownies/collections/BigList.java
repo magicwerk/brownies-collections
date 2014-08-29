@@ -174,10 +174,6 @@ public class BigList<E>
 
     /** The root node in the AVL tree */
     private BlockNode<E> root;
-
-
-
-	//private int currBlockIndex;
 	/** Index of first element in currBlock for the whole BigList */
 	private int currBlockStart;
 	/** Index of last element in currBlock for the whole BigList */
@@ -194,13 +190,13 @@ public class BigList<E>
      */
     protected BigList(boolean copy, BigList<E> that) {
         if (copy) {
-            //this.blocks = that.blocks TODO
             this.blockSize = that.blockSize;
-            this.size = that.size;
-            this.currNode = that.currNode;
             this.currBlock = that.currBlock;
             this.currBlockStart = that.currBlockStart;
             this.currBlockEnd = that.currBlockEnd;
+            this.currNode = that.currNode;
+            this.root = that.root;
+            this.size = that.size;
         }
     }
 
@@ -234,14 +230,22 @@ public class BigList<E>
 	 * @param blockSize block size
 	 */
 	public BigList(int blockSize) {
-		init(blockSize);
+		doInit(blockSize, -1);
 	}
 
-	void init(int blockSize) {
+	private BigList(int blockSize, int firstBlockSize) {
+		doInit(blockSize, firstBlockSize);
+	}
+
+	void doInit(int blockSize, int firstBlockSize) {
 		this.blockSize = blockSize;
 
 		// First block will grow until it reaches blockSize
-		currBlock = new Block<E>();
+		if (firstBlockSize <= 1) {
+			currBlock = new Block<E>();
+		} else {
+			currBlock = new Block<E>(firstBlockSize);
+		}
 		addBlock(0, currBlock);
 		currNode = root; // TODO
 	}
@@ -921,12 +925,11 @@ public class BigList<E>
 
 	@Override
 	protected IList<E> doCreate(int capacity) {
-		return new BigList<E>(this.blockSize);
-//		if (capacity <= blockSize) {
-//			return new BigList<E>(this.blockSize);
-//		} else {
-//			return new BigList<E>(this.blockSize, capacity);
-//		}
+		if (capacity <= blockSize) {
+			return new BigList<E>(this.blockSize);
+		} else {
+			return new BigList<E>(this.blockSize, capacity);
+		}
 	}
 
 	@Override
@@ -1017,8 +1020,10 @@ public class BigList<E>
     @SuppressWarnings("unchecked")
 	private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
         int blockSize = ois.readInt();
-        init(blockSize);
         int size = ois.readInt();
+        int firstBlockSize = (size <= blockSize) ? size : -1;
+        doInit(blockSize, firstBlockSize);
+
         for (int i=0; i<size; i++) {
             add((E) ois.readObject());
         }
@@ -1314,6 +1319,9 @@ public class BigList<E>
                 return removeSelf();
             }
             setRight(right.removeMax(), right.right);
+            if (relativePosition < 0) {
+                //relativePosition++;
+            }
             recalcHeight();
             return balance();
         }
