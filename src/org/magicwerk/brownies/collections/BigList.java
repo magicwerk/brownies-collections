@@ -464,7 +464,7 @@ public class BigList<E>
 	}
 
 	private void check() {
-		if (true) {return; } //TODO
+		//if (true) {return; } //TODO
 
 		if (currNode != null) {
 			assert(currNode.block == currBlock);
@@ -544,6 +544,7 @@ public class BigList<E>
 		if (index == -1) {
 			index = size;
 		}
+		// Insert
 		int pos = getBlockIndex(index, true, 1);
 
 		// There is still place in the current block: insert in current block
@@ -552,31 +553,56 @@ public class BigList<E>
 			currBlockEnd++;
 
 		} else {
-			// No place any more in current block: split block for insert
+			// No place any more in current block
 			Block<E> nextBlock = new Block<E>(blockSize);
-			int nextBlockLen = blockSize/2;
-			int blockLen = blockSize - nextBlockLen;
-			nextBlock.values.init(nextBlockLen, null);
-			GapList.copy(currBlock.values, blockLen, nextBlock.values, 0, nextBlockLen);
-			currBlock.values.remove(blockLen, blockSize-blockLen);
-
-			// Subtract 1 more because getBlockIndex() has already added 1
-			modify(currNode, -nextBlockLen-1);
-			addBlock(currBlockEnd-nextBlockLen, nextBlock);
-
-			if (pos < blockLen) {
-				// Insert element in first block
-				currBlock.add(pos, element);
-				currBlockEnd = currBlockStart+blockLen+1;
-				modify(currNode, 1);
-			} else {
-				// Insert element in second block
-				currNode = currNode.next();
-				modify(currNode, 1);
+			if (index == size) {
+				// Insert new block at tail
+				nextBlock.add(0, element);
+				modify(currNode, -1);
+				addBlock(size+1, nextBlock);
+				BlockNode<E> lastNode = currNode.next();
+				currNode = lastNode;
 				currBlock = currNode.block;
-				currBlock.add(pos-blockLen, element);
-				currBlockStart += blockLen;
+				currBlockStart = currBlockEnd;
 				currBlockEnd++;
+
+			} else if (index == 0) {
+				// Insert new block at head
+				nextBlock.add(0, element);
+				modify(currNode, -1);
+				addBlock(1, nextBlock);
+				BlockNode<E> firstNode = currNode.previous();
+				currNode = firstNode;
+				currBlock = currNode.block;
+				currBlockStart = 0;
+				currBlockEnd = 1;
+
+			} else {
+				// Split block for insert
+				int nextBlockLen = blockSize/2;
+				int blockLen = blockSize - nextBlockLen;
+				nextBlock.values.init(nextBlockLen, null);
+				GapList.copy(currBlock.values, blockLen, nextBlock.values, 0, nextBlockLen);
+				currBlock.values.remove(blockLen, blockSize-blockLen);
+
+				// Subtract 1 more because getBlockIndex() has already added 1
+				modify(currNode, -nextBlockLen-1);
+				addBlock(currBlockEnd-nextBlockLen, nextBlock);
+
+				if (pos < blockLen) {
+					// Insert element in first block
+					currBlock.add(pos, element);
+					currBlockEnd = currBlockStart+blockLen+1;
+					modify(currNode, 1);
+				} else {
+					// Insert element in second block
+					currNode = currNode.next();
+					modify(currNode, 1);
+					currBlock = currNode.block;
+					currBlock.add(pos-blockLen, element);
+					currBlockStart += blockLen;
+					currBlockEnd++;
+				}
 			}
 		}
 		size++;
@@ -599,6 +625,9 @@ public class BigList<E>
 			currModify = 0;
 		} else {
 			releaseBlock();
+		}
+		if (modify == 0) {
+			return;
 		}
 
 		if (node.relativePosition < 0) {
@@ -698,7 +727,6 @@ public class BigList<E>
 			return doAdd(index, array[0]);
 		}
 
-		//currNode = null;
 		int addPos = getBlockIndex(index, true, 0);
 		Block<E> addBlock = currBlock;
 		int space = blockSize - addBlock.size();
@@ -713,86 +741,124 @@ public class BigList<E>
 
 		} else {
 			// Add elements to several blocks
+			if (index == size) {
+				for (int i=0; i<space; i++) {
+					currBlock.values.add(addPos, array[i]);
+				}
+				modify(currNode, space);
 
-			// Handle first block
-			GapList<E> list = GapList.create(array);
-			int remove = currBlock.values.size()-addPos;
-			if (remove > 0) {
-				list.addAll(currBlock.values.getAll(addPos, remove));
-				currBlock.values.remove(addPos, remove);
-				modify(currNode, -remove);
-				size -= remove;
-				currBlockEnd -= remove;
-			}
-
-			int s = currBlock.values.size() + list.size();
-			int numBlocks = (s-1)/blockSize+1;
-			assert(numBlocks > 1);
-			int has = currBlock.values.size();
-			int should = s / numBlocks;
-			int start = 0;
-			int end = 0;
-			if (has < should) {
-				// Elements must be added to first block
-				int add = should-has;
-				List<E> sublist = list.subList(0, add);
-				currBlock.values.addAll(addPos, sublist);
-				modify(currNode, add);
-				start += add;
-				assert(currBlock.values.size() == should);
-				s -= should;
-				numBlocks--;
-				size += add;
-				currBlockEnd += add;
-				end = currBlockEnd;
-
-			} else if (has > should) {
-				// Elements must be moved from first to second block
 				Block<E> nextBlock = new Block<E>(blockSize);
-				int move = has-should;
-				nextBlock.values.addAll(currBlock.values.getAll(currBlock.values.size()-move, move));
-				currBlock.values.remove(currBlock.values.size()-move, move);
-				modify(currNode, -move);
-				assert(currBlock.values.size() == should);
-				s -= should;
-				numBlocks--;
-				currBlockEnd -= move;
-				end = currBlockEnd;
+				for(int i=0; i<addLen-space; i++) {
+					nextBlock.values.add(i, array[space+i]);
+				}
+				addBlock(size+addLen, nextBlock);
 
-				should = s / numBlocks;
-				int add = should-move;
-				assert(add >= 0);
-				List<E> sublist = list.subList(0, add);
-				nextBlock.values.addAll(move, sublist);
-				start += add;
-				assert(nextBlock.values.size() == should);
-				s -= should;
+				size += addLen;
+				currNode = currNode.next();
+				currBlock = currNode.block;
+				currBlockStart = currBlockEnd+space;
+				currBlockEnd = currBlockStart+addLen-space;
 
-				numBlocks--;
-				size += add;
-				end += add;
-				addBlock(end, nextBlock);
+			} else if (index == 0) {
+				assert(addPos == 0);
+				for (int i=0; i<space; i++) {
+					currBlock.values.add(addPos, array[addLen-space+i]);
+				}
+				modify(currNode, space);
+
+				Block<E> nextBlock = new Block<E>(blockSize);
+				for(int i=0; i<addLen-space; i++) {
+					nextBlock.values.add(i, array[i]);
+				}
+				addBlock(0, nextBlock);
+
+				size += addLen;
+				currNode = currNode.previous();
+				currBlock = currNode.block;
+				currBlockStart = 0;
+				currBlockEnd = addLen-space;
 
 			} else {
-				s -= should;
-				numBlocks--;
-			}
-			check();
+				// Handle first block
+				GapList<E> list = GapList.create(array);
+				int remove = currBlock.values.size()-addPos;
+				if (remove > 0) {
+					list.addAll(currBlock.values.getAll(addPos, remove));
+					currBlock.values.remove(addPos, remove);
+					modify(currNode, -remove);
+					size -= remove;
+					currBlockEnd -= remove;
+				}
 
-			while (numBlocks > 0) {
-				int add = s / numBlocks;
-				assert(add > 0);
-				List<E> sublist = list.subList(start, start+add);
-				Block<E> nextBlock = new Block<E>(blockSize);
-				nextBlock.values.addAll(sublist);
-				start += add;
-				assert(nextBlock.values.size() == add);
-				s -= add;
-				end += add;
-				addBlock(end, nextBlock);
-				size += add;
-				numBlocks--;
+				int s = currBlock.values.size() + list.size();
+				int numBlocks = (s-1)/blockSize+1;
+				assert(numBlocks > 1);
+				int has = currBlock.values.size();
+				int should = s / numBlocks;
+				int start = 0;
+				int end = 0;
+				if (has < should) {
+					// Elements must be added to first block
+					int add = should-has;
+					List<E> sublist = list.subList(0, add);
+					currBlock.values.addAll(addPos, sublist);
+					modify(currNode, add);
+					start += add;
+					assert(currBlock.values.size() == should);
+					s -= should;
+					numBlocks--;
+					size += add;
+					currBlockEnd += add;
+					end = currBlockEnd;
+
+				} else if (has > should) {
+					// Elements must be moved from first to second block
+					Block<E> nextBlock = new Block<E>(blockSize);
+					int move = has-should;
+					nextBlock.values.addAll(currBlock.values.getAll(currBlock.values.size()-move, move));
+					currBlock.values.remove(currBlock.values.size()-move, move);
+					modify(currNode, -move);
+					assert(currBlock.values.size() == should);
+					s -= should;
+					numBlocks--;
+					currBlockEnd -= move;
+					end = currBlockEnd;
+
+					should = s / numBlocks;
+					int add = should-move;
+					assert(add >= 0);
+					List<E> sublist = list.subList(0, add);
+					nextBlock.values.addAll(move, sublist);
+					start += add;
+					assert(nextBlock.values.size() == should);
+					s -= should;
+
+					numBlocks--;
+					size += add;
+					end += add;
+					addBlock(end, nextBlock);
+
+				} else {
+					s -= should;
+					numBlocks--;
+				}
 				check();
+
+				while (numBlocks > 0) {
+					int add = s / numBlocks;
+					assert(add > 0);
+					List<E> sublist = list.subList(start, start+add);
+					Block<E> nextBlock = new Block<E>(blockSize);
+					nextBlock.values.addAll(sublist);
+					start += add;
+					assert(nextBlock.values.size() == add);
+					s -= add;
+					end += add;
+					addBlock(end, nextBlock);
+					size += add;
+					numBlocks--;
+					check();
+				}
 			}
 		}
 
