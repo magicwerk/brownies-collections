@@ -435,6 +435,7 @@ public class BigList<E>
 	}
 
 	void checkNode(BlockNode<E> node) {
+		assert((node.block.size() > 0 || node == root) && node.block.size() <= blockSize);
 		BlockNode<E> child = node.getLeftSubTree();
 		assert(child == null || child.parent == node);
 		child = node.getRightSubTree();
@@ -464,7 +465,7 @@ public class BigList<E>
 	}
 
 	private void check() {
-		//if (true) {return; } //TODO
+		if (true) {return; } //TODO
 
 		if (currNode != null) {
 			assert(currNode.block == currBlock);
@@ -495,7 +496,6 @@ public class BigList<E>
 			checkNode(node);
 			assert(node.relativePosition < 0);
 			index += node.relativePosition;
-			assert((node.getBlock()).size() > 0);
 		}
 		Block<E> block = node.getBlock();
 		assert(block.size() == index);
@@ -740,18 +740,30 @@ public class BigList<E>
 			currBlockEnd += addLen;
 
 		} else {
-			// Add elements to several blocks
 			if (index == size) {
+				// Add elements at end
 				for (int i=0; i<space; i++) {
 					currBlock.values.add(addPos, array[i]);
 				}
 				modify(currNode, space);
 
-				Block<E> nextBlock = new Block<E>(blockSize);
-				for(int i=0; i<addLen-space; i++) {
-					nextBlock.values.add(i, array[space+i]);
+				int done = space;
+				int todo = addLen-space;
+				while (todo > 0) {
+					Block<E> nextBlock = new Block<E>(blockSize);
+					int add = Math.min(todo, blockSize);
+					for(int i=0; i<add; i++) {
+						nextBlock.values.add(i, array[done+i]);
+					}
+					done += add;
+					todo -= add;
+					addBlock(size+done, nextBlock);
 				}
-				addBlock(size+addLen, nextBlock);
+//				Block<E> nextBlock = new Block<E>(blockSize);
+//				for(int i=0; i<addLen-space; i++) {
+//					nextBlock.values.add(i, array[space+i]);
+//				}
+//				addBlock(size+addLen, nextBlock);
 
 				size += addLen;
 				currNode = currNode.next();
@@ -760,17 +772,30 @@ public class BigList<E>
 				currBlockEnd = currBlockStart+addLen-space;
 
 			} else if (index == 0) {
+				// Add elements at head
 				assert(addPos == 0);
 				for (int i=0; i<space; i++) {
 					currBlock.values.add(addPos, array[addLen-space+i]);
 				}
 				modify(currNode, space);
 
-				Block<E> nextBlock = new Block<E>(blockSize);
-				for(int i=0; i<addLen-space; i++) {
-					nextBlock.values.add(i, array[i]);
+				int done = space;
+				int todo = addLen-space;
+				while (todo > 0) {
+					Block<E> nextBlock = new Block<E>(blockSize);
+					int add = Math.min(todo, blockSize);
+					for(int i=0; i<add; i++) {
+						nextBlock.values.add(i, array[done+i]);
+					}
+					done += add;
+					todo -= add;
+					addBlock(0, nextBlock);
 				}
-				addBlock(0, nextBlock);
+//				Block<E> nextBlock = new Block<E>(blockSize);
+//				for(int i=0; i<addLen-space; i++) {
+//					nextBlock.values.add(i, array[i]);
+//				}
+//				addBlock(0, nextBlock);
 
 				size += addLen;
 				currNode = currNode.previous();
@@ -779,6 +804,7 @@ public class BigList<E>
 				currBlockEnd = addLen-space;
 
 			} else {
+				// Add elements to several blocks
 				// Handle first block
 				GapList<E> list = GapList.create(array);
 				int remove = currBlock.values.size()-addPos;
@@ -869,42 +895,58 @@ public class BigList<E>
 	}
 
 	@Override
+	protected void doClear() {
+		root = null;
+		doInit(blockSize, 0);
+	}
+
+	@Override
 	protected void doRemoveAll(int index, int len) {
+		// Handle special cases
 		if (len == 0) {
+			return;
+		}
+		if (index == 0 && len == size) {
+			doClear();
 			return;
 		}
 		if (len == 1) {
 			doRemove(index);
 			return;
 		}
+
+		// Remove range
 		int l = len;
 		int startPos = getBlockIndex(index, true, 0);
-		Block<E> startBlock = currBlock;
+		BlockNode<E> startNode = currNode;
 		int endPos = getBlockIndex(index+len-1, true, 0);
-		Block<E> endBlock = currBlock;
+		BlockNode<E> endNode = currNode;
 
-		if (startBlock == endBlock) {
+		if (startNode == endNode) {
 			// Delete from single block
 			getBlockIndex(index, true, -len);
 			currBlock.values.remove(startPos, len);
 			if (currBlock.values.isEmpty()) {
 				BlockNode<E> oldCurrNode = currNode;
 				releaseBlock();
-				doRemove(oldCurrNode);
+				BlockNode<E> node = doRemove(oldCurrNode);
+				merge(node);
 			} else {
 				currBlockEnd -= len;
+				merge(currNode);
 			}
 			size -= len;
 		} else {
 			// Delete from start block
 			check();
-			int startLen = startBlock.size()-startPos;
-			getBlockIndex(index, true, -startLen);
-			startBlock.values.remove(startPos, startLen);
+			int startLen = startNode.block.size()-startPos;
+			getBlockIndex(index, true, -startLen); // TODO should that be modify?
+			startNode.block.values.remove(startPos, startLen);
+			assert(startNode == currNode);
 			if (currBlock.values.isEmpty()) {
-				BlockNode<E> oldCurrNode = currNode;
 				releaseBlock();
-				doRemove(oldCurrNode);
+				doRemove(startNode);
+				startNode = null;
 			}
 			len -= startLen;
 			size -= startLen;
@@ -919,6 +961,9 @@ public class BigList<E>
 					BlockNode<E> oldCurrNode = currNode;
 					releaseBlock();
 					doRemove(oldCurrNode);
+					if (oldCurrNode == endNode) {
+						endNode = null;
+					}
 					len -= s;
 					size -= s;
 					check();
@@ -930,19 +975,67 @@ public class BigList<E>
 				}
 			}
 			releaseBlock();
+			check();
+			getBlockIndex(index, false, 0);
+			merge(currNode);
 		}
 
 		if (DUMP) dump();
 		if (CHECK) check();
 	}
 
+	void merge(BlockNode<E> node) {
+		if (node == null) {
+			return;
+		}
+
+		final int minBlockSize = Math.max(blockSize/3, 1);
+		if (node.block.values.size() >= minBlockSize) {
+			return;
+		}
+
+		BlockNode<E> oldCurrNode = node;
+		BlockNode<E> leftNode = node.previous();
+		if (leftNode != null && leftNode.block.size() < minBlockSize) {
+			// Merge with left block
+		    int len = node.block.size();
+		    int dstSize = leftNode.getBlock().size();
+            for (int i=0; i<len; i++) {
+                leftNode.block.values.add(null); // TODO Add method to GapList
+            }
+			GapList.copy(node.block.values, 0, leftNode.block.values, dstSize, len);
+			assert(leftNode.block.values.size() <= blockSize);
+
+			modify(leftNode, +len);
+			modify(oldCurrNode, -len);
+			releaseBlock();
+			doRemove(oldCurrNode);
+
+		} else {
+			BlockNode<E> rightNode = node.next();
+			if (rightNode != null && rightNode.block.size() < minBlockSize) {
+				// Merge with right block
+			    int len = node.block.size();
+	            for (int i=0; i<len; i++) {
+	            	rightNode.block.values.add(0, null);
+	            }
+				GapList.copy(node.block.values, 0, rightNode.block.values, 0, len);
+				assert(rightNode.block.values.size() <= blockSize);
+
+				modify(rightNode, +len);
+				modify(oldCurrNode, -len);
+				releaseBlock();
+				doRemove(oldCurrNode);
+			}
+		}
+	}
+
 	protected E doRemove(int index) {
 		int pos = getBlockIndex(index, true, -1);
 		E oldElem = currBlock.remove(pos);
 		currBlockEnd--;
-		size--;
 
-		int minBlockSize = Math.max(blockSize/3, 1);
+		final int minBlockSize = Math.max(blockSize/3, 1);
 		if (currBlock.size() < minBlockSize) {
 			if (currBlock.size() == 0) {
 				if (!isOnlyRootBlock()) {
@@ -950,40 +1043,11 @@ public class BigList<E>
     				releaseBlock();
 					doRemove(oldCurrNode);
 				}
-			} else {
-    			BlockNode<E> oldCurrNode = currNode;
-    			BlockNode<E> leftNode = currNode.previous();
-    			if (leftNode != null && leftNode.getBlock().size() <= blockSize/3+1) {
-    				// Merge with left block
-    			    int len = currBlock.size();
-    			    int dstSize = leftNode.getBlock().size();
-    	            for (int i=0; i<len; i++) {
-    	                leftNode.getBlock().values.add(null); // TODO Add method to GapList
-    	            }
-    				GapList.copy(currBlock.values, 0, leftNode.getBlock().values, dstSize, len);
-    				modify(leftNode, +len);
-    				modify(oldCurrNode, -len);
-    				releaseBlock();
-    				doRemove(oldCurrNode);
-
-    			} else {
-        			BlockNode<E> rightNode = currNode.next();
-    				if (rightNode != null && rightNode.getBlock().size() <= blockSize/3+1) {
-        				// Merge with right block
-        			    int len = currBlock.size();
-        	            for (int i=0; i<len; i++) {
-        	            	rightNode.getBlock().values.add(0, null);
-        	            }
-        				GapList.copy(currBlock.values, 0, rightNode.getBlock().values, 0, len);
-
-        				modify(rightNode, +len);
-        				modify(oldCurrNode, -len);
-        				releaseBlock();
-        				doRemove(oldCurrNode);
-    				}
-    			}
+			} else if (index != 0 && index != size-1) {
+				merge(currNode);
 			}
 		}
+		size--;
 
 		if (DUMP) dump();
 		if (CHECK) check();
