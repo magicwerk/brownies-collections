@@ -59,7 +59,8 @@ public class GapList<E> extends IList<E> {
     private static final boolean DEBUG_TRACE = false;
     /** If true the internal state of the GapList is traced out for debugging */
     private static final boolean DEBUG_DUMP = false;
-
+	/** Empty array used for default initialiazation */
+    private static Object[] EMPTY_VALUES = new Object[0];
 
     // -- EMPTY --
 
@@ -137,6 +138,11 @@ public class GapList<E> extends IList<E> {
 
         @Override
         protected void doRemoveAll(int index, int len) {
+        	error();
+        }
+
+        @Override
+        protected void doClear() {
         	error();
         }
 
@@ -389,7 +395,7 @@ public class GapList<E> extends IList<E> {
 	 * The list will have the default initial capacity.
 	 */
 	public void init() {
-		init(new Object[DEFAULT_CAPACITY], 0);
+		init(EMPTY_VALUES, 0);
 	}
 
 	/**
@@ -477,6 +483,11 @@ public class GapList<E> extends IList<E> {
 		gapIndex = 0;
 
 		if (DEBUG_CHECK) debugCheck();
+	}
+
+	@Override
+	protected void doClear() {
+		init(values, 0);
 	}
 
 	@Override
@@ -996,6 +1007,7 @@ public class GapList<E> extends IList<E> {
 		if (minCapacity <= oldCapacity) {
 			return;	// do not shrink
 		}
+        minCapacity = Math.max(DEFAULT_CAPACITY, minCapacity);
 	    int newCapacity = (oldCapacity*3)/2 + 1;
 	    if (newCapacity < minCapacity) {
 	    	newCapacity = minCapacity;
