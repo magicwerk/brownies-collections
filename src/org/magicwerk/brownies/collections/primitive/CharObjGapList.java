@@ -159,7 +159,6 @@ public class CharObjGapList extends IList<Character> {
     	return new CharObjGapList(capacity);
     }
 
-
 	@Override
 	public int size() {
 		return list.size();

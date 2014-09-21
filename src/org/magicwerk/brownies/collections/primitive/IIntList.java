@@ -128,6 +128,10 @@ protected abstract void doClone(IIntList that);
 
     
 public void clear() {
+    doClear();
+}
+
+    protected void doClear() {
     doRemoveAll(0, size());
 }
 

@@ -159,7 +159,6 @@ public class FloatObjGapList extends IList<Float> {
     	return new FloatObjGapList(capacity);
     }
 
-
 	@Override
 	public int size() {
 		return list.size();

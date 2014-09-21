@@ -131,6 +131,10 @@ public abstract class IList<E> extends AbstractList<E>
 
 	@Override
 	public void clear() {
+		doClear();
+	}
+
+	protected void doClear() {
 		doRemoveAll(0, size());
 	}
 

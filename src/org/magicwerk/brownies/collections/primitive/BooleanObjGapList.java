@@ -159,7 +159,6 @@ public class BooleanObjGapList extends IList<Boolean> {
     	return new BooleanObjGapList(capacity);
     }
 
-
 	@Override
 	public int size() {
 		return list.size();
