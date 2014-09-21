@@ -159,7 +159,6 @@ public class ByteObjGapList extends IList<Byte> {
     	return new ByteObjGapList(capacity);
     }
 
-
 	@Override
 	public int size() {
 		return list.size();

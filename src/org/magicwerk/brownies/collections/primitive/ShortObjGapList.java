@@ -159,7 +159,6 @@ public class ShortObjGapList extends IList<Short> {
     	return new ShortObjGapList(capacity);
     }
 
-
 	@Override
 	public int size() {
 		return list.size();

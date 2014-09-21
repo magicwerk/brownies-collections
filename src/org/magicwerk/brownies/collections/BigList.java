@@ -85,6 +85,11 @@ public class BigList<E>
         }
 
         @Override
+        protected void doClear() {
+        	error();
+        }
+
+        @Override
         protected void doModify() {
         	error();
         }
@@ -117,7 +122,7 @@ public class BigList<E>
 
 		public Block(Block<T> that) {
 			values = new GapList<T>(that.values.capacity());
-			values.addAll(that.values);
+			values.init(that.values);
 			refCount = 1;
 		}
 
@@ -204,6 +209,41 @@ public class BigList<E>
         }
     }
 
+	// --- Static methods ---
+
+    /**
+     * Create new list.
+     *
+     * @return          created list
+     * @param <E>       type of elements stored in the list
+     */
+    // This separate method is needed as the varargs variant creates the GapList with specific size
+    public static <E> BigList<E> create() {
+        return new BigList<E>();
+    }
+
+    /**
+     * Create new list with specified capacity.
+     *
+     * @param blockSize block size
+     * @return          created list
+     * @param <E>       type of elements stored in the list
+     */
+    public static <E> BigList<E> create(int blockSize) {
+        return new BigList<E>(blockSize);
+    }
+
+    /**
+     * Create new list with specified elements.
+     *
+     * @param coll      collection with element
+     * @return          created list
+     * @param <E>       type of elements stored in the list
+     */
+	public static <E> BigList<E> create(Collection<? extends E> coll) {
+		return new BigList<E>(coll);
+	}
+
 	/**
 	 * Create new list with specified elements.
 	 *
@@ -212,12 +252,7 @@ public class BigList<E>
 	 * @param <E> 		type of elements stored in the list
 	 */
 	public static <E> BigList<E> create(E... elems) {
-		// TOOD improve
-		BigList<E> list = new BigList<E>();
-		for (E elem: elems) {
-			list.add(elem);
-		}
-		return list;
+		return new BigList<E>(elems);
 	}
 
 	/**
@@ -237,6 +272,46 @@ public class BigList<E>
 		doInit(blockSize, -1);
 	}
 
+    public BigList(Collection<? extends E> that) {
+    	if (that instanceof BigList) {
+    		doAssign((BigList<E>) that);
+        	doClone((BigList<E>) that);
+
+    	}  else {
+	        blockSize = BLOCK_SIZE;
+
+			currBlock = new Block<E>();
+			addBlock(0, currBlock);
+
+	        for (Object elem: that.toArray()) {
+	            add((E) elem);
+	        }
+	        assert(size() == that.size());
+    	}
+    }
+
+    public BigList(E... elems) {
+        blockSize = BLOCK_SIZE;
+
+		currBlock = new Block<E>();
+		addBlock(0, currBlock);
+
+        for (Object elem: elems) {
+            add((E) elem);
+        }
+    }
+
+    /**
+     * Returns block size used for this BigList.
+     *
+     * @return block size used for this BigList
+     */
+    public int blockSize() {
+    	return blockSize;
+    }
+
+    //---
+
 	private BigList(int blockSize, int firstBlockSize) {
 		doInit(blockSize, firstBlockSize);
 	}
@@ -253,22 +328,10 @@ public class BigList<E>
 		addBlock(0, currBlock);
 	}
 
-    public BigList(BigList<E> that) {
-    	doClone(that);
-    }
-
-    public BigList(Collection<E> that) {
-        blockSize = BLOCK_SIZE;
-
-		//blocks = new RangeList<Block<T>>();
-		currBlock = new Block<E>();
-		addBlock(0, currBlock);
-
-        for (Object elem: that.toArray()) {
-            add((E) elem);
-        }
-        assert(size() == that.size());
-    }
+	@Override
+    public BigList<E> copy() {
+	    return (BigList<E>) super.copy();
+	}
 
     @Override
     protected void doAssign(IList<E> that) {
@@ -376,8 +439,14 @@ public class BigList<E>
 		if (currNode != null) {
 			if (index >= currBlockStart && (index < currBlockEnd || index == currBlockEnd && size == index)) {
 				// currBlock is already set correctly
+		        if (write) {
+					if (currBlock.isShared()) {
+						currBlock.unref();
+						currBlock = new Block<E>(currBlock);
+						currNode.setBlock(currBlock);
+					}
+			    }
 				currModify += modify;
-				//currBlockEnd += modify;
 				return index - currBlockStart;
 			}
 			releaseBlock();
@@ -464,7 +533,7 @@ public class BigList<E>
 		}
 	}
 
-	private void check() {
+	void check() {
 		if (true) {return; } //TODO
 
 		if (currNode != null) {
@@ -759,11 +828,6 @@ public class BigList<E>
 					todo -= add;
 					addBlock(size+done, nextBlock);
 				}
-//				Block<E> nextBlock = new Block<E>(blockSize);
-//				for(int i=0; i<addLen-space; i++) {
-//					nextBlock.values.add(i, array[space+i]);
-//				}
-//				addBlock(size+addLen, nextBlock);
 
 				size += addLen;
 				currNode = currNode.next();
@@ -791,11 +855,6 @@ public class BigList<E>
 					todo -= add;
 					addBlock(0, nextBlock);
 				}
-//				Block<E> nextBlock = new Block<E>(blockSize);
-//				for(int i=0; i<addLen-space; i++) {
-//					nextBlock.values.add(i, array[i]);
-//				}
-//				addBlock(0, nextBlock);
 
 				size += addLen;
 				currNode = currNode.previous();
@@ -826,7 +885,7 @@ public class BigList<E>
 				if (has < should) {
 					// Elements must be added to first block
 					int add = should-has;
-					List<E> sublist = list.subList(0, add);
+					List<E> sublist = list.getAll(0, add);
 					currBlock.values.addAll(addPos, sublist);
 					modify(currNode, add);
 					start += add;
@@ -853,7 +912,7 @@ public class BigList<E>
 					should = s / numBlocks;
 					int add = should-move;
 					assert(add >= 0);
-					List<E> sublist = list.subList(0, add);
+					List<E> sublist = list.getAll(0, add);
 					nextBlock.values.addAll(move, sublist);
 					start += add;
 					assert(nextBlock.values.size() == should);
@@ -873,9 +932,9 @@ public class BigList<E>
 				while (numBlocks > 0) {
 					int add = s / numBlocks;
 					assert(add > 0);
-					List<E> sublist = list.subList(start, start+add);
-					Block<E> nextBlock = new Block<E>(blockSize);
-					nextBlock.values.addAll(sublist);
+					List<E> sublist = list.getAll(start, add);
+					Block<E> nextBlock = new Block<E>();
+					nextBlock.values.init(sublist);
 					start += add;
 					assert(nextBlock.values.size() == add);
 					s -= add;
@@ -897,6 +956,13 @@ public class BigList<E>
 	@Override
 	protected void doClear() {
 		root = null;
+		currBlock = null;
+		currBlockStart = 0;
+		currBlockEnd = 0;
+		currModify = 0;
+		currNode = null;
+		size = 0;
+
 		doInit(blockSize, 0);
 	}
 

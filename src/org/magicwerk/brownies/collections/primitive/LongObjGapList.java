@@ -159,7 +159,6 @@ public class LongObjGapList extends IList<Long> {
     	return new LongObjGapList(capacity);
     }
 
-
 	@Override
 	public int size() {
 		return list.size();

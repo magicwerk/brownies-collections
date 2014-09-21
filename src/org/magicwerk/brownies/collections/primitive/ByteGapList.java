@@ -63,6 +63,9 @@ public class ByteGapList extends IByteList {
     /** If true the internal state of the ByteGapList is traced out for debugging */
     private static final boolean DEBUG_DUMP = false;
 
+    /** Empty array used for default initialiazation */
+    private static Object[] EMPTY_VALUES = new Object[0];
+
     // -- EMPTY --  
     // Cannot make a static reference to the non-static type E:  
     // public static ByteGapList EMPTY = ByteGapList.create().unmodifiableList();  
@@ -136,6 +139,11 @@ protected byte doRemove(int index) {
 
         @Override
 protected void doRemoveAll(int index, int len) {
+    error();
+}
+
+        @Override
+protected void doClear() {
     error();
 }
 
@@ -368,7 +376,7 @@ public ByteGapList(byte... elems){
 	 * The list will have the default initial capacity.
 	 */
 public void init() {
-    init(new byte[DEFAULT_CAPACITY], 0);
+    init(EMPTY_VALUES, 0);
 }
 
     /**
@@ -455,6 +463,11 @@ void init(byte[] values, int size) {
     gapIndex = 0;
     if (DEBUG_CHECK)
         debugCheck();
+}
+
+    @Override
+protected void doClear() {
+    init(values, 0);
 }
 
     @Override
@@ -954,6 +967,7 @@ protected void doEnsureCapacity(int minCapacity) {
     if (minCapacity <= oldCapacity) {
         return;
     }
+    minCapacity = Math.max(DEFAULT_CAPACITY, minCapacity);
     int newCapacity = (oldCapacity * 3) / 2 + 1;
     if (newCapacity < minCapacity) {
         newCapacity = minCapacity;

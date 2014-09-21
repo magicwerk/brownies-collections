@@ -159,7 +159,6 @@ public class DoubleObjGapList extends IList<Double> {
     	return new DoubleObjGapList(capacity);
     }
 
-
 	@Override
 	public int size() {
 		return list.size();
