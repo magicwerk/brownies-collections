@@ -63,8 +63,8 @@ public class FloatGapList extends IFloatList {
     /** If true the internal state of the FloatGapList is traced out for debugging */
     private static final boolean DEBUG_DUMP = false;
 
-    /** Empty array used for default initialiazation */
-    private static Object[] EMPTY_VALUES = new Object[0];
+    /** Empty array used for default initialization */
+    private static float[] EMPTY_VALUES = new float[0];
 
     // -- EMPTY --  
     // Cannot make a static reference to the non-static type E:  

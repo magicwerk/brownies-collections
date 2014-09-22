@@ -143,22 +143,6 @@ public class BigList<E>
 			return values.size();
 		}
 
-		public T get(int index) {
-			return values.get(index);
-		}
-
-		public void set(int index, T elem) {
-			values.set(index, elem);
-		}
-
-		public void add(int index, T elem) {
-			values.add(index, elem);
-		}
-
-		public T remove(int index) {
-			return values.remove(index);
-		}
-
 		public String toString() {
 			return values.toString();
 		}
@@ -399,22 +383,22 @@ public class BigList<E>
 	@Override
 	protected E doGet(int index) {
 		int pos = getBlockIndex(index, false, 0);
-		return currBlock.get(pos);
+		return currBlock.values.doGet(pos);
 	}
 
 	@Override
 	protected E doSet(int index, E elem) {
 		int pos = getBlockIndex(index, true, 0);
-		E oldElem = currBlock.get(pos);
-		currBlock.set(pos, elem);
+		E oldElem = currBlock.values.doGet(pos);
+		currBlock.values.doSet(pos, elem);
 		return oldElem;
 	}
 
 	@Override
 	protected E doReSet(int index, E elem) {
 		int pos = getBlockIndex(index, true, 0);
-		E oldElem = currBlock.get(pos);
-		currBlock.set(pos, elem);
+		E oldElem = currBlock.values.doGet(pos);
+		currBlock.values.doSet(pos, elem);
 		return oldElem;
 	}
 
@@ -616,9 +600,10 @@ public class BigList<E>
 		// Insert
 		int pos = getBlockIndex(index, true, 1);
 
-		// There is still place in the current block: insert in current block
-		if (currBlock.size() < blockSize) {
-			currBlock.add(pos, element);
+		// If there is still place in the current block: insert in current block
+		int maxSize = (index == size || index == 0) ? blockSize*9/10 : blockSize;
+		if (currBlock.size() < maxSize) {
+			currBlock.values.doAdd(pos, element);
 			currBlockEnd++;
 
 		} else {
@@ -626,7 +611,7 @@ public class BigList<E>
 			Block<E> nextBlock = new Block<E>(blockSize);
 			if (index == size) {
 				// Insert new block at tail
-				nextBlock.add(0, element);
+				nextBlock.values.doAdd(0, element);
 				modify(currNode, -1);
 				addBlock(size+1, nextBlock);
 				BlockNode<E> lastNode = currNode.next();
@@ -637,7 +622,7 @@ public class BigList<E>
 
 			} else if (index == 0) {
 				// Insert new block at head
-				nextBlock.add(0, element);
+				nextBlock.values.doAdd(0, element);
 				modify(currNode, -1);
 				addBlock(1, nextBlock);
 				BlockNode<E> firstNode = currNode.previous();
@@ -660,7 +645,7 @@ public class BigList<E>
 
 				if (pos < blockLen) {
 					// Insert element in first block
-					currBlock.add(pos, element);
+					currBlock.values.doAdd(pos, element);
 					currBlockEnd = currBlockStart+blockLen+1;
 					modify(currNode, 1);
 				} else {
@@ -668,7 +653,7 @@ public class BigList<E>
 					currNode = currNode.next();
 					modify(currNode, 1);
 					currBlock = currNode.block;
-					currBlock.add(pos-blockLen, element);
+					currBlock.values.doAdd(pos-blockLen, element);
 					currBlockStart += blockLen;
 					currBlockEnd++;
 				}
@@ -1098,7 +1083,7 @@ public class BigList<E>
 
 	protected E doRemove(int index) {
 		int pos = getBlockIndex(index, true, -1);
-		E oldElem = currBlock.remove(pos);
+		E oldElem = currBlock.values.doRemove(pos);
 		currBlockEnd--;
 
 		final int minBlockSize = Math.max(blockSize/3, 1);
