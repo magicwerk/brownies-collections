@@ -63,8 +63,8 @@ public class BooleanGapList extends IBooleanList {
     /** If true the internal state of the BooleanGapList is traced out for debugging */
     private static final boolean DEBUG_DUMP = false;
 
-    /** Empty array used for default initialiazation */
-    private static Object[] EMPTY_VALUES = new Object[0];
+    /** Empty array used for default initialization */
+    private static boolean[] EMPTY_VALUES = new boolean[0];
 
     // -- EMPTY --  
     // Cannot make a static reference to the non-static type E:  

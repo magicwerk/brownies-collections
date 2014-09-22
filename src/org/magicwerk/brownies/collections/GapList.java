@@ -59,7 +59,7 @@ public class GapList<E> extends IList<E> {
     private static final boolean DEBUG_TRACE = false;
     /** If true the internal state of the GapList is traced out for debugging */
     private static final boolean DEBUG_DUMP = false;
-	/** Empty array used for default initialiazation */
+	/** Empty array used for default initialization */
     private static Object[] EMPTY_VALUES = new Object[0];
 
     // -- EMPTY --

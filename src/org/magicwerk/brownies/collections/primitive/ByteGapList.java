@@ -63,8 +63,8 @@ public class ByteGapList extends IByteList {
     /** If true the internal state of the ByteGapList is traced out for debugging */
     private static final boolean DEBUG_DUMP = false;
 
-    /** Empty array used for default initialiazation */
-    private static Object[] EMPTY_VALUES = new Object[0];
+    /** Empty array used for default initialization */
+    private static byte[] EMPTY_VALUES = new byte[0];
 
     // -- EMPTY --  
     // Cannot make a static reference to the non-static type E:  
