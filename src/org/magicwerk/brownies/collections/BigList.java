@@ -11,7 +11,7 @@ import java.util.Comparator;
 import java.util.Deque;
 import java.util.List;
 
-import org.magicwerk.brownies.collections.helper.InternalSort;
+import org.magicwerk.brownies.collections.helper.MergeSort;
 
 /**
  * The first block (GapList) used grows dynamcically, all others
@@ -21,9 +21,7 @@ import org.magicwerk.brownies.collections.helper.InternalSort;
  * @author Thomas Mauch
  * @version $Id$
  */
-public class BigList<E>
-    extends IList<E>
-    implements List<E>, Deque<E> {
+public class BigList<E> extends IList<E> {
 
     /**
      * An immutable version of a GapList.
@@ -1150,7 +1148,7 @@ public class BigList<E>
     	if (isOnlyRootBlock()) {
     		currBlock.values.sort(index, len, comparator);
     	} else {
-    		InternalSort.sort(this, comparator, index, index+len);
+    		MergeSort.sort(this, comparator, index, index+len);
     	}
 	}
 
@@ -1371,22 +1369,6 @@ public class BigList<E>
                 currBlockEnd += nextNode.relativePosition;
                 return nextNode.access(index, modify, wasLeft);
         	}
-        }
-
-        /**
-         * Stores the node and its children into the array specified.
-         *
-         * @param array the array to be filled
-         * @param index the index of this node
-         */
-        void toArray(final Object[] array, final int index) {
-            array[index] = block;
-            if (getLeftSubTree() != null) {
-                left.toArray(array, index + left.relativePosition);
-            }
-            if (getRightSubTree() != null) {
-                right.toArray(array, index + right.relativePosition);
-            }
         }
 
         /**
