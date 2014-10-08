@@ -13,21 +13,21 @@ import java.util.List;
  * @author Thomas Mauch
  * @version $Id$
  */
-public class InternalSort<E> {
+public class MergeSort<E> {
 	List<E> list;
 	Comparator<? super E> comparator;
 
 	public static <E> void sort(List<E> list, Comparator<? super E> comparator) {
-		InternalSort sort = new InternalSort(list, comparator);
+		MergeSort sort = new MergeSort(list, comparator);
 		sort.sort();
 	}
 
 	public static <E> void sort(List<E> list, Comparator<? super E> comparator, int from, int to) {
-		InternalSort sort = new InternalSort(list, comparator);
+		MergeSort sort = new MergeSort(list, comparator);
 		sort.sort(from, to);
 	}
 
-	private InternalSort(List<E> list, Comparator<? super E> comparator) {
+	private MergeSort(List<E> list, Comparator<? super E> comparator) {
 		this.list = list;
 		if (comparator == null) {
 			comparator = (Comparator<? super E>) NaturalComparator.INSTANCE();
@@ -55,9 +55,9 @@ public class InternalSort<E> {
 	}
 
 	private void swap(int idx1, int idx2) {
-		E tmp = list.get(idx1);
+		E val = list.get(idx1);
 		list.set(idx1, list.get(idx2));
-		list.set(idx2, tmp);
+		list.set(idx2, val);
 	}
 
 	private int lower(int from, int to, int val) {
@@ -111,16 +111,16 @@ public class InternalSort<E> {
 		return m;
 	}
 
-	private void reverse(int from, int to) {
-		while (from < to) {
-			swap(from++, to--);
-		}
-	}
-
 	private void rotate(int from, int mid, int to) {
 		/*
 		 * a less sophisticated but costlier version:
 		 * reverse(from, mid-1); reverse(mid, to-1); reverse(from, to-1);
+		 *
+		 * 	private void reverse(int from, int to) {
+		 *    while (from < to) {
+		 *	    swap(from++, to--);
+		 *    }
+		 *  }
 		 */
 		if (from == mid || mid == to) {
 			return;
