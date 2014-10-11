@@ -598,18 +598,20 @@ public class BigList<E> extends IList<E> {
 
 		// If there is still place in the current block: insert in current block
 		int maxSize = (index == size || index == 0) ? blockSize*9/10 : blockSize;
-		if (currBlock.size() < maxSize) {
+		// The second part of the condition is a work around to handle the case of insertion as position 0 correctly
+		// where blockSize() is 2 (the new block would then be added after the current one)
+		if (currBlock.size() < maxSize || (currBlock.size() == 1 && currBlock.size() < blockSize)) {
 			currBlock.values.doAdd(pos, element);
 			currBlockEnd++;
 
 		} else {
 			// No place any more in current block
-			Block<E> nextBlock = new Block<E>(blockSize);
+			Block<E> newBlock = new Block<E>(blockSize);
 			if (index == size) {
 				// Insert new block at tail
-				nextBlock.values.doAdd(0, element);
+				newBlock.values.doAdd(0, element);
 				modify(currNode, -1);
-				addBlock(size+1, nextBlock);
+				addBlock(size+1, newBlock);
 				BlockNode<E> lastNode = currNode.next();
 				currNode = lastNode;
 				currBlock = currNode.block;
@@ -618,9 +620,9 @@ public class BigList<E> extends IList<E> {
 
 			} else if (index == 0) {
 				// Insert new block at head
-				nextBlock.values.doAdd(0, element);
+				newBlock.values.doAdd(0, element);
 				modify(currNode, -1);
-				addBlock(1, nextBlock);
+				addBlock(1, newBlock);
 				BlockNode<E> firstNode = currNode.previous();
 				currNode = firstNode;
 				currBlock = currNode.block;
@@ -631,13 +633,13 @@ public class BigList<E> extends IList<E> {
 				// Split block for insert
 				int nextBlockLen = blockSize/2;
 				int blockLen = blockSize - nextBlockLen;
-				nextBlock.values.init(nextBlockLen, null);
-				GapList.copy(currBlock.values, blockLen, nextBlock.values, 0, nextBlockLen);
+				newBlock.values.init(nextBlockLen, null);
+				GapList.copy(currBlock.values, blockLen, newBlock.values, 0, nextBlockLen);
 				currBlock.values.remove(blockLen, blockSize-blockLen);
 
 				// Subtract 1 more because getBlockIndex() has already added 1
 				modify(currNode, -nextBlockLen-1);
-				addBlock(currBlockEnd-nextBlockLen, nextBlock);
+				addBlock(currBlockEnd-nextBlockLen, newBlock);
 
 				if (pos < blockLen) {
 					// Insert element in first block
