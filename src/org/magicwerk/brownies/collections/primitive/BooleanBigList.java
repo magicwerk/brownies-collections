@@ -1,5 +1,6 @@
 package org.magicwerk.brownies.collections.primitive;
 import org.magicwerk.brownies.collections.helper.ArraysHelper;
+import org.magicwerk.brownies.collections.helper.primitive.BinarySearch;
 import org.magicwerk.brownies.collections.GapList;
 import org.magicwerk.brownies.collections.BigList;
 
@@ -13,17 +14,186 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Deque;
 import java.util.List;
-import org.magicwerk.brownies.collections.helper.MergeSort;
+import org.magicwerk.brownies.collections.helper.primitive.BooleanMergeSort;
 
 /**
- * The first block (BooleanBigList) used grows dynamcically, all others
+ * The first block (BooleanGapList) used grows dynamcically, all others
  * are allocated with fixed size. This is necessary to prevent starving
  * because of GC usage.
  *
  * @author Thomas Mauch
- * @version $Id$
+ * @version $Id: BooleanBigList.java 2477 2014-10-08 23:47:35Z origo $
  */
 public class BooleanBigList extends IBooleanList {
+	public static IIntList of(int[] values) {
+		return new ImmutableIntListArrayInt(values);
+	}
+
+	public static IIntList of(Integer[] values) {
+		return new ImmutableIntListArrayInteger(values);
+	}
+
+	public static IIntList of(List<Integer> values) {
+		return new ImmutableIntListListInteger(values);
+	}
+
+    static class ImmutableIntListArrayInt extends ImmutableIntList {
+    	int[] values;
+
+    	public ImmutableIntListArrayInt(int[] values) {
+    		this.values = values;
+    	}
+
+		@Override
+		public int size() {
+			return values.length;
+		}
+
+		@Override
+		protected int doGet(int index) {
+			return values[index];
+		}
+    }
+
+    static class ImmutableIntListArrayInteger extends ImmutableIntList {
+    	Integer[] values;
+
+    	public ImmutableIntListArrayInteger(Integer[] values) {
+    		this.values = values;
+    	}
+
+		@Override
+		public int size() {
+			return values.length;
+		}
+
+		@Override
+		protected int doGet(int index) {
+			return values[index];
+		}
+    }
+
+    static class ImmutableIntListListInteger extends ImmutableIntList {
+    	List<Integer> values;
+
+    	public ImmutableIntListListInteger(List<Integer> values) {
+    		this.values = values;
+    	}
+
+		@Override
+		public int size() {
+			return values.size();
+		}
+
+		@Override
+		protected int doGet(int index) {
+			return values.get(index);
+		}
+    }
+
+    protected static abstract class ImmutableIntList extends IIntList {
+
+    	//-- Readers
+
+		@Override
+		public int capacity() {
+			return size();
+		}
+
+		@Override
+		public int binarySearch(int index, int len, int key) {
+			return BinarySearch.binarySearch(this, key, index, index+len);
+		}
+
+		@Override
+		public IIntList unmodifiableList() {
+			return this;
+		}
+
+		@Override
+		protected int getDefaultElem() {
+			return 0;
+		}
+
+        /**
+         * Throw exception if an attempt is made to change an immutable list.
+         */
+        private void error() {
+            throw new UnsupportedOperationException("list is immutable");
+        }
+
+        //-- Writers
+
+        @Override
+        protected void doRemoveAll(int index, int len) {
+        	error();
+        }
+
+        @Override
+        protected void doClear() {
+        	error();
+        }
+
+        @Override
+        protected void doModify() {
+        	error();
+        }
+
+		@Override
+		protected void doClone(IIntList that) {
+			error();
+		}
+
+		@Override
+		protected int doSet(int index, int elem) {
+			error();
+			return 0;
+		}
+
+		@Override
+		protected int doReSet(int index, int elem) {
+			error();
+			return 0;
+		}
+
+		@Override
+		protected boolean doAdd(int index, int elem) {
+			error();
+			return false;
+		}
+
+		@Override
+		protected void doEnsureCapacity(int minCapacity) {
+			error();
+		}
+
+		@Override
+		public void trimToSize() {
+			error();
+		}
+
+		@Override
+		protected IIntList doCreate(int capacity) {
+			error();
+			return null;
+		}
+
+		@Override
+		protected void doAssign(IIntList that) {
+			error();
+		}
+
+		@Override
+		protected int doRemove(int index) {
+			error();
+			return 0;
+		}
+
+		@Override
+		public void sort(int index, int len) {
+			error();
+		}
+    }
 
     /**
      * An immutable version of a BooleanBigList.
@@ -110,23 +280,23 @@ private void error() {
     
     public static class BooleanBlock implements Serializable {
 
-        private BooleanBigList values;
+        private BooleanGapList values;
 
         private int refCount;
 
         public BooleanBlock(){
-    values = new BooleanBigList();
+    values = new BooleanGapList();
     refCount = 1;
 }
 
         public BooleanBlock(int capacity){
-    values = new BooleanBigList(capacity);
+    values = new BooleanGapList(capacity);
     refCount = 1;
 }
 
         public BooleanBlock(BooleanBlock that){
-    values = new BooleanBigList(that.values.capacity());
-    values.init(that.values);
+    values = new BooleanGapList(that.values.capacity());
+    values.init(that.values.getArray(0, that.values.size()));
     refCount = 1;
 }
 
@@ -212,20 +382,9 @@ protected BooleanBigList(boolean copy, BooleanBigList that){
      * @return          created list
      * @param        type of elements stored in the list
      */
-// This separate method is needed as the varargs variant creates the BooleanBigList with specific size  
+// This separate method is needed as the varargs variant creates the BooleanGapList with specific size  
 public static BooleanBigList create() {
     return new BooleanBigList();
-}
-
-    /**
-     * Create new list with specified capacity.
-     *
-     * @param blockSize block size
-     * @return          created list
-     * @param        type of elements stored in the list
-     */
-public static BooleanBigList create(int blockSize) {
-    return new BooleanBigList(blockSize);
 }
 
     /**
@@ -247,7 +406,11 @@ public static BooleanBigList create(Collection<Boolean> coll) {
 	 * @param  		type of elements stored in the list
 	 */
 public static BooleanBigList create(boolean... elems) {
-    return new BooleanBigList(elems);
+    BooleanBigList list = new BooleanBigList();
+    for (boolean elem : elems) {
+        list.add(elem);
+    }
+    return list;
 }
 
     /**
@@ -282,13 +445,20 @@ public BooleanBigList(int blockSize){
     }
 }
 
-    public BooleanBigList(boolean... elems){
-    blockSize = BLOCK_SIZE;
-    currBooleanBlock = new BooleanBlock();
-    addBooleanBlock(0, currBooleanBlock);
+    public void init() {
+    clear();
+}
+
+    public void init(boolean... elems) {
+    clear();
     for (boolean elem : elems) {
-        add((E) elem);
+        add(elem);
     }
+}
+
+    public void init(Collection<Boolean> that) {
+    clear();
+    addAll(that);
 }
 
     /**
@@ -626,7 +796,7 @@ protected boolean doAdd(int index, boolean element) {
             int nextBooleanBlockLen = blockSize / 2;
             int blockLen = blockSize - nextBooleanBlockLen;
             nextBooleanBlock.values.init(nextBooleanBlockLen, null);
-            BooleanBigList.copy(currBooleanBlock.values, blockLen, nextBooleanBlock.values, 0, nextBooleanBlockLen);
+            BooleanGapList.copy(currBooleanBlock.values, blockLen, nextBooleanBlock.values, 0, nextBooleanBlockLen);
             currBooleanBlock.values.remove(blockLen, blockSize - blockLen);
             // Subtract 1 more because getBooleanBlockIndex() has already added 1   
             modify(currNode, -nextBooleanBlockLen - 1);
@@ -827,7 +997,7 @@ protected boolean doAddAll(int index, boolean[] array) {
         } else {
             // Add elements to several blocks   
             // Handle first block   
-            BooleanBigList list = BooleanBigList.create(array);
+            BooleanGapList list = BooleanGapList.create(array);
             int remove = currBooleanBlock.values.size() - addPos;
             if (remove > 0) {
                 list.addAll(currBooleanBlock.values.getAll(addPos, remove));
@@ -846,7 +1016,7 @@ protected boolean doAddAll(int index, boolean[] array) {
             if (has < should) {
                 // Elements must be added to first block   
                 int add = should - has;
-                List sublist = list.getAll(0, add);
+                IBooleanList sublist = list.getAll(0, add);
                 currBooleanBlock.values.addAll(addPos, sublist);
                 modify(currNode, add);
                 start += add;
@@ -871,7 +1041,7 @@ protected boolean doAddAll(int index, boolean[] array) {
                 should = s / numBooleanBlocks;
                 int add = should - move;
                 assert (add >= 0);
-                List sublist = list.getAll(0, add);
+                IBooleanList sublist = list.getAll(0, add);
                 nextBooleanBlock.values.addAll(move, sublist);
                 start += add;
                 assert (nextBooleanBlock.values.size() == should);
@@ -888,7 +1058,7 @@ protected boolean doAddAll(int index, boolean[] array) {
             while (numBooleanBlocks > 0) {
                 int add = s / numBooleanBlocks;
                 assert (add > 0);
-                List sublist = list.getAll(start, add);
+                IBooleanList sublist = list.getAll(start, add);
                 BooleanBlock nextBooleanBlock = new BooleanBlock();
                 nextBooleanBlock.values.init(sublist);
                 start += add;
@@ -1019,7 +1189,7 @@ protected void doRemoveAll(int index, int len) {
         for (int i = 0; i < len; i++) {
             leftNode.block.values.add(null);
         }
-        BooleanBigList.copy(node.block.values, 0, leftNode.block.values, dstSize, len);
+        BooleanGapList.copy(node.block.values, 0, leftNode.block.values, dstSize, len);
         assert (leftNode.block.values.size() <= blockSize);
         modify(leftNode, +len);
         modify(oldCurrNode, -len);
@@ -1033,7 +1203,7 @@ protected void doRemoveAll(int index, int len) {
             for (int i = 0; i < len; i++) {
                 rightNode.block.values.add(0, null);
             }
-            BooleanBigList.copy(node.block.values, 0, rightNode.block.values, 0, len);
+            BooleanGapList.copy(node.block.values, 0, rightNode.block.values, 0, len);
             assert (rightNode.block.values.size() <= blockSize);
             modify(rightNode, +len);
             modify(oldCurrNode, -len);
@@ -1109,7 +1279,7 @@ public void sort(int index, int len) {
     if (isOnlyRootBooleanBlock()) {
         currBooleanBlock.values.sort(index, len);
     } else {
-        MergeSort.sort(this, index, index + len);
+        BooleanMergeSort.sort(this, index, index + len);
     }
 }
 
@@ -1119,7 +1289,7 @@ public int binarySearch(int index, int len, boolean key) {
     if (isOnlyRootBooleanBlock()) {
         return currBooleanBlock.values.binarySearch(key);
     } else {
-        return Collections.binarySearch((List) this, key);
+        return Collections.binarySearch((IBooleanList) this, key);
     }
 }
 
@@ -1161,7 +1331,7 @@ public void removeBooleanBlock(int index) {
 /**
      * Serialize a BooleanBigList object.
      *
-     * @serialData The length of the array backing the <tt>BooleanBigList</tt>
+     * @serialData The length of the array backing the <tt>BooleanGapList</tt>
      *             instance is emitted (int), followed by all of its elements
      *             (each an <tt>Object</tt>) in the proper order.
      * @param oos  output stream for serialization
@@ -1199,7 +1369,7 @@ private void readObject(ObjectInputStream ois) throws IOException, ClassNotFound
      * Implements an AVLNode which keeps the offset updated.
      * <p>
      * This node contains the real work.
-     * TreeList is just there to implement {@link java.util.List}.
+     * TreeList is just there to implement {@link java.util.IBooleanList}.
      * The nodes don't know the index of the object they are holding.  They
      * do know however their position relative to their parent node.
      * This allows to calculate the index of a node while traversing the tree.
@@ -1508,7 +1678,7 @@ public BooleanBlockNode removeSelf() {
 
         public BooleanBlockNode doRemoveSelf() {
     if (getRightSubTree() == null && getLeftSubTree() == null) {
-        return false;
+        return null;
     }
     if (getRightSubTree() == null) {
         if (relativePosition > 0) {

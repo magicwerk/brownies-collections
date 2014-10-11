@@ -1,5 +1,6 @@
 package org.magicwerk.brownies.collections.primitive;
 import org.magicwerk.brownies.collections.helper.ArraysHelper;
+import org.magicwerk.brownies.collections.helper.primitive.BinarySearch;
 import org.magicwerk.brownies.collections.GapList;
 import org.magicwerk.brownies.collections.BigList;
 
@@ -13,17 +14,186 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Deque;
 import java.util.List;
-import org.magicwerk.brownies.collections.helper.MergeSort;
+import org.magicwerk.brownies.collections.helper.primitive.CharMergeSort;
 
 /**
- * The first block (CharBigList) used grows dynamcically, all others
+ * The first block (CharGapList) used grows dynamcically, all others
  * are allocated with fixed size. This is necessary to prevent starving
  * because of GC usage.
  *
  * @author Thomas Mauch
- * @version $Id$
+ * @version $Id: CharBigList.java 2477 2014-10-08 23:47:35Z origo $
  */
 public class CharBigList extends ICharList {
+	public static IIntList of(int[] values) {
+		return new ImmutableIntListArrayInt(values);
+	}
+
+	public static IIntList of(Integer[] values) {
+		return new ImmutableIntListArrayInteger(values);
+	}
+
+	public static IIntList of(List<Integer> values) {
+		return new ImmutableIntListListInteger(values);
+	}
+
+    static class ImmutableIntListArrayInt extends ImmutableIntList {
+    	int[] values;
+
+    	public ImmutableIntListArrayInt(int[] values) {
+    		this.values = values;
+    	}
+
+		@Override
+		public int size() {
+			return values.length;
+		}
+
+		@Override
+		protected int doGet(int index) {
+			return values[index];
+		}
+    }
+
+    static class ImmutableIntListArrayInteger extends ImmutableIntList {
+    	Integer[] values;
+
+    	public ImmutableIntListArrayInteger(Integer[] values) {
+    		this.values = values;
+    	}
+
+		@Override
+		public int size() {
+			return values.length;
+		}
+
+		@Override
+		protected int doGet(int index) {
+			return values[index];
+		}
+    }
+
+    static class ImmutableIntListListInteger extends ImmutableIntList {
+    	List<Integer> values;
+
+    	public ImmutableIntListListInteger(List<Integer> values) {
+    		this.values = values;
+    	}
+
+		@Override
+		public int size() {
+			return values.size();
+		}
+
+		@Override
+		protected int doGet(int index) {
+			return values.get(index);
+		}
+    }
+
+    protected static abstract class ImmutableIntList extends IIntList {
+
+    	//-- Readers
+
+		@Override
+		public int capacity() {
+			return size();
+		}
+
+		@Override
+		public int binarySearch(int index, int len, int key) {
+			return BinarySearch.binarySearch(this, key, index, index+len);
+		}
+
+		@Override
+		public IIntList unmodifiableList() {
+			return this;
+		}
+
+		@Override
+		protected int getDefaultElem() {
+			return 0;
+		}
+
+        /**
+         * Throw exception if an attempt is made to change an immutable list.
+         */
+        private void error() {
+            throw new UnsupportedOperationException("list is immutable");
+        }
+
+        //-- Writers
+
+        @Override
+        protected void doRemoveAll(int index, int len) {
+        	error();
+        }
+
+        @Override
+        protected void doClear() {
+        	error();
+        }
+
+        @Override
+        protected void doModify() {
+        	error();
+        }
+
+		@Override
+		protected void doClone(IIntList that) {
+			error();
+		}
+
+		@Override
+		protected int doSet(int index, int elem) {
+			error();
+			return 0;
+		}
+
+		@Override
+		protected int doReSet(int index, int elem) {
+			error();
+			return 0;
+		}
+
+		@Override
+		protected boolean doAdd(int index, int elem) {
+			error();
+			return false;
+		}
+
+		@Override
+		protected void doEnsureCapacity(int minCapacity) {
+			error();
+		}
+
+		@Override
+		public void trimToSize() {
+			error();
+		}
+
+		@Override
+		protected IIntList doCreate(int capacity) {
+			error();
+			return null;
+		}
+
+		@Override
+		protected void doAssign(IIntList that) {
+			error();
+		}
+
+		@Override
+		protected int doRemove(int index) {
+			error();
+			return 0;
+		}
+
+		@Override
+		public void sort(int index, int len) {
+			error();
+		}
+    }
 
     /**
      * An immutable version of a CharBigList.
@@ -110,23 +280,23 @@ private void error() {
     
     public static class CharBlock implements Serializable {
 
-        private CharBigList values;
+        private CharGapList values;
 
         private int refCount;
 
         public CharBlock(){
-    values = new CharBigList();
+    values = new CharGapList();
     refCount = 1;
 }
 
         public CharBlock(int capacity){
-    values = new CharBigList(capacity);
+    values = new CharGapList(capacity);
     refCount = 1;
 }
 
         public CharBlock(CharBlock that){
-    values = new CharBigList(that.values.capacity());
-    values.init(that.values);
+    values = new CharGapList(that.values.capacity());
+    values.init(that.values.getArray(0, that.values.size()));
     refCount = 1;
 }
 
@@ -212,20 +382,9 @@ protected CharBigList(boolean copy, CharBigList that){
      * @return          created list
      * @param        type of elements stored in the list
      */
-// This separate method is needed as the varargs variant creates the CharBigList with specific size  
+// This separate method is needed as the varargs variant creates the CharGapList with specific size  
 public static CharBigList create() {
     return new CharBigList();
-}
-
-    /**
-     * Create new list with specified capacity.
-     *
-     * @param blockSize block size
-     * @return          created list
-     * @param        type of elements stored in the list
-     */
-public static CharBigList create(int blockSize) {
-    return new CharBigList(blockSize);
 }
 
     /**
@@ -247,7 +406,11 @@ public static CharBigList create(Collection<Character> coll) {
 	 * @param  		type of elements stored in the list
 	 */
 public static CharBigList create(char... elems) {
-    return new CharBigList(elems);
+    CharBigList list = new CharBigList();
+    for (char elem : elems) {
+        list.add(elem);
+    }
+    return list;
 }
 
     /**
@@ -282,13 +445,20 @@ public CharBigList(int blockSize){
     }
 }
 
-    public CharBigList(char... elems){
-    blockSize = BLOCK_SIZE;
-    currCharBlock = new CharBlock();
-    addCharBlock(0, currCharBlock);
+    public void init() {
+    clear();
+}
+
+    public void init(char... elems) {
+    clear();
     for (char elem : elems) {
-        add((E) elem);
+        add(elem);
     }
+}
+
+    public void init(Collection<Character> that) {
+    clear();
+    addAll(that);
 }
 
     /**
@@ -626,7 +796,7 @@ protected boolean doAdd(int index, char element) {
             int nextCharBlockLen = blockSize / 2;
             int blockLen = blockSize - nextCharBlockLen;
             nextCharBlock.values.init(nextCharBlockLen, null);
-            CharBigList.copy(currCharBlock.values, blockLen, nextCharBlock.values, 0, nextCharBlockLen);
+            CharGapList.copy(currCharBlock.values, blockLen, nextCharBlock.values, 0, nextCharBlockLen);
             currCharBlock.values.remove(blockLen, blockSize - blockLen);
             // Subtract 1 more because getCharBlockIndex() has already added 1   
             modify(currNode, -nextCharBlockLen - 1);
@@ -827,7 +997,7 @@ protected boolean doAddAll(int index, char[] array) {
         } else {
             // Add elements to several blocks   
             // Handle first block   
-            CharBigList list = CharBigList.create(array);
+            CharGapList list = CharGapList.create(array);
             int remove = currCharBlock.values.size() - addPos;
             if (remove > 0) {
                 list.addAll(currCharBlock.values.getAll(addPos, remove));
@@ -846,7 +1016,7 @@ protected boolean doAddAll(int index, char[] array) {
             if (has < should) {
                 // Elements must be added to first block   
                 int add = should - has;
-                List sublist = list.getAll(0, add);
+                ICharList sublist = list.getAll(0, add);
                 currCharBlock.values.addAll(addPos, sublist);
                 modify(currNode, add);
                 start += add;
@@ -871,7 +1041,7 @@ protected boolean doAddAll(int index, char[] array) {
                 should = s / numCharBlocks;
                 int add = should - move;
                 assert (add >= 0);
-                List sublist = list.getAll(0, add);
+                ICharList sublist = list.getAll(0, add);
                 nextCharBlock.values.addAll(move, sublist);
                 start += add;
                 assert (nextCharBlock.values.size() == should);
@@ -888,7 +1058,7 @@ protected boolean doAddAll(int index, char[] array) {
             while (numCharBlocks > 0) {
                 int add = s / numCharBlocks;
                 assert (add > 0);
-                List sublist = list.getAll(start, add);
+                ICharList sublist = list.getAll(start, add);
                 CharBlock nextCharBlock = new CharBlock();
                 nextCharBlock.values.init(sublist);
                 start += add;
@@ -1019,7 +1189,7 @@ protected void doRemoveAll(int index, int len) {
         for (int i = 0; i < len; i++) {
             leftNode.block.values.add(null);
         }
-        CharBigList.copy(node.block.values, 0, leftNode.block.values, dstSize, len);
+        CharGapList.copy(node.block.values, 0, leftNode.block.values, dstSize, len);
         assert (leftNode.block.values.size() <= blockSize);
         modify(leftNode, +len);
         modify(oldCurrNode, -len);
@@ -1033,7 +1203,7 @@ protected void doRemoveAll(int index, int len) {
             for (int i = 0; i < len; i++) {
                 rightNode.block.values.add(0, null);
             }
-            CharBigList.copy(node.block.values, 0, rightNode.block.values, 0, len);
+            CharGapList.copy(node.block.values, 0, rightNode.block.values, 0, len);
             assert (rightNode.block.values.size() <= blockSize);
             modify(rightNode, +len);
             modify(oldCurrNode, -len);
@@ -1109,7 +1279,7 @@ public void sort(int index, int len) {
     if (isOnlyRootCharBlock()) {
         currCharBlock.values.sort(index, len);
     } else {
-        MergeSort.sort(this, index, index + len);
+        CharMergeSort.sort(this, index, index + len);
     }
 }
 
@@ -1119,7 +1289,7 @@ public int binarySearch(int index, int len, char key) {
     if (isOnlyRootCharBlock()) {
         return currCharBlock.values.binarySearch(key);
     } else {
-        return Collections.binarySearch((List) this, key);
+        return Collections.binarySearch((ICharList) this, key);
     }
 }
 
@@ -1161,7 +1331,7 @@ public void removeCharBlock(int index) {
 /**
      * Serialize a CharBigList object.
      *
-     * @serialData The length of the array backing the <tt>CharBigList</tt>
+     * @serialData The length of the array backing the <tt>CharGapList</tt>
      *             instance is emitted (int), followed by all of its elements
      *             (each an <tt>Object</tt>) in the proper order.
      * @param oos  output stream for serialization
@@ -1199,7 +1369,7 @@ private void readObject(ObjectInputStream ois) throws IOException, ClassNotFound
      * Implements an AVLNode which keeps the offset updated.
      * <p>
      * This node contains the real work.
-     * TreeList is just there to implement {@link java.util.List}.
+     * TreeList is just there to implement {@link java.util.ICharList}.
      * The nodes don't know the index of the object they are holding.  They
      * do know however their position relative to their parent node.
      * This allows to calculate the index of a node while traversing the tree.

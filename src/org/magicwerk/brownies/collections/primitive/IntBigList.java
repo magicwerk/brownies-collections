@@ -1,5 +1,6 @@
 package org.magicwerk.brownies.collections.primitive;
 import org.magicwerk.brownies.collections.helper.ArraysHelper;
+import org.magicwerk.brownies.collections.helper.primitive.BinarySearch;
 import org.magicwerk.brownies.collections.GapList;
 import org.magicwerk.brownies.collections.BigList;
 
@@ -13,17 +14,186 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Deque;
 import java.util.List;
-import org.magicwerk.brownies.collections.helper.MergeSort;
+import org.magicwerk.brownies.collections.helper.primitive.IntMergeSort;
 
 /**
- * The first block (IntBigList) used grows dynamcically, all others
+ * The first block (IntGapList) used grows dynamcically, all others
  * are allocated with fixed size. This is necessary to prevent starving
  * because of GC usage.
  *
  * @author Thomas Mauch
- * @version $Id$
+ * @version $Id: IntBigList.java 2477 2014-10-08 23:47:35Z origo $
  */
 public class IntBigList extends IIntList {
+	public static IIntList of(int[] values) {
+		return new ImmutableIntListArrayInt(values);
+	}
+
+	public static IIntList of(Integer[] values) {
+		return new ImmutableIntListArrayInteger(values);
+	}
+
+	public static IIntList of(List<Integer> values) {
+		return new ImmutableIntListListInteger(values);
+	}
+
+    static class ImmutableIntListArrayInt extends ImmutableIntList {
+    	int[] values;
+
+    	public ImmutableIntListArrayInt(int[] values) {
+    		this.values = values;
+    	}
+
+		@Override
+		public int size() {
+			return values.length;
+		}
+
+		@Override
+		protected int doGet(int index) {
+			return values[index];
+		}
+    }
+
+    static class ImmutableIntListArrayInteger extends ImmutableIntList {
+    	Integer[] values;
+
+    	public ImmutableIntListArrayInteger(Integer[] values) {
+    		this.values = values;
+    	}
+
+		@Override
+		public int size() {
+			return values.length;
+		}
+
+		@Override
+		protected int doGet(int index) {
+			return values[index];
+		}
+    }
+
+    static class ImmutableIntListListInteger extends ImmutableIntList {
+    	List<Integer> values;
+
+    	public ImmutableIntListListInteger(List<Integer> values) {
+    		this.values = values;
+    	}
+
+		@Override
+		public int size() {
+			return values.size();
+		}
+
+		@Override
+		protected int doGet(int index) {
+			return values.get(index);
+		}
+    }
+
+    protected static abstract class ImmutableIntList extends IIntList {
+
+    	//-- Readers
+
+		@Override
+		public int capacity() {
+			return size();
+		}
+
+		@Override
+		public int binarySearch(int index, int len, int key) {
+			return BinarySearch.binarySearch(this, key, index, index+len);
+		}
+
+		@Override
+		public IIntList unmodifiableList() {
+			return this;
+		}
+
+		@Override
+		protected int getDefaultElem() {
+			return 0;
+		}
+
+        /**
+         * Throw exception if an attempt is made to change an immutable list.
+         */
+        private void error() {
+            throw new UnsupportedOperationException("list is immutable");
+        }
+
+        //-- Writers
+
+        @Override
+        protected void doRemoveAll(int index, int len) {
+        	error();
+        }
+
+        @Override
+        protected void doClear() {
+        	error();
+        }
+
+        @Override
+        protected void doModify() {
+        	error();
+        }
+
+		@Override
+		protected void doClone(IIntList that) {
+			error();
+		}
+
+		@Override
+		protected int doSet(int index, int elem) {
+			error();
+			return 0;
+		}
+
+		@Override
+		protected int doReSet(int index, int elem) {
+			error();
+			return 0;
+		}
+
+		@Override
+		protected boolean doAdd(int index, int elem) {
+			error();
+			return false;
+		}
+
+		@Override
+		protected void doEnsureCapacity(int minCapacity) {
+			error();
+		}
+
+		@Override
+		public void trimToSize() {
+			error();
+		}
+
+		@Override
+		protected IIntList doCreate(int capacity) {
+			error();
+			return null;
+		}
+
+		@Override
+		protected void doAssign(IIntList that) {
+			error();
+		}
+
+		@Override
+		protected int doRemove(int index) {
+			error();
+			return 0;
+		}
+
+		@Override
+		public void sort(int index, int len) {
+			error();
+		}
+    }
 
     /**
      * An immutable version of a IntBigList.
@@ -110,23 +280,23 @@ private void error() {
     
     public static class IntBlock implements Serializable {
 
-        private IntBigList values;
+        private IntGapList values;
 
         private int refCount;
 
         public IntBlock(){
-    values = new IntBigList();
+    values = new IntGapList();
     refCount = 1;
 }
 
         public IntBlock(int capacity){
-    values = new IntBigList(capacity);
+    values = new IntGapList(capacity);
     refCount = 1;
 }
 
         public IntBlock(IntBlock that){
-    values = new IntBigList(that.values.capacity());
-    values.init(that.values);
+    values = new IntGapList(that.values.capacity());
+    values.init(that.values.getArray(0, that.values.size()));
     refCount = 1;
 }
 
@@ -212,20 +382,9 @@ protected IntBigList(boolean copy, IntBigList that){
      * @return          created list
      * @param        type of elements stored in the list
      */
-// This separate method is needed as the varargs variant creates the IntBigList with specific size  
+// This separate method is needed as the varargs variant creates the IntGapList with specific size  
 public static IntBigList create() {
     return new IntBigList();
-}
-
-    /**
-     * Create new list with specified capacity.
-     *
-     * @param blockSize block size
-     * @return          created list
-     * @param        type of elements stored in the list
-     */
-public static IntBigList create(int blockSize) {
-    return new IntBigList(blockSize);
 }
 
     /**
@@ -247,7 +406,11 @@ public static IntBigList create(Collection<Integer> coll) {
 	 * @param  		type of elements stored in the list
 	 */
 public static IntBigList create(int... elems) {
-    return new IntBigList(elems);
+    IntBigList list = new IntBigList();
+    for (int elem : elems) {
+        list.add(elem);
+    }
+    return list;
 }
 
     /**
@@ -282,13 +445,20 @@ public IntBigList(int blockSize){
     }
 }
 
-    public IntBigList(int... elems){
-    blockSize = BLOCK_SIZE;
-    currIntBlock = new IntBlock();
-    addIntBlock(0, currIntBlock);
+    public void init() {
+    clear();
+}
+
+    public void init(int... elems) {
+    clear();
     for (int elem : elems) {
-        add((E) elem);
+        add(elem);
     }
+}
+
+    public void init(Collection<Integer> that) {
+    clear();
+    addAll(that);
 }
 
     /**
@@ -626,7 +796,7 @@ protected boolean doAdd(int index, int element) {
             int nextIntBlockLen = blockSize / 2;
             int blockLen = blockSize - nextIntBlockLen;
             nextIntBlock.values.init(nextIntBlockLen, null);
-            IntBigList.copy(currIntBlock.values, blockLen, nextIntBlock.values, 0, nextIntBlockLen);
+            IntGapList.copy(currIntBlock.values, blockLen, nextIntBlock.values, 0, nextIntBlockLen);
             currIntBlock.values.remove(blockLen, blockSize - blockLen);
             // Subtract 1 more because getIntBlockIndex() has already added 1   
             modify(currNode, -nextIntBlockLen - 1);
@@ -827,7 +997,7 @@ protected boolean doAddAll(int index, int[] array) {
         } else {
             // Add elements to several blocks   
             // Handle first block   
-            IntBigList list = IntBigList.create(array);
+            IntGapList list = IntGapList.create(array);
             int remove = currIntBlock.values.size() - addPos;
             if (remove > 0) {
                 list.addAll(currIntBlock.values.getAll(addPos, remove));
@@ -846,7 +1016,7 @@ protected boolean doAddAll(int index, int[] array) {
             if (has < should) {
                 // Elements must be added to first block   
                 int add = should - has;
-                List sublist = list.getAll(0, add);
+                IIntList sublist = list.getAll(0, add);
                 currIntBlock.values.addAll(addPos, sublist);
                 modify(currNode, add);
                 start += add;
@@ -871,7 +1041,7 @@ protected boolean doAddAll(int index, int[] array) {
                 should = s / numIntBlocks;
                 int add = should - move;
                 assert (add >= 0);
-                List sublist = list.getAll(0, add);
+                IIntList sublist = list.getAll(0, add);
                 nextIntBlock.values.addAll(move, sublist);
                 start += add;
                 assert (nextIntBlock.values.size() == should);
@@ -888,7 +1058,7 @@ protected boolean doAddAll(int index, int[] array) {
             while (numIntBlocks > 0) {
                 int add = s / numIntBlocks;
                 assert (add > 0);
-                List sublist = list.getAll(start, add);
+                IIntList sublist = list.getAll(start, add);
                 IntBlock nextIntBlock = new IntBlock();
                 nextIntBlock.values.init(sublist);
                 start += add;
@@ -1019,7 +1189,7 @@ protected void doRemoveAll(int index, int len) {
         for (int i = 0; i < len; i++) {
             leftNode.block.values.add(null);
         }
-        IntBigList.copy(node.block.values, 0, leftNode.block.values, dstSize, len);
+        IntGapList.copy(node.block.values, 0, leftNode.block.values, dstSize, len);
         assert (leftNode.block.values.size() <= blockSize);
         modify(leftNode, +len);
         modify(oldCurrNode, -len);
@@ -1033,7 +1203,7 @@ protected void doRemoveAll(int index, int len) {
             for (int i = 0; i < len; i++) {
                 rightNode.block.values.add(0, null);
             }
-            IntBigList.copy(node.block.values, 0, rightNode.block.values, 0, len);
+            IntGapList.copy(node.block.values, 0, rightNode.block.values, 0, len);
             assert (rightNode.block.values.size() <= blockSize);
             modify(rightNode, +len);
             modify(oldCurrNode, -len);
@@ -1109,7 +1279,7 @@ public void sort(int index, int len) {
     if (isOnlyRootIntBlock()) {
         currIntBlock.values.sort(index, len);
     } else {
-        MergeSort.sort(this, index, index + len);
+        IntMergeSort.sort(this, index, index + len);
     }
 }
 
@@ -1119,7 +1289,7 @@ public int binarySearch(int index, int len, int key) {
     if (isOnlyRootIntBlock()) {
         return currIntBlock.values.binarySearch(key);
     } else {
-        return Collections.binarySearch((List) this, key);
+        return Collections.binarySearch((IIntList) this, key);
     }
 }
 
@@ -1161,7 +1331,7 @@ public void removeIntBlock(int index) {
 /**
      * Serialize a IntBigList object.
      *
-     * @serialData The length of the array backing the <tt>IntBigList</tt>
+     * @serialData The length of the array backing the <tt>IntGapList</tt>
      *             instance is emitted (int), followed by all of its elements
      *             (each an <tt>Object</tt>) in the proper order.
      * @param oos  output stream for serialization
@@ -1199,7 +1369,7 @@ private void readObject(ObjectInputStream ois) throws IOException, ClassNotFound
      * Implements an AVLNode which keeps the offset updated.
      * <p>
      * This node contains the real work.
-     * TreeList is just there to implement {@link java.util.List}.
+     * TreeList is just there to implement {@link java.util.IIntList}.
      * The nodes don't know the index of the object they are holding.  They
      * do know however their position relative to their parent node.
      * This allows to calculate the index of a node while traversing the tree.
@@ -1508,7 +1678,7 @@ public IntBlockNode removeSelf() {
 
         public IntBlockNode doRemoveSelf() {
     if (getRightSubTree() == null && getLeftSubTree() == null) {
-        return 0;
+        return null;
     }
     if (getRightSubTree() == null) {
         if (relativePosition > 0) {

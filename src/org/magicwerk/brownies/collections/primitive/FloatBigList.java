@@ -1,5 +1,6 @@
 package org.magicwerk.brownies.collections.primitive;
 import org.magicwerk.brownies.collections.helper.ArraysHelper;
+import org.magicwerk.brownies.collections.helper.primitive.BinarySearch;
 import org.magicwerk.brownies.collections.GapList;
 import org.magicwerk.brownies.collections.BigList;
 
@@ -13,17 +14,186 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Deque;
 import java.util.List;
-import org.magicwerk.brownies.collections.helper.MergeSort;
+import org.magicwerk.brownies.collections.helper.primitive.FloatMergeSort;
 
 /**
- * The first block (FloatBigList) used grows dynamcically, all others
+ * The first block (FloatGapList) used grows dynamcically, all others
  * are allocated with fixed size. This is necessary to prevent starving
  * because of GC usage.
  *
  * @author Thomas Mauch
- * @version $Id$
+ * @version $Id: FloatBigList.java 2477 2014-10-08 23:47:35Z origo $
  */
 public class FloatBigList extends IFloatList {
+	public static IIntList of(int[] values) {
+		return new ImmutableIntListArrayInt(values);
+	}
+
+	public static IIntList of(Integer[] values) {
+		return new ImmutableIntListArrayInteger(values);
+	}
+
+	public static IIntList of(List<Integer> values) {
+		return new ImmutableIntListListInteger(values);
+	}
+
+    static class ImmutableIntListArrayInt extends ImmutableIntList {
+    	int[] values;
+
+    	public ImmutableIntListArrayInt(int[] values) {
+    		this.values = values;
+    	}
+
+		@Override
+		public int size() {
+			return values.length;
+		}
+
+		@Override
+		protected int doGet(int index) {
+			return values[index];
+		}
+    }
+
+    static class ImmutableIntListArrayInteger extends ImmutableIntList {
+    	Integer[] values;
+
+    	public ImmutableIntListArrayInteger(Integer[] values) {
+    		this.values = values;
+    	}
+
+		@Override
+		public int size() {
+			return values.length;
+		}
+
+		@Override
+		protected int doGet(int index) {
+			return values[index];
+		}
+    }
+
+    static class ImmutableIntListListInteger extends ImmutableIntList {
+    	List<Integer> values;
+
+    	public ImmutableIntListListInteger(List<Integer> values) {
+    		this.values = values;
+    	}
+
+		@Override
+		public int size() {
+			return values.size();
+		}
+
+		@Override
+		protected int doGet(int index) {
+			return values.get(index);
+		}
+    }
+
+    protected static abstract class ImmutableIntList extends IIntList {
+
+    	//-- Readers
+
+		@Override
+		public int capacity() {
+			return size();
+		}
+
+		@Override
+		public int binarySearch(int index, int len, int key) {
+			return BinarySearch.binarySearch(this, key, index, index+len);
+		}
+
+		@Override
+		public IIntList unmodifiableList() {
+			return this;
+		}
+
+		@Override
+		protected int getDefaultElem() {
+			return 0;
+		}
+
+        /**
+         * Throw exception if an attempt is made to change an immutable list.
+         */
+        private void error() {
+            throw new UnsupportedOperationException("list is immutable");
+        }
+
+        //-- Writers
+
+        @Override
+        protected void doRemoveAll(int index, int len) {
+        	error();
+        }
+
+        @Override
+        protected void doClear() {
+        	error();
+        }
+
+        @Override
+        protected void doModify() {
+        	error();
+        }
+
+		@Override
+		protected void doClone(IIntList that) {
+			error();
+		}
+
+		@Override
+		protected int doSet(int index, int elem) {
+			error();
+			return 0;
+		}
+
+		@Override
+		protected int doReSet(int index, int elem) {
+			error();
+			return 0;
+		}
+
+		@Override
+		protected boolean doAdd(int index, int elem) {
+			error();
+			return false;
+		}
+
+		@Override
+		protected void doEnsureCapacity(int minCapacity) {
+			error();
+		}
+
+		@Override
+		public void trimToSize() {
+			error();
+		}
+
+		@Override
+		protected IIntList doCreate(int capacity) {
+			error();
+			return null;
+		}
+
+		@Override
+		protected void doAssign(IIntList that) {
+			error();
+		}
+
+		@Override
+		protected int doRemove(int index) {
+			error();
+			return 0;
+		}
+
+		@Override
+		public void sort(int index, int len) {
+			error();
+		}
+    }
 
     /**
      * An immutable version of a FloatBigList.
@@ -110,23 +280,23 @@ private void error() {
     
     public static class FloatBlock implements Serializable {
 
-        private FloatBigList values;
+        private FloatGapList values;
 
         private int refCount;
 
         public FloatBlock(){
-    values = new FloatBigList();
+    values = new FloatGapList();
     refCount = 1;
 }
 
         public FloatBlock(int capacity){
-    values = new FloatBigList(capacity);
+    values = new FloatGapList(capacity);
     refCount = 1;
 }
 
         public FloatBlock(FloatBlock that){
-    values = new FloatBigList(that.values.capacity());
-    values.init(that.values);
+    values = new FloatGapList(that.values.capacity());
+    values.init(that.values.getArray(0, that.values.size()));
     refCount = 1;
 }
 
@@ -212,20 +382,9 @@ protected FloatBigList(boolean copy, FloatBigList that){
      * @return          created list
      * @param        type of elements stored in the list
      */
-// This separate method is needed as the varargs variant creates the FloatBigList with specific size  
+// This separate method is needed as the varargs variant creates the FloatGapList with specific size  
 public static FloatBigList create() {
     return new FloatBigList();
-}
-
-    /**
-     * Create new list with specified capacity.
-     *
-     * @param blockSize block size
-     * @return          created list
-     * @param        type of elements stored in the list
-     */
-public static FloatBigList create(int blockSize) {
-    return new FloatBigList(blockSize);
 }
 
     /**
@@ -247,7 +406,11 @@ public static FloatBigList create(Collection<Float> coll) {
 	 * @param  		type of elements stored in the list
 	 */
 public static FloatBigList create(float... elems) {
-    return new FloatBigList(elems);
+    FloatBigList list = new FloatBigList();
+    for (float elem : elems) {
+        list.add(elem);
+    }
+    return list;
 }
 
     /**
@@ -282,13 +445,20 @@ public FloatBigList(int blockSize){
     }
 }
 
-    public FloatBigList(float... elems){
-    blockSize = BLOCK_SIZE;
-    currFloatBlock = new FloatBlock();
-    addFloatBlock(0, currFloatBlock);
+    public void init() {
+    clear();
+}
+
+    public void init(float... elems) {
+    clear();
     for (float elem : elems) {
-        add((E) elem);
+        add(elem);
     }
+}
+
+    public void init(Collection<Float> that) {
+    clear();
+    addAll(that);
 }
 
     /**
@@ -626,7 +796,7 @@ protected boolean doAdd(int index, float element) {
             int nextFloatBlockLen = blockSize / 2;
             int blockLen = blockSize - nextFloatBlockLen;
             nextFloatBlock.values.init(nextFloatBlockLen, null);
-            FloatBigList.copy(currFloatBlock.values, blockLen, nextFloatBlock.values, 0, nextFloatBlockLen);
+            FloatGapList.copy(currFloatBlock.values, blockLen, nextFloatBlock.values, 0, nextFloatBlockLen);
             currFloatBlock.values.remove(blockLen, blockSize - blockLen);
             // Subtract 1 more because getFloatBlockIndex() has already added 1   
             modify(currNode, -nextFloatBlockLen - 1);
@@ -827,7 +997,7 @@ protected boolean doAddAll(int index, float[] array) {
         } else {
             // Add elements to several blocks   
             // Handle first block   
-            FloatBigList list = FloatBigList.create(array);
+            FloatGapList list = FloatGapList.create(array);
             int remove = currFloatBlock.values.size() - addPos;
             if (remove > 0) {
                 list.addAll(currFloatBlock.values.getAll(addPos, remove));
@@ -846,7 +1016,7 @@ protected boolean doAddAll(int index, float[] array) {
             if (has < should) {
                 // Elements must be added to first block   
                 int add = should - has;
-                List sublist = list.getAll(0, add);
+                IFloatList sublist = list.getAll(0, add);
                 currFloatBlock.values.addAll(addPos, sublist);
                 modify(currNode, add);
                 start += add;
@@ -871,7 +1041,7 @@ protected boolean doAddAll(int index, float[] array) {
                 should = s / numFloatBlocks;
                 int add = should - move;
                 assert (add >= 0);
-                List sublist = list.getAll(0, add);
+                IFloatList sublist = list.getAll(0, add);
                 nextFloatBlock.values.addAll(move, sublist);
                 start += add;
                 assert (nextFloatBlock.values.size() == should);
@@ -888,7 +1058,7 @@ protected boolean doAddAll(int index, float[] array) {
             while (numFloatBlocks > 0) {
                 int add = s / numFloatBlocks;
                 assert (add > 0);
-                List sublist = list.getAll(start, add);
+                IFloatList sublist = list.getAll(start, add);
                 FloatBlock nextFloatBlock = new FloatBlock();
                 nextFloatBlock.values.init(sublist);
                 start += add;
@@ -1019,7 +1189,7 @@ protected void doRemoveAll(int index, int len) {
         for (int i = 0; i < len; i++) {
             leftNode.block.values.add(null);
         }
-        FloatBigList.copy(node.block.values, 0, leftNode.block.values, dstSize, len);
+        FloatGapList.copy(node.block.values, 0, leftNode.block.values, dstSize, len);
         assert (leftNode.block.values.size() <= blockSize);
         modify(leftNode, +len);
         modify(oldCurrNode, -len);
@@ -1033,7 +1203,7 @@ protected void doRemoveAll(int index, int len) {
             for (int i = 0; i < len; i++) {
                 rightNode.block.values.add(0, null);
             }
-            FloatBigList.copy(node.block.values, 0, rightNode.block.values, 0, len);
+            FloatGapList.copy(node.block.values, 0, rightNode.block.values, 0, len);
             assert (rightNode.block.values.size() <= blockSize);
             modify(rightNode, +len);
             modify(oldCurrNode, -len);
@@ -1109,7 +1279,7 @@ public void sort(int index, int len) {
     if (isOnlyRootFloatBlock()) {
         currFloatBlock.values.sort(index, len);
     } else {
-        MergeSort.sort(this, index, index + len);
+        FloatMergeSort.sort(this, index, index + len);
     }
 }
 
@@ -1119,7 +1289,7 @@ public int binarySearch(int index, int len, float key) {
     if (isOnlyRootFloatBlock()) {
         return currFloatBlock.values.binarySearch(key);
     } else {
-        return Collections.binarySearch((List) this, key);
+        return Collections.binarySearch((IFloatList) this, key);
     }
 }
 
@@ -1161,7 +1331,7 @@ public void removeFloatBlock(int index) {
 /**
      * Serialize a FloatBigList object.
      *
-     * @serialData The length of the array backing the <tt>FloatBigList</tt>
+     * @serialData The length of the array backing the <tt>FloatGapList</tt>
      *             instance is emitted (int), followed by all of its elements
      *             (each an <tt>Object</tt>) in the proper order.
      * @param oos  output stream for serialization
@@ -1199,7 +1369,7 @@ private void readObject(ObjectInputStream ois) throws IOException, ClassNotFound
      * Implements an AVLNode which keeps the offset updated.
      * <p>
      * This node contains the real work.
-     * TreeList is just there to implement {@link java.util.List}.
+     * TreeList is just there to implement {@link java.util.IFloatList}.
      * The nodes don't know the index of the object they are holding.  They
      * do know however their position relative to their parent node.
      * This allows to calculate the index of a node while traversing the tree.
@@ -1508,7 +1678,7 @@ public FloatBlockNode removeSelf() {
 
         public FloatBlockNode doRemoveSelf() {
     if (getRightSubTree() == null && getLeftSubTree() == null) {
-        return 0;
+        return null;
     }
     if (getRightSubTree() == null) {
         if (relativePosition > 0) {

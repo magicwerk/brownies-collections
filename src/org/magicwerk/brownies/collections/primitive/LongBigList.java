@@ -1,5 +1,6 @@
 package org.magicwerk.brownies.collections.primitive;
 import org.magicwerk.brownies.collections.helper.ArraysHelper;
+import org.magicwerk.brownies.collections.helper.primitive.BinarySearch;
 import org.magicwerk.brownies.collections.GapList;
 import org.magicwerk.brownies.collections.BigList;
 
@@ -13,17 +14,186 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Deque;
 import java.util.List;
-import org.magicwerk.brownies.collections.helper.MergeSort;
+import org.magicwerk.brownies.collections.helper.primitive.LongMergeSort;
 
 /**
- * The first block (LongBigList) used grows dynamcically, all others
+ * The first block (LongGapList) used grows dynamcically, all others
  * are allocated with fixed size. This is necessary to prevent starving
  * because of GC usage.
  *
  * @author Thomas Mauch
- * @version $Id$
+ * @version $Id: LongBigList.java 2477 2014-10-08 23:47:35Z origo $
  */
 public class LongBigList extends ILongList {
+	public static IIntList of(int[] values) {
+		return new ImmutableIntListArrayInt(values);
+	}
+
+	public static IIntList of(Integer[] values) {
+		return new ImmutableIntListArrayInteger(values);
+	}
+
+	public static IIntList of(List<Integer> values) {
+		return new ImmutableIntListListInteger(values);
+	}
+
+    static class ImmutableIntListArrayInt extends ImmutableIntList {
+    	int[] values;
+
+    	public ImmutableIntListArrayInt(int[] values) {
+    		this.values = values;
+    	}
+
+		@Override
+		public int size() {
+			return values.length;
+		}
+
+		@Override
+		protected int doGet(int index) {
+			return values[index];
+		}
+    }
+
+    static class ImmutableIntListArrayInteger extends ImmutableIntList {
+    	Integer[] values;
+
+    	public ImmutableIntListArrayInteger(Integer[] values) {
+    		this.values = values;
+    	}
+
+		@Override
+		public int size() {
+			return values.length;
+		}
+
+		@Override
+		protected int doGet(int index) {
+			return values[index];
+		}
+    }
+
+    static class ImmutableIntListListInteger extends ImmutableIntList {
+    	List<Integer> values;
+
+    	public ImmutableIntListListInteger(List<Integer> values) {
+    		this.values = values;
+    	}
+
+		@Override
+		public int size() {
+			return values.size();
+		}
+
+		@Override
+		protected int doGet(int index) {
+			return values.get(index);
+		}
+    }
+
+    protected static abstract class ImmutableIntList extends IIntList {
+
+    	//-- Readers
+
+		@Override
+		public int capacity() {
+			return size();
+		}
+
+		@Override
+		public int binarySearch(int index, int len, int key) {
+			return BinarySearch.binarySearch(this, key, index, index+len);
+		}
+
+		@Override
+		public IIntList unmodifiableList() {
+			return this;
+		}
+
+		@Override
+		protected int getDefaultElem() {
+			return 0;
+		}
+
+        /**
+         * Throw exception if an attempt is made to change an immutable list.
+         */
+        private void error() {
+            throw new UnsupportedOperationException("list is immutable");
+        }
+
+        //-- Writers
+
+        @Override
+        protected void doRemoveAll(int index, int len) {
+        	error();
+        }
+
+        @Override
+        protected void doClear() {
+        	error();
+        }
+
+        @Override
+        protected void doModify() {
+        	error();
+        }
+
+		@Override
+		protected void doClone(IIntList that) {
+			error();
+		}
+
+		@Override
+		protected int doSet(int index, int elem) {
+			error();
+			return 0;
+		}
+
+		@Override
+		protected int doReSet(int index, int elem) {
+			error();
+			return 0;
+		}
+
+		@Override
+		protected boolean doAdd(int index, int elem) {
+			error();
+			return false;
+		}
+
+		@Override
+		protected void doEnsureCapacity(int minCapacity) {
+			error();
+		}
+
+		@Override
+		public void trimToSize() {
+			error();
+		}
+
+		@Override
+		protected IIntList doCreate(int capacity) {
+			error();
+			return null;
+		}
+
+		@Override
+		protected void doAssign(IIntList that) {
+			error();
+		}
+
+		@Override
+		protected int doRemove(int index) {
+			error();
+			return 0;
+		}
+
+		@Override
+		public void sort(int index, int len) {
+			error();
+		}
+    }
 
     /**
      * An immutable version of a LongBigList.
@@ -110,23 +280,23 @@ private void error() {
     
     public static class LongBlock implements Serializable {
 
-        private LongBigList values;
+        private LongGapList values;
 
         private int refCount;
 
         public LongBlock(){
-    values = new LongBigList();
+    values = new LongGapList();
     refCount = 1;
 }
 
         public LongBlock(int capacity){
-    values = new LongBigList(capacity);
+    values = new LongGapList(capacity);
     refCount = 1;
 }
 
         public LongBlock(LongBlock that){
-    values = new LongBigList(that.values.capacity());
-    values.init(that.values);
+    values = new LongGapList(that.values.capacity());
+    values.init(that.values.getArray(0, that.values.size()));
     refCount = 1;
 }
 
@@ -212,20 +382,9 @@ protected LongBigList(boolean copy, LongBigList that){
      * @return          created list
      * @param        type of elements stored in the list
      */
-// This separate method is needed as the varargs variant creates the LongBigList with specific size  
+// This separate method is needed as the varargs variant creates the LongGapList with specific size  
 public static LongBigList create() {
     return new LongBigList();
-}
-
-    /**
-     * Create new list with specified capacity.
-     *
-     * @param blockSize block size
-     * @return          created list
-     * @param        type of elements stored in the list
-     */
-public static LongBigList create(int blockSize) {
-    return new LongBigList(blockSize);
 }
 
     /**
@@ -247,7 +406,11 @@ public static LongBigList create(Collection<Long> coll) {
 	 * @param  		type of elements stored in the list
 	 */
 public static LongBigList create(long... elems) {
-    return new LongBigList(elems);
+    LongBigList list = new LongBigList();
+    for (long elem : elems) {
+        list.add(elem);
+    }
+    return list;
 }
 
     /**
@@ -282,13 +445,20 @@ public LongBigList(int blockSize){
     }
 }
 
-    public LongBigList(long... elems){
-    blockSize = BLOCK_SIZE;
-    currLongBlock = new LongBlock();
-    addLongBlock(0, currLongBlock);
+    public void init() {
+    clear();
+}
+
+    public void init(long... elems) {
+    clear();
     for (long elem : elems) {
-        add((E) elem);
+        add(elem);
     }
+}
+
+    public void init(Collection<Long> that) {
+    clear();
+    addAll(that);
 }
 
     /**
@@ -626,7 +796,7 @@ protected boolean doAdd(int index, long element) {
             int nextLongBlockLen = blockSize / 2;
             int blockLen = blockSize - nextLongBlockLen;
             nextLongBlock.values.init(nextLongBlockLen, null);
-            LongBigList.copy(currLongBlock.values, blockLen, nextLongBlock.values, 0, nextLongBlockLen);
+            LongGapList.copy(currLongBlock.values, blockLen, nextLongBlock.values, 0, nextLongBlockLen);
             currLongBlock.values.remove(blockLen, blockSize - blockLen);
             // Subtract 1 more because getLongBlockIndex() has already added 1   
             modify(currNode, -nextLongBlockLen - 1);
@@ -827,7 +997,7 @@ protected boolean doAddAll(int index, long[] array) {
         } else {
             // Add elements to several blocks   
             // Handle first block   
-            LongBigList list = LongBigList.create(array);
+            LongGapList list = LongGapList.create(array);
             int remove = currLongBlock.values.size() - addPos;
             if (remove > 0) {
                 list.addAll(currLongBlock.values.getAll(addPos, remove));
@@ -846,7 +1016,7 @@ protected boolean doAddAll(int index, long[] array) {
             if (has < should) {
                 // Elements must be added to first block   
                 int add = should - has;
-                List sublist = list.getAll(0, add);
+                ILongList sublist = list.getAll(0, add);
                 currLongBlock.values.addAll(addPos, sublist);
                 modify(currNode, add);
                 start += add;
@@ -871,7 +1041,7 @@ protected boolean doAddAll(int index, long[] array) {
                 should = s / numLongBlocks;
                 int add = should - move;
                 assert (add >= 0);
-                List sublist = list.getAll(0, add);
+                ILongList sublist = list.getAll(0, add);
                 nextLongBlock.values.addAll(move, sublist);
                 start += add;
                 assert (nextLongBlock.values.size() == should);
@@ -888,7 +1058,7 @@ protected boolean doAddAll(int index, long[] array) {
             while (numLongBlocks > 0) {
                 int add = s / numLongBlocks;
                 assert (add > 0);
-                List sublist = list.getAll(start, add);
+                ILongList sublist = list.getAll(start, add);
                 LongBlock nextLongBlock = new LongBlock();
                 nextLongBlock.values.init(sublist);
                 start += add;
@@ -1019,7 +1189,7 @@ protected void doRemoveAll(int index, int len) {
         for (int i = 0; i < len; i++) {
             leftNode.block.values.add(null);
         }
-        LongBigList.copy(node.block.values, 0, leftNode.block.values, dstSize, len);
+        LongGapList.copy(node.block.values, 0, leftNode.block.values, dstSize, len);
         assert (leftNode.block.values.size() <= blockSize);
         modify(leftNode, +len);
         modify(oldCurrNode, -len);
@@ -1033,7 +1203,7 @@ protected void doRemoveAll(int index, int len) {
             for (int i = 0; i < len; i++) {
                 rightNode.block.values.add(0, null);
             }
-            LongBigList.copy(node.block.values, 0, rightNode.block.values, 0, len);
+            LongGapList.copy(node.block.values, 0, rightNode.block.values, 0, len);
             assert (rightNode.block.values.size() <= blockSize);
             modify(rightNode, +len);
             modify(oldCurrNode, -len);
@@ -1109,7 +1279,7 @@ public void sort(int index, int len) {
     if (isOnlyRootLongBlock()) {
         currLongBlock.values.sort(index, len);
     } else {
-        MergeSort.sort(this, index, index + len);
+        LongMergeSort.sort(this, index, index + len);
     }
 }
 
@@ -1119,7 +1289,7 @@ public int binarySearch(int index, int len, long key) {
     if (isOnlyRootLongBlock()) {
         return currLongBlock.values.binarySearch(key);
     } else {
-        return Collections.binarySearch((List) this, key);
+        return Collections.binarySearch((ILongList) this, key);
     }
 }
 
@@ -1161,7 +1331,7 @@ public void removeLongBlock(int index) {
 /**
      * Serialize a LongBigList object.
      *
-     * @serialData The length of the array backing the <tt>LongBigList</tt>
+     * @serialData The length of the array backing the <tt>LongGapList</tt>
      *             instance is emitted (int), followed by all of its elements
      *             (each an <tt>Object</tt>) in the proper order.
      * @param oos  output stream for serialization
@@ -1199,7 +1369,7 @@ private void readObject(ObjectInputStream ois) throws IOException, ClassNotFound
      * Implements an AVLNode which keeps the offset updated.
      * <p>
      * This node contains the real work.
-     * TreeList is just there to implement {@link java.util.List}.
+     * TreeList is just there to implement {@link java.util.ILongList}.
      * The nodes don't know the index of the object they are holding.  They
      * do know however their position relative to their parent node.
      * This allows to calculate the index of a node while traversing the tree.
@@ -1508,7 +1678,7 @@ public LongBlockNode removeSelf() {
 
         public LongBlockNode doRemoveSelf() {
     if (getRightSubTree() == null && getLeftSubTree() == null) {
-        return 0;
+        return null;
     }
     if (getRightSubTree() == null) {
         if (relativePosition > 0) {

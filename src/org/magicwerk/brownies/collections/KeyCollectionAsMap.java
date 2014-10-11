@@ -173,7 +173,7 @@ public class KeyCollectionAsMap<E, K> implements Map<K, E>, Serializable {
 	@Override
 	public Set<Entry<K, E>> entrySet() {
 		Set<K> keys = (Set<K>) coll.getDistinctKeys(keyIndex);
-		List<Entry<K, E>> entries = GapList.create(keys.size());
+		List<Entry<K, E>> entries = new GapList(keys.size());
 		for (K key : keys) {
 			E elem = coll.getByKey(keyIndex, key);
 			entries.add(new MapEntry<K, E>(key, elem));

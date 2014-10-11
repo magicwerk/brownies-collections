@@ -107,10 +107,6 @@ public class FloatObjGapList extends IList<Float> {
 	}
 
 	public FloatObjGapList(int capacity) {
-		init(capacity);
-	}
-
-	public void init(int capacity) {
 		list = new FloatGapList(capacity);
 	}
 
@@ -119,7 +115,7 @@ public class FloatObjGapList extends IList<Float> {
 	}
 
 	public void init(Float... elems) {
-		list = new FloatGapList(toPrimitive(elems));
+		list = FloatGapList.create(toPrimitive(elems));
 	}
 
 	public FloatObjGapList(Collection<? extends Float> elems) {
@@ -127,7 +123,7 @@ public class FloatObjGapList extends IList<Float> {
 	}
 
 	public void init(Collection<? extends Float> elems) {
-		list = new FloatGapList(toPrimitive(elems));
+		list = FloatGapList.create(toPrimitive(elems));
 	}
 
 	@Override

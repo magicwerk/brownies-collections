@@ -202,17 +202,6 @@ public static ShortGapList create() {
 }
 
     /**
-     * Create new list with specified capacity.
-     *
-     * @param capacity  capacity
-     * @return          created list
-     * @param        type of elements stored in the list
-     */
-public static ShortGapList create(int capacity) {
-    return new ShortGapList(capacity);
-}
-
-    /**
      * Create new list with specified elements.
      *
      * @param coll      collection with element
@@ -231,7 +220,9 @@ public static ShortGapList create(Collection<Short> coll) {
 	 * @param  		type of elements stored in the list
 	 */
 public static ShortGapList create(short... elems) {
-    return new ShortGapList(elems);
+    ShortGapList list = new ShortGapList();
+    list.init(elems);
+    return list;
 }
 
     /**
@@ -348,7 +339,7 @@ public ShortGapList(){
 	 * @param capacity	capacity
 	 */
 public ShortGapList(int capacity){
-    init(capacity);
+    init(new short[capacity], 0);
 }
 
     /**
@@ -362,30 +353,11 @@ public ShortGapList(Collection<Short> coll){
 }
 
     /**
-	 * Construct a list to contain the specified elements.
-	 * The list will have an initial capacity to hold these elements.
-	 *
-	 * @param elems	array with elements
-	 */
-public ShortGapList(short... elems){
-    init(elems);
-}
-
-    /**
 	 * Initialize the list to be empty.
 	 * The list will have the default initial capacity.
 	 */
 public void init() {
     init(EMPTY_VALUES, 0);
-}
-
-    /**
-     * Initialize the list to be empty with specified initial capacity.
-     *
-	 * @param capacity capacity
-	 */
-public void init(int capacity) {
-    init(new short[capacity], 0);
 }
 
     /**

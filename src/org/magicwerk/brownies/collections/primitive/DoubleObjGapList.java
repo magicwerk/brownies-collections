@@ -107,10 +107,6 @@ public class DoubleObjGapList extends IList<Double> {
 	}
 
 	public DoubleObjGapList(int capacity) {
-		init(capacity);
-	}
-
-	public void init(int capacity) {
 		list = new DoubleGapList(capacity);
 	}
 
@@ -119,7 +115,7 @@ public class DoubleObjGapList extends IList<Double> {
 	}
 
 	public void init(Double... elems) {
-		list = new DoubleGapList(toPrimitive(elems));
+		list = DoubleGapList.create(toPrimitive(elems));
 	}
 
 	public DoubleObjGapList(Collection<? extends Double> elems) {
@@ -127,7 +123,7 @@ public class DoubleObjGapList extends IList<Double> {
 	}
 
 	public void init(Collection<? extends Double> elems) {
-		list = new DoubleGapList(toPrimitive(elems));
+		list = DoubleGapList.create(toPrimitive(elems));
 	}
 
 	@Override

@@ -1070,6 +1070,23 @@ public IShortList getAll(int index, int len) {
 }
 
     /**
+     * Removes specified range of elements from list and return them.
+     *
+     * @param index index of first element to retrieve
+     * @param len   number of elements to retrieve
+     * @return      GapList containing the specified range of elements from list
+     */
+public IShortList extract(int index, int len) {
+    checkRange(index, len);
+    IShortList list = doCreate(len);
+    for (int i = 0; i < len; i++) {
+        list.add(doGet(index + i));
+    }
+    remove(index, len);
+    return list;
+}
+
+    /**
      * Returns specified range of elements from list.
      *
      * @param index index of first element to retrieve
@@ -1118,6 +1135,29 @@ public void setAll(int index, Collection<Short> coll) {
     while (iter.hasNext()) {
         doSet(index + i, iter.next());
         i++;
+    }
+}
+
+    /**
+     * Set or add the specified elements.
+     *
+     * @param index index of first element to set or add
+     * @param coll  collection with elements to set or add
+     */
+public void merge(int index, Collection<Short> coll) {
+    checkIndexAdd(index);
+    // In contrary to addAll() there is no need to first create an array   
+    // containing the collection elements, as the list will not grow.   
+    int size = size();
+    Iterator<Short> iter = coll.iterator();
+    while (iter.hasNext()) {
+        short val = iter.next();
+        if (index < size) {
+            doSet(index, val);
+        } else {
+            doAdd(index, val);
+        }
+        index++;
     }
 }
 

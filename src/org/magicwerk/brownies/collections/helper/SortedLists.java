@@ -49,7 +49,7 @@ public class SortedLists {
      */
     ANY_PRESENT {
       @Override
-      <E> int resultIndex(
+      public <E> int resultIndex(
           Comparator<? super E> comparator, E key, List<? extends E> list, int foundIndex) {
         return foundIndex;
       }
@@ -59,7 +59,7 @@ public class SortedLists {
      */
     LAST_PRESENT {
       @Override
-      <E> int resultIndex(
+      public <E> int resultIndex(
           Comparator<? super E> comparator, E key, List<? extends E> list, int foundIndex) {
         // Of course, we have to use binary search to find the precise
         // breakpoint...
@@ -83,7 +83,7 @@ public class SortedLists {
      */
     FIRST_PRESENT {
       @Override
-      <E> int resultIndex(
+      public <E> int resultIndex(
           Comparator<? super E> comparator, E key, List<? extends E> list, int foundIndex) {
         // Of course, we have to use binary search to find the precise
         // breakpoint...
@@ -125,7 +125,7 @@ public class SortedLists {
         return FIRST_PRESENT.resultIndex(comparator, key, list, foundIndex) - 1;
       }
     };
-    abstract <E> int resultIndex(
+    public abstract <E> int resultIndex(
         Comparator<? super E> comparator, E key, List<? extends E> list, int foundIndex);
   }
 
@@ -140,7 +140,7 @@ public class SortedLists {
      */
     NEXT_LOWER {
       @Override
-      int resultIndex(int higherIndex) {
+      public int resultIndex(int higherIndex) {
         return higherIndex - 1;
       }
     },
@@ -173,7 +173,7 @@ public class SortedLists {
       }
     };
 
-    abstract int resultIndex(int higherIndex);
+    public abstract int resultIndex(int higherIndex);
   }
 
 

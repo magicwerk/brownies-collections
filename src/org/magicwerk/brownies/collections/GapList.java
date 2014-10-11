@@ -195,17 +195,6 @@ public class GapList<E> extends IList<E> {
     }
 
     /**
-     * Create new list with specified capacity.
-     *
-     * @param capacity  capacity
-     * @return          created list
-     * @param <E>       type of elements stored in the list
-     */
-    public static <E> GapList<E> create(int capacity) {
-        return new GapList<E>(capacity);
-    }
-
-    /**
      * Create new list with specified elements.
      *
      * @param coll      collection with element
@@ -224,7 +213,9 @@ public class GapList<E> extends IList<E> {
 	 * @param <E> 		type of elements stored in the list
 	 */
 	public static <E> GapList<E> create(E... elems) {
-		return new GapList<E>(elems);
+		GapList<E> list = new GapList<E>();
+		list.init(elems);
+		return list;
 	}
 
 	/**
@@ -367,7 +358,7 @@ public class GapList<E> extends IList<E> {
 	 * @param capacity	capacity
 	 */
 	public GapList(int capacity) {
-		init(capacity);
+		init(new Object[capacity], 0);
 	}
 
 	/**
@@ -381,30 +372,11 @@ public class GapList<E> extends IList<E> {
 	}
 
 	/**
-	 * Construct a list to contain the specified elements.
-	 * The list will have an initial capacity to hold these elements.
-	 *
-	 * @param elems	array with elements
-	 */
-	public GapList(E... elems) {
-		init(elems);
-	}
-
-	/**
 	 * Initialize the list to be empty.
 	 * The list will have the default initial capacity.
 	 */
 	public void init() {
 		init(EMPTY_VALUES, 0);
-	}
-
-	/**
-     * Initialize the list to be empty with specified initial capacity.
-     *
-	 * @param capacity capacity
-	 */
-	public void init(int capacity) {
-		init(new Object[capacity], 0);
 	}
 
 	/**
