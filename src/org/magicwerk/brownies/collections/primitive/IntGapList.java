@@ -202,17 +202,6 @@ public static IntGapList create() {
 }
 
     /**
-     * Create new list with specified capacity.
-     *
-     * @param capacity  capacity
-     * @return          created list
-     * @param        type of elements stored in the list
-     */
-public static IntGapList create(int capacity) {
-    return new IntGapList(capacity);
-}
-
-    /**
      * Create new list with specified elements.
      *
      * @param coll      collection with element
@@ -231,7 +220,9 @@ public static IntGapList create(Collection<Integer> coll) {
 	 * @param  		type of elements stored in the list
 	 */
 public static IntGapList create(int... elems) {
-    return new IntGapList(elems);
+    IntGapList list = new IntGapList();
+    list.init(elems);
+    return list;
 }
 
     /**
@@ -348,7 +339,7 @@ public IntGapList(){
 	 * @param capacity	capacity
 	 */
 public IntGapList(int capacity){
-    init(capacity);
+    init(new int[capacity], 0);
 }
 
     /**
@@ -362,30 +353,11 @@ public IntGapList(Collection<Integer> coll){
 }
 
     /**
-	 * Construct a list to contain the specified elements.
-	 * The list will have an initial capacity to hold these elements.
-	 *
-	 * @param elems	array with elements
-	 */
-public IntGapList(int... elems){
-    init(elems);
-}
-
-    /**
 	 * Initialize the list to be empty.
 	 * The list will have the default initial capacity.
 	 */
 public void init() {
     init(EMPTY_VALUES, 0);
-}
-
-    /**
-     * Initialize the list to be empty with specified initial capacity.
-     *
-	 * @param capacity capacity
-	 */
-public void init(int capacity) {
-    init(new int[capacity], 0);
 }
 
     /**

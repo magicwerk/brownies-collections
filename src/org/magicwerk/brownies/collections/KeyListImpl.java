@@ -111,7 +111,6 @@ public class KeyListImpl<E> extends GapList<E> {
      * Constructor.
      */
     KeyListImpl() {
-    	super(false, null);
     }
 
 	@Override

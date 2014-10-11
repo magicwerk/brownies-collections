@@ -107,10 +107,6 @@ public class IntObjGapList extends IList<Integer> {
 	}
 
 	public IntObjGapList(int capacity) {
-		init(capacity);
-	}
-
-	public void init(int capacity) {
 		list = new IntGapList(capacity);
 	}
 
@@ -119,7 +115,7 @@ public class IntObjGapList extends IList<Integer> {
 	}
 
 	public void init(Integer... elems) {
-		list = new IntGapList(toPrimitive(elems));
+		list = IntGapList.create(toPrimitive(elems));
 	}
 
 	public IntObjGapList(Collection<? extends Integer> elems) {
@@ -127,7 +123,7 @@ public class IntObjGapList extends IList<Integer> {
 	}
 
 	public void init(Collection<? extends Integer> elems) {
-		list = new IntGapList(toPrimitive(elems));
+		list = IntGapList.create(toPrimitive(elems));
 	}
 
 	@Override

@@ -202,17 +202,6 @@ public static CharGapList create() {
 }
 
     /**
-     * Create new list with specified capacity.
-     *
-     * @param capacity  capacity
-     * @return          created list
-     * @param        type of elements stored in the list
-     */
-public static CharGapList create(int capacity) {
-    return new CharGapList(capacity);
-}
-
-    /**
      * Create new list with specified elements.
      *
      * @param coll      collection with element
@@ -231,7 +220,9 @@ public static CharGapList create(Collection<Character> coll) {
 	 * @param  		type of elements stored in the list
 	 */
 public static CharGapList create(char... elems) {
-    return new CharGapList(elems);
+    CharGapList list = new CharGapList();
+    list.init(elems);
+    return list;
 }
 
     /**
@@ -348,7 +339,7 @@ public CharGapList(){
 	 * @param capacity	capacity
 	 */
 public CharGapList(int capacity){
-    init(capacity);
+    init(new char[capacity], 0);
 }
 
     /**
@@ -362,30 +353,11 @@ public CharGapList(Collection<Character> coll){
 }
 
     /**
-	 * Construct a list to contain the specified elements.
-	 * The list will have an initial capacity to hold these elements.
-	 *
-	 * @param elems	array with elements
-	 */
-public CharGapList(char... elems){
-    init(elems);
-}
-
-    /**
 	 * Initialize the list to be empty.
 	 * The list will have the default initial capacity.
 	 */
 public void init() {
     init(EMPTY_VALUES, 0);
-}
-
-    /**
-     * Initialize the list to be empty with specified initial capacity.
-     *
-	 * @param capacity capacity
-	 */
-public void init(int capacity) {
-    init(new char[capacity], 0);
 }
 
     /**

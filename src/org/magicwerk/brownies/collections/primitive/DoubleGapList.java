@@ -202,17 +202,6 @@ public static DoubleGapList create() {
 }
 
     /**
-     * Create new list with specified capacity.
-     *
-     * @param capacity  capacity
-     * @return          created list
-     * @param        type of elements stored in the list
-     */
-public static DoubleGapList create(int capacity) {
-    return new DoubleGapList(capacity);
-}
-
-    /**
      * Create new list with specified elements.
      *
      * @param coll      collection with element
@@ -231,7 +220,9 @@ public static DoubleGapList create(Collection<Double> coll) {
 	 * @param  		type of elements stored in the list
 	 */
 public static DoubleGapList create(double... elems) {
-    return new DoubleGapList(elems);
+    DoubleGapList list = new DoubleGapList();
+    list.init(elems);
+    return list;
 }
 
     /**
@@ -348,7 +339,7 @@ public DoubleGapList(){
 	 * @param capacity	capacity
 	 */
 public DoubleGapList(int capacity){
-    init(capacity);
+    init(new double[capacity], 0);
 }
 
     /**
@@ -362,30 +353,11 @@ public DoubleGapList(Collection<Double> coll){
 }
 
     /**
-	 * Construct a list to contain the specified elements.
-	 * The list will have an initial capacity to hold these elements.
-	 *
-	 * @param elems	array with elements
-	 */
-public DoubleGapList(double... elems){
-    init(elems);
-}
-
-    /**
 	 * Initialize the list to be empty.
 	 * The list will have the default initial capacity.
 	 */
 public void init() {
     init(EMPTY_VALUES, 0);
-}
-
-    /**
-     * Initialize the list to be empty with specified initial capacity.
-     *
-	 * @param capacity capacity
-	 */
-public void init(int capacity) {
-    init(new double[capacity], 0);
 }
 
     /**

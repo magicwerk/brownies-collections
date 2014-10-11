@@ -859,15 +859,13 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
                 }
         	} else {
         		if (collection != null) {
-        			keyList.init(capacity);
+        			keyList.ensureCapacity(capacity);
         			keyList.addAll(collection);
         		} else if (array != null) {
-        			keyList.init(capacity);
+        			keyList.ensureCapacity(capacity);
         			keyList.addAll(array);
         		} else if (capacity != 0) {
-        			keyList.init(capacity);
-        		} else {
-        			keyList.init(GapList.DEFAULT_CAPACITY);
+        			keyList.ensureCapacity(capacity);
         		}
         	}
         }
@@ -1164,7 +1162,8 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 		        			list = (GapList<E>) oldElem;
 		        			list.add(elem);
 		        		} else {
-		    	            list = (GapList<E>) new KeyMapList(oldElem, elem);
+		    	            list = (GapList<E>) new KeyMapList();
+		    	            list.addAll((E) oldElem, elem);
 		        		}
 	    	            keysMap.put(key, list);
 		        	}
@@ -1269,7 +1268,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 		public GapList<Object> getValues(int capacity) {
 			GapList<Object> list = null;
 	        if (keysMap != null) {
-	        	list = GapList.create(capacity);
+	        	list = new GapList(capacity);
 	        	for (Object obj: keysMap.values()) {
 			        if (obj instanceof KeyMapList) {
 			        	list.addAll((GapList) obj);
@@ -1325,8 +1324,8 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
      * in a KeyCollection&lt;GapList&lt;String&gt;&gt;.
      */
     static class KeyMapList<E> extends GapList<E> {
-    	public KeyMapList(E... elems) {
-    		super(elems);
+    	public KeyMapList() {
+    		super();
     	}
     }
 
@@ -1795,7 +1794,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
      * @return all elements contained in this collection as list
      */
     public GapList<E> toList() {
-    	GapList<E> list = GapList.create(size());
+    	GapList<E> list = new GapList(size());
 		for (E e : this) {
 			list.add(e);
 		}
@@ -1804,7 +1803,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 
 	@Override
 	public Object[] toArray() {
-		GapList<Object> list = GapList.create(size());
+		GapList<Object> list = new GapList(size());
 		for (E e : this) {
 			list.add(e);
 		}
@@ -1813,7 +1812,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 
 	@Override
 	public <T> T[] toArray(T[] a) {
-		GapList<Object> list = GapList.create(size());
+		GapList<Object> list = new GapList(size());
 		for (E e : this) {
 			list.add(e);
 		}

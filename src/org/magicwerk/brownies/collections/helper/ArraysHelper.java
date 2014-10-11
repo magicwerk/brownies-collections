@@ -27,6 +27,47 @@ import java.util.Arrays;
  * @version $Id$
  */
 public class ArraysHelper {
+
+	public static int compare(int val1, int val2) {
+		if (val1 < val2)
+			return -1;
+		else if (val1 > val2)
+			return 1;
+		else
+			return 0;
+	}
+
+	public static int compare(long val1, long val2) {
+		if (val1 < val2)
+			return -1;
+		else if (val1 > val2)
+			return 1;
+		else
+			return 0;
+	}
+
+	public static int compare(double val1, double val2) {
+		if (val1 < val2)
+			return -1;
+		else if (val1 > val2)
+			return 1;
+		else
+			return 0;
+	}
+
+	public static int compare(float val1, float val2) {
+		if (val1 < val2)
+			return -1;
+		else if (val1 > val2)
+			return 1;
+		else
+			return 0;
+	}
+
+	public static int compare(boolean val1, boolean val2) {
+		return (val1==val2) ? 0 : ((val1) ? 1 : -1);
+	}
+
 	// --- Sort
 
 	// We have to provide these delegate functions, as there is no method

@@ -202,17 +202,6 @@ public static ByteGapList create() {
 }
 
     /**
-     * Create new list with specified capacity.
-     *
-     * @param capacity  capacity
-     * @return          created list
-     * @param        type of elements stored in the list
-     */
-public static ByteGapList create(int capacity) {
-    return new ByteGapList(capacity);
-}
-
-    /**
      * Create new list with specified elements.
      *
      * @param coll      collection with element
@@ -231,7 +220,9 @@ public static ByteGapList create(Collection<Byte> coll) {
 	 * @param  		type of elements stored in the list
 	 */
 public static ByteGapList create(byte... elems) {
-    return new ByteGapList(elems);
+    ByteGapList list = new ByteGapList();
+    list.init(elems);
+    return list;
 }
 
     /**
@@ -348,7 +339,7 @@ public ByteGapList(){
 	 * @param capacity	capacity
 	 */
 public ByteGapList(int capacity){
-    init(capacity);
+    init(new byte[capacity], 0);
 }
 
     /**
@@ -362,30 +353,11 @@ public ByteGapList(Collection<Byte> coll){
 }
 
     /**
-	 * Construct a list to contain the specified elements.
-	 * The list will have an initial capacity to hold these elements.
-	 *
-	 * @param elems	array with elements
-	 */
-public ByteGapList(byte... elems){
-    init(elems);
-}
-
-    /**
 	 * Initialize the list to be empty.
 	 * The list will have the default initial capacity.
 	 */
 public void init() {
     init(EMPTY_VALUES, 0);
-}
-
-    /**
-     * Initialize the list to be empty with specified initial capacity.
-     *
-	 * @param capacity capacity
-	 */
-public void init(int capacity) {
-    init(new byte[capacity], 0);
 }
 
     /**

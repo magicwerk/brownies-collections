@@ -107,10 +107,6 @@ public class CharObjGapList extends IList<Character> {
 	}
 
 	public CharObjGapList(int capacity) {
-		init(capacity);
-	}
-
-	public void init(int capacity) {
 		list = new CharGapList(capacity);
 	}
 
@@ -119,7 +115,7 @@ public class CharObjGapList extends IList<Character> {
 	}
 
 	public void init(Character... elems) {
-		list = new CharGapList(toPrimitive(elems));
+		list = CharGapList.create(toPrimitive(elems));
 	}
 
 	public CharObjGapList(Collection<? extends Character> elems) {
@@ -127,7 +123,7 @@ public class CharObjGapList extends IList<Character> {
 	}
 
 	public void init(Collection<? extends Character> elems) {
-		list = new CharGapList(toPrimitive(elems));
+		list = CharGapList.create(toPrimitive(elems));
 	}
 
 	@Override

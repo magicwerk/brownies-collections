@@ -24,7 +24,7 @@ import org.magicwerk.brownies.collections.helper.MergeSort;
 public class BigList<E> extends IList<E> {
 
     /**
-     * An immutable version of a GapList.
+     * An immutable version of a BigList.
      * Note that the client cannot change the list,
      * but the content may change if the underlying list is changed.
      */
@@ -205,17 +205,6 @@ public class BigList<E> extends IList<E> {
     }
 
     /**
-     * Create new list with specified capacity.
-     *
-     * @param blockSize block size
-     * @return          created list
-     * @param <E>       type of elements stored in the list
-     */
-    public static <E> BigList<E> create(int blockSize) {
-        return new BigList<E>(blockSize);
-    }
-
-    /**
      * Create new list with specified elements.
      *
      * @param coll      collection with element
@@ -234,7 +223,11 @@ public class BigList<E> extends IList<E> {
 	 * @param <E> 		type of elements stored in the list
 	 */
 	public static <E> BigList<E> create(E... elems) {
-		return new BigList<E>(elems);
+		BigList<E> list = new BigList<E>();
+        for (E elem: elems) {
+            list.add(elem);
+        }
+		return list;
 	}
 
 	/**
@@ -272,15 +265,20 @@ public class BigList<E> extends IList<E> {
     	}
     }
 
-    public BigList(E... elems) {
-        blockSize = BLOCK_SIZE;
+    public void init() {
+    	clear();
+    }
 
-		currBlock = new Block<E>();
-		addBlock(0, currBlock);
-
-        for (Object elem: elems) {
-            add((E) elem);
+    public void init(E... elems) {
+    	clear();
+        for (E elem: elems) {
+            add(elem);
         }
+    }
+
+    public void init(Collection<? extends E> that) {
+    	clear();
+    	addAll(that);
     }
 
     /**
