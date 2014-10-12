@@ -1,6 +1,6 @@
 package org.magicwerk.brownies.collections.primitive;
 import org.magicwerk.brownies.collections.helper.ArraysHelper;
-import org.magicwerk.brownies.collections.helper.primitive.BinarySearch;
+import org.magicwerk.brownies.collections.helper.primitive.BooleanBinarySearch;
 import org.magicwerk.brownies.collections.GapList;
 import org.magicwerk.brownies.collections.BigList;
 
@@ -22,25 +22,25 @@ import org.magicwerk.brownies.collections.helper.primitive.BooleanMergeSort;
  * because of GC usage.
  *
  * @author Thomas Mauch
- * @version $Id: BooleanBigList.java 2477 2014-10-08 23:47:35Z origo $
+ * @version $Id: BooleanBigList.java 2492 2014-10-11 15:18:58Z origo $
  */
 public class BooleanBigList extends IBooleanList {
-	public static IIntList of(int[] values) {
-		return new ImmutableIntListArrayInt(values);
+	public static IBooleanList of(boolean[] values) {
+		return new ImmutableBooleanListArrayPrimitive(values);
 	}
 
-	public static IIntList of(Integer[] values) {
-		return new ImmutableIntListArrayInteger(values);
+	public static IBooleanList of(Boolean[] values) {
+		return new ImmutableBooleanListArrayWrapper(values);
 	}
 
-	public static IIntList of(List<Integer> values) {
-		return new ImmutableIntListListInteger(values);
+	public static IBooleanList of(List<Boolean> values) {
+		return new ImmutableBooleanListList(values);
 	}
 
-    static class ImmutableIntListArrayInt extends ImmutableIntList {
-    	int[] values;
+    static class ImmutableBooleanListArrayPrimitive extends ImmutableBooleanList {
+    	boolean[] values;
 
-    	public ImmutableIntListArrayInt(int[] values) {
+    	public ImmutableBooleanListArrayPrimitive(boolean[] values) {
     		this.values = values;
     	}
 
@@ -50,15 +50,15 @@ public class BooleanBigList extends IBooleanList {
 		}
 
 		@Override
-		protected int doGet(int index) {
+		protected boolean doGet(int index) {
 			return values[index];
 		}
     }
 
-    static class ImmutableIntListArrayInteger extends ImmutableIntList {
-    	Integer[] values;
+    static class ImmutableBooleanListArrayWrapper extends ImmutableBooleanList {
+    	Boolean[] values;
 
-    	public ImmutableIntListArrayInteger(Integer[] values) {
+    	public ImmutableBooleanListArrayWrapper(Boolean[] values) {
     		this.values = values;
     	}
 
@@ -68,15 +68,15 @@ public class BooleanBigList extends IBooleanList {
 		}
 
 		@Override
-		protected int doGet(int index) {
+		protected boolean doGet(int index) {
 			return values[index];
 		}
     }
 
-    static class ImmutableIntListListInteger extends ImmutableIntList {
-    	List<Integer> values;
+    static class ImmutableBooleanListList extends ImmutableBooleanList {
+    	List<Boolean> values;
 
-    	public ImmutableIntListListInteger(List<Integer> values) {
+    	public ImmutableBooleanListList(List<Boolean> values) {
     		this.values = values;
     	}
 
@@ -86,12 +86,12 @@ public class BooleanBigList extends IBooleanList {
 		}
 
 		@Override
-		protected int doGet(int index) {
+		protected boolean doGet(int index) {
 			return values.get(index);
 		}
     }
 
-    protected static abstract class ImmutableIntList extends IIntList {
+    protected static abstract class ImmutableBooleanList extends IBooleanList {
 
     	//-- Readers
 
@@ -101,18 +101,18 @@ public class BooleanBigList extends IBooleanList {
 		}
 
 		@Override
-		public int binarySearch(int index, int len, int key) {
-			return BinarySearch.binarySearch(this, key, index, index+len);
+		public int binarySearch(int index, int len, boolean key) {
+			return BooleanBinarySearch.binarySearch(this, key, index, index+len);
 		}
 
 		@Override
-		public IIntList unmodifiableList() {
+		public IBooleanList unmodifiableList() {
 			return this;
 		}
 
 		@Override
-		protected int getDefaultElem() {
-			return 0;
+		protected boolean getDefaultElem() {
+			return false;
 		}
 
         /**
@@ -140,24 +140,24 @@ public class BooleanBigList extends IBooleanList {
         }
 
 		@Override
-		protected void doClone(IIntList that) {
+		protected void doClone(IBooleanList that) {
 			error();
 		}
 
 		@Override
-		protected int doSet(int index, int elem) {
+		protected boolean doSet(int index, boolean elem) {
 			error();
-			return 0;
+			return false;
 		}
 
 		@Override
-		protected int doReSet(int index, int elem) {
+		protected boolean doReSet(int index, boolean elem) {
 			error();
-			return 0;
+			return false;
 		}
 
 		@Override
-		protected boolean doAdd(int index, int elem) {
+		protected boolean doAdd(int index, boolean elem) {
 			error();
 			return false;
 		}
@@ -173,20 +173,20 @@ public class BooleanBigList extends IBooleanList {
 		}
 
 		@Override
-		protected IIntList doCreate(int capacity) {
+		protected IBooleanList doCreate(int capacity) {
 			error();
 			return null;
 		}
 
 		@Override
-		protected void doAssign(IIntList that) {
+		protected void doAssign(IBooleanList that) {
 			error();
 		}
 
 		@Override
-		protected int doRemove(int index) {
+		protected boolean doRemove(int index) {
 			error();
-			return 0;
+			return false;
 		}
 
 		@Override
@@ -427,6 +427,9 @@ public BooleanBigList(){
 	 * @param blockSize block size
 	 */
 public BooleanBigList(int blockSize){
+    if (blockSize < 2) {
+        throw new IndexOutOfBoundsException("Invalid blockSize: " + blockSize);
+    }
     doInit(blockSize, -1);
 }
 
@@ -438,8 +441,8 @@ public BooleanBigList(int blockSize){
         blockSize = BLOCK_SIZE;
         currBooleanBlock = new BooleanBlock();
         addBooleanBlock(0, currBooleanBlock);
-        for (boolean elem : that.toArray()) {
-            add((E) elem);
+        for (Object obj : that.toArray()) {
+            add((Boolean) obj);
         }
         assert (size() == that.size());
     }
@@ -619,7 +622,7 @@ private int getBooleanBlockIndex(int index, boolean write, int modify) {
         }
         if (modify != 0) {
             currNode.relativePosition += modify;
-            BooleanBigList.BooleanBlockNode leftNode = currNode.getLeftSubTree();
+            BooleanBlockNode leftNode = currNode.getLeftSubTree();
             if (leftNode != null) {
                 leftNode.relativePosition -= modify;
             }
@@ -686,10 +689,7 @@ private int getBooleanBlockIndex(int index, boolean write, int modify) {
 }
 
     void check() {
-    if (true) {
-        return;
-    }
-    //TODO   
+    //if (true) {return; } //TODO   
     if (currNode != null) {
         assert (currNode.block == currBooleanBlock);
         assert (currBooleanBlockStart >= 0 && currBooleanBlockEnd <= size && currBooleanBlockStart <= currBooleanBlockEnd);
@@ -765,17 +765,20 @@ protected boolean doAdd(int index, boolean element) {
     int pos = getBooleanBlockIndex(index, true, 1);
     // If there is still place in the current block: insert in current block   
     int maxSize = (index == size || index == 0) ? blockSize * 9 / 10 : blockSize;
-    if (currBooleanBlock.size() < maxSize) {
+    // The second part of the condition is a work around to handle the case of insertion as position 0 correctly   
+    // where blockSize() is 2 (the new block would then be added after the current one)   
+    if (currBooleanBlock.size() < maxSize || (currBooleanBlock.size() == 1 && currBooleanBlock.size() < blockSize)) {
         currBooleanBlock.values.doAdd(pos, element);
         currBooleanBlockEnd++;
     } else {
         // No place any more in current block   
-        BooleanBlock nextBooleanBlock = new BooleanBlock(blockSize);
+        BooleanBlock newBooleanBlock = new BooleanBlock(blockSize);
         if (index == size) {
             // Insert new block at tail   
-            nextBooleanBlock.values.doAdd(0, element);
+            newBooleanBlock.values.doAdd(0, element);
+            // Subtract 1 because getBooleanBlockIndex() has already added 1   
             modify(currNode, -1);
-            addBooleanBlock(size + 1, nextBooleanBlock);
+            addBooleanBlock(size + 1, newBooleanBlock);
             BooleanBlockNode lastNode = currNode.next();
             currNode = lastNode;
             currBooleanBlock = currNode.block;
@@ -783,9 +786,10 @@ protected boolean doAdd(int index, boolean element) {
             currBooleanBlockEnd++;
         } else if (index == 0) {
             // Insert new block at head   
-            nextBooleanBlock.values.doAdd(0, element);
+            newBooleanBlock.values.doAdd(0, element);
+            // Subtract 1 because getBooleanBlockIndex() has already added 1   
             modify(currNode, -1);
-            addBooleanBlock(1, nextBooleanBlock);
+            addBooleanBlock(1, newBooleanBlock);
             BooleanBlockNode firstNode = currNode.previous();
             currNode = firstNode;
             currBooleanBlock = currNode.block;
@@ -795,12 +799,12 @@ protected boolean doAdd(int index, boolean element) {
             // Split block for insert   
             int nextBooleanBlockLen = blockSize / 2;
             int blockLen = blockSize - nextBooleanBlockLen;
-            nextBooleanBlock.values.init(nextBooleanBlockLen, null);
-            BooleanGapList.copy(currBooleanBlock.values, blockLen, nextBooleanBlock.values, 0, nextBooleanBlockLen);
+            newBooleanBlock.values.init(nextBooleanBlockLen, false);
+            BooleanGapList.copy(currBooleanBlock.values, blockLen, newBooleanBlock.values, 0, nextBooleanBlockLen);
             currBooleanBlock.values.remove(blockLen, blockSize - blockLen);
             // Subtract 1 more because getBooleanBlockIndex() has already added 1   
             modify(currNode, -nextBooleanBlockLen - 1);
-            addBooleanBlock(currBooleanBlockEnd - nextBooleanBlockLen, nextBooleanBlock);
+            addBooleanBlock(currBooleanBlockEnd - nextBooleanBlockLen, newBooleanBlock);
             if (pos < blockLen) {
                 // Insert element in first block   
                 currBooleanBlock.values.doAdd(pos, element);
@@ -1055,17 +1059,21 @@ protected boolean doAddAll(int index, boolean[] array) {
                 numBooleanBlocks--;
             }
             check();
+            BooleanBlockNode node = currNode;
             while (numBooleanBlocks > 0) {
                 int add = s / numBooleanBlocks;
                 assert (add > 0);
                 IBooleanList sublist = list.getAll(start, add);
                 BooleanBlock nextBooleanBlock = new BooleanBlock();
-                nextBooleanBlock.values.init(sublist);
+                nextBooleanBlock.values.clear();
+                nextBooleanBlock.values.addAll(sublist);
                 start += add;
                 assert (nextBooleanBlock.values.size() == add);
                 s -= add;
-                end += add;
                 addBooleanBlock(end, nextBooleanBlock);
+                assert (node.next().block == nextBooleanBlock);
+                node = node.next();
+                end += add;
                 size += add;
                 numBooleanBlocks--;
                 check();
@@ -1187,7 +1195,7 @@ protected void doRemoveAll(int index, int len) {
         int len = node.block.size();
         int dstSize = leftNode.getBooleanBlock().size();
         for (int i = 0; i < len; i++) {
-            leftNode.block.values.add(null);
+            leftNode.block.values.add(false);
         }
         BooleanGapList.copy(node.block.values, 0, leftNode.block.values, dstSize, len);
         assert (leftNode.block.values.size() <= blockSize);
@@ -1201,7 +1209,7 @@ protected void doRemoveAll(int index, int len) {
             // Merge with right block   
             int len = node.block.size();
             for (int i = 0; i < len; i++) {
-                rightNode.block.values.add(0, null);
+                rightNode.block.values.add(0, false);
             }
             BooleanGapList.copy(node.block.values, 0, rightNode.block.values, 0, len);
             assert (rightNode.block.values.size() <= blockSize);
@@ -1289,7 +1297,7 @@ public int binarySearch(int index, int len, boolean key) {
     if (isOnlyRootBooleanBlock()) {
         return currBooleanBlock.values.binarySearch(key);
     } else {
-        return Collections.binarySearch((IBooleanList) this, key);
+        return BooleanBinarySearch.binarySearch(this, key, 0, size());
     }
 }
 
@@ -1298,7 +1306,7 @@ public int binarySearch(int index, int len, boolean key) {
 }
 
     public BooleanBlockNode access(final int index, int modify) {
-    return root.access(index, modify, false);
+    return root.access(this, index, modify, false);
 }
 
     //-----------------------------------------------------------------------  
@@ -1377,7 +1385,7 @@ private void readObject(ObjectInputStream ois) throws IOException, ClassNotFound
      * The Faedelung calculation stores a flag for both the left and right child
      * to indicate if they are a child (false) or a link as in linked list (true).
      */
-    class BooleanBlockNode {
+    static class BooleanBlockNode {
 
         BooleanBlockNode parent;
 
@@ -1438,7 +1446,7 @@ public void setBooleanBlock(BooleanBlock obj) {
     this.block = obj;
 }
 
-        private BooleanBlockNode access(final int index, int modify, boolean wasLeft) {
+        private BooleanBlockNode access(BooleanBigList list, int index, int modify, boolean wasLeft) {
     assert (index >= 0);
     if (relativePosition == 0) {
         if (modify != 0) {
@@ -1446,13 +1454,13 @@ public void setBooleanBlock(BooleanBlock obj) {
         }
         return this;
     }
-    if (currBooleanBlockEnd == 0) {
-        currBooleanBlockEnd = relativePosition;
+    if (list.currBooleanBlockEnd == 0) {
+        list.currBooleanBlockEnd = relativePosition;
     }
     BooleanBlockNode leftNode = getLeftSubTree();
-    int leftIndex = currBooleanBlockEnd - block.size();
+    int leftIndex = list.currBooleanBlockEnd - block.size();
     assert (leftIndex >= 0);
-    if (index >= leftIndex && index < currBooleanBlockEnd) {
+    if (index >= leftIndex && index < list.currBooleanBlockEnd) {
         if (relativePosition > 0) {
             relativePosition += modify;
             if (leftNode != null) {
@@ -1465,7 +1473,7 @@ public void setBooleanBlock(BooleanBlock obj) {
         }
         return this;
     }
-    if (index < currBooleanBlockEnd) {
+    if (index < list.currBooleanBlockEnd) {
         // left   
         BooleanBlockNode nextNode = getLeftSubTree();
         if (nextNode == null || !wasLeft) {
@@ -1479,8 +1487,8 @@ public void setBooleanBlock(BooleanBlock obj) {
         if (nextNode == null) {
             return this;
         }
-        currBooleanBlockEnd += nextNode.relativePosition;
-        return nextNode.access(index, modify, wasLeft);
+        list.currBooleanBlockEnd += nextNode.relativePosition;
+        return nextNode.access(list, index, modify, wasLeft);
     } else {
         // right   
         BooleanBlockNode nextNode = getRightSubTree();
@@ -1499,8 +1507,8 @@ public void setBooleanBlock(BooleanBlock obj) {
         if (nextNode == null) {
             return this;
         }
-        currBooleanBlockEnd += nextNode.relativePosition;
-        return nextNode.access(index, modify, wasLeft);
+        list.currBooleanBlockEnd += nextNode.relativePosition;
+        return nextNode.access(list, index, modify, wasLeft);
     }
 }
 

@@ -1,6 +1,6 @@
 package org.magicwerk.brownies.collections.primitive;
 import org.magicwerk.brownies.collections.helper.ArraysHelper;
-import org.magicwerk.brownies.collections.helper.primitive.BinarySearch;
+import org.magicwerk.brownies.collections.helper.primitive.DoubleBinarySearch;
 import org.magicwerk.brownies.collections.GapList;
 import org.magicwerk.brownies.collections.BigList;
 
@@ -22,25 +22,25 @@ import org.magicwerk.brownies.collections.helper.primitive.DoubleMergeSort;
  * because of GC usage.
  *
  * @author Thomas Mauch
- * @version $Id: DoubleBigList.java 2477 2014-10-08 23:47:35Z origo $
+ * @version $Id: DoubleBigList.java 2492 2014-10-11 15:18:58Z origo $
  */
 public class DoubleBigList extends IDoubleList {
-	public static IIntList of(int[] values) {
-		return new ImmutableIntListArrayInt(values);
+	public static IDoubleList of(double[] values) {
+		return new ImmutableDoubleListArrayPrimitive(values);
 	}
 
-	public static IIntList of(Integer[] values) {
-		return new ImmutableIntListArrayInteger(values);
+	public static IDoubleList of(Double[] values) {
+		return new ImmutableDoubleListArrayWrapper(values);
 	}
 
-	public static IIntList of(List<Integer> values) {
-		return new ImmutableIntListListInteger(values);
+	public static IDoubleList of(List<Double> values) {
+		return new ImmutableDoubleListList(values);
 	}
 
-    static class ImmutableIntListArrayInt extends ImmutableIntList {
-    	int[] values;
+    static class ImmutableDoubleListArrayPrimitive extends ImmutableDoubleList {
+    	double[] values;
 
-    	public ImmutableIntListArrayInt(int[] values) {
+    	public ImmutableDoubleListArrayPrimitive(double[] values) {
     		this.values = values;
     	}
 
@@ -50,15 +50,15 @@ public class DoubleBigList extends IDoubleList {
 		}
 
 		@Override
-		protected int doGet(int index) {
+		protected double doGet(int index) {
 			return values[index];
 		}
     }
 
-    static class ImmutableIntListArrayInteger extends ImmutableIntList {
-    	Integer[] values;
+    static class ImmutableDoubleListArrayWrapper extends ImmutableDoubleList {
+    	Double[] values;
 
-    	public ImmutableIntListArrayInteger(Integer[] values) {
+    	public ImmutableDoubleListArrayWrapper(Double[] values) {
     		this.values = values;
     	}
 
@@ -68,15 +68,15 @@ public class DoubleBigList extends IDoubleList {
 		}
 
 		@Override
-		protected int doGet(int index) {
+		protected double doGet(int index) {
 			return values[index];
 		}
     }
 
-    static class ImmutableIntListListInteger extends ImmutableIntList {
-    	List<Integer> values;
+    static class ImmutableDoubleListList extends ImmutableDoubleList {
+    	List<Double> values;
 
-    	public ImmutableIntListListInteger(List<Integer> values) {
+    	public ImmutableDoubleListList(List<Double> values) {
     		this.values = values;
     	}
 
@@ -86,12 +86,12 @@ public class DoubleBigList extends IDoubleList {
 		}
 
 		@Override
-		protected int doGet(int index) {
+		protected double doGet(int index) {
 			return values.get(index);
 		}
     }
 
-    protected static abstract class ImmutableIntList extends IIntList {
+    protected static abstract class ImmutableDoubleList extends IDoubleList {
 
     	//-- Readers
 
@@ -101,17 +101,17 @@ public class DoubleBigList extends IDoubleList {
 		}
 
 		@Override
-		public int binarySearch(int index, int len, int key) {
-			return BinarySearch.binarySearch(this, key, index, index+len);
+		public int binarySearch(int index, int len, double key) {
+			return DoubleBinarySearch.binarySearch(this, key, index, index+len);
 		}
 
 		@Override
-		public IIntList unmodifiableList() {
+		public IDoubleList unmodifiableList() {
 			return this;
 		}
 
 		@Override
-		protected int getDefaultElem() {
+		protected double getDefaultElem() {
 			return 0;
 		}
 
@@ -140,24 +140,24 @@ public class DoubleBigList extends IDoubleList {
         }
 
 		@Override
-		protected void doClone(IIntList that) {
+		protected void doClone(IDoubleList that) {
 			error();
 		}
 
 		@Override
-		protected int doSet(int index, int elem) {
-			error();
-			return 0;
-		}
-
-		@Override
-		protected int doReSet(int index, int elem) {
+		protected double doSet(int index, double elem) {
 			error();
 			return 0;
 		}
 
 		@Override
-		protected boolean doAdd(int index, int elem) {
+		protected double doReSet(int index, double elem) {
+			error();
+			return 0;
+		}
+
+		@Override
+		protected boolean doAdd(int index, double elem) {
 			error();
 			return false;
 		}
@@ -173,18 +173,18 @@ public class DoubleBigList extends IDoubleList {
 		}
 
 		@Override
-		protected IIntList doCreate(int capacity) {
+		protected IDoubleList doCreate(int capacity) {
 			error();
 			return null;
 		}
 
 		@Override
-		protected void doAssign(IIntList that) {
+		protected void doAssign(IDoubleList that) {
 			error();
 		}
 
 		@Override
-		protected int doRemove(int index) {
+		protected double doRemove(int index) {
 			error();
 			return 0;
 		}
@@ -427,6 +427,9 @@ public DoubleBigList(){
 	 * @param blockSize block size
 	 */
 public DoubleBigList(int blockSize){
+    if (blockSize < 2) {
+        throw new IndexOutOfBoundsException("Invalid blockSize: " + blockSize);
+    }
     doInit(blockSize, -1);
 }
 
@@ -438,8 +441,8 @@ public DoubleBigList(int blockSize){
         blockSize = BLOCK_SIZE;
         currDoubleBlock = new DoubleBlock();
         addDoubleBlock(0, currDoubleBlock);
-        for (double elem : that.toArray()) {
-            add((E) elem);
+        for (Object obj : that.toArray()) {
+            add((Double) obj);
         }
         assert (size() == that.size());
     }
@@ -619,7 +622,7 @@ private int getDoubleBlockIndex(int index, boolean write, int modify) {
         }
         if (modify != 0) {
             currNode.relativePosition += modify;
-            DoubleBigList.DoubleBlockNode leftNode = currNode.getLeftSubTree();
+            DoubleBlockNode leftNode = currNode.getLeftSubTree();
             if (leftNode != null) {
                 leftNode.relativePosition -= modify;
             }
@@ -686,10 +689,7 @@ private int getDoubleBlockIndex(int index, boolean write, int modify) {
 }
 
     void check() {
-    if (true) {
-        return;
-    }
-    //TODO   
+    //if (true) {return; } //TODO   
     if (currNode != null) {
         assert (currNode.block == currDoubleBlock);
         assert (currDoubleBlockStart >= 0 && currDoubleBlockEnd <= size && currDoubleBlockStart <= currDoubleBlockEnd);
@@ -765,17 +765,20 @@ protected boolean doAdd(int index, double element) {
     int pos = getDoubleBlockIndex(index, true, 1);
     // If there is still place in the current block: insert in current block   
     int maxSize = (index == size || index == 0) ? blockSize * 9 / 10 : blockSize;
-    if (currDoubleBlock.size() < maxSize) {
+    // The second part of the condition is a work around to handle the case of insertion as position 0 correctly   
+    // where blockSize() is 2 (the new block would then be added after the current one)   
+    if (currDoubleBlock.size() < maxSize || (currDoubleBlock.size() == 1 && currDoubleBlock.size() < blockSize)) {
         currDoubleBlock.values.doAdd(pos, element);
         currDoubleBlockEnd++;
     } else {
         // No place any more in current block   
-        DoubleBlock nextDoubleBlock = new DoubleBlock(blockSize);
+        DoubleBlock newDoubleBlock = new DoubleBlock(blockSize);
         if (index == size) {
             // Insert new block at tail   
-            nextDoubleBlock.values.doAdd(0, element);
+            newDoubleBlock.values.doAdd(0, element);
+            // Subtract 1 because getDoubleBlockIndex() has already added 1   
             modify(currNode, -1);
-            addDoubleBlock(size + 1, nextDoubleBlock);
+            addDoubleBlock(size + 1, newDoubleBlock);
             DoubleBlockNode lastNode = currNode.next();
             currNode = lastNode;
             currDoubleBlock = currNode.block;
@@ -783,9 +786,10 @@ protected boolean doAdd(int index, double element) {
             currDoubleBlockEnd++;
         } else if (index == 0) {
             // Insert new block at head   
-            nextDoubleBlock.values.doAdd(0, element);
+            newDoubleBlock.values.doAdd(0, element);
+            // Subtract 1 because getDoubleBlockIndex() has already added 1   
             modify(currNode, -1);
-            addDoubleBlock(1, nextDoubleBlock);
+            addDoubleBlock(1, newDoubleBlock);
             DoubleBlockNode firstNode = currNode.previous();
             currNode = firstNode;
             currDoubleBlock = currNode.block;
@@ -795,12 +799,12 @@ protected boolean doAdd(int index, double element) {
             // Split block for insert   
             int nextDoubleBlockLen = blockSize / 2;
             int blockLen = blockSize - nextDoubleBlockLen;
-            nextDoubleBlock.values.init(nextDoubleBlockLen, null);
-            DoubleGapList.copy(currDoubleBlock.values, blockLen, nextDoubleBlock.values, 0, nextDoubleBlockLen);
+            newDoubleBlock.values.init(nextDoubleBlockLen, 0);
+            DoubleGapList.copy(currDoubleBlock.values, blockLen, newDoubleBlock.values, 0, nextDoubleBlockLen);
             currDoubleBlock.values.remove(blockLen, blockSize - blockLen);
             // Subtract 1 more because getDoubleBlockIndex() has already added 1   
             modify(currNode, -nextDoubleBlockLen - 1);
-            addDoubleBlock(currDoubleBlockEnd - nextDoubleBlockLen, nextDoubleBlock);
+            addDoubleBlock(currDoubleBlockEnd - nextDoubleBlockLen, newDoubleBlock);
             if (pos < blockLen) {
                 // Insert element in first block   
                 currDoubleBlock.values.doAdd(pos, element);
@@ -1055,17 +1059,21 @@ protected boolean doAddAll(int index, double[] array) {
                 numDoubleBlocks--;
             }
             check();
+            DoubleBlockNode node = currNode;
             while (numDoubleBlocks > 0) {
                 int add = s / numDoubleBlocks;
                 assert (add > 0);
                 IDoubleList sublist = list.getAll(start, add);
                 DoubleBlock nextDoubleBlock = new DoubleBlock();
-                nextDoubleBlock.values.init(sublist);
+                nextDoubleBlock.values.clear();
+                nextDoubleBlock.values.addAll(sublist);
                 start += add;
                 assert (nextDoubleBlock.values.size() == add);
                 s -= add;
-                end += add;
                 addDoubleBlock(end, nextDoubleBlock);
+                assert (node.next().block == nextDoubleBlock);
+                node = node.next();
+                end += add;
                 size += add;
                 numDoubleBlocks--;
                 check();
@@ -1187,7 +1195,7 @@ protected void doRemoveAll(int index, int len) {
         int len = node.block.size();
         int dstSize = leftNode.getDoubleBlock().size();
         for (int i = 0; i < len; i++) {
-            leftNode.block.values.add(null);
+            leftNode.block.values.add(0);
         }
         DoubleGapList.copy(node.block.values, 0, leftNode.block.values, dstSize, len);
         assert (leftNode.block.values.size() <= blockSize);
@@ -1201,7 +1209,7 @@ protected void doRemoveAll(int index, int len) {
             // Merge with right block   
             int len = node.block.size();
             for (int i = 0; i < len; i++) {
-                rightNode.block.values.add(0, null);
+                rightNode.block.values.add(0, 0);
             }
             DoubleGapList.copy(node.block.values, 0, rightNode.block.values, 0, len);
             assert (rightNode.block.values.size() <= blockSize);
@@ -1289,7 +1297,7 @@ public int binarySearch(int index, int len, double key) {
     if (isOnlyRootDoubleBlock()) {
         return currDoubleBlock.values.binarySearch(key);
     } else {
-        return Collections.binarySearch((IDoubleList) this, key);
+        return DoubleBinarySearch.binarySearch(this, key, 0, size());
     }
 }
 
@@ -1298,7 +1306,7 @@ public int binarySearch(int index, int len, double key) {
 }
 
     public DoubleBlockNode access(final int index, int modify) {
-    return root.access(index, modify, false);
+    return root.access(this, index, modify, false);
 }
 
     //-----------------------------------------------------------------------  
@@ -1377,7 +1385,7 @@ private void readObject(ObjectInputStream ois) throws IOException, ClassNotFound
      * The Faedelung calculation stores a flag for both the left and right child
      * to indicate if they are a child (false) or a link as in linked list (true).
      */
-    class DoubleBlockNode {
+    static class DoubleBlockNode {
 
         DoubleBlockNode parent;
 
@@ -1438,7 +1446,7 @@ public void setDoubleBlock(DoubleBlock obj) {
     this.block = obj;
 }
 
-        private DoubleBlockNode access(final int index, int modify, boolean wasLeft) {
+        private DoubleBlockNode access(DoubleBigList list, int index, int modify, boolean wasLeft) {
     assert (index >= 0);
     if (relativePosition == 0) {
         if (modify != 0) {
@@ -1446,13 +1454,13 @@ public void setDoubleBlock(DoubleBlock obj) {
         }
         return this;
     }
-    if (currDoubleBlockEnd == 0) {
-        currDoubleBlockEnd = relativePosition;
+    if (list.currDoubleBlockEnd == 0) {
+        list.currDoubleBlockEnd = relativePosition;
     }
     DoubleBlockNode leftNode = getLeftSubTree();
-    int leftIndex = currDoubleBlockEnd - block.size();
+    int leftIndex = list.currDoubleBlockEnd - block.size();
     assert (leftIndex >= 0);
-    if (index >= leftIndex && index < currDoubleBlockEnd) {
+    if (index >= leftIndex && index < list.currDoubleBlockEnd) {
         if (relativePosition > 0) {
             relativePosition += modify;
             if (leftNode != null) {
@@ -1465,7 +1473,7 @@ public void setDoubleBlock(DoubleBlock obj) {
         }
         return this;
     }
-    if (index < currDoubleBlockEnd) {
+    if (index < list.currDoubleBlockEnd) {
         // left   
         DoubleBlockNode nextNode = getLeftSubTree();
         if (nextNode == null || !wasLeft) {
@@ -1479,8 +1487,8 @@ public void setDoubleBlock(DoubleBlock obj) {
         if (nextNode == null) {
             return this;
         }
-        currDoubleBlockEnd += nextNode.relativePosition;
-        return nextNode.access(index, modify, wasLeft);
+        list.currDoubleBlockEnd += nextNode.relativePosition;
+        return nextNode.access(list, index, modify, wasLeft);
     } else {
         // right   
         DoubleBlockNode nextNode = getRightSubTree();
@@ -1499,8 +1507,8 @@ public void setDoubleBlock(DoubleBlock obj) {
         if (nextNode == null) {
             return this;
         }
-        currDoubleBlockEnd += nextNode.relativePosition;
-        return nextNode.access(index, modify, wasLeft);
+        list.currDoubleBlockEnd += nextNode.relativePosition;
+        return nextNode.access(list, index, modify, wasLeft);
     }
 }
 

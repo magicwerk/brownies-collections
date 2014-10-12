@@ -6,9 +6,7 @@ import java.util.List;
 
 import org.magicwerk.brownies.collections.helper.ArraysHelper;
 import org.magicwerk.brownies.collections.helper.NaturalComparator;
-import org.magicwerk.brownies.collections.helper.SortedLists.KeyAbsentBehavior;
-import org.magicwerk.brownies.collections.helper.SortedLists.KeyPresentBehavior;
-import org.magicwerk.brownies.collections.primitive.IIntList;
+import org.magicwerk.brownies.collections.primitive.IDoubleList;
 
 
 /**
@@ -17,7 +15,7 @@ import org.magicwerk.brownies.collections.primitive.IIntList;
  * @author Thomas Mauch
  * @version $Id$
  */
-public class BinarySearch {
+public class DoubleBinarySearch {
   /**
    * Searches the specified list for the specified object using the binary search algorithm. The
    * list must be sorted into ascending order according to the specified comparator (as by the
@@ -41,7 +39,7 @@ public class BinarySearch {
    * @return the index determined by the {@code KeyPresentBehavior}, if the key is in the list;
    *         otherwise the index determined by the {@code KeyAbsentBehavior}.
    */
-  public static int binarySearch(IIntList list, int key, int lower, int upper) {
+  public static int binarySearch(IDoubleList list, double key, int lower, int upper) {
     while (lower <= upper) {
       int middle = (lower + upper) >>> 1;
       int c = ArraysHelper.compare(key, list.get(middle));

@@ -1,6 +1,6 @@
 package org.magicwerk.brownies.collections.primitive;
 import org.magicwerk.brownies.collections.helper.ArraysHelper;
-import org.magicwerk.brownies.collections.helper.primitive.BinarySearch;
+import org.magicwerk.brownies.collections.helper.primitive.IntBinarySearch;
 import org.magicwerk.brownies.collections.GapList;
 import org.magicwerk.brownies.collections.BigList;
 
@@ -22,25 +22,25 @@ import org.magicwerk.brownies.collections.helper.primitive.IntMergeSort;
  * because of GC usage.
  *
  * @author Thomas Mauch
- * @version $Id: IntBigList.java 2477 2014-10-08 23:47:35Z origo $
+ * @version $Id: IntBigList.java 2492 2014-10-11 15:18:58Z origo $
  */
 public class IntBigList extends IIntList {
 	public static IIntList of(int[] values) {
-		return new ImmutableIntListArrayInt(values);
+		return new ImmutableIntListArrayPrimitive(values);
 	}
 
 	public static IIntList of(Integer[] values) {
-		return new ImmutableIntListArrayInteger(values);
+		return new ImmutableIntListArrayWrapper(values);
 	}
 
 	public static IIntList of(List<Integer> values) {
-		return new ImmutableIntListListInteger(values);
+		return new ImmutableIntListList(values);
 	}
 
-    static class ImmutableIntListArrayInt extends ImmutableIntList {
+    static class ImmutableIntListArrayPrimitive extends ImmutableIntList {
     	int[] values;
 
-    	public ImmutableIntListArrayInt(int[] values) {
+    	public ImmutableIntListArrayPrimitive(int[] values) {
     		this.values = values;
     	}
 
@@ -55,10 +55,10 @@ public class IntBigList extends IIntList {
 		}
     }
 
-    static class ImmutableIntListArrayInteger extends ImmutableIntList {
+    static class ImmutableIntListArrayWrapper extends ImmutableIntList {
     	Integer[] values;
 
-    	public ImmutableIntListArrayInteger(Integer[] values) {
+    	public ImmutableIntListArrayWrapper(Integer[] values) {
     		this.values = values;
     	}
 
@@ -73,10 +73,10 @@ public class IntBigList extends IIntList {
 		}
     }
 
-    static class ImmutableIntListListInteger extends ImmutableIntList {
+    static class ImmutableIntListList extends ImmutableIntList {
     	List<Integer> values;
 
-    	public ImmutableIntListListInteger(List<Integer> values) {
+    	public ImmutableIntListList(List<Integer> values) {
     		this.values = values;
     	}
 
@@ -102,7 +102,7 @@ public class IntBigList extends IIntList {
 
 		@Override
 		public int binarySearch(int index, int len, int key) {
-			return BinarySearch.binarySearch(this, key, index, index+len);
+			return IntBinarySearch.binarySearch(this, key, index, index+len);
 		}
 
 		@Override
@@ -427,6 +427,9 @@ public IntBigList(){
 	 * @param blockSize block size
 	 */
 public IntBigList(int blockSize){
+    if (blockSize < 2) {
+        throw new IndexOutOfBoundsException("Invalid blockSize: " + blockSize);
+    }
     doInit(blockSize, -1);
 }
 
@@ -438,8 +441,8 @@ public IntBigList(int blockSize){
         blockSize = BLOCK_SIZE;
         currIntBlock = new IntBlock();
         addIntBlock(0, currIntBlock);
-        for (int elem : that.toArray()) {
-            add((E) elem);
+        for (Object obj : that.toArray()) {
+            add((Integer) obj);
         }
         assert (size() == that.size());
     }
@@ -619,7 +622,7 @@ private int getIntBlockIndex(int index, boolean write, int modify) {
         }
         if (modify != 0) {
             currNode.relativePosition += modify;
-            IntBigList.IntBlockNode leftNode = currNode.getLeftSubTree();
+            IntBlockNode leftNode = currNode.getLeftSubTree();
             if (leftNode != null) {
                 leftNode.relativePosition -= modify;
             }
@@ -686,10 +689,7 @@ private int getIntBlockIndex(int index, boolean write, int modify) {
 }
 
     void check() {
-    if (true) {
-        return;
-    }
-    //TODO   
+    //if (true) {return; } //TODO   
     if (currNode != null) {
         assert (currNode.block == currIntBlock);
         assert (currIntBlockStart >= 0 && currIntBlockEnd <= size && currIntBlockStart <= currIntBlockEnd);
@@ -765,17 +765,20 @@ protected boolean doAdd(int index, int element) {
     int pos = getIntBlockIndex(index, true, 1);
     // If there is still place in the current block: insert in current block   
     int maxSize = (index == size || index == 0) ? blockSize * 9 / 10 : blockSize;
-    if (currIntBlock.size() < maxSize) {
+    // The second part of the condition is a work around to handle the case of insertion as position 0 correctly   
+    // where blockSize() is 2 (the new block would then be added after the current one)   
+    if (currIntBlock.size() < maxSize || (currIntBlock.size() == 1 && currIntBlock.size() < blockSize)) {
         currIntBlock.values.doAdd(pos, element);
         currIntBlockEnd++;
     } else {
         // No place any more in current block   
-        IntBlock nextIntBlock = new IntBlock(blockSize);
+        IntBlock newIntBlock = new IntBlock(blockSize);
         if (index == size) {
             // Insert new block at tail   
-            nextIntBlock.values.doAdd(0, element);
+            newIntBlock.values.doAdd(0, element);
+            // Subtract 1 because getIntBlockIndex() has already added 1   
             modify(currNode, -1);
-            addIntBlock(size + 1, nextIntBlock);
+            addIntBlock(size + 1, newIntBlock);
             IntBlockNode lastNode = currNode.next();
             currNode = lastNode;
             currIntBlock = currNode.block;
@@ -783,9 +786,10 @@ protected boolean doAdd(int index, int element) {
             currIntBlockEnd++;
         } else if (index == 0) {
             // Insert new block at head   
-            nextIntBlock.values.doAdd(0, element);
+            newIntBlock.values.doAdd(0, element);
+            // Subtract 1 because getIntBlockIndex() has already added 1   
             modify(currNode, -1);
-            addIntBlock(1, nextIntBlock);
+            addIntBlock(1, newIntBlock);
             IntBlockNode firstNode = currNode.previous();
             currNode = firstNode;
             currIntBlock = currNode.block;
@@ -795,12 +799,12 @@ protected boolean doAdd(int index, int element) {
             // Split block for insert   
             int nextIntBlockLen = blockSize / 2;
             int blockLen = blockSize - nextIntBlockLen;
-            nextIntBlock.values.init(nextIntBlockLen, null);
-            IntGapList.copy(currIntBlock.values, blockLen, nextIntBlock.values, 0, nextIntBlockLen);
+            newIntBlock.values.init(nextIntBlockLen, 0);
+            IntGapList.copy(currIntBlock.values, blockLen, newIntBlock.values, 0, nextIntBlockLen);
             currIntBlock.values.remove(blockLen, blockSize - blockLen);
             // Subtract 1 more because getIntBlockIndex() has already added 1   
             modify(currNode, -nextIntBlockLen - 1);
-            addIntBlock(currIntBlockEnd - nextIntBlockLen, nextIntBlock);
+            addIntBlock(currIntBlockEnd - nextIntBlockLen, newIntBlock);
             if (pos < blockLen) {
                 // Insert element in first block   
                 currIntBlock.values.doAdd(pos, element);
@@ -1055,17 +1059,21 @@ protected boolean doAddAll(int index, int[] array) {
                 numIntBlocks--;
             }
             check();
+            IntBlockNode node = currNode;
             while (numIntBlocks > 0) {
                 int add = s / numIntBlocks;
                 assert (add > 0);
                 IIntList sublist = list.getAll(start, add);
                 IntBlock nextIntBlock = new IntBlock();
-                nextIntBlock.values.init(sublist);
+                nextIntBlock.values.clear();
+                nextIntBlock.values.addAll(sublist);
                 start += add;
                 assert (nextIntBlock.values.size() == add);
                 s -= add;
-                end += add;
                 addIntBlock(end, nextIntBlock);
+                assert (node.next().block == nextIntBlock);
+                node = node.next();
+                end += add;
                 size += add;
                 numIntBlocks--;
                 check();
@@ -1187,7 +1195,7 @@ protected void doRemoveAll(int index, int len) {
         int len = node.block.size();
         int dstSize = leftNode.getIntBlock().size();
         for (int i = 0; i < len; i++) {
-            leftNode.block.values.add(null);
+            leftNode.block.values.add(0);
         }
         IntGapList.copy(node.block.values, 0, leftNode.block.values, dstSize, len);
         assert (leftNode.block.values.size() <= blockSize);
@@ -1201,7 +1209,7 @@ protected void doRemoveAll(int index, int len) {
             // Merge with right block   
             int len = node.block.size();
             for (int i = 0; i < len; i++) {
-                rightNode.block.values.add(0, null);
+                rightNode.block.values.add(0, 0);
             }
             IntGapList.copy(node.block.values, 0, rightNode.block.values, 0, len);
             assert (rightNode.block.values.size() <= blockSize);
@@ -1289,7 +1297,7 @@ public int binarySearch(int index, int len, int key) {
     if (isOnlyRootIntBlock()) {
         return currIntBlock.values.binarySearch(key);
     } else {
-        return Collections.binarySearch((IIntList) this, key);
+        return IntBinarySearch.binarySearch(this, key, 0, size());
     }
 }
 
@@ -1298,7 +1306,7 @@ public int binarySearch(int index, int len, int key) {
 }
 
     public IntBlockNode access(final int index, int modify) {
-    return root.access(index, modify, false);
+    return root.access(this, index, modify, false);
 }
 
     //-----------------------------------------------------------------------  
@@ -1377,7 +1385,7 @@ private void readObject(ObjectInputStream ois) throws IOException, ClassNotFound
      * The Faedelung calculation stores a flag for both the left and right child
      * to indicate if they are a child (false) or a link as in linked list (true).
      */
-    class IntBlockNode {
+    static class IntBlockNode {
 
         IntBlockNode parent;
 
@@ -1438,7 +1446,7 @@ public void setIntBlock(IntBlock obj) {
     this.block = obj;
 }
 
-        private IntBlockNode access(final int index, int modify, boolean wasLeft) {
+        private IntBlockNode access(IntBigList list, int index, int modify, boolean wasLeft) {
     assert (index >= 0);
     if (relativePosition == 0) {
         if (modify != 0) {
@@ -1446,13 +1454,13 @@ public void setIntBlock(IntBlock obj) {
         }
         return this;
     }
-    if (currIntBlockEnd == 0) {
-        currIntBlockEnd = relativePosition;
+    if (list.currIntBlockEnd == 0) {
+        list.currIntBlockEnd = relativePosition;
     }
     IntBlockNode leftNode = getLeftSubTree();
-    int leftIndex = currIntBlockEnd - block.size();
+    int leftIndex = list.currIntBlockEnd - block.size();
     assert (leftIndex >= 0);
-    if (index >= leftIndex && index < currIntBlockEnd) {
+    if (index >= leftIndex && index < list.currIntBlockEnd) {
         if (relativePosition > 0) {
             relativePosition += modify;
             if (leftNode != null) {
@@ -1465,7 +1473,7 @@ public void setIntBlock(IntBlock obj) {
         }
         return this;
     }
-    if (index < currIntBlockEnd) {
+    if (index < list.currIntBlockEnd) {
         // left   
         IntBlockNode nextNode = getLeftSubTree();
         if (nextNode == null || !wasLeft) {
@@ -1479,8 +1487,8 @@ public void setIntBlock(IntBlock obj) {
         if (nextNode == null) {
             return this;
         }
-        currIntBlockEnd += nextNode.relativePosition;
-        return nextNode.access(index, modify, wasLeft);
+        list.currIntBlockEnd += nextNode.relativePosition;
+        return nextNode.access(list, index, modify, wasLeft);
     } else {
         // right   
         IntBlockNode nextNode = getRightSubTree();
@@ -1499,8 +1507,8 @@ public void setIntBlock(IntBlock obj) {
         if (nextNode == null) {
             return this;
         }
-        currIntBlockEnd += nextNode.relativePosition;
-        return nextNode.access(index, modify, wasLeft);
+        list.currIntBlockEnd += nextNode.relativePosition;
+        return nextNode.access(list, index, modify, wasLeft);
     }
 }
 

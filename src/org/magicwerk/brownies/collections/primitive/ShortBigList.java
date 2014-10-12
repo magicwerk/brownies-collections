@@ -1,6 +1,6 @@
 package org.magicwerk.brownies.collections.primitive;
 import org.magicwerk.brownies.collections.helper.ArraysHelper;
-import org.magicwerk.brownies.collections.helper.primitive.BinarySearch;
+import org.magicwerk.brownies.collections.helper.primitive.ShortBinarySearch;
 import org.magicwerk.brownies.collections.GapList;
 import org.magicwerk.brownies.collections.BigList;
 
@@ -22,25 +22,25 @@ import org.magicwerk.brownies.collections.helper.primitive.ShortMergeSort;
  * because of GC usage.
  *
  * @author Thomas Mauch
- * @version $Id: ShortBigList.java 2477 2014-10-08 23:47:35Z origo $
+ * @version $Id: ShortBigList.java 2492 2014-10-11 15:18:58Z origo $
  */
 public class ShortBigList extends IShortList {
-	public static IIntList of(int[] values) {
-		return new ImmutableIntListArrayInt(values);
+	public static IShortList of(short[] values) {
+		return new ImmutableShortListArrayPrimitive(values);
 	}
 
-	public static IIntList of(Integer[] values) {
-		return new ImmutableIntListArrayInteger(values);
+	public static IShortList of(Short[] values) {
+		return new ImmutableShortListArrayWrapper(values);
 	}
 
-	public static IIntList of(List<Integer> values) {
-		return new ImmutableIntListListInteger(values);
+	public static IShortList of(List<Short> values) {
+		return new ImmutableShortListList(values);
 	}
 
-    static class ImmutableIntListArrayInt extends ImmutableIntList {
-    	int[] values;
+    static class ImmutableShortListArrayPrimitive extends ImmutableShortList {
+    	short[] values;
 
-    	public ImmutableIntListArrayInt(int[] values) {
+    	public ImmutableShortListArrayPrimitive(short[] values) {
     		this.values = values;
     	}
 
@@ -50,15 +50,15 @@ public class ShortBigList extends IShortList {
 		}
 
 		@Override
-		protected int doGet(int index) {
+		protected short doGet(int index) {
 			return values[index];
 		}
     }
 
-    static class ImmutableIntListArrayInteger extends ImmutableIntList {
-    	Integer[] values;
+    static class ImmutableShortListArrayWrapper extends ImmutableShortList {
+    	Short[] values;
 
-    	public ImmutableIntListArrayInteger(Integer[] values) {
+    	public ImmutableShortListArrayWrapper(Short[] values) {
     		this.values = values;
     	}
 
@@ -68,15 +68,15 @@ public class ShortBigList extends IShortList {
 		}
 
 		@Override
-		protected int doGet(int index) {
+		protected short doGet(int index) {
 			return values[index];
 		}
     }
 
-    static class ImmutableIntListListInteger extends ImmutableIntList {
-    	List<Integer> values;
+    static class ImmutableShortListList extends ImmutableShortList {
+    	List<Short> values;
 
-    	public ImmutableIntListListInteger(List<Integer> values) {
+    	public ImmutableShortListList(List<Short> values) {
     		this.values = values;
     	}
 
@@ -86,12 +86,12 @@ public class ShortBigList extends IShortList {
 		}
 
 		@Override
-		protected int doGet(int index) {
+		protected short doGet(int index) {
 			return values.get(index);
 		}
     }
 
-    protected static abstract class ImmutableIntList extends IIntList {
+    protected static abstract class ImmutableShortList extends IShortList {
 
     	//-- Readers
 
@@ -101,18 +101,18 @@ public class ShortBigList extends IShortList {
 		}
 
 		@Override
-		public int binarySearch(int index, int len, int key) {
-			return BinarySearch.binarySearch(this, key, index, index+len);
+		public int binarySearch(int index, int len, short key) {
+			return ShortBinarySearch.binarySearch(this, key, index, index+len);
 		}
 
 		@Override
-		public IIntList unmodifiableList() {
+		public IShortList unmodifiableList() {
 			return this;
 		}
 
 		@Override
-		protected int getDefaultElem() {
-			return 0;
+		protected short getDefaultElem() {
+			return (short) 0;
 		}
 
         /**
@@ -140,24 +140,24 @@ public class ShortBigList extends IShortList {
         }
 
 		@Override
-		protected void doClone(IIntList that) {
+		protected void doClone(IShortList that) {
 			error();
 		}
 
 		@Override
-		protected int doSet(int index, int elem) {
+		protected short doSet(int index, short elem) {
 			error();
-			return 0;
+			return (short) 0;
 		}
 
 		@Override
-		protected int doReSet(int index, int elem) {
+		protected short doReSet(int index, short elem) {
 			error();
-			return 0;
+			return (short) 0;
 		}
 
 		@Override
-		protected boolean doAdd(int index, int elem) {
+		protected boolean doAdd(int index, short elem) {
 			error();
 			return false;
 		}
@@ -173,20 +173,20 @@ public class ShortBigList extends IShortList {
 		}
 
 		@Override
-		protected IIntList doCreate(int capacity) {
+		protected IShortList doCreate(int capacity) {
 			error();
 			return null;
 		}
 
 		@Override
-		protected void doAssign(IIntList that) {
+		protected void doAssign(IShortList that) {
 			error();
 		}
 
 		@Override
-		protected int doRemove(int index) {
+		protected short doRemove(int index) {
 			error();
-			return 0;
+			return (short) 0;
 		}
 
 		@Override
@@ -427,6 +427,9 @@ public ShortBigList(){
 	 * @param blockSize block size
 	 */
 public ShortBigList(int blockSize){
+    if (blockSize < 2) {
+        throw new IndexOutOfBoundsException("Invalid blockSize: " + blockSize);
+    }
     doInit(blockSize, -1);
 }
 
@@ -438,8 +441,8 @@ public ShortBigList(int blockSize){
         blockSize = BLOCK_SIZE;
         currShortBlock = new ShortBlock();
         addShortBlock(0, currShortBlock);
-        for (short elem : that.toArray()) {
-            add((E) elem);
+        for (Object obj : that.toArray()) {
+            add((Short) obj);
         }
         assert (size() == that.size());
     }
@@ -619,7 +622,7 @@ private int getShortBlockIndex(int index, boolean write, int modify) {
         }
         if (modify != 0) {
             currNode.relativePosition += modify;
-            ShortBigList.ShortBlockNode leftNode = currNode.getLeftSubTree();
+            ShortBlockNode leftNode = currNode.getLeftSubTree();
             if (leftNode != null) {
                 leftNode.relativePosition -= modify;
             }
@@ -686,10 +689,7 @@ private int getShortBlockIndex(int index, boolean write, int modify) {
 }
 
     void check() {
-    if (true) {
-        return;
-    }
-    //TODO   
+    //if (true) {return; } //TODO   
     if (currNode != null) {
         assert (currNode.block == currShortBlock);
         assert (currShortBlockStart >= 0 && currShortBlockEnd <= size && currShortBlockStart <= currShortBlockEnd);
@@ -765,17 +765,20 @@ protected boolean doAdd(int index, short element) {
     int pos = getShortBlockIndex(index, true, 1);
     // If there is still place in the current block: insert in current block   
     int maxSize = (index == size || index == 0) ? blockSize * 9 / 10 : blockSize;
-    if (currShortBlock.size() < maxSize) {
+    // The second part of the condition is a work around to handle the case of insertion as position 0 correctly   
+    // where blockSize() is 2 (the new block would then be added after the current one)   
+    if (currShortBlock.size() < maxSize || (currShortBlock.size() == 1 && currShortBlock.size() < blockSize)) {
         currShortBlock.values.doAdd(pos, element);
         currShortBlockEnd++;
     } else {
         // No place any more in current block   
-        ShortBlock nextShortBlock = new ShortBlock(blockSize);
+        ShortBlock newShortBlock = new ShortBlock(blockSize);
         if (index == size) {
             // Insert new block at tail   
-            nextShortBlock.values.doAdd(0, element);
+            newShortBlock.values.doAdd(0, element);
+            // Subtract 1 because getShortBlockIndex() has already added 1   
             modify(currNode, -1);
-            addShortBlock(size + 1, nextShortBlock);
+            addShortBlock(size + 1, newShortBlock);
             ShortBlockNode lastNode = currNode.next();
             currNode = lastNode;
             currShortBlock = currNode.block;
@@ -783,9 +786,10 @@ protected boolean doAdd(int index, short element) {
             currShortBlockEnd++;
         } else if (index == 0) {
             // Insert new block at head   
-            nextShortBlock.values.doAdd(0, element);
+            newShortBlock.values.doAdd(0, element);
+            // Subtract 1 because getShortBlockIndex() has already added 1   
             modify(currNode, -1);
-            addShortBlock(1, nextShortBlock);
+            addShortBlock(1, newShortBlock);
             ShortBlockNode firstNode = currNode.previous();
             currNode = firstNode;
             currShortBlock = currNode.block;
@@ -795,12 +799,12 @@ protected boolean doAdd(int index, short element) {
             // Split block for insert   
             int nextShortBlockLen = blockSize / 2;
             int blockLen = blockSize - nextShortBlockLen;
-            nextShortBlock.values.init(nextShortBlockLen, null);
-            ShortGapList.copy(currShortBlock.values, blockLen, nextShortBlock.values, 0, nextShortBlockLen);
+            newShortBlock.values.init(nextShortBlockLen, (short) 0);
+            ShortGapList.copy(currShortBlock.values, blockLen, newShortBlock.values, 0, nextShortBlockLen);
             currShortBlock.values.remove(blockLen, blockSize - blockLen);
             // Subtract 1 more because getShortBlockIndex() has already added 1   
             modify(currNode, -nextShortBlockLen - 1);
-            addShortBlock(currShortBlockEnd - nextShortBlockLen, nextShortBlock);
+            addShortBlock(currShortBlockEnd - nextShortBlockLen, newShortBlock);
             if (pos < blockLen) {
                 // Insert element in first block   
                 currShortBlock.values.doAdd(pos, element);
@@ -1055,17 +1059,21 @@ protected boolean doAddAll(int index, short[] array) {
                 numShortBlocks--;
             }
             check();
+            ShortBlockNode node = currNode;
             while (numShortBlocks > 0) {
                 int add = s / numShortBlocks;
                 assert (add > 0);
                 IShortList sublist = list.getAll(start, add);
                 ShortBlock nextShortBlock = new ShortBlock();
-                nextShortBlock.values.init(sublist);
+                nextShortBlock.values.clear();
+                nextShortBlock.values.addAll(sublist);
                 start += add;
                 assert (nextShortBlock.values.size() == add);
                 s -= add;
-                end += add;
                 addShortBlock(end, nextShortBlock);
+                assert (node.next().block == nextShortBlock);
+                node = node.next();
+                end += add;
                 size += add;
                 numShortBlocks--;
                 check();
@@ -1187,7 +1195,7 @@ protected void doRemoveAll(int index, int len) {
         int len = node.block.size();
         int dstSize = leftNode.getShortBlock().size();
         for (int i = 0; i < len; i++) {
-            leftNode.block.values.add(null);
+            leftNode.block.values.add((short) 0);
         }
         ShortGapList.copy(node.block.values, 0, leftNode.block.values, dstSize, len);
         assert (leftNode.block.values.size() <= blockSize);
@@ -1201,7 +1209,7 @@ protected void doRemoveAll(int index, int len) {
             // Merge with right block   
             int len = node.block.size();
             for (int i = 0; i < len; i++) {
-                rightNode.block.values.add(0, null);
+                rightNode.block.values.add(0, (short) 0);
             }
             ShortGapList.copy(node.block.values, 0, rightNode.block.values, 0, len);
             assert (rightNode.block.values.size() <= blockSize);
@@ -1289,7 +1297,7 @@ public int binarySearch(int index, int len, short key) {
     if (isOnlyRootShortBlock()) {
         return currShortBlock.values.binarySearch(key);
     } else {
-        return Collections.binarySearch((IShortList) this, key);
+        return ShortBinarySearch.binarySearch(this, key, 0, size());
     }
 }
 
@@ -1298,7 +1306,7 @@ public int binarySearch(int index, int len, short key) {
 }
 
     public ShortBlockNode access(final int index, int modify) {
-    return root.access(index, modify, false);
+    return root.access(this, index, modify, false);
 }
 
     //-----------------------------------------------------------------------  
@@ -1377,7 +1385,7 @@ private void readObject(ObjectInputStream ois) throws IOException, ClassNotFound
      * The Faedelung calculation stores a flag for both the left and right child
      * to indicate if they are a child (false) or a link as in linked list (true).
      */
-    class ShortBlockNode {
+    static class ShortBlockNode {
 
         ShortBlockNode parent;
 
@@ -1438,7 +1446,7 @@ public void setShortBlock(ShortBlock obj) {
     this.block = obj;
 }
 
-        private ShortBlockNode access(final int index, int modify, boolean wasLeft) {
+        private ShortBlockNode access(ShortBigList list, int index, int modify, boolean wasLeft) {
     assert (index >= 0);
     if (relativePosition == 0) {
         if (modify != 0) {
@@ -1446,13 +1454,13 @@ public void setShortBlock(ShortBlock obj) {
         }
         return this;
     }
-    if (currShortBlockEnd == 0) {
-        currShortBlockEnd = relativePosition;
+    if (list.currShortBlockEnd == 0) {
+        list.currShortBlockEnd = relativePosition;
     }
     ShortBlockNode leftNode = getLeftSubTree();
-    int leftIndex = currShortBlockEnd - block.size();
+    int leftIndex = list.currShortBlockEnd - block.size();
     assert (leftIndex >= 0);
-    if (index >= leftIndex && index < currShortBlockEnd) {
+    if (index >= leftIndex && index < list.currShortBlockEnd) {
         if (relativePosition > 0) {
             relativePosition += modify;
             if (leftNode != null) {
@@ -1465,7 +1473,7 @@ public void setShortBlock(ShortBlock obj) {
         }
         return this;
     }
-    if (index < currShortBlockEnd) {
+    if (index < list.currShortBlockEnd) {
         // left   
         ShortBlockNode nextNode = getLeftSubTree();
         if (nextNode == null || !wasLeft) {
@@ -1479,8 +1487,8 @@ public void setShortBlock(ShortBlock obj) {
         if (nextNode == null) {
             return this;
         }
-        currShortBlockEnd += nextNode.relativePosition;
-        return nextNode.access(index, modify, wasLeft);
+        list.currShortBlockEnd += nextNode.relativePosition;
+        return nextNode.access(list, index, modify, wasLeft);
     } else {
         // right   
         ShortBlockNode nextNode = getRightSubTree();
@@ -1499,8 +1507,8 @@ public void setShortBlock(ShortBlock obj) {
         if (nextNode == null) {
             return this;
         }
-        currShortBlockEnd += nextNode.relativePosition;
-        return nextNode.access(index, modify, wasLeft);
+        list.currShortBlockEnd += nextNode.relativePosition;
+        return nextNode.access(list, index, modify, wasLeft);
     }
 }
 
