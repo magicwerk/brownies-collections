@@ -22,7 +22,7 @@ import org.magicwerk.brownies.collections.helper.primitive.CharMergeSort;
  * because of GC usage.
  *
  * @author Thomas Mauch
- * @version $Id: CharBigList.java 2492 2014-10-11 15:18:58Z origo $
+ * @version $Id: CharBigList.java 2493 2014-10-12 00:40:31Z origo $
  */
 public class CharBigList extends ICharList {
 	public static ICharList of(char[] values) {
@@ -1686,7 +1686,7 @@ public CharBlockNode removeSelf() {
 
         public CharBlockNode doRemoveSelf() {
     if (getRightSubTree() == null && getLeftSubTree() == null) {
-        return (char) 0;
+        return null;
     }
     if (getRightSubTree() == null) {
         if (relativePosition > 0) {
@@ -1903,6 +1903,6 @@ public String toString() {
 
 	public void init(String str) {
 		char[] array = str.toCharArray();
-		init(array, array.length);
+		init(array);
 	}
 }

@@ -22,7 +22,7 @@ import org.magicwerk.brownies.collections.helper.primitive.BooleanMergeSort;
  * because of GC usage.
  *
  * @author Thomas Mauch
- * @version $Id: BooleanBigList.java 2492 2014-10-11 15:18:58Z origo $
+ * @version $Id: BooleanBigList.java 2493 2014-10-12 00:40:31Z origo $
  */
 public class BooleanBigList extends IBooleanList {
 	public static IBooleanList of(boolean[] values) {

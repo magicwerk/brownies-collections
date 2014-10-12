@@ -22,7 +22,7 @@ import org.magicwerk.brownies.collections.helper.primitive.LongMergeSort;
  * because of GC usage.
  *
  * @author Thomas Mauch
- * @version $Id: LongBigList.java 2492 2014-10-11 15:18:58Z origo $
+ * @version $Id: LongBigList.java 2493 2014-10-12 00:40:31Z origo $
  */
 public class LongBigList extends ILongList {
 	public static ILongList of(long[] values) {
