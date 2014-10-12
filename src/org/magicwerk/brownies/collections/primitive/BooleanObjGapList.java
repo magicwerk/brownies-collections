@@ -86,12 +86,10 @@ public class BooleanObjGapList extends IList<Boolean> {
 		return new BooleanObjGapList();
 	}
 
-	public static BooleanObjGapList create(int capacity) {
-		return new BooleanObjGapList(capacity);
-	}
-
 	public static BooleanObjGapList create(Boolean... elems) {
-		return new BooleanObjGapList(elems);
+		BooleanObjGapList list = new BooleanObjGapList();
+		list.init(elems);
+		return list;
 	}
 
 	public static BooleanObjGapList create(Collection<? extends Boolean> elems) {
@@ -108,10 +106,6 @@ public class BooleanObjGapList extends IList<Boolean> {
 
 	public BooleanObjGapList(int capacity) {
 		list = new BooleanGapList(capacity);
-	}
-
-	public BooleanObjGapList(Boolean... elems) {
-		init(elems);
 	}
 
 	public void init(Boolean... elems) {

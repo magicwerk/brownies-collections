@@ -86,12 +86,10 @@ public class CharObjGapList extends IList<Character> {
 		return new CharObjGapList();
 	}
 
-	public static CharObjGapList create(int capacity) {
-		return new CharObjGapList(capacity);
-	}
-
 	public static CharObjGapList create(Character... elems) {
-		return new CharObjGapList(elems);
+		CharObjGapList list = new CharObjGapList();
+		list.init(elems);
+		return list;
 	}
 
 	public static CharObjGapList create(Collection<? extends Character> elems) {
@@ -108,10 +106,6 @@ public class CharObjGapList extends IList<Character> {
 
 	public CharObjGapList(int capacity) {
 		list = new CharGapList(capacity);
-	}
-
-	public CharObjGapList(Character... elems) {
-		init(elems);
 	}
 
 	public void init(Character... elems) {
