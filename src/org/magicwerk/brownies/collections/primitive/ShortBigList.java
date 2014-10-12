@@ -22,7 +22,7 @@ import org.magicwerk.brownies.collections.helper.primitive.ShortMergeSort;
  * because of GC usage.
  *
  * @author Thomas Mauch
- * @version $Id: ShortBigList.java 2492 2014-10-11 15:18:58Z origo $
+ * @version $Id: ShortBigList.java 2493 2014-10-12 00:40:31Z origo $
  */
 public class ShortBigList extends IShortList {
 	public static IShortList of(short[] values) {
@@ -1686,7 +1686,7 @@ public ShortBlockNode removeSelf() {
 
         public ShortBlockNode doRemoveSelf() {
     if (getRightSubTree() == null && getLeftSubTree() == null) {
-        return (short) 0;
+        return null;
     }
     if (getRightSubTree() == null) {
         if (relativePosition > 0) {

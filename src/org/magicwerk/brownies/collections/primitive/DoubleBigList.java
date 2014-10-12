@@ -22,7 +22,7 @@ import org.magicwerk.brownies.collections.helper.primitive.DoubleMergeSort;
  * because of GC usage.
  *
  * @author Thomas Mauch
- * @version $Id: DoubleBigList.java 2492 2014-10-11 15:18:58Z origo $
+ * @version $Id: DoubleBigList.java 2493 2014-10-12 00:40:31Z origo $
  */
 public class DoubleBigList extends IDoubleList {
 	public static IDoubleList of(double[] values) {

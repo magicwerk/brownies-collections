@@ -22,7 +22,7 @@ import org.magicwerk.brownies.collections.helper.primitive.ByteMergeSort;
  * because of GC usage.
  *
  * @author Thomas Mauch
- * @version $Id: ByteBigList.java 2492 2014-10-11 15:18:58Z origo $
+ * @version $Id: ByteBigList.java 2493 2014-10-12 00:40:31Z origo $
  */
 public class ByteBigList extends IByteList {
 	public static IByteList of(byte[] values) {
@@ -1686,7 +1686,7 @@ public ByteBlockNode removeSelf() {
 
         public ByteBlockNode doRemoveSelf() {
     if (getRightSubTree() == null && getLeftSubTree() == null) {
-        return (byte) 0;
+        return null;
     }
     if (getRightSubTree() == null) {
         if (relativePosition > 0) {
