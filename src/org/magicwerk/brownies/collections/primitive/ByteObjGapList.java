@@ -86,12 +86,10 @@ public class ByteObjGapList extends IList<Byte> {
 		return new ByteObjGapList();
 	}
 
-	public static ByteObjGapList create(int capacity) {
-		return new ByteObjGapList(capacity);
-	}
-
 	public static ByteObjGapList create(Byte... elems) {
-		return new ByteObjGapList(elems);
+		ByteObjGapList list = new ByteObjGapList();
+		list.init(elems);
+		return list;
 	}
 
 	public static ByteObjGapList create(Collection<? extends Byte> elems) {
@@ -108,10 +106,6 @@ public class ByteObjGapList extends IList<Byte> {
 
 	public ByteObjGapList(int capacity) {
 		list = new ByteGapList(capacity);
-	}
-
-	public ByteObjGapList(Byte... elems) {
-		init(elems);
 	}
 
 	public void init(Byte... elems) {

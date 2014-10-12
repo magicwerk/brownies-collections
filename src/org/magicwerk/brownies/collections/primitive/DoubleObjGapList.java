@@ -86,12 +86,10 @@ public class DoubleObjGapList extends IList<Double> {
 		return new DoubleObjGapList();
 	}
 
-	public static DoubleObjGapList create(int capacity) {
-		return new DoubleObjGapList(capacity);
-	}
-
 	public static DoubleObjGapList create(Double... elems) {
-		return new DoubleObjGapList(elems);
+		DoubleObjGapList list = new DoubleObjGapList();
+		list.init(elems);
+		return list;
 	}
 
 	public static DoubleObjGapList create(Collection<? extends Double> elems) {
@@ -108,10 +106,6 @@ public class DoubleObjGapList extends IList<Double> {
 
 	public DoubleObjGapList(int capacity) {
 		list = new DoubleGapList(capacity);
-	}
-
-	public DoubleObjGapList(Double... elems) {
-		init(elems);
 	}
 
 	public void init(Double... elems) {

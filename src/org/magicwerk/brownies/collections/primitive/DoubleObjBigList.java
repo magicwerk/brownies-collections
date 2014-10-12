@@ -17,12 +17,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id$
+ * $Id: DoubleObjBigList.java 2200 2014-03-21 10:46:29Z origo $
  */
 package org.magicwerk.brownies.collections.primitive;
 
-import org.magicwerk.brownies.collections.primitive.FloatGapList;
-import org.magicwerk.brownies.collections.GapList;
+import org.magicwerk.brownies.collections.primitive.DoubleBigList;
+import org.magicwerk.brownies.collections.BigList;
 import org.magicwerk.brownies.collections.IList;
 import org.magicwerk.brownies.collections.helper.NaturalComparator;
 
@@ -31,8 +31,8 @@ import java.util.Comparator;
 import java.util.Iterator;
 
 /**
- * FloatObjGapList implements the List interface and uses an instance
- * of FloatGapList for storage. It therefore allows to use the advantages
+ * DoubleObjBigList implements the List interface and uses an instance
+ * of DoubleBigList for storage. It therefore allows to use the advantages
  * of primitive collections like saved memory and improved execution
  * speed when standard list collections are expected.
  * <p>
@@ -40,113 +40,110 @@ import java.util.Iterator;
  * </p>
  *
  * @author Thomas Mauch
- * @version $Id$
+ * @version $Id: DoubleObjBigList.java 2200 2014-03-21 10:46:29Z origo $
  *
- * @see	    org.magicwerk.brownies.collections.GapList
- * @see	    org.magicwerk.brownies.collections.primitive.FloatGapList
+ * @see	    org.magicwerk.brownies.collections.BigList
+ * @see	    org.magicwerk.brownies.collections.primitive.DoubleBigList
  */
-public class FloatObjGapList extends IList<Float> {
+public class DoubleObjBigList extends IList<Double> {
 
-	FloatGapList list;
+	DoubleBigList list;
 
-	static Float[] toWrapper(float[] elems) {
-		Float[] e = new Float[elems.length];
+	static Double[] toWrapper(double[] elems) {
+		Double[] e = new Double[elems.length];
 		for (int i = 0; i < e.length; i++) {
 			e[i] = elems[i];
 		}
 		return e;
 	}
 
-	static float[] toPrimitive(Float[] elems) {
-		float[] e = new float[elems.length];
+	static double[] toPrimitive(Double[] elems) {
+		double[] e = new double[elems.length];
 		for (int i = 0; i < e.length; i++) {
 			e[i] = elems[i];
 		}
 		return e;
 	}
 
-	static float[] toPrimitive(GapList<? extends Float> list2) {
-		float[] e = new float[list2.size()];
+	static double[] toPrimitive(BigList<? extends Double> list2) {
+		double[] e = new double[list2.size()];
 		for (int i = 0; i < e.length; i++) {
 			e[i] = list2.get(i);
 		}
 		return e;
 	}
 
-	static float[] toPrimitive(Collection<? extends Float> list) {
-		float[] e = new float[list.size()];
-		Iterator<? extends Float> iter = list.iterator();
+	static double[] toPrimitive(Collection<? extends Double> list) {
+		double[] e = new double[list.size()];
+		Iterator<? extends Double> iter = list.iterator();
 		for (int i = 0; i < e.length; i++) {
 			e[i] = iter.next();
 		}
 		return e;
 	}
 
-	public static FloatObjGapList create() {
-		return new FloatObjGapList();
+	public static DoubleObjBigList create() {
+		return new DoubleObjBigList();
 	}
 
-	public static FloatObjGapList create(Float... elems) {
-		FloatObjGapList list = new FloatObjGapList();
+	public static DoubleObjBigList create(Double... elems) {
+		DoubleObjBigList list = new DoubleObjBigList();
 		list.init(elems);
 		return list;
 	}
 
-	public static FloatObjGapList create(Collection<? extends Float> elems) {
-		return new FloatObjGapList(elems);
+	public static DoubleObjBigList create(Collection<? extends Double> elems) {
+		return new DoubleObjBigList(elems);
 	}
 
-	public FloatObjGapList() {
+	public DoubleObjBigList() {
 		init();
 	}
 
 	public void init() {
-		list = new FloatGapList();
+		list = new DoubleBigList();
 	}
 
-	public FloatObjGapList(int capacity) {
-		list = new FloatGapList(capacity);
+	public DoubleObjBigList(int capacity) {
+		list = new DoubleBigList(capacity);
 	}
 
-	public void init(Float... elems) {
-		list = FloatGapList.create(toPrimitive(elems));
+	public void init(Double... elems) {
+		list = DoubleBigList.create(toPrimitive(elems));
 	}
 
-	public FloatObjGapList(Collection<? extends Float> elems) {
+	public DoubleObjBigList(Collection<? extends Double> elems) {
 		init(elems);
 	}
 
-	public void init(Collection<? extends Float> elems) {
-		list = FloatGapList.create(toPrimitive(elems));
+	public void init(Collection<? extends Double> elems) {
+		list = DoubleBigList.create(toPrimitive(elems));
 	}
 
 	@Override
-	protected void doClone(IList<Float> that) {
-		list = (FloatGapList) ((FloatObjGapList)that).list.clone();
+	protected void doClone(IList<Double> that) {
+		list = (DoubleBigList) ((DoubleObjBigList)that).list.clone();
 	}
 
 	@Override
-	protected void doAssign(IList<Float> that) {
-		FloatObjGapList list = (FloatObjGapList) that;
+	protected void doAssign(IList<Double> that) {
+		DoubleObjBigList list = (DoubleObjBigList) that;
         this.list = list.list;
 	}
 
 	@Override
-	public FloatObjGapList copy() {
-		return (FloatObjGapList) clone();
+	public DoubleObjBigList copy() {
+		return (DoubleObjBigList) clone();
 	}
 
 	@Override
-	public Float getDefaultElem() {
+	public Double getDefaultElem() {
 		return list.getDefaultElem();
 	}
 
     @Override
-    public IList<Float> doCreate(int capacity) {
-    	if (capacity == -1) {
-    		capacity = GapList.DEFAULT_CAPACITY;
-    	}
-    	return new FloatObjGapList(capacity);
+    public IList<Double> doCreate(int capacity) {
+    	return new DoubleObjBigList();
     }
 
 	@Override
@@ -155,53 +152,53 @@ public class FloatObjGapList extends IList<Float> {
 	}
 
 	/**
-	 * Returns capacity of this GapList.
-	 * Note that two GapLists are considered equal even if they have a distinct capacity.
+	 * Returns capacity of this BigList.
+	 * Note that two BigLists are considered equal even if they have a distinct capacity.
 	 * Also the capacity can be changed by operations like clone() etc.
 	 *
-	 * @return capacity of this GapList
+	 * @return capacity of this BigList
 	 */
 	public int capacity() {
 		return list.capacity();
 	}
 
 	@Override
-	public Float get(int index) {
+	public Double get(int index) {
 		return list.get(index);
 	}
 
 	@Override
-	protected Float doGet(int index) {
+	protected Double doGet(int index) {
 		return list.doGet(index);
 	}
 
 	@Override
 	protected void doGetAll(Object[] elems, int index, int len) {
-		list.doGetAll(toPrimitive((Float[]) elems), index, len);
+		list.doGetAll(toPrimitive((Double[]) elems), index, len);
 	}
 
 	@Override
-	protected boolean doAdd(int index, Float elem) {
+	protected boolean doAdd(int index, Double elem) {
 		return list.doAdd(index, elem);
 	}
 
 	@Override
-	protected boolean doAddAll(int index, Float[] elem) {
+	protected boolean doAddAll(int index, Double[] elem) {
 		return list.doAddAll(index, toPrimitive(elem));
 	}
 
 	@Override
-	protected Float doSet(int index, Float elem) {
+	protected Double doSet(int index, Double elem) {
 		return list.doSet(index, elem);
 	}
 
 	@Override
-	protected void doSetAll(int index, Float[] elem) {
+	protected void doSetAll(int index, Double[] elem) {
 		list.doSetAll(index, toPrimitive(elem));
 	}
 
 	@Override
-	protected Float doRemove(int index) {
+	protected Double doRemove(int index) {
 		return list.doRemove(index);
 	}
 
@@ -211,7 +208,7 @@ public class FloatObjGapList extends IList<Float> {
 	}
 
 	@Override
-	protected Float doReSet(int index, Float elem) {
+	protected Double doReSet(int index, Double elem) {
 		return list.doReSet(index, elem);
 	}
 
@@ -253,26 +250,26 @@ public class FloatObjGapList extends IList<Float> {
 
 	@Override
 	public int indexOf(Object elem) {
-		if (elem == null || elem.getClass() != Float.class) {
+		if (elem == null || elem.getClass() != Double.class) {
 			return -1;
 		}
-		return list.indexOf((Float) elem);
+		return list.indexOf((Double) elem);
 	}
 
 	@Override
 	public int lastIndexOf(Object elem) {
-		if (elem == null || elem.getClass() != Float.class) {
+		if (elem == null || elem.getClass() != Double.class) {
 			return -1;
 		}
-		return list.lastIndexOf((Float) elem);
+		return list.lastIndexOf((Double) elem);
 	}
 
 	@Override
 	public boolean remove(Object elem) {
-		if (elem == null || elem.getClass() != Float.class) {
+		if (elem == null || elem.getClass() != Double.class) {
 			return false;
 		}
-		int index = list.indexOf((Float) elem);
+		int index = list.indexOf((Double) elem);
 		if (index == -1) {
 			return false;
 		}
@@ -282,51 +279,51 @@ public class FloatObjGapList extends IList<Float> {
 
 	@Override
 	public boolean contains(Object elem) {
-		if (elem == null || elem.getClass() != Float.class) {
+		if (elem == null || elem.getClass() != Double.class) {
 			return false;
 		}
-		return list.contains((Float) elem);
+		return list.contains((Double) elem);
 	}
 
 	@Override
 	public boolean containsAny(Collection<?> coll) {
-		return list.containsAny((Collection<Float>) coll);
+		return list.containsAny((Collection<Double>) coll);
 	}
 
 	@Override
 	public boolean containsAll(Collection<?> coll) {
-		return list.containsAll((Collection<Float>) coll);
+		return list.containsAll((Collection<Double>) coll);
 	}
 
 	@Override
 	public boolean removeAll(Collection<?> coll) {
-		return list.removeAll((Collection<Float>) coll);
+		return list.removeAll((Collection<Double>) coll);
 	}
 
 	@Override
 	public boolean removeAll(IList<?> coll) {
-		return list.removeAll((Collection<Float>) coll);
+		return list.removeAll((Collection<Double>) coll);
 	}
 
 	@Override
 	public boolean retainAll(Collection<?> coll) {
-		return list.retainAll((Collection<Float>) coll);
+		return list.retainAll((Collection<Double>) coll);
 	}
 
 	@Override
 	public boolean retainAll(IList<?> coll) {
-		return list.retainAll((Collection<Float>) coll);
+		return list.retainAll((Collection<Double>) coll);
 	}
 
 	@Override
 	public Object[] toArray() {
-		float[] elems = list.toArray();
+		double[] elems = list.toArray();
 		return toWrapper(elems);
 	}
 
 	@Override
 	public Object[] toArray(int index, int len) {
-		float[] elems = list.toArray(index, len);
+		double[] elems = list.toArray(index, len);
 		return toWrapper(elems);
 	}
 
@@ -337,7 +334,7 @@ public class FloatObjGapList extends IList<Float> {
 			array = (T[]) java.lang.reflect.Array.newInstance(array.getClass().getComponentType(), size);
 		}
 		for (int i = 0; i < size; i++) {
-			array[i] = (T) (Float) list.get(i);
+			array[i] = (T) (Double) list.get(i);
 		}
 		if (array.length > size) {
 			array[size] = null;
@@ -346,82 +343,82 @@ public class FloatObjGapList extends IList<Float> {
 	}
 
 	@Override
-	public boolean addAll(Collection<? extends Float> coll) {
-		return list.addAll((Collection<Float>) coll);
+	public boolean addAll(Collection<? extends Double> coll) {
+		return list.addAll((Collection<Double>) coll);
 	}
 
 	@Override
-	public boolean addAll(int index, Collection<? extends Float> coll) {
-		return list.addAll(index, (Collection<Float>) coll);
+	public boolean addAll(int index, Collection<? extends Double> coll) {
+		return list.addAll(index, (Collection<Double>) coll);
 	}
 
 	@Override
-	public boolean addAll(Float... elems) {
-		float[] e = toPrimitive(elems);
+	public boolean addAll(Double... elems) {
+		double[] e = toPrimitive(elems);
 		return list.addAll(e);
 	}
 
 	@Override
-	public boolean addAll(int index, Float... elems) {
-		float[] e = toPrimitive(elems);
+	public boolean addAll(int index, Double... elems) {
+		double[] e = toPrimitive(elems);
 		return list.addAll(index, e);
 	}
 
 	@Override
-	public boolean addAll(IList<? extends Float> list2) {
-		float[] e = toPrimitive(list2);
+	public boolean addAll(IList<? extends Double> list2) {
+		double[] e = toPrimitive(list2);
 		return list.addAll(e);
 	}
 
 	@Override
-	public boolean addAll(int index, IList<? extends Float> list2) {
-		float[] e = toPrimitive(list2);
+	public boolean addAll(int index, IList<? extends Double> list2) {
+		double[] e = toPrimitive(list2);
 		return list.addAll(index, e);
 	}
 
 	@Override
 	public boolean removeFirstOccurrence(Object elem) {
-		if (elem == null || elem.getClass() != Float.class) {
+		if (elem == null || elem.getClass() != Double.class) {
 			return false;
 		}
-		return list.removeFirstOccurrence((Float) elem);
+		return list.removeFirstOccurrence((Double) elem);
 	}
 
 	@Override
 	public boolean removeLastOccurrence(Object elem) {
-		if (elem == null || elem.getClass() != Float.class) {
+		if (elem == null || elem.getClass() != Double.class) {
 			return false;
 		}
-		return list.removeLastOccurrence((Float) elem);
+		return list.removeLastOccurrence((Double) elem);
 	}
 
 	@Override
-	public GapList<Float> getAll(int index, int len) {
-		float[] elems = list.getArray(index, len);
-		return GapList.create(toWrapper(elems));
+	public BigList<Double> getAll(int index, int len) {
+		double[] elems = list.getArray(index, len);
+		return BigList.create(toWrapper(elems));
 	}
 
 	@Override
-	public Float[] getArray(int index, int len) {
-		float[] elems = list.getArray(index, len);
+	public Double[] getArray(int index, int len) {
+		double[] elems = list.getArray(index, len);
 		return toWrapper(elems);
 	}
 
 	@Override
-	public void setAll(int index, IList<? extends Float> list2) {
-		float[] e = toPrimitive(list2);
+	public void setAll(int index, IList<? extends Double> list2) {
+		double[] e = toPrimitive(list2);
 		list.setAll(index, e);
 	}
 
 	@Override
-	public void setAll(int index, Collection<? extends Float> coll) {
-		float[] e = toPrimitive(coll);
+	public void setAll(int index, Collection<? extends Double> coll) {
+		double[] e = toPrimitive(coll);
 		list.setAll(index, e);
 	}
 
 	@Override
-	public void setAll(int index, Float... elems) {
-		float[] e = toPrimitive(elems);
+	public void setAll(int index, Double... elems) {
+		double[] e = toPrimitive(elems);
 		list.setAll(index, e);
 	}
 
@@ -438,19 +435,19 @@ public class FloatObjGapList extends IList<Float> {
 		if (comparator != null && comparator != NaturalComparator.INSTANCE()) {
 			throw new IllegalArgumentException("Only natural comparator (null) allowed");
 		}
-		return list.binarySearch(index, len, (Float) key);
+		return list.binarySearch(index, len, (Double) key);
 	}
 
-    public FloatObjGapList unmodifiableList() {
-        return new ImmutableFloatObjGapList(this);
+    public DoubleObjBigList unmodifiableList() {
+        return new ImmutableDoubleObjBigList(this);
     }
 
     /**
-     * An immutable version of a GapList.
+     * An immutable version of a BigList.
      * Note that the client cannot change the list,
      * but the content may change if the underlying list is changed.
      */
-    protected static class ImmutableFloatObjGapList extends FloatObjGapList {
+    protected static class ImmutableDoubleObjBigList extends DoubleObjBigList {
 
         /** UID for serialization */
         private static final long serialVersionUID = -1352274047348922584L;
@@ -460,41 +457,41 @@ public class FloatObjGapList extends IList<Float> {
          *
          * @param that  list to create an immutable view of
          */
-        protected ImmutableFloatObjGapList(FloatObjGapList that) {
+        protected ImmutableDoubleObjBigList(DoubleObjBigList that) {
             super(that);
         }
 
         @Override
-        protected boolean doAdd(int index, Float elem) {
+        protected boolean doAdd(int index, Double elem) {
         	error();
         	return false;
         }
 
         @Override
-        protected boolean doAddAll(int index, Float[] elems) {
+        protected boolean doAddAll(int index, Double[] elems) {
         	error();
         	return false;
         }
 
         @Override
-        protected Float doSet(int index, Float elem) {
+        protected Double doSet(int index, Double elem) {
         	error();
         	return null;
         }
 
         @Override
-        protected void doSetAll(int index, Float[] elems) {
+        protected void doSetAll(int index, Double[] elems) {
         	error();
         }
 
         @Override
-        protected Float doReSet(int index, Float elem) {
+        protected Double doReSet(int index, Double elem) {
         	error();
         	return null;
         }
 
         @Override
-        protected Float doRemove(int index) {
+        protected Double doRemove(int index) {
         	error();
         	return null;
         }

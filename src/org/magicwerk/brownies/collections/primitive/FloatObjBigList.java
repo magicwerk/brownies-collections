@@ -17,12 +17,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id$
+ * $Id: FloatObjBigList.java 2200 2014-03-21 10:46:29Z origo $
  */
 package org.magicwerk.brownies.collections.primitive;
 
-import org.magicwerk.brownies.collections.primitive.FloatGapList;
-import org.magicwerk.brownies.collections.GapList;
+import org.magicwerk.brownies.collections.primitive.FloatBigList;
+import org.magicwerk.brownies.collections.BigList;
 import org.magicwerk.brownies.collections.IList;
 import org.magicwerk.brownies.collections.helper.NaturalComparator;
 
@@ -31,8 +31,8 @@ import java.util.Comparator;
 import java.util.Iterator;
 
 /**
- * FloatObjGapList implements the List interface and uses an instance
- * of FloatGapList for storage. It therefore allows to use the advantages
+ * FloatObjBigList implements the List interface and uses an instance
+ * of FloatBigList for storage. It therefore allows to use the advantages
  * of primitive collections like saved memory and improved execution
  * speed when standard list collections are expected.
  * <p>
@@ -40,14 +40,14 @@ import java.util.Iterator;
  * </p>
  *
  * @author Thomas Mauch
- * @version $Id$
+ * @version $Id: FloatObjBigList.java 2200 2014-03-21 10:46:29Z origo $
  *
- * @see	    org.magicwerk.brownies.collections.GapList
- * @see	    org.magicwerk.brownies.collections.primitive.FloatGapList
+ * @see	    org.magicwerk.brownies.collections.BigList
+ * @see	    org.magicwerk.brownies.collections.primitive.FloatBigList
  */
-public class FloatObjGapList extends IList<Float> {
+public class FloatObjBigList extends IList<Float> {
 
-	FloatGapList list;
+	FloatBigList list;
 
 	static Float[] toWrapper(float[] elems) {
 		Float[] e = new Float[elems.length];
@@ -65,7 +65,7 @@ public class FloatObjGapList extends IList<Float> {
 		return e;
 	}
 
-	static float[] toPrimitive(GapList<? extends Float> list2) {
+	static float[] toPrimitive(BigList<? extends Float> list2) {
 		float[] e = new float[list2.size()];
 		for (int i = 0; i < e.length; i++) {
 			e[i] = list2.get(i);
@@ -82,58 +82,58 @@ public class FloatObjGapList extends IList<Float> {
 		return e;
 	}
 
-	public static FloatObjGapList create() {
-		return new FloatObjGapList();
+	public static FloatObjBigList create() {
+		return new FloatObjBigList();
 	}
 
-	public static FloatObjGapList create(Float... elems) {
-		FloatObjGapList list = new FloatObjGapList();
+	public static FloatObjBigList create(Float... elems) {
+		FloatObjBigList list = new FloatObjBigList();
 		list.init(elems);
 		return list;
 	}
 
-	public static FloatObjGapList create(Collection<? extends Float> elems) {
-		return new FloatObjGapList(elems);
+	public static FloatObjBigList create(Collection<? extends Float> elems) {
+		return new FloatObjBigList(elems);
 	}
 
-	public FloatObjGapList() {
+	public FloatObjBigList() {
 		init();
 	}
 
 	public void init() {
-		list = new FloatGapList();
+		list = new FloatBigList();
 	}
 
-	public FloatObjGapList(int capacity) {
-		list = new FloatGapList(capacity);
+	public FloatObjBigList(int capacity) {
+		list = new FloatBigList(capacity);
 	}
 
 	public void init(Float... elems) {
-		list = FloatGapList.create(toPrimitive(elems));
+		list = FloatBigList.create(toPrimitive(elems));
 	}
 
-	public FloatObjGapList(Collection<? extends Float> elems) {
+	public FloatObjBigList(Collection<? extends Float> elems) {
 		init(elems);
 	}
 
 	public void init(Collection<? extends Float> elems) {
-		list = FloatGapList.create(toPrimitive(elems));
+		list = FloatBigList.create(toPrimitive(elems));
 	}
 
 	@Override
 	protected void doClone(IList<Float> that) {
-		list = (FloatGapList) ((FloatObjGapList)that).list.clone();
+		list = (FloatBigList) ((FloatObjBigList)that).list.clone();
 	}
 
 	@Override
 	protected void doAssign(IList<Float> that) {
-		FloatObjGapList list = (FloatObjGapList) that;
+		FloatObjBigList list = (FloatObjBigList) that;
         this.list = list.list;
 	}
 
 	@Override
-	public FloatObjGapList copy() {
-		return (FloatObjGapList) clone();
+	public FloatObjBigList copy() {
+		return (FloatObjBigList) clone();
 	}
 
 	@Override
@@ -143,10 +143,7 @@ public class FloatObjGapList extends IList<Float> {
 
     @Override
     public IList<Float> doCreate(int capacity) {
-    	if (capacity == -1) {
-    		capacity = GapList.DEFAULT_CAPACITY;
-    	}
-    	return new FloatObjGapList(capacity);
+    	return new FloatObjBigList();
     }
 
 	@Override
@@ -155,11 +152,11 @@ public class FloatObjGapList extends IList<Float> {
 	}
 
 	/**
-	 * Returns capacity of this GapList.
-	 * Note that two GapLists are considered equal even if they have a distinct capacity.
+	 * Returns capacity of this BigList.
+	 * Note that two BigLists are considered equal even if they have a distinct capacity.
 	 * Also the capacity can be changed by operations like clone() etc.
 	 *
-	 * @return capacity of this GapList
+	 * @return capacity of this BigList
 	 */
 	public int capacity() {
 		return list.capacity();
@@ -396,9 +393,9 @@ public class FloatObjGapList extends IList<Float> {
 	}
 
 	@Override
-	public GapList<Float> getAll(int index, int len) {
+	public BigList<Float> getAll(int index, int len) {
 		float[] elems = list.getArray(index, len);
-		return GapList.create(toWrapper(elems));
+		return BigList.create(toWrapper(elems));
 	}
 
 	@Override
@@ -441,16 +438,16 @@ public class FloatObjGapList extends IList<Float> {
 		return list.binarySearch(index, len, (Float) key);
 	}
 
-    public FloatObjGapList unmodifiableList() {
-        return new ImmutableFloatObjGapList(this);
+    public FloatObjBigList unmodifiableList() {
+        return new ImmutableFloatObjBigList(this);
     }
 
     /**
-     * An immutable version of a GapList.
+     * An immutable version of a BigList.
      * Note that the client cannot change the list,
      * but the content may change if the underlying list is changed.
      */
-    protected static class ImmutableFloatObjGapList extends FloatObjGapList {
+    protected static class ImmutableFloatObjBigList extends FloatObjBigList {
 
         /** UID for serialization */
         private static final long serialVersionUID = -1352274047348922584L;
@@ -460,7 +457,7 @@ public class FloatObjGapList extends IList<Float> {
          *
          * @param that  list to create an immutable view of
          */
-        protected ImmutableFloatObjGapList(FloatObjGapList that) {
+        protected ImmutableFloatObjBigList(FloatObjBigList that) {
             super(that);
         }
 

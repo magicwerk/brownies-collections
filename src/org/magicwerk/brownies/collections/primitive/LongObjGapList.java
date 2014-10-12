@@ -86,12 +86,10 @@ public class LongObjGapList extends IList<Long> {
 		return new LongObjGapList();
 	}
 
-	public static LongObjGapList create(int capacity) {
-		return new LongObjGapList(capacity);
-	}
-
 	public static LongObjGapList create(Long... elems) {
-		return new LongObjGapList(elems);
+		LongObjGapList list = new LongObjGapList();
+		list.init(elems);
+		return list;
 	}
 
 	public static LongObjGapList create(Collection<? extends Long> elems) {
@@ -108,10 +106,6 @@ public class LongObjGapList extends IList<Long> {
 
 	public LongObjGapList(int capacity) {
 		list = new LongGapList(capacity);
-	}
-
-	public LongObjGapList(Long... elems) {
-		init(elems);
 	}
 
 	public void init(Long... elems) {

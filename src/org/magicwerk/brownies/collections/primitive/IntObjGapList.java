@@ -86,12 +86,10 @@ public class IntObjGapList extends IList<Integer> {
 		return new IntObjGapList();
 	}
 
-	public static IntObjGapList create(int capacity) {
-		return new IntObjGapList(capacity);
-	}
-
 	public static IntObjGapList create(Integer... elems) {
-		return new IntObjGapList(elems);
+		IntObjGapList list = new IntObjGapList();
+		list.init(elems);
+		return list;
 	}
 
 	public static IntObjGapList create(Collection<? extends Integer> elems) {
@@ -108,10 +106,6 @@ public class IntObjGapList extends IList<Integer> {
 
 	public IntObjGapList(int capacity) {
 		list = new IntGapList(capacity);
-	}
-
-	public IntObjGapList(Integer... elems) {
-		init(elems);
 	}
 
 	public void init(Integer... elems) {

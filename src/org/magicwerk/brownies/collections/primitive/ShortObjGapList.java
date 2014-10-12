@@ -86,12 +86,10 @@ public class ShortObjGapList extends IList<Short> {
 		return new ShortObjGapList();
 	}
 
-	public static ShortObjGapList create(int capacity) {
-		return new ShortObjGapList(capacity);
-	}
-
 	public static ShortObjGapList create(Short... elems) {
-		return new ShortObjGapList(elems);
+		ShortObjGapList list = new ShortObjGapList();
+		list.init(elems);
+		return list;
 	}
 
 	public static ShortObjGapList create(Collection<? extends Short> elems) {
@@ -108,10 +106,6 @@ public class ShortObjGapList extends IList<Short> {
 
 	public ShortObjGapList(int capacity) {
 		list = new ShortGapList(capacity);
-	}
-
-	public ShortObjGapList(Short... elems) {
-		init(elems);
 	}
 
 	public void init(Short... elems) {
