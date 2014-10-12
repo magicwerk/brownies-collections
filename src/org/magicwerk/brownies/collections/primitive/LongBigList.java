@@ -1,6 +1,6 @@
 package org.magicwerk.brownies.collections.primitive;
 import org.magicwerk.brownies.collections.helper.ArraysHelper;
-import org.magicwerk.brownies.collections.helper.primitive.BinarySearch;
+import org.magicwerk.brownies.collections.helper.primitive.LongBinarySearch;
 import org.magicwerk.brownies.collections.GapList;
 import org.magicwerk.brownies.collections.BigList;
 
@@ -22,25 +22,25 @@ import org.magicwerk.brownies.collections.helper.primitive.LongMergeSort;
  * because of GC usage.
  *
  * @author Thomas Mauch
- * @version $Id: LongBigList.java 2477 2014-10-08 23:47:35Z origo $
+ * @version $Id: LongBigList.java 2492 2014-10-11 15:18:58Z origo $
  */
 public class LongBigList extends ILongList {
-	public static IIntList of(int[] values) {
-		return new ImmutableIntListArrayInt(values);
+	public static ILongList of(long[] values) {
+		return new ImmutableLongListArrayPrimitive(values);
 	}
 
-	public static IIntList of(Integer[] values) {
-		return new ImmutableIntListArrayInteger(values);
+	public static ILongList of(Long[] values) {
+		return new ImmutableLongListArrayWrapper(values);
 	}
 
-	public static IIntList of(List<Integer> values) {
-		return new ImmutableIntListListInteger(values);
+	public static ILongList of(List<Long> values) {
+		return new ImmutableLongListList(values);
 	}
 
-    static class ImmutableIntListArrayInt extends ImmutableIntList {
-    	int[] values;
+    static class ImmutableLongListArrayPrimitive extends ImmutableLongList {
+    	long[] values;
 
-    	public ImmutableIntListArrayInt(int[] values) {
+    	public ImmutableLongListArrayPrimitive(long[] values) {
     		this.values = values;
     	}
 
@@ -50,15 +50,15 @@ public class LongBigList extends ILongList {
 		}
 
 		@Override
-		protected int doGet(int index) {
+		protected long doGet(int index) {
 			return values[index];
 		}
     }
 
-    static class ImmutableIntListArrayInteger extends ImmutableIntList {
-    	Integer[] values;
+    static class ImmutableLongListArrayWrapper extends ImmutableLongList {
+    	Long[] values;
 
-    	public ImmutableIntListArrayInteger(Integer[] values) {
+    	public ImmutableLongListArrayWrapper(Long[] values) {
     		this.values = values;
     	}
 
@@ -68,15 +68,15 @@ public class LongBigList extends ILongList {
 		}
 
 		@Override
-		protected int doGet(int index) {
+		protected long doGet(int index) {
 			return values[index];
 		}
     }
 
-    static class ImmutableIntListListInteger extends ImmutableIntList {
-    	List<Integer> values;
+    static class ImmutableLongListList extends ImmutableLongList {
+    	List<Long> values;
 
-    	public ImmutableIntListListInteger(List<Integer> values) {
+    	public ImmutableLongListList(List<Long> values) {
     		this.values = values;
     	}
 
@@ -86,12 +86,12 @@ public class LongBigList extends ILongList {
 		}
 
 		@Override
-		protected int doGet(int index) {
+		protected long doGet(int index) {
 			return values.get(index);
 		}
     }
 
-    protected static abstract class ImmutableIntList extends IIntList {
+    protected static abstract class ImmutableLongList extends ILongList {
 
     	//-- Readers
 
@@ -101,17 +101,17 @@ public class LongBigList extends ILongList {
 		}
 
 		@Override
-		public int binarySearch(int index, int len, int key) {
-			return BinarySearch.binarySearch(this, key, index, index+len);
+		public int binarySearch(int index, int len, long key) {
+			return LongBinarySearch.binarySearch(this, key, index, index+len);
 		}
 
 		@Override
-		public IIntList unmodifiableList() {
+		public ILongList unmodifiableList() {
 			return this;
 		}
 
 		@Override
-		protected int getDefaultElem() {
+		protected long getDefaultElem() {
 			return 0;
 		}
 
@@ -140,24 +140,24 @@ public class LongBigList extends ILongList {
         }
 
 		@Override
-		protected void doClone(IIntList that) {
+		protected void doClone(ILongList that) {
 			error();
 		}
 
 		@Override
-		protected int doSet(int index, int elem) {
-			error();
-			return 0;
-		}
-
-		@Override
-		protected int doReSet(int index, int elem) {
+		protected long doSet(int index, long elem) {
 			error();
 			return 0;
 		}
 
 		@Override
-		protected boolean doAdd(int index, int elem) {
+		protected long doReSet(int index, long elem) {
+			error();
+			return 0;
+		}
+
+		@Override
+		protected boolean doAdd(int index, long elem) {
 			error();
 			return false;
 		}
@@ -173,18 +173,18 @@ public class LongBigList extends ILongList {
 		}
 
 		@Override
-		protected IIntList doCreate(int capacity) {
+		protected ILongList doCreate(int capacity) {
 			error();
 			return null;
 		}
 
 		@Override
-		protected void doAssign(IIntList that) {
+		protected void doAssign(ILongList that) {
 			error();
 		}
 
 		@Override
-		protected int doRemove(int index) {
+		protected long doRemove(int index) {
 			error();
 			return 0;
 		}
@@ -427,6 +427,9 @@ public LongBigList(){
 	 * @param blockSize block size
 	 */
 public LongBigList(int blockSize){
+    if (blockSize < 2) {
+        throw new IndexOutOfBoundsException("Invalid blockSize: " + blockSize);
+    }
     doInit(blockSize, -1);
 }
 
@@ -438,8 +441,8 @@ public LongBigList(int blockSize){
         blockSize = BLOCK_SIZE;
         currLongBlock = new LongBlock();
         addLongBlock(0, currLongBlock);
-        for (long elem : that.toArray()) {
-            add((E) elem);
+        for (Object obj : that.toArray()) {
+            add((Long) obj);
         }
         assert (size() == that.size());
     }
@@ -619,7 +622,7 @@ private int getLongBlockIndex(int index, boolean write, int modify) {
         }
         if (modify != 0) {
             currNode.relativePosition += modify;
-            LongBigList.LongBlockNode leftNode = currNode.getLeftSubTree();
+            LongBlockNode leftNode = currNode.getLeftSubTree();
             if (leftNode != null) {
                 leftNode.relativePosition -= modify;
             }
@@ -686,10 +689,7 @@ private int getLongBlockIndex(int index, boolean write, int modify) {
 }
 
     void check() {
-    if (true) {
-        return;
-    }
-    //TODO   
+    //if (true) {return; } //TODO   
     if (currNode != null) {
         assert (currNode.block == currLongBlock);
         assert (currLongBlockStart >= 0 && currLongBlockEnd <= size && currLongBlockStart <= currLongBlockEnd);
@@ -765,17 +765,20 @@ protected boolean doAdd(int index, long element) {
     int pos = getLongBlockIndex(index, true, 1);
     // If there is still place in the current block: insert in current block   
     int maxSize = (index == size || index == 0) ? blockSize * 9 / 10 : blockSize;
-    if (currLongBlock.size() < maxSize) {
+    // The second part of the condition is a work around to handle the case of insertion as position 0 correctly   
+    // where blockSize() is 2 (the new block would then be added after the current one)   
+    if (currLongBlock.size() < maxSize || (currLongBlock.size() == 1 && currLongBlock.size() < blockSize)) {
         currLongBlock.values.doAdd(pos, element);
         currLongBlockEnd++;
     } else {
         // No place any more in current block   
-        LongBlock nextLongBlock = new LongBlock(blockSize);
+        LongBlock newLongBlock = new LongBlock(blockSize);
         if (index == size) {
             // Insert new block at tail   
-            nextLongBlock.values.doAdd(0, element);
+            newLongBlock.values.doAdd(0, element);
+            // Subtract 1 because getLongBlockIndex() has already added 1   
             modify(currNode, -1);
-            addLongBlock(size + 1, nextLongBlock);
+            addLongBlock(size + 1, newLongBlock);
             LongBlockNode lastNode = currNode.next();
             currNode = lastNode;
             currLongBlock = currNode.block;
@@ -783,9 +786,10 @@ protected boolean doAdd(int index, long element) {
             currLongBlockEnd++;
         } else if (index == 0) {
             // Insert new block at head   
-            nextLongBlock.values.doAdd(0, element);
+            newLongBlock.values.doAdd(0, element);
+            // Subtract 1 because getLongBlockIndex() has already added 1   
             modify(currNode, -1);
-            addLongBlock(1, nextLongBlock);
+            addLongBlock(1, newLongBlock);
             LongBlockNode firstNode = currNode.previous();
             currNode = firstNode;
             currLongBlock = currNode.block;
@@ -795,12 +799,12 @@ protected boolean doAdd(int index, long element) {
             // Split block for insert   
             int nextLongBlockLen = blockSize / 2;
             int blockLen = blockSize - nextLongBlockLen;
-            nextLongBlock.values.init(nextLongBlockLen, null);
-            LongGapList.copy(currLongBlock.values, blockLen, nextLongBlock.values, 0, nextLongBlockLen);
+            newLongBlock.values.init(nextLongBlockLen, 0);
+            LongGapList.copy(currLongBlock.values, blockLen, newLongBlock.values, 0, nextLongBlockLen);
             currLongBlock.values.remove(blockLen, blockSize - blockLen);
             // Subtract 1 more because getLongBlockIndex() has already added 1   
             modify(currNode, -nextLongBlockLen - 1);
-            addLongBlock(currLongBlockEnd - nextLongBlockLen, nextLongBlock);
+            addLongBlock(currLongBlockEnd - nextLongBlockLen, newLongBlock);
             if (pos < blockLen) {
                 // Insert element in first block   
                 currLongBlock.values.doAdd(pos, element);
@@ -1055,17 +1059,21 @@ protected boolean doAddAll(int index, long[] array) {
                 numLongBlocks--;
             }
             check();
+            LongBlockNode node = currNode;
             while (numLongBlocks > 0) {
                 int add = s / numLongBlocks;
                 assert (add > 0);
                 ILongList sublist = list.getAll(start, add);
                 LongBlock nextLongBlock = new LongBlock();
-                nextLongBlock.values.init(sublist);
+                nextLongBlock.values.clear();
+                nextLongBlock.values.addAll(sublist);
                 start += add;
                 assert (nextLongBlock.values.size() == add);
                 s -= add;
-                end += add;
                 addLongBlock(end, nextLongBlock);
+                assert (node.next().block == nextLongBlock);
+                node = node.next();
+                end += add;
                 size += add;
                 numLongBlocks--;
                 check();
@@ -1187,7 +1195,7 @@ protected void doRemoveAll(int index, int len) {
         int len = node.block.size();
         int dstSize = leftNode.getLongBlock().size();
         for (int i = 0; i < len; i++) {
-            leftNode.block.values.add(null);
+            leftNode.block.values.add(0);
         }
         LongGapList.copy(node.block.values, 0, leftNode.block.values, dstSize, len);
         assert (leftNode.block.values.size() <= blockSize);
@@ -1201,7 +1209,7 @@ protected void doRemoveAll(int index, int len) {
             // Merge with right block   
             int len = node.block.size();
             for (int i = 0; i < len; i++) {
-                rightNode.block.values.add(0, null);
+                rightNode.block.values.add(0, 0);
             }
             LongGapList.copy(node.block.values, 0, rightNode.block.values, 0, len);
             assert (rightNode.block.values.size() <= blockSize);
@@ -1289,7 +1297,7 @@ public int binarySearch(int index, int len, long key) {
     if (isOnlyRootLongBlock()) {
         return currLongBlock.values.binarySearch(key);
     } else {
-        return Collections.binarySearch((ILongList) this, key);
+        return LongBinarySearch.binarySearch(this, key, 0, size());
     }
 }
 
@@ -1298,7 +1306,7 @@ public int binarySearch(int index, int len, long key) {
 }
 
     public LongBlockNode access(final int index, int modify) {
-    return root.access(index, modify, false);
+    return root.access(this, index, modify, false);
 }
 
     //-----------------------------------------------------------------------  
@@ -1377,7 +1385,7 @@ private void readObject(ObjectInputStream ois) throws IOException, ClassNotFound
      * The Faedelung calculation stores a flag for both the left and right child
      * to indicate if they are a child (false) or a link as in linked list (true).
      */
-    class LongBlockNode {
+    static class LongBlockNode {
 
         LongBlockNode parent;
 
@@ -1438,7 +1446,7 @@ public void setLongBlock(LongBlock obj) {
     this.block = obj;
 }
 
-        private LongBlockNode access(final int index, int modify, boolean wasLeft) {
+        private LongBlockNode access(LongBigList list, int index, int modify, boolean wasLeft) {
     assert (index >= 0);
     if (relativePosition == 0) {
         if (modify != 0) {
@@ -1446,13 +1454,13 @@ public void setLongBlock(LongBlock obj) {
         }
         return this;
     }
-    if (currLongBlockEnd == 0) {
-        currLongBlockEnd = relativePosition;
+    if (list.currLongBlockEnd == 0) {
+        list.currLongBlockEnd = relativePosition;
     }
     LongBlockNode leftNode = getLeftSubTree();
-    int leftIndex = currLongBlockEnd - block.size();
+    int leftIndex = list.currLongBlockEnd - block.size();
     assert (leftIndex >= 0);
-    if (index >= leftIndex && index < currLongBlockEnd) {
+    if (index >= leftIndex && index < list.currLongBlockEnd) {
         if (relativePosition > 0) {
             relativePosition += modify;
             if (leftNode != null) {
@@ -1465,7 +1473,7 @@ public void setLongBlock(LongBlock obj) {
         }
         return this;
     }
-    if (index < currLongBlockEnd) {
+    if (index < list.currLongBlockEnd) {
         // left   
         LongBlockNode nextNode = getLeftSubTree();
         if (nextNode == null || !wasLeft) {
@@ -1479,8 +1487,8 @@ public void setLongBlock(LongBlock obj) {
         if (nextNode == null) {
             return this;
         }
-        currLongBlockEnd += nextNode.relativePosition;
-        return nextNode.access(index, modify, wasLeft);
+        list.currLongBlockEnd += nextNode.relativePosition;
+        return nextNode.access(list, index, modify, wasLeft);
     } else {
         // right   
         LongBlockNode nextNode = getRightSubTree();
@@ -1499,8 +1507,8 @@ public void setLongBlock(LongBlock obj) {
         if (nextNode == null) {
             return this;
         }
-        currLongBlockEnd += nextNode.relativePosition;
-        return nextNode.access(index, modify, wasLeft);
+        list.currLongBlockEnd += nextNode.relativePosition;
+        return nextNode.access(list, index, modify, wasLeft);
     }
 }
 

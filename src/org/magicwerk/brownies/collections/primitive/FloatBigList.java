@@ -1,6 +1,6 @@
 package org.magicwerk.brownies.collections.primitive;
 import org.magicwerk.brownies.collections.helper.ArraysHelper;
-import org.magicwerk.brownies.collections.helper.primitive.BinarySearch;
+import org.magicwerk.brownies.collections.helper.primitive.FloatBinarySearch;
 import org.magicwerk.brownies.collections.GapList;
 import org.magicwerk.brownies.collections.BigList;
 
@@ -22,25 +22,25 @@ import org.magicwerk.brownies.collections.helper.primitive.FloatMergeSort;
  * because of GC usage.
  *
  * @author Thomas Mauch
- * @version $Id: FloatBigList.java 2477 2014-10-08 23:47:35Z origo $
+ * @version $Id: FloatBigList.java 2492 2014-10-11 15:18:58Z origo $
  */
 public class FloatBigList extends IFloatList {
-	public static IIntList of(int[] values) {
-		return new ImmutableIntListArrayInt(values);
+	public static IFloatList of(float[] values) {
+		return new ImmutableFloatListArrayPrimitive(values);
 	}
 
-	public static IIntList of(Integer[] values) {
-		return new ImmutableIntListArrayInteger(values);
+	public static IFloatList of(Float[] values) {
+		return new ImmutableFloatListArrayWrapper(values);
 	}
 
-	public static IIntList of(List<Integer> values) {
-		return new ImmutableIntListListInteger(values);
+	public static IFloatList of(List<Float> values) {
+		return new ImmutableFloatListList(values);
 	}
 
-    static class ImmutableIntListArrayInt extends ImmutableIntList {
-    	int[] values;
+    static class ImmutableFloatListArrayPrimitive extends ImmutableFloatList {
+    	float[] values;
 
-    	public ImmutableIntListArrayInt(int[] values) {
+    	public ImmutableFloatListArrayPrimitive(float[] values) {
     		this.values = values;
     	}
 
@@ -50,15 +50,15 @@ public class FloatBigList extends IFloatList {
 		}
 
 		@Override
-		protected int doGet(int index) {
+		protected float doGet(int index) {
 			return values[index];
 		}
     }
 
-    static class ImmutableIntListArrayInteger extends ImmutableIntList {
-    	Integer[] values;
+    static class ImmutableFloatListArrayWrapper extends ImmutableFloatList {
+    	Float[] values;
 
-    	public ImmutableIntListArrayInteger(Integer[] values) {
+    	public ImmutableFloatListArrayWrapper(Float[] values) {
     		this.values = values;
     	}
 
@@ -68,15 +68,15 @@ public class FloatBigList extends IFloatList {
 		}
 
 		@Override
-		protected int doGet(int index) {
+		protected float doGet(int index) {
 			return values[index];
 		}
     }
 
-    static class ImmutableIntListListInteger extends ImmutableIntList {
-    	List<Integer> values;
+    static class ImmutableFloatListList extends ImmutableFloatList {
+    	List<Float> values;
 
-    	public ImmutableIntListListInteger(List<Integer> values) {
+    	public ImmutableFloatListList(List<Float> values) {
     		this.values = values;
     	}
 
@@ -86,12 +86,12 @@ public class FloatBigList extends IFloatList {
 		}
 
 		@Override
-		protected int doGet(int index) {
+		protected float doGet(int index) {
 			return values.get(index);
 		}
     }
 
-    protected static abstract class ImmutableIntList extends IIntList {
+    protected static abstract class ImmutableFloatList extends IFloatList {
 
     	//-- Readers
 
@@ -101,17 +101,17 @@ public class FloatBigList extends IFloatList {
 		}
 
 		@Override
-		public int binarySearch(int index, int len, int key) {
-			return BinarySearch.binarySearch(this, key, index, index+len);
+		public int binarySearch(int index, int len, float key) {
+			return FloatBinarySearch.binarySearch(this, key, index, index+len);
 		}
 
 		@Override
-		public IIntList unmodifiableList() {
+		public IFloatList unmodifiableList() {
 			return this;
 		}
 
 		@Override
-		protected int getDefaultElem() {
+		protected float getDefaultElem() {
 			return 0;
 		}
 
@@ -140,24 +140,24 @@ public class FloatBigList extends IFloatList {
         }
 
 		@Override
-		protected void doClone(IIntList that) {
+		protected void doClone(IFloatList that) {
 			error();
 		}
 
 		@Override
-		protected int doSet(int index, int elem) {
-			error();
-			return 0;
-		}
-
-		@Override
-		protected int doReSet(int index, int elem) {
+		protected float doSet(int index, float elem) {
 			error();
 			return 0;
 		}
 
 		@Override
-		protected boolean doAdd(int index, int elem) {
+		protected float doReSet(int index, float elem) {
+			error();
+			return 0;
+		}
+
+		@Override
+		protected boolean doAdd(int index, float elem) {
 			error();
 			return false;
 		}
@@ -173,18 +173,18 @@ public class FloatBigList extends IFloatList {
 		}
 
 		@Override
-		protected IIntList doCreate(int capacity) {
+		protected IFloatList doCreate(int capacity) {
 			error();
 			return null;
 		}
 
 		@Override
-		protected void doAssign(IIntList that) {
+		protected void doAssign(IFloatList that) {
 			error();
 		}
 
 		@Override
-		protected int doRemove(int index) {
+		protected float doRemove(int index) {
 			error();
 			return 0;
 		}
@@ -427,6 +427,9 @@ public FloatBigList(){
 	 * @param blockSize block size
 	 */
 public FloatBigList(int blockSize){
+    if (blockSize < 2) {
+        throw new IndexOutOfBoundsException("Invalid blockSize: " + blockSize);
+    }
     doInit(blockSize, -1);
 }
 
@@ -438,8 +441,8 @@ public FloatBigList(int blockSize){
         blockSize = BLOCK_SIZE;
         currFloatBlock = new FloatBlock();
         addFloatBlock(0, currFloatBlock);
-        for (float elem : that.toArray()) {
-            add((E) elem);
+        for (Object obj : that.toArray()) {
+            add((Float) obj);
         }
         assert (size() == that.size());
     }
@@ -619,7 +622,7 @@ private int getFloatBlockIndex(int index, boolean write, int modify) {
         }
         if (modify != 0) {
             currNode.relativePosition += modify;
-            FloatBigList.FloatBlockNode leftNode = currNode.getLeftSubTree();
+            FloatBlockNode leftNode = currNode.getLeftSubTree();
             if (leftNode != null) {
                 leftNode.relativePosition -= modify;
             }
@@ -686,10 +689,7 @@ private int getFloatBlockIndex(int index, boolean write, int modify) {
 }
 
     void check() {
-    if (true) {
-        return;
-    }
-    //TODO   
+    //if (true) {return; } //TODO   
     if (currNode != null) {
         assert (currNode.block == currFloatBlock);
         assert (currFloatBlockStart >= 0 && currFloatBlockEnd <= size && currFloatBlockStart <= currFloatBlockEnd);
@@ -765,17 +765,20 @@ protected boolean doAdd(int index, float element) {
     int pos = getFloatBlockIndex(index, true, 1);
     // If there is still place in the current block: insert in current block   
     int maxSize = (index == size || index == 0) ? blockSize * 9 / 10 : blockSize;
-    if (currFloatBlock.size() < maxSize) {
+    // The second part of the condition is a work around to handle the case of insertion as position 0 correctly   
+    // where blockSize() is 2 (the new block would then be added after the current one)   
+    if (currFloatBlock.size() < maxSize || (currFloatBlock.size() == 1 && currFloatBlock.size() < blockSize)) {
         currFloatBlock.values.doAdd(pos, element);
         currFloatBlockEnd++;
     } else {
         // No place any more in current block   
-        FloatBlock nextFloatBlock = new FloatBlock(blockSize);
+        FloatBlock newFloatBlock = new FloatBlock(blockSize);
         if (index == size) {
             // Insert new block at tail   
-            nextFloatBlock.values.doAdd(0, element);
+            newFloatBlock.values.doAdd(0, element);
+            // Subtract 1 because getFloatBlockIndex() has already added 1   
             modify(currNode, -1);
-            addFloatBlock(size + 1, nextFloatBlock);
+            addFloatBlock(size + 1, newFloatBlock);
             FloatBlockNode lastNode = currNode.next();
             currNode = lastNode;
             currFloatBlock = currNode.block;
@@ -783,9 +786,10 @@ protected boolean doAdd(int index, float element) {
             currFloatBlockEnd++;
         } else if (index == 0) {
             // Insert new block at head   
-            nextFloatBlock.values.doAdd(0, element);
+            newFloatBlock.values.doAdd(0, element);
+            // Subtract 1 because getFloatBlockIndex() has already added 1   
             modify(currNode, -1);
-            addFloatBlock(1, nextFloatBlock);
+            addFloatBlock(1, newFloatBlock);
             FloatBlockNode firstNode = currNode.previous();
             currNode = firstNode;
             currFloatBlock = currNode.block;
@@ -795,12 +799,12 @@ protected boolean doAdd(int index, float element) {
             // Split block for insert   
             int nextFloatBlockLen = blockSize / 2;
             int blockLen = blockSize - nextFloatBlockLen;
-            nextFloatBlock.values.init(nextFloatBlockLen, null);
-            FloatGapList.copy(currFloatBlock.values, blockLen, nextFloatBlock.values, 0, nextFloatBlockLen);
+            newFloatBlock.values.init(nextFloatBlockLen, 0);
+            FloatGapList.copy(currFloatBlock.values, blockLen, newFloatBlock.values, 0, nextFloatBlockLen);
             currFloatBlock.values.remove(blockLen, blockSize - blockLen);
             // Subtract 1 more because getFloatBlockIndex() has already added 1   
             modify(currNode, -nextFloatBlockLen - 1);
-            addFloatBlock(currFloatBlockEnd - nextFloatBlockLen, nextFloatBlock);
+            addFloatBlock(currFloatBlockEnd - nextFloatBlockLen, newFloatBlock);
             if (pos < blockLen) {
                 // Insert element in first block   
                 currFloatBlock.values.doAdd(pos, element);
@@ -1055,17 +1059,21 @@ protected boolean doAddAll(int index, float[] array) {
                 numFloatBlocks--;
             }
             check();
+            FloatBlockNode node = currNode;
             while (numFloatBlocks > 0) {
                 int add = s / numFloatBlocks;
                 assert (add > 0);
                 IFloatList sublist = list.getAll(start, add);
                 FloatBlock nextFloatBlock = new FloatBlock();
-                nextFloatBlock.values.init(sublist);
+                nextFloatBlock.values.clear();
+                nextFloatBlock.values.addAll(sublist);
                 start += add;
                 assert (nextFloatBlock.values.size() == add);
                 s -= add;
-                end += add;
                 addFloatBlock(end, nextFloatBlock);
+                assert (node.next().block == nextFloatBlock);
+                node = node.next();
+                end += add;
                 size += add;
                 numFloatBlocks--;
                 check();
@@ -1187,7 +1195,7 @@ protected void doRemoveAll(int index, int len) {
         int len = node.block.size();
         int dstSize = leftNode.getFloatBlock().size();
         for (int i = 0; i < len; i++) {
-            leftNode.block.values.add(null);
+            leftNode.block.values.add(0);
         }
         FloatGapList.copy(node.block.values, 0, leftNode.block.values, dstSize, len);
         assert (leftNode.block.values.size() <= blockSize);
@@ -1201,7 +1209,7 @@ protected void doRemoveAll(int index, int len) {
             // Merge with right block   
             int len = node.block.size();
             for (int i = 0; i < len; i++) {
-                rightNode.block.values.add(0, null);
+                rightNode.block.values.add(0, 0);
             }
             FloatGapList.copy(node.block.values, 0, rightNode.block.values, 0, len);
             assert (rightNode.block.values.size() <= blockSize);
@@ -1289,7 +1297,7 @@ public int binarySearch(int index, int len, float key) {
     if (isOnlyRootFloatBlock()) {
         return currFloatBlock.values.binarySearch(key);
     } else {
-        return Collections.binarySearch((IFloatList) this, key);
+        return FloatBinarySearch.binarySearch(this, key, 0, size());
     }
 }
 
@@ -1298,7 +1306,7 @@ public int binarySearch(int index, int len, float key) {
 }
 
     public FloatBlockNode access(final int index, int modify) {
-    return root.access(index, modify, false);
+    return root.access(this, index, modify, false);
 }
 
     //-----------------------------------------------------------------------  
@@ -1377,7 +1385,7 @@ private void readObject(ObjectInputStream ois) throws IOException, ClassNotFound
      * The Faedelung calculation stores a flag for both the left and right child
      * to indicate if they are a child (false) or a link as in linked list (true).
      */
-    class FloatBlockNode {
+    static class FloatBlockNode {
 
         FloatBlockNode parent;
 
@@ -1438,7 +1446,7 @@ public void setFloatBlock(FloatBlock obj) {
     this.block = obj;
 }
 
-        private FloatBlockNode access(final int index, int modify, boolean wasLeft) {
+        private FloatBlockNode access(FloatBigList list, int index, int modify, boolean wasLeft) {
     assert (index >= 0);
     if (relativePosition == 0) {
         if (modify != 0) {
@@ -1446,13 +1454,13 @@ public void setFloatBlock(FloatBlock obj) {
         }
         return this;
     }
-    if (currFloatBlockEnd == 0) {
-        currFloatBlockEnd = relativePosition;
+    if (list.currFloatBlockEnd == 0) {
+        list.currFloatBlockEnd = relativePosition;
     }
     FloatBlockNode leftNode = getLeftSubTree();
-    int leftIndex = currFloatBlockEnd - block.size();
+    int leftIndex = list.currFloatBlockEnd - block.size();
     assert (leftIndex >= 0);
-    if (index >= leftIndex && index < currFloatBlockEnd) {
+    if (index >= leftIndex && index < list.currFloatBlockEnd) {
         if (relativePosition > 0) {
             relativePosition += modify;
             if (leftNode != null) {
@@ -1465,7 +1473,7 @@ public void setFloatBlock(FloatBlock obj) {
         }
         return this;
     }
-    if (index < currFloatBlockEnd) {
+    if (index < list.currFloatBlockEnd) {
         // left   
         FloatBlockNode nextNode = getLeftSubTree();
         if (nextNode == null || !wasLeft) {
@@ -1479,8 +1487,8 @@ public void setFloatBlock(FloatBlock obj) {
         if (nextNode == null) {
             return this;
         }
-        currFloatBlockEnd += nextNode.relativePosition;
-        return nextNode.access(index, modify, wasLeft);
+        list.currFloatBlockEnd += nextNode.relativePosition;
+        return nextNode.access(list, index, modify, wasLeft);
     } else {
         // right   
         FloatBlockNode nextNode = getRightSubTree();
@@ -1499,8 +1507,8 @@ public void setFloatBlock(FloatBlock obj) {
         if (nextNode == null) {
             return this;
         }
-        currFloatBlockEnd += nextNode.relativePosition;
-        return nextNode.access(index, modify, wasLeft);
+        list.currFloatBlockEnd += nextNode.relativePosition;
+        return nextNode.access(list, index, modify, wasLeft);
     }
 }
 

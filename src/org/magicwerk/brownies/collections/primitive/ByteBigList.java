@@ -1,6 +1,6 @@
 package org.magicwerk.brownies.collections.primitive;
 import org.magicwerk.brownies.collections.helper.ArraysHelper;
-import org.magicwerk.brownies.collections.helper.primitive.BinarySearch;
+import org.magicwerk.brownies.collections.helper.primitive.ByteBinarySearch;
 import org.magicwerk.brownies.collections.GapList;
 import org.magicwerk.brownies.collections.BigList;
 
@@ -22,25 +22,25 @@ import org.magicwerk.brownies.collections.helper.primitive.ByteMergeSort;
  * because of GC usage.
  *
  * @author Thomas Mauch
- * @version $Id: ByteBigList.java 2477 2014-10-08 23:47:35Z origo $
+ * @version $Id: ByteBigList.java 2492 2014-10-11 15:18:58Z origo $
  */
 public class ByteBigList extends IByteList {
-	public static IIntList of(int[] values) {
-		return new ImmutableIntListArrayInt(values);
+	public static IByteList of(byte[] values) {
+		return new ImmutableByteListArrayPrimitive(values);
 	}
 
-	public static IIntList of(Integer[] values) {
-		return new ImmutableIntListArrayInteger(values);
+	public static IByteList of(Byte[] values) {
+		return new ImmutableByteListArrayWrapper(values);
 	}
 
-	public static IIntList of(List<Integer> values) {
-		return new ImmutableIntListListInteger(values);
+	public static IByteList of(List<Byte> values) {
+		return new ImmutableByteListList(values);
 	}
 
-    static class ImmutableIntListArrayInt extends ImmutableIntList {
-    	int[] values;
+    static class ImmutableByteListArrayPrimitive extends ImmutableByteList {
+    	byte[] values;
 
-    	public ImmutableIntListArrayInt(int[] values) {
+    	public ImmutableByteListArrayPrimitive(byte[] values) {
     		this.values = values;
     	}
 
@@ -50,15 +50,15 @@ public class ByteBigList extends IByteList {
 		}
 
 		@Override
-		protected int doGet(int index) {
+		protected byte doGet(int index) {
 			return values[index];
 		}
     }
 
-    static class ImmutableIntListArrayInteger extends ImmutableIntList {
-    	Integer[] values;
+    static class ImmutableByteListArrayWrapper extends ImmutableByteList {
+    	Byte[] values;
 
-    	public ImmutableIntListArrayInteger(Integer[] values) {
+    	public ImmutableByteListArrayWrapper(Byte[] values) {
     		this.values = values;
     	}
 
@@ -68,15 +68,15 @@ public class ByteBigList extends IByteList {
 		}
 
 		@Override
-		protected int doGet(int index) {
+		protected byte doGet(int index) {
 			return values[index];
 		}
     }
 
-    static class ImmutableIntListListInteger extends ImmutableIntList {
-    	List<Integer> values;
+    static class ImmutableByteListList extends ImmutableByteList {
+    	List<Byte> values;
 
-    	public ImmutableIntListListInteger(List<Integer> values) {
+    	public ImmutableByteListList(List<Byte> values) {
     		this.values = values;
     	}
 
@@ -86,12 +86,12 @@ public class ByteBigList extends IByteList {
 		}
 
 		@Override
-		protected int doGet(int index) {
+		protected byte doGet(int index) {
 			return values.get(index);
 		}
     }
 
-    protected static abstract class ImmutableIntList extends IIntList {
+    protected static abstract class ImmutableByteList extends IByteList {
 
     	//-- Readers
 
@@ -101,18 +101,18 @@ public class ByteBigList extends IByteList {
 		}
 
 		@Override
-		public int binarySearch(int index, int len, int key) {
-			return BinarySearch.binarySearch(this, key, index, index+len);
+		public int binarySearch(int index, int len, byte key) {
+			return ByteBinarySearch.binarySearch(this, key, index, index+len);
 		}
 
 		@Override
-		public IIntList unmodifiableList() {
+		public IByteList unmodifiableList() {
 			return this;
 		}
 
 		@Override
-		protected int getDefaultElem() {
-			return 0;
+		protected byte getDefaultElem() {
+			return (byte) 0;
 		}
 
         /**
@@ -140,24 +140,24 @@ public class ByteBigList extends IByteList {
         }
 
 		@Override
-		protected void doClone(IIntList that) {
+		protected void doClone(IByteList that) {
 			error();
 		}
 
 		@Override
-		protected int doSet(int index, int elem) {
+		protected byte doSet(int index, byte elem) {
 			error();
-			return 0;
+			return (byte) 0;
 		}
 
 		@Override
-		protected int doReSet(int index, int elem) {
+		protected byte doReSet(int index, byte elem) {
 			error();
-			return 0;
+			return (byte) 0;
 		}
 
 		@Override
-		protected boolean doAdd(int index, int elem) {
+		protected boolean doAdd(int index, byte elem) {
 			error();
 			return false;
 		}
@@ -173,20 +173,20 @@ public class ByteBigList extends IByteList {
 		}
 
 		@Override
-		protected IIntList doCreate(int capacity) {
+		protected IByteList doCreate(int capacity) {
 			error();
 			return null;
 		}
 
 		@Override
-		protected void doAssign(IIntList that) {
+		protected void doAssign(IByteList that) {
 			error();
 		}
 
 		@Override
-		protected int doRemove(int index) {
+		protected byte doRemove(int index) {
 			error();
-			return 0;
+			return (byte) 0;
 		}
 
 		@Override
@@ -427,6 +427,9 @@ public ByteBigList(){
 	 * @param blockSize block size
 	 */
 public ByteBigList(int blockSize){
+    if (blockSize < 2) {
+        throw new IndexOutOfBoundsException("Invalid blockSize: " + blockSize);
+    }
     doInit(blockSize, -1);
 }
 
@@ -438,8 +441,8 @@ public ByteBigList(int blockSize){
         blockSize = BLOCK_SIZE;
         currByteBlock = new ByteBlock();
         addByteBlock(0, currByteBlock);
-        for (byte elem : that.toArray()) {
-            add((E) elem);
+        for (Object obj : that.toArray()) {
+            add((Byte) obj);
         }
         assert (size() == that.size());
     }
@@ -619,7 +622,7 @@ private int getByteBlockIndex(int index, boolean write, int modify) {
         }
         if (modify != 0) {
             currNode.relativePosition += modify;
-            ByteBigList.ByteBlockNode leftNode = currNode.getLeftSubTree();
+            ByteBlockNode leftNode = currNode.getLeftSubTree();
             if (leftNode != null) {
                 leftNode.relativePosition -= modify;
             }
@@ -686,10 +689,7 @@ private int getByteBlockIndex(int index, boolean write, int modify) {
 }
 
     void check() {
-    if (true) {
-        return;
-    }
-    //TODO   
+    //if (true) {return; } //TODO   
     if (currNode != null) {
         assert (currNode.block == currByteBlock);
         assert (currByteBlockStart >= 0 && currByteBlockEnd <= size && currByteBlockStart <= currByteBlockEnd);
@@ -765,17 +765,20 @@ protected boolean doAdd(int index, byte element) {
     int pos = getByteBlockIndex(index, true, 1);
     // If there is still place in the current block: insert in current block   
     int maxSize = (index == size || index == 0) ? blockSize * 9 / 10 : blockSize;
-    if (currByteBlock.size() < maxSize) {
+    // The second part of the condition is a work around to handle the case of insertion as position 0 correctly   
+    // where blockSize() is 2 (the new block would then be added after the current one)   
+    if (currByteBlock.size() < maxSize || (currByteBlock.size() == 1 && currByteBlock.size() < blockSize)) {
         currByteBlock.values.doAdd(pos, element);
         currByteBlockEnd++;
     } else {
         // No place any more in current block   
-        ByteBlock nextByteBlock = new ByteBlock(blockSize);
+        ByteBlock newByteBlock = new ByteBlock(blockSize);
         if (index == size) {
             // Insert new block at tail   
-            nextByteBlock.values.doAdd(0, element);
+            newByteBlock.values.doAdd(0, element);
+            // Subtract 1 because getByteBlockIndex() has already added 1   
             modify(currNode, -1);
-            addByteBlock(size + 1, nextByteBlock);
+            addByteBlock(size + 1, newByteBlock);
             ByteBlockNode lastNode = currNode.next();
             currNode = lastNode;
             currByteBlock = currNode.block;
@@ -783,9 +786,10 @@ protected boolean doAdd(int index, byte element) {
             currByteBlockEnd++;
         } else if (index == 0) {
             // Insert new block at head   
-            nextByteBlock.values.doAdd(0, element);
+            newByteBlock.values.doAdd(0, element);
+            // Subtract 1 because getByteBlockIndex() has already added 1   
             modify(currNode, -1);
-            addByteBlock(1, nextByteBlock);
+            addByteBlock(1, newByteBlock);
             ByteBlockNode firstNode = currNode.previous();
             currNode = firstNode;
             currByteBlock = currNode.block;
@@ -795,12 +799,12 @@ protected boolean doAdd(int index, byte element) {
             // Split block for insert   
             int nextByteBlockLen = blockSize / 2;
             int blockLen = blockSize - nextByteBlockLen;
-            nextByteBlock.values.init(nextByteBlockLen, null);
-            ByteGapList.copy(currByteBlock.values, blockLen, nextByteBlock.values, 0, nextByteBlockLen);
+            newByteBlock.values.init(nextByteBlockLen, (byte) 0);
+            ByteGapList.copy(currByteBlock.values, blockLen, newByteBlock.values, 0, nextByteBlockLen);
             currByteBlock.values.remove(blockLen, blockSize - blockLen);
             // Subtract 1 more because getByteBlockIndex() has already added 1   
             modify(currNode, -nextByteBlockLen - 1);
-            addByteBlock(currByteBlockEnd - nextByteBlockLen, nextByteBlock);
+            addByteBlock(currByteBlockEnd - nextByteBlockLen, newByteBlock);
             if (pos < blockLen) {
                 // Insert element in first block   
                 currByteBlock.values.doAdd(pos, element);
@@ -1055,17 +1059,21 @@ protected boolean doAddAll(int index, byte[] array) {
                 numByteBlocks--;
             }
             check();
+            ByteBlockNode node = currNode;
             while (numByteBlocks > 0) {
                 int add = s / numByteBlocks;
                 assert (add > 0);
                 IByteList sublist = list.getAll(start, add);
                 ByteBlock nextByteBlock = new ByteBlock();
-                nextByteBlock.values.init(sublist);
+                nextByteBlock.values.clear();
+                nextByteBlock.values.addAll(sublist);
                 start += add;
                 assert (nextByteBlock.values.size() == add);
                 s -= add;
-                end += add;
                 addByteBlock(end, nextByteBlock);
+                assert (node.next().block == nextByteBlock);
+                node = node.next();
+                end += add;
                 size += add;
                 numByteBlocks--;
                 check();
@@ -1187,7 +1195,7 @@ protected void doRemoveAll(int index, int len) {
         int len = node.block.size();
         int dstSize = leftNode.getByteBlock().size();
         for (int i = 0; i < len; i++) {
-            leftNode.block.values.add(null);
+            leftNode.block.values.add((byte) 0);
         }
         ByteGapList.copy(node.block.values, 0, leftNode.block.values, dstSize, len);
         assert (leftNode.block.values.size() <= blockSize);
@@ -1201,7 +1209,7 @@ protected void doRemoveAll(int index, int len) {
             // Merge with right block   
             int len = node.block.size();
             for (int i = 0; i < len; i++) {
-                rightNode.block.values.add(0, null);
+                rightNode.block.values.add(0, (byte) 0);
             }
             ByteGapList.copy(node.block.values, 0, rightNode.block.values, 0, len);
             assert (rightNode.block.values.size() <= blockSize);
@@ -1289,7 +1297,7 @@ public int binarySearch(int index, int len, byte key) {
     if (isOnlyRootByteBlock()) {
         return currByteBlock.values.binarySearch(key);
     } else {
-        return Collections.binarySearch((IByteList) this, key);
+        return ByteBinarySearch.binarySearch(this, key, 0, size());
     }
 }
 
@@ -1298,7 +1306,7 @@ public int binarySearch(int index, int len, byte key) {
 }
 
     public ByteBlockNode access(final int index, int modify) {
-    return root.access(index, modify, false);
+    return root.access(this, index, modify, false);
 }
 
     //-----------------------------------------------------------------------  
@@ -1377,7 +1385,7 @@ private void readObject(ObjectInputStream ois) throws IOException, ClassNotFound
      * The Faedelung calculation stores a flag for both the left and right child
      * to indicate if they are a child (false) or a link as in linked list (true).
      */
-    class ByteBlockNode {
+    static class ByteBlockNode {
 
         ByteBlockNode parent;
 
@@ -1438,7 +1446,7 @@ public void setByteBlock(ByteBlock obj) {
     this.block = obj;
 }
 
-        private ByteBlockNode access(final int index, int modify, boolean wasLeft) {
+        private ByteBlockNode access(ByteBigList list, int index, int modify, boolean wasLeft) {
     assert (index >= 0);
     if (relativePosition == 0) {
         if (modify != 0) {
@@ -1446,13 +1454,13 @@ public void setByteBlock(ByteBlock obj) {
         }
         return this;
     }
-    if (currByteBlockEnd == 0) {
-        currByteBlockEnd = relativePosition;
+    if (list.currByteBlockEnd == 0) {
+        list.currByteBlockEnd = relativePosition;
     }
     ByteBlockNode leftNode = getLeftSubTree();
-    int leftIndex = currByteBlockEnd - block.size();
+    int leftIndex = list.currByteBlockEnd - block.size();
     assert (leftIndex >= 0);
-    if (index >= leftIndex && index < currByteBlockEnd) {
+    if (index >= leftIndex && index < list.currByteBlockEnd) {
         if (relativePosition > 0) {
             relativePosition += modify;
             if (leftNode != null) {
@@ -1465,7 +1473,7 @@ public void setByteBlock(ByteBlock obj) {
         }
         return this;
     }
-    if (index < currByteBlockEnd) {
+    if (index < list.currByteBlockEnd) {
         // left   
         ByteBlockNode nextNode = getLeftSubTree();
         if (nextNode == null || !wasLeft) {
@@ -1479,8 +1487,8 @@ public void setByteBlock(ByteBlock obj) {
         if (nextNode == null) {
             return this;
         }
-        currByteBlockEnd += nextNode.relativePosition;
-        return nextNode.access(index, modify, wasLeft);
+        list.currByteBlockEnd += nextNode.relativePosition;
+        return nextNode.access(list, index, modify, wasLeft);
     } else {
         // right   
         ByteBlockNode nextNode = getRightSubTree();
@@ -1499,8 +1507,8 @@ public void setByteBlock(ByteBlock obj) {
         if (nextNode == null) {
             return this;
         }
-        currByteBlockEnd += nextNode.relativePosition;
-        return nextNode.access(index, modify, wasLeft);
+        list.currByteBlockEnd += nextNode.relativePosition;
+        return nextNode.access(list, index, modify, wasLeft);
     }
 }
 
