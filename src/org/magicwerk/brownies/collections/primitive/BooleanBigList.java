@@ -954,7 +954,7 @@ protected boolean doAddAll(int index, boolean[] array) {
         if (index == size) {
             // Add elements at end   
             for (int i = 0; i < space; i++) {
-                currBooleanBlock.values.add(addPos, array[i]);
+                currBooleanBlock.values.add(addPos + i, array[i]);
             }
             modify(currNode, space);
             int done = space;
@@ -968,17 +968,17 @@ protected boolean doAddAll(int index, boolean[] array) {
                 done += add;
                 todo -= add;
                 addBooleanBlock(size + done, nextBooleanBlock);
+                currNode = currNode.next();
             }
             size += addLen;
-            currNode = currNode.next();
             currBooleanBlock = currNode.block;
-            currBooleanBlockStart = currBooleanBlockEnd + space;
-            currBooleanBlockEnd = currBooleanBlockStart + addLen - space;
+            currBooleanBlockEnd = size;
+            currBooleanBlockStart = currBooleanBlockEnd - currBooleanBlock.size();
         } else if (index == 0) {
             // Add elements at head   
             assert (addPos == 0);
             for (int i = 0; i < space; i++) {
-                currBooleanBlock.values.add(addPos, array[addLen - space + i]);
+                currBooleanBlock.values.add(addPos + i, array[addLen - space + i]);
             }
             modify(currNode, space);
             int done = space;
@@ -987,17 +987,17 @@ protected boolean doAddAll(int index, boolean[] array) {
                 BooleanBlock nextBooleanBlock = new BooleanBlock(blockSize);
                 int add = Math.min(todo, blockSize);
                 for (int i = 0; i < add; i++) {
-                    nextBooleanBlock.values.add(i, array[done + i]);
+                    nextBooleanBlock.values.add(i, array[addLen - done - add + i]);
                 }
                 done += add;
                 todo -= add;
                 addBooleanBlock(0, nextBooleanBlock);
+                currNode = currNode.previous();
             }
             size += addLen;
-            currNode = currNode.previous();
             currBooleanBlock = currNode.block;
             currBooleanBlockStart = 0;
-            currBooleanBlockEnd = addLen - space;
+            currBooleanBlockEnd = currBooleanBlock.size();
         } else {
             // Add elements to several blocks   
             // Handle first block   
@@ -1055,6 +1055,7 @@ protected boolean doAddAll(int index, boolean[] array) {
                 end += add;
                 addBooleanBlock(end, nextBooleanBlock);
             } else {
+                end = currBooleanBlockEnd;
                 s -= should;
                 numBooleanBlocks--;
             }
