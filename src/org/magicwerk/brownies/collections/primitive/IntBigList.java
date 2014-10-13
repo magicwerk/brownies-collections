@@ -954,7 +954,7 @@ protected boolean doAddAll(int index, int[] array) {
         if (index == size) {
             // Add elements at end   
             for (int i = 0; i < space; i++) {
-                currIntBlock.values.add(addPos, array[i]);
+                currIntBlock.values.add(addPos + i, array[i]);
             }
             modify(currNode, space);
             int done = space;
@@ -968,17 +968,17 @@ protected boolean doAddAll(int index, int[] array) {
                 done += add;
                 todo -= add;
                 addIntBlock(size + done, nextIntBlock);
+                currNode = currNode.next();
             }
             size += addLen;
-            currNode = currNode.next();
             currIntBlock = currNode.block;
-            currIntBlockStart = currIntBlockEnd + space;
-            currIntBlockEnd = currIntBlockStart + addLen - space;
+            currIntBlockEnd = size;
+            currIntBlockStart = currIntBlockEnd - currIntBlock.size();
         } else if (index == 0) {
             // Add elements at head   
             assert (addPos == 0);
             for (int i = 0; i < space; i++) {
-                currIntBlock.values.add(addPos, array[addLen - space + i]);
+                currIntBlock.values.add(addPos + i, array[addLen - space + i]);
             }
             modify(currNode, space);
             int done = space;
@@ -987,17 +987,17 @@ protected boolean doAddAll(int index, int[] array) {
                 IntBlock nextIntBlock = new IntBlock(blockSize);
                 int add = Math.min(todo, blockSize);
                 for (int i = 0; i < add; i++) {
-                    nextIntBlock.values.add(i, array[done + i]);
+                    nextIntBlock.values.add(i, array[addLen - done - add + i]);
                 }
                 done += add;
                 todo -= add;
                 addIntBlock(0, nextIntBlock);
+                currNode = currNode.previous();
             }
             size += addLen;
-            currNode = currNode.previous();
             currIntBlock = currNode.block;
             currIntBlockStart = 0;
-            currIntBlockEnd = addLen - space;
+            currIntBlockEnd = currIntBlock.size();
         } else {
             // Add elements to several blocks   
             // Handle first block   
@@ -1055,6 +1055,7 @@ protected boolean doAddAll(int index, int[] array) {
                 end += add;
                 addIntBlock(end, nextIntBlock);
             } else {
+                end = currIntBlockEnd;
                 s -= should;
                 numIntBlocks--;
             }

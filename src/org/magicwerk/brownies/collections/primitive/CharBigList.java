@@ -954,7 +954,7 @@ protected boolean doAddAll(int index, char[] array) {
         if (index == size) {
             // Add elements at end   
             for (int i = 0; i < space; i++) {
-                currCharBlock.values.add(addPos, array[i]);
+                currCharBlock.values.add(addPos + i, array[i]);
             }
             modify(currNode, space);
             int done = space;
@@ -968,17 +968,17 @@ protected boolean doAddAll(int index, char[] array) {
                 done += add;
                 todo -= add;
                 addCharBlock(size + done, nextCharBlock);
+                currNode = currNode.next();
             }
             size += addLen;
-            currNode = currNode.next();
             currCharBlock = currNode.block;
-            currCharBlockStart = currCharBlockEnd + space;
-            currCharBlockEnd = currCharBlockStart + addLen - space;
+            currCharBlockEnd = size;
+            currCharBlockStart = currCharBlockEnd - currCharBlock.size();
         } else if (index == 0) {
             // Add elements at head   
             assert (addPos == 0);
             for (int i = 0; i < space; i++) {
-                currCharBlock.values.add(addPos, array[addLen - space + i]);
+                currCharBlock.values.add(addPos + i, array[addLen - space + i]);
             }
             modify(currNode, space);
             int done = space;
@@ -987,17 +987,17 @@ protected boolean doAddAll(int index, char[] array) {
                 CharBlock nextCharBlock = new CharBlock(blockSize);
                 int add = Math.min(todo, blockSize);
                 for (int i = 0; i < add; i++) {
-                    nextCharBlock.values.add(i, array[done + i]);
+                    nextCharBlock.values.add(i, array[addLen - done - add + i]);
                 }
                 done += add;
                 todo -= add;
                 addCharBlock(0, nextCharBlock);
+                currNode = currNode.previous();
             }
             size += addLen;
-            currNode = currNode.previous();
             currCharBlock = currNode.block;
             currCharBlockStart = 0;
-            currCharBlockEnd = addLen - space;
+            currCharBlockEnd = currCharBlock.size();
         } else {
             // Add elements to several blocks   
             // Handle first block   
@@ -1055,6 +1055,7 @@ protected boolean doAddAll(int index, char[] array) {
                 end += add;
                 addCharBlock(end, nextCharBlock);
             } else {
+                end = currCharBlockEnd;
                 s -= should;
                 numCharBlocks--;
             }

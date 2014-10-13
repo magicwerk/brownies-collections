@@ -954,7 +954,7 @@ protected boolean doAddAll(int index, short[] array) {
         if (index == size) {
             // Add elements at end   
             for (int i = 0; i < space; i++) {
-                currShortBlock.values.add(addPos, array[i]);
+                currShortBlock.values.add(addPos + i, array[i]);
             }
             modify(currNode, space);
             int done = space;
@@ -968,17 +968,17 @@ protected boolean doAddAll(int index, short[] array) {
                 done += add;
                 todo -= add;
                 addShortBlock(size + done, nextShortBlock);
+                currNode = currNode.next();
             }
             size += addLen;
-            currNode = currNode.next();
             currShortBlock = currNode.block;
-            currShortBlockStart = currShortBlockEnd + space;
-            currShortBlockEnd = currShortBlockStart + addLen - space;
+            currShortBlockEnd = size;
+            currShortBlockStart = currShortBlockEnd - currShortBlock.size();
         } else if (index == 0) {
             // Add elements at head   
             assert (addPos == 0);
             for (int i = 0; i < space; i++) {
-                currShortBlock.values.add(addPos, array[addLen - space + i]);
+                currShortBlock.values.add(addPos + i, array[addLen - space + i]);
             }
             modify(currNode, space);
             int done = space;
@@ -987,17 +987,17 @@ protected boolean doAddAll(int index, short[] array) {
                 ShortBlock nextShortBlock = new ShortBlock(blockSize);
                 int add = Math.min(todo, blockSize);
                 for (int i = 0; i < add; i++) {
-                    nextShortBlock.values.add(i, array[done + i]);
+                    nextShortBlock.values.add(i, array[addLen - done - add + i]);
                 }
                 done += add;
                 todo -= add;
                 addShortBlock(0, nextShortBlock);
+                currNode = currNode.previous();
             }
             size += addLen;
-            currNode = currNode.previous();
             currShortBlock = currNode.block;
             currShortBlockStart = 0;
-            currShortBlockEnd = addLen - space;
+            currShortBlockEnd = currShortBlock.size();
         } else {
             // Add elements to several blocks   
             // Handle first block   
@@ -1055,6 +1055,7 @@ protected boolean doAddAll(int index, short[] array) {
                 end += add;
                 addShortBlock(end, nextShortBlock);
             } else {
+                end = currShortBlockEnd;
                 s -= should;
                 numShortBlocks--;
             }

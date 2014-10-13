@@ -954,7 +954,7 @@ protected boolean doAddAll(int index, long[] array) {
         if (index == size) {
             // Add elements at end   
             for (int i = 0; i < space; i++) {
-                currLongBlock.values.add(addPos, array[i]);
+                currLongBlock.values.add(addPos + i, array[i]);
             }
             modify(currNode, space);
             int done = space;
@@ -968,17 +968,17 @@ protected boolean doAddAll(int index, long[] array) {
                 done += add;
                 todo -= add;
                 addLongBlock(size + done, nextLongBlock);
+                currNode = currNode.next();
             }
             size += addLen;
-            currNode = currNode.next();
             currLongBlock = currNode.block;
-            currLongBlockStart = currLongBlockEnd + space;
-            currLongBlockEnd = currLongBlockStart + addLen - space;
+            currLongBlockEnd = size;
+            currLongBlockStart = currLongBlockEnd - currLongBlock.size();
         } else if (index == 0) {
             // Add elements at head   
             assert (addPos == 0);
             for (int i = 0; i < space; i++) {
-                currLongBlock.values.add(addPos, array[addLen - space + i]);
+                currLongBlock.values.add(addPos + i, array[addLen - space + i]);
             }
             modify(currNode, space);
             int done = space;
@@ -987,17 +987,17 @@ protected boolean doAddAll(int index, long[] array) {
                 LongBlock nextLongBlock = new LongBlock(blockSize);
                 int add = Math.min(todo, blockSize);
                 for (int i = 0; i < add; i++) {
-                    nextLongBlock.values.add(i, array[done + i]);
+                    nextLongBlock.values.add(i, array[addLen - done - add + i]);
                 }
                 done += add;
                 todo -= add;
                 addLongBlock(0, nextLongBlock);
+                currNode = currNode.previous();
             }
             size += addLen;
-            currNode = currNode.previous();
             currLongBlock = currNode.block;
             currLongBlockStart = 0;
-            currLongBlockEnd = addLen - space;
+            currLongBlockEnd = currLongBlock.size();
         } else {
             // Add elements to several blocks   
             // Handle first block   
@@ -1055,6 +1055,7 @@ protected boolean doAddAll(int index, long[] array) {
                 end += add;
                 addLongBlock(end, nextLongBlock);
             } else {
+                end = currLongBlockEnd;
                 s -= should;
                 numLongBlocks--;
             }

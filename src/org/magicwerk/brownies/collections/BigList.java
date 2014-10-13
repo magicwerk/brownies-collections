@@ -800,7 +800,7 @@ public class BigList<E> extends IList<E> {
 			if (index == size) {
 				// Add elements at end
 				for (int i=0; i<space; i++) {
-					currBlock.values.add(addPos, array[i]);
+					currBlock.values.add(addPos+i, array[i]);
 				}
 				modify(currNode, space);
 
@@ -815,19 +815,19 @@ public class BigList<E> extends IList<E> {
 					done += add;
 					todo -= add;
 					addBlock(size+done, nextBlock);
+					currNode = currNode.next();
 				}
 
 				size += addLen;
-				currNode = currNode.next();
 				currBlock = currNode.block;
-				currBlockStart = currBlockEnd+space;
-				currBlockEnd = currBlockStart+addLen-space;
+				currBlockEnd = size;
+				currBlockStart = currBlockEnd-currBlock.size();
 
 			} else if (index == 0) {
 				// Add elements at head
 				assert(addPos == 0);
 				for (int i=0; i<space; i++) {
-					currBlock.values.add(addPos, array[addLen-space+i]);
+					currBlock.values.add(addPos+i, array[addLen-space+i]);
 				}
 				modify(currNode, space);
 
@@ -837,18 +837,18 @@ public class BigList<E> extends IList<E> {
 					Block<E> nextBlock = new Block<E>(blockSize);
 					int add = Math.min(todo, blockSize);
 					for(int i=0; i<add; i++) {
-						nextBlock.values.add(i, array[done+i]);
+						nextBlock.values.add(i, array[addLen-done-add+i]);
 					}
 					done += add;
 					todo -= add;
 					addBlock(0, nextBlock);
+					currNode = currNode.previous();
 				}
 
 				size += addLen;
-				currNode = currNode.previous();
 				currBlock = currNode.block;
 				currBlockStart = 0;
-				currBlockEnd = addLen-space;
+				currBlockEnd = currBlock.size();
 
 			} else {
 				// Add elements to several blocks
@@ -912,6 +912,7 @@ public class BigList<E> extends IList<E> {
 					addBlock(end, nextBlock);
 
 				} else {
+					end = currBlockEnd;
 					s -= should;
 					numBlocks--;
 				}

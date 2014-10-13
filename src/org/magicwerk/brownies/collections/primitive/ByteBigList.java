@@ -954,7 +954,7 @@ protected boolean doAddAll(int index, byte[] array) {
         if (index == size) {
             // Add elements at end   
             for (int i = 0; i < space; i++) {
-                currByteBlock.values.add(addPos, array[i]);
+                currByteBlock.values.add(addPos + i, array[i]);
             }
             modify(currNode, space);
             int done = space;
@@ -968,17 +968,17 @@ protected boolean doAddAll(int index, byte[] array) {
                 done += add;
                 todo -= add;
                 addByteBlock(size + done, nextByteBlock);
+                currNode = currNode.next();
             }
             size += addLen;
-            currNode = currNode.next();
             currByteBlock = currNode.block;
-            currByteBlockStart = currByteBlockEnd + space;
-            currByteBlockEnd = currByteBlockStart + addLen - space;
+            currByteBlockEnd = size;
+            currByteBlockStart = currByteBlockEnd - currByteBlock.size();
         } else if (index == 0) {
             // Add elements at head   
             assert (addPos == 0);
             for (int i = 0; i < space; i++) {
-                currByteBlock.values.add(addPos, array[addLen - space + i]);
+                currByteBlock.values.add(addPos + i, array[addLen - space + i]);
             }
             modify(currNode, space);
             int done = space;
@@ -987,17 +987,17 @@ protected boolean doAddAll(int index, byte[] array) {
                 ByteBlock nextByteBlock = new ByteBlock(blockSize);
                 int add = Math.min(todo, blockSize);
                 for (int i = 0; i < add; i++) {
-                    nextByteBlock.values.add(i, array[done + i]);
+                    nextByteBlock.values.add(i, array[addLen - done - add + i]);
                 }
                 done += add;
                 todo -= add;
                 addByteBlock(0, nextByteBlock);
+                currNode = currNode.previous();
             }
             size += addLen;
-            currNode = currNode.previous();
             currByteBlock = currNode.block;
             currByteBlockStart = 0;
-            currByteBlockEnd = addLen - space;
+            currByteBlockEnd = currByteBlock.size();
         } else {
             // Add elements to several blocks   
             // Handle first block   
@@ -1055,6 +1055,7 @@ protected boolean doAddAll(int index, byte[] array) {
                 end += add;
                 addByteBlock(end, nextByteBlock);
             } else {
+                end = currByteBlockEnd;
                 s -= should;
                 numByteBlocks--;
             }

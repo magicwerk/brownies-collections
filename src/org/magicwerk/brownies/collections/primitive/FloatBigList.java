@@ -954,7 +954,7 @@ protected boolean doAddAll(int index, float[] array) {
         if (index == size) {
             // Add elements at end   
             for (int i = 0; i < space; i++) {
-                currFloatBlock.values.add(addPos, array[i]);
+                currFloatBlock.values.add(addPos + i, array[i]);
             }
             modify(currNode, space);
             int done = space;
@@ -968,17 +968,17 @@ protected boolean doAddAll(int index, float[] array) {
                 done += add;
                 todo -= add;
                 addFloatBlock(size + done, nextFloatBlock);
+                currNode = currNode.next();
             }
             size += addLen;
-            currNode = currNode.next();
             currFloatBlock = currNode.block;
-            currFloatBlockStart = currFloatBlockEnd + space;
-            currFloatBlockEnd = currFloatBlockStart + addLen - space;
+            currFloatBlockEnd = size;
+            currFloatBlockStart = currFloatBlockEnd - currFloatBlock.size();
         } else if (index == 0) {
             // Add elements at head   
             assert (addPos == 0);
             for (int i = 0; i < space; i++) {
-                currFloatBlock.values.add(addPos, array[addLen - space + i]);
+                currFloatBlock.values.add(addPos + i, array[addLen - space + i]);
             }
             modify(currNode, space);
             int done = space;
@@ -987,17 +987,17 @@ protected boolean doAddAll(int index, float[] array) {
                 FloatBlock nextFloatBlock = new FloatBlock(blockSize);
                 int add = Math.min(todo, blockSize);
                 for (int i = 0; i < add; i++) {
-                    nextFloatBlock.values.add(i, array[done + i]);
+                    nextFloatBlock.values.add(i, array[addLen - done - add + i]);
                 }
                 done += add;
                 todo -= add;
                 addFloatBlock(0, nextFloatBlock);
+                currNode = currNode.previous();
             }
             size += addLen;
-            currNode = currNode.previous();
             currFloatBlock = currNode.block;
             currFloatBlockStart = 0;
-            currFloatBlockEnd = addLen - space;
+            currFloatBlockEnd = currFloatBlock.size();
         } else {
             // Add elements to several blocks   
             // Handle first block   
@@ -1055,6 +1055,7 @@ protected boolean doAddAll(int index, float[] array) {
                 end += add;
                 addFloatBlock(end, nextFloatBlock);
             } else {
+                end = currFloatBlockEnd;
                 s -= should;
                 numFloatBlocks--;
             }
