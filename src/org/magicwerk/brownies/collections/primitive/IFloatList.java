@@ -271,11 +271,13 @@ public boolean equals(Object obj) {
     }
     if (obj instanceof FloatObjGapList) {
         obj = ((FloatObjGapList) obj).list;
+    } else if (obj instanceof FloatObjBigList) {
+        obj = ((FloatObjBigList) obj).list;
     }
-    if (!(obj instanceof FloatGapList)) {
+    if (!(obj instanceof IFloatList)) {
         return false;
     }
-    @SuppressWarnings("unchecked") FloatGapList list = (FloatGapList) obj;
+    @SuppressWarnings("unchecked") IFloatList list = (IFloatList) obj;
     int size = size();
     if (size != list.size()) {
         return false;

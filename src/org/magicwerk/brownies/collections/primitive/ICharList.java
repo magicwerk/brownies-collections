@@ -271,11 +271,13 @@ public boolean equals(Object obj) {
     }
     if (obj instanceof CharObjGapList) {
         obj = ((CharObjGapList) obj).list;
+    } else if (obj instanceof CharObjBigList) {
+        obj = ((CharObjBigList) obj).list;
     }
-    if (!(obj instanceof CharGapList)) {
+    if (!(obj instanceof ICharList)) {
         return false;
     }
-    @SuppressWarnings("unchecked") CharGapList list = (CharGapList) obj;
+    @SuppressWarnings("unchecked") ICharList list = (ICharList) obj;
     int size = size();
     if (size != list.size()) {
         return false;

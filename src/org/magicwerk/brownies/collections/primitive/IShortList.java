@@ -271,11 +271,13 @@ public boolean equals(Object obj) {
     }
     if (obj instanceof ShortObjGapList) {
         obj = ((ShortObjGapList) obj).list;
+    } else if (obj instanceof ShortObjBigList) {
+        obj = ((ShortObjBigList) obj).list;
     }
-    if (!(obj instanceof ShortGapList)) {
+    if (!(obj instanceof IShortList)) {
         return false;
     }
-    @SuppressWarnings("unchecked") ShortGapList list = (ShortGapList) obj;
+    @SuppressWarnings("unchecked") IShortList list = (IShortList) obj;
     int size = size();
     if (size != list.size()) {
         return false;
