@@ -8,21 +8,25 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Deque;
 import java.util.List;
 import org.magicwerk.brownies.collections.helper.primitive.IntMergeSort;
 
 /**
- * The first block (IntGapList) used grows dynamcically, all others
- * are allocated with fixed size. This is necessary to prevent starving
- * because of GC usage.
+ * IntBigList is a list optimized for storing large number of elements.
+ * It stores the elements in fixed size blocks and the blocks itself are maintained in a tree for fast access.
+ * It also offers specialized methods for bulk processing of elements.
+ * Also copying a IntBigList is efficiently possible as its implemented using a copy-on-write approach.
+ * <p>
+ * <strong>Note that this implementation is not synchronized.</strong>
+ * Due to data caching used for exploiting locality of reference, performance can decrease if IntBigList is
+ * accessed by several threads at different positions.
+ * </p>
  *
  * @author Thomas Mauch
- * @version $Id: IntBigList.java 2493 2014-10-12 00:40:31Z origo $
+ * @version $Id: IntBigList.java 2505 2014-10-13 23:33:45Z origo $
  */
 public class IntBigList extends IIntList {
 	public static IIntList of(int[] values) {
@@ -275,7 +279,11 @@ private void error() {
     ;
 
     /**
-	 *
+	 * A block stores in maximum blockSize number of elements.
+	 * The first block in a IntBigList will grow until reaches this limit, all other blocks are directly
+	 * allocated with a capacity of blockSize.
+	 * A block maintains a reference count which allows a block to be shared among different IntBigList
+	 * instances with a copy-on-write approach.
 	 */
     
     public static class IntBlock implements Serializable {
@@ -300,37 +308,53 @@ private void error() {
     refCount = 1;
 }
 
-        public boolean isShared() {
+        /**
+		 * @return true if block is shared by several IntBigList instances
+		 */
+public boolean isShared() {
     return refCount > 1;
 }
 
-        public IntBlock ref() {
+        /**
+		 * Increment reference count as block is used by one IntBigList instance more.
+		 */
+public IntBlock ref() {
     refCount++;
     return this;
 }
 
-        public void unref() {
+        /**
+		 * Decrement reference count as block is no longer used by one IntBigList instance.
+		 */
+public void unref() {
     refCount--;
 }
 
-        public int size() {
+        /**
+		 * @return number of elements stored in this block
+		 */
+public int size() {
     return values.size();
 }
 
-        public String toString() {
+        @Override
+public String toString() {
     return values.toString();
 }
     }
 
-    /** Set to true for debugging during developping */
-    public static final boolean TRACE = false;
-
-    public static final boolean CHECK = true;
-
-    public static final boolean DUMP = false;
+    /** UID for serialization */
+    private static final long serialVersionUID = 3715838828540564836L;
 
     /** Default block size */
     private static int BLOCK_SIZE = 1000;
+
+    /** Set to true for debugging during developing */
+    private static final boolean TRACE = false;
+
+    private static final boolean CHECK = true;
+
+    private static final boolean DUMP = false;
 
     /** Number of elements stored at maximum in a block */
     private int blockSize;
@@ -489,7 +513,12 @@ private IntBigList(int blockSize, int firstIntBlockSize){
     addIntBlock(0, currIntBlock);
 }
 
-    @Override
+    /**
+     * Returns a copy of this <tt>IntBigList</tt> instance.
+     * The copy is realized by a copy-on-write approach so also really large lists can efficiently be copied.
+     * This method is identical to clone() except that the result is casted to IntBigList.
+	 */
+@Override
 public IntBigList copy() {
     return (IntBigList) super.copy();
 }
@@ -552,7 +581,11 @@ public int size() {
     return size;
 }
 
-    @Override
+    /**
+	 * {@inheritDoc}
+	 * For IntBigList, always -1 is returned.
+	 */
+@Override
 public int capacity() {
     return -1;
 }
@@ -579,7 +612,10 @@ protected int doReSet(int index, int elem) {
     return oldElem;
 }
 
-    private void releaseIntBlock() {
+    /**
+	 * Release current block and apply modification if pending.
+	 */
+private void releaseIntBlock() {
     if (currModify != 0) {
         int modify = currModify;
         currModify = 0;
@@ -999,8 +1035,8 @@ protected boolean doAddAll(int index, int[] array) {
             currIntBlockStart = 0;
             currIntBlockEnd = currIntBlock.size();
         } else {
-            // Add elements to several blocks   
-            // Handle first block   
+            // Add elements in the middle   
+            // Split first block to remove tail elements if necessary   
             IntGapList list = IntGapList.create(array);
             int remove = currIntBlock.values.size() - addPos;
             if (remove > 0) {
@@ -1010,26 +1046,25 @@ protected boolean doAddAll(int index, int[] array) {
                 size -= remove;
                 currIntBlockEnd -= remove;
             }
-            int s = currIntBlock.values.size() + list.size();
-            int numIntBlocks = (s - 1) / blockSize + 1;
+            // Calculate how many blocks we need for the elements   
+            int numElems = currIntBlock.values.size() + list.size();
+            int numIntBlocks = (numElems - 1) / blockSize + 1;
             assert (numIntBlocks > 1);
             int has = currIntBlock.values.size();
-            int should = s / numIntBlocks;
-            int start = 0;
-            int end = 0;
+            int should = numElems / numIntBlocks;
+            int listPos = 0;
             if (has < should) {
                 // Elements must be added to first block   
                 int add = should - has;
                 IIntList sublist = list.getAll(0, add);
+                listPos += add;
                 currIntBlock.values.addAll(addPos, sublist);
                 modify(currNode, add);
-                start += add;
                 assert (currIntBlock.values.size() == should);
-                s -= should;
+                numElems -= should;
                 numIntBlocks--;
                 size += add;
                 currIntBlockEnd += add;
-                end = currIntBlockEnd;
             } else if (has > should) {
                 // Elements must be moved from first to second block   
                 IntBlock nextIntBlock = new IntBlock(blockSize);
@@ -1038,43 +1073,48 @@ protected boolean doAddAll(int index, int[] array) {
                 currIntBlock.values.remove(currIntBlock.values.size() - move, move);
                 modify(currNode, -move);
                 assert (currIntBlock.values.size() == should);
-                s -= should;
+                numElems -= should;
                 numIntBlocks--;
                 currIntBlockEnd -= move;
-                end = currIntBlockEnd;
-                should = s / numIntBlocks;
+                should = numElems / numIntBlocks;
                 int add = should - move;
                 assert (add >= 0);
                 IIntList sublist = list.getAll(0, add);
                 nextIntBlock.values.addAll(move, sublist);
-                start += add;
+                listPos += add;
                 assert (nextIntBlock.values.size() == should);
-                s -= should;
+                numElems -= should;
                 numIntBlocks--;
                 size += add;
-                end += add;
-                addIntBlock(end, nextIntBlock);
+                addIntBlock(currIntBlockEnd, nextIntBlock);
+                currNode = currNode.next();
+                currIntBlock = currNode.block;
+                assert (currIntBlock == nextIntBlock);
+                assert (currIntBlock.size() == add + move);
+                currIntBlockStart = currIntBlockEnd;
+                currIntBlockEnd += add + move;
             } else {
-                end = currIntBlockEnd;
-                s -= should;
+                // IntBlock already has the correct size   
+                numElems -= should;
                 numIntBlocks--;
             }
             check();
-            IntBlockNode node = currNode;
             while (numIntBlocks > 0) {
-                int add = s / numIntBlocks;
+                int add = numElems / numIntBlocks;
                 assert (add > 0);
-                IIntList sublist = list.getAll(start, add);
+                IIntList sublist = list.getAll(listPos, add);
+                listPos += add;
                 IntBlock nextIntBlock = new IntBlock();
-                nextIntBlock.values.clear();
                 nextIntBlock.values.addAll(sublist);
-                start += add;
                 assert (nextIntBlock.values.size() == add);
-                s -= add;
-                addIntBlock(end, nextIntBlock);
-                assert (node.next().block == nextIntBlock);
-                node = node.next();
-                end += add;
+                numElems -= add;
+                addIntBlock(currIntBlockEnd, nextIntBlock);
+                currNode = currNode.next();
+                currIntBlock = currNode.block;
+                assert (currIntBlock == nextIntBlock);
+                assert (currIntBlock.size() == add);
+                currIntBlockStart = currIntBlockEnd;
+                currIntBlockEnd += add;
                 size += add;
                 numIntBlocks--;
                 check();
@@ -1302,16 +1342,18 @@ public int binarySearch(int index, int len, int key) {
     }
 }
 
-    private boolean isOnlyRootIntBlock() {
+    /**
+	 * @return true if there is only the root block, false otherwise
+	 */
+private boolean isOnlyRootIntBlock() {
     return root.left == null && root.right == null;
 }
 
-    public IntBlockNode access(final int index, int modify) {
+    public IntBlockNode access(int index, int modify) {
     return root.access(this, index, modify, false);
 }
 
-    //-----------------------------------------------------------------------  
-/**
+    /**
      * Adds a new element to the list.
      *
      * @param index  the index to add before
@@ -1373,21 +1415,17 @@ private void readObject(ObjectInputStream ois) throws IOException, ClassNotFound
     }
 }
 
-    //-----------------------------------------------------------------------  
     /**
-     * Implements an AVLNode which keeps the offset updated.
-     * <p>
-     * This node contains the real work.
-     * TreeList is just there to implement {@link java.util.IIntList}.
-     * The nodes don't know the index of the object they are holding.  They
-     * do know however their position relative to their parent node.
-     * This allows to calculate the index of a node while traversing the tree.
+     * Implements an AVLNode storing a IntBlock.
+     * The nodes don't know the index of the object they are holding. They do know however their
+     * position relative to their parent node. This allows to calculate the index of a node while traversing the tree.
      * <p>
      * The Faedelung calculation stores a flag for both the left and right child
      * to indicate if they are a child (false) or a link as in linked list (true).
      */
     static class IntBlockNode {
 
+        /** Pointer to parent node (null for root) */
         IntBlockNode parent;
 
         /** The left child node or the predecessor if {@link #leftIsPrevious}.*/
@@ -1412,14 +1450,15 @@ private void readObject(ObjectInputStream ois) throws IOException, ClassNotFound
         IntBlock block;
 
         /**
-         * Constructs a new node with a relative position.
+         * Constructs a new node.
          *
-         * @param relativePosition  the relative position of the node
-         * @param obj  the value for the node
-         * @param rightFollower the node with the value following this one
-         * @param leftFollower the node with the value leading this one
+         * @param parent			parent node (null for root)
+         * @param relativePosition  the relative position of the node (absolute position for root)
+         * @param block				the block to store
+         * @param rightFollower 	the node following this one
+         * @param leftFollower 		the node leading this one
          */
-private IntBlockNode(IntBlockNode parent, final int relativePosition, final IntBlock block, final IntBlockNode rightFollower, final IntBlockNode leftFollower){
+private IntBlockNode(IntBlockNode parent, int relativePosition, IntBlock block, IntBlockNode rightFollower, IntBlockNode leftFollower){
     this.parent = parent;
     this.relativePosition = relativePosition;
     this.block = block;
@@ -1430,24 +1469,34 @@ private IntBlockNode(IntBlockNode parent, final int relativePosition, final IntB
 }
 
         /**
-         * Gets the value.
+         * Gets the block stored by this node.
          *
-         * @return the value of this node
+         * @return block stored by this node
          */
 public IntBlock getIntBlock() {
     return block;
 }
 
         /**
-         * Sets the value.
+         * Sets block to store by this node.
          *
-         * @param obj  the value to store
+         * @param block  the block to store
          */
-public void setIntBlock(IntBlock obj) {
-    this.block = obj;
+public void setIntBlock(IntBlock block) {
+    this.block = block;
 }
 
-        private IntBlockNode access(IntBigList list, int index, int modify, boolean wasLeft) {
+        /**
+         * Retrieves node with specified index.
+         *
+         * @param list		reference to IntBigList using this node (used for updating currIntBlockEnd)
+         * @param index		index to retrieve
+         * @param modify	modification to apply during traversal to relative positions <br/>
+         * 					>0: N elements are added at index, <0: N elements are deleted at index, 0: no change
+         * @param wasLeft	last node was a left child
+         * @return
+         */
+private IntBlockNode access(IntBigList list, int index, int modify, boolean wasLeft) {
     assert (index >= 0);
     if (relativePosition == 0) {
         if (modify != 0) {
@@ -1458,10 +1507,11 @@ public void setIntBlock(IntBlock obj) {
     if (list.currIntBlockEnd == 0) {
         list.currIntBlockEnd = relativePosition;
     }
-    IntBlockNode leftNode = getLeftSubTree();
     int leftIndex = list.currIntBlockEnd - block.size();
     assert (leftIndex >= 0);
     if (index >= leftIndex && index < list.currIntBlockEnd) {
+        // Correct node has been found   
+        IntBlockNode leftNode = getLeftSubTree();
         if (relativePosition > 0) {
             relativePosition += modify;
             if (leftNode != null) {
@@ -1474,8 +1524,9 @@ public void setIntBlock(IntBlock obj) {
         }
         return this;
     }
+    // Further traversal needed to find the correct node   
     if (index < list.currIntBlockEnd) {
-        // left   
+        // Travese the left node   
         IntBlockNode nextNode = getLeftSubTree();
         if (nextNode == null || !wasLeft) {
             if (relativePosition > 0) {
@@ -1491,7 +1542,7 @@ public void setIntBlock(IntBlock obj) {
         list.currIntBlockEnd += nextNode.relativePosition;
         return nextNode.access(list, index, modify, wasLeft);
     } else {
-        // right   
+        // Traverse the right node   
         IntBlockNode nextNode = getRightSubTree();
         if (nextNode == null || wasLeft) {
             if (relativePosition > 0) {
@@ -1588,8 +1639,7 @@ private IntBlockNode insert(int index, IntBlock obj) {
     return ret;
 }
 
-        //-----------------------------------------------------------------------  
-/**
+        /**
          * Gets the left node, returning null if its a faedelung.
          */
 public IntBlockNode getLeftSubTree() {
@@ -1627,7 +1677,7 @@ public IntBlockNode min() {
          * @param index is the index of the element to be removed relative to the position of
          * the parent node of the current node.
          */
-private IntBlockNode remove(final int index) {
+private IntBlockNode remove(int index) {
     final int indexRelativeToMe = index - relativePosition;
     if (indexRelativeToMe == 0) {
         return removeSelf();
@@ -1652,8 +1702,6 @@ private IntBlockNode remove(final int index) {
         return removeSelf();
     }
     setRight(right.removeMax(), right.right);
-    if (relativePosition < 0) {
-    }
     recalcHeight();
     return balance();
 }
@@ -1740,8 +1788,7 @@ public IntBlockNode removeSelf() {
     return this;
 }
 
-        //-----------------------------------------------------------------------  
-/**
+        /**
          * Balances according to the AVL algorithm.
          */
 private IntBlockNode balance() {
@@ -1768,7 +1815,7 @@ private IntBlockNode balance() {
         /**
          * Gets the relative position.
          */
-private int getOffset(final IntBlockNode node) {
+private int getOffset(IntBlockNode node) {
     if (node == null) {
         return 0;
     }
@@ -1778,7 +1825,7 @@ private int getOffset(final IntBlockNode node) {
         /**
          * Sets the relative position.
          */
-private int setOffset(final IntBlockNode node, final int newOffest) {
+private int setOffset(IntBlockNode node, int newOffest) {
     if (node == null) {
         return 0;
     }
@@ -1856,7 +1903,7 @@ private int heightRightMinusLeft() {
          * @param node  the new left subtree node
          * @param previous  the previous node in the linked list
          */
-private void setLeft(final IntBlockNode node, final IntBlockNode previous) {
+private void setLeft(IntBlockNode node, IntBlockNode previous) {
     assert (node != this && previous != this);
     leftIsPrevious = node == null;
     if (leftIsPrevious) {
@@ -1874,7 +1921,7 @@ private void setLeft(final IntBlockNode node, final IntBlockNode previous) {
          * @param node  the new right subtree node
          * @param next  the next node in the linked list
          */
-private void setRight(final IntBlockNode node, final IntBlockNode next) {
+private void setRight(IntBlockNode node, IntBlockNode next) {
     assert (node != this && next != this);
     rightIsNext = node == null;
     if (rightIsNext) {

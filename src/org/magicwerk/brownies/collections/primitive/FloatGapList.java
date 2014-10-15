@@ -387,7 +387,12 @@ public float getDefaultElem() {
     return 0;
 }
 
-    @Override
+    /**
+     * Returns a shallow copy of this <tt>FloatGapList</tt> instance.
+     * (the new list will contain the same elements as the source list, i.e. the elements themselves are not copied).
+     * This method is identical to clone() except that the result is casted to FloatGapList.
+	 */
+@Override
 public FloatGapList copy() {
     return (FloatGapList) super.copy();
 }

@@ -387,7 +387,12 @@ public char getDefaultElem() {
     return (char) 0;
 }
 
-    @Override
+    /**
+     * Returns a shallow copy of this <tt>CharGapList</tt> instance.
+     * (the new list will contain the same elements as the source list, i.e. the elements themselves are not copied).
+     * This method is identical to clone() except that the result is casted to CharGapList.
+	 */
+@Override
 public CharGapList copy() {
     return (CharGapList) super.copy();
 }
