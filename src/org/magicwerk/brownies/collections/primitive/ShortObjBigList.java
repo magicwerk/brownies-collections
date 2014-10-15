@@ -230,7 +230,11 @@ public class ShortObjBigList extends IList<Short> {
 
 	@Override
 	public boolean equals(Object obj) {
-		return list.equals(obj);
+		if (obj != null && getClass() == obj.getClass()) {
+			return list.equals(obj);
+		} else {
+			return super.equals(obj);
+		}
 	}
 
 	@Override
@@ -317,14 +321,16 @@ public class ShortObjBigList extends IList<Short> {
 
 	@Override
 	public Object[] toArray() {
-		short[] elems = list.toArray();
-		return toWrapper(elems);
+		return toArray(0, size());
 	}
 
 	@Override
 	public Object[] toArray(int index, int len) {
-		short[] elems = list.toArray(index, len);
-		return toWrapper(elems);
+		Object[] elems = new Object[len];
+		for (int i=0; i<len; i++) {
+			elems[i] = list.get(i);
+		}
+		return elems;
 	}
 
 	@Override

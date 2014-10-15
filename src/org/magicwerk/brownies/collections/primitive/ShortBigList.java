@@ -26,7 +26,7 @@ import org.magicwerk.brownies.collections.helper.primitive.ShortMergeSort;
  * </p>
  *
  * @author Thomas Mauch
- * @version $Id: ShortBigList.java 2505 2014-10-13 23:33:45Z origo $
+ * @version $Id: ShortBigList.java 2507 2014-10-15 00:08:21Z origo $
  */
 public class ShortBigList extends IShortList {
 	public static IShortList of(short[] values) {

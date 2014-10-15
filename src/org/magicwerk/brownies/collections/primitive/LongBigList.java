@@ -26,7 +26,7 @@ import org.magicwerk.brownies.collections.helper.primitive.LongMergeSort;
  * </p>
  *
  * @author Thomas Mauch
- * @version $Id: LongBigList.java 2505 2014-10-13 23:33:45Z origo $
+ * @version $Id: LongBigList.java 2507 2014-10-15 00:08:21Z origo $
  */
 public class LongBigList extends ILongList {
 	public static ILongList of(long[] values) {
