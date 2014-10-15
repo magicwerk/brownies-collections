@@ -8,21 +8,25 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Deque;
 import java.util.List;
 import org.magicwerk.brownies.collections.helper.primitive.ShortMergeSort;
 
 /**
- * The first block (ShortGapList) used grows dynamcically, all others
- * are allocated with fixed size. This is necessary to prevent starving
- * because of GC usage.
+ * ShortBigList is a list optimized for storing large number of elements.
+ * It stores the elements in fixed size blocks and the blocks itself are maintained in a tree for fast access.
+ * It also offers specialized methods for bulk processing of elements.
+ * Also copying a ShortBigList is efficiently possible as its implemented using a copy-on-write approach.
+ * <p>
+ * <strong>Note that this implementation is not synchronized.</strong>
+ * Due to data caching used for exploiting locality of reference, performance can decrease if ShortBigList is
+ * accessed by several threads at different positions.
+ * </p>
  *
  * @author Thomas Mauch
- * @version $Id: ShortBigList.java 2493 2014-10-12 00:40:31Z origo $
+ * @version $Id: ShortBigList.java 2505 2014-10-13 23:33:45Z origo $
  */
 public class ShortBigList extends IShortList {
 	public static IShortList of(short[] values) {
@@ -275,7 +279,11 @@ private void error() {
     ;
 
     /**
-	 *
+	 * A block stores in maximum blockSize number of elements.
+	 * The first block in a ShortBigList will grow until reaches this limit, all other blocks are directly
+	 * allocated with a capacity of blockSize.
+	 * A block maintains a reference count which allows a block to be shared among different ShortBigList
+	 * instances with a copy-on-write approach.
 	 */
     
     public static class ShortBlock implements Serializable {
@@ -300,37 +308,53 @@ private void error() {
     refCount = 1;
 }
 
-        public boolean isShared() {
+        /**
+		 * @return true if block is shared by several ShortBigList instances
+		 */
+public boolean isShared() {
     return refCount > 1;
 }
 
-        public ShortBlock ref() {
+        /**
+		 * Increment reference count as block is used by one ShortBigList instance more.
+		 */
+public ShortBlock ref() {
     refCount++;
     return this;
 }
 
-        public void unref() {
+        /**
+		 * Decrement reference count as block is no longer used by one ShortBigList instance.
+		 */
+public void unref() {
     refCount--;
 }
 
-        public int size() {
+        /**
+		 * @return number of elements stored in this block
+		 */
+public int size() {
     return values.size();
 }
 
-        public String toString() {
+        @Override
+public String toString() {
     return values.toString();
 }
     }
 
-    /** Set to true for debugging during developping */
-    public static final boolean TRACE = false;
-
-    public static final boolean CHECK = true;
-
-    public static final boolean DUMP = false;
+    /** UID for serialization */
+    private static final long serialVersionUID = 3715838828540564836L;
 
     /** Default block size */
     private static int BLOCK_SIZE = 1000;
+
+    /** Set to true for debugging during developing */
+    private static final boolean TRACE = false;
+
+    private static final boolean CHECK = true;
+
+    private static final boolean DUMP = false;
 
     /** Number of elements stored at maximum in a block */
     private int blockSize;
@@ -489,7 +513,12 @@ private ShortBigList(int blockSize, int firstShortBlockSize){
     addShortBlock(0, currShortBlock);
 }
 
-    @Override
+    /**
+     * Returns a copy of this <tt>ShortBigList</tt> instance.
+     * The copy is realized by a copy-on-write approach so also really large lists can efficiently be copied.
+     * This method is identical to clone() except that the result is casted to ShortBigList.
+	 */
+@Override
 public ShortBigList copy() {
     return (ShortBigList) super.copy();
 }
@@ -552,7 +581,11 @@ public int size() {
     return size;
 }
 
-    @Override
+    /**
+	 * {@inheritDoc}
+	 * For ShortBigList, always -1 is returned.
+	 */
+@Override
 public int capacity() {
     return -1;
 }
@@ -579,7 +612,10 @@ protected short doReSet(int index, short elem) {
     return oldElem;
 }
 
-    private void releaseShortBlock() {
+    /**
+	 * Release current block and apply modification if pending.
+	 */
+private void releaseShortBlock() {
     if (currModify != 0) {
         int modify = currModify;
         currModify = 0;
@@ -999,8 +1035,8 @@ protected boolean doAddAll(int index, short[] array) {
             currShortBlockStart = 0;
             currShortBlockEnd = currShortBlock.size();
         } else {
-            // Add elements to several blocks   
-            // Handle first block   
+            // Add elements in the middle   
+            // Split first block to remove tail elements if necessary   
             ShortGapList list = ShortGapList.create(array);
             int remove = currShortBlock.values.size() - addPos;
             if (remove > 0) {
@@ -1010,26 +1046,25 @@ protected boolean doAddAll(int index, short[] array) {
                 size -= remove;
                 currShortBlockEnd -= remove;
             }
-            int s = currShortBlock.values.size() + list.size();
-            int numShortBlocks = (s - 1) / blockSize + 1;
+            // Calculate how many blocks we need for the elements   
+            int numElems = currShortBlock.values.size() + list.size();
+            int numShortBlocks = (numElems - 1) / blockSize + 1;
             assert (numShortBlocks > 1);
             int has = currShortBlock.values.size();
-            int should = s / numShortBlocks;
-            int start = 0;
-            int end = 0;
+            int should = numElems / numShortBlocks;
+            int listPos = 0;
             if (has < should) {
                 // Elements must be added to first block   
                 int add = should - has;
                 IShortList sublist = list.getAll(0, add);
+                listPos += add;
                 currShortBlock.values.addAll(addPos, sublist);
                 modify(currNode, add);
-                start += add;
                 assert (currShortBlock.values.size() == should);
-                s -= should;
+                numElems -= should;
                 numShortBlocks--;
                 size += add;
                 currShortBlockEnd += add;
-                end = currShortBlockEnd;
             } else if (has > should) {
                 // Elements must be moved from first to second block   
                 ShortBlock nextShortBlock = new ShortBlock(blockSize);
@@ -1038,43 +1073,48 @@ protected boolean doAddAll(int index, short[] array) {
                 currShortBlock.values.remove(currShortBlock.values.size() - move, move);
                 modify(currNode, -move);
                 assert (currShortBlock.values.size() == should);
-                s -= should;
+                numElems -= should;
                 numShortBlocks--;
                 currShortBlockEnd -= move;
-                end = currShortBlockEnd;
-                should = s / numShortBlocks;
+                should = numElems / numShortBlocks;
                 int add = should - move;
                 assert (add >= 0);
                 IShortList sublist = list.getAll(0, add);
                 nextShortBlock.values.addAll(move, sublist);
-                start += add;
+                listPos += add;
                 assert (nextShortBlock.values.size() == should);
-                s -= should;
+                numElems -= should;
                 numShortBlocks--;
                 size += add;
-                end += add;
-                addShortBlock(end, nextShortBlock);
+                addShortBlock(currShortBlockEnd, nextShortBlock);
+                currNode = currNode.next();
+                currShortBlock = currNode.block;
+                assert (currShortBlock == nextShortBlock);
+                assert (currShortBlock.size() == add + move);
+                currShortBlockStart = currShortBlockEnd;
+                currShortBlockEnd += add + move;
             } else {
-                end = currShortBlockEnd;
-                s -= should;
+                // ShortBlock already has the correct size   
+                numElems -= should;
                 numShortBlocks--;
             }
             check();
-            ShortBlockNode node = currNode;
             while (numShortBlocks > 0) {
-                int add = s / numShortBlocks;
+                int add = numElems / numShortBlocks;
                 assert (add > 0);
-                IShortList sublist = list.getAll(start, add);
+                IShortList sublist = list.getAll(listPos, add);
+                listPos += add;
                 ShortBlock nextShortBlock = new ShortBlock();
-                nextShortBlock.values.clear();
                 nextShortBlock.values.addAll(sublist);
-                start += add;
                 assert (nextShortBlock.values.size() == add);
-                s -= add;
-                addShortBlock(end, nextShortBlock);
-                assert (node.next().block == nextShortBlock);
-                node = node.next();
-                end += add;
+                numElems -= add;
+                addShortBlock(currShortBlockEnd, nextShortBlock);
+                currNode = currNode.next();
+                currShortBlock = currNode.block;
+                assert (currShortBlock == nextShortBlock);
+                assert (currShortBlock.size() == add);
+                currShortBlockStart = currShortBlockEnd;
+                currShortBlockEnd += add;
                 size += add;
                 numShortBlocks--;
                 check();
@@ -1302,16 +1342,18 @@ public int binarySearch(int index, int len, short key) {
     }
 }
 
-    private boolean isOnlyRootShortBlock() {
+    /**
+	 * @return true if there is only the root block, false otherwise
+	 */
+private boolean isOnlyRootShortBlock() {
     return root.left == null && root.right == null;
 }
 
-    public ShortBlockNode access(final int index, int modify) {
+    public ShortBlockNode access(int index, int modify) {
     return root.access(this, index, modify, false);
 }
 
-    //-----------------------------------------------------------------------  
-/**
+    /**
      * Adds a new element to the list.
      *
      * @param index  the index to add before
@@ -1373,21 +1415,17 @@ private void readObject(ObjectInputStream ois) throws IOException, ClassNotFound
     }
 }
 
-    //-----------------------------------------------------------------------  
     /**
-     * Implements an AVLNode which keeps the offset updated.
-     * <p>
-     * This node contains the real work.
-     * TreeList is just there to implement {@link java.util.IShortList}.
-     * The nodes don't know the index of the object they are holding.  They
-     * do know however their position relative to their parent node.
-     * This allows to calculate the index of a node while traversing the tree.
+     * Implements an AVLNode storing a ShortBlock.
+     * The nodes don't know the index of the object they are holding. They do know however their
+     * position relative to their parent node. This allows to calculate the index of a node while traversing the tree.
      * <p>
      * The Faedelung calculation stores a flag for both the left and right child
      * to indicate if they are a child (false) or a link as in linked list (true).
      */
     static class ShortBlockNode {
 
+        /** Pointer to parent node (null for root) */
         ShortBlockNode parent;
 
         /** The left child node or the predecessor if {@link #leftIsPrevious}.*/
@@ -1412,14 +1450,15 @@ private void readObject(ObjectInputStream ois) throws IOException, ClassNotFound
         ShortBlock block;
 
         /**
-         * Constructs a new node with a relative position.
+         * Constructs a new node.
          *
-         * @param relativePosition  the relative position of the node
-         * @param obj  the value for the node
-         * @param rightFollower the node with the value following this one
-         * @param leftFollower the node with the value leading this one
+         * @param parent			parent node (null for root)
+         * @param relativePosition  the relative position of the node (absolute position for root)
+         * @param block				the block to store
+         * @param rightFollower 	the node following this one
+         * @param leftFollower 		the node leading this one
          */
-private ShortBlockNode(ShortBlockNode parent, final int relativePosition, final ShortBlock block, final ShortBlockNode rightFollower, final ShortBlockNode leftFollower){
+private ShortBlockNode(ShortBlockNode parent, int relativePosition, ShortBlock block, ShortBlockNode rightFollower, ShortBlockNode leftFollower){
     this.parent = parent;
     this.relativePosition = relativePosition;
     this.block = block;
@@ -1430,24 +1469,34 @@ private ShortBlockNode(ShortBlockNode parent, final int relativePosition, final 
 }
 
         /**
-         * Gets the value.
+         * Gets the block stored by this node.
          *
-         * @return the value of this node
+         * @return block stored by this node
          */
 public ShortBlock getShortBlock() {
     return block;
 }
 
         /**
-         * Sets the value.
+         * Sets block to store by this node.
          *
-         * @param obj  the value to store
+         * @param block  the block to store
          */
-public void setShortBlock(ShortBlock obj) {
-    this.block = obj;
+public void setShortBlock(ShortBlock block) {
+    this.block = block;
 }
 
-        private ShortBlockNode access(ShortBigList list, int index, int modify, boolean wasLeft) {
+        /**
+         * Retrieves node with specified index.
+         *
+         * @param list		reference to ShortBigList using this node (used for updating currShortBlockEnd)
+         * @param index		index to retrieve
+         * @param modify	modification to apply during traversal to relative positions <br/>
+         * 					>0: N elements are added at index, <0: N elements are deleted at index, 0: no change
+         * @param wasLeft	last node was a left child
+         * @return
+         */
+private ShortBlockNode access(ShortBigList list, int index, int modify, boolean wasLeft) {
     assert (index >= 0);
     if (relativePosition == 0) {
         if (modify != 0) {
@@ -1458,10 +1507,11 @@ public void setShortBlock(ShortBlock obj) {
     if (list.currShortBlockEnd == 0) {
         list.currShortBlockEnd = relativePosition;
     }
-    ShortBlockNode leftNode = getLeftSubTree();
     int leftIndex = list.currShortBlockEnd - block.size();
     assert (leftIndex >= 0);
     if (index >= leftIndex && index < list.currShortBlockEnd) {
+        // Correct node has been found   
+        ShortBlockNode leftNode = getLeftSubTree();
         if (relativePosition > 0) {
             relativePosition += modify;
             if (leftNode != null) {
@@ -1474,8 +1524,9 @@ public void setShortBlock(ShortBlock obj) {
         }
         return this;
     }
+    // Further traversal needed to find the correct node   
     if (index < list.currShortBlockEnd) {
-        // left   
+        // Travese the left node   
         ShortBlockNode nextNode = getLeftSubTree();
         if (nextNode == null || !wasLeft) {
             if (relativePosition > 0) {
@@ -1491,7 +1542,7 @@ public void setShortBlock(ShortBlock obj) {
         list.currShortBlockEnd += nextNode.relativePosition;
         return nextNode.access(list, index, modify, wasLeft);
     } else {
-        // right   
+        // Traverse the right node   
         ShortBlockNode nextNode = getRightSubTree();
         if (nextNode == null || wasLeft) {
             if (relativePosition > 0) {
@@ -1588,8 +1639,7 @@ private ShortBlockNode insert(int index, ShortBlock obj) {
     return ret;
 }
 
-        //-----------------------------------------------------------------------  
-/**
+        /**
          * Gets the left node, returning null if its a faedelung.
          */
 public ShortBlockNode getLeftSubTree() {
@@ -1627,7 +1677,7 @@ public ShortBlockNode min() {
          * @param index is the index of the element to be removed relative to the position of
          * the parent node of the current node.
          */
-private ShortBlockNode remove(final int index) {
+private ShortBlockNode remove(int index) {
     final int indexRelativeToMe = index - relativePosition;
     if (indexRelativeToMe == 0) {
         return removeSelf();
@@ -1652,8 +1702,6 @@ private ShortBlockNode remove(final int index) {
         return removeSelf();
     }
     setRight(right.removeMax(), right.right);
-    if (relativePosition < 0) {
-    }
     recalcHeight();
     return balance();
 }
@@ -1740,8 +1788,7 @@ public ShortBlockNode removeSelf() {
     return this;
 }
 
-        //-----------------------------------------------------------------------  
-/**
+        /**
          * Balances according to the AVL algorithm.
          */
 private ShortBlockNode balance() {
@@ -1768,7 +1815,7 @@ private ShortBlockNode balance() {
         /**
          * Gets the relative position.
          */
-private int getOffset(final ShortBlockNode node) {
+private int getOffset(ShortBlockNode node) {
     if (node == null) {
         return 0;
     }
@@ -1778,7 +1825,7 @@ private int getOffset(final ShortBlockNode node) {
         /**
          * Sets the relative position.
          */
-private int setOffset(final ShortBlockNode node, final int newOffest) {
+private int setOffset(ShortBlockNode node, int newOffest) {
     if (node == null) {
         return 0;
     }
@@ -1856,7 +1903,7 @@ private int heightRightMinusLeft() {
          * @param node  the new left subtree node
          * @param previous  the previous node in the linked list
          */
-private void setLeft(final ShortBlockNode node, final ShortBlockNode previous) {
+private void setLeft(ShortBlockNode node, ShortBlockNode previous) {
     assert (node != this && previous != this);
     leftIsPrevious = node == null;
     if (leftIsPrevious) {
@@ -1874,7 +1921,7 @@ private void setLeft(final ShortBlockNode node, final ShortBlockNode previous) {
          * @param node  the new right subtree node
          * @param next  the next node in the linked list
          */
-private void setRight(final ShortBlockNode node, final ShortBlockNode next) {
+private void setRight(ShortBlockNode node, ShortBlockNode next) {
     assert (node != this && next != this);
     rightIsNext = node == null;
     if (rightIsNext) {

@@ -8,21 +8,25 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Deque;
 import java.util.List;
 import org.magicwerk.brownies.collections.helper.primitive.FloatMergeSort;
 
 /**
- * The first block (FloatGapList) used grows dynamcically, all others
- * are allocated with fixed size. This is necessary to prevent starving
- * because of GC usage.
+ * FloatBigList is a list optimized for storing large number of elements.
+ * It stores the elements in fixed size blocks and the blocks itself are maintained in a tree for fast access.
+ * It also offers specialized methods for bulk processing of elements.
+ * Also copying a FloatBigList is efficiently possible as its implemented using a copy-on-write approach.
+ * <p>
+ * <strong>Note that this implementation is not synchronized.</strong>
+ * Due to data caching used for exploiting locality of reference, performance can decrease if FloatBigList is
+ * accessed by several threads at different positions.
+ * </p>
  *
  * @author Thomas Mauch
- * @version $Id: FloatBigList.java 2493 2014-10-12 00:40:31Z origo $
+ * @version $Id: FloatBigList.java 2505 2014-10-13 23:33:45Z origo $
  */
 public class FloatBigList extends IFloatList {
 	public static IFloatList of(float[] values) {
@@ -275,7 +279,11 @@ private void error() {
     ;
 
     /**
-	 *
+	 * A block stores in maximum blockSize number of elements.
+	 * The first block in a FloatBigList will grow until reaches this limit, all other blocks are directly
+	 * allocated with a capacity of blockSize.
+	 * A block maintains a reference count which allows a block to be shared among different FloatBigList
+	 * instances with a copy-on-write approach.
 	 */
     
     public static class FloatBlock implements Serializable {
@@ -300,37 +308,53 @@ private void error() {
     refCount = 1;
 }
 
-        public boolean isShared() {
+        /**
+		 * @return true if block is shared by several FloatBigList instances
+		 */
+public boolean isShared() {
     return refCount > 1;
 }
 
-        public FloatBlock ref() {
+        /**
+		 * Increment reference count as block is used by one FloatBigList instance more.
+		 */
+public FloatBlock ref() {
     refCount++;
     return this;
 }
 
-        public void unref() {
+        /**
+		 * Decrement reference count as block is no longer used by one FloatBigList instance.
+		 */
+public void unref() {
     refCount--;
 }
 
-        public int size() {
+        /**
+		 * @return number of elements stored in this block
+		 */
+public int size() {
     return values.size();
 }
 
-        public String toString() {
+        @Override
+public String toString() {
     return values.toString();
 }
     }
 
-    /** Set to true for debugging during developping */
-    public static final boolean TRACE = false;
-
-    public static final boolean CHECK = true;
-
-    public static final boolean DUMP = false;
+    /** UID for serialization */
+    private static final long serialVersionUID = 3715838828540564836L;
 
     /** Default block size */
     private static int BLOCK_SIZE = 1000;
+
+    /** Set to true for debugging during developing */
+    private static final boolean TRACE = false;
+
+    private static final boolean CHECK = true;
+
+    private static final boolean DUMP = false;
 
     /** Number of elements stored at maximum in a block */
     private int blockSize;
@@ -489,7 +513,12 @@ private FloatBigList(int blockSize, int firstFloatBlockSize){
     addFloatBlock(0, currFloatBlock);
 }
 
-    @Override
+    /**
+     * Returns a copy of this <tt>FloatBigList</tt> instance.
+     * The copy is realized by a copy-on-write approach so also really large lists can efficiently be copied.
+     * This method is identical to clone() except that the result is casted to FloatBigList.
+	 */
+@Override
 public FloatBigList copy() {
     return (FloatBigList) super.copy();
 }
@@ -552,7 +581,11 @@ public int size() {
     return size;
 }
 
-    @Override
+    /**
+	 * {@inheritDoc}
+	 * For FloatBigList, always -1 is returned.
+	 */
+@Override
 public int capacity() {
     return -1;
 }
@@ -579,7 +612,10 @@ protected float doReSet(int index, float elem) {
     return oldElem;
 }
 
-    private void releaseFloatBlock() {
+    /**
+	 * Release current block and apply modification if pending.
+	 */
+private void releaseFloatBlock() {
     if (currModify != 0) {
         int modify = currModify;
         currModify = 0;
@@ -999,8 +1035,8 @@ protected boolean doAddAll(int index, float[] array) {
             currFloatBlockStart = 0;
             currFloatBlockEnd = currFloatBlock.size();
         } else {
-            // Add elements to several blocks   
-            // Handle first block   
+            // Add elements in the middle   
+            // Split first block to remove tail elements if necessary   
             FloatGapList list = FloatGapList.create(array);
             int remove = currFloatBlock.values.size() - addPos;
             if (remove > 0) {
@@ -1010,26 +1046,25 @@ protected boolean doAddAll(int index, float[] array) {
                 size -= remove;
                 currFloatBlockEnd -= remove;
             }
-            int s = currFloatBlock.values.size() + list.size();
-            int numFloatBlocks = (s - 1) / blockSize + 1;
+            // Calculate how many blocks we need for the elements   
+            int numElems = currFloatBlock.values.size() + list.size();
+            int numFloatBlocks = (numElems - 1) / blockSize + 1;
             assert (numFloatBlocks > 1);
             int has = currFloatBlock.values.size();
-            int should = s / numFloatBlocks;
-            int start = 0;
-            int end = 0;
+            int should = numElems / numFloatBlocks;
+            int listPos = 0;
             if (has < should) {
                 // Elements must be added to first block   
                 int add = should - has;
                 IFloatList sublist = list.getAll(0, add);
+                listPos += add;
                 currFloatBlock.values.addAll(addPos, sublist);
                 modify(currNode, add);
-                start += add;
                 assert (currFloatBlock.values.size() == should);
-                s -= should;
+                numElems -= should;
                 numFloatBlocks--;
                 size += add;
                 currFloatBlockEnd += add;
-                end = currFloatBlockEnd;
             } else if (has > should) {
                 // Elements must be moved from first to second block   
                 FloatBlock nextFloatBlock = new FloatBlock(blockSize);
@@ -1038,43 +1073,48 @@ protected boolean doAddAll(int index, float[] array) {
                 currFloatBlock.values.remove(currFloatBlock.values.size() - move, move);
                 modify(currNode, -move);
                 assert (currFloatBlock.values.size() == should);
-                s -= should;
+                numElems -= should;
                 numFloatBlocks--;
                 currFloatBlockEnd -= move;
-                end = currFloatBlockEnd;
-                should = s / numFloatBlocks;
+                should = numElems / numFloatBlocks;
                 int add = should - move;
                 assert (add >= 0);
                 IFloatList sublist = list.getAll(0, add);
                 nextFloatBlock.values.addAll(move, sublist);
-                start += add;
+                listPos += add;
                 assert (nextFloatBlock.values.size() == should);
-                s -= should;
+                numElems -= should;
                 numFloatBlocks--;
                 size += add;
-                end += add;
-                addFloatBlock(end, nextFloatBlock);
+                addFloatBlock(currFloatBlockEnd, nextFloatBlock);
+                currNode = currNode.next();
+                currFloatBlock = currNode.block;
+                assert (currFloatBlock == nextFloatBlock);
+                assert (currFloatBlock.size() == add + move);
+                currFloatBlockStart = currFloatBlockEnd;
+                currFloatBlockEnd += add + move;
             } else {
-                end = currFloatBlockEnd;
-                s -= should;
+                // FloatBlock already has the correct size   
+                numElems -= should;
                 numFloatBlocks--;
             }
             check();
-            FloatBlockNode node = currNode;
             while (numFloatBlocks > 0) {
-                int add = s / numFloatBlocks;
+                int add = numElems / numFloatBlocks;
                 assert (add > 0);
-                IFloatList sublist = list.getAll(start, add);
+                IFloatList sublist = list.getAll(listPos, add);
+                listPos += add;
                 FloatBlock nextFloatBlock = new FloatBlock();
-                nextFloatBlock.values.clear();
                 nextFloatBlock.values.addAll(sublist);
-                start += add;
                 assert (nextFloatBlock.values.size() == add);
-                s -= add;
-                addFloatBlock(end, nextFloatBlock);
-                assert (node.next().block == nextFloatBlock);
-                node = node.next();
-                end += add;
+                numElems -= add;
+                addFloatBlock(currFloatBlockEnd, nextFloatBlock);
+                currNode = currNode.next();
+                currFloatBlock = currNode.block;
+                assert (currFloatBlock == nextFloatBlock);
+                assert (currFloatBlock.size() == add);
+                currFloatBlockStart = currFloatBlockEnd;
+                currFloatBlockEnd += add;
                 size += add;
                 numFloatBlocks--;
                 check();
@@ -1302,16 +1342,18 @@ public int binarySearch(int index, int len, float key) {
     }
 }
 
-    private boolean isOnlyRootFloatBlock() {
+    /**
+	 * @return true if there is only the root block, false otherwise
+	 */
+private boolean isOnlyRootFloatBlock() {
     return root.left == null && root.right == null;
 }
 
-    public FloatBlockNode access(final int index, int modify) {
+    public FloatBlockNode access(int index, int modify) {
     return root.access(this, index, modify, false);
 }
 
-    //-----------------------------------------------------------------------  
-/**
+    /**
      * Adds a new element to the list.
      *
      * @param index  the index to add before
@@ -1373,21 +1415,17 @@ private void readObject(ObjectInputStream ois) throws IOException, ClassNotFound
     }
 }
 
-    //-----------------------------------------------------------------------  
     /**
-     * Implements an AVLNode which keeps the offset updated.
-     * <p>
-     * This node contains the real work.
-     * TreeList is just there to implement {@link java.util.IFloatList}.
-     * The nodes don't know the index of the object they are holding.  They
-     * do know however their position relative to their parent node.
-     * This allows to calculate the index of a node while traversing the tree.
+     * Implements an AVLNode storing a FloatBlock.
+     * The nodes don't know the index of the object they are holding. They do know however their
+     * position relative to their parent node. This allows to calculate the index of a node while traversing the tree.
      * <p>
      * The Faedelung calculation stores a flag for both the left and right child
      * to indicate if they are a child (false) or a link as in linked list (true).
      */
     static class FloatBlockNode {
 
+        /** Pointer to parent node (null for root) */
         FloatBlockNode parent;
 
         /** The left child node or the predecessor if {@link #leftIsPrevious}.*/
@@ -1412,14 +1450,15 @@ private void readObject(ObjectInputStream ois) throws IOException, ClassNotFound
         FloatBlock block;
 
         /**
-         * Constructs a new node with a relative position.
+         * Constructs a new node.
          *
-         * @param relativePosition  the relative position of the node
-         * @param obj  the value for the node
-         * @param rightFollower the node with the value following this one
-         * @param leftFollower the node with the value leading this one
+         * @param parent			parent node (null for root)
+         * @param relativePosition  the relative position of the node (absolute position for root)
+         * @param block				the block to store
+         * @param rightFollower 	the node following this one
+         * @param leftFollower 		the node leading this one
          */
-private FloatBlockNode(FloatBlockNode parent, final int relativePosition, final FloatBlock block, final FloatBlockNode rightFollower, final FloatBlockNode leftFollower){
+private FloatBlockNode(FloatBlockNode parent, int relativePosition, FloatBlock block, FloatBlockNode rightFollower, FloatBlockNode leftFollower){
     this.parent = parent;
     this.relativePosition = relativePosition;
     this.block = block;
@@ -1430,24 +1469,34 @@ private FloatBlockNode(FloatBlockNode parent, final int relativePosition, final 
 }
 
         /**
-         * Gets the value.
+         * Gets the block stored by this node.
          *
-         * @return the value of this node
+         * @return block stored by this node
          */
 public FloatBlock getFloatBlock() {
     return block;
 }
 
         /**
-         * Sets the value.
+         * Sets block to store by this node.
          *
-         * @param obj  the value to store
+         * @param block  the block to store
          */
-public void setFloatBlock(FloatBlock obj) {
-    this.block = obj;
+public void setFloatBlock(FloatBlock block) {
+    this.block = block;
 }
 
-        private FloatBlockNode access(FloatBigList list, int index, int modify, boolean wasLeft) {
+        /**
+         * Retrieves node with specified index.
+         *
+         * @param list		reference to FloatBigList using this node (used for updating currFloatBlockEnd)
+         * @param index		index to retrieve
+         * @param modify	modification to apply during traversal to relative positions <br/>
+         * 					>0: N elements are added at index, <0: N elements are deleted at index, 0: no change
+         * @param wasLeft	last node was a left child
+         * @return
+         */
+private FloatBlockNode access(FloatBigList list, int index, int modify, boolean wasLeft) {
     assert (index >= 0);
     if (relativePosition == 0) {
         if (modify != 0) {
@@ -1458,10 +1507,11 @@ public void setFloatBlock(FloatBlock obj) {
     if (list.currFloatBlockEnd == 0) {
         list.currFloatBlockEnd = relativePosition;
     }
-    FloatBlockNode leftNode = getLeftSubTree();
     int leftIndex = list.currFloatBlockEnd - block.size();
     assert (leftIndex >= 0);
     if (index >= leftIndex && index < list.currFloatBlockEnd) {
+        // Correct node has been found   
+        FloatBlockNode leftNode = getLeftSubTree();
         if (relativePosition > 0) {
             relativePosition += modify;
             if (leftNode != null) {
@@ -1474,8 +1524,9 @@ public void setFloatBlock(FloatBlock obj) {
         }
         return this;
     }
+    // Further traversal needed to find the correct node   
     if (index < list.currFloatBlockEnd) {
-        // left   
+        // Travese the left node   
         FloatBlockNode nextNode = getLeftSubTree();
         if (nextNode == null || !wasLeft) {
             if (relativePosition > 0) {
@@ -1491,7 +1542,7 @@ public void setFloatBlock(FloatBlock obj) {
         list.currFloatBlockEnd += nextNode.relativePosition;
         return nextNode.access(list, index, modify, wasLeft);
     } else {
-        // right   
+        // Traverse the right node   
         FloatBlockNode nextNode = getRightSubTree();
         if (nextNode == null || wasLeft) {
             if (relativePosition > 0) {
@@ -1588,8 +1639,7 @@ private FloatBlockNode insert(int index, FloatBlock obj) {
     return ret;
 }
 
-        //-----------------------------------------------------------------------  
-/**
+        /**
          * Gets the left node, returning null if its a faedelung.
          */
 public FloatBlockNode getLeftSubTree() {
@@ -1627,7 +1677,7 @@ public FloatBlockNode min() {
          * @param index is the index of the element to be removed relative to the position of
          * the parent node of the current node.
          */
-private FloatBlockNode remove(final int index) {
+private FloatBlockNode remove(int index) {
     final int indexRelativeToMe = index - relativePosition;
     if (indexRelativeToMe == 0) {
         return removeSelf();
@@ -1652,8 +1702,6 @@ private FloatBlockNode remove(final int index) {
         return removeSelf();
     }
     setRight(right.removeMax(), right.right);
-    if (relativePosition < 0) {
-    }
     recalcHeight();
     return balance();
 }
@@ -1740,8 +1788,7 @@ public FloatBlockNode removeSelf() {
     return this;
 }
 
-        //-----------------------------------------------------------------------  
-/**
+        /**
          * Balances according to the AVL algorithm.
          */
 private FloatBlockNode balance() {
@@ -1768,7 +1815,7 @@ private FloatBlockNode balance() {
         /**
          * Gets the relative position.
          */
-private int getOffset(final FloatBlockNode node) {
+private int getOffset(FloatBlockNode node) {
     if (node == null) {
         return 0;
     }
@@ -1778,7 +1825,7 @@ private int getOffset(final FloatBlockNode node) {
         /**
          * Sets the relative position.
          */
-private int setOffset(final FloatBlockNode node, final int newOffest) {
+private int setOffset(FloatBlockNode node, int newOffest) {
     if (node == null) {
         return 0;
     }
@@ -1856,7 +1903,7 @@ private int heightRightMinusLeft() {
          * @param node  the new left subtree node
          * @param previous  the previous node in the linked list
          */
-private void setLeft(final FloatBlockNode node, final FloatBlockNode previous) {
+private void setLeft(FloatBlockNode node, FloatBlockNode previous) {
     assert (node != this && previous != this);
     leftIsPrevious = node == null;
     if (leftIsPrevious) {
@@ -1874,7 +1921,7 @@ private void setLeft(final FloatBlockNode node, final FloatBlockNode previous) {
          * @param node  the new right subtree node
          * @param next  the next node in the linked list
          */
-private void setRight(final FloatBlockNode node, final FloatBlockNode next) {
+private void setRight(FloatBlockNode node, FloatBlockNode next) {
     assert (node != this && next != this);
     rightIsNext = node == null;
     if (rightIsNext) {

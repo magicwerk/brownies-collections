@@ -8,21 +8,25 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Deque;
 import java.util.List;
 import org.magicwerk.brownies.collections.helper.primitive.DoubleMergeSort;
 
 /**
- * The first block (DoubleGapList) used grows dynamcically, all others
- * are allocated with fixed size. This is necessary to prevent starving
- * because of GC usage.
+ * DoubleBigList is a list optimized for storing large number of elements.
+ * It stores the elements in fixed size blocks and the blocks itself are maintained in a tree for fast access.
+ * It also offers specialized methods for bulk processing of elements.
+ * Also copying a DoubleBigList is efficiently possible as its implemented using a copy-on-write approach.
+ * <p>
+ * <strong>Note that this implementation is not synchronized.</strong>
+ * Due to data caching used for exploiting locality of reference, performance can decrease if DoubleBigList is
+ * accessed by several threads at different positions.
+ * </p>
  *
  * @author Thomas Mauch
- * @version $Id: DoubleBigList.java 2493 2014-10-12 00:40:31Z origo $
+ * @version $Id: DoubleBigList.java 2505 2014-10-13 23:33:45Z origo $
  */
 public class DoubleBigList extends IDoubleList {
 	public static IDoubleList of(double[] values) {
@@ -275,7 +279,11 @@ private void error() {
     ;
 
     /**
-	 *
+	 * A block stores in maximum blockSize number of elements.
+	 * The first block in a DoubleBigList will grow until reaches this limit, all other blocks are directly
+	 * allocated with a capacity of blockSize.
+	 * A block maintains a reference count which allows a block to be shared among different DoubleBigList
+	 * instances with a copy-on-write approach.
 	 */
     
     public static class DoubleBlock implements Serializable {
@@ -300,37 +308,53 @@ private void error() {
     refCount = 1;
 }
 
-        public boolean isShared() {
+        /**
+		 * @return true if block is shared by several DoubleBigList instances
+		 */
+public boolean isShared() {
     return refCount > 1;
 }
 
-        public DoubleBlock ref() {
+        /**
+		 * Increment reference count as block is used by one DoubleBigList instance more.
+		 */
+public DoubleBlock ref() {
     refCount++;
     return this;
 }
 
-        public void unref() {
+        /**
+		 * Decrement reference count as block is no longer used by one DoubleBigList instance.
+		 */
+public void unref() {
     refCount--;
 }
 
-        public int size() {
+        /**
+		 * @return number of elements stored in this block
+		 */
+public int size() {
     return values.size();
 }
 
-        public String toString() {
+        @Override
+public String toString() {
     return values.toString();
 }
     }
 
-    /** Set to true for debugging during developping */
-    public static final boolean TRACE = false;
-
-    public static final boolean CHECK = true;
-
-    public static final boolean DUMP = false;
+    /** UID for serialization */
+    private static final long serialVersionUID = 3715838828540564836L;
 
     /** Default block size */
     private static int BLOCK_SIZE = 1000;
+
+    /** Set to true for debugging during developing */
+    private static final boolean TRACE = false;
+
+    private static final boolean CHECK = true;
+
+    private static final boolean DUMP = false;
 
     /** Number of elements stored at maximum in a block */
     private int blockSize;
@@ -489,7 +513,12 @@ private DoubleBigList(int blockSize, int firstDoubleBlockSize){
     addDoubleBlock(0, currDoubleBlock);
 }
 
-    @Override
+    /**
+     * Returns a copy of this <tt>DoubleBigList</tt> instance.
+     * The copy is realized by a copy-on-write approach so also really large lists can efficiently be copied.
+     * This method is identical to clone() except that the result is casted to DoubleBigList.
+	 */
+@Override
 public DoubleBigList copy() {
     return (DoubleBigList) super.copy();
 }
@@ -552,7 +581,11 @@ public int size() {
     return size;
 }
 
-    @Override
+    /**
+	 * {@inheritDoc}
+	 * For DoubleBigList, always -1 is returned.
+	 */
+@Override
 public int capacity() {
     return -1;
 }
@@ -579,7 +612,10 @@ protected double doReSet(int index, double elem) {
     return oldElem;
 }
 
-    private void releaseDoubleBlock() {
+    /**
+	 * Release current block and apply modification if pending.
+	 */
+private void releaseDoubleBlock() {
     if (currModify != 0) {
         int modify = currModify;
         currModify = 0;
@@ -999,8 +1035,8 @@ protected boolean doAddAll(int index, double[] array) {
             currDoubleBlockStart = 0;
             currDoubleBlockEnd = currDoubleBlock.size();
         } else {
-            // Add elements to several blocks   
-            // Handle first block   
+            // Add elements in the middle   
+            // Split first block to remove tail elements if necessary   
             DoubleGapList list = DoubleGapList.create(array);
             int remove = currDoubleBlock.values.size() - addPos;
             if (remove > 0) {
@@ -1010,26 +1046,25 @@ protected boolean doAddAll(int index, double[] array) {
                 size -= remove;
                 currDoubleBlockEnd -= remove;
             }
-            int s = currDoubleBlock.values.size() + list.size();
-            int numDoubleBlocks = (s - 1) / blockSize + 1;
+            // Calculate how many blocks we need for the elements   
+            int numElems = currDoubleBlock.values.size() + list.size();
+            int numDoubleBlocks = (numElems - 1) / blockSize + 1;
             assert (numDoubleBlocks > 1);
             int has = currDoubleBlock.values.size();
-            int should = s / numDoubleBlocks;
-            int start = 0;
-            int end = 0;
+            int should = numElems / numDoubleBlocks;
+            int listPos = 0;
             if (has < should) {
                 // Elements must be added to first block   
                 int add = should - has;
                 IDoubleList sublist = list.getAll(0, add);
+                listPos += add;
                 currDoubleBlock.values.addAll(addPos, sublist);
                 modify(currNode, add);
-                start += add;
                 assert (currDoubleBlock.values.size() == should);
-                s -= should;
+                numElems -= should;
                 numDoubleBlocks--;
                 size += add;
                 currDoubleBlockEnd += add;
-                end = currDoubleBlockEnd;
             } else if (has > should) {
                 // Elements must be moved from first to second block   
                 DoubleBlock nextDoubleBlock = new DoubleBlock(blockSize);
@@ -1038,43 +1073,48 @@ protected boolean doAddAll(int index, double[] array) {
                 currDoubleBlock.values.remove(currDoubleBlock.values.size() - move, move);
                 modify(currNode, -move);
                 assert (currDoubleBlock.values.size() == should);
-                s -= should;
+                numElems -= should;
                 numDoubleBlocks--;
                 currDoubleBlockEnd -= move;
-                end = currDoubleBlockEnd;
-                should = s / numDoubleBlocks;
+                should = numElems / numDoubleBlocks;
                 int add = should - move;
                 assert (add >= 0);
                 IDoubleList sublist = list.getAll(0, add);
                 nextDoubleBlock.values.addAll(move, sublist);
-                start += add;
+                listPos += add;
                 assert (nextDoubleBlock.values.size() == should);
-                s -= should;
+                numElems -= should;
                 numDoubleBlocks--;
                 size += add;
-                end += add;
-                addDoubleBlock(end, nextDoubleBlock);
+                addDoubleBlock(currDoubleBlockEnd, nextDoubleBlock);
+                currNode = currNode.next();
+                currDoubleBlock = currNode.block;
+                assert (currDoubleBlock == nextDoubleBlock);
+                assert (currDoubleBlock.size() == add + move);
+                currDoubleBlockStart = currDoubleBlockEnd;
+                currDoubleBlockEnd += add + move;
             } else {
-                end = currDoubleBlockEnd;
-                s -= should;
+                // DoubleBlock already has the correct size   
+                numElems -= should;
                 numDoubleBlocks--;
             }
             check();
-            DoubleBlockNode node = currNode;
             while (numDoubleBlocks > 0) {
-                int add = s / numDoubleBlocks;
+                int add = numElems / numDoubleBlocks;
                 assert (add > 0);
-                IDoubleList sublist = list.getAll(start, add);
+                IDoubleList sublist = list.getAll(listPos, add);
+                listPos += add;
                 DoubleBlock nextDoubleBlock = new DoubleBlock();
-                nextDoubleBlock.values.clear();
                 nextDoubleBlock.values.addAll(sublist);
-                start += add;
                 assert (nextDoubleBlock.values.size() == add);
-                s -= add;
-                addDoubleBlock(end, nextDoubleBlock);
-                assert (node.next().block == nextDoubleBlock);
-                node = node.next();
-                end += add;
+                numElems -= add;
+                addDoubleBlock(currDoubleBlockEnd, nextDoubleBlock);
+                currNode = currNode.next();
+                currDoubleBlock = currNode.block;
+                assert (currDoubleBlock == nextDoubleBlock);
+                assert (currDoubleBlock.size() == add);
+                currDoubleBlockStart = currDoubleBlockEnd;
+                currDoubleBlockEnd += add;
                 size += add;
                 numDoubleBlocks--;
                 check();
@@ -1302,16 +1342,18 @@ public int binarySearch(int index, int len, double key) {
     }
 }
 
-    private boolean isOnlyRootDoubleBlock() {
+    /**
+	 * @return true if there is only the root block, false otherwise
+	 */
+private boolean isOnlyRootDoubleBlock() {
     return root.left == null && root.right == null;
 }
 
-    public DoubleBlockNode access(final int index, int modify) {
+    public DoubleBlockNode access(int index, int modify) {
     return root.access(this, index, modify, false);
 }
 
-    //-----------------------------------------------------------------------  
-/**
+    /**
      * Adds a new element to the list.
      *
      * @param index  the index to add before
@@ -1373,21 +1415,17 @@ private void readObject(ObjectInputStream ois) throws IOException, ClassNotFound
     }
 }
 
-    //-----------------------------------------------------------------------  
     /**
-     * Implements an AVLNode which keeps the offset updated.
-     * <p>
-     * This node contains the real work.
-     * TreeList is just there to implement {@link java.util.IDoubleList}.
-     * The nodes don't know the index of the object they are holding.  They
-     * do know however their position relative to their parent node.
-     * This allows to calculate the index of a node while traversing the tree.
+     * Implements an AVLNode storing a DoubleBlock.
+     * The nodes don't know the index of the object they are holding. They do know however their
+     * position relative to their parent node. This allows to calculate the index of a node while traversing the tree.
      * <p>
      * The Faedelung calculation stores a flag for both the left and right child
      * to indicate if they are a child (false) or a link as in linked list (true).
      */
     static class DoubleBlockNode {
 
+        /** Pointer to parent node (null for root) */
         DoubleBlockNode parent;
 
         /** The left child node or the predecessor if {@link #leftIsPrevious}.*/
@@ -1412,14 +1450,15 @@ private void readObject(ObjectInputStream ois) throws IOException, ClassNotFound
         DoubleBlock block;
 
         /**
-         * Constructs a new node with a relative position.
+         * Constructs a new node.
          *
-         * @param relativePosition  the relative position of the node
-         * @param obj  the value for the node
-         * @param rightFollower the node with the value following this one
-         * @param leftFollower the node with the value leading this one
+         * @param parent			parent node (null for root)
+         * @param relativePosition  the relative position of the node (absolute position for root)
+         * @param block				the block to store
+         * @param rightFollower 	the node following this one
+         * @param leftFollower 		the node leading this one
          */
-private DoubleBlockNode(DoubleBlockNode parent, final int relativePosition, final DoubleBlock block, final DoubleBlockNode rightFollower, final DoubleBlockNode leftFollower){
+private DoubleBlockNode(DoubleBlockNode parent, int relativePosition, DoubleBlock block, DoubleBlockNode rightFollower, DoubleBlockNode leftFollower){
     this.parent = parent;
     this.relativePosition = relativePosition;
     this.block = block;
@@ -1430,24 +1469,34 @@ private DoubleBlockNode(DoubleBlockNode parent, final int relativePosition, fina
 }
 
         /**
-         * Gets the value.
+         * Gets the block stored by this node.
          *
-         * @return the value of this node
+         * @return block stored by this node
          */
 public DoubleBlock getDoubleBlock() {
     return block;
 }
 
         /**
-         * Sets the value.
+         * Sets block to store by this node.
          *
-         * @param obj  the value to store
+         * @param block  the block to store
          */
-public void setDoubleBlock(DoubleBlock obj) {
-    this.block = obj;
+public void setDoubleBlock(DoubleBlock block) {
+    this.block = block;
 }
 
-        private DoubleBlockNode access(DoubleBigList list, int index, int modify, boolean wasLeft) {
+        /**
+         * Retrieves node with specified index.
+         *
+         * @param list		reference to DoubleBigList using this node (used for updating currDoubleBlockEnd)
+         * @param index		index to retrieve
+         * @param modify	modification to apply during traversal to relative positions <br/>
+         * 					>0: N elements are added at index, <0: N elements are deleted at index, 0: no change
+         * @param wasLeft	last node was a left child
+         * @return
+         */
+private DoubleBlockNode access(DoubleBigList list, int index, int modify, boolean wasLeft) {
     assert (index >= 0);
     if (relativePosition == 0) {
         if (modify != 0) {
@@ -1458,10 +1507,11 @@ public void setDoubleBlock(DoubleBlock obj) {
     if (list.currDoubleBlockEnd == 0) {
         list.currDoubleBlockEnd = relativePosition;
     }
-    DoubleBlockNode leftNode = getLeftSubTree();
     int leftIndex = list.currDoubleBlockEnd - block.size();
     assert (leftIndex >= 0);
     if (index >= leftIndex && index < list.currDoubleBlockEnd) {
+        // Correct node has been found   
+        DoubleBlockNode leftNode = getLeftSubTree();
         if (relativePosition > 0) {
             relativePosition += modify;
             if (leftNode != null) {
@@ -1474,8 +1524,9 @@ public void setDoubleBlock(DoubleBlock obj) {
         }
         return this;
     }
+    // Further traversal needed to find the correct node   
     if (index < list.currDoubleBlockEnd) {
-        // left   
+        // Travese the left node   
         DoubleBlockNode nextNode = getLeftSubTree();
         if (nextNode == null || !wasLeft) {
             if (relativePosition > 0) {
@@ -1491,7 +1542,7 @@ public void setDoubleBlock(DoubleBlock obj) {
         list.currDoubleBlockEnd += nextNode.relativePosition;
         return nextNode.access(list, index, modify, wasLeft);
     } else {
-        // right   
+        // Traverse the right node   
         DoubleBlockNode nextNode = getRightSubTree();
         if (nextNode == null || wasLeft) {
             if (relativePosition > 0) {
@@ -1588,8 +1639,7 @@ private DoubleBlockNode insert(int index, DoubleBlock obj) {
     return ret;
 }
 
-        //-----------------------------------------------------------------------  
-/**
+        /**
          * Gets the left node, returning null if its a faedelung.
          */
 public DoubleBlockNode getLeftSubTree() {
@@ -1627,7 +1677,7 @@ public DoubleBlockNode min() {
          * @param index is the index of the element to be removed relative to the position of
          * the parent node of the current node.
          */
-private DoubleBlockNode remove(final int index) {
+private DoubleBlockNode remove(int index) {
     final int indexRelativeToMe = index - relativePosition;
     if (indexRelativeToMe == 0) {
         return removeSelf();
@@ -1652,8 +1702,6 @@ private DoubleBlockNode remove(final int index) {
         return removeSelf();
     }
     setRight(right.removeMax(), right.right);
-    if (relativePosition < 0) {
-    }
     recalcHeight();
     return balance();
 }
@@ -1740,8 +1788,7 @@ public DoubleBlockNode removeSelf() {
     return this;
 }
 
-        //-----------------------------------------------------------------------  
-/**
+        /**
          * Balances according to the AVL algorithm.
          */
 private DoubleBlockNode balance() {
@@ -1768,7 +1815,7 @@ private DoubleBlockNode balance() {
         /**
          * Gets the relative position.
          */
-private int getOffset(final DoubleBlockNode node) {
+private int getOffset(DoubleBlockNode node) {
     if (node == null) {
         return 0;
     }
@@ -1778,7 +1825,7 @@ private int getOffset(final DoubleBlockNode node) {
         /**
          * Sets the relative position.
          */
-private int setOffset(final DoubleBlockNode node, final int newOffest) {
+private int setOffset(DoubleBlockNode node, int newOffest) {
     if (node == null) {
         return 0;
     }
@@ -1856,7 +1903,7 @@ private int heightRightMinusLeft() {
          * @param node  the new left subtree node
          * @param previous  the previous node in the linked list
          */
-private void setLeft(final DoubleBlockNode node, final DoubleBlockNode previous) {
+private void setLeft(DoubleBlockNode node, DoubleBlockNode previous) {
     assert (node != this && previous != this);
     leftIsPrevious = node == null;
     if (leftIsPrevious) {
@@ -1874,7 +1921,7 @@ private void setLeft(final DoubleBlockNode node, final DoubleBlockNode previous)
          * @param node  the new right subtree node
          * @param next  the next node in the linked list
          */
-private void setRight(final DoubleBlockNode node, final DoubleBlockNode next) {
+private void setRight(DoubleBlockNode node, DoubleBlockNode next) {
     assert (node != this && next != this);
     rightIsNext = node == null;
     if (rightIsNext) {

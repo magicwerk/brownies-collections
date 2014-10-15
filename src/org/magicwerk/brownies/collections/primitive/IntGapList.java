@@ -387,7 +387,12 @@ public int getDefaultElem() {
     return 0;
 }
 
-    @Override
+    /**
+     * Returns a shallow copy of this <tt>IntGapList</tt> instance.
+     * (the new list will contain the same elements as the source list, i.e. the elements themselves are not copied).
+     * This method is identical to clone() except that the result is casted to IntGapList.
+	 */
+@Override
 public IntGapList copy() {
     return (IntGapList) super.copy();
 }

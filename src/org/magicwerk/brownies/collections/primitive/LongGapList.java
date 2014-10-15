@@ -387,7 +387,12 @@ public long getDefaultElem() {
     return 0;
 }
 
-    @Override
+    /**
+     * Returns a shallow copy of this <tt>LongGapList</tt> instance.
+     * (the new list will contain the same elements as the source list, i.e. the elements themselves are not copied).
+     * This method is identical to clone() except that the result is casted to LongGapList.
+	 */
+@Override
 public LongGapList copy() {
     return (LongGapList) super.copy();
 }

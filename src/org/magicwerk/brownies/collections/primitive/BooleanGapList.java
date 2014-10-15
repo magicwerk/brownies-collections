@@ -387,7 +387,12 @@ public boolean getDefaultElem() {
     return false;
 }
 
-    @Override
+    /**
+     * Returns a shallow copy of this <tt>BooleanGapList</tt> instance.
+     * (the new list will contain the same elements as the source list, i.e. the elements themselves are not copied).
+     * This method is identical to clone() except that the result is casted to BooleanGapList.
+	 */
+@Override
 public BooleanGapList copy() {
     return (BooleanGapList) super.copy();
 }

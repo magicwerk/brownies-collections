@@ -4,26 +4,30 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Deque;
 import java.util.List;
 
 import org.magicwerk.brownies.collections.helper.MergeSort;
 
 /**
- * The first block (GapList) used grows dynamcically, all others
- * are allocated with fixed size. This is necessary to prevent starving
- * because of GC usage.
+ * BigList is a list optimized for storing large number of elements.
+ * It stores the elements in fixed size blocks and the blocks itself are maintained in a tree for fast access.
+ * It also offers specialized methods for bulk processing of elements.
+ * Also copying a BigList is efficiently possible as its implemented using a copy-on-write approach.
+ * <p>
+ * <strong>Note that this implementation is not synchronized.</strong>
+ * Due to data caching used for exploiting locality of reference, performance can decrease if BigList is
+ * accessed by several threads at different positions.
+ * </p>
  *
  * @author Thomas Mauch
  * @version $Id$
  */
 public class BigList<E> extends IList<E> {
 
-    /**
+	/**
      * An immutable version of a BigList.
      * Note that the client cannot change the list,
      * but the content may change if the underlying list is changed.
@@ -101,7 +105,11 @@ public class BigList<E> extends IList<E> {
     };
 
     /**
-	 *
+	 * A block stores in maximum blockSize number of elements.
+	 * The first block in a BigList will grow until reaches this limit, all other blocks are directly
+	 * allocated with a capacity of blockSize.
+	 * A block maintains a reference count which allows a block to be shared among different BigList
+	 * instances with a copy-on-write approach.
 	 */
 	@SuppressWarnings("serial")
 	public static class Block<T> implements Serializable {
@@ -124,35 +132,51 @@ public class BigList<E> extends IList<E> {
 			refCount = 1;
 		}
 
+		/**
+		 * @return true if block is shared by several BigList instances
+		 */
 		public boolean isShared() {
 			return refCount > 1;
 		}
 
+		/**
+		 * Increment reference count as block is used by one BigList instance more.
+		 */
 		public Block<T> ref() {
 			refCount++;
 			return this;
 		}
 
+		/**
+		 * Decrement reference count as block is no longer used by one BigList instance.
+		 */
 		public void unref() {
 			refCount--;
 		}
 
+		/**
+		 * @return number of elements stored in this block
+		 */
 		public int size() {
 			return values.size();
 		}
 
+		@Override
 		public String toString() {
 			return values.toString();
 		}
 	}
 
-	/** Set to true for debugging during developping */
-	public static final boolean TRACE = false;
-	public static final boolean CHECK = true;
-	public static final boolean DUMP = false;
+    /** UID for serialization */
+	private static final long serialVersionUID = 3715838828540564836L;
 
 	/** Default block size */
 	private static int BLOCK_SIZE = 1000;
+
+	/** Set to true for debugging during developing */
+	private static final boolean TRACE = false;
+	private static final boolean CHECK = true;
+	private static final boolean DUMP = false;
 
 	/** Number of elements stored at maximum in a block */
 	private int blockSize;
@@ -311,6 +335,11 @@ public class BigList<E> extends IList<E> {
 		addBlock(0, currBlock);
 	}
 
+	/**
+     * Returns a copy of this <tt>BigList</tt> instance.
+     * The copy is realized by a copy-on-write approach so also really large lists can efficiently be copied.
+     * This method is identical to clone() except that the result is casted to BigList.
+	 */
 	@Override
     public BigList<E> copy() {
 	    return (BigList<E>) super.copy();
@@ -374,9 +403,13 @@ public class BigList<E> extends IList<E> {
 		return size;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * For BigList, always -1 is returned.
+	 */
 	@Override
 	public int capacity() {
-		return -1;	// TODO
+		return -1;
 	}
 
 	@Override
@@ -401,6 +434,9 @@ public class BigList<E> extends IList<E> {
 		return oldElem;
 	}
 
+	/**
+	 * Release current block and apply modification if pending.
+	 */
 	private void releaseBlock() {
 		if (currModify != 0) {
 			int modify = currModify;
@@ -851,8 +887,9 @@ public class BigList<E> extends IList<E> {
 				currBlockEnd = currBlock.size();
 
 			} else {
-				// Add elements to several blocks
-				// Handle first block
+				// Add elements in the middle
+
+				// Split first block to remove tail elements if necessary
 				GapList<E> list = GapList.create(array);
 				int remove = currBlock.values.size()-addPos;
 				if (remove > 0) {
@@ -863,26 +900,27 @@ public class BigList<E> extends IList<E> {
 					currBlockEnd -= remove;
 				}
 
-				int s = currBlock.values.size() + list.size();
-				int numBlocks = (s-1)/blockSize+1;
+				// Calculate how many blocks we need for the elements
+				int numElems = currBlock.values.size() + list.size();
+				int numBlocks = (numElems-1)/blockSize+1;
 				assert(numBlocks > 1);
+
 				int has = currBlock.values.size();
-				int should = s / numBlocks;
-				int start = 0;
-				int end = 0;
+				int should = numElems / numBlocks;
+				int listPos = 0;
 				if (has < should) {
 					// Elements must be added to first block
 					int add = should-has;
 					List<E> sublist = list.getAll(0, add);
+					listPos += add;
+
 					currBlock.values.addAll(addPos, sublist);
 					modify(currNode, add);
-					start += add;
 					assert(currBlock.values.size() == should);
-					s -= should;
+					numElems -= should;
 					numBlocks--;
 					size += add;
 					currBlockEnd += add;
-					end = currBlockEnd;
 
 				} else if (has > should) {
 					// Elements must be moved from first to second block
@@ -892,47 +930,53 @@ public class BigList<E> extends IList<E> {
 					currBlock.values.remove(currBlock.values.size()-move, move);
 					modify(currNode, -move);
 					assert(currBlock.values.size() == should);
-					s -= should;
+					numElems -= should;
 					numBlocks--;
 					currBlockEnd -= move;
-					end = currBlockEnd;
 
-					should = s / numBlocks;
+					should = numElems / numBlocks;
 					int add = should-move;
 					assert(add >= 0);
 					List<E> sublist = list.getAll(0, add);
 					nextBlock.values.addAll(move, sublist);
-					start += add;
+					listPos += add;
 					assert(nextBlock.values.size() == should);
-					s -= should;
+					numElems -= should;
 
 					numBlocks--;
 					size += add;
-					end += add;
-					addBlock(end, nextBlock);
+					addBlock(currBlockEnd, nextBlock);
+					currNode = currNode.next();
+					currBlock = currNode.block;
+					assert(currBlock == nextBlock);
+					assert(currBlock.size() == add+move);
+					currBlockStart = currBlockEnd;
+					currBlockEnd += add+move;
 
 				} else {
-					end = currBlockEnd;
-					s -= should;
+					// Block already has the correct size
+					numElems -= should;
 					numBlocks--;
 				}
 				check();
 
-				BlockNode<E> node = currNode;
 				while (numBlocks > 0) {
-					int add = s / numBlocks;
+					int add = numElems / numBlocks;
 					assert(add > 0);
-					List<E> sublist = list.getAll(start, add);
+					List<E> sublist = list.getAll(listPos, add);
+					listPos += add;
+
 					Block<E> nextBlock = new Block<E>();
-					nextBlock.values.clear();
 					nextBlock.values.addAll(sublist);
-					start += add;
 					assert(nextBlock.values.size() == add);
-					s -= add;
-					addBlock(end, nextBlock);
-					assert(node.next().block == nextBlock);
-					node = node.next();
-					end += add;
+					numElems -= add;
+					addBlock(currBlockEnd, nextBlock);
+					currNode = currNode.next();
+					currBlock = currNode.block;
+					assert(currBlock == nextBlock);
+					assert(currBlock.size() == add);
+					currBlockStart = currBlockEnd;
+					currBlockEnd += add;
 					size += add;
 					numBlocks--;
 					check();
@@ -1173,15 +1217,17 @@ public class BigList<E> extends IList<E> {
     	}
 	}
 
+	/**
+	 * @return true if there is only the root block, false otherwise
+	 */
 	private boolean isOnlyRootBlock() {
 		return root.left == null && root.right == null;
 	}
 
-    public BlockNode<E> access(final int index, int modify) {
+    public BlockNode<E> access(int index, int modify) {
         return root.access(this, index, modify, false);
     }
 
-    //-----------------------------------------------------------------------
     /**
      * Adds a new element to the list.
      *
@@ -1247,20 +1293,16 @@ public class BigList<E> extends IList<E> {
         }
     }
 
-    //-----------------------------------------------------------------------
     /**
-     * Implements an AVLNode which keeps the offset updated.
-     * <p>
-     * This node contains the real work.
-     * TreeList is just there to implement {@link java.util.List}.
-     * The nodes don't know the index of the object they are holding.  They
-     * do know however their position relative to their parent node.
-     * This allows to calculate the index of a node while traversing the tree.
+     * Implements an AVLNode storing a Block.
+     * The nodes don't know the index of the object they are holding. They do know however their
+     * position relative to their parent node. This allows to calculate the index of a node while traversing the tree.
      * <p>
      * The Faedelung calculation stores a flag for both the left and right child
      * to indicate if they are a child (false) or a link as in linked list (true).
      */
     static class BlockNode<E> {
+    	/** Pointer to parent node (null for root) */
     	BlockNode<E> parent;
         /** The left child node or the predecessor if {@link #leftIsPrevious}.*/
         BlockNode<E> left;
@@ -1278,15 +1320,15 @@ public class BigList<E> extends IList<E> {
         Block<E> block;
 
         /**
-         * Constructs a new node with a relative position.
+         * Constructs a new node.
          *
-         * @param relativePosition  the relative position of the node
-         * @param obj  the value for the node
-         * @param rightFollower the node with the value following this one
-         * @param leftFollower the node with the value leading this one
+         * @param parent			parent node (null for root)
+         * @param relativePosition  the relative position of the node (absolute position for root)
+         * @param block				the block to store
+         * @param rightFollower 	the node following this one
+         * @param leftFollower 		the node leading this one
          */
-        private BlockNode(BlockNode<E> parent, final int relativePosition, final Block<E> block,
-                        final BlockNode<E> rightFollower, final BlockNode<E> leftFollower) {
+        private BlockNode(BlockNode<E> parent, int relativePosition, Block<E> block, BlockNode<E> rightFollower, BlockNode<E> leftFollower) {
         	this.parent = parent;
             this.relativePosition = relativePosition;
             this.block = block;
@@ -1297,24 +1339,34 @@ public class BigList<E> extends IList<E> {
         }
 
         /**
-         * Gets the value.
+         * Gets the block stored by this node.
          *
-         * @return the value of this node
+         * @return block stored by this node
          */
         public Block<E> getBlock() {
             return block;
         }
 
         /**
-         * Sets the value.
+         * Sets block to store by this node.
          *
-         * @param obj  the value to store
+         * @param block  the block to store
          */
-        public void setBlock(Block<E> obj) {
-            this.block = obj;
+        public void setBlock(Block<E> block) {
+            this.block = block;
         }
 
-        private BlockNode<E> access(BigList list, int index, int modify, boolean wasLeft) {
+        /**
+         * Retrieves node with specified index.
+         *
+         * @param list		reference to BigList using this node (used for updating currBlockEnd)
+         * @param index		index to retrieve
+         * @param modify	modification to apply during traversal to relative positions <br/>
+         * 					>0: N elements are added at index, <0: N elements are deleted at index, 0: no change
+         * @param wasLeft	last node was a left child
+         * @return
+         */
+        private BlockNode<E> access(BigList<E> list, int index, int modify, boolean wasLeft) {
         	assert(index >= 0);
         	if (relativePosition == 0) {
         		if (modify != 0) {
@@ -1322,13 +1374,15 @@ public class BigList<E> extends IList<E> {
         		}
         		return this;
         	}
+
         	if (list.currBlockEnd == 0) {
         		list.currBlockEnd = relativePosition; // root
         	}
-        	BlockNode<E> leftNode = getLeftSubTree();
         	int leftIndex = list.currBlockEnd-block.size();
         	assert(leftIndex >= 0);
         	if (index >= leftIndex && index < list.currBlockEnd) {
+        		// Correct node has been found
+            	BlockNode<E> leftNode = getLeftSubTree();
     			if (relativePosition > 0) {
     				relativePosition += modify;
     				if (leftNode != null) {
@@ -1341,8 +1395,10 @@ public class BigList<E> extends IList<E> {
     			}
         		return this;
         	}
+
+        	// Further traversal needed to find the correct node
         	if (index < list.currBlockEnd) {
-        		// left
+        		// Travese the left node
         		BlockNode<E> nextNode = getLeftSubTree();
         		if (nextNode == null || !wasLeft) {
         			if (relativePosition > 0) {
@@ -1357,8 +1413,9 @@ public class BigList<E> extends IList<E> {
                 }
                 list.currBlockEnd += nextNode.relativePosition;
                 return nextNode.access(list, index, modify, wasLeft);
+
         	} else {
-        		// right
+        		// Traverse the right node
         		BlockNode<E> nextNode = getRightSubTree();
         		if (nextNode == null || wasLeft) {
         			if (relativePosition > 0) {
@@ -1456,7 +1513,6 @@ public class BigList<E> extends IList<E> {
             return ret;
         }
 
-        //-----------------------------------------------------------------------
         /**
          * Gets the left node, returning null if its a faedelung.
          */
@@ -1495,7 +1551,7 @@ public class BigList<E> extends IList<E> {
          * @param index is the index of the element to be removed relative to the position of
          * the parent node of the current node.
          */
-        private BlockNode<E> remove(final int index) {
+        private BlockNode<E> remove(int index) {
             final int indexRelativeToMe = index - relativePosition;
 
             if (indexRelativeToMe == 0) {
@@ -1521,9 +1577,6 @@ public class BigList<E> extends IList<E> {
                 return removeSelf();
             }
             setRight(right.removeMax(), right.right);
-            if (relativePosition < 0) {
-                //relativePosition++;
-            }
             recalcHeight();
             return balance();
         }
@@ -1611,7 +1664,6 @@ public class BigList<E> extends IList<E> {
             return this;
         }
 
-        //-----------------------------------------------------------------------
         /**
          * Balances according to the AVL algorithm.
          */
@@ -1639,7 +1691,7 @@ public class BigList<E> extends IList<E> {
         /**
          * Gets the relative position.
          */
-        private int getOffset(final BlockNode<E> node) {
+        private int getOffset(BlockNode<E> node) {
             if (node == null) {
                 return 0;
             }
@@ -1649,7 +1701,7 @@ public class BigList<E> extends IList<E> {
         /**
          * Sets the relative position.
          */
-        private int setOffset(final BlockNode<E> node, final int newOffest) {
+        private int setOffset(BlockNode<E> node, int newOffest) {
             if (node == null) {
                 return 0;
             }
@@ -1735,7 +1787,7 @@ public class BigList<E> extends IList<E> {
          * @param node  the new left subtree node
          * @param previous  the previous node in the linked list
          */
-        private void setLeft(final BlockNode<E> node, final BlockNode<E> previous) {
+        private void setLeft(BlockNode<E> node, BlockNode<E> previous) {
         	assert(node != this && previous != this);
             leftIsPrevious = node == null;
             if (leftIsPrevious) {
@@ -1753,7 +1805,7 @@ public class BigList<E> extends IList<E> {
          * @param node  the new right subtree node
          * @param next  the next node in the linked list
          */
-        private void setRight(final BlockNode<E> node, final BlockNode<E> next) {
+        private void setRight(BlockNode<E> node, BlockNode<E> next) {
         	assert(node != this && next != this);
             rightIsNext = node == null;
             if (rightIsNext) {

@@ -38,15 +38,8 @@ import org.magicwerk.brownies.collections.function.Mapper;
 import org.magicwerk.brownies.collections.function.Predicate;
 
 /**
- * GapList combines the strengths of both ArrayList and LinkedList.
- * It is implemented to offer both efficient random access to elements
- * by index (as ArrayList does) and at the same time efficient adding
- * and removing elements to and from beginning and end (as LinkedList does).
- * It also exploits the locality of reference often seen in applications
- * to further improve performance, e.g. for iterating over the list.
- * <p>
- * <strong>Note that this implementation is not synchronized.</strong>
- * </p>
+ * IBooleanList is an abstract class which offers all interfaces offered by both ArrayList and LinkedList.
+ * It also offers additional methods which are then available in all implementations of GapList and BigList.
  *
  * @author Thomas Mauch
  * @version $Id: GapList.java 2098 2014-01-13 00:37:08Z origo $
@@ -139,11 +132,11 @@ public void clear() {
 public abstract int size();
 
     /**
-	 * Returns capacity of this GapList.
-	 * Note that two GapLists are considered equal even if they have a distinct capacity.
+	 * Returns capacity of this list.
+	 * Note that two lists are considered equal even if they have a distinct capacity.
 	 * Also the capacity can be changed by operations like clone() etc.
 	 *
-	 * @return capacity of this GapList
+	 * @return capacity of this list
 	 */
 public abstract int capacity();
 
@@ -154,7 +147,7 @@ public boolean get(int index) {
 }
 
     /**
-     * Helper method for getting an element from the GapList.
+     * Helper method for getting an element from the list.
      * This is the only method which really gets an element.
      * Override if you need to validity checks before getting.
      *
@@ -164,7 +157,7 @@ public boolean get(int index) {
 protected abstract boolean doGet(int index);
 
     /**
-     * Helper method for setting an element in the GapList.
+     * Helper method for setting an element in the list.
      * This is the only method which really sets an element.
      * Override if you need to validity checks before setting.
      *
