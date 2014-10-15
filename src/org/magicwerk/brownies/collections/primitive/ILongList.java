@@ -271,11 +271,13 @@ public boolean equals(Object obj) {
     }
     if (obj instanceof LongObjGapList) {
         obj = ((LongObjGapList) obj).list;
+    } else if (obj instanceof LongObjBigList) {
+        obj = ((LongObjBigList) obj).list;
     }
-    if (!(obj instanceof LongGapList)) {
+    if (!(obj instanceof ILongList)) {
         return false;
     }
-    @SuppressWarnings("unchecked") LongGapList list = (LongGapList) obj;
+    @SuppressWarnings("unchecked") ILongList list = (ILongList) obj;
     int size = size();
     if (size != list.size()) {
         return false;

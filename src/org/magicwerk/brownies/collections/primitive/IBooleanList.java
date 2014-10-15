@@ -271,11 +271,13 @@ public boolean equals(Object obj) {
     }
     if (obj instanceof BooleanObjGapList) {
         obj = ((BooleanObjGapList) obj).list;
+    } else if (obj instanceof BooleanObjBigList) {
+        obj = ((BooleanObjBigList) obj).list;
     }
-    if (!(obj instanceof BooleanGapList)) {
+    if (!(obj instanceof IBooleanList)) {
         return false;
     }
-    @SuppressWarnings("unchecked") BooleanGapList list = (BooleanGapList) obj;
+    @SuppressWarnings("unchecked") IBooleanList list = (IBooleanList) obj;
     int size = size();
     if (size != list.size()) {
         return false;

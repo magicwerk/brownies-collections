@@ -271,11 +271,13 @@ public boolean equals(Object obj) {
     }
     if (obj instanceof ByteObjGapList) {
         obj = ((ByteObjGapList) obj).list;
+    } else if (obj instanceof ByteObjBigList) {
+        obj = ((ByteObjBigList) obj).list;
     }
-    if (!(obj instanceof ByteGapList)) {
+    if (!(obj instanceof IByteList)) {
         return false;
     }
-    @SuppressWarnings("unchecked") ByteGapList list = (ByteGapList) obj;
+    @SuppressWarnings("unchecked") IByteList list = (IByteList) obj;
     int size = size();
     if (size != list.size()) {
         return false;
