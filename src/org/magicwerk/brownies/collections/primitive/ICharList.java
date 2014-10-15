@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: GapList.java 2098 2014-01-13 00:37:08Z origo $
+ * $Id: ICharList.java 2507 2014-10-15 00:08:21Z origo $
  */
 package org.magicwerk.brownies.collections.primitive;
 
@@ -42,7 +42,7 @@ import org.magicwerk.brownies.collections.function.Predicate;
  * It also offers additional methods which are then available in all implementations of GapList and BigList.
  *
  * @author Thomas Mauch
- * @version $Id: GapList.java 2098 2014-01-13 00:37:08Z origo $
+ * @version $Id: ICharList.java 2507 2014-10-15 00:08:21Z origo $
  *
  * @param <E> type of elements stored in the list
  * @see	    java.util.List

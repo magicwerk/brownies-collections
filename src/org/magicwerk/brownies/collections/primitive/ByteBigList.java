@@ -26,7 +26,7 @@ import org.magicwerk.brownies.collections.helper.primitive.ByteMergeSort;
  * </p>
  *
  * @author Thomas Mauch
- * @version $Id: ByteBigList.java 2505 2014-10-13 23:33:45Z origo $
+ * @version $Id: ByteBigList.java 2507 2014-10-15 00:08:21Z origo $
  */
 public class ByteBigList extends IByteList {
 	public static IByteList of(byte[] values) {
