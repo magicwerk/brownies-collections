@@ -50,8 +50,8 @@ public class CharGapList extends ICharList {
 
     /*
      * Helper variables to enable code for debugging.
-     * As the variables are declared as "static final boolean", the compiler
-     * will be able to detect unused branches and will not compile the
+     * As the variables are declared as "static final boolean", the JVM
+     * will be able to detect unused branches and will not execute the
      * code (the same approach is used for the assert statement).
      */
     /** If true the invariants the CharGapList are checked for debugging */
@@ -82,85 +82,6 @@ public class CharGapList extends ICharList {
 public static  CharGapList EMPTY() {
     return EMPTY;
 }
-
-    /**
-     * An immutable version of a CharGapList.
-     * Note that the client cannot change the list,
-     * but the content may change if the underlying list is changed.
-     */
-    protected static class ImmutableCharGapList extends CharGapList {
-
-        /** UID for serialization */
-        private static final long serialVersionUID = -1352274047348922584L;
-
-        /**
-         * Private constructor used internally.
-         *
-         * @param that  list to create an immutable view of
-         */
-protected ImmutableCharGapList(CharGapList that){
-    super(true, that);
-}
-
-        @Override
-protected boolean doAdd(int index, char elem) {
-    error();
-    return false;
-}
-
-        @Override
-protected boolean doAddAll(int index, char[] elems) {
-    error();
-    return false;
-}
-
-        @Override
-protected char doSet(int index, char elem) {
-    error();
-    return (char) 0;
-}
-
-        @Override
-protected void doSetAll(int index, char[] elems) {
-    error();
-}
-
-        @Override
-protected char doReSet(int index, char elem) {
-    error();
-    return (char) 0;
-}
-
-        @Override
-protected char doRemove(int index) {
-    error();
-    return (char) 0;
-}
-
-        @Override
-protected void doRemoveAll(int index, int len) {
-    error();
-}
-
-        @Override
-protected void doClear() {
-    error();
-}
-
-        @Override
-protected void doModify() {
-    error();
-}
-
-        /**
-         * Throw exception if an attempt is made to change an immutable list.
-         */
-private void error() {
-    throw new UnsupportedOperationException("list is immutable");
-}
-    }
-
-    ;
 
     /** UID for serialization */
     private static final long serialVersionUID = -4477005565661968383L;
@@ -196,7 +117,7 @@ private void error() {
      * @return          created list
      * @param        type of elements stored in the list
      */
-// This separate method is needed as the varargs variant creates the CharGapList with specific size  
+// This separate method is needed as the varargs variant creates the list with specific size  
 public static CharGapList create() {
     return new CharGapList();
 }
@@ -391,10 +312,39 @@ public char getDefaultElem() {
      * Returns a shallow copy of this <tt>CharGapList</tt> instance.
      * (the new list will contain the same elements as the source list, i.e. the elements themselves are not copied).
      * This method is identical to clone() except that the result is casted to CharGapList.
+     *
+     * @return a copy of this <tt>CharGapList</tt> instance
 	 */
 @Override
 public CharGapList copy() {
     return (CharGapList) super.copy();
+}
+
+    /**
+     * Increases the capacity of this <tt>CharGapList</tt> instance, if
+     * necessary, to ensure that it can hold at least the number of elements
+     * specified by the minimum capacity argument.
+     *
+     * @param   minCapacity   the desired minimum capacity
+     */
+// Only overridden to change Javadoc  
+@Override
+public void ensureCapacity(int minCapacity) {
+    super.ensureCapacity(minCapacity);
+}
+
+    /**
+     * Returns a shallow copy of this <tt>CharGapList</tt> instance
+     * (The elements themselves are not copied).
+     * The capacity of the list will be set to the number of elements,
+     * so after calling clone(), size and capacity are equal.
+     *
+     * @return a copy of this <tt>CharGapList</tt> instance
+     */
+// Only overridden to change Javadoc  
+@Override
+public Object clone() {
+    return super.clone();
 }
 
     @Override
@@ -973,7 +923,11 @@ protected void doEnsureCapacity(int minCapacity) {
         debugCheck();
 }
 
-    @Override
+    /**
+     * Trims the capacity of this CharGapList instance to be the list's current size.
+     * An application can use this operation to minimize the storage of an instance.
+     */
+@Override
 public void trimToSize() {
     doModify();
     if (size < values.length) {
@@ -1204,6 +1158,84 @@ private String debugPrint(char[] values) {
 	 */
 private void debugLog(String msg) {
 }
+
+    // --- ImmutableCharGapList ---  
+    /**
+     * An immutable version of a CharGapList.
+     * Note that the client cannot change the list,
+     * but the content may change if the underlying list is changed.
+     */
+    protected static class ImmutableCharGapList extends CharGapList {
+
+        /** UID for serialization */
+        private static final long serialVersionUID = -1352274047348922584L;
+
+        /**
+         * Private constructor used internally.
+         *
+         * @param that  list to create an immutable view of
+         */
+protected ImmutableCharGapList(CharGapList that){
+    super(true, that);
+}
+
+        @Override
+protected boolean doAdd(int index, char elem) {
+    error();
+    return false;
+}
+
+        @Override
+protected boolean doAddAll(int index, char[] elems) {
+    error();
+    return false;
+}
+
+        @Override
+protected char doSet(int index, char elem) {
+    error();
+    return (char) 0;
+}
+
+        @Override
+protected void doSetAll(int index, char[] elems) {
+    error();
+}
+
+        @Override
+protected char doReSet(int index, char elem) {
+    error();
+    return (char) 0;
+}
+
+        @Override
+protected char doRemove(int index) {
+    error();
+    return (char) 0;
+}
+
+        @Override
+protected void doRemoveAll(int index, int len) {
+    error();
+}
+
+        @Override
+protected void doClear() {
+    error();
+}
+
+        @Override
+protected void doModify() {
+    error();
+}
+
+        /**
+         * Throw exception if an attempt is made to change an immutable list.
+         */
+private void error() {
+    throw new UnsupportedOperationException("list is immutable");
+}
+    }
 	public static CharGapList create(String str) {
 		return new CharGapList(str);
 	}

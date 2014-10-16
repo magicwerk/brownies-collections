@@ -28,6 +28,12 @@ import org.magicwerk.brownies.collections.helper.primitive.ShortMergeSort;
  * @author Thomas Mauch
  * @version $Id: ShortBigList.java 2507 2014-10-15 00:08:21Z origo $
  */
+/**
+ *
+ *
+ * @author Thomas Mauch
+ * @version $Id$
+ */
 public class ShortBigList extends IShortList {
 	public static IShortList of(short[] values) {
 		return new ImmutableShortListArrayPrimitive(values);
@@ -199,150 +205,6 @@ public class ShortBigList extends IShortList {
 		}
     }
 
-    /**
-     * An immutable version of a ShortBigList.
-     * Note that the client cannot change the list,
-     * but the content may change if the underlying list is changed.
-     */
-    protected static class ImmutableShortBigList extends ShortBigList {
-
-        /** UID for serialization */
-        private static final long serialVersionUID = -1352274047348922584L;
-
-        /**
-         * Private constructor used internally.
-         *
-         * @param that  list to create an immutable view of
-         */
-protected ImmutableShortBigList(ShortBigList that){
-    super(true, that);
-}
-
-        @Override
-protected boolean doAdd(int index, short elem) {
-    error();
-    return false;
-}
-
-        @Override
-protected boolean doAddAll(int index, short[] elems) {
-    error();
-    return false;
-}
-
-        @Override
-protected short doSet(int index, short elem) {
-    error();
-    return (short) 0;
-}
-
-        @Override
-protected void doSetAll(int index, short[] elems) {
-    error();
-}
-
-        @Override
-protected short doReSet(int index, short elem) {
-    error();
-    return (short) 0;
-}
-
-        @Override
-protected short doRemove(int index) {
-    error();
-    return (short) 0;
-}
-
-        @Override
-protected void doRemoveAll(int index, int len) {
-    error();
-}
-
-        @Override
-protected void doClear() {
-    error();
-}
-
-        @Override
-protected void doModify() {
-    error();
-}
-
-        /**
-         * Throw exception if an attempt is made to change an immutable list.
-         */
-private void error() {
-    throw new UnsupportedOperationException("list is immutable");
-}
-    }
-
-    ;
-
-    /**
-	 * A block stores in maximum blockSize number of elements.
-	 * The first block in a ShortBigList will grow until reaches this limit, all other blocks are directly
-	 * allocated with a capacity of blockSize.
-	 * A block maintains a reference count which allows a block to be shared among different ShortBigList
-	 * instances with a copy-on-write approach.
-	 */
-    
-    public static class ShortBlock implements Serializable {
-
-        private ShortGapList values;
-
-        private int refCount;
-
-        public ShortBlock(){
-    values = new ShortGapList();
-    refCount = 1;
-}
-
-        public ShortBlock(int capacity){
-    values = new ShortGapList(capacity);
-    refCount = 1;
-}
-
-        public ShortBlock(ShortBlock that){
-    values = new ShortGapList(that.values.capacity());
-    values.init(that.values.getArray(0, that.values.size()));
-    refCount = 1;
-}
-
-        /**
-		 * @return true if block is shared by several ShortBigList instances
-		 */
-public boolean isShared() {
-    return refCount > 1;
-}
-
-        /**
-		 * Increment reference count as block is used by one ShortBigList instance more.
-		 */
-public ShortBlock ref() {
-    refCount++;
-    return this;
-}
-
-        /**
-		 * Decrement reference count as block is no longer used by one ShortBigList instance.
-		 */
-public void unref() {
-    refCount--;
-}
-
-        /**
-		 * @return number of elements stored in this block
-		 */
-public int size() {
-    return values.size();
-}
-
-        @Override
-public String toString() {
-    return values.toString();
-}
-    }
-
     /** UID for serialization */
     private static final long serialVersionUID = 3715838828540564836L;
 
@@ -350,11 +212,24 @@ public String toString() {
     private static int BLOCK_SIZE = 1000;
 
     /** Set to true for debugging during developing */
-    private static final boolean TRACE = false;
-
     private static final boolean CHECK = true;
 
-    private static final boolean DUMP = false;
+    // -- EMPTY --  
+    // Cannot make a static reference to the non-static type E:  
+    // public static ShortBigList EMPTY = ShortBigList.create().unmodifiableList();  
+    // Syntax error:  
+    // public static  ShortBigList EMPTY = ShortBigList.create().unmodifiableList();  
+    /** Unmodifiable empty instance */
+    
+    private static final ShortBigList EMPTY = ShortBigList.create().unmodifiableList();
+
+    /**
+     * @return unmodifiable empty instance
+     */
+
+public static  ShortBigList EMPTY() {
+    return EMPTY;
+}
 
     /** Number of elements stored at maximum in a block */
     private int blockSize;
@@ -406,7 +281,7 @@ protected ShortBigList(boolean copy, ShortBigList that){
      * @return          created list
      * @param        type of elements stored in the list
      */
-// This separate method is needed as the varargs variant creates the ShortGapList with specific size  
+// This separate method is needed as the varargs variant creates the list with specific size  
 public static ShortBigList create() {
     return new ShortBigList();
 }
@@ -457,7 +332,14 @@ public ShortBigList(int blockSize){
     doInit(blockSize, -1);
 }
 
-    public ShortBigList(Collection<Short> that){
+    /**
+     * Create new list with specified elements.
+     *
+     * @param coll      collection with element
+     * @return          created list
+     * @param        type of elements stored in the list
+     */
+public ShortBigList(Collection<Short> that){
     if (that instanceof ShortBigList) {
         doAssign((ShortBigList) that);
         doClone((ShortBigList) that);
@@ -472,18 +354,31 @@ public ShortBigList(int blockSize){
     }
 }
 
-    public void init() {
+    /**
+	 * Initialize the list to be empty.
+	 */
+public void init() {
     clear();
 }
 
-    public void init(short... elems) {
+    /**
+     * Initialize the list to have the specified elements.
+     *
+     * @param elems	elements
+     */
+public void init(short... elems) {
     clear();
     for (short elem : elems) {
         add(elem);
     }
 }
 
-    public void init(Collection<Short> that) {
+    /**
+     * Initialize the list to have all elements in the specified collection.
+     *
+     * @param that	collection
+     */
+public void init(Collection<Short> that) {
     clear();
     addAll(that);
 }
@@ -497,12 +392,23 @@ public int blockSize() {
     return blockSize;
 }
 
-    //---  
+    /**
+	 * Internal constructor.
+	 *
+	 * @param blockSize			default block size
+	 * @param firstShortBlockSize	block size of first block
+	 */
 private ShortBigList(int blockSize, int firstShortBlockSize){
     doInit(blockSize, firstShortBlockSize);
 }
 
-    void doInit(int blockSize, int firstShortBlockSize) {
+    /**
+	 * Initialize ShortBigList.
+	 *
+	 * @param blockSize			default block size
+	 * @param firstShortBlockSize	block size of first block
+	 */
+private void doInit(int blockSize, int firstShortBlockSize) {
     this.blockSize = blockSize;
     // First block will grow until it reaches blockSize   
     if (firstShortBlockSize <= 1) {
@@ -517,10 +423,24 @@ private ShortBigList(int blockSize, int firstShortBlockSize){
      * Returns a copy of this <tt>ShortBigList</tt> instance.
      * The copy is realized by a copy-on-write approach so also really large lists can efficiently be copied.
      * This method is identical to clone() except that the result is casted to ShortBigList.
+     *
+     * @return a copy of this <tt>ShortBigList</tt> instance
 	 */
 @Override
 public ShortBigList copy() {
     return (ShortBigList) super.copy();
+}
+
+    /**
+     * Returns a shallow copy of this <tt>ShortBigList</tt> instance
+     * The copy is realized by a copy-on-write approach so also really large lists can efficiently be copied.
+     *
+     * @return a copy of this <tt>ShortBigList</tt> instance
+     */
+// Only overridden to change Javadoc  
+@Override
+public Object clone() {
+    return super.clone();
 }
 
     @Override
@@ -538,15 +458,21 @@ protected void doAssign(IShortList that) {
     @Override
 protected void doClone(IShortList that) {
     ShortBigList bigList = (ShortBigList) that;
-    bigList.check();
     bigList.releaseShortBlock();
     root = copy(bigList.root);
     currNode = null;
     currModify = 0;
-    check();
+    if (CHECK)
+        check();
 }
 
-    private ShortBlockNode copy(ShortBlockNode node) {
+    /**
+	 * Create a copy of the specified node.
+	 *
+	 * @param node	source node
+	 * @return		newly created copy of source
+	 */
+private ShortBlockNode copy(ShortBlockNode node) {
     ShortBlockNode newNode = node.min();
     int index = newNode.block.size();
     ShortBlockNode newRoot = new ShortBlockNode(null, index, newNode.block.ref(), null, null);
@@ -679,7 +605,7 @@ private int getShortBlockIndex(int index, boolean write, int modify) {
     if (!done) {
         // Reset currShortBlockEnd, it will be then set by access()   
         currShortBlockEnd = 0;
-        currNode = access(index, modify);
+        currNode = doGetShortBlock(index, modify);
         currShortBlock = currNode.getShortBlock();
         currShortBlockStart = currShortBlockEnd - currShortBlock.size();
     }
@@ -694,102 +620,30 @@ private int getShortBlockIndex(int index, boolean write, int modify) {
     return index - currShortBlockStart;
 }
 
-    void checkNode(ShortBlockNode node) {
-    assert ((node.block.size() > 0 || node == root) && node.block.size() <= blockSize);
-    ShortBlockNode child = node.getLeftSubTree();
-    assert (child == null || child.parent == node);
-    child = node.getRightSubTree();
-    assert (child == null || child.parent == node);
+    /**
+	 * @return true if there is only the root block, false otherwise
+	 */
+private boolean isOnlyRootShortBlock() {
+    return root.left == null && root.right == null;
 }
 
-    void checkHeight(ShortBlockNode node) {
-    ShortBlockNode left = node.getLeftSubTree();
-    ShortBlockNode right = node.getRightSubTree();
-    if (left == null) {
-        if (right == null) {
-            assert (node.height == 0);
-        } else {
-            assert (right.height == node.height - 1);
-            checkHeight(right);
-        }
-    } else {
-        if (right == null) {
-            assert (left.height == node.height - 1);
-        } else {
-            assert (left.height == node.height - 1 || left.height == node.height - 2);
-            assert (right.height == node.height - 1 || right.height == node.height - 2);
-            assert (right.height == node.height - 1 || left.height == node.height - 1);
-        }
-        checkHeight(left);
-    }
+    private ShortBlockNode doGetShortBlock(int index, int modify) {
+    return root.access(this, index, modify, false);
 }
 
-    void check() {
-    //if (true) {return; } //TODO   
-    if (currNode != null) {
-        assert (currNode.block == currShortBlock);
-        assert (currShortBlockStart >= 0 && currShortBlockEnd <= size && currShortBlockStart <= currShortBlockEnd);
-        assert (currShortBlockStart + currShortBlock.size() == currShortBlockEnd);
-    }
+    /**
+     * Adds a new element to the list.
+     *
+     * @param index  the index to add before
+     * @param obj  the element to add
+     */
+private void addShortBlock(int index, ShortBlock obj) {
     if (root == null) {
-        assert (size == 0);
-        return;
+        root = new ShortBlockNode(null, index, obj, null, null);
+    } else {
+        root = root.insert(index, obj);
+        root.parent = null;
     }
-    checkHeight(root);
-    ShortBlockNode oldCurrNode = currNode;
-    int oldCurrModify = currModify;
-    if (currModify != 0) {
-        currNode = null;
-        currModify = 0;
-        modify(oldCurrNode, oldCurrModify);
-    }
-    ShortBlockNode node = root;
-    checkNode(node);
-    int index = node.relativePosition;
-    while (node.left != null) {
-        node = node.left;
-        checkNode(node);
-        assert (node.relativePosition < 0);
-        index += node.relativePosition;
-    }
-    ShortBlock block = node.getShortBlock();
-    assert (block.size() == index);
-    int lastIndex = index;
-    while (lastIndex < size()) {
-        node = root;
-        index = node.relativePosition;
-        int searchIndex = lastIndex + 1;
-        while (true) {
-            checkNode(node);
-            block = node.getShortBlock();
-            assert (block.size() > 0);
-            if (searchIndex > index - block.size() && searchIndex <= index) {
-                break;
-            } else if (searchIndex < index) {
-                if (node.left != null && node.left.height < node.height) {
-                    node = node.left;
-                } else {
-                    break;
-                }
-            } else {
-                if (node.right != null && node.right.height < node.height) {
-                    node = node.right;
-                } else {
-                    break;
-                }
-            }
-            index += node.relativePosition;
-        }
-        block = node.getShortBlock();
-        assert (block.size() == index - lastIndex);
-        lastIndex = index;
-    }
-    assert (index == size());
-    if (oldCurrModify != 0) {
-        modify(oldCurrNode, -oldCurrModify);
-    }
-    currNode = oldCurrNode;
-    currModify = oldCurrModify;
 }
 
     @Override
@@ -858,8 +712,6 @@ protected boolean doAdd(int index, short element) {
         }
     }
     size++;
-    if (DUMP)
-        dump();
     if (CHECK)
         check();
     return true;
@@ -868,8 +720,8 @@ protected boolean doAdd(int index, short element) {
     /**
 	 * Modify relativePosition of all nodes starting from the specified node.
 	 *
-	 * @param node
-	 * @param modify
+	 * @param node		node whose position value must be changed
+	 * @param modify	modify value (>0 for add, <0 for delete)
 	 */
 private void modify(ShortBlockNode node, int modify) {
     if (node == currNode) {
@@ -971,7 +823,8 @@ protected boolean doAddAll(int index, short[] array) {
     if (index == -1) {
         index = size;
     }
-    check();
+    if (CHECK)
+        check();
     int oldSize = size;
     if (array.length == 1) {
         return doAdd(index, array[0]);
@@ -1098,7 +951,8 @@ protected boolean doAddAll(int index, short[] array) {
                 numElems -= should;
                 numShortBlocks--;
             }
-            check();
+            if (CHECK)
+                check();
             while (numShortBlocks > 0) {
                 int add = numElems / numShortBlocks;
                 assert (add > 0);
@@ -1117,12 +971,14 @@ protected boolean doAddAll(int index, short[] array) {
                 currShortBlockEnd += add;
                 size += add;
                 numShortBlocks--;
-                check();
+                if (CHECK)
+                    check();
             }
         }
     }
     assert (oldSize + addLen == size);
-    check();
+    if (CHECK)
+        check();
     return true;
 }
 
@@ -1153,7 +1009,6 @@ protected void doRemoveAll(int index, int len) {
         return;
     }
     // Remove range   
-    int l = len;
     int startPos = getShortBlockIndex(index, true, 0);
     ShortBlockNode startNode = currNode;
     int endPos = getShortBlockIndex(index + len - 1, true, 0);
@@ -1174,7 +1029,8 @@ protected void doRemoveAll(int index, int len) {
         size -= len;
     } else {
         // Delete from start block   
-        check();
+        if (CHECK)
+            check();
         int startLen = startNode.block.size() - startPos;
         getShortBlockIndex(index, true, -startLen);
         // TODO should that be modify?   
@@ -1187,7 +1043,6 @@ protected void doRemoveAll(int index, int len) {
         }
         len -= startLen;
         size -= startLen;
-        //check();   
         while (len > 0) {
             currNode = null;
             getShortBlockIndex(index, true, 0);
@@ -1202,7 +1057,8 @@ protected void doRemoveAll(int index, int len) {
                 }
                 len -= s;
                 size -= s;
-                check();
+                if (CHECK)
+                    check();
             } else {
                 modify(currNode, -len);
                 currShortBlock.values.remove(0, len);
@@ -1211,17 +1067,21 @@ protected void doRemoveAll(int index, int len) {
             }
         }
         releaseShortBlock();
-        check();
+        if (CHECK)
+            check();
         getShortBlockIndex(index, false, 0);
         merge(currNode);
     }
-    if (DUMP)
-        dump();
     if (CHECK)
         check();
 }
 
-    void merge(ShortBlockNode node) {
+    /**
+	 * Merge the specified node with the left or right neighbor if possible.
+	 *
+	 * @param node	candidate node for merge
+	 */
+private void merge(ShortBlockNode node) {
     if (node == null) {
         return;
     }
@@ -1279,18 +1139,12 @@ protected void doRemoveAll(int index, int len) {
         }
     }
     size--;
-    if (DUMP)
-        dump();
     if (CHECK)
         check();
     return oldElem;
 }
 
-    private void dump() {
-}
-
-    /**/
-@Override
+    @Override
 public ShortBigList unmodifiableList() {
     // Naming as in java.util.Collections#unmodifiableList   
     return new ImmutableShortBigList(this);
@@ -1306,10 +1160,24 @@ protected void doEnsureCapacity(int minCapacity) {
     }
 }
 
-    @Override
+    /**
+     * Pack as many elements in the blocks as allowed.
+     * An application can use this operation to minimize the storage of an instance.
+     */
+@Override
 public void trimToSize() {
+    doModify();
     if (isOnlyRootShortBlock()) {
         currShortBlock.values.trimToSize();
+    } else {
+        ShortBigList newList = new ShortBigList(blockSize);
+        ShortBlockNode node = root.min();
+        while (node != null) {
+            newList.addAll(node.block.values);
+            remove(0, node.block.values.size());
+            node = node.next();
+        }
+        doAssign(newList);
     }
 }
 
@@ -1342,49 +1210,12 @@ public int binarySearch(int index, int len, short key) {
     }
 }
 
-    /**
-	 * @return true if there is only the root block, false otherwise
-	 */
-private boolean isOnlyRootShortBlock() {
-    return root.left == null && root.right == null;
-}
-
-    public ShortBlockNode access(int index, int modify) {
-    return root.access(this, index, modify, false);
-}
-
-    /**
-     * Adds a new element to the list.
-     *
-     * @param index  the index to add before
-     * @param obj  the element to add
-     */
-public void addShortBlock(int index, ShortBlock obj) {
-    if (root == null) {
-        root = new ShortBlockNode(null, index, obj, null, null);
-    } else {
-        root = root.insert(index, obj);
-        root.parent = null;
-    }
-}
-
-    /**
-     * Removes the element at the specified index.
-     *
-     * @param index  the index to remove
-     * @return the previous object at that index
-     */
-public void removeShortBlock(int index) {
-    root = root.remove(index);
-}
-
     // --- Serialization ---  
 /**
      * Serialize a ShortBigList object.
      *
-     * @serialData The length of the array backing the <tt>ShortGapList</tt>
-     *             instance is emitted (int), followed by all of its elements
-     *             (each an <tt>Object</tt>) in the proper order.
+     * @serialData block size (int), number of elements (int), followed by all of its elements
+     *             (each an <tt>Object</tt>) in the proper order
      * @param oos  output stream for serialization
      * @throws 	   IOException if serialization fails
      */
@@ -1415,12 +1246,176 @@ private void readObject(ObjectInputStream ois) throws IOException, ClassNotFound
     }
 }
 
+    // --- Debug checks ---  
+private void checkNode(ShortBlockNode node) {
+    assert ((node.block.size() > 0 || node == root) && node.block.size() <= blockSize);
+    ShortBlockNode child = node.getLeftSubTree();
+    assert (child == null || child.parent == node);
+    child = node.getRightSubTree();
+    assert (child == null || child.parent == node);
+}
+
+    private void checkHeight(ShortBlockNode node) {
+    ShortBlockNode left = node.getLeftSubTree();
+    ShortBlockNode right = node.getRightSubTree();
+    if (left == null) {
+        if (right == null) {
+            assert (node.height == 0);
+        } else {
+            assert (right.height == node.height - 1);
+            checkHeight(right);
+        }
+    } else {
+        if (right == null) {
+            assert (left.height == node.height - 1);
+        } else {
+            assert (left.height == node.height - 1 || left.height == node.height - 2);
+            assert (right.height == node.height - 1 || right.height == node.height - 2);
+            assert (right.height == node.height - 1 || left.height == node.height - 1);
+        }
+        checkHeight(left);
+    }
+}
+
+    private void check() {
+    if (currNode != null) {
+        assert (currNode.block == currShortBlock);
+        assert (currShortBlockStart >= 0 && currShortBlockEnd <= size && currShortBlockStart <= currShortBlockEnd);
+        assert (currShortBlockStart + currShortBlock.size() == currShortBlockEnd);
+    }
+    if (root == null) {
+        assert (size == 0);
+        return;
+    }
+    checkHeight(root);
+    ShortBlockNode oldCurrNode = currNode;
+    int oldCurrModify = currModify;
+    if (currModify != 0) {
+        currNode = null;
+        currModify = 0;
+        modify(oldCurrNode, oldCurrModify);
+    }
+    ShortBlockNode node = root;
+    checkNode(node);
+    int index = node.relativePosition;
+    while (node.left != null) {
+        node = node.left;
+        checkNode(node);
+        assert (node.relativePosition < 0);
+        index += node.relativePosition;
+    }
+    ShortBlock block = node.getShortBlock();
+    assert (block.size() == index);
+    int lastIndex = index;
+    while (lastIndex < size()) {
+        node = root;
+        index = node.relativePosition;
+        int searchIndex = lastIndex + 1;
+        while (true) {
+            checkNode(node);
+            block = node.getShortBlock();
+            assert (block.size() > 0);
+            if (searchIndex > index - block.size() && searchIndex <= index) {
+                break;
+            } else if (searchIndex < index) {
+                if (node.left != null && node.left.height < node.height) {
+                    node = node.left;
+                } else {
+                    break;
+                }
+            } else {
+                if (node.right != null && node.right.height < node.height) {
+                    node = node.right;
+                } else {
+                    break;
+                }
+            }
+            index += node.relativePosition;
+        }
+        block = node.getShortBlock();
+        assert (block.size() == index - lastIndex);
+        lastIndex = index;
+    }
+    assert (index == size());
+    if (oldCurrModify != 0) {
+        modify(oldCurrNode, -oldCurrModify);
+    }
+    currNode = oldCurrNode;
+    currModify = oldCurrModify;
+}
+
+    // --- ShortBlock ---  
+    /**
+	 * A block stores in maximum blockSize number of elements.
+	 * The first block in a ShortBigList will grow until reaches this limit, all other blocks are directly
+	 * allocated with a capacity of blockSize.
+	 * A block maintains a reference count which allows a block to be shared among different ShortBigList
+	 * instances with a copy-on-write approach.
+	 */
+    
+    public static class ShortBlock implements Serializable {
+
+        private ShortGapList values;
+
+        private int refCount;
+
+        public ShortBlock(){
+    values = new ShortGapList();
+    refCount = 1;
+}
+
+        public ShortBlock(int capacity){
+    values = new ShortGapList(capacity);
+    refCount = 1;
+}
+
+        public ShortBlock(ShortBlock that){
+    values = new ShortGapList(that.values.capacity());
+    values.init(that.values.getArray(0, that.values.size()));
+    refCount = 1;
+}
+
+        /**
+		 * @return true if block is shared by several ShortBigList instances
+		 */
+public boolean isShared() {
+    return refCount > 1;
+}
+
+        /**
+		 * Increment reference count as block is used by one ShortBigList instance more.
+		 */
+public ShortBlock ref() {
+    refCount++;
+    return this;
+}
+
+        /**
+		 * Decrement reference count as block is no longer used by one ShortBigList instance.
+		 */
+public void unref() {
+    refCount--;
+}
+
+        /**
+		 * @return number of elements stored in this block
+		 */
+public int size() {
+    return values.size();
+}
+
+        @Override
+public String toString() {
+    return values.toString();
+}
+    }
+
+    // --- ShortBlockNode ---  
     /**
      * Implements an AVLNode storing a ShortBlock.
      * The nodes don't know the index of the object they are holding. They do know however their
      * position relative to their parent node. This allows to calculate the index of a node while traversing the tree.
-     * <p>
-     * The Faedelung calculation stores a flag for both the left and right child
+     * There is a faedelung flag for both the left and right child
      * to indicate if they are a child (false) or a link as in linked list (true).
      */
     static class ShortBlockNode {
@@ -1855,7 +1850,12 @@ private int heightRightMinusLeft() {
     return getHeight(getRightSubTree()) - getHeight(getLeftSubTree());
 }
 
-        private ShortBlockNode rotateLeft() {
+        /**
+         * Rotate tree to the left using this node as center.
+         *
+         * @return node which will take the place of this node
+         */
+private ShortBlockNode rotateLeft() {
     assert (!rightIsNext);
     final ShortBlockNode newTop = right;
     // can't be faedelung!   
@@ -1876,7 +1876,12 @@ private int heightRightMinusLeft() {
     return newTop;
 }
 
-        private ShortBlockNode rotateRight() {
+        /**
+         * Rotate tree to the right using this node as center.
+         *
+         * @return node which will take the place of this node
+         */
+private ShortBlockNode rotateRight() {
     assert (!leftIsPrevious);
     final ShortBlockNode newTop = left;
     // can't be faedelung   
@@ -1938,7 +1943,85 @@ private void setRight(ShortBlockNode node, ShortBlockNode next) {
          */
 @Override
 public String toString() {
-    return new StringBuilder().append("AVLNode(").append(relativePosition).append(',').append(getRightSubTree() != null).append(',').append(block).append(',').append(getRightSubTree() != null).append(", height ").append(height).append(" )").toString();
+    return new StringBuilder().append("ShortBlockNode(").append(relativePosition).append(',').append(getRightSubTree() != null).append(',').append(block).append(',').append(getRightSubTree() != null).append(", height ").append(height).append(" )").toString();
+}
+    }
+
+    // --- ImmutableShortBigList ---  
+    /**
+     * An immutable version of a ShortBigList.
+     * Note that the client cannot change the list,
+     * but the content may change if the underlying list is changed.
+     */
+    protected static class ImmutableShortBigList extends ShortBigList {
+
+        /** UID for serialization */
+        private static final long serialVersionUID = -1352274047348922584L;
+
+        /**
+         * Private constructor used internally.
+         *
+         * @param that  list to create an immutable view of
+         */
+protected ImmutableShortBigList(ShortBigList that){
+    super(true, that);
+}
+
+        @Override
+protected boolean doAdd(int index, short elem) {
+    error();
+    return false;
+}
+
+        @Override
+protected boolean doAddAll(int index, short[] elems) {
+    error();
+    return false;
+}
+
+        @Override
+protected short doSet(int index, short elem) {
+    error();
+    return (short) 0;
+}
+
+        @Override
+protected void doSetAll(int index, short[] elems) {
+    error();
+}
+
+        @Override
+protected short doReSet(int index, short elem) {
+    error();
+    return (short) 0;
+}
+
+        @Override
+protected short doRemove(int index) {
+    error();
+    return (short) 0;
+}
+
+        @Override
+protected void doRemoveAll(int index, int len) {
+    error();
+}
+
+        @Override
+protected void doClear() {
+    error();
+}
+
+        @Override
+protected void doModify() {
+    error();
+}
+
+        /**
+         * Throw exception if an attempt is made to change an immutable list.
+         */
+private void error() {
+    throw new UnsupportedOperationException("list is immutable");
 }
     }
 }

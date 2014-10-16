@@ -43,6 +43,7 @@ import org.magicwerk.brownies.collections.function.Predicate;
  *
  * @param <E> type of elements stored in the list
  * @see	    java.util.List
+ * @see	    java.util.Deque
  * @see	    java.util.ArrayList
  * @see	    java.util.LinkedList
  */
@@ -69,9 +70,9 @@ public abstract class IList<E> extends AbstractList<E>
 	}
 
     /**
-     * Returns a shallow copy of this <tt>GapList</tt> instance
+     * Returns a shallow copy of this list instance.
      * (the new list will contain the same elements as the source list, i.e. the elements themselves are not copied).
-     * This method is identical to clone() except that the result is casted to GapList.
+     * This method is identical to clone() except that the result is casted to an IList.
      *
      * @return a clone of this instance
      * @see #clone
@@ -93,12 +94,10 @@ public abstract class IList<E> extends AbstractList<E>
     abstract public IList<E> unmodifiableList();
 
     /**
-     * Returns a shallow copy of this <tt>GapList</tt> instance
+     * Returns a shallow copy of this list instance.
      * (The elements themselves are not copied).
-     * The capacity of the list will be set to the number of elements,
-     * so after calling clone(), size and capacity are equal.
      *
-     * @return a clone of this <tt>GapList</tt> instance
+     * @return a clone of this list instance
      */
 	@SuppressWarnings("unchecked")
     @Override
@@ -208,14 +207,14 @@ public abstract class IList<E> extends AbstractList<E>
 	}
 
 	/**
-	 * Helper method for adding an element to the GapList.
+	 * Helper method for adding an element to the list.
 	 * This is the only method which really adds an element.
 	 * Override if you need to validity checks before adding.
 	 *
 	 * @param index	index where element should be added
 	 *              (-1 means it is up to the implementation to choose the index)
 	 * @param elem	element to add
-	 * @return      true if element has been added (GapList.add() will always return true)
+	 * @return      true if element has been added, false otherwise
 	 */
 	abstract protected boolean doAdd(int index, E elem);
 
@@ -250,7 +249,7 @@ public abstract class IList<E> extends AbstractList<E>
     }
 
     /**
-     * Increases the capacity of this <tt>GapList</tt> instance, if
+     * Increases the capacity of this list instance, if
      * necessary, to ensure that it can hold at least the number of elements
      * specified by the minimum capacity argument.
      *
@@ -259,9 +258,7 @@ public abstract class IList<E> extends AbstractList<E>
     abstract protected void doEnsureCapacity(int minCapacity);
 
     /**
-     * Trims the capacity of this <tt>GapList</tt> instance to be the
-     * list's current size.  An application can use this operation to minimize
-     * the storage of an <tt>GapList</tt> instance.
+     * An application can use this operation to minimize the storage of an instance.
      */
 	// Note: Provide this method to make transition from ArrayList as
 	//       smooth as possible
@@ -321,8 +318,7 @@ public abstract class IList<E> extends AbstractList<E>
 	}
 
 	/**
-	 * Helper function to check two elements stored in the GapList
-	 * for equality.
+	 * Helper function to check two elements stored in the list for equality.
 	 *
 	 * @param elem1	first element
 	 * @param elem2	second element
@@ -342,8 +338,7 @@ public abstract class IList<E> extends AbstractList<E>
 	}
 
 	/**
-	 * Helper method to calculate hash code of a element stored in
-	 * the GapList.
+	 * Helper method to calculate hash code of a element stored in the list.
 	 *
 	 * @param elem	element
 	 * @return		hash code for element
@@ -562,7 +557,7 @@ public abstract class IList<E> extends AbstractList<E>
      * @see #removeAll(Collection)
      */
     public boolean removeAll(IList<?> coll) {
-    	// There is a special implementation accepting a GapList
+    	// There is a special implementation accepting an IList
     	// so the method is also available in the primitive classes.
 	    boolean modified = false;
 	    int size = size();
@@ -598,7 +593,7 @@ public abstract class IList<E> extends AbstractList<E>
      * @see #retainAll(Collection)
      */
     public boolean retainAll(IList<?> coll) {
-    	// There is a special implementation accepting a GapList
+    	// There is a special implementation accepting an IList
     	// so the method is also available in the primitive classes.
 	    boolean modified = false;
 	    int size = size();
@@ -770,8 +765,8 @@ public abstract class IList<E> extends AbstractList<E>
 	}
 
     /**
-     * Helper method for adding multiple elements to the GapList.
-     * It still calls doAdd() for adding each element.
+     * Helper method for adding multiple elements to the list.
+     * This default implementation calls doAdd() for adding each element.
      *
      * @param index index where element should be added
      *              (-1 is valid for adding at the end)
@@ -988,10 +983,10 @@ public abstract class IList<E> extends AbstractList<E>
 		return true;
 	}
 
-    // --- Static bulk methods working with two GapLists ---
+    // --- Static bulk methods working with two ILists ---
 
     /**
-     * Moves elements from one GapList to another.
+     * Moves elements from one list to another.
      *
      * @param src		source list
      * @param srcIndex	index of first element in source list
@@ -1018,7 +1013,7 @@ public abstract class IList<E> extends AbstractList<E>
     }
 
     /**
-     * Copies elements from one GapList to another.
+     * Copies elements from one list to another.
      *
      * @param src		source list
      * @param srcIndex	index of first element in source list
@@ -1044,7 +1039,7 @@ public abstract class IList<E> extends AbstractList<E>
     }
 
     /**
-     * Swaps elements from two GapLists.
+     * Swaps elements from two lists.
      *
      * @param src		first list
      * @param srcIndex	index of first element in first list
@@ -1087,7 +1082,7 @@ public abstract class IList<E> extends AbstractList<E>
 
     /**
      * Assign this list the content of the that list.
-     * This is done by bitwise copying so the that list should not be user afterwards.
+     * This is done by bitwise copying so the that list should not be used afterwards.
      *
      * @param that list to copy content from
      */
@@ -1099,7 +1094,7 @@ public abstract class IList<E> extends AbstractList<E>
      *
      * @param index index of first element to retrieve
      * @param len   number of elements to retrieve
-     * @return      GapList containing the specified range of elements from list
+     * @return      list containing the specified range of elements
      */
     public IList<E> getAll(int index, int len) {
         checkRange(index, len);
@@ -1116,7 +1111,7 @@ public abstract class IList<E> extends AbstractList<E>
      *
      * @param index index of first element to retrieve
      * @param len   number of elements to retrieve
-     * @return      GapList containing the specified range of elements from list
+     * @return      list containing the specified range of elements
      */
     public IList<E> extract(int index, int len) {
         checkRange(index, len);
@@ -1130,11 +1125,11 @@ public abstract class IList<E> extends AbstractList<E>
     }
 
     /**
-     * Returns specified range of elements from list.
+     * Returns specified range of elements from list as array.
      *
      * @param index index of first element to retrieve
      * @param len   number of elements to retrieve
-     * @return      GapList containing the specified range of elements from list
+     * @return      array containing the specified range of elements
      */
     public E[] getArray(int index, int len) {
         checkRange(index, len);
@@ -1157,7 +1152,7 @@ public abstract class IList<E> extends AbstractList<E>
      * @throws 		IndexOutOfBoundsException if the range is invalid
      */
     public void setAll(int index, IList<? extends E> list) {
-    	// There is a special implementation accepting a GapList
+    	// There is a special implementation accepting an IList
     	// so the method is also available in the primitive classes.
 	    int size = list.size();
         checkRange(index, size);
@@ -1578,7 +1573,7 @@ public abstract class IList<E> extends AbstractList<E>
        following code snippets, both method calls are possible:
 
        new GapList<Name>().binarySearch(new Name("a"), new NameComparator());
-       new GapList<Name>().binarySearch("a), new NameComparator());
+       new GapList<Name>().binarySearch("a", new NameComparator());
 
        class Name {
            String name;

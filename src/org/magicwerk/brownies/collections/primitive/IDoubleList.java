@@ -46,6 +46,7 @@ import org.magicwerk.brownies.collections.function.Predicate;
  *
  * @param <E> type of elements stored in the list
  * @see	    java.util.List
+ * @see	    java.util.Deque
  * @see	    java.util.ArrayList
  * @see	    java.util.LinkedList
  */
@@ -67,9 +68,9 @@ static double[] toArray(Collection<Double> coll) {
 }
 
     /**
-     * Returns a shallow copy of this <tt>GapList</tt> instance
+     * Returns a shallow copy of this list instance.
      * (the new list will contain the same elements as the source list, i.e. the elements themselves are not copied).
-     * This method is identical to clone() except that the result is casted to GapList.
+     * This method is identical to clone() except that the result is casted to an IDoubleList.
      *
      * @return a clone of this instance
      * @see #clone
@@ -91,12 +92,10 @@ public IDoubleList copy() {
 public abstract IDoubleList unmodifiableList();
 
     /**
-     * Returns a shallow copy of this <tt>GapList</tt> instance
+     * Returns a shallow copy of this list instance.
      * (The elements themselves are not copied).
-     * The capacity of the list will be set to the number of elements,
-     * so after calling clone(), size and capacity are equal.
      *
-     * @return a clone of this <tt>GapList</tt> instance
+     * @return a clone of this list instance
      */
 @SuppressWarnings("unchecked")
 
@@ -205,14 +204,14 @@ public void add(int index, double elem) {
 }
 
     /**
-	 * Helper method for adding an element to the GapList.
+	 * Helper method for adding an element to the list.
 	 * This is the only method which really adds an element.
 	 * Override if you need to validity checks before adding.
 	 *
 	 * @param index	index where element should be added
 	 *              (-1 means it is up to the implementation to choose the index)
 	 * @param elem	element to add
-	 * @return      true if element has been added (GapList.add() will always return true)
+	 * @return      true if element has been added, false otherwise
 	 */
 protected abstract boolean doAdd(int index, double elem);
 
@@ -247,7 +246,7 @@ public void ensureCapacity(int minCapacity) {
 }
 
     /**
-     * Increases the capacity of this <tt>GapList</tt> instance, if
+     * Increases the capacity of this list instance, if
      * necessary, to ensure that it can hold at least the number of elements
      * specified by the minimum capacity argument.
      *
@@ -256,9 +255,7 @@ public void ensureCapacity(int minCapacity) {
 protected abstract void doEnsureCapacity(int minCapacity);
 
     /**
-     * Trims the capacity of this <tt>GapList</tt> instance to be the
-     * list's current size.  An application can use this operation to minimize
-     * the storage of an <tt>GapList</tt> instance.
+     * An application can use this operation to minimize the storage of an instance.
      */
 // Note: Provide this method to make transition from ArrayList as  
 //       smooth as possible  
@@ -322,8 +319,7 @@ public boolean isEmpty() {
 }
 
     /**
-	 * Helper function to check two elements stored in the GapList
-	 * for equality.
+	 * Helper function to check two elements stored in the list for equality.
 	 *
 	 * @param elem1	first element
 	 * @param elem2	second element
@@ -335,8 +331,7 @@ static boolean equalsElem(double elem1, double elem2) {
 }
 
     /**
-	 * Helper method to calculate hash code of a element stored in
-	 * the GapList.
+	 * Helper method to calculate hash code of a element stored in the list.
 	 *
 	 * @param elem	element
 	 * @return		hash code for element
@@ -551,7 +546,7 @@ public IDoubleList removeAll(double elem) {
      * @see #removeAll(Collection)
      */
 public boolean removeAll(IDoubleList coll) {
-    // There is a special implementation accepting a GapList   
+    // There is a special implementation accepting an IDoubleList   
     // so the method is also available in the primitive classes.   
     boolean modified = false;
     int size = size();
@@ -587,7 +582,7 @@ public boolean retainAll(Collection<Double> coll) {
      * @see #retainAll(Collection)
      */
 public boolean retainAll(IDoubleList coll) {
-    // There is a special implementation accepting a GapList   
+    // There is a special implementation accepting an IDoubleList   
     // so the method is also available in the primitive classes.   
     boolean modified = false;
     int size = size();
@@ -754,8 +749,8 @@ public boolean addAll(int index, IDoubleList list) {
 }
 
     /**
-     * Helper method for adding multiple elements to the GapList.
-     * It still calls doAdd() for adding each element.
+     * Helper method for adding multiple elements to the list.
+     * This default implementation calls doAdd() for adding each element.
      *
      * @param index index where element should be added
      *              (-1 is valid for adding at the end)
@@ -954,9 +949,9 @@ public boolean removeLastOccurrence(double elem) {
     return true;
 }
 
-    // --- Static bulk methods working with two GapLists ---  
+    // --- Static bulk methods working with two IDoubleLists ---  
 /**
-     * Moves elements from one GapList to another.
+     * Moves elements from one list to another.
      *
      * @param src		source list
      * @param srcIndex	index of first element in source list
@@ -981,7 +976,7 @@ public static void move(IDoubleList src, int srcIndex, IDoubleList dst, int dstI
 }
 
     /**
-     * Copies elements from one GapList to another.
+     * Copies elements from one list to another.
      *
      * @param src		source list
      * @param srcIndex	index of first element in source list
@@ -1005,7 +1000,7 @@ public static void copy(IDoubleList src, int srcIndex, IDoubleList dst, int dstI
 }
 
     /**
-     * Swaps elements from two GapLists.
+     * Swaps elements from two lists.
      *
      * @param src		first list
      * @param srcIndex	index of first element in first list
@@ -1043,7 +1038,7 @@ protected abstract IDoubleList doCreate(int capacity);
 
     /**
      * Assign this list the content of the that list.
-     * This is done by bitwise copying so the that list should not be user afterwards.
+     * This is done by bitwise copying so the that list should not be used afterwards.
      *
      * @param that list to copy content from
      */
@@ -1054,7 +1049,7 @@ protected abstract void doAssign(IDoubleList that);
      *
      * @param index index of first element to retrieve
      * @param len   number of elements to retrieve
-     * @return      GapList containing the specified range of elements from list
+     * @return      list containing the specified range of elements
      */
 public IDoubleList getAll(int index, int len) {
     checkRange(index, len);
@@ -1070,7 +1065,7 @@ public IDoubleList getAll(int index, int len) {
      *
      * @param index index of first element to retrieve
      * @param len   number of elements to retrieve
-     * @return      GapList containing the specified range of elements from list
+     * @return      list containing the specified range of elements
      */
 public IDoubleList extract(int index, int len) {
     checkRange(index, len);
@@ -1083,11 +1078,11 @@ public IDoubleList extract(int index, int len) {
 }
 
     /**
-     * Returns specified range of elements from list.
+     * Returns specified range of elements from list as array.
      *
      * @param index index of first element to retrieve
      * @param len   number of elements to retrieve
-     * @return      GapList containing the specified range of elements from list
+     * @return      array containing the specified range of elements
      */
 public double[] getArray(int index, int len) {
     checkRange(index, len);
@@ -1107,7 +1102,7 @@ public double[] getArray(int index, int len) {
      * @throws 		IndexOutOfBoundsException if the range is invalid
      */
 public void setAll(int index, IDoubleList list) {
-    // There is a special implementation accepting a GapList   
+    // There is a special implementation accepting an IDoubleList   
     // so the method is also available in the primitive classes.   
     int size = list.size();
     checkRange(index, size);
@@ -1512,7 +1507,7 @@ public abstract void sort(int index, int len);
        following code snippets, both method calls are possible:
 
        new GapList<Name>().binarySearch(new Name("a"), new NameComparator());
-       new GapList<Name>().binarySearch("a), new NameComparator());
+       new GapList<Name>().binarySearch("a", new NameComparator());
 
        class Name {
            String name;

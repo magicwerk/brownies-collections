@@ -49,8 +49,8 @@ public class GapList<E> extends IList<E> {
 
     /*
      * Helper variables to enable code for debugging.
-     * As the variables are declared as "static final boolean", the compiler
-     * will be able to detect unused branches and will not compile the
+     * As the variables are declared as "static final boolean", the JVM
+     * will be able to detect unused branches and will not execute the
      * code (the same approach is used for the assert statement).
      */
     /** If true the invariants the GapList are checked for debugging */
@@ -59,6 +59,7 @@ public class GapList<E> extends IList<E> {
     private static final boolean DEBUG_TRACE = false;
     /** If true the internal state of the GapList is traced out for debugging */
     private static final boolean DEBUG_DUMP = false;
+
 	/** Empty array used for default initialization */
     private static Object[] EMPTY_VALUES = new Object[0];
 
@@ -81,83 +82,6 @@ public class GapList<E> extends IList<E> {
         return EMPTY;
     }
 
-
-    /**
-     * An immutable version of a GapList.
-     * Note that the client cannot change the list,
-     * but the content may change if the underlying list is changed.
-     */
-    protected static class ImmutableGapList<E> extends GapList<E> {
-
-        /** UID for serialization */
-        private static final long serialVersionUID = -1352274047348922584L;
-
-        /**
-         * Private constructor used internally.
-         *
-         * @param that  list to create an immutable view of
-         */
-        protected ImmutableGapList(GapList<E> that) {
-            super(true, that);
-        }
-
-        @Override
-        protected boolean doAdd(int index, E elem) {
-        	error();
-        	return false;
-        }
-
-        @Override
-        protected boolean doAddAll(int index, E[] elems) {
-        	error();
-        	return false;
-        }
-
-        @Override
-        protected E doSet(int index, E elem) {
-        	error();
-        	return null;
-        }
-
-        @Override
-        protected void doSetAll(int index, E[] elems) {
-        	error();
-        }
-
-        @Override
-        protected E doReSet(int index, E elem) {
-        	error();
-        	return null;
-        }
-
-        @Override
-        protected E doRemove(int index) {
-        	error();
-        	return null;
-        }
-
-        @Override
-        protected void doRemoveAll(int index, int len) {
-        	error();
-        }
-
-        @Override
-        protected void doClear() {
-        	error();
-        }
-
-        @Override
-        protected void doModify() {
-        	error();
-        }
-
-        /**
-         * Throw exception if an attempt is made to change an immutable list.
-         */
-        private void error() {
-            throw new UnsupportedOperationException("list is immutable");
-        }
-    };
 
     /** UID for serialization */
     private static final long serialVersionUID = -4477005565661968383L;
@@ -189,7 +113,7 @@ public class GapList<E> extends IList<E> {
      * @return          created list
      * @param <E>       type of elements stored in the list
      */
-    // This separate method is needed as the varargs variant creates the GapList with specific size
+    // This separate method is needed as the varargs variant creates the list with specific size
     public static <E> GapList<E> create() {
         return new GapList<E>();
     }
@@ -410,11 +334,40 @@ public class GapList<E> extends IList<E> {
      * Returns a shallow copy of this <tt>GapList</tt> instance.
      * (the new list will contain the same elements as the source list, i.e. the elements themselves are not copied).
      * This method is identical to clone() except that the result is casted to GapList.
+     *
+     * @return a copy of this <tt>GapList</tt> instance
 	 */
 	@Override
     public GapList<E> copy() {
 	    return (GapList<E>) super.copy();
 	}
+
+    /**
+     * Increases the capacity of this <tt>GapList</tt> instance, if
+     * necessary, to ensure that it can hold at least the number of elements
+     * specified by the minimum capacity argument.
+     *
+     * @param   minCapacity   the desired minimum capacity
+     */
+    // Only overridden to change Javadoc
+	@Override
+    public void ensureCapacity(int minCapacity) {
+		super.ensureCapacity(minCapacity);
+    }
+
+    /**
+     * Returns a shallow copy of this <tt>GapList</tt> instance
+     * (The elements themselves are not copied).
+     * The capacity of the list will be set to the number of elements,
+     * so after calling clone(), size and capacity are equal.
+     *
+     * @return a copy of this <tt>GapList</tt> instance
+     */
+    // Only overridden to change Javadoc
+    @Override
+    public Object clone() {
+		return super.clone();
+    }
 
 	@Override
     public GapList<E> unmodifiableList() {
@@ -1013,6 +966,10 @@ public class GapList<E> extends IList<E> {
 		if (DEBUG_CHECK) debugCheck();
 	}
 
+    /**
+     * Trims the capacity of this GapList instance to be the list's current size.
+     * An application can use this operation to minimize the storage of an instance.
+     */
     @Override
 	public void trimToSize() {
         doModify();
@@ -1256,7 +1213,86 @@ public class GapList<E> extends IList<E> {
 	 *
 	 * @param msg message to write out
 	 */
-	private void debugLog(String msg) { //TODO
+	private void debugLog(String msg) {
 	}
+
+	// --- ImmutableGapList ---
+
+    /**
+     * An immutable version of a GapList.
+     * Note that the client cannot change the list,
+     * but the content may change if the underlying list is changed.
+     */
+    protected static class ImmutableGapList<E> extends GapList<E> {
+
+        /** UID for serialization */
+        private static final long serialVersionUID = -1352274047348922584L;
+
+        /**
+         * Private constructor used internally.
+         *
+         * @param that  list to create an immutable view of
+         */
+        protected ImmutableGapList(GapList<E> that) {
+            super(true, that);
+        }
+
+        @Override
+        protected boolean doAdd(int index, E elem) {
+        	error();
+        	return false;
+        }
+
+        @Override
+        protected boolean doAddAll(int index, E[] elems) {
+        	error();
+        	return false;
+        }
+
+        @Override
+        protected E doSet(int index, E elem) {
+        	error();
+        	return null;
+        }
+
+        @Override
+        protected void doSetAll(int index, E[] elems) {
+        	error();
+        }
+
+        @Override
+        protected E doReSet(int index, E elem) {
+        	error();
+        	return null;
+        }
+
+        @Override
+        protected E doRemove(int index) {
+        	error();
+        	return null;
+        }
+
+        @Override
+        protected void doRemoveAll(int index, int len) {
+        	error();
+        }
+
+        @Override
+        protected void doClear() {
+        	error();
+        }
+
+        @Override
+        protected void doModify() {
+        	error();
+        }
+
+        /**
+         * Throw exception if an attempt is made to change an immutable list.
+         */
+        private void error() {
+            throw new UnsupportedOperationException("list is immutable");
+        }
+    }
 
 }
