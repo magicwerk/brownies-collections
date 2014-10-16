@@ -1543,33 +1543,6 @@ public class BigList<E> extends IList<E> {
             return getLeftSubTree() == null ? this : left.min();
         }
 
-        /**
-         * Removes the node at a given position.
-         *
-         * @param index is the index of the element to be removed relative to the position of
-         * the parent node of the current node.
-         */
-        private BlockNode<E> remove(int index) {
-            final int indexRelativeToMe = index - relativePosition;
-
-            if (indexRelativeToMe == 0) {
-                return removeSelf();
-            }
-            if (indexRelativeToMe > 0) {
-                setRight(right.remove(indexRelativeToMe), right.right);
-                if (relativePosition < 0) {
-                    relativePosition++;
-                }
-            } else {
-                setLeft(left.remove(indexRelativeToMe), left.left);
-                if (relativePosition > 0) {
-                    relativePosition--;
-                }
-            }
-            recalcHeight();
-            return balance();
-        }
-
         private BlockNode<E> removeMax() {
             if (getRightSubTree() == null) {
                 return removeSelf();
