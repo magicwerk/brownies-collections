@@ -25,147 +25,13 @@ import org.magicwerk.brownies.collections.helper.MergeSort;
  * @author Thomas Mauch
  * @version $Id$
  */
+/**
+ *
+ *
+ * @author Thomas Mauch
+ * @version $Id$
+ */
 public class BigList<E> extends IList<E> {
-
-	/**
-     * An immutable version of a BigList.
-     * Note that the client cannot change the list,
-     * but the content may change if the underlying list is changed.
-     */
-    protected static class ImmutableBigList<E> extends BigList<E> {
-
-        /** UID for serialization */
-        private static final long serialVersionUID = -1352274047348922584L;
-
-        /**
-         * Private constructor used internally.
-         *
-         * @param that  list to create an immutable view of
-         */
-        protected ImmutableBigList(BigList<E> that) {
-            super(true, that);
-        }
-
-        @Override
-        protected boolean doAdd(int index, E elem) {
-        	error();
-        	return false;
-        }
-
-        @Override
-        protected boolean doAddAll(int index, E[] elems) {
-        	error();
-        	return false;
-        }
-
-        @Override
-        protected E doSet(int index, E elem) {
-        	error();
-        	return null;
-        }
-
-        @Override
-        protected void doSetAll(int index, E[] elems) {
-        	error();
-        }
-
-        @Override
-        protected E doReSet(int index, E elem) {
-        	error();
-        	return null;
-        }
-
-        @Override
-        protected E doRemove(int index) {
-        	error();
-        	return null;
-        }
-
-        @Override
-        protected void doRemoveAll(int index, int len) {
-        	error();
-        }
-
-        @Override
-        protected void doClear() {
-        	error();
-        }
-
-        @Override
-        protected void doModify() {
-        	error();
-        }
-
-        /**
-         * Throw exception if an attempt is made to change an immutable list.
-         */
-        private void error() {
-            throw new UnsupportedOperationException("list is immutable");
-        }
-    };
-
-    /**
-	 * A block stores in maximum blockSize number of elements.
-	 * The first block in a BigList will grow until reaches this limit, all other blocks are directly
-	 * allocated with a capacity of blockSize.
-	 * A block maintains a reference count which allows a block to be shared among different BigList
-	 * instances with a copy-on-write approach.
-	 */
-	@SuppressWarnings("serial")
-	public static class Block<T> implements Serializable {
-		private GapList<T> values;
-		private int refCount;
-
-		public Block() {
-			values = new GapList<T>();
-			refCount = 1;
-		}
-
-		public Block(int capacity) {
-			values = new GapList<T>(capacity);
-			refCount = 1;
-		}
-
-		public Block(Block<T> that) {
-			values = new GapList<T>(that.values.capacity());
-			values.init(that.values);
-			refCount = 1;
-		}
-
-		/**
-		 * @return true if block is shared by several BigList instances
-		 */
-		public boolean isShared() {
-			return refCount > 1;
-		}
-
-		/**
-		 * Increment reference count as block is used by one BigList instance more.
-		 */
-		public Block<T> ref() {
-			refCount++;
-			return this;
-		}
-
-		/**
-		 * Decrement reference count as block is no longer used by one BigList instance.
-		 */
-		public void unref() {
-			refCount--;
-		}
-
-		/**
-		 * @return number of elements stored in this block
-		 */
-		public int size() {
-			return values.size();
-		}
-
-		@Override
-		public String toString() {
-			return values.toString();
-		}
-	}
 
     /** UID for serialization */
 	private static final long serialVersionUID = 3715838828540564836L;
@@ -174,9 +40,26 @@ public class BigList<E> extends IList<E> {
 	private static int BLOCK_SIZE = 1000;
 
 	/** Set to true for debugging during developing */
-	private static final boolean TRACE = false;
 	private static final boolean CHECK = true;
-	private static final boolean DUMP = false;
+
+    // -- EMPTY --
+
+    // Cannot make a static reference to the non-static type E:
+    // public static BigList<E> EMPTY = BigList.create().unmodifiableList();
+    // Syntax error:
+    // public static <EE> BigList<EE> EMPTY = BigList.create().unmodifiableList();
+
+    /** Unmodifiable empty instance */
+    @SuppressWarnings("rawtypes")
+    private static final BigList EMPTY = BigList.create().unmodifiableList();
+
+    /**
+     * @return unmodifiable empty instance
+     */
+    @SuppressWarnings("unchecked")
+    public static <EE> BigList<EE> EMPTY() {
+        return EMPTY;
+    }
 
 	/** Number of elements stored at maximum in a block */
 	private int blockSize;
@@ -223,7 +106,7 @@ public class BigList<E> extends IList<E> {
      * @return          created list
      * @param <E>       type of elements stored in the list
      */
-    // This separate method is needed as the varargs variant creates the GapList with specific size
+    // This separate method is needed as the varargs variant creates the list with specific size
     public static <E> BigList<E> create() {
         return new BigList<E>();
     }
@@ -274,6 +157,13 @@ public class BigList<E> extends IList<E> {
 		doInit(blockSize, -1);
 	}
 
+    /**
+     * Create new list with specified elements.
+     *
+     * @param coll      collection with element
+     * @return          created list
+     * @param <E>       type of elements stored in the list
+     */
     public BigList(Collection<? extends E> that) {
     	if (that instanceof BigList) {
     		doAssign((BigList<E>) that);
@@ -292,10 +182,18 @@ public class BigList<E> extends IList<E> {
     	}
     }
 
+	/**
+	 * Initialize the list to be empty.
+	 */
     public void init() {
     	clear();
     }
 
+    /**
+     * Initialize the list to have the specified elements.
+     *
+     * @param elems	elements
+     */
     public void init(E... elems) {
     	clear();
         for (E elem: elems) {
@@ -303,6 +201,11 @@ public class BigList<E> extends IList<E> {
         }
     }
 
+    /**
+     * Initialize the list to have all elements in the specified collection.
+     *
+     * @param that	collection
+     */
     public void init(Collection<? extends E> that) {
     	clear();
     	addAll(that);
@@ -317,13 +220,23 @@ public class BigList<E> extends IList<E> {
     	return blockSize;
     }
 
-    //---
-
+	/**
+	 * Internal constructor.
+	 *
+	 * @param blockSize			default block size
+	 * @param firstBlockSize	block size of first block
+	 */
 	private BigList(int blockSize, int firstBlockSize) {
 		doInit(blockSize, firstBlockSize);
 	}
 
-	void doInit(int blockSize, int firstBlockSize) {
+	/**
+	 * Initialize BigList.
+	 *
+	 * @param blockSize			default block size
+	 * @param firstBlockSize	block size of first block
+	 */
+	private void doInit(int blockSize, int firstBlockSize) {
 		this.blockSize = blockSize;
 
 		// First block will grow until it reaches blockSize
@@ -339,11 +252,25 @@ public class BigList<E> extends IList<E> {
      * Returns a copy of this <tt>BigList</tt> instance.
      * The copy is realized by a copy-on-write approach so also really large lists can efficiently be copied.
      * This method is identical to clone() except that the result is casted to BigList.
+     *
+     * @return a copy of this <tt>BigList</tt> instance
 	 */
 	@Override
     public BigList<E> copy() {
 	    return (BigList<E>) super.copy();
 	}
+
+    /**
+     * Returns a shallow copy of this <tt>BigList</tt> instance
+     * The copy is realized by a copy-on-write approach so also really large lists can efficiently be copied.
+     *
+     * @return a copy of this <tt>BigList</tt> instance
+     */
+    // Only overridden to change Javadoc
+    @Override
+    public Object clone() {
+		return super.clone();
+    }
 
     @Override
     protected void doAssign(IList<E> that) {
@@ -360,14 +287,19 @@ public class BigList<E> extends IList<E> {
 	@Override
 	protected void doClone(IList<E> that) {
 		BigList<E> bigList = (BigList<E>) that;
-		bigList.check();
 		bigList.releaseBlock();
 		root = copy(bigList.root);
         currNode = null;
         currModify = 0;
-        check();
+        if (CHECK) check();
 	}
 
+	/**
+	 * Create a copy of the specified node.
+	 *
+	 * @param node	source node
+	 * @return		newly created copy of source
+	 */
 	private BlockNode<E> copy(BlockNode<E> node) {
 		BlockNode<E> newNode = node.min();
 		int index = newNode.block.size();
@@ -504,7 +436,7 @@ public class BigList<E> extends IList<E> {
 		if (!done) {
 			// Reset currBlockEnd, it will be then set by access()
 			currBlockEnd = 0;
-	        currNode = access(index, modify);
+	        currNode = doGetBlock(index, modify);
 	        currBlock = currNode.getBlock();
 	        currBlockStart = currBlockEnd - currBlock.size();
 		}
@@ -522,110 +454,31 @@ public class BigList<E> extends IList<E> {
         return index - currBlockStart;
 	}
 
-	void checkNode(BlockNode<E> node) {
-		assert((node.block.size() > 0 || node == root) && node.block.size() <= blockSize);
-		BlockNode<E> child = node.getLeftSubTree();
-		assert(child == null || child.parent == node);
-		child = node.getRightSubTree();
-		assert(child == null || child.parent == node);
+	/**
+	 * @return true if there is only the root block, false otherwise
+	 */
+	private boolean isOnlyRootBlock() {
+		return root.left == null && root.right == null;
 	}
 
-	void checkHeight(BlockNode<E> node) {
-		BlockNode<E> left = node.getLeftSubTree();
-		BlockNode<E> right = node.getRightSubTree();
-		if (left == null) {
-			if (right == null) {
-				assert(node.height == 0);
-			} else {
-				assert(right.height == node.height-1);
-				checkHeight(right);
-			}
-		} else {
-			if (right == null) {
-				assert(left.height == node.height-1);
-			} else {
-				assert(left.height == node.height-1 || left.height == node.height-2);
-				assert(right.height == node.height-1 || right.height == node.height-2);
-				assert(right.height == node.height-1 || left.height == node.height-1);
-			}
-			checkHeight(left);
-		}
-	}
+    private BlockNode<E> doGetBlock(int index, int modify) {
+        return root.access(this, index, modify, false);
+    }
 
-	void check() {
-		//if (true) {return; } //TODO
-
-		if (currNode != null) {
-			assert(currNode.block == currBlock);
-			assert(currBlockStart >= 0 && currBlockEnd <= size && currBlockStart <= currBlockEnd);
-			assert(currBlockStart + currBlock.size() == currBlockEnd);
-		}
-
-		if (root == null) {
-			assert(size == 0);
-			return;
-		}
-
-    	checkHeight(root);
-
-    	BlockNode<E> oldCurrNode = currNode;
-    	int oldCurrModify = currModify;
-    	if (currModify != 0) {
-    		currNode = null;
-    		currModify = 0;
-    		modify(oldCurrNode, oldCurrModify);
-    	}
-
-		BlockNode<E> node = root;
-		checkNode(node);
-		int index = node.relativePosition;
-		while (node.left != null) {
-			node = node.left;
-			checkNode(node);
-			assert(node.relativePosition < 0);
-			index += node.relativePosition;
-		}
-		Block<E> block = node.getBlock();
-		assert(block.size() == index);
-		int lastIndex = index;
-
-		while (lastIndex < size()) {
-			node = root;
-			index = node.relativePosition;
-			int searchIndex = lastIndex+1;
-			while (true) {
-				checkNode(node);
-				block = node.getBlock();
-				assert(block.size() > 0);
-				if (searchIndex > index-block.size() && searchIndex <= index) {
-					break;
-				} else if (searchIndex < index) {
-					if (node.left != null && node.left.height<node.height) {
-						node = node.left;
-					} else {
-						break;
-					}
-				} else {
-					if (node.right != null && node.right.height<node.height) {
-						node = node.right;
-					} else {
-						break;
-					}
-				}
-				index += node.relativePosition;
-			}
-			block = node.getBlock();
-			assert(block.size() == index-lastIndex);
-			lastIndex = index;
-		}
-		assert(index == size());
-
-    	if (oldCurrModify != 0) {
-    		modify(oldCurrNode, -oldCurrModify);
-    	}
-		currNode = oldCurrNode;
-		currModify = oldCurrModify;
-	}
+    /**
+     * Adds a new element to the list.
+     *
+     * @param index  the index to add before
+     * @param obj  the element to add
+     */
+    private void addBlock(int index, Block<E> obj) {
+        if (root == null) {
+            root = new BlockNode<E>(null, index, obj, null, null);
+        } else {
+            root = root.insert(index, obj);
+            root.parent = null;
+        }
+    }
 
 	@Override
 	protected boolean doAdd(int index, E element) {
@@ -700,17 +553,15 @@ public class BigList<E> extends IList<E> {
 		}
 		size++;
 
-		if (DUMP) dump();
 		if (CHECK) check();
-
 		return true;
 	}
 
 	/**
 	 * Modify relativePosition of all nodes starting from the specified node.
 	 *
-	 * @param node
-	 * @param modify
+	 * @param node		node whose position value must be changed
+	 * @param modify	modify value (>0 for add, <0 for delete)
 	 */
 	private void modify(BlockNode<E> node, int modify) {
 		if (node == currNode) {
@@ -813,7 +664,7 @@ public class BigList<E> extends IList<E> {
 		if (index == -1) {
 		    index = size;
 		}
-		check();
+		if (CHECK) check();
 		int oldSize = size;
 
 		if (array.length == 1) {
@@ -958,7 +809,7 @@ public class BigList<E> extends IList<E> {
 					numElems -= should;
 					numBlocks--;
 				}
-				check();
+				if (CHECK) check();
 
 				while (numBlocks > 0) {
 					int add = numElems / numBlocks;
@@ -979,13 +830,13 @@ public class BigList<E> extends IList<E> {
 					currBlockEnd += add;
 					size += add;
 					numBlocks--;
-					check();
+					if (CHECK) check();
 				}
 			}
 		}
 
 		assert(oldSize + addLen == size);
-		check();
+		if (CHECK) check();
 
 		return true;
 	}
@@ -1019,7 +870,6 @@ public class BigList<E> extends IList<E> {
 		}
 
 		// Remove range
-		int l = len;
 		int startPos = getBlockIndex(index, true, 0);
 		BlockNode<E> startNode = currNode;
 		int endPos = getBlockIndex(index+len-1, true, 0);
@@ -1041,7 +891,7 @@ public class BigList<E> extends IList<E> {
 			size -= len;
 		} else {
 			// Delete from start block
-			check();
+			if (CHECK) check();
 			int startLen = startNode.block.size()-startPos;
 			getBlockIndex(index, true, -startLen); // TODO should that be modify?
 			startNode.block.values.remove(startPos, startLen);
@@ -1053,7 +903,6 @@ public class BigList<E> extends IList<E> {
 			}
 			len -= startLen;
 			size -= startLen;
-			//check();
 
 			while (len > 0) {
 				currNode = null;
@@ -1069,7 +918,7 @@ public class BigList<E> extends IList<E> {
 					}
 					len -= s;
 					size -= s;
-					check();
+					if (CHECK) check();
 				} else {
 					modify(currNode, -len);
 					currBlock.values.remove(0, len);
@@ -1078,16 +927,20 @@ public class BigList<E> extends IList<E> {
 				}
 			}
 			releaseBlock();
-			check();
+			if (CHECK) check();
 			getBlockIndex(index, false, 0);
 			merge(currNode);
 		}
 
-		if (DUMP) dump();
 		if (CHECK) check();
 	}
 
-	void merge(BlockNode<E> node) {
+	/**
+	 * Merge the specified node with the left or right neighbor if possible.
+	 *
+	 * @param node	candidate node for merge
+	 */
+	private void merge(BlockNode<E> node) {
 		if (node == null) {
 			return;
 		}
@@ -1152,16 +1005,9 @@ public class BigList<E> extends IList<E> {
 		}
 		size--;
 
-		if (DUMP) dump();
 		if (CHECK) check();
-
 		return oldElem;
 	}
-
-	private void dump() {
-	}
-
-	/**/
 
     @Override
     public BigList<E> unmodifiableList() {
@@ -1179,10 +1025,25 @@ public class BigList<E> extends IList<E> {
 		}
 	}
 
+    /**
+     * Pack as many elements in the blocks as allowed.
+     * An application can use this operation to minimize the storage of an instance.
+     */
 	@Override
 	public void trimToSize() {
-		if (isOnlyRootBlock()) {
+        doModify();
+
+        if (isOnlyRootBlock()) {
 			currBlock.values.trimToSize();
+		} else {
+			BigList<E> newList = new BigList<E>(blockSize);
+			BlockNode<E> node = root.min();
+	       	while (node != null) {
+	       		newList.addAll(node.block.values);
+	       		remove(0, node.block.values.size());
+	       		node = node.next();
+	       	}
+	       	doAssign(newList);
 		}
 	}
 
@@ -1217,50 +1078,13 @@ public class BigList<E> extends IList<E> {
     	}
 	}
 
-	/**
-	 * @return true if there is only the root block, false otherwise
-	 */
-	private boolean isOnlyRootBlock() {
-		return root.left == null && root.right == null;
-	}
-
-    public BlockNode<E> access(int index, int modify) {
-        return root.access(this, index, modify, false);
-    }
-
-    /**
-     * Adds a new element to the list.
-     *
-     * @param index  the index to add before
-     * @param obj  the element to add
-     */
-    public void addBlock(int index, Block<E> obj) {
-        if (root == null) {
-            root = new BlockNode<E>(null, index, obj, null, null);
-        } else {
-            root = root.insert(index, obj);
-            root.parent = null;
-        }
-    }
-
-    /**
-     * Removes the element at the specified index.
-     *
-     * @param index  the index to remove
-     * @return the previous object at that index
-     */
-    public void removeBlock(int index) {
-        root = root.remove(index);
-    }
-
 	// --- Serialization ---
 
     /**
      * Serialize a BigList object.
      *
-     * @serialData The length of the array backing the <tt>GapList</tt>
-     *             instance is emitted (int), followed by all of its elements
-     *             (each an <tt>Object</tt>) in the proper order.
+     * @serialData block size (int), number of elements (int), followed by all of its elements
+     *             (each an <tt>Object</tt>) in the proper order
      * @param oos  output stream for serialization
      * @throws 	   IOException if serialization fails
      */
@@ -1293,12 +1117,186 @@ public class BigList<E> extends IList<E> {
         }
     }
 
+
+    // --- Debug checks ---
+
+	private void checkNode(BlockNode<E> node) {
+		assert((node.block.size() > 0 || node == root) && node.block.size() <= blockSize);
+		BlockNode<E> child = node.getLeftSubTree();
+		assert(child == null || child.parent == node);
+		child = node.getRightSubTree();
+		assert(child == null || child.parent == node);
+	}
+
+	private void checkHeight(BlockNode<E> node) {
+		BlockNode<E> left = node.getLeftSubTree();
+		BlockNode<E> right = node.getRightSubTree();
+		if (left == null) {
+			if (right == null) {
+				assert(node.height == 0);
+			} else {
+				assert(right.height == node.height-1);
+				checkHeight(right);
+			}
+		} else {
+			if (right == null) {
+				assert(left.height == node.height-1);
+			} else {
+				assert(left.height == node.height-1 || left.height == node.height-2);
+				assert(right.height == node.height-1 || right.height == node.height-2);
+				assert(right.height == node.height-1 || left.height == node.height-1);
+			}
+			checkHeight(left);
+		}
+	}
+
+	private void check() {
+		if (currNode != null) {
+			assert(currNode.block == currBlock);
+			assert(currBlockStart >= 0 && currBlockEnd <= size && currBlockStart <= currBlockEnd);
+			assert(currBlockStart + currBlock.size() == currBlockEnd);
+		}
+
+		if (root == null) {
+			assert(size == 0);
+			return;
+		}
+
+    	checkHeight(root);
+
+    	BlockNode<E> oldCurrNode = currNode;
+    	int oldCurrModify = currModify;
+    	if (currModify != 0) {
+    		currNode = null;
+    		currModify = 0;
+    		modify(oldCurrNode, oldCurrModify);
+    	}
+
+		BlockNode<E> node = root;
+		checkNode(node);
+		int index = node.relativePosition;
+		while (node.left != null) {
+			node = node.left;
+			checkNode(node);
+			assert(node.relativePosition < 0);
+			index += node.relativePosition;
+		}
+		Block<E> block = node.getBlock();
+		assert(block.size() == index);
+		int lastIndex = index;
+
+		while (lastIndex < size()) {
+			node = root;
+			index = node.relativePosition;
+			int searchIndex = lastIndex+1;
+			while (true) {
+				checkNode(node);
+				block = node.getBlock();
+				assert(block.size() > 0);
+				if (searchIndex > index-block.size() && searchIndex <= index) {
+					break;
+				} else if (searchIndex < index) {
+					if (node.left != null && node.left.height<node.height) {
+						node = node.left;
+					} else {
+						break;
+					}
+				} else {
+					if (node.right != null && node.right.height<node.height) {
+						node = node.right;
+					} else {
+						break;
+					}
+				}
+				index += node.relativePosition;
+			}
+			block = node.getBlock();
+			assert(block.size() == index-lastIndex);
+			lastIndex = index;
+		}
+		assert(index == size());
+
+    	if (oldCurrModify != 0) {
+    		modify(oldCurrNode, -oldCurrModify);
+    	}
+		currNode = oldCurrNode;
+		currModify = oldCurrModify;
+	}
+
+
+	// --- Block ---
+
+    /**
+	 * A block stores in maximum blockSize number of elements.
+	 * The first block in a BigList will grow until reaches this limit, all other blocks are directly
+	 * allocated with a capacity of blockSize.
+	 * A block maintains a reference count which allows a block to be shared among different BigList
+	 * instances with a copy-on-write approach.
+	 */
+	@SuppressWarnings("serial")
+	public static class Block<T> implements Serializable {
+		private GapList<T> values;
+		private int refCount;
+
+		public Block() {
+			values = new GapList<T>();
+			refCount = 1;
+		}
+
+		public Block(int capacity) {
+			values = new GapList<T>(capacity);
+			refCount = 1;
+		}
+
+		public Block(Block<T> that) {
+			values = new GapList<T>(that.values.capacity());
+			values.init(that.values);
+			refCount = 1;
+		}
+
+		/**
+		 * @return true if block is shared by several BigList instances
+		 */
+		public boolean isShared() {
+			return refCount > 1;
+		}
+
+		/**
+		 * Increment reference count as block is used by one BigList instance more.
+		 */
+		public Block<T> ref() {
+			refCount++;
+			return this;
+		}
+
+		/**
+		 * Decrement reference count as block is no longer used by one BigList instance.
+		 */
+		public void unref() {
+			refCount--;
+		}
+
+		/**
+		 * @return number of elements stored in this block
+		 */
+		public int size() {
+			return values.size();
+		}
+
+		@Override
+		public String toString() {
+			return values.toString();
+		}
+	}
+
+
+    // --- BlockNode ---
+
     /**
      * Implements an AVLNode storing a Block.
      * The nodes don't know the index of the object they are holding. They do know however their
      * position relative to their parent node. This allows to calculate the index of a node while traversing the tree.
-     * <p>
-     * The Faedelung calculation stores a flag for both the left and right child
+     * There is a faedelung flag for both the left and right child
      * to indicate if they are a child (false) or a link as in linked list (true).
      */
     static class BlockNode<E> {
@@ -1733,6 +1731,11 @@ public class BigList<E> extends IList<E> {
             return getHeight(getRightSubTree()) - getHeight(getLeftSubTree());
         }
 
+        /**
+         * Rotate tree to the left using this node as center.
+         *
+         * @return node which will take the place of this node
+         */
         private BlockNode<E> rotateLeft() {
         	assert(!rightIsNext);
             final BlockNode<E> newTop = right; // can't be faedelung!
@@ -1757,6 +1760,11 @@ public class BigList<E> extends IList<E> {
             return newTop;
         }
 
+        /**
+         * Rotate tree to the right using this node as center.
+         *
+         * @return node which will take the place of this node
+         */
         private BlockNode<E> rotateRight() {
         	assert(!leftIsPrevious);
             final BlockNode<E> newTop = left; // can't be faedelung
@@ -1823,7 +1831,7 @@ public class BigList<E> extends IList<E> {
         @Override
         public String toString() {
             return new StringBuilder()
-                .append("AVLNode(")
+                .append("BlockNode(")
                 .append(relativePosition)
                 .append(',')
                 .append(getRightSubTree() != null)
@@ -1835,6 +1843,86 @@ public class BigList<E> extends IList<E> {
                 .append(height)
                 .append(" )")
                 .toString();
+        }
+    }
+
+
+    // --- ImmutableBigList ---
+
+    /**
+     * An immutable version of a BigList.
+     * Note that the client cannot change the list,
+     * but the content may change if the underlying list is changed.
+     */
+    protected static class ImmutableBigList<E> extends BigList<E> {
+
+        /** UID for serialization */
+        private static final long serialVersionUID = -1352274047348922584L;
+
+        /**
+         * Private constructor used internally.
+         *
+         * @param that  list to create an immutable view of
+         */
+        protected ImmutableBigList(BigList<E> that) {
+            super(true, that);
+        }
+
+        @Override
+        protected boolean doAdd(int index, E elem) {
+        	error();
+        	return false;
+        }
+
+        @Override
+        protected boolean doAddAll(int index, E[] elems) {
+        	error();
+        	return false;
+        }
+
+        @Override
+        protected E doSet(int index, E elem) {
+        	error();
+        	return null;
+        }
+
+        @Override
+        protected void doSetAll(int index, E[] elems) {
+        	error();
+        }
+
+        @Override
+        protected E doReSet(int index, E elem) {
+        	error();
+        	return null;
+        }
+
+        @Override
+        protected E doRemove(int index) {
+        	error();
+        	return null;
+        }
+
+        @Override
+        protected void doRemoveAll(int index, int len) {
+        	error();
+        }
+
+        @Override
+        protected void doClear() {
+        	error();
+        }
+
+        @Override
+        protected void doModify() {
+        	error();
+        }
+
+        /**
+         * Throw exception if an attempt is made to change an immutable list.
+         */
+        private void error() {
+            throw new UnsupportedOperationException("list is immutable");
         }
     }
 

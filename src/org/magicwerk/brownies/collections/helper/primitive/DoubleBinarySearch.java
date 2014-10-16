@@ -1,3 +1,24 @@
+// ---
+// --- DO NOT EDIT
+// --- AUTOMATICALLY GENERATED FILE
+// ---
+/*
+ * Copyright 2014 by Thomas Mauch
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * $Id$
+ */
 package org.magicwerk.brownies.collections.helper.primitive;
 
 import java.util.Collections;
@@ -10,7 +31,7 @@ import org.magicwerk.brownies.collections.primitive.IDoubleList;
 
 
 /**
- *
+ * Binary search for primitive type double.
  *
  * @author Thomas Mauch
  * @version $Id$
@@ -22,22 +43,15 @@ public class DoubleBinarySearch {
    * {@link Collections#sort(List, Comparator) Collections.sort(List, Comparator)} method), prior
    * to making this call. If it is not sorted, the results are undefined.
    *
-   * <p>If there are elements in the list which compare as equal to the key, the choice of
-   * {@link KeyPresentBehavior} decides which index is returned. If no elements compare as equal to
-   * the key, the choice of {@link KeyAbsentBehavior} decides which index is returned.
-   *
    * <p>This method runs in log(n) time on random-access lists, which offer near-constant-time
    * access to each list element.
    *
-   * @param list the list to be searched.
-   * @param key the value to be searched for.
-   * @param comparator the comparator by which the list is ordered.
-   * @param presentBehavior the specification for what to do if at least one element of the list
-   *        compares as equal to the key.
-   * @param absentBehavior the specification for what to do if no elements of the list compare as
-   *        equal to the key.
-   * @return the index determined by the {@code KeyPresentBehavior}, if the key is in the list;
-   *         otherwise the index determined by the {@code KeyAbsentBehavior}.
+   * @param list 	the list to be searched.
+   * @param key 	the value to be searched for.
+   * @param lower 	lower bound of range to search
+   * @param upper 	upper bound of range to search
+   * @return 		the index of the search key, if it is contained in the list;
+   *	       		otherwise, <tt>(-(<i>insertion point</i>) - 1)</tt>.
    */
   public static int binarySearch(IDoubleList list, double key, int lower, int upper) {
     while (lower <= upper) {

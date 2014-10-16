@@ -225,11 +225,6 @@ public class SortedLists {
    *
    * Return the index of the first list element that compares as greater than the key, or {@code
    * list.size()} if there is no such element.
-   *
-   * @param list
-   * @param key
-   * @param comparator
-   * @return
    */
 public static <E> int binarySearchAdd(List<? extends E> list, E key, Comparator<? super E> comparator) {
       return binarySearch(list, key, comparator, KeyPresentBehavior.FIRST_AFTER, KeyAbsentBehavior.INVERTED_INSERTION_INDEX);
@@ -237,11 +232,6 @@ public static <E> int binarySearchAdd(List<? extends E> list, E key, Comparator<
 
   /**
    * Return the index of the first list element that compares as equal to the key.
-   *
-   * @param list
-   * @param key
-   * @param comparator
-   * @return
    */
 public static <E> int binarySearchGet(List<? extends E> list, E key, Comparator<? super E> comparator) {
       return binarySearch(list, key, comparator, KeyPresentBehavior.FIRST_PRESENT, KeyAbsentBehavior.INVERTED_INSERTION_INDEX);

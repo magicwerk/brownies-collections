@@ -28,6 +28,12 @@ import org.magicwerk.brownies.collections.helper.primitive.IntMergeSort;
  * @author Thomas Mauch
  * @version $Id: IntBigList.java 2507 2014-10-15 00:08:21Z origo $
  */
+/**
+ *
+ *
+ * @author Thomas Mauch
+ * @version $Id$
+ */
 public class IntBigList extends IIntList {
 	public static IIntList of(int[] values) {
 		return new ImmutableIntListArrayPrimitive(values);
@@ -199,150 +205,6 @@ public class IntBigList extends IIntList {
 		}
     }
 
-    /**
-     * An immutable version of a IntBigList.
-     * Note that the client cannot change the list,
-     * but the content may change if the underlying list is changed.
-     */
-    protected static class ImmutableIntBigList extends IntBigList {
-
-        /** UID for serialization */
-        private static final long serialVersionUID = -1352274047348922584L;
-
-        /**
-         * Private constructor used internally.
-         *
-         * @param that  list to create an immutable view of
-         */
-protected ImmutableIntBigList(IntBigList that){
-    super(true, that);
-}
-
-        @Override
-protected boolean doAdd(int index, int elem) {
-    error();
-    return false;
-}
-
-        @Override
-protected boolean doAddAll(int index, int[] elems) {
-    error();
-    return false;
-}
-
-        @Override
-protected int doSet(int index, int elem) {
-    error();
-    return 0;
-}
-
-        @Override
-protected void doSetAll(int index, int[] elems) {
-    error();
-}
-
-        @Override
-protected int doReSet(int index, int elem) {
-    error();
-    return 0;
-}
-
-        @Override
-protected int doRemove(int index) {
-    error();
-    return 0;
-}
-
-        @Override
-protected void doRemoveAll(int index, int len) {
-    error();
-}
-
-        @Override
-protected void doClear() {
-    error();
-}
-
-        @Override
-protected void doModify() {
-    error();
-}
-
-        /**
-         * Throw exception if an attempt is made to change an immutable list.
-         */
-private void error() {
-    throw new UnsupportedOperationException("list is immutable");
-}
-    }
-
-    ;
-
-    /**
-	 * A block stores in maximum blockSize number of elements.
-	 * The first block in a IntBigList will grow until reaches this limit, all other blocks are directly
-	 * allocated with a capacity of blockSize.
-	 * A block maintains a reference count which allows a block to be shared among different IntBigList
-	 * instances with a copy-on-write approach.
-	 */
-    
-    public static class IntBlock implements Serializable {
-
-        private IntGapList values;
-
-        private int refCount;
-
-        public IntBlock(){
-    values = new IntGapList();
-    refCount = 1;
-}
-
-        public IntBlock(int capacity){
-    values = new IntGapList(capacity);
-    refCount = 1;
-}
-
-        public IntBlock(IntBlock that){
-    values = new IntGapList(that.values.capacity());
-    values.init(that.values.getArray(0, that.values.size()));
-    refCount = 1;
-}
-
-        /**
-		 * @return true if block is shared by several IntBigList instances
-		 */
-public boolean isShared() {
-    return refCount > 1;
-}
-
-        /**
-		 * Increment reference count as block is used by one IntBigList instance more.
-		 */
-public IntBlock ref() {
-    refCount++;
-    return this;
-}
-
-        /**
-		 * Decrement reference count as block is no longer used by one IntBigList instance.
-		 */
-public void unref() {
-    refCount--;
-}
-
-        /**
-		 * @return number of elements stored in this block
-		 */
-public int size() {
-    return values.size();
-}
-
-        @Override
-public String toString() {
-    return values.toString();
-}
-    }
-
     /** UID for serialization */
     private static final long serialVersionUID = 3715838828540564836L;
 
@@ -350,11 +212,24 @@ public String toString() {
     private static int BLOCK_SIZE = 1000;
 
     /** Set to true for debugging during developing */
-    private static final boolean TRACE = false;
-
     private static final boolean CHECK = true;
 
-    private static final boolean DUMP = false;
+    // -- EMPTY --  
+    // Cannot make a static reference to the non-static type E:  
+    // public static IntBigList EMPTY = IntBigList.create().unmodifiableList();  
+    // Syntax error:  
+    // public static  IntBigList EMPTY = IntBigList.create().unmodifiableList();  
+    /** Unmodifiable empty instance */
+    
+    private static final IntBigList EMPTY = IntBigList.create().unmodifiableList();
+
+    /**
+     * @return unmodifiable empty instance
+     */
+
+public static  IntBigList EMPTY() {
+    return EMPTY;
+}
 
     /** Number of elements stored at maximum in a block */
     private int blockSize;
@@ -406,7 +281,7 @@ protected IntBigList(boolean copy, IntBigList that){
      * @return          created list
      * @param        type of elements stored in the list
      */
-// This separate method is needed as the varargs variant creates the IntGapList with specific size  
+// This separate method is needed as the varargs variant creates the list with specific size  
 public static IntBigList create() {
     return new IntBigList();
 }
@@ -457,7 +332,14 @@ public IntBigList(int blockSize){
     doInit(blockSize, -1);
 }
 
-    public IntBigList(Collection<Integer> that){
+    /**
+     * Create new list with specified elements.
+     *
+     * @param coll      collection with element
+     * @return          created list
+     * @param        type of elements stored in the list
+     */
+public IntBigList(Collection<Integer> that){
     if (that instanceof IntBigList) {
         doAssign((IntBigList) that);
         doClone((IntBigList) that);
@@ -472,18 +354,31 @@ public IntBigList(int blockSize){
     }
 }
 
-    public void init() {
+    /**
+	 * Initialize the list to be empty.
+	 */
+public void init() {
     clear();
 }
 
-    public void init(int... elems) {
+    /**
+     * Initialize the list to have the specified elements.
+     *
+     * @param elems	elements
+     */
+public void init(int... elems) {
     clear();
     for (int elem : elems) {
         add(elem);
     }
 }
 
-    public void init(Collection<Integer> that) {
+    /**
+     * Initialize the list to have all elements in the specified collection.
+     *
+     * @param that	collection
+     */
+public void init(Collection<Integer> that) {
     clear();
     addAll(that);
 }
@@ -497,12 +392,23 @@ public int blockSize() {
     return blockSize;
 }
 
-    //---  
+    /**
+	 * Internal constructor.
+	 *
+	 * @param blockSize			default block size
+	 * @param firstIntBlockSize	block size of first block
+	 */
 private IntBigList(int blockSize, int firstIntBlockSize){
     doInit(blockSize, firstIntBlockSize);
 }
 
-    void doInit(int blockSize, int firstIntBlockSize) {
+    /**
+	 * Initialize IntBigList.
+	 *
+	 * @param blockSize			default block size
+	 * @param firstIntBlockSize	block size of first block
+	 */
+private void doInit(int blockSize, int firstIntBlockSize) {
     this.blockSize = blockSize;
     // First block will grow until it reaches blockSize   
     if (firstIntBlockSize <= 1) {
@@ -517,10 +423,24 @@ private IntBigList(int blockSize, int firstIntBlockSize){
      * Returns a copy of this <tt>IntBigList</tt> instance.
      * The copy is realized by a copy-on-write approach so also really large lists can efficiently be copied.
      * This method is identical to clone() except that the result is casted to IntBigList.
+     *
+     * @return a copy of this <tt>IntBigList</tt> instance
 	 */
 @Override
 public IntBigList copy() {
     return (IntBigList) super.copy();
+}
+
+    /**
+     * Returns a shallow copy of this <tt>IntBigList</tt> instance
+     * The copy is realized by a copy-on-write approach so also really large lists can efficiently be copied.
+     *
+     * @return a copy of this <tt>IntBigList</tt> instance
+     */
+// Only overridden to change Javadoc  
+@Override
+public Object clone() {
+    return super.clone();
 }
 
     @Override
@@ -538,15 +458,21 @@ protected void doAssign(IIntList that) {
     @Override
 protected void doClone(IIntList that) {
     IntBigList bigList = (IntBigList) that;
-    bigList.check();
     bigList.releaseIntBlock();
     root = copy(bigList.root);
     currNode = null;
     currModify = 0;
-    check();
+    if (CHECK)
+        check();
 }
 
-    private IntBlockNode copy(IntBlockNode node) {
+    /**
+	 * Create a copy of the specified node.
+	 *
+	 * @param node	source node
+	 * @return		newly created copy of source
+	 */
+private IntBlockNode copy(IntBlockNode node) {
     IntBlockNode newNode = node.min();
     int index = newNode.block.size();
     IntBlockNode newRoot = new IntBlockNode(null, index, newNode.block.ref(), null, null);
@@ -679,7 +605,7 @@ private int getIntBlockIndex(int index, boolean write, int modify) {
     if (!done) {
         // Reset currIntBlockEnd, it will be then set by access()   
         currIntBlockEnd = 0;
-        currNode = access(index, modify);
+        currNode = doGetIntBlock(index, modify);
         currIntBlock = currNode.getIntBlock();
         currIntBlockStart = currIntBlockEnd - currIntBlock.size();
     }
@@ -694,102 +620,30 @@ private int getIntBlockIndex(int index, boolean write, int modify) {
     return index - currIntBlockStart;
 }
 
-    void checkNode(IntBlockNode node) {
-    assert ((node.block.size() > 0 || node == root) && node.block.size() <= blockSize);
-    IntBlockNode child = node.getLeftSubTree();
-    assert (child == null || child.parent == node);
-    child = node.getRightSubTree();
-    assert (child == null || child.parent == node);
+    /**
+	 * @return true if there is only the root block, false otherwise
+	 */
+private boolean isOnlyRootIntBlock() {
+    return root.left == null && root.right == null;
 }
 
-    void checkHeight(IntBlockNode node) {
-    IntBlockNode left = node.getLeftSubTree();
-    IntBlockNode right = node.getRightSubTree();
-    if (left == null) {
-        if (right == null) {
-            assert (node.height == 0);
-        } else {
-            assert (right.height == node.height - 1);
-            checkHeight(right);
-        }
-    } else {
-        if (right == null) {
-            assert (left.height == node.height - 1);
-        } else {
-            assert (left.height == node.height - 1 || left.height == node.height - 2);
-            assert (right.height == node.height - 1 || right.height == node.height - 2);
-            assert (right.height == node.height - 1 || left.height == node.height - 1);
-        }
-        checkHeight(left);
-    }
+    private IntBlockNode doGetIntBlock(int index, int modify) {
+    return root.access(this, index, modify, false);
 }
 
-    void check() {
-    //if (true) {return; } //TODO   
-    if (currNode != null) {
-        assert (currNode.block == currIntBlock);
-        assert (currIntBlockStart >= 0 && currIntBlockEnd <= size && currIntBlockStart <= currIntBlockEnd);
-        assert (currIntBlockStart + currIntBlock.size() == currIntBlockEnd);
-    }
+    /**
+     * Adds a new element to the list.
+     *
+     * @param index  the index to add before
+     * @param obj  the element to add
+     */
+private void addIntBlock(int index, IntBlock obj) {
     if (root == null) {
-        assert (size == 0);
-        return;
+        root = new IntBlockNode(null, index, obj, null, null);
+    } else {
+        root = root.insert(index, obj);
+        root.parent = null;
     }
-    checkHeight(root);
-    IntBlockNode oldCurrNode = currNode;
-    int oldCurrModify = currModify;
-    if (currModify != 0) {
-        currNode = null;
-        currModify = 0;
-        modify(oldCurrNode, oldCurrModify);
-    }
-    IntBlockNode node = root;
-    checkNode(node);
-    int index = node.relativePosition;
-    while (node.left != null) {
-        node = node.left;
-        checkNode(node);
-        assert (node.relativePosition < 0);
-        index += node.relativePosition;
-    }
-    IntBlock block = node.getIntBlock();
-    assert (block.size() == index);
-    int lastIndex = index;
-    while (lastIndex < size()) {
-        node = root;
-        index = node.relativePosition;
-        int searchIndex = lastIndex + 1;
-        while (true) {
-            checkNode(node);
-            block = node.getIntBlock();
-            assert (block.size() > 0);
-            if (searchIndex > index - block.size() && searchIndex <= index) {
-                break;
-            } else if (searchIndex < index) {
-                if (node.left != null && node.left.height < node.height) {
-                    node = node.left;
-                } else {
-                    break;
-                }
-            } else {
-                if (node.right != null && node.right.height < node.height) {
-                    node = node.right;
-                } else {
-                    break;
-                }
-            }
-            index += node.relativePosition;
-        }
-        block = node.getIntBlock();
-        assert (block.size() == index - lastIndex);
-        lastIndex = index;
-    }
-    assert (index == size());
-    if (oldCurrModify != 0) {
-        modify(oldCurrNode, -oldCurrModify);
-    }
-    currNode = oldCurrNode;
-    currModify = oldCurrModify;
 }
 
     @Override
@@ -858,8 +712,6 @@ protected boolean doAdd(int index, int element) {
         }
     }
     size++;
-    if (DUMP)
-        dump();
     if (CHECK)
         check();
     return true;
@@ -868,8 +720,8 @@ protected boolean doAdd(int index, int element) {
     /**
 	 * Modify relativePosition of all nodes starting from the specified node.
 	 *
-	 * @param node
-	 * @param modify
+	 * @param node		node whose position value must be changed
+	 * @param modify	modify value (>0 for add, <0 for delete)
 	 */
 private void modify(IntBlockNode node, int modify) {
     if (node == currNode) {
@@ -971,7 +823,8 @@ protected boolean doAddAll(int index, int[] array) {
     if (index == -1) {
         index = size;
     }
-    check();
+    if (CHECK)
+        check();
     int oldSize = size;
     if (array.length == 1) {
         return doAdd(index, array[0]);
@@ -1098,7 +951,8 @@ protected boolean doAddAll(int index, int[] array) {
                 numElems -= should;
                 numIntBlocks--;
             }
-            check();
+            if (CHECK)
+                check();
             while (numIntBlocks > 0) {
                 int add = numElems / numIntBlocks;
                 assert (add > 0);
@@ -1117,12 +971,14 @@ protected boolean doAddAll(int index, int[] array) {
                 currIntBlockEnd += add;
                 size += add;
                 numIntBlocks--;
-                check();
+                if (CHECK)
+                    check();
             }
         }
     }
     assert (oldSize + addLen == size);
-    check();
+    if (CHECK)
+        check();
     return true;
 }
 
@@ -1153,7 +1009,6 @@ protected void doRemoveAll(int index, int len) {
         return;
     }
     // Remove range   
-    int l = len;
     int startPos = getIntBlockIndex(index, true, 0);
     IntBlockNode startNode = currNode;
     int endPos = getIntBlockIndex(index + len - 1, true, 0);
@@ -1174,7 +1029,8 @@ protected void doRemoveAll(int index, int len) {
         size -= len;
     } else {
         // Delete from start block   
-        check();
+        if (CHECK)
+            check();
         int startLen = startNode.block.size() - startPos;
         getIntBlockIndex(index, true, -startLen);
         // TODO should that be modify?   
@@ -1187,7 +1043,6 @@ protected void doRemoveAll(int index, int len) {
         }
         len -= startLen;
         size -= startLen;
-        //check();   
         while (len > 0) {
             currNode = null;
             getIntBlockIndex(index, true, 0);
@@ -1202,7 +1057,8 @@ protected void doRemoveAll(int index, int len) {
                 }
                 len -= s;
                 size -= s;
-                check();
+                if (CHECK)
+                    check();
             } else {
                 modify(currNode, -len);
                 currIntBlock.values.remove(0, len);
@@ -1211,17 +1067,21 @@ protected void doRemoveAll(int index, int len) {
             }
         }
         releaseIntBlock();
-        check();
+        if (CHECK)
+            check();
         getIntBlockIndex(index, false, 0);
         merge(currNode);
     }
-    if (DUMP)
-        dump();
     if (CHECK)
         check();
 }
 
-    void merge(IntBlockNode node) {
+    /**
+	 * Merge the specified node with the left or right neighbor if possible.
+	 *
+	 * @param node	candidate node for merge
+	 */
+private void merge(IntBlockNode node) {
     if (node == null) {
         return;
     }
@@ -1279,18 +1139,12 @@ protected void doRemoveAll(int index, int len) {
         }
     }
     size--;
-    if (DUMP)
-        dump();
     if (CHECK)
         check();
     return oldElem;
 }
 
-    private void dump() {
-}
-
-    /**/
-@Override
+    @Override
 public IntBigList unmodifiableList() {
     // Naming as in java.util.Collections#unmodifiableList   
     return new ImmutableIntBigList(this);
@@ -1306,10 +1160,24 @@ protected void doEnsureCapacity(int minCapacity) {
     }
 }
 
-    @Override
+    /**
+     * Pack as many elements in the blocks as allowed.
+     * An application can use this operation to minimize the storage of an instance.
+     */
+@Override
 public void trimToSize() {
+    doModify();
     if (isOnlyRootIntBlock()) {
         currIntBlock.values.trimToSize();
+    } else {
+        IntBigList newList = new IntBigList(blockSize);
+        IntBlockNode node = root.min();
+        while (node != null) {
+            newList.addAll(node.block.values);
+            remove(0, node.block.values.size());
+            node = node.next();
+        }
+        doAssign(newList);
     }
 }
 
@@ -1342,49 +1210,12 @@ public int binarySearch(int index, int len, int key) {
     }
 }
 
-    /**
-	 * @return true if there is only the root block, false otherwise
-	 */
-private boolean isOnlyRootIntBlock() {
-    return root.left == null && root.right == null;
-}
-
-    public IntBlockNode access(int index, int modify) {
-    return root.access(this, index, modify, false);
-}
-
-    /**
-     * Adds a new element to the list.
-     *
-     * @param index  the index to add before
-     * @param obj  the element to add
-     */
-public void addIntBlock(int index, IntBlock obj) {
-    if (root == null) {
-        root = new IntBlockNode(null, index, obj, null, null);
-    } else {
-        root = root.insert(index, obj);
-        root.parent = null;
-    }
-}
-
-    /**
-     * Removes the element at the specified index.
-     *
-     * @param index  the index to remove
-     * @return the previous object at that index
-     */
-public void removeIntBlock(int index) {
-    root = root.remove(index);
-}
-
     // --- Serialization ---  
 /**
      * Serialize a IntBigList object.
      *
-     * @serialData The length of the array backing the <tt>IntGapList</tt>
-     *             instance is emitted (int), followed by all of its elements
-     *             (each an <tt>Object</tt>) in the proper order.
+     * @serialData block size (int), number of elements (int), followed by all of its elements
+     *             (each an <tt>Object</tt>) in the proper order
      * @param oos  output stream for serialization
      * @throws 	   IOException if serialization fails
      */
@@ -1415,12 +1246,176 @@ private void readObject(ObjectInputStream ois) throws IOException, ClassNotFound
     }
 }
 
+    // --- Debug checks ---  
+private void checkNode(IntBlockNode node) {
+    assert ((node.block.size() > 0 || node == root) && node.block.size() <= blockSize);
+    IntBlockNode child = node.getLeftSubTree();
+    assert (child == null || child.parent == node);
+    child = node.getRightSubTree();
+    assert (child == null || child.parent == node);
+}
+
+    private void checkHeight(IntBlockNode node) {
+    IntBlockNode left = node.getLeftSubTree();
+    IntBlockNode right = node.getRightSubTree();
+    if (left == null) {
+        if (right == null) {
+            assert (node.height == 0);
+        } else {
+            assert (right.height == node.height - 1);
+            checkHeight(right);
+        }
+    } else {
+        if (right == null) {
+            assert (left.height == node.height - 1);
+        } else {
+            assert (left.height == node.height - 1 || left.height == node.height - 2);
+            assert (right.height == node.height - 1 || right.height == node.height - 2);
+            assert (right.height == node.height - 1 || left.height == node.height - 1);
+        }
+        checkHeight(left);
+    }
+}
+
+    private void check() {
+    if (currNode != null) {
+        assert (currNode.block == currIntBlock);
+        assert (currIntBlockStart >= 0 && currIntBlockEnd <= size && currIntBlockStart <= currIntBlockEnd);
+        assert (currIntBlockStart + currIntBlock.size() == currIntBlockEnd);
+    }
+    if (root == null) {
+        assert (size == 0);
+        return;
+    }
+    checkHeight(root);
+    IntBlockNode oldCurrNode = currNode;
+    int oldCurrModify = currModify;
+    if (currModify != 0) {
+        currNode = null;
+        currModify = 0;
+        modify(oldCurrNode, oldCurrModify);
+    }
+    IntBlockNode node = root;
+    checkNode(node);
+    int index = node.relativePosition;
+    while (node.left != null) {
+        node = node.left;
+        checkNode(node);
+        assert (node.relativePosition < 0);
+        index += node.relativePosition;
+    }
+    IntBlock block = node.getIntBlock();
+    assert (block.size() == index);
+    int lastIndex = index;
+    while (lastIndex < size()) {
+        node = root;
+        index = node.relativePosition;
+        int searchIndex = lastIndex + 1;
+        while (true) {
+            checkNode(node);
+            block = node.getIntBlock();
+            assert (block.size() > 0);
+            if (searchIndex > index - block.size() && searchIndex <= index) {
+                break;
+            } else if (searchIndex < index) {
+                if (node.left != null && node.left.height < node.height) {
+                    node = node.left;
+                } else {
+                    break;
+                }
+            } else {
+                if (node.right != null && node.right.height < node.height) {
+                    node = node.right;
+                } else {
+                    break;
+                }
+            }
+            index += node.relativePosition;
+        }
+        block = node.getIntBlock();
+        assert (block.size() == index - lastIndex);
+        lastIndex = index;
+    }
+    assert (index == size());
+    if (oldCurrModify != 0) {
+        modify(oldCurrNode, -oldCurrModify);
+    }
+    currNode = oldCurrNode;
+    currModify = oldCurrModify;
+}
+
+    // --- IntBlock ---  
+    /**
+	 * A block stores in maximum blockSize number of elements.
+	 * The first block in a IntBigList will grow until reaches this limit, all other blocks are directly
+	 * allocated with a capacity of blockSize.
+	 * A block maintains a reference count which allows a block to be shared among different IntBigList
+	 * instances with a copy-on-write approach.
+	 */
+    
+    public static class IntBlock implements Serializable {
+
+        private IntGapList values;
+
+        private int refCount;
+
+        public IntBlock(){
+    values = new IntGapList();
+    refCount = 1;
+}
+
+        public IntBlock(int capacity){
+    values = new IntGapList(capacity);
+    refCount = 1;
+}
+
+        public IntBlock(IntBlock that){
+    values = new IntGapList(that.values.capacity());
+    values.init(that.values.getArray(0, that.values.size()));
+    refCount = 1;
+}
+
+        /**
+		 * @return true if block is shared by several IntBigList instances
+		 */
+public boolean isShared() {
+    return refCount > 1;
+}
+
+        /**
+		 * Increment reference count as block is used by one IntBigList instance more.
+		 */
+public IntBlock ref() {
+    refCount++;
+    return this;
+}
+
+        /**
+		 * Decrement reference count as block is no longer used by one IntBigList instance.
+		 */
+public void unref() {
+    refCount--;
+}
+
+        /**
+		 * @return number of elements stored in this block
+		 */
+public int size() {
+    return values.size();
+}
+
+        @Override
+public String toString() {
+    return values.toString();
+}
+    }
+
+    // --- IntBlockNode ---  
     /**
      * Implements an AVLNode storing a IntBlock.
      * The nodes don't know the index of the object they are holding. They do know however their
      * position relative to their parent node. This allows to calculate the index of a node while traversing the tree.
-     * <p>
-     * The Faedelung calculation stores a flag for both the left and right child
+     * There is a faedelung flag for both the left and right child
      * to indicate if they are a child (false) or a link as in linked list (true).
      */
     static class IntBlockNode {
@@ -1855,7 +1850,12 @@ private int heightRightMinusLeft() {
     return getHeight(getRightSubTree()) - getHeight(getLeftSubTree());
 }
 
-        private IntBlockNode rotateLeft() {
+        /**
+         * Rotate tree to the left using this node as center.
+         *
+         * @return node which will take the place of this node
+         */
+private IntBlockNode rotateLeft() {
     assert (!rightIsNext);
     final IntBlockNode newTop = right;
     // can't be faedelung!   
@@ -1876,7 +1876,12 @@ private int heightRightMinusLeft() {
     return newTop;
 }
 
-        private IntBlockNode rotateRight() {
+        /**
+         * Rotate tree to the right using this node as center.
+         *
+         * @return node which will take the place of this node
+         */
+private IntBlockNode rotateRight() {
     assert (!leftIsPrevious);
     final IntBlockNode newTop = left;
     // can't be faedelung   
@@ -1938,7 +1943,85 @@ private void setRight(IntBlockNode node, IntBlockNode next) {
          */
 @Override
 public String toString() {
-    return new StringBuilder().append("AVLNode(").append(relativePosition).append(',').append(getRightSubTree() != null).append(',').append(block).append(',').append(getRightSubTree() != null).append(", height ").append(height).append(" )").toString();
+    return new StringBuilder().append("IntBlockNode(").append(relativePosition).append(',').append(getRightSubTree() != null).append(',').append(block).append(',').append(getRightSubTree() != null).append(", height ").append(height).append(" )").toString();
+}
+    }
+
+    // --- ImmutableIntBigList ---  
+    /**
+     * An immutable version of a IntBigList.
+     * Note that the client cannot change the list,
+     * but the content may change if the underlying list is changed.
+     */
+    protected static class ImmutableIntBigList extends IntBigList {
+
+        /** UID for serialization */
+        private static final long serialVersionUID = -1352274047348922584L;
+
+        /**
+         * Private constructor used internally.
+         *
+         * @param that  list to create an immutable view of
+         */
+protected ImmutableIntBigList(IntBigList that){
+    super(true, that);
+}
+
+        @Override
+protected boolean doAdd(int index, int elem) {
+    error();
+    return false;
+}
+
+        @Override
+protected boolean doAddAll(int index, int[] elems) {
+    error();
+    return false;
+}
+
+        @Override
+protected int doSet(int index, int elem) {
+    error();
+    return 0;
+}
+
+        @Override
+protected void doSetAll(int index, int[] elems) {
+    error();
+}
+
+        @Override
+protected int doReSet(int index, int elem) {
+    error();
+    return 0;
+}
+
+        @Override
+protected int doRemove(int index) {
+    error();
+    return 0;
+}
+
+        @Override
+protected void doRemoveAll(int index, int len) {
+    error();
+}
+
+        @Override
+protected void doClear() {
+    error();
+}
+
+        @Override
+protected void doModify() {
+    error();
+}
+
+        /**
+         * Throw exception if an attempt is made to change an immutable list.
+         */
+private void error() {
+    throw new UnsupportedOperationException("list is immutable");
 }
     }
 }
