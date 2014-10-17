@@ -164,10 +164,10 @@ public class BigList<E> extends IList<E> {
      * @return          created list
      * @param <E>       type of elements stored in the list
      */
-    public BigList(Collection<? extends E> that) {
-    	if (that instanceof BigList) {
-    		doAssign((BigList<E>) that);
-        	doClone((BigList<E>) that);
+    public BigList(Collection<? extends E> coll) {
+    	if (coll instanceof BigList) {
+    		doAssign((BigList<E>) coll);
+        	doClone((BigList<E>) coll);
 
     	}  else {
 	        blockSize = BLOCK_SIZE;
@@ -175,10 +175,10 @@ public class BigList<E> extends IList<E> {
 			currBlock = new Block<E>();
 			addBlock(0, currBlock);
 
-	        for (Object obj: that.toArray()) {
+	        for (Object obj: coll.toArray()) {
 	            add((E) obj);
 	        }
-	        assert(size() == that.size());
+	        assert(size() == coll.size());
     	}
     }
 
