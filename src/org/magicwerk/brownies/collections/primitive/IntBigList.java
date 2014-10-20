@@ -26,13 +26,13 @@ import org.magicwerk.brownies.collections.helper.primitive.IntMergeSort;
  * </p>
  *
  * @author Thomas Mauch
- * @version $Id: IntBigList.java 2507 2014-10-15 00:08:21Z origo $
+ * @version $Id: IntBigList.java 2522 2014-10-17 12:08:38Z origo $
  */
 /**
  *
  *
  * @author Thomas Mauch
- * @version $Id$
+ * @version $Id: IntBigList.java 2522 2014-10-17 12:08:38Z origo $
  */
 public class IntBigList extends IIntList {
 	public static IIntList of(int[] values) {
@@ -212,7 +212,7 @@ public class IntBigList extends IIntList {
     private static int BLOCK_SIZE = 1000;
 
     /** Set to true for debugging during developing */
-    private static final boolean CHECK = true;
+    private static final boolean CHECK = false;
 
     // -- EMPTY --  
     // Cannot make a static reference to the non-static type E:  
@@ -339,18 +339,18 @@ public IntBigList(int blockSize){
      * @return          created list
      * @param        type of elements stored in the list
      */
-public IntBigList(Collection<Integer> that){
-    if (that instanceof IntBigList) {
-        doAssign((IntBigList) that);
-        doClone((IntBigList) that);
+public IntBigList(Collection<Integer> coll){
+    if (coll instanceof IntBigList) {
+        doAssign((IntBigList) coll);
+        doClone((IntBigList) coll);
     } else {
         blockSize = BLOCK_SIZE;
         currIntBlock = new IntBlock();
         addIntBlock(0, currIntBlock);
-        for (Object obj : that.toArray()) {
+        for (Object obj : coll.toArray()) {
             add((Integer) obj);
         }
-        assert (size() == that.size());
+        assert (size() == coll.size());
     }
 }
 
@@ -1664,32 +1664,6 @@ public IntBlockNode max() {
          */
 public IntBlockNode min() {
     return getLeftSubTree() == null ? this : left.min();
-}
-
-        /**
-         * Removes the node at a given position.
-         *
-         * @param index is the index of the element to be removed relative to the position of
-         * the parent node of the current node.
-         */
-private IntBlockNode remove(int index) {
-    final int indexRelativeToMe = index - relativePosition;
-    if (indexRelativeToMe == 0) {
-        return removeSelf();
-    }
-    if (indexRelativeToMe > 0) {
-        setRight(right.remove(indexRelativeToMe), right.right);
-        if (relativePosition < 0) {
-            relativePosition++;
-        }
-    } else {
-        setLeft(left.remove(indexRelativeToMe), left.left);
-        if (relativePosition > 0) {
-            relativePosition--;
-        }
-    }
-    recalcHeight();
-    return balance();
 }
 
         private IntBlockNode removeMax() {

@@ -26,13 +26,13 @@ import org.magicwerk.brownies.collections.helper.primitive.ByteMergeSort;
  * </p>
  *
  * @author Thomas Mauch
- * @version $Id: ByteBigList.java 2507 2014-10-15 00:08:21Z origo $
+ * @version $Id: ByteBigList.java 2522 2014-10-17 12:08:38Z origo $
  */
 /**
  *
  *
  * @author Thomas Mauch
- * @version $Id$
+ * @version $Id: ByteBigList.java 2522 2014-10-17 12:08:38Z origo $
  */
 public class ByteBigList extends IByteList {
 	public static IByteList of(byte[] values) {
@@ -212,7 +212,7 @@ public class ByteBigList extends IByteList {
     private static int BLOCK_SIZE = 1000;
 
     /** Set to true for debugging during developing */
-    private static final boolean CHECK = true;
+    private static final boolean CHECK = false;
 
     // -- EMPTY --  
     // Cannot make a static reference to the non-static type E:  
@@ -339,18 +339,18 @@ public ByteBigList(int blockSize){
      * @return          created list
      * @param        type of elements stored in the list
      */
-public ByteBigList(Collection<Byte> that){
-    if (that instanceof ByteBigList) {
-        doAssign((ByteBigList) that);
-        doClone((ByteBigList) that);
+public ByteBigList(Collection<Byte> coll){
+    if (coll instanceof ByteBigList) {
+        doAssign((ByteBigList) coll);
+        doClone((ByteBigList) coll);
     } else {
         blockSize = BLOCK_SIZE;
         currByteBlock = new ByteBlock();
         addByteBlock(0, currByteBlock);
-        for (Object obj : that.toArray()) {
+        for (Object obj : coll.toArray()) {
             add((Byte) obj);
         }
-        assert (size() == that.size());
+        assert (size() == coll.size());
     }
 }
 
@@ -1664,32 +1664,6 @@ public ByteBlockNode max() {
          */
 public ByteBlockNode min() {
     return getLeftSubTree() == null ? this : left.min();
-}
-
-        /**
-         * Removes the node at a given position.
-         *
-         * @param index is the index of the element to be removed relative to the position of
-         * the parent node of the current node.
-         */
-private ByteBlockNode remove(int index) {
-    final int indexRelativeToMe = index - relativePosition;
-    if (indexRelativeToMe == 0) {
-        return removeSelf();
-    }
-    if (indexRelativeToMe > 0) {
-        setRight(right.remove(indexRelativeToMe), right.right);
-        if (relativePosition < 0) {
-            relativePosition++;
-        }
-    } else {
-        setLeft(left.remove(indexRelativeToMe), left.left);
-        if (relativePosition > 0) {
-            relativePosition--;
-        }
-    }
-    recalcHeight();
-    return balance();
 }
 
         private ByteBlockNode removeMax() {
