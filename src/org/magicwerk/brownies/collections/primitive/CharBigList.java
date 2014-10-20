@@ -26,13 +26,13 @@ import org.magicwerk.brownies.collections.helper.primitive.CharMergeSort;
  * </p>
  *
  * @author Thomas Mauch
- * @version $Id: CharBigList.java 2507 2014-10-15 00:08:21Z origo $
+ * @version $Id: CharBigList.java 2522 2014-10-17 12:08:38Z origo $
  */
 /**
  *
  *
  * @author Thomas Mauch
- * @version $Id$
+ * @version $Id: CharBigList.java 2522 2014-10-17 12:08:38Z origo $
  */
 public class CharBigList extends ICharList {
 	public static ICharList of(char[] values) {
@@ -212,7 +212,7 @@ public class CharBigList extends ICharList {
     private static int BLOCK_SIZE = 1000;
 
     /** Set to true for debugging during developing */
-    private static final boolean CHECK = true;
+    private static final boolean CHECK = false;
 
     // -- EMPTY --  
     // Cannot make a static reference to the non-static type E:  
@@ -339,18 +339,18 @@ public CharBigList(int blockSize){
      * @return          created list
      * @param        type of elements stored in the list
      */
-public CharBigList(Collection<Character> that){
-    if (that instanceof CharBigList) {
-        doAssign((CharBigList) that);
-        doClone((CharBigList) that);
+public CharBigList(Collection<Character> coll){
+    if (coll instanceof CharBigList) {
+        doAssign((CharBigList) coll);
+        doClone((CharBigList) coll);
     } else {
         blockSize = BLOCK_SIZE;
         currCharBlock = new CharBlock();
         addCharBlock(0, currCharBlock);
-        for (Object obj : that.toArray()) {
+        for (Object obj : coll.toArray()) {
             add((Character) obj);
         }
-        assert (size() == that.size());
+        assert (size() == coll.size());
     }
 }
 
@@ -1664,32 +1664,6 @@ public CharBlockNode max() {
          */
 public CharBlockNode min() {
     return getLeftSubTree() == null ? this : left.min();
-}
-
-        /**
-         * Removes the node at a given position.
-         *
-         * @param index is the index of the element to be removed relative to the position of
-         * the parent node of the current node.
-         */
-private CharBlockNode remove(int index) {
-    final int indexRelativeToMe = index - relativePosition;
-    if (indexRelativeToMe == 0) {
-        return removeSelf();
-    }
-    if (indexRelativeToMe > 0) {
-        setRight(right.remove(indexRelativeToMe), right.right);
-        if (relativePosition < 0) {
-            relativePosition++;
-        }
-    } else {
-        setLeft(left.remove(indexRelativeToMe), left.left);
-        if (relativePosition > 0) {
-            relativePosition--;
-        }
-    }
-    recalcHeight();
-    return balance();
 }
 
         private CharBlockNode removeMax() {

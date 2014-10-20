@@ -26,13 +26,13 @@ import org.magicwerk.brownies.collections.helper.primitive.ShortMergeSort;
  * </p>
  *
  * @author Thomas Mauch
- * @version $Id: ShortBigList.java 2507 2014-10-15 00:08:21Z origo $
+ * @version $Id: ShortBigList.java 2522 2014-10-17 12:08:38Z origo $
  */
 /**
  *
  *
  * @author Thomas Mauch
- * @version $Id$
+ * @version $Id: ShortBigList.java 2522 2014-10-17 12:08:38Z origo $
  */
 public class ShortBigList extends IShortList {
 	public static IShortList of(short[] values) {
@@ -212,7 +212,7 @@ public class ShortBigList extends IShortList {
     private static int BLOCK_SIZE = 1000;
 
     /** Set to true for debugging during developing */
-    private static final boolean CHECK = true;
+    private static final boolean CHECK = false;
 
     // -- EMPTY --  
     // Cannot make a static reference to the non-static type E:  
@@ -339,18 +339,18 @@ public ShortBigList(int blockSize){
      * @return          created list
      * @param        type of elements stored in the list
      */
-public ShortBigList(Collection<Short> that){
-    if (that instanceof ShortBigList) {
-        doAssign((ShortBigList) that);
-        doClone((ShortBigList) that);
+public ShortBigList(Collection<Short> coll){
+    if (coll instanceof ShortBigList) {
+        doAssign((ShortBigList) coll);
+        doClone((ShortBigList) coll);
     } else {
         blockSize = BLOCK_SIZE;
         currShortBlock = new ShortBlock();
         addShortBlock(0, currShortBlock);
-        for (Object obj : that.toArray()) {
+        for (Object obj : coll.toArray()) {
             add((Short) obj);
         }
-        assert (size() == that.size());
+        assert (size() == coll.size());
     }
 }
 
@@ -1664,32 +1664,6 @@ public ShortBlockNode max() {
          */
 public ShortBlockNode min() {
     return getLeftSubTree() == null ? this : left.min();
-}
-
-        /**
-         * Removes the node at a given position.
-         *
-         * @param index is the index of the element to be removed relative to the position of
-         * the parent node of the current node.
-         */
-private ShortBlockNode remove(int index) {
-    final int indexRelativeToMe = index - relativePosition;
-    if (indexRelativeToMe == 0) {
-        return removeSelf();
-    }
-    if (indexRelativeToMe > 0) {
-        setRight(right.remove(indexRelativeToMe), right.right);
-        if (relativePosition < 0) {
-            relativePosition++;
-        }
-    } else {
-        setLeft(left.remove(indexRelativeToMe), left.left);
-        if (relativePosition > 0) {
-            relativePosition--;
-        }
-    }
-    recalcHeight();
-    return balance();
 }
 
         private ShortBlockNode removeMax() {

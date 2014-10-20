@@ -40,7 +40,7 @@ public class BigList<E> extends IList<E> {
 	private static int BLOCK_SIZE = 1000;
 
 	/** Set to true for debugging during developing */
-	private static final boolean CHECK = true;
+	private static final boolean CHECK = false;
 
     // -- EMPTY --
 
