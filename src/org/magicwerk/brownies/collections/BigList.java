@@ -351,22 +351,22 @@ public class BigList<E> extends IList<E> {
 	@Override
 	protected E doGet(int index) {
 		int pos = getBlockIndex(index, false, 0);
-		return currBlock.values.doGet(pos);
+		return currBlock.doGet(pos);
 	}
 
 	@Override
 	protected E doSet(int index, E elem) {
 		int pos = getBlockIndex(index, true, 0);
-		E oldElem = currBlock.values.doGet(pos);
-		currBlock.values.doSet(pos, elem);
+		E oldElem = currBlock.doGet(pos);
+		currBlock.doSet(pos, elem);
 		return oldElem;
 	}
 
 	@Override
 	protected E doReSet(int index, E elem) {
 		int pos = getBlockIndex(index, true, 0);
-		E oldElem = currBlock.values.doGet(pos);
-		currBlock.values.doSet(pos, elem);
+		E oldElem = currBlock.doGet(pos);
+		currBlock.doSet(pos, elem);
 		return oldElem;
 	}
 
@@ -497,7 +497,7 @@ public class BigList<E> extends IList<E> {
 		// The second part of the condition is a work around to handle the case of insertion as position 0 correctly
 		// where blockSize() is 2 (the new block would then be added after the current one)
 		if (currBlock.size() < maxSize || (currBlock.size() == 1 && currBlock.size() < blockSize)) {
-			currBlock.values.doAdd(pos, element);
+			currBlock.doAdd(pos, element);
 			currBlockEnd++;
 
 		} else {
@@ -505,7 +505,7 @@ public class BigList<E> extends IList<E> {
 			Block<E> newBlock = new Block<E>(blockSize);
 			if (index == size) {
 				// Insert new block at tail
-				newBlock.values.doAdd(0, element);
+				newBlock.doAdd(0, element);
 				// Subtract 1 because getBlockIndex() has already added 1
 				modify(currNode, -1);
 				addBlock(size+1, newBlock);
@@ -517,7 +517,7 @@ public class BigList<E> extends IList<E> {
 
 			} else if (index == 0) {
 				// Insert new block at head
-				newBlock.values.doAdd(0, element);
+				newBlock.doAdd(0, element);
 				// Subtract 1 because getBlockIndex() has already added 1
 				modify(currNode, -1);
 				addBlock(1, newBlock);
@@ -531,9 +531,9 @@ public class BigList<E> extends IList<E> {
 				// Split block for insert
 				int nextBlockLen = blockSize/2;
 				int blockLen = blockSize - nextBlockLen;
-				newBlock.values.init(nextBlockLen, null);
-				GapList.copy(currBlock.values, blockLen, newBlock.values, 0, nextBlockLen);
-				currBlock.values.remove(blockLen, blockSize-blockLen);
+				newBlock.init(nextBlockLen, null);
+				GapList.copy(currBlock, blockLen, newBlock, 0, nextBlockLen);
+				currBlock.remove(blockLen, blockSize-blockLen);
 
 				// Subtract 1 more because getBlockIndex() has already added 1
 				modify(currNode, -nextBlockLen-1);
@@ -541,7 +541,7 @@ public class BigList<E> extends IList<E> {
 
 				if (pos < blockLen) {
 					// Insert element in first block
-					currBlock.values.doAdd(pos, element);
+					currBlock.doAdd(pos, element);
 					currBlockEnd = currBlockStart+blockLen+1;
 					modify(currNode, 1);
 				} else {
@@ -549,7 +549,7 @@ public class BigList<E> extends IList<E> {
 					currNode = currNode.next();
 					modify(currNode, 1);
 					currBlock = currNode.block;
-					currBlock.values.doAdd(pos-blockLen, element);
+					currBlock.doAdd(pos-blockLen, element);
 					currBlockStart += blockLen;
 					currBlockEnd++;
 				}
@@ -682,7 +682,7 @@ public class BigList<E> extends IList<E> {
 		int addLen = array.length;
 		if (addLen <= space) {
 			// All elements can be added to current block
-			currBlock.values.addAll(addPos, array);
+			currBlock.addAll(addPos, array);
 			modify(currNode, addLen);
 			size += addLen;
 			currBlockEnd += addLen;
@@ -691,7 +691,7 @@ public class BigList<E> extends IList<E> {
 			if (index == size) {
 				// Add elements at end
 				for (int i=0; i<space; i++) {
-					currBlock.values.add(addPos+i, array[i]);
+					currBlock.add(addPos+i, array[i]);
 				}
 				modify(currNode, space);
 
@@ -701,7 +701,7 @@ public class BigList<E> extends IList<E> {
 					Block<E> nextBlock = new Block<E>(blockSize);
 					int add = Math.min(todo, blockSize);
 					for(int i=0; i<add; i++) {
-						nextBlock.values.add(i, array[done+i]);
+						nextBlock.add(i, array[done+i]);
 					}
 					done += add;
 					todo -= add;
@@ -718,7 +718,7 @@ public class BigList<E> extends IList<E> {
 				// Add elements at head
 				assert(addPos == 0);
 				for (int i=0; i<space; i++) {
-					currBlock.values.add(addPos+i, array[addLen-space+i]);
+					currBlock.add(addPos+i, array[addLen-space+i]);
 				}
 				modify(currNode, space);
 
@@ -728,7 +728,7 @@ public class BigList<E> extends IList<E> {
 					Block<E> nextBlock = new Block<E>(blockSize);
 					int add = Math.min(todo, blockSize);
 					for(int i=0; i<add; i++) {
-						nextBlock.values.add(i, array[addLen-done-add+i]);
+						nextBlock.add(i, array[addLen-done-add+i]);
 					}
 					done += add;
 					todo -= add;
@@ -746,21 +746,21 @@ public class BigList<E> extends IList<E> {
 
 				// Split first block to remove tail elements if necessary
 				GapList<E> list = GapList.create(array);
-				int remove = currBlock.values.size()-addPos;
+				int remove = currBlock.size()-addPos;
 				if (remove > 0) {
-					list.addAll(currBlock.values.getAll(addPos, remove));
-					currBlock.values.remove(addPos, remove);
+					list.addAll(currBlock.getAll(addPos, remove));
+					currBlock.remove(addPos, remove);
 					modify(currNode, -remove);
 					size -= remove;
 					currBlockEnd -= remove;
 				}
 
 				// Calculate how many blocks we need for the elements
-				int numElems = currBlock.values.size() + list.size();
+				int numElems = currBlock.size() + list.size();
 				int numBlocks = (numElems-1)/blockSize+1;
 				assert(numBlocks > 1);
 
-				int has = currBlock.values.size();
+				int has = currBlock.size();
 				int should = numElems / numBlocks;
 				int listPos = 0;
 				if (has < should) {
@@ -769,9 +769,9 @@ public class BigList<E> extends IList<E> {
 					List<E> sublist = list.getAll(0, add);
 					listPos += add;
 
-					currBlock.values.addAll(addPos, sublist);
+					currBlock.addAll(addPos, sublist);
 					modify(currNode, add);
-					assert(currBlock.values.size() == should);
+					assert(currBlock.size() == should);
 					numElems -= should;
 					numBlocks--;
 					size += add;
@@ -781,10 +781,10 @@ public class BigList<E> extends IList<E> {
 					// Elements must be moved from first to second block
 					Block<E> nextBlock = new Block<E>(blockSize);
 					int move = has-should;
-					nextBlock.values.addAll(currBlock.values.getAll(currBlock.values.size()-move, move));
-					currBlock.values.remove(currBlock.values.size()-move, move);
+					nextBlock.addAll(currBlock.getAll(currBlock.size()-move, move));
+					currBlock.remove(currBlock.size()-move, move);
 					modify(currNode, -move);
-					assert(currBlock.values.size() == should);
+					assert(currBlock.size() == should);
 					numElems -= should;
 					numBlocks--;
 					currBlockEnd -= move;
@@ -793,9 +793,9 @@ public class BigList<E> extends IList<E> {
 					int add = should-move;
 					assert(add >= 0);
 					List<E> sublist = list.getAll(0, add);
-					nextBlock.values.addAll(move, sublist);
+					nextBlock.addAll(move, sublist);
 					listPos += add;
-					assert(nextBlock.values.size() == should);
+					assert(nextBlock.size() == should);
 					numElems -= should;
 
 					numBlocks--;
@@ -822,8 +822,8 @@ public class BigList<E> extends IList<E> {
 					listPos += add;
 
 					Block<E> nextBlock = new Block<E>();
-					nextBlock.values.addAll(sublist);
-					assert(nextBlock.values.size() == add);
+					nextBlock.addAll(sublist);
+					assert(nextBlock.size() == add);
 					numElems -= add;
 					addBlock(currBlockEnd, nextBlock);
 					currNode = currNode.next();
@@ -882,8 +882,8 @@ public class BigList<E> extends IList<E> {
 		if (startNode == endNode) {
 			// Delete from single block
 			getBlockIndex(index, true, -len);
-			currBlock.values.remove(startPos, len);
-			if (currBlock.values.isEmpty()) {
+			currBlock.remove(startPos, len);
+			if (currBlock.isEmpty()) {
 				BlockNode<E> oldCurrNode = currNode;
 				releaseBlock();
 				BlockNode<E> node = doRemove(oldCurrNode);
@@ -898,9 +898,9 @@ public class BigList<E> extends IList<E> {
 			if (CHECK) check();
 			int startLen = startNode.block.size()-startPos;
 			getBlockIndex(index, true, -startLen); // TODO should that be modify?
-			startNode.block.values.remove(startPos, startLen);
+			startNode.block.remove(startPos, startLen);
 			assert(startNode == currNode);
-			if (currBlock.values.isEmpty()) {
+			if (currBlock.isEmpty()) {
 				releaseBlock();
 				doRemove(startNode);
 				startNode = null;
@@ -925,7 +925,7 @@ public class BigList<E> extends IList<E> {
 					if (CHECK) check();
 				} else {
 					modify(currNode, -len);
-					currBlock.values.remove(0, len);
+					currBlock.remove(0, len);
 					size -= len;
 					break;
 				}
@@ -950,7 +950,7 @@ public class BigList<E> extends IList<E> {
 		}
 
 		final int minBlockSize = Math.max((int)(blockSize*MERGE_THRESHOLD), 1);
-		if (node.block.values.size() >= minBlockSize) {
+		if (node.block.size() >= minBlockSize) {
 			return;
 		}
 
@@ -961,10 +961,10 @@ public class BigList<E> extends IList<E> {
 		    int len = node.block.size();
 		    int dstSize = leftNode.getBlock().size();
             for (int i=0; i<len; i++) {
-                leftNode.block.values.add(null); // TODO Add method to GapList
+                leftNode.block.add(null); // TODO Add method to GapList
             }
-			GapList.copy(node.block.values, 0, leftNode.block.values, dstSize, len);
-			assert(leftNode.block.values.size() <= blockSize);
+			GapList.copy(node.block, 0, leftNode.block, dstSize, len);
+			assert(leftNode.block.size() <= blockSize);
 
 			modify(leftNode, +len);
 			modify(oldCurrNode, -len);
@@ -977,10 +977,10 @@ public class BigList<E> extends IList<E> {
 				// Merge with right block
 			    int len = node.block.size();
 	            for (int i=0; i<len; i++) {
-	            	rightNode.block.values.add(0, null);
+	            	rightNode.block.add(0, null);
 	            }
-				GapList.copy(node.block.values, 0, rightNode.block.values, 0, len);
-				assert(rightNode.block.values.size() <= blockSize);
+				GapList.copy(node.block, 0, rightNode.block, 0, len);
+				assert(rightNode.block.size() <= blockSize);
 
 				modify(rightNode, +len);
 				modify(oldCurrNode, -len);
@@ -992,7 +992,7 @@ public class BigList<E> extends IList<E> {
 
 	protected E doRemove(int index) {
 		int pos = getBlockIndex(index, true, -1);
-		E oldElem = currBlock.values.doRemove(pos);
+		E oldElem = currBlock.doRemove(pos);
 		currBlockEnd--;
 
 		final int minBlockSize = Math.max(blockSize/3, 1);
@@ -1025,7 +1025,7 @@ public class BigList<E> extends IList<E> {
 			if (minCapacity > blockSize) {
 				minCapacity = blockSize;
 			}
-			currBlock.values.doEnsureCapacity(minCapacity);
+			currBlock.doEnsureCapacity(minCapacity);
 		}
 	}
 
@@ -1038,13 +1038,13 @@ public class BigList<E> extends IList<E> {
         doModify();
 
         if (isOnlyRootBlock()) {
-			currBlock.values.trimToSize();
+			currBlock.trimToSize();
 		} else {
 			BigList<E> newList = new BigList<E>(blockSize);
 			BlockNode<E> node = root.min();
 	       	while (node != null) {
-	       		newList.addAll(node.block.values);
-	       		remove(0, node.block.values.size());
+	       		newList.addAll(node.block);
+	       		remove(0, node.block.size());
 	       		node = node.next();
 	       	}
 	       	doAssign(newList);
@@ -1065,7 +1065,7 @@ public class BigList<E> extends IList<E> {
     	checkRange(index, len);
 
     	if (isOnlyRootBlock()) {
-    		currBlock.values.sort(index, len, comparator);
+    		currBlock.sort(index, len, comparator);
     	} else {
     		MergeSort.sort(this, comparator, index, index+len);
     	}
@@ -1076,7 +1076,7 @@ public class BigList<E> extends IList<E> {
     	checkRange(index, len);
 
     	if (isOnlyRootBlock()) {
-    		return currBlock.values.binarySearch(key, comparator);
+    		return currBlock.binarySearch(key, comparator);
     	} else {
     		return Collections.binarySearch((List<K>) this, key, comparator);
     	}
@@ -1238,24 +1238,19 @@ public class BigList<E> extends IList<E> {
 	 * instances with a copy-on-write approach.
 	 */
 	@SuppressWarnings("serial")
-	public static class Block<T> implements Serializable {
-		private GapList<T> values;
-		private int refCount;
+	public static class Block<T> extends GapList<T> {
+		private int refCount = 1;
 
 		public Block() {
-			values = new GapList<T>();
-			refCount = 1;
 		}
 
 		public Block(int capacity) {
-			values = new GapList<T>(capacity);
-			refCount = 1;
+			super(capacity);
 		}
 
 		public Block(Block<T> that) {
-			values = new GapList<T>(that.values.capacity());
-			values.init(that.values);
-			refCount = 1;
+			super(that.capacity());
+			init(that);
 		}
 
 		/**
@@ -1280,17 +1275,6 @@ public class BigList<E> extends IList<E> {
 			refCount--;
 		}
 
-		/**
-		 * @return number of elements stored in this block
-		 */
-		public int size() {
-			return values.size();
-		}
-
-		@Override
-		public String toString() {
-			return values.toString();
-		}
 	}
 
 
