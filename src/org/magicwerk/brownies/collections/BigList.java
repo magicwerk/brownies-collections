@@ -15,18 +15,13 @@ import org.magicwerk.brownies.collections.helper.MergeSort;
  * BigList is a list optimized for storing large number of elements.
  * It stores the elements in fixed size blocks and the blocks itself are maintained in a tree for fast access.
  * It also offers specialized methods for bulk processing of elements.
- * Also copying a BigList is efficiently possible as its implemented using a copy-on-write approach.
- * <p>
+ * Also copying a BigList is efficiently possible as its implemented using a copy-on-write approach.<p>
+ *
  * <strong>Note that this implementation is not synchronized.</strong>
  * Due to data caching used for exploiting locality of reference, performance can decrease if BigList is
- * accessed by several threads at different positions.
- * </p>
+ * accessed by several threads at different positions.<p>
  *
- * @author Thomas Mauch
- * @version $Id$
- */
-/**
- *
+ * Note that the iterators provided are not fail-fast.<p>
  *
  * @author Thomas Mauch
  * @version $Id$
@@ -37,7 +32,16 @@ public class BigList<E> extends IList<E> {
 	private static final long serialVersionUID = 3715838828540564836L;
 
 	/** Default block size */
-	private static int BLOCK_SIZE = 1000;
+	private static final int DEFAULT_BLOCK_SIZE = 1000;
+
+	/** If two adjacent blocks both less than MERGE_THRESHOLD*blockSize elements, they are merged */
+	private static final float MERGE_THRESHOLD = 0.35f;
+
+	/**
+	 * If an element is added to the list at the head or tail, the block is only filled until it
+	 * has FILL_THRESHOLD*blockSize elements (so there is room for insertion without need to split).
+	 */
+	private static final float FILL_THRESHOLD = 0.95f;
 
 	/** Set to true for debugging during developing */
 	private static final boolean CHECK = false;
@@ -142,7 +146,7 @@ public class BigList<E> extends IList<E> {
 	 * The default block size is used.
 	 */
 	public BigList() {
-		this(BLOCK_SIZE);
+		this(DEFAULT_BLOCK_SIZE);
 	}
 
 	/**
@@ -170,7 +174,7 @@ public class BigList<E> extends IList<E> {
         	doClone((BigList<E>) coll);
 
     	}  else {
-	        blockSize = BLOCK_SIZE;
+	        blockSize = DEFAULT_BLOCK_SIZE;
 
 			currBlock = new Block<E>();
 			addBlock(0, currBlock);
@@ -489,7 +493,7 @@ public class BigList<E> extends IList<E> {
 		int pos = getBlockIndex(index, true, 1);
 
 		// If there is still place in the current block: insert in current block
-		int maxSize = (index == size || index == 0) ? blockSize*9/10 : blockSize;
+		int maxSize = (index == size || index == 0) ? (int)(blockSize*FILL_THRESHOLD) : blockSize;
 		// The second part of the condition is a work around to handle the case of insertion as position 0 correctly
 		// where blockSize() is 2 (the new block would then be added after the current one)
 		if (currBlock.size() < maxSize || (currBlock.size() == 1 && currBlock.size() < blockSize)) {
@@ -945,7 +949,7 @@ public class BigList<E> extends IList<E> {
 			return;
 		}
 
-		final int minBlockSize = Math.max(blockSize/3, 1);
+		final int minBlockSize = Math.max((int)(blockSize*MERGE_THRESHOLD), 1);
 		if (node.block.values.size() >= minBlockSize) {
 			return;
 		}

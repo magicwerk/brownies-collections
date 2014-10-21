@@ -32,10 +32,11 @@ import org.magicwerk.brownies.collections.function.Mapper;
  * by index (as ArrayList does) and at the same time efficient adding
  * and removing elements to and from beginning and end (as LinkedList does).
  * It also exploits the locality of reference often seen in applications
- * to further improve performance, e.g. for iterating over the list.
- * <p>
- * <strong>Note that this implementation is not synchronized.</strong>
- * </p>
+ * to further improve performance, e.g. for iterating over the list.<p>
+ *
+ * <strong>Note that this implementation is not synchronized.</strong><p>
+ *
+ * Note that the iterators provided are not fail-fast.<p>
  *
  * @author Thomas Mauch
  * @version $Id$
