@@ -200,11 +200,13 @@ public class KeyCollection<E> extends KeyCollectionImpl<E> {
     	return new Builder<E>(this);
     }
 
+	@SuppressWarnings("unchecked")
 	@Override
     public KeyCollection<E> copy() {
         return (KeyCollection<E>) super.copy();
     }
 
+	@SuppressWarnings("unchecked")
 	@Override
     public KeyCollection<E> crop() {
         return (KeyCollection<E>) super.crop();

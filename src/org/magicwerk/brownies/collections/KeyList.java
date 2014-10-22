@@ -207,12 +207,14 @@ public class KeyList<E> extends KeyListImpl<E> {
     	return new Builder<E>(this);
     }
 
-    @Override
+    @SuppressWarnings("unchecked")
+	@Override
     public KeyList<E> copy() {
         return (KeyList<E>) super.copy();
     }
 
-    @Override
+    @SuppressWarnings("unchecked")
+	@Override
     public KeyList<E> crop() {
         return (KeyList<E>) super.crop();
     }
