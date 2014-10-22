@@ -47,6 +47,7 @@ import org.magicwerk.brownies.collections.function.Predicate;
  * @see	    java.util.ArrayList
  * @see	    java.util.LinkedList
  */
+@SuppressWarnings("serial")
 public abstract class IList<E> extends AbstractList<E>
 	implements
 		// All interfaces of ArrayList
@@ -408,7 +409,8 @@ public abstract class IList<E> extends AbstractList<E>
      */
     public <R> IList<R> mappedList(Mapper<E,R> mapper) {
 		int size = size();
-    	IList mappedList = doCreate(size);
+    	@SuppressWarnings("unchecked")
+		IList<R> mappedList = (IList<R>) doCreate(size);
 		for (int i=0; i<size; i++) {
 			E e = doGet(i);
 			mappedList.add(mapper.getKey(e));
