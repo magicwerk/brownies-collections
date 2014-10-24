@@ -419,6 +419,9 @@ public class GapList<E> extends IList<E> {
 	@Override
 	protected void doClear() {
 		init(values, 0);
+		for (int i=0; i<values.length; i++) {
+			values[i] = null;
+		}
 	}
 
 	@Override
@@ -955,6 +958,9 @@ public class GapList<E> extends IList<E> {
 			if (gapStart > start && gapSize > 0) {
 				gapStart += grow;
 			}
+			if (end > start) {
+				end += grow;
+			}
 			start += grow;
 		}
 		if (end == 0 && start == 0 && size != 0) {
@@ -1046,7 +1052,7 @@ public class GapList<E> extends IList<E> {
 	protected void doRemoveAll(int index, int len) {
 		if (len == size()) {
 			doModify();
-			init(values, 0);
+			doClear();
 		} else {
 			super.doRemoveAll(index, len);
 		}
@@ -1109,10 +1115,16 @@ public class GapList<E> extends IList<E> {
 		}
 
 		// Check that all end positions contain null values
-		if (end != start) {
+		if (start < end) {
+			for (int i=0; i<start; i++) {
+				assert(values[i] == null);
+			}
+			for (int i=end; i<values.length; i++) {
+				assert(values[i] == null);
+			}
+		} else if (end < start) {
 			for (int i=end; i<start; i++) {
-				int pos = (i % values.length);
-				assert(values[pos] == null);
+				assert(values[i] == null);
 			}
 		}
 	}
