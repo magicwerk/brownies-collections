@@ -18,21 +18,16 @@ import org.magicwerk.brownies.collections.helper.primitive.FloatMergeSort;
  * FloatBigList is a list optimized for storing large number of elements.
  * It stores the elements in fixed size blocks and the blocks itself are maintained in a tree for fast access.
  * It also offers specialized methods for bulk processing of elements.
- * Also copying a FloatBigList is efficiently possible as its implemented using a copy-on-write approach.
- * <p>
+ * Also copying a FloatBigList is efficiently possible as its implemented using a copy-on-write approach.<p>
+ *
  * <strong>Note that this implementation is not synchronized.</strong>
  * Due to data caching used for exploiting locality of reference, performance can decrease if FloatBigList is
- * accessed by several threads at different positions.
- * </p>
+ * accessed by several threads at different positions.<p>
+ *
+ * Note that the iterators provided are not fail-fast.<p>
  *
  * @author Thomas Mauch
- * @version $Id: FloatBigList.java 2522 2014-10-17 12:08:38Z origo $
- */
-/**
- *
- *
- * @author Thomas Mauch
- * @version $Id: FloatBigList.java 2522 2014-10-17 12:08:38Z origo $
+ * @version $Id: FloatBigList.java 2529 2014-10-22 23:49:04Z origo $
  */
 public class FloatBigList extends IFloatList {
 	public static IFloatList of(float[] values) {
@@ -209,7 +204,16 @@ public class FloatBigList extends IFloatList {
     private static final long serialVersionUID = 3715838828540564836L;
 
     /** Default block size */
-    private static int BLOCK_SIZE = 1000;
+    private static final int DEFAULT_BLOCK_SIZE = 1000;
+
+    /** If two adjacent blocks both less than MERGE_THRESHOLD*blockSize elements, they are merged */
+    private static final float MERGE_THRESHOLD = 0.35f;
+
+    /**
+	 * If an element is added to the list at the head or tail, the block is only filled until it
+	 * has FILL_THRESHOLD*blockSize elements (so there is room for insertion without need to split).
+	 */
+    private static final float FILL_THRESHOLD = 0.95f;
 
     /** Set to true for debugging during developing */
     private static final boolean CHECK = false;
@@ -238,14 +242,12 @@ public static  FloatBigList EMPTY() {
     private int size;
 
     /** The root node in the tree */
-    private FloatBlockNode root;
+    private FloatBlockNode rootNode;
 
     /** Current node */
     private FloatBlockNode currNode;
 
     /** FloatBlock of current node */
-    private FloatBlock currFloatBlock;
-
     /** Start index of current block */
     private int currFloatBlockStart;
 
@@ -265,11 +267,10 @@ public static  FloatBigList EMPTY() {
 protected FloatBigList(boolean copy, FloatBigList that){
     if (copy) {
         this.blockSize = that.blockSize;
-        this.currFloatBlock = that.currFloatBlock;
         this.currFloatBlockStart = that.currFloatBlockStart;
         this.currFloatBlockEnd = that.currFloatBlockEnd;
         this.currNode = that.currNode;
-        this.root = that.root;
+        this.rootNode = that.rootNode;
         this.size = that.size;
     }
 }
@@ -317,7 +318,7 @@ public static FloatBigList create(float... elems) {
 	 * The default block size is used.
 	 */
 public FloatBigList(){
-    this(BLOCK_SIZE);
+    this(DEFAULT_BLOCK_SIZE);
 }
 
     /**
@@ -344,9 +345,8 @@ public FloatBigList(Collection<Float> coll){
         doAssign((FloatBigList) coll);
         doClone((FloatBigList) coll);
     } else {
-        blockSize = BLOCK_SIZE;
-        currFloatBlock = new FloatBlock();
-        addFloatBlock(0, currFloatBlock);
+        blockSize = DEFAULT_BLOCK_SIZE;
+        addFloatBlock(0, new FloatBlock());
         for (Object obj : coll.toArray()) {
             add((Float) obj);
         }
@@ -411,12 +411,13 @@ private FloatBigList(int blockSize, int firstFloatBlockSize){
 private void doInit(int blockSize, int firstFloatBlockSize) {
     this.blockSize = blockSize;
     // First block will grow until it reaches blockSize   
+    FloatBlock block;
     if (firstFloatBlockSize <= 1) {
-        currFloatBlock = new FloatBlock();
+        block = new FloatBlock();
     } else {
-        currFloatBlock = new FloatBlock(firstFloatBlockSize);
+        block = new FloatBlock(firstFloatBlockSize);
     }
-    addFloatBlock(0, currFloatBlock);
+    addFloatBlock(0, block);
 }
 
     /**
@@ -447,11 +448,10 @@ public Object clone() {
 protected void doAssign(IFloatList that) {
     FloatBigList list = (FloatBigList) that;
     this.blockSize = list.blockSize;
-    this.currFloatBlock = list.currFloatBlock;
     this.currFloatBlockEnd = list.currFloatBlockEnd;
     this.currFloatBlockStart = list.currFloatBlockStart;
     this.currNode = list.currNode;
-    this.root = list.root;
+    this.rootNode = list.rootNode;
     this.size = list.size;
 }
 
@@ -459,7 +459,7 @@ protected void doAssign(IFloatList that) {
 protected void doClone(IFloatList that) {
     FloatBigList bigList = (FloatBigList) that;
     bigList.releaseFloatBlock();
-    root = copy(bigList.root);
+    rootNode = copy(bigList.rootNode);
     currNode = null;
     currModify = 0;
     if (CHECK)
@@ -495,7 +495,7 @@ public float getDefaultElem() {
     @Override
 protected void finalize() {
     // This list will be garbage collected, so unref all referenced blocks   
-    FloatBlockNode node = root.min();
+    FloatBlockNode node = rootNode.min();
     while (node != null) {
         node.block.unref();
         node = node.next();
@@ -519,22 +519,22 @@ public int capacity() {
     @Override
 protected float doGet(int index) {
     int pos = getFloatBlockIndex(index, false, 0);
-    return currFloatBlock.values.doGet(pos);
+    return currNode.block.doGet(pos);
 }
 
     @Override
 protected float doSet(int index, float elem) {
     int pos = getFloatBlockIndex(index, true, 0);
-    float oldElem = currFloatBlock.values.doGet(pos);
-    currFloatBlock.values.doSet(pos, elem);
+    float oldElem = currNode.block.doGet(pos);
+    currNode.block.doSet(pos, elem);
     return oldElem;
 }
 
     @Override
 protected float doReSet(int index, float elem) {
     int pos = getFloatBlockIndex(index, true, 0);
-    float oldElem = currFloatBlock.values.doGet(pos);
-    currFloatBlock.values.doSet(pos, elem);
+    float oldElem = currNode.block.doGet(pos);
+    currNode.block.doSet(pos, elem);
     return oldElem;
 }
 
@@ -554,8 +554,10 @@ private void releaseFloatBlock() {
 	 * Returns index in block where the element with specified index is located.
 	 * This method also sets currFloatBlock to remember this last used block.
 	 *
-	 * @param index	list index (0 <= index <= size())
-	 * @return		relative index within block
+	 * @param index		list index (0 <= index <= size())
+	 * @param write		true if the block is needed for a write operation (set, add, remove)
+	 * @param modify	modify instruction (N>0: N elements are added, N<0: N elements are removed, 0 no change)
+	 * @return			relative index within block
 	 */
 private int getFloatBlockIndex(int index, boolean write, int modify) {
     // Determine block where specified index is located and store it in currFloatBlock   
@@ -563,10 +565,9 @@ private int getFloatBlockIndex(int index, boolean write, int modify) {
         if (index >= currFloatBlockStart && (index < currFloatBlockEnd || index == currFloatBlockEnd && size == index)) {
             // currFloatBlock is already set correctly   
             if (write) {
-                if (currFloatBlock.isShared()) {
-                    currFloatBlock.unref();
-                    currFloatBlock = new FloatBlock(currFloatBlock);
-                    currNode.setFloatBlock(currFloatBlock);
+                if (currNode.block.isShared()) {
+                    currNode.block.unref();
+                    currNode.setFloatBlock(new FloatBlock(currNode.block));
                 }
             }
             currModify += modify;
@@ -574,47 +575,37 @@ private int getFloatBlockIndex(int index, boolean write, int modify) {
         }
         releaseFloatBlock();
     }
-    boolean done = false;
     if (index == size) {
         if (currNode == null || currFloatBlockEnd != size) {
-            currNode = root.max();
-            currFloatBlock = currNode.getFloatBlock();
+            currNode = rootNode.max();
             currFloatBlockEnd = size;
-            currFloatBlockStart = size - currFloatBlock.size();
+            currFloatBlockStart = size - currNode.block.size();
         }
         if (modify != 0) {
-            currNode.relativePosition += modify;
+            currNode.relPos += modify;
             FloatBlockNode leftNode = currNode.getLeftSubTree();
             if (leftNode != null) {
-                leftNode.relativePosition -= modify;
+                leftNode.relPos -= modify;
             }
         }
-        done = true;
     } else if (index == 0) {
         if (currNode == null || currFloatBlockStart != 0) {
-            currNode = root.min();
-            currFloatBlock = currNode.getFloatBlock();
-            currFloatBlockEnd = currFloatBlock.size();
+            currNode = rootNode.min();
+            currFloatBlockEnd = currNode.block.size();
             currFloatBlockStart = 0;
         }
         if (modify != 0) {
-            root.relativePosition += modify;
+            rootNode.relPos += modify;
         }
-        done = true;
     }
-    if (!done) {
-        // Reset currFloatBlockEnd, it will be then set by access()   
-        currFloatBlockEnd = 0;
-        currNode = doGetFloatBlock(index, modify);
-        currFloatBlock = currNode.getFloatBlock();
-        currFloatBlockStart = currFloatBlockEnd - currFloatBlock.size();
+    if (currNode == null) {
+        doGetFloatBlock(index, modify);
     }
     assert (index >= currFloatBlockStart && index <= currFloatBlockEnd);
     if (write) {
-        if (currFloatBlock.isShared()) {
-            currFloatBlock.unref();
-            currFloatBlock = new FloatBlock(currFloatBlock);
-            currNode.setFloatBlock(currFloatBlock);
+        if (currNode.block.isShared()) {
+            currNode.block.unref();
+            currNode.setFloatBlock(new FloatBlock(currNode.block));
         }
     }
     return index - currFloatBlockStart;
@@ -624,11 +615,93 @@ private int getFloatBlockIndex(int index, boolean write, int modify) {
 	 * @return true if there is only the root block, false otherwise
 	 */
 private boolean isOnlyRootFloatBlock() {
-    return root.left == null && root.right == null;
+    return rootNode.left == null && rootNode.right == null;
 }
 
-    private FloatBlockNode doGetFloatBlock(int index, int modify) {
-    return root.access(this, index, modify, false);
+    /**
+     * Determine node/block for the specified index.
+     * The fields currNode, currFloatBlockStart, and currFloatBlockEnd are set.
+     * During the traversing the tree node, the nodes relative positions are changed according to the modify instruction.
+     *
+     * @param index		list index for which block must be determined
+     * @param modify	modify instruction (N>0: N elements are added, N<0: N elements are removed, 0 no change)
+     */
+private void doGetFloatBlock(int index, int modify) {
+    currNode = rootNode;
+    currFloatBlockEnd = rootNode.relPos;
+    if (currNode.relPos == 0) {
+        // Empty tree   
+        if (modify != 0) {
+            currNode.relPos += modify;
+        }
+    } else {
+        // Traverse non-empty tree until right node has been found   
+        boolean wasLeft = false;
+        while (true) {
+            assert (index >= 0);
+            int leftIndex = currFloatBlockEnd - currNode.block.size();
+            assert (leftIndex >= 0);
+            if (index >= leftIndex && index < currFloatBlockEnd) {
+                // Correct node has been found   
+                if (modify != 0) {
+                    FloatBlockNode leftNode = currNode.getLeftSubTree();
+                    if (currNode.relPos > 0) {
+                        currNode.relPos += modify;
+                        if (leftNode != null) {
+                            leftNode.relPos -= modify;
+                        }
+                    } else {
+                        if (leftNode != null) {
+                            leftNode.relPos -= modify;
+                        }
+                    }
+                }
+                break;
+            }
+            // Further traversal needed to find the correct node   
+            FloatBlockNode nextNode;
+            if (index < currFloatBlockEnd) {
+                // Traverse the left node   
+                nextNode = currNode.getLeftSubTree();
+                if (modify != 0) {
+                    if (nextNode == null || !wasLeft) {
+                        if (currNode.relPos > 0) {
+                            currNode.relPos += modify;
+                        } else {
+                            currNode.relPos -= modify;
+                        }
+                        wasLeft = true;
+                    }
+                }
+                if (nextNode == null) {
+                    break;
+                }
+            } else {
+                // Traverse the right node   
+                nextNode = currNode.getRightSubTree();
+                if (modify != 0) {
+                    if (nextNode == null || wasLeft) {
+                        if (currNode.relPos > 0) {
+                            currNode.relPos += modify;
+                            FloatBlockNode left = currNode.getLeftSubTree();
+                            if (left != null) {
+                                left.relPos -= modify;
+                            }
+                        } else {
+                            currNode.relPos -= modify;
+                        }
+                        wasLeft = false;
+                    }
+                }
+                if (nextNode == null) {
+                    break;
+                }
+            }
+            currFloatBlockEnd += nextNode.relPos;
+            currNode = nextNode;
+        }
+    }
+    currFloatBlockStart = currFloatBlockEnd - currNode.block.size();
 }
 
     /**
@@ -638,11 +711,11 @@ private boolean isOnlyRootFloatBlock() {
      * @param obj  the element to add
      */
 private void addFloatBlock(int index, FloatBlock obj) {
-    if (root == null) {
-        root = new FloatBlockNode(null, index, obj, null, null);
+    if (rootNode == null) {
+        rootNode = new FloatBlockNode(null, index, obj, null, null);
     } else {
-        root = root.insert(index, obj);
-        root.parent = null;
+        rootNode = rootNode.insert(index, obj);
+        rootNode.parent = null;
     }
 }
 
@@ -654,58 +727,55 @@ protected boolean doAdd(int index, float element) {
     // Insert   
     int pos = getFloatBlockIndex(index, true, 1);
     // If there is still place in the current block: insert in current block   
-    int maxSize = (index == size || index == 0) ? blockSize * 9 / 10 : blockSize;
+    int maxSize = (index == size || index == 0) ? (int) (blockSize * FILL_THRESHOLD) : blockSize;
     // The second part of the condition is a work around to handle the case of insertion as position 0 correctly   
     // where blockSize() is 2 (the new block would then be added after the current one)   
-    if (currFloatBlock.size() < maxSize || (currFloatBlock.size() == 1 && currFloatBlock.size() < blockSize)) {
-        currFloatBlock.values.doAdd(pos, element);
+    if (currNode.block.size() < maxSize || (currNode.block.size() == 1 && currNode.block.size() < blockSize)) {
+        currNode.block.doAdd(pos, element);
         currFloatBlockEnd++;
     } else {
         // No place any more in current block   
         FloatBlock newFloatBlock = new FloatBlock(blockSize);
         if (index == size) {
             // Insert new block at tail   
-            newFloatBlock.values.doAdd(0, element);
+            newFloatBlock.doAdd(0, element);
             // Subtract 1 because getFloatBlockIndex() has already added 1   
             modify(currNode, -1);
             addFloatBlock(size + 1, newFloatBlock);
             FloatBlockNode lastNode = currNode.next();
             currNode = lastNode;
-            currFloatBlock = currNode.block;
             currFloatBlockStart = currFloatBlockEnd;
             currFloatBlockEnd++;
         } else if (index == 0) {
             // Insert new block at head   
-            newFloatBlock.values.doAdd(0, element);
+            newFloatBlock.doAdd(0, element);
             // Subtract 1 because getFloatBlockIndex() has already added 1   
             modify(currNode, -1);
             addFloatBlock(1, newFloatBlock);
             FloatBlockNode firstNode = currNode.previous();
             currNode = firstNode;
-            currFloatBlock = currNode.block;
             currFloatBlockStart = 0;
             currFloatBlockEnd = 1;
         } else {
             // Split block for insert   
             int nextFloatBlockLen = blockSize / 2;
             int blockLen = blockSize - nextFloatBlockLen;
-            newFloatBlock.values.init(nextFloatBlockLen, 0);
-            FloatGapList.copy(currFloatBlock.values, blockLen, newFloatBlock.values, 0, nextFloatBlockLen);
-            currFloatBlock.values.remove(blockLen, blockSize - blockLen);
+            newFloatBlock.init(nextFloatBlockLen, 0);
+            FloatGapList.copy(currNode.block, blockLen, newFloatBlock, 0, nextFloatBlockLen);
+            currNode.block.remove(blockLen, blockSize - blockLen);
             // Subtract 1 more because getFloatBlockIndex() has already added 1   
             modify(currNode, -nextFloatBlockLen - 1);
             addFloatBlock(currFloatBlockEnd - nextFloatBlockLen, newFloatBlock);
             if (pos < blockLen) {
                 // Insert element in first block   
-                currFloatBlock.values.doAdd(pos, element);
+                currNode.block.doAdd(pos, element);
                 currFloatBlockEnd = currFloatBlockStart + blockLen + 1;
                 modify(currNode, 1);
             } else {
                 // Insert element in second block   
                 currNode = currNode.next();
                 modify(currNode, 1);
-                currFloatBlock = currNode.block;
-                currFloatBlock.values.doAdd(pos - blockLen, element);
+                currNode.block.doAdd(pos - blockLen, element);
                 currFloatBlockStart += blockLen;
                 currFloatBlockEnd++;
             }
@@ -733,11 +803,11 @@ private void modify(FloatBlockNode node, int modify) {
     if (modify == 0) {
         return;
     }
-    if (node.relativePosition < 0) {
+    if (node.relPos < 0) {
         // Left node   
         FloatBlockNode leftNode = node.getLeftSubTree();
         if (leftNode != null) {
-            leftNode.relativePosition -= modify;
+            leftNode.relPos -= modify;
         }
         FloatBlockNode pp = node.parent;
         assert (pp.getLeftSubTree() == node);
@@ -749,24 +819,24 @@ private void modify(FloatBlockNode node, int modify) {
             }
             boolean pRight = (p.getLeftSubTree() == pp);
             if (parentRight != pRight) {
-                if (pp.relativePosition > 0) {
-                    pp.relativePosition += modify;
+                if (pp.relPos > 0) {
+                    pp.relPos += modify;
                 } else {
-                    pp.relativePosition -= modify;
+                    pp.relPos -= modify;
                 }
             }
             pp = p;
             parentRight = pRight;
         }
         if (parentRight) {
-            root.relativePosition += modify;
+            rootNode.relPos += modify;
         }
     } else {
         // Right node   
-        node.relativePosition += modify;
+        node.relPos += modify;
         FloatBlockNode leftNode = node.getLeftSubTree();
         if (leftNode != null) {
-            leftNode.relativePosition -= modify;
+            leftNode.relPos -= modify;
         }
         FloatBlockNode parent = node.parent;
         if (parent != null) {
@@ -779,17 +849,17 @@ private void modify(FloatBlockNode node, int modify) {
                 }
                 boolean pLeft = (p.getRightSubTree() == parent);
                 if (parentLeft != pLeft) {
-                    if (parent.relativePosition > 0) {
-                        parent.relativePosition += modify;
+                    if (parent.relPos > 0) {
+                        parent.relPos += modify;
                     } else {
-                        parent.relativePosition -= modify;
+                        parent.relPos -= modify;
                     }
                 }
                 parent = p;
                 parentLeft = pLeft;
             }
             if (!parentLeft) {
-                root.relativePosition += modify;
+                rootNode.relPos += modify;
             }
         }
     }
@@ -811,7 +881,7 @@ private void modify(FloatBlockNode node, int modify) {
         newNode = node.balance();
         p = newNode.parent;
     }
-    root = newNode;
+    rootNode = newNode;
     return n;
 }
 
@@ -830,12 +900,12 @@ protected boolean doAddAll(int index, float[] array) {
         return doAdd(index, array[0]);
     }
     int addPos = getFloatBlockIndex(index, true, 0);
-    FloatBlock addFloatBlock = currFloatBlock;
+    FloatBlock addFloatBlock = currNode.block;
     int space = blockSize - addFloatBlock.size();
     int addLen = array.length;
     if (addLen <= space) {
         // All elements can be added to current block   
-        currFloatBlock.values.addAll(addPos, array);
+        currNode.block.addAll(addPos, array);
         modify(currNode, addLen);
         size += addLen;
         currFloatBlockEnd += addLen;
@@ -843,7 +913,7 @@ protected boolean doAddAll(int index, float[] array) {
         if (index == size) {
             // Add elements at end   
             for (int i = 0; i < space; i++) {
-                currFloatBlock.values.add(addPos + i, array[i]);
+                currNode.block.add(addPos + i, array[i]);
             }
             modify(currNode, space);
             int done = space;
@@ -852,7 +922,7 @@ protected boolean doAddAll(int index, float[] array) {
                 FloatBlock nextFloatBlock = new FloatBlock(blockSize);
                 int add = Math.min(todo, blockSize);
                 for (int i = 0; i < add; i++) {
-                    nextFloatBlock.values.add(i, array[done + i]);
+                    nextFloatBlock.add(i, array[done + i]);
                 }
                 done += add;
                 todo -= add;
@@ -860,14 +930,13 @@ protected boolean doAddAll(int index, float[] array) {
                 currNode = currNode.next();
             }
             size += addLen;
-            currFloatBlock = currNode.block;
             currFloatBlockEnd = size;
-            currFloatBlockStart = currFloatBlockEnd - currFloatBlock.size();
+            currFloatBlockStart = currFloatBlockEnd - currNode.block.size();
         } else if (index == 0) {
             // Add elements at head   
             assert (addPos == 0);
             for (int i = 0; i < space; i++) {
-                currFloatBlock.values.add(addPos + i, array[addLen - space + i]);
+                currNode.block.add(addPos + i, array[addLen - space + i]);
             }
             modify(currNode, space);
             int done = space;
@@ -876,7 +945,7 @@ protected boolean doAddAll(int index, float[] array) {
                 FloatBlock nextFloatBlock = new FloatBlock(blockSize);
                 int add = Math.min(todo, blockSize);
                 for (int i = 0; i < add; i++) {
-                    nextFloatBlock.values.add(i, array[addLen - done - add + i]);
+                    nextFloatBlock.add(i, array[addLen - done - add + i]);
                 }
                 done += add;
                 todo -= add;
@@ -884,26 +953,25 @@ protected boolean doAddAll(int index, float[] array) {
                 currNode = currNode.previous();
             }
             size += addLen;
-            currFloatBlock = currNode.block;
             currFloatBlockStart = 0;
-            currFloatBlockEnd = currFloatBlock.size();
+            currFloatBlockEnd = currNode.block.size();
         } else {
             // Add elements in the middle   
             // Split first block to remove tail elements if necessary   
             FloatGapList list = FloatGapList.create(array);
-            int remove = currFloatBlock.values.size() - addPos;
+            int remove = currNode.block.size() - addPos;
             if (remove > 0) {
-                list.addAll(currFloatBlock.values.getAll(addPos, remove));
-                currFloatBlock.values.remove(addPos, remove);
+                list.addAll(currNode.block.getAll(addPos, remove));
+                currNode.block.remove(addPos, remove);
                 modify(currNode, -remove);
                 size -= remove;
                 currFloatBlockEnd -= remove;
             }
             // Calculate how many blocks we need for the elements   
-            int numElems = currFloatBlock.values.size() + list.size();
+            int numElems = currNode.block.size() + list.size();
             int numFloatBlocks = (numElems - 1) / blockSize + 1;
             assert (numFloatBlocks > 1);
-            int has = currFloatBlock.values.size();
+            int has = currNode.block.size();
             int should = numElems / numFloatBlocks;
             int listPos = 0;
             if (has < should) {
@@ -911,9 +979,9 @@ protected boolean doAddAll(int index, float[] array) {
                 int add = should - has;
                 IFloatList sublist = list.getAll(0, add);
                 listPos += add;
-                currFloatBlock.values.addAll(addPos, sublist);
+                currNode.block.addAll(addPos, sublist);
                 modify(currNode, add);
-                assert (currFloatBlock.values.size() == should);
+                assert (currNode.block.size() == should);
                 numElems -= should;
                 numFloatBlocks--;
                 size += add;
@@ -922,10 +990,10 @@ protected boolean doAddAll(int index, float[] array) {
                 // Elements must be moved from first to second block   
                 FloatBlock nextFloatBlock = new FloatBlock(blockSize);
                 int move = has - should;
-                nextFloatBlock.values.addAll(currFloatBlock.values.getAll(currFloatBlock.values.size() - move, move));
-                currFloatBlock.values.remove(currFloatBlock.values.size() - move, move);
+                nextFloatBlock.addAll(currNode.block.getAll(currNode.block.size() - move, move));
+                currNode.block.remove(currNode.block.size() - move, move);
                 modify(currNode, -move);
-                assert (currFloatBlock.values.size() == should);
+                assert (currNode.block.size() == should);
                 numElems -= should;
                 numFloatBlocks--;
                 currFloatBlockEnd -= move;
@@ -933,17 +1001,16 @@ protected boolean doAddAll(int index, float[] array) {
                 int add = should - move;
                 assert (add >= 0);
                 IFloatList sublist = list.getAll(0, add);
-                nextFloatBlock.values.addAll(move, sublist);
+                nextFloatBlock.addAll(move, sublist);
                 listPos += add;
-                assert (nextFloatBlock.values.size() == should);
+                assert (nextFloatBlock.size() == should);
                 numElems -= should;
                 numFloatBlocks--;
                 size += add;
                 addFloatBlock(currFloatBlockEnd, nextFloatBlock);
                 currNode = currNode.next();
-                currFloatBlock = currNode.block;
-                assert (currFloatBlock == nextFloatBlock);
-                assert (currFloatBlock.size() == add + move);
+                assert (currNode.block == nextFloatBlock);
+                assert (currNode.block.size() == add + move);
                 currFloatBlockStart = currFloatBlockEnd;
                 currFloatBlockEnd += add + move;
             } else {
@@ -959,14 +1026,13 @@ protected boolean doAddAll(int index, float[] array) {
                 IFloatList sublist = list.getAll(listPos, add);
                 listPos += add;
                 FloatBlock nextFloatBlock = new FloatBlock();
-                nextFloatBlock.values.addAll(sublist);
-                assert (nextFloatBlock.values.size() == add);
+                nextFloatBlock.addAll(sublist);
+                assert (nextFloatBlock.size() == add);
                 numElems -= add;
                 addFloatBlock(currFloatBlockEnd, nextFloatBlock);
                 currNode = currNode.next();
-                currFloatBlock = currNode.block;
-                assert (currFloatBlock == nextFloatBlock);
-                assert (currFloatBlock.size() == add);
+                assert (currNode.block == nextFloatBlock);
+                assert (currNode.block.size() == add);
                 currFloatBlockStart = currFloatBlockEnd;
                 currFloatBlockEnd += add;
                 size += add;
@@ -984,8 +1050,7 @@ protected boolean doAddAll(int index, float[] array) {
 
     @Override
 protected void doClear() {
-    root = null;
-    currFloatBlock = null;
+    rootNode = null;
     currFloatBlockStart = 0;
     currFloatBlockEnd = 0;
     currModify = 0;
@@ -1016,8 +1081,8 @@ protected void doRemoveAll(int index, int len) {
     if (startNode == endNode) {
         // Delete from single block   
         getFloatBlockIndex(index, true, -len);
-        currFloatBlock.values.remove(startPos, len);
-        if (currFloatBlock.values.isEmpty()) {
+        currNode.block.remove(startPos, len);
+        if (currNode.block.isEmpty()) {
             FloatBlockNode oldCurrNode = currNode;
             releaseFloatBlock();
             FloatBlockNode node = doRemove(oldCurrNode);
@@ -1033,10 +1098,9 @@ protected void doRemoveAll(int index, int len) {
             check();
         int startLen = startNode.block.size() - startPos;
         getFloatBlockIndex(index, true, -startLen);
-        // TODO should that be modify?   
-        startNode.block.values.remove(startPos, startLen);
+        startNode.block.remove(startPos, startLen);
         assert (startNode == currNode);
-        if (currFloatBlock.values.isEmpty()) {
+        if (currNode.block.isEmpty()) {
             releaseFloatBlock();
             doRemove(startNode);
             startNode = null;
@@ -1046,7 +1110,7 @@ protected void doRemoveAll(int index, int len) {
         while (len > 0) {
             currNode = null;
             getFloatBlockIndex(index, true, 0);
-            int s = currFloatBlock.size();
+            int s = currNode.block.size();
             if (s <= len) {
                 modify(currNode, -s);
                 FloatBlockNode oldCurrNode = currNode;
@@ -1061,7 +1125,7 @@ protected void doRemoveAll(int index, int len) {
                     check();
             } else {
                 modify(currNode, -len);
-                currFloatBlock.values.remove(0, len);
+                currNode.block.remove(0, len);
                 size -= len;
                 break;
             }
@@ -1085,8 +1149,8 @@ private void merge(FloatBlockNode node) {
     if (node == null) {
         return;
     }
-    final int minFloatBlockSize = Math.max(blockSize / 3, 1);
-    if (node.block.values.size() >= minFloatBlockSize) {
+    final int minFloatBlockSize = Math.max((int) (blockSize * MERGE_THRESHOLD), 1);
+    if (node.block.size() >= minFloatBlockSize) {
         return;
     }
     FloatBlockNode oldCurrNode = node;
@@ -1096,10 +1160,10 @@ private void merge(FloatBlockNode node) {
         int len = node.block.size();
         int dstSize = leftNode.getFloatBlock().size();
         for (int i = 0; i < len; i++) {
-            leftNode.block.values.add(0);
+            leftNode.block.add(0);
         }
-        FloatGapList.copy(node.block.values, 0, leftNode.block.values, dstSize, len);
-        assert (leftNode.block.values.size() <= blockSize);
+        FloatGapList.copy(node.block, 0, leftNode.block, dstSize, len);
+        assert (leftNode.block.size() <= blockSize);
         modify(leftNode, +len);
         modify(oldCurrNode, -len);
         releaseFloatBlock();
@@ -1110,10 +1174,10 @@ private void merge(FloatBlockNode node) {
             // Merge with right block   
             int len = node.block.size();
             for (int i = 0; i < len; i++) {
-                rightNode.block.values.add(0, 0);
+                rightNode.block.add(0, 0);
             }
-            FloatGapList.copy(node.block.values, 0, rightNode.block.values, 0, len);
-            assert (rightNode.block.values.size() <= blockSize);
+            FloatGapList.copy(node.block, 0, rightNode.block, 0, len);
+            assert (rightNode.block.size() <= blockSize);
             modify(rightNode, +len);
             modify(oldCurrNode, -len);
             releaseFloatBlock();
@@ -1124,11 +1188,11 @@ private void merge(FloatBlockNode node) {
 
     protected float doRemove(int index) {
     int pos = getFloatBlockIndex(index, true, -1);
-    float oldElem = currFloatBlock.values.doRemove(pos);
+    float oldElem = currNode.block.doRemove(pos);
     currFloatBlockEnd--;
     final int minFloatBlockSize = Math.max(blockSize / 3, 1);
-    if (currFloatBlock.size() < minFloatBlockSize) {
-        if (currFloatBlock.size() == 0) {
+    if (currNode.block.size() < minFloatBlockSize) {
+        if (currNode.block.size() == 0) {
             if (!isOnlyRootFloatBlock()) {
                 FloatBlockNode oldCurrNode = currNode;
                 releaseFloatBlock();
@@ -1156,7 +1220,7 @@ protected void doEnsureCapacity(int minCapacity) {
         if (minCapacity > blockSize) {
             minCapacity = blockSize;
         }
-        currFloatBlock.values.doEnsureCapacity(minCapacity);
+        rootNode.block.doEnsureCapacity(minCapacity);
     }
 }
 
@@ -1168,13 +1232,13 @@ protected void doEnsureCapacity(int minCapacity) {
 public void trimToSize() {
     doModify();
     if (isOnlyRootFloatBlock()) {
-        currFloatBlock.values.trimToSize();
+        rootNode.block.trimToSize();
     } else {
         FloatBigList newList = new FloatBigList(blockSize);
-        FloatBlockNode node = root.min();
+        FloatBlockNode node = rootNode.min();
         while (node != null) {
-            newList.addAll(node.block.values);
-            remove(0, node.block.values.size());
+            newList.addAll(node.block);
+            remove(0, node.block.size());
             node = node.next();
         }
         doAssign(newList);
@@ -1194,7 +1258,7 @@ protected IFloatList doCreate(int capacity) {
 public void sort(int index, int len) {
     checkRange(index, len);
     if (isOnlyRootFloatBlock()) {
-        currFloatBlock.values.sort(index, len);
+        currNode.block.sort(index, len);
     } else {
         FloatMergeSort.sort(this, index, index + len);
     }
@@ -1204,7 +1268,7 @@ public void sort(int index, int len) {
 public int binarySearch(int index, int len, float key) {
     checkRange(index, len);
     if (isOnlyRootFloatBlock()) {
-        return currFloatBlock.values.binarySearch(key);
+        return rootNode.block.binarySearch(key);
     } else {
         return FloatBinarySearch.binarySearch(this, key, 0, size());
     }
@@ -1248,7 +1312,7 @@ private void readObject(ObjectInputStream ois) throws IOException, ClassNotFound
 
     // --- Debug checks ---  
 private void checkNode(FloatBlockNode node) {
-    assert ((node.block.size() > 0 || node == root) && node.block.size() <= blockSize);
+    assert ((node.block.size() > 0 || node == rootNode) && node.block.size() <= blockSize);
     FloatBlockNode child = node.getLeftSubTree();
     assert (child == null || child.parent == node);
     child = node.getRightSubTree();
@@ -1279,15 +1343,14 @@ private void checkNode(FloatBlockNode node) {
 
     private void check() {
     if (currNode != null) {
-        assert (currNode.block == currFloatBlock);
         assert (currFloatBlockStart >= 0 && currFloatBlockEnd <= size && currFloatBlockStart <= currFloatBlockEnd);
-        assert (currFloatBlockStart + currFloatBlock.size() == currFloatBlockEnd);
+        assert (currFloatBlockStart + currNode.block.size() == currFloatBlockEnd);
     }
-    if (root == null) {
+    if (rootNode == null) {
         assert (size == 0);
         return;
     }
-    checkHeight(root);
+    checkHeight(rootNode);
     FloatBlockNode oldCurrNode = currNode;
     int oldCurrModify = currModify;
     if (currModify != 0) {
@@ -1295,21 +1358,21 @@ private void checkNode(FloatBlockNode node) {
         currModify = 0;
         modify(oldCurrNode, oldCurrModify);
     }
-    FloatBlockNode node = root;
+    FloatBlockNode node = rootNode;
     checkNode(node);
-    int index = node.relativePosition;
+    int index = node.relPos;
     while (node.left != null) {
         node = node.left;
         checkNode(node);
-        assert (node.relativePosition < 0);
-        index += node.relativePosition;
+        assert (node.relPos < 0);
+        index += node.relPos;
     }
     FloatBlock block = node.getFloatBlock();
     assert (block.size() == index);
     int lastIndex = index;
     while (lastIndex < size()) {
-        node = root;
-        index = node.relativePosition;
+        node = rootNode;
+        index = node.relPos;
         int searchIndex = lastIndex + 1;
         while (true) {
             checkNode(node);
@@ -1330,7 +1393,7 @@ private void checkNode(FloatBlockNode node) {
                     break;
                 }
             }
-            index += node.relativePosition;
+            index += node.relPos;
         }
         block = node.getFloatBlock();
         assert (block.size() == index - lastIndex);
@@ -1353,26 +1416,20 @@ private void checkNode(FloatBlockNode node) {
 	 * instances with a copy-on-write approach.
 	 */
     
-    public static class FloatBlock implements Serializable {
+    public static class FloatBlock extends FloatGapList {
 
-        private FloatGapList values;
-
-        private int refCount;
+        private int refCount = 1;
 
         public FloatBlock(){
-    values = new FloatGapList();
-    refCount = 1;
 }
 
         public FloatBlock(int capacity){
-    values = new FloatGapList(capacity);
-    refCount = 1;
+    super(capacity);
 }
 
         public FloatBlock(FloatBlock that){
-    values = new FloatGapList(that.values.capacity());
-    values.init(that.values.getArray(0, that.values.size()));
-    refCount = 1;
+    super(that.capacity());
+    addAll(that);
 }
 
         /**
@@ -1395,18 +1452,6 @@ public FloatBlock ref() {
 		 */
 public void unref() {
     refCount--;
-}
-
-        /**
-		 * @return number of elements stored in this block
-		 */
-public int size() {
-    return values.size();
-}
-
-        @Override
-public String toString() {
-    return values.toString();
 }
     }
 
@@ -1438,8 +1483,8 @@ public String toString() {
         /** How many levels of left/right are below this one. */
         int height;
 
-        /** The relative position, root holds absolute position. */
-        int relativePosition;
+        /** Relative position of node relative to its parent, root holds absolute position. */
+        int relPos;
 
         /** The stored block */
         FloatBlock block;
@@ -1453,9 +1498,9 @@ public String toString() {
          * @param rightFollower 	the node following this one
          * @param leftFollower 		the node leading this one
          */
-private FloatBlockNode(FloatBlockNode parent, int relativePosition, FloatBlock block, FloatBlockNode rightFollower, FloatBlockNode leftFollower){
+private FloatBlockNode(FloatBlockNode parent, int relPos, FloatBlock block, FloatBlockNode rightFollower, FloatBlockNode leftFollower){
     this.parent = parent;
-    this.relativePosition = relativePosition;
+    this.relPos = relPos;
     this.block = block;
     rightIsNext = true;
     leftIsPrevious = true;
@@ -1468,7 +1513,7 @@ private FloatBlockNode(FloatBlockNode parent, int relativePosition, FloatBlock b
          *
          * @return block stored by this node
          */
-public FloatBlock getFloatBlock() {
+private FloatBlock getFloatBlock() {
     return block;
 }
 
@@ -1477,86 +1522,8 @@ public FloatBlock getFloatBlock() {
          *
          * @param block  the block to store
          */
-public void setFloatBlock(FloatBlock block) {
+private void setFloatBlock(FloatBlock block) {
     this.block = block;
-}
-
-        /**
-         * Retrieves node with specified index.
-         *
-         * @param list		reference to FloatBigList using this node (used for updating currFloatBlockEnd)
-         * @param index		index to retrieve
-         * @param modify	modification to apply during traversal to relative positions <br/>
-         * 					>0: N elements are added at index, <0: N elements are deleted at index, 0: no change
-         * @param wasLeft	last node was a left child
-         * @return
-         */
-private FloatBlockNode access(FloatBigList list, int index, int modify, boolean wasLeft) {
-    assert (index >= 0);
-    if (relativePosition == 0) {
-        if (modify != 0) {
-            relativePosition += modify;
-        }
-        return this;
-    }
-    if (list.currFloatBlockEnd == 0) {
-        list.currFloatBlockEnd = relativePosition;
-    }
-    int leftIndex = list.currFloatBlockEnd - block.size();
-    assert (leftIndex >= 0);
-    if (index >= leftIndex && index < list.currFloatBlockEnd) {
-        // Correct node has been found   
-        FloatBlockNode leftNode = getLeftSubTree();
-        if (relativePosition > 0) {
-            relativePosition += modify;
-            if (leftNode != null) {
-                leftNode.relativePosition -= modify;
-            }
-        } else {
-            if (leftNode != null) {
-                leftNode.relativePosition -= modify;
-            }
-        }
-        return this;
-    }
-    // Further traversal needed to find the correct node   
-    if (index < list.currFloatBlockEnd) {
-        // Travese the left node   
-        FloatBlockNode nextNode = getLeftSubTree();
-        if (nextNode == null || !wasLeft) {
-            if (relativePosition > 0) {
-                relativePosition += modify;
-            } else {
-                relativePosition -= modify;
-            }
-            wasLeft = true;
-        }
-        if (nextNode == null) {
-            return this;
-        }
-        list.currFloatBlockEnd += nextNode.relativePosition;
-        return nextNode.access(list, index, modify, wasLeft);
-    } else {
-        // Traverse the right node   
-        FloatBlockNode nextNode = getRightSubTree();
-        if (nextNode == null || wasLeft) {
-            if (relativePosition > 0) {
-                relativePosition += modify;
-                FloatBlockNode left = getLeftSubTree();
-                if (left != null) {
-                    left.relativePosition -= modify;
-                }
-            } else {
-                relativePosition -= modify;
-            }
-            wasLeft = false;
-        }
-        if (nextNode == null) {
-            return this;
-        }
-        list.currFloatBlockEnd += nextNode.relativePosition;
-        return nextNode.access(list, index, modify, wasLeft);
-    }
 }
 
         /**
@@ -1564,7 +1531,7 @@ private FloatBlockNode access(FloatBigList list, int index, int modify, boolean 
          *
          * @return the next node
          */
-public FloatBlockNode next() {
+private FloatBlockNode next() {
     if (rightIsNext || right == null) {
         return right;
     }
@@ -1576,7 +1543,7 @@ public FloatBlockNode next() {
          *
          * @return the previous node
          */
-public FloatBlockNode previous() {
+private FloatBlockNode previous() {
     if (leftIsPrevious || left == null) {
         return left;
     }
@@ -1584,52 +1551,66 @@ public FloatBlockNode previous() {
 }
 
         /**
-         * Inserts a node at the position index.
+         * Inserts new node holding specified block at the position index.
          *
-         * @param index is the index of the position relative to the position of
-         * the parent node.
-         * @param obj is the object to be stored in the position.
+         * @param index 	index of the position relative to the position of the parent node
+         * @param obj 		object to store in the position
+         * @return			this node or node replacing this node in the tree (if tree must be rebalanced)
          */
 private FloatBlockNode insert(int index, FloatBlock obj) {
-    assert (relativePosition != 0);
-    final int indexRelativeToMe = index - relativePosition;
-    if (indexRelativeToMe < 0) {
-        return insertOnLeft(indexRelativeToMe, obj);
+    assert (relPos != 0);
+    int relIndex = index - relPos;
+    if (relIndex < 0) {
+        return insertOnLeft(relIndex, obj);
     } else {
-        return insertOnRight(indexRelativeToMe, obj);
+        return insertOnRight(relIndex, obj);
     }
 }
 
-        private FloatBlockNode insertOnLeft(int indexRelativeToMe, FloatBlock obj) {
+        /**
+         * Inserts new node holding specified block on the node's left side.
+         *
+         * @param index 	index of the position relative to the position of the parent node
+         * @param obj 		object to store in the position
+         * @return			this node or node replacing this node in the tree (if tree must be rebalanced)
+         */
+private FloatBlockNode insertOnLeft(int relIndex, FloatBlock obj) {
     if (getLeftSubTree() == null) {
         int pos;
-        if (relativePosition >= 0) {
-            pos = -relativePosition;
+        if (relPos >= 0) {
+            pos = -relPos;
         } else {
             pos = -block.size();
         }
         setLeft(new FloatBlockNode(this, pos, obj, this, left), null);
     } else {
-        setLeft(left.insert(indexRelativeToMe, obj), null);
+        setLeft(left.insert(relIndex, obj), null);
     }
-    if (relativePosition >= 0) {
-        relativePosition += obj.size();
+    if (relPos >= 0) {
+        relPos += obj.size();
     }
-    final FloatBlockNode ret = balance();
+    FloatBlockNode ret = balance();
     recalcHeight();
     return ret;
 }
 
-        private FloatBlockNode insertOnRight(int indexRelativeToMe, FloatBlock obj) {
+        /**
+         * Inserts new node holding specified block on the node's right side.
+         *
+         * @param index 	index of the position relative to the position of the parent node
+         * @param obj 		object to store in the position
+         * @return			this node or node replacing this node in the tree (if tree must be rebalanced)
+         */
+private FloatBlockNode insertOnRight(int relIndex, FloatBlock obj) {
     if (getRightSubTree() == null) {
         setRight(new FloatBlockNode(this, obj.size(), obj, right, this), null);
     } else {
-        setRight(right.insert(indexRelativeToMe, obj), null);
+        setRight(right.insert(relIndex, obj), null);
     }
-    if (relativePosition < 0) {
-        relativePosition -= obj.size();
+    if (relPos < 0) {
+        relPos -= obj.size();
     }
-    final FloatBlockNode ret = balance();
+    FloatBlockNode ret = balance();
     recalcHeight();
     return ret;
 }
@@ -1637,14 +1618,14 @@ private FloatBlockNode insert(int index, FloatBlock obj) {
         /**
          * Gets the left node, returning null if its a faedelung.
          */
-public FloatBlockNode getLeftSubTree() {
+private FloatBlockNode getLeftSubTree() {
     return leftIsPrevious ? null : left;
 }
 
         /**
          * Gets the right node, returning null if its a faedelung.
          */
-public FloatBlockNode getRightSubTree() {
+private FloatBlockNode getRightSubTree() {
     return rightIsNext ? null : right;
 }
 
@@ -1653,7 +1634,7 @@ public FloatBlockNode getRightSubTree() {
          *
          * @return the rightmost child (greatest index)
          */
-public FloatBlockNode max() {
+private FloatBlockNode max() {
     return getRightSubTree() == null ? this : right.max();
 }
 
@@ -1662,7 +1643,7 @@ public FloatBlockNode max() {
          *
          * @return the leftmost child (smallest index)
          */
-public FloatBlockNode min() {
+private FloatBlockNode min() {
     return getLeftSubTree() == null ? this : left.min();
 }
 
@@ -1680,8 +1661,8 @@ public FloatBlockNode min() {
         return removeSelf();
     }
     setLeft(left.removeMin(size), left.left);
-    if (relativePosition > 0) {
-        relativePosition -= size;
+    if (relPos > 0) {
+        relPos -= size;
     }
     recalcHeight();
     return balance();
@@ -1692,7 +1673,7 @@ public FloatBlockNode min() {
          *
          * @return the node that replaces this one in the parent (can be null)
          */
-public FloatBlockNode removeSelf() {
+private FloatBlockNode removeSelf() {
     FloatBlockNode p = parent;
     FloatBlockNode n = doRemoveSelf();
     if (n != null) {
@@ -1702,22 +1683,22 @@ public FloatBlockNode removeSelf() {
     return n;
 }
 
-        public FloatBlockNode doRemoveSelf() {
+        private FloatBlockNode doRemoveSelf() {
     if (getRightSubTree() == null && getLeftSubTree() == null) {
         return null;
     }
     if (getRightSubTree() == null) {
-        if (relativePosition > 0) {
-            left.relativePosition += relativePosition + (relativePosition > 0 ? 0 : 1);
+        if (relPos > 0) {
+            left.relPos += relPos + (relPos > 0 ? 0 : 1);
         } else {
-            left.relativePosition += relativePosition;
+            left.relPos += relPos;
         }
         left.max().setRight(null, right);
         return left;
     }
     if (getLeftSubTree() == null) {
-        if (relativePosition < 0) {
-            right.relativePosition += relativePosition - (relativePosition < 0 ? 0 : 1);
+        if (relPos < 0) {
+            right.relPos += relPos - (relPos < 0 ? 0 : 1);
         }
         right.min().setLeft(null, left);
         return right;
@@ -1731,8 +1712,8 @@ public FloatBlockNode removeSelf() {
             left = rightMin.left;
         }
         right = right.removeMin(bs);
-        relativePosition += bs;
-        left.relativePosition -= bs;
+        relPos += bs;
+        left.relPos -= bs;
     } else {
         // more on the left or equal, so delete from the left   
         final FloatBlockNode leftMax = left.max();
@@ -1748,8 +1729,8 @@ public FloatBlockNode removeSelf() {
             left = leftPrevious;
             leftIsPrevious = true;
         } else {
-            if (left.relativePosition == 0) {
-                left.relativePosition = -1;
+            if (left.relPos == 0) {
+                left.relPos = -1;
             }
         }
     }
@@ -1788,7 +1769,7 @@ private int getOffset(FloatBlockNode node) {
     if (node == null) {
         return 0;
     }
-    return node.relativePosition;
+    return node.relPos;
 }
 
         /**
@@ -1799,7 +1780,7 @@ private int setOffset(FloatBlockNode node, int newOffest) {
         return 0;
     }
     final int oldOffset = getOffset(node);
-    node.relativePosition = newOffest;
+    node.relPos = newOffest;
     return oldOffset;
 }
 
@@ -1834,8 +1815,8 @@ private FloatBlockNode rotateLeft() {
     final FloatBlockNode newTop = right;
     // can't be faedelung!   
     final FloatBlockNode movedNode = getRightSubTree().getLeftSubTree();
-    final int newTopPosition = relativePosition + getOffset(newTop);
-    final int myNewPosition = -newTop.relativePosition;
+    final int newTopPosition = relPos + getOffset(newTop);
+    final int myNewPosition = -newTop.relPos;
     final int movedPosition = getOffset(newTop) + getOffset(movedNode);
     FloatBlockNode p = this.parent;
     setRight(movedNode, newTop);
@@ -1845,8 +1826,8 @@ private FloatBlockNode rotateLeft() {
     setOffset(newTop, newTopPosition);
     setOffset(this, myNewPosition);
     setOffset(movedNode, movedPosition);
-    assert (newTop.getLeftSubTree() == null || newTop.getLeftSubTree().relativePosition < 0);
-    assert (newTop.getRightSubTree() == null || newTop.getRightSubTree().relativePosition > 0);
+    assert (newTop.getLeftSubTree() == null || newTop.getLeftSubTree().relPos < 0);
+    assert (newTop.getRightSubTree() == null || newTop.getRightSubTree().relPos > 0);
     return newTop;
 }
 
@@ -1860,8 +1841,8 @@ private FloatBlockNode rotateRight() {
     final FloatBlockNode newTop = left;
     // can't be faedelung   
     final FloatBlockNode movedNode = getLeftSubTree().getRightSubTree();
-    final int newTopPosition = relativePosition + getOffset(newTop);
-    final int myNewPosition = -newTop.relativePosition;
+    final int newTopPosition = relPos + getOffset(newTop);
+    final int myNewPosition = -newTop.relPos;
     final int movedPosition = getOffset(newTop) + getOffset(movedNode);
     FloatBlockNode p = this.parent;
     setLeft(movedNode, newTop);
@@ -1871,8 +1852,8 @@ private FloatBlockNode rotateRight() {
     setOffset(newTop, newTopPosition);
     setOffset(this, myNewPosition);
     setOffset(movedNode, movedPosition);
-    assert (newTop.getLeftSubTree() == null || newTop.getLeftSubTree().relativePosition < 0);
-    assert (newTop.getRightSubTree() == null || newTop.getRightSubTree().relativePosition > 0);
+    assert (newTop.getLeftSubTree() == null || newTop.getLeftSubTree().relPos < 0);
+    assert (newTop.getRightSubTree() == null || newTop.getRightSubTree().relPos > 0);
     return newTop;
 }
 
@@ -1917,7 +1898,7 @@ private void setRight(FloatBlockNode node, FloatBlockNode next) {
          */
 @Override
 public String toString() {
-    return new StringBuilder().append("FloatBlockNode(").append(relativePosition).append(',').append(getRightSubTree() != null).append(',').append(block).append(',').append(getRightSubTree() != null).append(", height ").append(height).append(" )").toString();
+    return new StringBuilder().append("FloatBlockNode(").append(relPos).append(',').append(getRightSubTree() != null).append(',').append(block).append(',').append(getRightSubTree() != null).append(", height ").append(height).append(" )").toString();
 }
     }
 

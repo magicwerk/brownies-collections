@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: ICharList.java 2518 2014-10-16 23:31:40Z origo $
+ * $Id: ICharList.java 2529 2014-10-22 23:49:04Z origo $
  */
 package org.magicwerk.brownies.collections.primitive;
 
@@ -42,7 +42,7 @@ import org.magicwerk.brownies.collections.function.Predicate;
  * It also offers additional methods which are then available in all implementations of GapList and BigList.
  *
  * @author Thomas Mauch
- * @version $Id: ICharList.java 2518 2014-10-16 23:31:40Z origo $
+ * @version $Id: ICharList.java 2529 2014-10-22 23:49:04Z origo $
  *
  * @param <E> type of elements stored in the list
  * @see	    java.util.List
@@ -50,6 +50,7 @@ import org.magicwerk.brownies.collections.function.Predicate;
  * @see	    java.util.ArrayList
  * @see	    java.util.LinkedList
  */
+@SuppressWarnings("serial")
 public abstract class ICharList implements Cloneable, Serializable {
 
     /**
@@ -396,7 +397,7 @@ public Set getDistinct() {
      */
 public <R> IList<R> mappedList(Mapper<Character, R> mapper) {
     int size = size();
-    IList mappedList = new GapList(size);
+    @SuppressWarnings("unchecked") IList<R> mappedList = (IList<R>) new GapList<R>(size);
     for (int i = 0; i < size; i++) {
         char e = doGet(i);
         mappedList.add(mapper.getKey(e));

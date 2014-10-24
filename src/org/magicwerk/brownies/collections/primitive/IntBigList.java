@@ -18,21 +18,16 @@ import org.magicwerk.brownies.collections.helper.primitive.IntMergeSort;
  * IntBigList is a list optimized for storing large number of elements.
  * It stores the elements in fixed size blocks and the blocks itself are maintained in a tree for fast access.
  * It also offers specialized methods for bulk processing of elements.
- * Also copying a IntBigList is efficiently possible as its implemented using a copy-on-write approach.
- * <p>
+ * Also copying a IntBigList is efficiently possible as its implemented using a copy-on-write approach.<p>
+ *
  * <strong>Note that this implementation is not synchronized.</strong>
  * Due to data caching used for exploiting locality of reference, performance can decrease if IntBigList is
- * accessed by several threads at different positions.
- * </p>
+ * accessed by several threads at different positions.<p>
+ *
+ * Note that the iterators provided are not fail-fast.<p>
  *
  * @author Thomas Mauch
- * @version $Id: IntBigList.java 2522 2014-10-17 12:08:38Z origo $
- */
-/**
- *
- *
- * @author Thomas Mauch
- * @version $Id: IntBigList.java 2522 2014-10-17 12:08:38Z origo $
+ * @version $Id: IntBigList.java 2529 2014-10-22 23:49:04Z origo $
  */
 public class IntBigList extends IIntList {
 	public static IIntList of(int[] values) {
@@ -209,7 +204,16 @@ public class IntBigList extends IIntList {
     private static final long serialVersionUID = 3715838828540564836L;
 
     /** Default block size */
-    private static int BLOCK_SIZE = 1000;
+    private static final int DEFAULT_BLOCK_SIZE = 1000;
+
+    /** If two adjacent blocks both less than MERGE_THRESHOLD*blockSize elements, they are merged */
+    private static final float MERGE_THRESHOLD = 0.35f;
+
+    /**
+	 * If an element is added to the list at the head or tail, the block is only filled until it
+	 * has FILL_THRESHOLD*blockSize elements (so there is room for insertion without need to split).
+	 */
+    private static final float FILL_THRESHOLD = 0.95f;
 
     /** Set to true for debugging during developing */
     private static final boolean CHECK = false;
@@ -238,14 +242,12 @@ public static  IntBigList EMPTY() {
     private int size;
 
     /** The root node in the tree */
-    private IntBlockNode root;
+    private IntBlockNode rootNode;
 
     /** Current node */
     private IntBlockNode currNode;
 
     /** IntBlock of current node */
-    private IntBlock currIntBlock;
-
     /** Start index of current block */
     private int currIntBlockStart;
 
@@ -265,11 +267,10 @@ public static  IntBigList EMPTY() {
 protected IntBigList(boolean copy, IntBigList that){
     if (copy) {
         this.blockSize = that.blockSize;
-        this.currIntBlock = that.currIntBlock;
         this.currIntBlockStart = that.currIntBlockStart;
         this.currIntBlockEnd = that.currIntBlockEnd;
         this.currNode = that.currNode;
-        this.root = that.root;
+        this.rootNode = that.rootNode;
         this.size = that.size;
     }
 }
@@ -317,7 +318,7 @@ public static IntBigList create(int... elems) {
 	 * The default block size is used.
 	 */
 public IntBigList(){
-    this(BLOCK_SIZE);
+    this(DEFAULT_BLOCK_SIZE);
 }
 
     /**
@@ -344,9 +345,8 @@ public IntBigList(Collection<Integer> coll){
         doAssign((IntBigList) coll);
         doClone((IntBigList) coll);
     } else {
-        blockSize = BLOCK_SIZE;
-        currIntBlock = new IntBlock();
-        addIntBlock(0, currIntBlock);
+        blockSize = DEFAULT_BLOCK_SIZE;
+        addIntBlock(0, new IntBlock());
         for (Object obj : coll.toArray()) {
             add((Integer) obj);
         }
@@ -411,12 +411,13 @@ private IntBigList(int blockSize, int firstIntBlockSize){
 private void doInit(int blockSize, int firstIntBlockSize) {
     this.blockSize = blockSize;
     // First block will grow until it reaches blockSize   
+    IntBlock block;
     if (firstIntBlockSize <= 1) {
-        currIntBlock = new IntBlock();
+        block = new IntBlock();
     } else {
-        currIntBlock = new IntBlock(firstIntBlockSize);
+        block = new IntBlock(firstIntBlockSize);
     }
-    addIntBlock(0, currIntBlock);
+    addIntBlock(0, block);
 }
 
     /**
@@ -447,11 +448,10 @@ public Object clone() {
 protected void doAssign(IIntList that) {
     IntBigList list = (IntBigList) that;
     this.blockSize = list.blockSize;
-    this.currIntBlock = list.currIntBlock;
     this.currIntBlockEnd = list.currIntBlockEnd;
     this.currIntBlockStart = list.currIntBlockStart;
     this.currNode = list.currNode;
-    this.root = list.root;
+    this.rootNode = list.rootNode;
     this.size = list.size;
 }
 
@@ -459,7 +459,7 @@ protected void doAssign(IIntList that) {
 protected void doClone(IIntList that) {
     IntBigList bigList = (IntBigList) that;
     bigList.releaseIntBlock();
-    root = copy(bigList.root);
+    rootNode = copy(bigList.rootNode);
     currNode = null;
     currModify = 0;
     if (CHECK)
@@ -495,7 +495,7 @@ public int getDefaultElem() {
     @Override
 protected void finalize() {
     // This list will be garbage collected, so unref all referenced blocks   
-    IntBlockNode node = root.min();
+    IntBlockNode node = rootNode.min();
     while (node != null) {
         node.block.unref();
         node = node.next();
@@ -519,22 +519,22 @@ public int capacity() {
     @Override
 protected int doGet(int index) {
     int pos = getIntBlockIndex(index, false, 0);
-    return currIntBlock.values.doGet(pos);
+    return currNode.block.doGet(pos);
 }
 
     @Override
 protected int doSet(int index, int elem) {
     int pos = getIntBlockIndex(index, true, 0);
-    int oldElem = currIntBlock.values.doGet(pos);
-    currIntBlock.values.doSet(pos, elem);
+    int oldElem = currNode.block.doGet(pos);
+    currNode.block.doSet(pos, elem);
     return oldElem;
 }
 
     @Override
 protected int doReSet(int index, int elem) {
     int pos = getIntBlockIndex(index, true, 0);
-    int oldElem = currIntBlock.values.doGet(pos);
-    currIntBlock.values.doSet(pos, elem);
+    int oldElem = currNode.block.doGet(pos);
+    currNode.block.doSet(pos, elem);
     return oldElem;
 }
 
@@ -554,8 +554,10 @@ private void releaseIntBlock() {
 	 * Returns index in block where the element with specified index is located.
 	 * This method also sets currIntBlock to remember this last used block.
 	 *
-	 * @param index	list index (0 <= index <= size())
-	 * @return		relative index within block
+	 * @param index		list index (0 <= index <= size())
+	 * @param write		true if the block is needed for a write operation (set, add, remove)
+	 * @param modify	modify instruction (N>0: N elements are added, N<0: N elements are removed, 0 no change)
+	 * @return			relative index within block
 	 */
 private int getIntBlockIndex(int index, boolean write, int modify) {
     // Determine block where specified index is located and store it in currIntBlock   
@@ -563,10 +565,9 @@ private int getIntBlockIndex(int index, boolean write, int modify) {
         if (index >= currIntBlockStart && (index < currIntBlockEnd || index == currIntBlockEnd && size == index)) {
             // currIntBlock is already set correctly   
             if (write) {
-                if (currIntBlock.isShared()) {
-                    currIntBlock.unref();
-                    currIntBlock = new IntBlock(currIntBlock);
-                    currNode.setIntBlock(currIntBlock);
+                if (currNode.block.isShared()) {
+                    currNode.block.unref();
+                    currNode.setIntBlock(new IntBlock(currNode.block));
                 }
             }
             currModify += modify;
@@ -574,47 +575,37 @@ private int getIntBlockIndex(int index, boolean write, int modify) {
         }
         releaseIntBlock();
     }
-    boolean done = false;
     if (index == size) {
         if (currNode == null || currIntBlockEnd != size) {
-            currNode = root.max();
-            currIntBlock = currNode.getIntBlock();
+            currNode = rootNode.max();
             currIntBlockEnd = size;
-            currIntBlockStart = size - currIntBlock.size();
+            currIntBlockStart = size - currNode.block.size();
         }
         if (modify != 0) {
-            currNode.relativePosition += modify;
+            currNode.relPos += modify;
             IntBlockNode leftNode = currNode.getLeftSubTree();
             if (leftNode != null) {
-                leftNode.relativePosition -= modify;
+                leftNode.relPos -= modify;
             }
         }
-        done = true;
     } else if (index == 0) {
         if (currNode == null || currIntBlockStart != 0) {
-            currNode = root.min();
-            currIntBlock = currNode.getIntBlock();
-            currIntBlockEnd = currIntBlock.size();
+            currNode = rootNode.min();
+            currIntBlockEnd = currNode.block.size();
             currIntBlockStart = 0;
         }
         if (modify != 0) {
-            root.relativePosition += modify;
+            rootNode.relPos += modify;
         }
-        done = true;
     }
-    if (!done) {
-        // Reset currIntBlockEnd, it will be then set by access()   
-        currIntBlockEnd = 0;
-        currNode = doGetIntBlock(index, modify);
-        currIntBlock = currNode.getIntBlock();
-        currIntBlockStart = currIntBlockEnd - currIntBlock.size();
+    if (currNode == null) {
+        doGetIntBlock(index, modify);
     }
     assert (index >= currIntBlockStart && index <= currIntBlockEnd);
     if (write) {
-        if (currIntBlock.isShared()) {
-            currIntBlock.unref();
-            currIntBlock = new IntBlock(currIntBlock);
-            currNode.setIntBlock(currIntBlock);
+        if (currNode.block.isShared()) {
+            currNode.block.unref();
+            currNode.setIntBlock(new IntBlock(currNode.block));
         }
     }
     return index - currIntBlockStart;
@@ -624,11 +615,93 @@ private int getIntBlockIndex(int index, boolean write, int modify) {
 	 * @return true if there is only the root block, false otherwise
 	 */
 private boolean isOnlyRootIntBlock() {
-    return root.left == null && root.right == null;
+    return rootNode.left == null && rootNode.right == null;
 }
 
-    private IntBlockNode doGetIntBlock(int index, int modify) {
-    return root.access(this, index, modify, false);
+    /**
+     * Determine node/block for the specified index.
+     * The fields currNode, currIntBlockStart, and currIntBlockEnd are set.
+     * During the traversing the tree node, the nodes relative positions are changed according to the modify instruction.
+     *
+     * @param index		list index for which block must be determined
+     * @param modify	modify instruction (N>0: N elements are added, N<0: N elements are removed, 0 no change)
+     */
+private void doGetIntBlock(int index, int modify) {
+    currNode = rootNode;
+    currIntBlockEnd = rootNode.relPos;
+    if (currNode.relPos == 0) {
+        // Empty tree   
+        if (modify != 0) {
+            currNode.relPos += modify;
+        }
+    } else {
+        // Traverse non-empty tree until right node has been found   
+        boolean wasLeft = false;
+        while (true) {
+            assert (index >= 0);
+            int leftIndex = currIntBlockEnd - currNode.block.size();
+            assert (leftIndex >= 0);
+            if (index >= leftIndex && index < currIntBlockEnd) {
+                // Correct node has been found   
+                if (modify != 0) {
+                    IntBlockNode leftNode = currNode.getLeftSubTree();
+                    if (currNode.relPos > 0) {
+                        currNode.relPos += modify;
+                        if (leftNode != null) {
+                            leftNode.relPos -= modify;
+                        }
+                    } else {
+                        if (leftNode != null) {
+                            leftNode.relPos -= modify;
+                        }
+                    }
+                }
+                break;
+            }
+            // Further traversal needed to find the correct node   
+            IntBlockNode nextNode;
+            if (index < currIntBlockEnd) {
+                // Traverse the left node   
+                nextNode = currNode.getLeftSubTree();
+                if (modify != 0) {
+                    if (nextNode == null || !wasLeft) {
+                        if (currNode.relPos > 0) {
+                            currNode.relPos += modify;
+                        } else {
+                            currNode.relPos -= modify;
+                        }
+                        wasLeft = true;
+                    }
+                }
+                if (nextNode == null) {
+                    break;
+                }
+            } else {
+                // Traverse the right node   
+                nextNode = currNode.getRightSubTree();
+                if (modify != 0) {
+                    if (nextNode == null || wasLeft) {
+                        if (currNode.relPos > 0) {
+                            currNode.relPos += modify;
+                            IntBlockNode left = currNode.getLeftSubTree();
+                            if (left != null) {
+                                left.relPos -= modify;
+                            }
+                        } else {
+                            currNode.relPos -= modify;
+                        }
+                        wasLeft = false;
+                    }
+                }
+                if (nextNode == null) {
+                    break;
+                }
+            }
+            currIntBlockEnd += nextNode.relPos;
+            currNode = nextNode;
+        }
+    }
+    currIntBlockStart = currIntBlockEnd - currNode.block.size();
 }
 
     /**
@@ -638,11 +711,11 @@ private boolean isOnlyRootIntBlock() {
      * @param obj  the element to add
      */
 private void addIntBlock(int index, IntBlock obj) {
-    if (root == null) {
-        root = new IntBlockNode(null, index, obj, null, null);
+    if (rootNode == null) {
+        rootNode = new IntBlockNode(null, index, obj, null, null);
     } else {
-        root = root.insert(index, obj);
-        root.parent = null;
+        rootNode = rootNode.insert(index, obj);
+        rootNode.parent = null;
     }
 }
 
@@ -654,58 +727,55 @@ protected boolean doAdd(int index, int element) {
     // Insert   
     int pos = getIntBlockIndex(index, true, 1);
     // If there is still place in the current block: insert in current block   
-    int maxSize = (index == size || index == 0) ? blockSize * 9 / 10 : blockSize;
+    int maxSize = (index == size || index == 0) ? (int) (blockSize * FILL_THRESHOLD) : blockSize;
     // The second part of the condition is a work around to handle the case of insertion as position 0 correctly   
     // where blockSize() is 2 (the new block would then be added after the current one)   
-    if (currIntBlock.size() < maxSize || (currIntBlock.size() == 1 && currIntBlock.size() < blockSize)) {
-        currIntBlock.values.doAdd(pos, element);
+    if (currNode.block.size() < maxSize || (currNode.block.size() == 1 && currNode.block.size() < blockSize)) {
+        currNode.block.doAdd(pos, element);
         currIntBlockEnd++;
     } else {
         // No place any more in current block   
         IntBlock newIntBlock = new IntBlock(blockSize);
         if (index == size) {
             // Insert new block at tail   
-            newIntBlock.values.doAdd(0, element);
+            newIntBlock.doAdd(0, element);
             // Subtract 1 because getIntBlockIndex() has already added 1   
             modify(currNode, -1);
             addIntBlock(size + 1, newIntBlock);
             IntBlockNode lastNode = currNode.next();
             currNode = lastNode;
-            currIntBlock = currNode.block;
             currIntBlockStart = currIntBlockEnd;
             currIntBlockEnd++;
         } else if (index == 0) {
             // Insert new block at head   
-            newIntBlock.values.doAdd(0, element);
+            newIntBlock.doAdd(0, element);
             // Subtract 1 because getIntBlockIndex() has already added 1   
             modify(currNode, -1);
             addIntBlock(1, newIntBlock);
             IntBlockNode firstNode = currNode.previous();
             currNode = firstNode;
-            currIntBlock = currNode.block;
             currIntBlockStart = 0;
             currIntBlockEnd = 1;
         } else {
             // Split block for insert   
             int nextIntBlockLen = blockSize / 2;
             int blockLen = blockSize - nextIntBlockLen;
-            newIntBlock.values.init(nextIntBlockLen, 0);
-            IntGapList.copy(currIntBlock.values, blockLen, newIntBlock.values, 0, nextIntBlockLen);
-            currIntBlock.values.remove(blockLen, blockSize - blockLen);
+            newIntBlock.init(nextIntBlockLen, 0);
+            IntGapList.copy(currNode.block, blockLen, newIntBlock, 0, nextIntBlockLen);
+            currNode.block.remove(blockLen, blockSize - blockLen);
             // Subtract 1 more because getIntBlockIndex() has already added 1   
             modify(currNode, -nextIntBlockLen - 1);
             addIntBlock(currIntBlockEnd - nextIntBlockLen, newIntBlock);
             if (pos < blockLen) {
                 // Insert element in first block   
-                currIntBlock.values.doAdd(pos, element);
+                currNode.block.doAdd(pos, element);
                 currIntBlockEnd = currIntBlockStart + blockLen + 1;
                 modify(currNode, 1);
             } else {
                 // Insert element in second block   
                 currNode = currNode.next();
                 modify(currNode, 1);
-                currIntBlock = currNode.block;
-                currIntBlock.values.doAdd(pos - blockLen, element);
+                currNode.block.doAdd(pos - blockLen, element);
                 currIntBlockStart += blockLen;
                 currIntBlockEnd++;
             }
@@ -733,11 +803,11 @@ private void modify(IntBlockNode node, int modify) {
     if (modify == 0) {
         return;
     }
-    if (node.relativePosition < 0) {
+    if (node.relPos < 0) {
         // Left node   
         IntBlockNode leftNode = node.getLeftSubTree();
         if (leftNode != null) {
-            leftNode.relativePosition -= modify;
+            leftNode.relPos -= modify;
         }
         IntBlockNode pp = node.parent;
         assert (pp.getLeftSubTree() == node);
@@ -749,24 +819,24 @@ private void modify(IntBlockNode node, int modify) {
             }
             boolean pRight = (p.getLeftSubTree() == pp);
             if (parentRight != pRight) {
-                if (pp.relativePosition > 0) {
-                    pp.relativePosition += modify;
+                if (pp.relPos > 0) {
+                    pp.relPos += modify;
                 } else {
-                    pp.relativePosition -= modify;
+                    pp.relPos -= modify;
                 }
             }
             pp = p;
             parentRight = pRight;
         }
         if (parentRight) {
-            root.relativePosition += modify;
+            rootNode.relPos += modify;
         }
     } else {
         // Right node   
-        node.relativePosition += modify;
+        node.relPos += modify;
         IntBlockNode leftNode = node.getLeftSubTree();
         if (leftNode != null) {
-            leftNode.relativePosition -= modify;
+            leftNode.relPos -= modify;
         }
         IntBlockNode parent = node.parent;
         if (parent != null) {
@@ -779,17 +849,17 @@ private void modify(IntBlockNode node, int modify) {
                 }
                 boolean pLeft = (p.getRightSubTree() == parent);
                 if (parentLeft != pLeft) {
-                    if (parent.relativePosition > 0) {
-                        parent.relativePosition += modify;
+                    if (parent.relPos > 0) {
+                        parent.relPos += modify;
                     } else {
-                        parent.relativePosition -= modify;
+                        parent.relPos -= modify;
                     }
                 }
                 parent = p;
                 parentLeft = pLeft;
             }
             if (!parentLeft) {
-                root.relativePosition += modify;
+                rootNode.relPos += modify;
             }
         }
     }
@@ -811,7 +881,7 @@ private void modify(IntBlockNode node, int modify) {
         newNode = node.balance();
         p = newNode.parent;
     }
-    root = newNode;
+    rootNode = newNode;
     return n;
 }
 
@@ -830,12 +900,12 @@ protected boolean doAddAll(int index, int[] array) {
         return doAdd(index, array[0]);
     }
     int addPos = getIntBlockIndex(index, true, 0);
-    IntBlock addIntBlock = currIntBlock;
+    IntBlock addIntBlock = currNode.block;
     int space = blockSize - addIntBlock.size();
     int addLen = array.length;
     if (addLen <= space) {
         // All elements can be added to current block   
-        currIntBlock.values.addAll(addPos, array);
+        currNode.block.addAll(addPos, array);
         modify(currNode, addLen);
         size += addLen;
         currIntBlockEnd += addLen;
@@ -843,7 +913,7 @@ protected boolean doAddAll(int index, int[] array) {
         if (index == size) {
             // Add elements at end   
             for (int i = 0; i < space; i++) {
-                currIntBlock.values.add(addPos + i, array[i]);
+                currNode.block.add(addPos + i, array[i]);
             }
             modify(currNode, space);
             int done = space;
@@ -852,7 +922,7 @@ protected boolean doAddAll(int index, int[] array) {
                 IntBlock nextIntBlock = new IntBlock(blockSize);
                 int add = Math.min(todo, blockSize);
                 for (int i = 0; i < add; i++) {
-                    nextIntBlock.values.add(i, array[done + i]);
+                    nextIntBlock.add(i, array[done + i]);
                 }
                 done += add;
                 todo -= add;
@@ -860,14 +930,13 @@ protected boolean doAddAll(int index, int[] array) {
                 currNode = currNode.next();
             }
             size += addLen;
-            currIntBlock = currNode.block;
             currIntBlockEnd = size;
-            currIntBlockStart = currIntBlockEnd - currIntBlock.size();
+            currIntBlockStart = currIntBlockEnd - currNode.block.size();
         } else if (index == 0) {
             // Add elements at head   
             assert (addPos == 0);
             for (int i = 0; i < space; i++) {
-                currIntBlock.values.add(addPos + i, array[addLen - space + i]);
+                currNode.block.add(addPos + i, array[addLen - space + i]);
             }
             modify(currNode, space);
             int done = space;
@@ -876,7 +945,7 @@ protected boolean doAddAll(int index, int[] array) {
                 IntBlock nextIntBlock = new IntBlock(blockSize);
                 int add = Math.min(todo, blockSize);
                 for (int i = 0; i < add; i++) {
-                    nextIntBlock.values.add(i, array[addLen - done - add + i]);
+                    nextIntBlock.add(i, array[addLen - done - add + i]);
                 }
                 done += add;
                 todo -= add;
@@ -884,26 +953,25 @@ protected boolean doAddAll(int index, int[] array) {
                 currNode = currNode.previous();
             }
             size += addLen;
-            currIntBlock = currNode.block;
             currIntBlockStart = 0;
-            currIntBlockEnd = currIntBlock.size();
+            currIntBlockEnd = currNode.block.size();
         } else {
             // Add elements in the middle   
             // Split first block to remove tail elements if necessary   
             IntGapList list = IntGapList.create(array);
-            int remove = currIntBlock.values.size() - addPos;
+            int remove = currNode.block.size() - addPos;
             if (remove > 0) {
-                list.addAll(currIntBlock.values.getAll(addPos, remove));
-                currIntBlock.values.remove(addPos, remove);
+                list.addAll(currNode.block.getAll(addPos, remove));
+                currNode.block.remove(addPos, remove);
                 modify(currNode, -remove);
                 size -= remove;
                 currIntBlockEnd -= remove;
             }
             // Calculate how many blocks we need for the elements   
-            int numElems = currIntBlock.values.size() + list.size();
+            int numElems = currNode.block.size() + list.size();
             int numIntBlocks = (numElems - 1) / blockSize + 1;
             assert (numIntBlocks > 1);
-            int has = currIntBlock.values.size();
+            int has = currNode.block.size();
             int should = numElems / numIntBlocks;
             int listPos = 0;
             if (has < should) {
@@ -911,9 +979,9 @@ protected boolean doAddAll(int index, int[] array) {
                 int add = should - has;
                 IIntList sublist = list.getAll(0, add);
                 listPos += add;
-                currIntBlock.values.addAll(addPos, sublist);
+                currNode.block.addAll(addPos, sublist);
                 modify(currNode, add);
-                assert (currIntBlock.values.size() == should);
+                assert (currNode.block.size() == should);
                 numElems -= should;
                 numIntBlocks--;
                 size += add;
@@ -922,10 +990,10 @@ protected boolean doAddAll(int index, int[] array) {
                 // Elements must be moved from first to second block   
                 IntBlock nextIntBlock = new IntBlock(blockSize);
                 int move = has - should;
-                nextIntBlock.values.addAll(currIntBlock.values.getAll(currIntBlock.values.size() - move, move));
-                currIntBlock.values.remove(currIntBlock.values.size() - move, move);
+                nextIntBlock.addAll(currNode.block.getAll(currNode.block.size() - move, move));
+                currNode.block.remove(currNode.block.size() - move, move);
                 modify(currNode, -move);
-                assert (currIntBlock.values.size() == should);
+                assert (currNode.block.size() == should);
                 numElems -= should;
                 numIntBlocks--;
                 currIntBlockEnd -= move;
@@ -933,17 +1001,16 @@ protected boolean doAddAll(int index, int[] array) {
                 int add = should - move;
                 assert (add >= 0);
                 IIntList sublist = list.getAll(0, add);
-                nextIntBlock.values.addAll(move, sublist);
+                nextIntBlock.addAll(move, sublist);
                 listPos += add;
-                assert (nextIntBlock.values.size() == should);
+                assert (nextIntBlock.size() == should);
                 numElems -= should;
                 numIntBlocks--;
                 size += add;
                 addIntBlock(currIntBlockEnd, nextIntBlock);
                 currNode = currNode.next();
-                currIntBlock = currNode.block;
-                assert (currIntBlock == nextIntBlock);
-                assert (currIntBlock.size() == add + move);
+                assert (currNode.block == nextIntBlock);
+                assert (currNode.block.size() == add + move);
                 currIntBlockStart = currIntBlockEnd;
                 currIntBlockEnd += add + move;
             } else {
@@ -959,14 +1026,13 @@ protected boolean doAddAll(int index, int[] array) {
                 IIntList sublist = list.getAll(listPos, add);
                 listPos += add;
                 IntBlock nextIntBlock = new IntBlock();
-                nextIntBlock.values.addAll(sublist);
-                assert (nextIntBlock.values.size() == add);
+                nextIntBlock.addAll(sublist);
+                assert (nextIntBlock.size() == add);
                 numElems -= add;
                 addIntBlock(currIntBlockEnd, nextIntBlock);
                 currNode = currNode.next();
-                currIntBlock = currNode.block;
-                assert (currIntBlock == nextIntBlock);
-                assert (currIntBlock.size() == add);
+                assert (currNode.block == nextIntBlock);
+                assert (currNode.block.size() == add);
                 currIntBlockStart = currIntBlockEnd;
                 currIntBlockEnd += add;
                 size += add;
@@ -984,8 +1050,7 @@ protected boolean doAddAll(int index, int[] array) {
 
     @Override
 protected void doClear() {
-    root = null;
-    currIntBlock = null;
+    rootNode = null;
     currIntBlockStart = 0;
     currIntBlockEnd = 0;
     currModify = 0;
@@ -1016,8 +1081,8 @@ protected void doRemoveAll(int index, int len) {
     if (startNode == endNode) {
         // Delete from single block   
         getIntBlockIndex(index, true, -len);
-        currIntBlock.values.remove(startPos, len);
-        if (currIntBlock.values.isEmpty()) {
+        currNode.block.remove(startPos, len);
+        if (currNode.block.isEmpty()) {
             IntBlockNode oldCurrNode = currNode;
             releaseIntBlock();
             IntBlockNode node = doRemove(oldCurrNode);
@@ -1033,10 +1098,9 @@ protected void doRemoveAll(int index, int len) {
             check();
         int startLen = startNode.block.size() - startPos;
         getIntBlockIndex(index, true, -startLen);
-        // TODO should that be modify?   
-        startNode.block.values.remove(startPos, startLen);
+        startNode.block.remove(startPos, startLen);
         assert (startNode == currNode);
-        if (currIntBlock.values.isEmpty()) {
+        if (currNode.block.isEmpty()) {
             releaseIntBlock();
             doRemove(startNode);
             startNode = null;
@@ -1046,7 +1110,7 @@ protected void doRemoveAll(int index, int len) {
         while (len > 0) {
             currNode = null;
             getIntBlockIndex(index, true, 0);
-            int s = currIntBlock.size();
+            int s = currNode.block.size();
             if (s <= len) {
                 modify(currNode, -s);
                 IntBlockNode oldCurrNode = currNode;
@@ -1061,7 +1125,7 @@ protected void doRemoveAll(int index, int len) {
                     check();
             } else {
                 modify(currNode, -len);
-                currIntBlock.values.remove(0, len);
+                currNode.block.remove(0, len);
                 size -= len;
                 break;
             }
@@ -1085,8 +1149,8 @@ private void merge(IntBlockNode node) {
     if (node == null) {
         return;
     }
-    final int minIntBlockSize = Math.max(blockSize / 3, 1);
-    if (node.block.values.size() >= minIntBlockSize) {
+    final int minIntBlockSize = Math.max((int) (blockSize * MERGE_THRESHOLD), 1);
+    if (node.block.size() >= minIntBlockSize) {
         return;
     }
     IntBlockNode oldCurrNode = node;
@@ -1096,10 +1160,10 @@ private void merge(IntBlockNode node) {
         int len = node.block.size();
         int dstSize = leftNode.getIntBlock().size();
         for (int i = 0; i < len; i++) {
-            leftNode.block.values.add(0);
+            leftNode.block.add(0);
         }
-        IntGapList.copy(node.block.values, 0, leftNode.block.values, dstSize, len);
-        assert (leftNode.block.values.size() <= blockSize);
+        IntGapList.copy(node.block, 0, leftNode.block, dstSize, len);
+        assert (leftNode.block.size() <= blockSize);
         modify(leftNode, +len);
         modify(oldCurrNode, -len);
         releaseIntBlock();
@@ -1110,10 +1174,10 @@ private void merge(IntBlockNode node) {
             // Merge with right block   
             int len = node.block.size();
             for (int i = 0; i < len; i++) {
-                rightNode.block.values.add(0, 0);
+                rightNode.block.add(0, 0);
             }
-            IntGapList.copy(node.block.values, 0, rightNode.block.values, 0, len);
-            assert (rightNode.block.values.size() <= blockSize);
+            IntGapList.copy(node.block, 0, rightNode.block, 0, len);
+            assert (rightNode.block.size() <= blockSize);
             modify(rightNode, +len);
             modify(oldCurrNode, -len);
             releaseIntBlock();
@@ -1124,11 +1188,11 @@ private void merge(IntBlockNode node) {
 
     protected int doRemove(int index) {
     int pos = getIntBlockIndex(index, true, -1);
-    int oldElem = currIntBlock.values.doRemove(pos);
+    int oldElem = currNode.block.doRemove(pos);
     currIntBlockEnd--;
     final int minIntBlockSize = Math.max(blockSize / 3, 1);
-    if (currIntBlock.size() < minIntBlockSize) {
-        if (currIntBlock.size() == 0) {
+    if (currNode.block.size() < minIntBlockSize) {
+        if (currNode.block.size() == 0) {
             if (!isOnlyRootIntBlock()) {
                 IntBlockNode oldCurrNode = currNode;
                 releaseIntBlock();
@@ -1156,7 +1220,7 @@ protected void doEnsureCapacity(int minCapacity) {
         if (minCapacity > blockSize) {
             minCapacity = blockSize;
         }
-        currIntBlock.values.doEnsureCapacity(minCapacity);
+        rootNode.block.doEnsureCapacity(minCapacity);
     }
 }
 
@@ -1168,13 +1232,13 @@ protected void doEnsureCapacity(int minCapacity) {
 public void trimToSize() {
     doModify();
     if (isOnlyRootIntBlock()) {
-        currIntBlock.values.trimToSize();
+        rootNode.block.trimToSize();
     } else {
         IntBigList newList = new IntBigList(blockSize);
-        IntBlockNode node = root.min();
+        IntBlockNode node = rootNode.min();
         while (node != null) {
-            newList.addAll(node.block.values);
-            remove(0, node.block.values.size());
+            newList.addAll(node.block);
+            remove(0, node.block.size());
             node = node.next();
         }
         doAssign(newList);
@@ -1194,7 +1258,7 @@ protected IIntList doCreate(int capacity) {
 public void sort(int index, int len) {
     checkRange(index, len);
     if (isOnlyRootIntBlock()) {
-        currIntBlock.values.sort(index, len);
+        currNode.block.sort(index, len);
     } else {
         IntMergeSort.sort(this, index, index + len);
     }
@@ -1204,7 +1268,7 @@ public void sort(int index, int len) {
 public int binarySearch(int index, int len, int key) {
     checkRange(index, len);
     if (isOnlyRootIntBlock()) {
-        return currIntBlock.values.binarySearch(key);
+        return rootNode.block.binarySearch(key);
     } else {
         return IntBinarySearch.binarySearch(this, key, 0, size());
     }
@@ -1248,7 +1312,7 @@ private void readObject(ObjectInputStream ois) throws IOException, ClassNotFound
 
     // --- Debug checks ---  
 private void checkNode(IntBlockNode node) {
-    assert ((node.block.size() > 0 || node == root) && node.block.size() <= blockSize);
+    assert ((node.block.size() > 0 || node == rootNode) && node.block.size() <= blockSize);
     IntBlockNode child = node.getLeftSubTree();
     assert (child == null || child.parent == node);
     child = node.getRightSubTree();
@@ -1279,15 +1343,14 @@ private void checkNode(IntBlockNode node) {
 
     private void check() {
     if (currNode != null) {
-        assert (currNode.block == currIntBlock);
         assert (currIntBlockStart >= 0 && currIntBlockEnd <= size && currIntBlockStart <= currIntBlockEnd);
-        assert (currIntBlockStart + currIntBlock.size() == currIntBlockEnd);
+        assert (currIntBlockStart + currNode.block.size() == currIntBlockEnd);
     }
-    if (root == null) {
+    if (rootNode == null) {
         assert (size == 0);
         return;
     }
-    checkHeight(root);
+    checkHeight(rootNode);
     IntBlockNode oldCurrNode = currNode;
     int oldCurrModify = currModify;
     if (currModify != 0) {
@@ -1295,21 +1358,21 @@ private void checkNode(IntBlockNode node) {
         currModify = 0;
         modify(oldCurrNode, oldCurrModify);
     }
-    IntBlockNode node = root;
+    IntBlockNode node = rootNode;
     checkNode(node);
-    int index = node.relativePosition;
+    int index = node.relPos;
     while (node.left != null) {
         node = node.left;
         checkNode(node);
-        assert (node.relativePosition < 0);
-        index += node.relativePosition;
+        assert (node.relPos < 0);
+        index += node.relPos;
     }
     IntBlock block = node.getIntBlock();
     assert (block.size() == index);
     int lastIndex = index;
     while (lastIndex < size()) {
-        node = root;
-        index = node.relativePosition;
+        node = rootNode;
+        index = node.relPos;
         int searchIndex = lastIndex + 1;
         while (true) {
             checkNode(node);
@@ -1330,7 +1393,7 @@ private void checkNode(IntBlockNode node) {
                     break;
                 }
             }
-            index += node.relativePosition;
+            index += node.relPos;
         }
         block = node.getIntBlock();
         assert (block.size() == index - lastIndex);
@@ -1353,26 +1416,20 @@ private void checkNode(IntBlockNode node) {
 	 * instances with a copy-on-write approach.
 	 */
     
-    public static class IntBlock implements Serializable {
+    public static class IntBlock extends IntGapList {
 
-        private IntGapList values;
-
-        private int refCount;
+        private int refCount = 1;
 
         public IntBlock(){
-    values = new IntGapList();
-    refCount = 1;
 }
 
         public IntBlock(int capacity){
-    values = new IntGapList(capacity);
-    refCount = 1;
+    super(capacity);
 }
 
         public IntBlock(IntBlock that){
-    values = new IntGapList(that.values.capacity());
-    values.init(that.values.getArray(0, that.values.size()));
-    refCount = 1;
+    super(that.capacity());
+    addAll(that);
 }
 
         /**
@@ -1395,18 +1452,6 @@ public IntBlock ref() {
 		 */
 public void unref() {
     refCount--;
-}
-
-        /**
-		 * @return number of elements stored in this block
-		 */
-public int size() {
-    return values.size();
-}
-
-        @Override
-public String toString() {
-    return values.toString();
 }
     }
 
@@ -1438,8 +1483,8 @@ public String toString() {
         /** How many levels of left/right are below this one. */
         int height;
 
-        /** The relative position, root holds absolute position. */
-        int relativePosition;
+        /** Relative position of node relative to its parent, root holds absolute position. */
+        int relPos;
 
         /** The stored block */
         IntBlock block;
@@ -1453,9 +1498,9 @@ public String toString() {
          * @param rightFollower 	the node following this one
          * @param leftFollower 		the node leading this one
          */
-private IntBlockNode(IntBlockNode parent, int relativePosition, IntBlock block, IntBlockNode rightFollower, IntBlockNode leftFollower){
+private IntBlockNode(IntBlockNode parent, int relPos, IntBlock block, IntBlockNode rightFollower, IntBlockNode leftFollower){
     this.parent = parent;
-    this.relativePosition = relativePosition;
+    this.relPos = relPos;
     this.block = block;
     rightIsNext = true;
     leftIsPrevious = true;
@@ -1468,7 +1513,7 @@ private IntBlockNode(IntBlockNode parent, int relativePosition, IntBlock block, 
          *
          * @return block stored by this node
          */
-public IntBlock getIntBlock() {
+private IntBlock getIntBlock() {
     return block;
 }
 
@@ -1477,86 +1522,8 @@ public IntBlock getIntBlock() {
          *
          * @param block  the block to store
          */
-public void setIntBlock(IntBlock block) {
+private void setIntBlock(IntBlock block) {
     this.block = block;
-}
-
-        /**
-         * Retrieves node with specified index.
-         *
-         * @param list		reference to IntBigList using this node (used for updating currIntBlockEnd)
-         * @param index		index to retrieve
-         * @param modify	modification to apply during traversal to relative positions <br/>
-         * 					>0: N elements are added at index, <0: N elements are deleted at index, 0: no change
-         * @param wasLeft	last node was a left child
-         * @return
-         */
-private IntBlockNode access(IntBigList list, int index, int modify, boolean wasLeft) {
-    assert (index >= 0);
-    if (relativePosition == 0) {
-        if (modify != 0) {
-            relativePosition += modify;
-        }
-        return this;
-    }
-    if (list.currIntBlockEnd == 0) {
-        list.currIntBlockEnd = relativePosition;
-    }
-    int leftIndex = list.currIntBlockEnd - block.size();
-    assert (leftIndex >= 0);
-    if (index >= leftIndex && index < list.currIntBlockEnd) {
-        // Correct node has been found   
-        IntBlockNode leftNode = getLeftSubTree();
-        if (relativePosition > 0) {
-            relativePosition += modify;
-            if (leftNode != null) {
-                leftNode.relativePosition -= modify;
-            }
-        } else {
-            if (leftNode != null) {
-                leftNode.relativePosition -= modify;
-            }
-        }
-        return this;
-    }
-    // Further traversal needed to find the correct node   
-    if (index < list.currIntBlockEnd) {
-        // Travese the left node   
-        IntBlockNode nextNode = getLeftSubTree();
-        if (nextNode == null || !wasLeft) {
-            if (relativePosition > 0) {
-                relativePosition += modify;
-            } else {
-                relativePosition -= modify;
-            }
-            wasLeft = true;
-        }
-        if (nextNode == null) {
-            return this;
-        }
-        list.currIntBlockEnd += nextNode.relativePosition;
-        return nextNode.access(list, index, modify, wasLeft);
-    } else {
-        // Traverse the right node   
-        IntBlockNode nextNode = getRightSubTree();
-        if (nextNode == null || wasLeft) {
-            if (relativePosition > 0) {
-                relativePosition += modify;
-                IntBlockNode left = getLeftSubTree();
-                if (left != null) {
-                    left.relativePosition -= modify;
-                }
-            } else {
-                relativePosition -= modify;
-            }
-            wasLeft = false;
-        }
-        if (nextNode == null) {
-            return this;
-        }
-        list.currIntBlockEnd += nextNode.relativePosition;
-        return nextNode.access(list, index, modify, wasLeft);
-    }
 }
 
         /**
@@ -1564,7 +1531,7 @@ private IntBlockNode access(IntBigList list, int index, int modify, boolean wasL
          *
          * @return the next node
          */
-public IntBlockNode next() {
+private IntBlockNode next() {
     if (rightIsNext || right == null) {
         return right;
     }
@@ -1576,7 +1543,7 @@ public IntBlockNode next() {
          *
          * @return the previous node
          */
-public IntBlockNode previous() {
+private IntBlockNode previous() {
     if (leftIsPrevious || left == null) {
         return left;
     }
@@ -1584,52 +1551,66 @@ public IntBlockNode previous() {
 }
 
         /**
-         * Inserts a node at the position index.
+         * Inserts new node holding specified block at the position index.
          *
-         * @param index is the index of the position relative to the position of
-         * the parent node.
-         * @param obj is the object to be stored in the position.
+         * @param index 	index of the position relative to the position of the parent node
+         * @param obj 		object to store in the position
+         * @return			this node or node replacing this node in the tree (if tree must be rebalanced)
          */
 private IntBlockNode insert(int index, IntBlock obj) {
-    assert (relativePosition != 0);
-    final int indexRelativeToMe = index - relativePosition;
-    if (indexRelativeToMe < 0) {
-        return insertOnLeft(indexRelativeToMe, obj);
+    assert (relPos != 0);
+    int relIndex = index - relPos;
+    if (relIndex < 0) {
+        return insertOnLeft(relIndex, obj);
     } else {
-        return insertOnRight(indexRelativeToMe, obj);
+        return insertOnRight(relIndex, obj);
     }
 }
 
-        private IntBlockNode insertOnLeft(int indexRelativeToMe, IntBlock obj) {
+        /**
+         * Inserts new node holding specified block on the node's left side.
+         *
+         * @param index 	index of the position relative to the position of the parent node
+         * @param obj 		object to store in the position
+         * @return			this node or node replacing this node in the tree (if tree must be rebalanced)
+         */
+private IntBlockNode insertOnLeft(int relIndex, IntBlock obj) {
     if (getLeftSubTree() == null) {
         int pos;
-        if (relativePosition >= 0) {
-            pos = -relativePosition;
+        if (relPos >= 0) {
+            pos = -relPos;
         } else {
             pos = -block.size();
         }
         setLeft(new IntBlockNode(this, pos, obj, this, left), null);
     } else {
-        setLeft(left.insert(indexRelativeToMe, obj), null);
+        setLeft(left.insert(relIndex, obj), null);
     }
-    if (relativePosition >= 0) {
-        relativePosition += obj.size();
+    if (relPos >= 0) {
+        relPos += obj.size();
     }
-    final IntBlockNode ret = balance();
+    IntBlockNode ret = balance();
     recalcHeight();
     return ret;
 }
 
-        private IntBlockNode insertOnRight(int indexRelativeToMe, IntBlock obj) {
+        /**
+         * Inserts new node holding specified block on the node's right side.
+         *
+         * @param index 	index of the position relative to the position of the parent node
+         * @param obj 		object to store in the position
+         * @return			this node or node replacing this node in the tree (if tree must be rebalanced)
+         */
+private IntBlockNode insertOnRight(int relIndex, IntBlock obj) {
     if (getRightSubTree() == null) {
         setRight(new IntBlockNode(this, obj.size(), obj, right, this), null);
     } else {
-        setRight(right.insert(indexRelativeToMe, obj), null);
+        setRight(right.insert(relIndex, obj), null);
     }
-    if (relativePosition < 0) {
-        relativePosition -= obj.size();
+    if (relPos < 0) {
+        relPos -= obj.size();
     }
-    final IntBlockNode ret = balance();
+    IntBlockNode ret = balance();
     recalcHeight();
     return ret;
 }
@@ -1637,14 +1618,14 @@ private IntBlockNode insert(int index, IntBlock obj) {
         /**
          * Gets the left node, returning null if its a faedelung.
          */
-public IntBlockNode getLeftSubTree() {
+private IntBlockNode getLeftSubTree() {
     return leftIsPrevious ? null : left;
 }
 
         /**
          * Gets the right node, returning null if its a faedelung.
          */
-public IntBlockNode getRightSubTree() {
+private IntBlockNode getRightSubTree() {
     return rightIsNext ? null : right;
 }
 
@@ -1653,7 +1634,7 @@ public IntBlockNode getRightSubTree() {
          *
          * @return the rightmost child (greatest index)
          */
-public IntBlockNode max() {
+private IntBlockNode max() {
     return getRightSubTree() == null ? this : right.max();
 }
 
@@ -1662,7 +1643,7 @@ public IntBlockNode max() {
          *
          * @return the leftmost child (smallest index)
          */
-public IntBlockNode min() {
+private IntBlockNode min() {
     return getLeftSubTree() == null ? this : left.min();
 }
 
@@ -1680,8 +1661,8 @@ public IntBlockNode min() {
         return removeSelf();
     }
     setLeft(left.removeMin(size), left.left);
-    if (relativePosition > 0) {
-        relativePosition -= size;
+    if (relPos > 0) {
+        relPos -= size;
     }
     recalcHeight();
     return balance();
@@ -1692,7 +1673,7 @@ public IntBlockNode min() {
          *
          * @return the node that replaces this one in the parent (can be null)
          */
-public IntBlockNode removeSelf() {
+private IntBlockNode removeSelf() {
     IntBlockNode p = parent;
     IntBlockNode n = doRemoveSelf();
     if (n != null) {
@@ -1702,22 +1683,22 @@ public IntBlockNode removeSelf() {
     return n;
 }
 
-        public IntBlockNode doRemoveSelf() {
+        private IntBlockNode doRemoveSelf() {
     if (getRightSubTree() == null && getLeftSubTree() == null) {
         return null;
     }
     if (getRightSubTree() == null) {
-        if (relativePosition > 0) {
-            left.relativePosition += relativePosition + (relativePosition > 0 ? 0 : 1);
+        if (relPos > 0) {
+            left.relPos += relPos + (relPos > 0 ? 0 : 1);
         } else {
-            left.relativePosition += relativePosition;
+            left.relPos += relPos;
         }
         left.max().setRight(null, right);
         return left;
     }
     if (getLeftSubTree() == null) {
-        if (relativePosition < 0) {
-            right.relativePosition += relativePosition - (relativePosition < 0 ? 0 : 1);
+        if (relPos < 0) {
+            right.relPos += relPos - (relPos < 0 ? 0 : 1);
         }
         right.min().setLeft(null, left);
         return right;
@@ -1731,8 +1712,8 @@ public IntBlockNode removeSelf() {
             left = rightMin.left;
         }
         right = right.removeMin(bs);
-        relativePosition += bs;
-        left.relativePosition -= bs;
+        relPos += bs;
+        left.relPos -= bs;
     } else {
         // more on the left or equal, so delete from the left   
         final IntBlockNode leftMax = left.max();
@@ -1748,8 +1729,8 @@ public IntBlockNode removeSelf() {
             left = leftPrevious;
             leftIsPrevious = true;
         } else {
-            if (left.relativePosition == 0) {
-                left.relativePosition = -1;
+            if (left.relPos == 0) {
+                left.relPos = -1;
             }
         }
     }
@@ -1788,7 +1769,7 @@ private int getOffset(IntBlockNode node) {
     if (node == null) {
         return 0;
     }
-    return node.relativePosition;
+    return node.relPos;
 }
 
         /**
@@ -1799,7 +1780,7 @@ private int setOffset(IntBlockNode node, int newOffest) {
         return 0;
     }
     final int oldOffset = getOffset(node);
-    node.relativePosition = newOffest;
+    node.relPos = newOffest;
     return oldOffset;
 }
 
@@ -1834,8 +1815,8 @@ private IntBlockNode rotateLeft() {
     final IntBlockNode newTop = right;
     // can't be faedelung!   
     final IntBlockNode movedNode = getRightSubTree().getLeftSubTree();
-    final int newTopPosition = relativePosition + getOffset(newTop);
-    final int myNewPosition = -newTop.relativePosition;
+    final int newTopPosition = relPos + getOffset(newTop);
+    final int myNewPosition = -newTop.relPos;
     final int movedPosition = getOffset(newTop) + getOffset(movedNode);
     IntBlockNode p = this.parent;
     setRight(movedNode, newTop);
@@ -1845,8 +1826,8 @@ private IntBlockNode rotateLeft() {
     setOffset(newTop, newTopPosition);
     setOffset(this, myNewPosition);
     setOffset(movedNode, movedPosition);
-    assert (newTop.getLeftSubTree() == null || newTop.getLeftSubTree().relativePosition < 0);
-    assert (newTop.getRightSubTree() == null || newTop.getRightSubTree().relativePosition > 0);
+    assert (newTop.getLeftSubTree() == null || newTop.getLeftSubTree().relPos < 0);
+    assert (newTop.getRightSubTree() == null || newTop.getRightSubTree().relPos > 0);
     return newTop;
 }
 
@@ -1860,8 +1841,8 @@ private IntBlockNode rotateRight() {
     final IntBlockNode newTop = left;
     // can't be faedelung   
     final IntBlockNode movedNode = getLeftSubTree().getRightSubTree();
-    final int newTopPosition = relativePosition + getOffset(newTop);
-    final int myNewPosition = -newTop.relativePosition;
+    final int newTopPosition = relPos + getOffset(newTop);
+    final int myNewPosition = -newTop.relPos;
     final int movedPosition = getOffset(newTop) + getOffset(movedNode);
     IntBlockNode p = this.parent;
     setLeft(movedNode, newTop);
@@ -1871,8 +1852,8 @@ private IntBlockNode rotateRight() {
     setOffset(newTop, newTopPosition);
     setOffset(this, myNewPosition);
     setOffset(movedNode, movedPosition);
-    assert (newTop.getLeftSubTree() == null || newTop.getLeftSubTree().relativePosition < 0);
-    assert (newTop.getRightSubTree() == null || newTop.getRightSubTree().relativePosition > 0);
+    assert (newTop.getLeftSubTree() == null || newTop.getLeftSubTree().relPos < 0);
+    assert (newTop.getRightSubTree() == null || newTop.getRightSubTree().relPos > 0);
     return newTop;
 }
 
@@ -1917,7 +1898,7 @@ private void setRight(IntBlockNode node, IntBlockNode next) {
          */
 @Override
 public String toString() {
-    return new StringBuilder().append("IntBlockNode(").append(relativePosition).append(',').append(getRightSubTree() != null).append(',').append(block).append(',').append(getRightSubTree() != null).append(", height ").append(height).append(" )").toString();
+    return new StringBuilder().append("IntBlockNode(").append(relPos).append(',').append(getRightSubTree() != null).append(',').append(block).append(',').append(getRightSubTree() != null).append(", height ").append(height).append(" )").toString();
 }
     }
 
