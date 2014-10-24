@@ -396,6 +396,9 @@ void init(float[] values, int size) {
     @Override
 protected void doClear() {
     init(values, 0);
+    for (int i = 0; i < values.length; i++) {
+        values[i] = 0;
+    }
 }
 
     @Override
@@ -911,6 +914,9 @@ protected void doEnsureCapacity(int minCapacity) {
         if (gapStart > start && gapSize > 0) {
             gapStart += grow;
         }
+        if (end > start) {
+            end += grow;
+        }
         start += grow;
     }
     if (end == 0 && start == 0 && size != 0) {
@@ -998,7 +1004,7 @@ public IFloatList doCreate(int capacity) {
 protected void doRemoveAll(int index, int len) {
     if (len == size()) {
         doModify();
-        init(values, 0);
+        doClear();
     } else {
         super.doRemoveAll(index, len);
     }
@@ -1054,10 +1060,16 @@ private void debugCheck() {
         }
     }
     // Check that all end positions contain 0 values   
-    if (end != start) {
+    if (start < end) {
+        for (int i = 0; i < start; i++) {
+            assert (values[i] == 0);
+        }
+        for (int i = end; i < values.length; i++) {
+            assert (values[i] == 0);
+        }
+    } else if (end < start) {
         for (int i = end; i < start; i++) {
-            int pos = (i % values.length);
-            assert (values[pos] == 0);
+            assert (values[i] == 0);
         }
     }
 }

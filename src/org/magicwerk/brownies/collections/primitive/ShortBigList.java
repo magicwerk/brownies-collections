@@ -27,7 +27,7 @@ import org.magicwerk.brownies.collections.helper.primitive.ShortMergeSort;
  * Note that the iterators provided are not fail-fast.<p>
  *
  * @author Thomas Mauch
- * @version $Id: ShortBigList.java 2529 2014-10-22 23:49:04Z origo $
+ * @version $Id: ShortBigList.java 2531 2014-10-24 13:04:07Z origo $
  */
 public class ShortBigList extends IShortList {
 	public static IShortList of(short[] values) {
