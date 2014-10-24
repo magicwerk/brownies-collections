@@ -18,21 +18,16 @@ import org.magicwerk.brownies.collections.helper.primitive.LongMergeSort;
  * LongBigList is a list optimized for storing large number of elements.
  * It stores the elements in fixed size blocks and the blocks itself are maintained in a tree for fast access.
  * It also offers specialized methods for bulk processing of elements.
- * Also copying a LongBigList is efficiently possible as its implemented using a copy-on-write approach.
- * <p>
+ * Also copying a LongBigList is efficiently possible as its implemented using a copy-on-write approach.<p>
+ *
  * <strong>Note that this implementation is not synchronized.</strong>
  * Due to data caching used for exploiting locality of reference, performance can decrease if LongBigList is
- * accessed by several threads at different positions.
- * </p>
+ * accessed by several threads at different positions.<p>
+ *
+ * Note that the iterators provided are not fail-fast.<p>
  *
  * @author Thomas Mauch
- * @version $Id: LongBigList.java 2522 2014-10-17 12:08:38Z origo $
- */
-/**
- *
- *
- * @author Thomas Mauch
- * @version $Id: LongBigList.java 2522 2014-10-17 12:08:38Z origo $
+ * @version $Id: LongBigList.java 2529 2014-10-22 23:49:04Z origo $
  */
 public class LongBigList extends ILongList {
 	public static ILongList of(long[] values) {
@@ -209,7 +204,16 @@ public class LongBigList extends ILongList {
     private static final long serialVersionUID = 3715838828540564836L;
 
     /** Default block size */
-    private static int BLOCK_SIZE = 1000;
+    private static final int DEFAULT_BLOCK_SIZE = 1000;
+
+    /** If two adjacent blocks both less than MERGE_THRESHOLD*blockSize elements, they are merged */
+    private static final float MERGE_THRESHOLD = 0.35f;
+
+    /**
+	 * If an element is added to the list at the head or tail, the block is only filled until it
+	 * has FILL_THRESHOLD*blockSize elements (so there is room for insertion without need to split).
+	 */
+    private static final float FILL_THRESHOLD = 0.95f;
 
     /** Set to true for debugging during developing */
     private static final boolean CHECK = false;
@@ -238,14 +242,12 @@ public static  LongBigList EMPTY() {
     private int size;
 
     /** The root node in the tree */
-    private LongBlockNode root;
+    private LongBlockNode rootNode;
 
     /** Current node */
     private LongBlockNode currNode;
 
     /** LongBlock of current node */
-    private LongBlock currLongBlock;
-
     /** Start index of current block */
     private int currLongBlockStart;
 
@@ -265,11 +267,10 @@ public static  LongBigList EMPTY() {
 protected LongBigList(boolean copy, LongBigList that){
     if (copy) {
         this.blockSize = that.blockSize;
-        this.currLongBlock = that.currLongBlock;
         this.currLongBlockStart = that.currLongBlockStart;
         this.currLongBlockEnd = that.currLongBlockEnd;
         this.currNode = that.currNode;
-        this.root = that.root;
+        this.rootNode = that.rootNode;
         this.size = that.size;
     }
 }
@@ -317,7 +318,7 @@ public static LongBigList create(long... elems) {
 	 * The default block size is used.
 	 */
 public LongBigList(){
-    this(BLOCK_SIZE);
+    this(DEFAULT_BLOCK_SIZE);
 }
 
     /**
@@ -344,9 +345,8 @@ public LongBigList(Collection<Long> coll){
         doAssign((LongBigList) coll);
         doClone((LongBigList) coll);
     } else {
-        blockSize = BLOCK_SIZE;
-        currLongBlock = new LongBlock();
-        addLongBlock(0, currLongBlock);
+        blockSize = DEFAULT_BLOCK_SIZE;
+        addLongBlock(0, new LongBlock());
         for (Object obj : coll.toArray()) {
             add((Long) obj);
         }
@@ -411,12 +411,13 @@ private LongBigList(int blockSize, int firstLongBlockSize){
 private void doInit(int blockSize, int firstLongBlockSize) {
     this.blockSize = blockSize;
     // First block will grow until it reaches blockSize   
+    LongBlock block;
     if (firstLongBlockSize <= 1) {
-        currLongBlock = new LongBlock();
+        block = new LongBlock();
     } else {
-        currLongBlock = new LongBlock(firstLongBlockSize);
+        block = new LongBlock(firstLongBlockSize);
     }
-    addLongBlock(0, currLongBlock);
+    addLongBlock(0, block);
 }
 
     /**
@@ -447,11 +448,10 @@ public Object clone() {
 protected void doAssign(ILongList that) {
     LongBigList list = (LongBigList) that;
     this.blockSize = list.blockSize;
-    this.currLongBlock = list.currLongBlock;
     this.currLongBlockEnd = list.currLongBlockEnd;
     this.currLongBlockStart = list.currLongBlockStart;
     this.currNode = list.currNode;
-    this.root = list.root;
+    this.rootNode = list.rootNode;
     this.size = list.size;
 }
 
@@ -459,7 +459,7 @@ protected void doAssign(ILongList that) {
 protected void doClone(ILongList that) {
     LongBigList bigList = (LongBigList) that;
     bigList.releaseLongBlock();
-    root = copy(bigList.root);
+    rootNode = copy(bigList.rootNode);
     currNode = null;
     currModify = 0;
     if (CHECK)
@@ -495,7 +495,7 @@ public long getDefaultElem() {
     @Override
 protected void finalize() {
     // This list will be garbage collected, so unref all referenced blocks   
-    LongBlockNode node = root.min();
+    LongBlockNode node = rootNode.min();
     while (node != null) {
         node.block.unref();
         node = node.next();
@@ -519,22 +519,22 @@ public int capacity() {
     @Override
 protected long doGet(int index) {
     int pos = getLongBlockIndex(index, false, 0);
-    return currLongBlock.values.doGet(pos);
+    return currNode.block.doGet(pos);
 }
 
     @Override
 protected long doSet(int index, long elem) {
     int pos = getLongBlockIndex(index, true, 0);
-    long oldElem = currLongBlock.values.doGet(pos);
-    currLongBlock.values.doSet(pos, elem);
+    long oldElem = currNode.block.doGet(pos);
+    currNode.block.doSet(pos, elem);
     return oldElem;
 }
 
     @Override
 protected long doReSet(int index, long elem) {
     int pos = getLongBlockIndex(index, true, 0);
-    long oldElem = currLongBlock.values.doGet(pos);
-    currLongBlock.values.doSet(pos, elem);
+    long oldElem = currNode.block.doGet(pos);
+    currNode.block.doSet(pos, elem);
     return oldElem;
 }
 
@@ -554,8 +554,10 @@ private void releaseLongBlock() {
 	 * Returns index in block where the element with specified index is located.
 	 * This method also sets currLongBlock to remember this last used block.
 	 *
-	 * @param index	list index (0 <= index <= size())
-	 * @return		relative index within block
+	 * @param index		list index (0 <= index <= size())
+	 * @param write		true if the block is needed for a write operation (set, add, remove)
+	 * @param modify	modify instruction (N>0: N elements are added, N<0: N elements are removed, 0 no change)
+	 * @return			relative index within block
 	 */
 private int getLongBlockIndex(int index, boolean write, int modify) {
     // Determine block where specified index is located and store it in currLongBlock   
@@ -563,10 +565,9 @@ private int getLongBlockIndex(int index, boolean write, int modify) {
         if (index >= currLongBlockStart && (index < currLongBlockEnd || index == currLongBlockEnd && size == index)) {
             // currLongBlock is already set correctly   
             if (write) {
-                if (currLongBlock.isShared()) {
-                    currLongBlock.unref();
-                    currLongBlock = new LongBlock(currLongBlock);
-                    currNode.setLongBlock(currLongBlock);
+                if (currNode.block.isShared()) {
+                    currNode.block.unref();
+                    currNode.setLongBlock(new LongBlock(currNode.block));
                 }
             }
             currModify += modify;
@@ -574,47 +575,37 @@ private int getLongBlockIndex(int index, boolean write, int modify) {
         }
         releaseLongBlock();
     }
-    boolean done = false;
     if (index == size) {
         if (currNode == null || currLongBlockEnd != size) {
-            currNode = root.max();
-            currLongBlock = currNode.getLongBlock();
+            currNode = rootNode.max();
             currLongBlockEnd = size;
-            currLongBlockStart = size - currLongBlock.size();
+            currLongBlockStart = size - currNode.block.size();
         }
         if (modify != 0) {
-            currNode.relativePosition += modify;
+            currNode.relPos += modify;
             LongBlockNode leftNode = currNode.getLeftSubTree();
             if (leftNode != null) {
-                leftNode.relativePosition -= modify;
+                leftNode.relPos -= modify;
             }
         }
-        done = true;
     } else if (index == 0) {
         if (currNode == null || currLongBlockStart != 0) {
-            currNode = root.min();
-            currLongBlock = currNode.getLongBlock();
-            currLongBlockEnd = currLongBlock.size();
+            currNode = rootNode.min();
+            currLongBlockEnd = currNode.block.size();
             currLongBlockStart = 0;
         }
         if (modify != 0) {
-            root.relativePosition += modify;
+            rootNode.relPos += modify;
         }
-        done = true;
     }
-    if (!done) {
-        // Reset currLongBlockEnd, it will be then set by access()   
-        currLongBlockEnd = 0;
-        currNode = doGetLongBlock(index, modify);
-        currLongBlock = currNode.getLongBlock();
-        currLongBlockStart = currLongBlockEnd - currLongBlock.size();
+    if (currNode == null) {
+        doGetLongBlock(index, modify);
     }
     assert (index >= currLongBlockStart && index <= currLongBlockEnd);
     if (write) {
-        if (currLongBlock.isShared()) {
-            currLongBlock.unref();
-            currLongBlock = new LongBlock(currLongBlock);
-            currNode.setLongBlock(currLongBlock);
+        if (currNode.block.isShared()) {
+            currNode.block.unref();
+            currNode.setLongBlock(new LongBlock(currNode.block));
         }
     }
     return index - currLongBlockStart;
@@ -624,11 +615,93 @@ private int getLongBlockIndex(int index, boolean write, int modify) {
 	 * @return true if there is only the root block, false otherwise
 	 */
 private boolean isOnlyRootLongBlock() {
-    return root.left == null && root.right == null;
+    return rootNode.left == null && rootNode.right == null;
 }
 
-    private LongBlockNode doGetLongBlock(int index, int modify) {
-    return root.access(this, index, modify, false);
+    /**
+     * Determine node/block for the specified index.
+     * The fields currNode, currLongBlockStart, and currLongBlockEnd are set.
+     * During the traversing the tree node, the nodes relative positions are changed according to the modify instruction.
+     *
+     * @param index		list index for which block must be determined
+     * @param modify	modify instruction (N>0: N elements are added, N<0: N elements are removed, 0 no change)
+     */
+private void doGetLongBlock(int index, int modify) {
+    currNode = rootNode;
+    currLongBlockEnd = rootNode.relPos;
+    if (currNode.relPos == 0) {
+        // Empty tree   
+        if (modify != 0) {
+            currNode.relPos += modify;
+        }
+    } else {
+        // Traverse non-empty tree until right node has been found   
+        boolean wasLeft = false;
+        while (true) {
+            assert (index >= 0);
+            int leftIndex = currLongBlockEnd - currNode.block.size();
+            assert (leftIndex >= 0);
+            if (index >= leftIndex && index < currLongBlockEnd) {
+                // Correct node has been found   
+                if (modify != 0) {
+                    LongBlockNode leftNode = currNode.getLeftSubTree();
+                    if (currNode.relPos > 0) {
+                        currNode.relPos += modify;
+                        if (leftNode != null) {
+                            leftNode.relPos -= modify;
+                        }
+                    } else {
+                        if (leftNode != null) {
+                            leftNode.relPos -= modify;
+                        }
+                    }
+                }
+                break;
+            }
+            // Further traversal needed to find the correct node   
+            LongBlockNode nextNode;
+            if (index < currLongBlockEnd) {
+                // Traverse the left node   
+                nextNode = currNode.getLeftSubTree();
+                if (modify != 0) {
+                    if (nextNode == null || !wasLeft) {
+                        if (currNode.relPos > 0) {
+                            currNode.relPos += modify;
+                        } else {
+                            currNode.relPos -= modify;
+                        }
+                        wasLeft = true;
+                    }
+                }
+                if (nextNode == null) {
+                    break;
+                }
+            } else {
+                // Traverse the right node   
+                nextNode = currNode.getRightSubTree();
+                if (modify != 0) {
+                    if (nextNode == null || wasLeft) {
+                        if (currNode.relPos > 0) {
+                            currNode.relPos += modify;
+                            LongBlockNode left = currNode.getLeftSubTree();
+                            if (left != null) {
+                                left.relPos -= modify;
+                            }
+                        } else {
+                            currNode.relPos -= modify;
+                        }
+                        wasLeft = false;
+                    }
+                }
+                if (nextNode == null) {
+                    break;
+                }
+            }
+            currLongBlockEnd += nextNode.relPos;
+            currNode = nextNode;
+        }
+    }
+    currLongBlockStart = currLongBlockEnd - currNode.block.size();
 }
 
     /**
@@ -638,11 +711,11 @@ private boolean isOnlyRootLongBlock() {
      * @param obj  the element to add
      */
 private void addLongBlock(int index, LongBlock obj) {
-    if (root == null) {
-        root = new LongBlockNode(null, index, obj, null, null);
+    if (rootNode == null) {
+        rootNode = new LongBlockNode(null, index, obj, null, null);
     } else {
-        root = root.insert(index, obj);
-        root.parent = null;
+        rootNode = rootNode.insert(index, obj);
+        rootNode.parent = null;
     }
 }
 
@@ -654,58 +727,55 @@ protected boolean doAdd(int index, long element) {
     // Insert   
     int pos = getLongBlockIndex(index, true, 1);
     // If there is still place in the current block: insert in current block   
-    int maxSize = (index == size || index == 0) ? blockSize * 9 / 10 : blockSize;
+    int maxSize = (index == size || index == 0) ? (int) (blockSize * FILL_THRESHOLD) : blockSize;
     // The second part of the condition is a work around to handle the case of insertion as position 0 correctly   
     // where blockSize() is 2 (the new block would then be added after the current one)   
-    if (currLongBlock.size() < maxSize || (currLongBlock.size() == 1 && currLongBlock.size() < blockSize)) {
-        currLongBlock.values.doAdd(pos, element);
+    if (currNode.block.size() < maxSize || (currNode.block.size() == 1 && currNode.block.size() < blockSize)) {
+        currNode.block.doAdd(pos, element);
         currLongBlockEnd++;
     } else {
         // No place any more in current block   
         LongBlock newLongBlock = new LongBlock(blockSize);
         if (index == size) {
             // Insert new block at tail   
-            newLongBlock.values.doAdd(0, element);
+            newLongBlock.doAdd(0, element);
             // Subtract 1 because getLongBlockIndex() has already added 1   
             modify(currNode, -1);
             addLongBlock(size + 1, newLongBlock);
             LongBlockNode lastNode = currNode.next();
             currNode = lastNode;
-            currLongBlock = currNode.block;
             currLongBlockStart = currLongBlockEnd;
             currLongBlockEnd++;
         } else if (index == 0) {
             // Insert new block at head   
-            newLongBlock.values.doAdd(0, element);
+            newLongBlock.doAdd(0, element);
             // Subtract 1 because getLongBlockIndex() has already added 1   
             modify(currNode, -1);
             addLongBlock(1, newLongBlock);
             LongBlockNode firstNode = currNode.previous();
             currNode = firstNode;
-            currLongBlock = currNode.block;
             currLongBlockStart = 0;
             currLongBlockEnd = 1;
         } else {
             // Split block for insert   
             int nextLongBlockLen = blockSize / 2;
             int blockLen = blockSize - nextLongBlockLen;
-            newLongBlock.values.init(nextLongBlockLen, 0);
-            LongGapList.copy(currLongBlock.values, blockLen, newLongBlock.values, 0, nextLongBlockLen);
-            currLongBlock.values.remove(blockLen, blockSize - blockLen);
+            newLongBlock.init(nextLongBlockLen, 0);
+            LongGapList.copy(currNode.block, blockLen, newLongBlock, 0, nextLongBlockLen);
+            currNode.block.remove(blockLen, blockSize - blockLen);
             // Subtract 1 more because getLongBlockIndex() has already added 1   
             modify(currNode, -nextLongBlockLen - 1);
             addLongBlock(currLongBlockEnd - nextLongBlockLen, newLongBlock);
             if (pos < blockLen) {
                 // Insert element in first block   
-                currLongBlock.values.doAdd(pos, element);
+                currNode.block.doAdd(pos, element);
                 currLongBlockEnd = currLongBlockStart + blockLen + 1;
                 modify(currNode, 1);
             } else {
                 // Insert element in second block   
                 currNode = currNode.next();
                 modify(currNode, 1);
-                currLongBlock = currNode.block;
-                currLongBlock.values.doAdd(pos - blockLen, element);
+                currNode.block.doAdd(pos - blockLen, element);
                 currLongBlockStart += blockLen;
                 currLongBlockEnd++;
             }
@@ -733,11 +803,11 @@ private void modify(LongBlockNode node, int modify) {
     if (modify == 0) {
         return;
     }
-    if (node.relativePosition < 0) {
+    if (node.relPos < 0) {
         // Left node   
         LongBlockNode leftNode = node.getLeftSubTree();
         if (leftNode != null) {
-            leftNode.relativePosition -= modify;
+            leftNode.relPos -= modify;
         }
         LongBlockNode pp = node.parent;
         assert (pp.getLeftSubTree() == node);
@@ -749,24 +819,24 @@ private void modify(LongBlockNode node, int modify) {
             }
             boolean pRight = (p.getLeftSubTree() == pp);
             if (parentRight != pRight) {
-                if (pp.relativePosition > 0) {
-                    pp.relativePosition += modify;
+                if (pp.relPos > 0) {
+                    pp.relPos += modify;
                 } else {
-                    pp.relativePosition -= modify;
+                    pp.relPos -= modify;
                 }
             }
             pp = p;
             parentRight = pRight;
         }
         if (parentRight) {
-            root.relativePosition += modify;
+            rootNode.relPos += modify;
         }
     } else {
         // Right node   
-        node.relativePosition += modify;
+        node.relPos += modify;
         LongBlockNode leftNode = node.getLeftSubTree();
         if (leftNode != null) {
-            leftNode.relativePosition -= modify;
+            leftNode.relPos -= modify;
         }
         LongBlockNode parent = node.parent;
         if (parent != null) {
@@ -779,17 +849,17 @@ private void modify(LongBlockNode node, int modify) {
                 }
                 boolean pLeft = (p.getRightSubTree() == parent);
                 if (parentLeft != pLeft) {
-                    if (parent.relativePosition > 0) {
-                        parent.relativePosition += modify;
+                    if (parent.relPos > 0) {
+                        parent.relPos += modify;
                     } else {
-                        parent.relativePosition -= modify;
+                        parent.relPos -= modify;
                     }
                 }
                 parent = p;
                 parentLeft = pLeft;
             }
             if (!parentLeft) {
-                root.relativePosition += modify;
+                rootNode.relPos += modify;
             }
         }
     }
@@ -811,7 +881,7 @@ private void modify(LongBlockNode node, int modify) {
         newNode = node.balance();
         p = newNode.parent;
     }
-    root = newNode;
+    rootNode = newNode;
     return n;
 }
 
@@ -830,12 +900,12 @@ protected boolean doAddAll(int index, long[] array) {
         return doAdd(index, array[0]);
     }
     int addPos = getLongBlockIndex(index, true, 0);
-    LongBlock addLongBlock = currLongBlock;
+    LongBlock addLongBlock = currNode.block;
     int space = blockSize - addLongBlock.size();
     int addLen = array.length;
     if (addLen <= space) {
         // All elements can be added to current block   
-        currLongBlock.values.addAll(addPos, array);
+        currNode.block.addAll(addPos, array);
         modify(currNode, addLen);
         size += addLen;
         currLongBlockEnd += addLen;
@@ -843,7 +913,7 @@ protected boolean doAddAll(int index, long[] array) {
         if (index == size) {
             // Add elements at end   
             for (int i = 0; i < space; i++) {
-                currLongBlock.values.add(addPos + i, array[i]);
+                currNode.block.add(addPos + i, array[i]);
             }
             modify(currNode, space);
             int done = space;
@@ -852,7 +922,7 @@ protected boolean doAddAll(int index, long[] array) {
                 LongBlock nextLongBlock = new LongBlock(blockSize);
                 int add = Math.min(todo, blockSize);
                 for (int i = 0; i < add; i++) {
-                    nextLongBlock.values.add(i, array[done + i]);
+                    nextLongBlock.add(i, array[done + i]);
                 }
                 done += add;
                 todo -= add;
@@ -860,14 +930,13 @@ protected boolean doAddAll(int index, long[] array) {
                 currNode = currNode.next();
             }
             size += addLen;
-            currLongBlock = currNode.block;
             currLongBlockEnd = size;
-            currLongBlockStart = currLongBlockEnd - currLongBlock.size();
+            currLongBlockStart = currLongBlockEnd - currNode.block.size();
         } else if (index == 0) {
             // Add elements at head   
             assert (addPos == 0);
             for (int i = 0; i < space; i++) {
-                currLongBlock.values.add(addPos + i, array[addLen - space + i]);
+                currNode.block.add(addPos + i, array[addLen - space + i]);
             }
             modify(currNode, space);
             int done = space;
@@ -876,7 +945,7 @@ protected boolean doAddAll(int index, long[] array) {
                 LongBlock nextLongBlock = new LongBlock(blockSize);
                 int add = Math.min(todo, blockSize);
                 for (int i = 0; i < add; i++) {
-                    nextLongBlock.values.add(i, array[addLen - done - add + i]);
+                    nextLongBlock.add(i, array[addLen - done - add + i]);
                 }
                 done += add;
                 todo -= add;
@@ -884,26 +953,25 @@ protected boolean doAddAll(int index, long[] array) {
                 currNode = currNode.previous();
             }
             size += addLen;
-            currLongBlock = currNode.block;
             currLongBlockStart = 0;
-            currLongBlockEnd = currLongBlock.size();
+            currLongBlockEnd = currNode.block.size();
         } else {
             // Add elements in the middle   
             // Split first block to remove tail elements if necessary   
             LongGapList list = LongGapList.create(array);
-            int remove = currLongBlock.values.size() - addPos;
+            int remove = currNode.block.size() - addPos;
             if (remove > 0) {
-                list.addAll(currLongBlock.values.getAll(addPos, remove));
-                currLongBlock.values.remove(addPos, remove);
+                list.addAll(currNode.block.getAll(addPos, remove));
+                currNode.block.remove(addPos, remove);
                 modify(currNode, -remove);
                 size -= remove;
                 currLongBlockEnd -= remove;
             }
             // Calculate how many blocks we need for the elements   
-            int numElems = currLongBlock.values.size() + list.size();
+            int numElems = currNode.block.size() + list.size();
             int numLongBlocks = (numElems - 1) / blockSize + 1;
             assert (numLongBlocks > 1);
-            int has = currLongBlock.values.size();
+            int has = currNode.block.size();
             int should = numElems / numLongBlocks;
             int listPos = 0;
             if (has < should) {
@@ -911,9 +979,9 @@ protected boolean doAddAll(int index, long[] array) {
                 int add = should - has;
                 ILongList sublist = list.getAll(0, add);
                 listPos += add;
-                currLongBlock.values.addAll(addPos, sublist);
+                currNode.block.addAll(addPos, sublist);
                 modify(currNode, add);
-                assert (currLongBlock.values.size() == should);
+                assert (currNode.block.size() == should);
                 numElems -= should;
                 numLongBlocks--;
                 size += add;
@@ -922,10 +990,10 @@ protected boolean doAddAll(int index, long[] array) {
                 // Elements must be moved from first to second block   
                 LongBlock nextLongBlock = new LongBlock(blockSize);
                 int move = has - should;
-                nextLongBlock.values.addAll(currLongBlock.values.getAll(currLongBlock.values.size() - move, move));
-                currLongBlock.values.remove(currLongBlock.values.size() - move, move);
+                nextLongBlock.addAll(currNode.block.getAll(currNode.block.size() - move, move));
+                currNode.block.remove(currNode.block.size() - move, move);
                 modify(currNode, -move);
-                assert (currLongBlock.values.size() == should);
+                assert (currNode.block.size() == should);
                 numElems -= should;
                 numLongBlocks--;
                 currLongBlockEnd -= move;
@@ -933,17 +1001,16 @@ protected boolean doAddAll(int index, long[] array) {
                 int add = should - move;
                 assert (add >= 0);
                 ILongList sublist = list.getAll(0, add);
-                nextLongBlock.values.addAll(move, sublist);
+                nextLongBlock.addAll(move, sublist);
                 listPos += add;
-                assert (nextLongBlock.values.size() == should);
+                assert (nextLongBlock.size() == should);
                 numElems -= should;
                 numLongBlocks--;
                 size += add;
                 addLongBlock(currLongBlockEnd, nextLongBlock);
                 currNode = currNode.next();
-                currLongBlock = currNode.block;
-                assert (currLongBlock == nextLongBlock);
-                assert (currLongBlock.size() == add + move);
+                assert (currNode.block == nextLongBlock);
+                assert (currNode.block.size() == add + move);
                 currLongBlockStart = currLongBlockEnd;
                 currLongBlockEnd += add + move;
             } else {
@@ -959,14 +1026,13 @@ protected boolean doAddAll(int index, long[] array) {
                 ILongList sublist = list.getAll(listPos, add);
                 listPos += add;
                 LongBlock nextLongBlock = new LongBlock();
-                nextLongBlock.values.addAll(sublist);
-                assert (nextLongBlock.values.size() == add);
+                nextLongBlock.addAll(sublist);
+                assert (nextLongBlock.size() == add);
                 numElems -= add;
                 addLongBlock(currLongBlockEnd, nextLongBlock);
                 currNode = currNode.next();
-                currLongBlock = currNode.block;
-                assert (currLongBlock == nextLongBlock);
-                assert (currLongBlock.size() == add);
+                assert (currNode.block == nextLongBlock);
+                assert (currNode.block.size() == add);
                 currLongBlockStart = currLongBlockEnd;
                 currLongBlockEnd += add;
                 size += add;
@@ -984,8 +1050,7 @@ protected boolean doAddAll(int index, long[] array) {
 
     @Override
 protected void doClear() {
-    root = null;
-    currLongBlock = null;
+    rootNode = null;
     currLongBlockStart = 0;
     currLongBlockEnd = 0;
     currModify = 0;
@@ -1016,8 +1081,8 @@ protected void doRemoveAll(int index, int len) {
     if (startNode == endNode) {
         // Delete from single block   
         getLongBlockIndex(index, true, -len);
-        currLongBlock.values.remove(startPos, len);
-        if (currLongBlock.values.isEmpty()) {
+        currNode.block.remove(startPos, len);
+        if (currNode.block.isEmpty()) {
             LongBlockNode oldCurrNode = currNode;
             releaseLongBlock();
             LongBlockNode node = doRemove(oldCurrNode);
@@ -1033,10 +1098,9 @@ protected void doRemoveAll(int index, int len) {
             check();
         int startLen = startNode.block.size() - startPos;
         getLongBlockIndex(index, true, -startLen);
-        // TODO should that be modify?   
-        startNode.block.values.remove(startPos, startLen);
+        startNode.block.remove(startPos, startLen);
         assert (startNode == currNode);
-        if (currLongBlock.values.isEmpty()) {
+        if (currNode.block.isEmpty()) {
             releaseLongBlock();
             doRemove(startNode);
             startNode = null;
@@ -1046,7 +1110,7 @@ protected void doRemoveAll(int index, int len) {
         while (len > 0) {
             currNode = null;
             getLongBlockIndex(index, true, 0);
-            int s = currLongBlock.size();
+            int s = currNode.block.size();
             if (s <= len) {
                 modify(currNode, -s);
                 LongBlockNode oldCurrNode = currNode;
@@ -1061,7 +1125,7 @@ protected void doRemoveAll(int index, int len) {
                     check();
             } else {
                 modify(currNode, -len);
-                currLongBlock.values.remove(0, len);
+                currNode.block.remove(0, len);
                 size -= len;
                 break;
             }
@@ -1085,8 +1149,8 @@ private void merge(LongBlockNode node) {
     if (node == null) {
         return;
     }
-    final int minLongBlockSize = Math.max(blockSize / 3, 1);
-    if (node.block.values.size() >= minLongBlockSize) {
+    final int minLongBlockSize = Math.max((int) (blockSize * MERGE_THRESHOLD), 1);
+    if (node.block.size() >= minLongBlockSize) {
         return;
     }
     LongBlockNode oldCurrNode = node;
@@ -1096,10 +1160,10 @@ private void merge(LongBlockNode node) {
         int len = node.block.size();
         int dstSize = leftNode.getLongBlock().size();
         for (int i = 0; i < len; i++) {
-            leftNode.block.values.add(0);
+            leftNode.block.add(0);
         }
-        LongGapList.copy(node.block.values, 0, leftNode.block.values, dstSize, len);
-        assert (leftNode.block.values.size() <= blockSize);
+        LongGapList.copy(node.block, 0, leftNode.block, dstSize, len);
+        assert (leftNode.block.size() <= blockSize);
         modify(leftNode, +len);
         modify(oldCurrNode, -len);
         releaseLongBlock();
@@ -1110,10 +1174,10 @@ private void merge(LongBlockNode node) {
             // Merge with right block   
             int len = node.block.size();
             for (int i = 0; i < len; i++) {
-                rightNode.block.values.add(0, 0);
+                rightNode.block.add(0, 0);
             }
-            LongGapList.copy(node.block.values, 0, rightNode.block.values, 0, len);
-            assert (rightNode.block.values.size() <= blockSize);
+            LongGapList.copy(node.block, 0, rightNode.block, 0, len);
+            assert (rightNode.block.size() <= blockSize);
             modify(rightNode, +len);
             modify(oldCurrNode, -len);
             releaseLongBlock();
@@ -1124,11 +1188,11 @@ private void merge(LongBlockNode node) {
 
     protected long doRemove(int index) {
     int pos = getLongBlockIndex(index, true, -1);
-    long oldElem = currLongBlock.values.doRemove(pos);
+    long oldElem = currNode.block.doRemove(pos);
     currLongBlockEnd--;
     final int minLongBlockSize = Math.max(blockSize / 3, 1);
-    if (currLongBlock.size() < minLongBlockSize) {
-        if (currLongBlock.size() == 0) {
+    if (currNode.block.size() < minLongBlockSize) {
+        if (currNode.block.size() == 0) {
             if (!isOnlyRootLongBlock()) {
                 LongBlockNode oldCurrNode = currNode;
                 releaseLongBlock();
@@ -1156,7 +1220,7 @@ protected void doEnsureCapacity(int minCapacity) {
         if (minCapacity > blockSize) {
             minCapacity = blockSize;
         }
-        currLongBlock.values.doEnsureCapacity(minCapacity);
+        rootNode.block.doEnsureCapacity(minCapacity);
     }
 }
 
@@ -1168,13 +1232,13 @@ protected void doEnsureCapacity(int minCapacity) {
 public void trimToSize() {
     doModify();
     if (isOnlyRootLongBlock()) {
-        currLongBlock.values.trimToSize();
+        rootNode.block.trimToSize();
     } else {
         LongBigList newList = new LongBigList(blockSize);
-        LongBlockNode node = root.min();
+        LongBlockNode node = rootNode.min();
         while (node != null) {
-            newList.addAll(node.block.values);
-            remove(0, node.block.values.size());
+            newList.addAll(node.block);
+            remove(0, node.block.size());
             node = node.next();
         }
         doAssign(newList);
@@ -1194,7 +1258,7 @@ protected ILongList doCreate(int capacity) {
 public void sort(int index, int len) {
     checkRange(index, len);
     if (isOnlyRootLongBlock()) {
-        currLongBlock.values.sort(index, len);
+        currNode.block.sort(index, len);
     } else {
         LongMergeSort.sort(this, index, index + len);
     }
@@ -1204,7 +1268,7 @@ public void sort(int index, int len) {
 public int binarySearch(int index, int len, long key) {
     checkRange(index, len);
     if (isOnlyRootLongBlock()) {
-        return currLongBlock.values.binarySearch(key);
+        return rootNode.block.binarySearch(key);
     } else {
         return LongBinarySearch.binarySearch(this, key, 0, size());
     }
@@ -1248,7 +1312,7 @@ private void readObject(ObjectInputStream ois) throws IOException, ClassNotFound
 
     // --- Debug checks ---  
 private void checkNode(LongBlockNode node) {
-    assert ((node.block.size() > 0 || node == root) && node.block.size() <= blockSize);
+    assert ((node.block.size() > 0 || node == rootNode) && node.block.size() <= blockSize);
     LongBlockNode child = node.getLeftSubTree();
     assert (child == null || child.parent == node);
     child = node.getRightSubTree();
@@ -1279,15 +1343,14 @@ private void checkNode(LongBlockNode node) {
 
     private void check() {
     if (currNode != null) {
-        assert (currNode.block == currLongBlock);
         assert (currLongBlockStart >= 0 && currLongBlockEnd <= size && currLongBlockStart <= currLongBlockEnd);
-        assert (currLongBlockStart + currLongBlock.size() == currLongBlockEnd);
+        assert (currLongBlockStart + currNode.block.size() == currLongBlockEnd);
     }
-    if (root == null) {
+    if (rootNode == null) {
         assert (size == 0);
         return;
     }
-    checkHeight(root);
+    checkHeight(rootNode);
     LongBlockNode oldCurrNode = currNode;
     int oldCurrModify = currModify;
     if (currModify != 0) {
@@ -1295,21 +1358,21 @@ private void checkNode(LongBlockNode node) {
         currModify = 0;
         modify(oldCurrNode, oldCurrModify);
     }
-    LongBlockNode node = root;
+    LongBlockNode node = rootNode;
     checkNode(node);
-    int index = node.relativePosition;
+    int index = node.relPos;
     while (node.left != null) {
         node = node.left;
         checkNode(node);
-        assert (node.relativePosition < 0);
-        index += node.relativePosition;
+        assert (node.relPos < 0);
+        index += node.relPos;
     }
     LongBlock block = node.getLongBlock();
     assert (block.size() == index);
     int lastIndex = index;
     while (lastIndex < size()) {
-        node = root;
-        index = node.relativePosition;
+        node = rootNode;
+        index = node.relPos;
         int searchIndex = lastIndex + 1;
         while (true) {
             checkNode(node);
@@ -1330,7 +1393,7 @@ private void checkNode(LongBlockNode node) {
                     break;
                 }
             }
-            index += node.relativePosition;
+            index += node.relPos;
         }
         block = node.getLongBlock();
         assert (block.size() == index - lastIndex);
@@ -1353,26 +1416,20 @@ private void checkNode(LongBlockNode node) {
 	 * instances with a copy-on-write approach.
 	 */
     
-    public static class LongBlock implements Serializable {
+    public static class LongBlock extends LongGapList {
 
-        private LongGapList values;
-
-        private int refCount;
+        private int refCount = 1;
 
         public LongBlock(){
-    values = new LongGapList();
-    refCount = 1;
 }
 
         public LongBlock(int capacity){
-    values = new LongGapList(capacity);
-    refCount = 1;
+    super(capacity);
 }
 
         public LongBlock(LongBlock that){
-    values = new LongGapList(that.values.capacity());
-    values.init(that.values.getArray(0, that.values.size()));
-    refCount = 1;
+    super(that.capacity());
+    addAll(that);
 }
 
         /**
@@ -1395,18 +1452,6 @@ public LongBlock ref() {
 		 */
 public void unref() {
     refCount--;
-}
-
-        /**
-		 * @return number of elements stored in this block
-		 */
-public int size() {
-    return values.size();
-}
-
-        @Override
-public String toString() {
-    return values.toString();
 }
     }
 
@@ -1438,8 +1483,8 @@ public String toString() {
         /** How many levels of left/right are below this one. */
         int height;
 
-        /** The relative position, root holds absolute position. */
-        int relativePosition;
+        /** Relative position of node relative to its parent, root holds absolute position. */
+        int relPos;
 
         /** The stored block */
         LongBlock block;
@@ -1453,9 +1498,9 @@ public String toString() {
          * @param rightFollower 	the node following this one
          * @param leftFollower 		the node leading this one
          */
-private LongBlockNode(LongBlockNode parent, int relativePosition, LongBlock block, LongBlockNode rightFollower, LongBlockNode leftFollower){
+private LongBlockNode(LongBlockNode parent, int relPos, LongBlock block, LongBlockNode rightFollower, LongBlockNode leftFollower){
     this.parent = parent;
-    this.relativePosition = relativePosition;
+    this.relPos = relPos;
     this.block = block;
     rightIsNext = true;
     leftIsPrevious = true;
@@ -1468,7 +1513,7 @@ private LongBlockNode(LongBlockNode parent, int relativePosition, LongBlock bloc
          *
          * @return block stored by this node
          */
-public LongBlock getLongBlock() {
+private LongBlock getLongBlock() {
     return block;
 }
 
@@ -1477,86 +1522,8 @@ public LongBlock getLongBlock() {
          *
          * @param block  the block to store
          */
-public void setLongBlock(LongBlock block) {
+private void setLongBlock(LongBlock block) {
     this.block = block;
-}
-
-        /**
-         * Retrieves node with specified index.
-         *
-         * @param list		reference to LongBigList using this node (used for updating currLongBlockEnd)
-         * @param index		index to retrieve
-         * @param modify	modification to apply during traversal to relative positions <br/>
-         * 					>0: N elements are added at index, <0: N elements are deleted at index, 0: no change
-         * @param wasLeft	last node was a left child
-         * @return
-         */
-private LongBlockNode access(LongBigList list, int index, int modify, boolean wasLeft) {
-    assert (index >= 0);
-    if (relativePosition == 0) {
-        if (modify != 0) {
-            relativePosition += modify;
-        }
-        return this;
-    }
-    if (list.currLongBlockEnd == 0) {
-        list.currLongBlockEnd = relativePosition;
-    }
-    int leftIndex = list.currLongBlockEnd - block.size();
-    assert (leftIndex >= 0);
-    if (index >= leftIndex && index < list.currLongBlockEnd) {
-        // Correct node has been found   
-        LongBlockNode leftNode = getLeftSubTree();
-        if (relativePosition > 0) {
-            relativePosition += modify;
-            if (leftNode != null) {
-                leftNode.relativePosition -= modify;
-            }
-        } else {
-            if (leftNode != null) {
-                leftNode.relativePosition -= modify;
-            }
-        }
-        return this;
-    }
-    // Further traversal needed to find the correct node   
-    if (index < list.currLongBlockEnd) {
-        // Travese the left node   
-        LongBlockNode nextNode = getLeftSubTree();
-        if (nextNode == null || !wasLeft) {
-            if (relativePosition > 0) {
-                relativePosition += modify;
-            } else {
-                relativePosition -= modify;
-            }
-            wasLeft = true;
-        }
-        if (nextNode == null) {
-            return this;
-        }
-        list.currLongBlockEnd += nextNode.relativePosition;
-        return nextNode.access(list, index, modify, wasLeft);
-    } else {
-        // Traverse the right node   
-        LongBlockNode nextNode = getRightSubTree();
-        if (nextNode == null || wasLeft) {
-            if (relativePosition > 0) {
-                relativePosition += modify;
-                LongBlockNode left = getLeftSubTree();
-                if (left != null) {
-                    left.relativePosition -= modify;
-                }
-            } else {
-                relativePosition -= modify;
-            }
-            wasLeft = false;
-        }
-        if (nextNode == null) {
-            return this;
-        }
-        list.currLongBlockEnd += nextNode.relativePosition;
-        return nextNode.access(list, index, modify, wasLeft);
-    }
 }
 
         /**
@@ -1564,7 +1531,7 @@ private LongBlockNode access(LongBigList list, int index, int modify, boolean wa
          *
          * @return the next node
          */
-public LongBlockNode next() {
+private LongBlockNode next() {
     if (rightIsNext || right == null) {
         return right;
     }
@@ -1576,7 +1543,7 @@ public LongBlockNode next() {
          *
          * @return the previous node
          */
-public LongBlockNode previous() {
+private LongBlockNode previous() {
     if (leftIsPrevious || left == null) {
         return left;
     }
@@ -1584,52 +1551,66 @@ public LongBlockNode previous() {
 }
 
         /**
-         * Inserts a node at the position index.
+         * Inserts new node holding specified block at the position index.
          *
-         * @param index is the index of the position relative to the position of
-         * the parent node.
-         * @param obj is the object to be stored in the position.
+         * @param index 	index of the position relative to the position of the parent node
+         * @param obj 		object to store in the position
+         * @return			this node or node replacing this node in the tree (if tree must be rebalanced)
          */
 private LongBlockNode insert(int index, LongBlock obj) {
-    assert (relativePosition != 0);
-    final int indexRelativeToMe = index - relativePosition;
-    if (indexRelativeToMe < 0) {
-        return insertOnLeft(indexRelativeToMe, obj);
+    assert (relPos != 0);
+    int relIndex = index - relPos;
+    if (relIndex < 0) {
+        return insertOnLeft(relIndex, obj);
     } else {
-        return insertOnRight(indexRelativeToMe, obj);
+        return insertOnRight(relIndex, obj);
     }
 }
 
-        private LongBlockNode insertOnLeft(int indexRelativeToMe, LongBlock obj) {
+        /**
+         * Inserts new node holding specified block on the node's left side.
+         *
+         * @param index 	index of the position relative to the position of the parent node
+         * @param obj 		object to store in the position
+         * @return			this node or node replacing this node in the tree (if tree must be rebalanced)
+         */
+private LongBlockNode insertOnLeft(int relIndex, LongBlock obj) {
     if (getLeftSubTree() == null) {
         int pos;
-        if (relativePosition >= 0) {
-            pos = -relativePosition;
+        if (relPos >= 0) {
+            pos = -relPos;
         } else {
             pos = -block.size();
         }
         setLeft(new LongBlockNode(this, pos, obj, this, left), null);
     } else {
-        setLeft(left.insert(indexRelativeToMe, obj), null);
+        setLeft(left.insert(relIndex, obj), null);
     }
-    if (relativePosition >= 0) {
-        relativePosition += obj.size();
+    if (relPos >= 0) {
+        relPos += obj.size();
     }
-    final LongBlockNode ret = balance();
+    LongBlockNode ret = balance();
     recalcHeight();
     return ret;
 }
 
-        private LongBlockNode insertOnRight(int indexRelativeToMe, LongBlock obj) {
+        /**
+         * Inserts new node holding specified block on the node's right side.
+         *
+         * @param index 	index of the position relative to the position of the parent node
+         * @param obj 		object to store in the position
+         * @return			this node or node replacing this node in the tree (if tree must be rebalanced)
+         */
+private LongBlockNode insertOnRight(int relIndex, LongBlock obj) {
     if (getRightSubTree() == null) {
         setRight(new LongBlockNode(this, obj.size(), obj, right, this), null);
     } else {
-        setRight(right.insert(indexRelativeToMe, obj), null);
+        setRight(right.insert(relIndex, obj), null);
     }
-    if (relativePosition < 0) {
-        relativePosition -= obj.size();
+    if (relPos < 0) {
+        relPos -= obj.size();
     }
-    final LongBlockNode ret = balance();
+    LongBlockNode ret = balance();
     recalcHeight();
     return ret;
 }
@@ -1637,14 +1618,14 @@ private LongBlockNode insert(int index, LongBlock obj) {
         /**
          * Gets the left node, returning null if its a faedelung.
          */
-public LongBlockNode getLeftSubTree() {
+private LongBlockNode getLeftSubTree() {
     return leftIsPrevious ? null : left;
 }
 
         /**
          * Gets the right node, returning null if its a faedelung.
          */
-public LongBlockNode getRightSubTree() {
+private LongBlockNode getRightSubTree() {
     return rightIsNext ? null : right;
 }
 
@@ -1653,7 +1634,7 @@ public LongBlockNode getRightSubTree() {
          *
          * @return the rightmost child (greatest index)
          */
-public LongBlockNode max() {
+private LongBlockNode max() {
     return getRightSubTree() == null ? this : right.max();
 }
 
@@ -1662,7 +1643,7 @@ public LongBlockNode max() {
          *
          * @return the leftmost child (smallest index)
          */
-public LongBlockNode min() {
+private LongBlockNode min() {
     return getLeftSubTree() == null ? this : left.min();
 }
 
@@ -1680,8 +1661,8 @@ public LongBlockNode min() {
         return removeSelf();
     }
     setLeft(left.removeMin(size), left.left);
-    if (relativePosition > 0) {
-        relativePosition -= size;
+    if (relPos > 0) {
+        relPos -= size;
     }
     recalcHeight();
     return balance();
@@ -1692,7 +1673,7 @@ public LongBlockNode min() {
          *
          * @return the node that replaces this one in the parent (can be null)
          */
-public LongBlockNode removeSelf() {
+private LongBlockNode removeSelf() {
     LongBlockNode p = parent;
     LongBlockNode n = doRemoveSelf();
     if (n != null) {
@@ -1702,22 +1683,22 @@ public LongBlockNode removeSelf() {
     return n;
 }
 
-        public LongBlockNode doRemoveSelf() {
+        private LongBlockNode doRemoveSelf() {
     if (getRightSubTree() == null && getLeftSubTree() == null) {
         return null;
     }
     if (getRightSubTree() == null) {
-        if (relativePosition > 0) {
-            left.relativePosition += relativePosition + (relativePosition > 0 ? 0 : 1);
+        if (relPos > 0) {
+            left.relPos += relPos + (relPos > 0 ? 0 : 1);
         } else {
-            left.relativePosition += relativePosition;
+            left.relPos += relPos;
         }
         left.max().setRight(null, right);
         return left;
     }
     if (getLeftSubTree() == null) {
-        if (relativePosition < 0) {
-            right.relativePosition += relativePosition - (relativePosition < 0 ? 0 : 1);
+        if (relPos < 0) {
+            right.relPos += relPos - (relPos < 0 ? 0 : 1);
         }
         right.min().setLeft(null, left);
         return right;
@@ -1731,8 +1712,8 @@ public LongBlockNode removeSelf() {
             left = rightMin.left;
         }
         right = right.removeMin(bs);
-        relativePosition += bs;
-        left.relativePosition -= bs;
+        relPos += bs;
+        left.relPos -= bs;
     } else {
         // more on the left or equal, so delete from the left   
         final LongBlockNode leftMax = left.max();
@@ -1748,8 +1729,8 @@ public LongBlockNode removeSelf() {
             left = leftPrevious;
             leftIsPrevious = true;
         } else {
-            if (left.relativePosition == 0) {
-                left.relativePosition = -1;
+            if (left.relPos == 0) {
+                left.relPos = -1;
             }
         }
     }
@@ -1788,7 +1769,7 @@ private int getOffset(LongBlockNode node) {
     if (node == null) {
         return 0;
     }
-    return node.relativePosition;
+    return node.relPos;
 }
 
         /**
@@ -1799,7 +1780,7 @@ private int setOffset(LongBlockNode node, int newOffest) {
         return 0;
     }
     final int oldOffset = getOffset(node);
-    node.relativePosition = newOffest;
+    node.relPos = newOffest;
     return oldOffset;
 }
 
@@ -1834,8 +1815,8 @@ private LongBlockNode rotateLeft() {
     final LongBlockNode newTop = right;
     // can't be faedelung!   
     final LongBlockNode movedNode = getRightSubTree().getLeftSubTree();
-    final int newTopPosition = relativePosition + getOffset(newTop);
-    final int myNewPosition = -newTop.relativePosition;
+    final int newTopPosition = relPos + getOffset(newTop);
+    final int myNewPosition = -newTop.relPos;
     final int movedPosition = getOffset(newTop) + getOffset(movedNode);
     LongBlockNode p = this.parent;
     setRight(movedNode, newTop);
@@ -1845,8 +1826,8 @@ private LongBlockNode rotateLeft() {
     setOffset(newTop, newTopPosition);
     setOffset(this, myNewPosition);
     setOffset(movedNode, movedPosition);
-    assert (newTop.getLeftSubTree() == null || newTop.getLeftSubTree().relativePosition < 0);
-    assert (newTop.getRightSubTree() == null || newTop.getRightSubTree().relativePosition > 0);
+    assert (newTop.getLeftSubTree() == null || newTop.getLeftSubTree().relPos < 0);
+    assert (newTop.getRightSubTree() == null || newTop.getRightSubTree().relPos > 0);
     return newTop;
 }
 
@@ -1860,8 +1841,8 @@ private LongBlockNode rotateRight() {
     final LongBlockNode newTop = left;
     // can't be faedelung   
     final LongBlockNode movedNode = getLeftSubTree().getRightSubTree();
-    final int newTopPosition = relativePosition + getOffset(newTop);
-    final int myNewPosition = -newTop.relativePosition;
+    final int newTopPosition = relPos + getOffset(newTop);
+    final int myNewPosition = -newTop.relPos;
     final int movedPosition = getOffset(newTop) + getOffset(movedNode);
     LongBlockNode p = this.parent;
     setLeft(movedNode, newTop);
@@ -1871,8 +1852,8 @@ private LongBlockNode rotateRight() {
     setOffset(newTop, newTopPosition);
     setOffset(this, myNewPosition);
     setOffset(movedNode, movedPosition);
-    assert (newTop.getLeftSubTree() == null || newTop.getLeftSubTree().relativePosition < 0);
-    assert (newTop.getRightSubTree() == null || newTop.getRightSubTree().relativePosition > 0);
+    assert (newTop.getLeftSubTree() == null || newTop.getLeftSubTree().relPos < 0);
+    assert (newTop.getRightSubTree() == null || newTop.getRightSubTree().relPos > 0);
     return newTop;
 }
 
@@ -1917,7 +1898,7 @@ private void setRight(LongBlockNode node, LongBlockNode next) {
          */
 @Override
 public String toString() {
-    return new StringBuilder().append("LongBlockNode(").append(relativePosition).append(',').append(getRightSubTree() != null).append(',').append(block).append(',').append(getRightSubTree() != null).append(", height ").append(height).append(" )").toString();
+    return new StringBuilder().append("LongBlockNode(").append(relPos).append(',').append(getRightSubTree() != null).append(',').append(block).append(',').append(getRightSubTree() != null).append(", height ").append(height).append(" )").toString();
 }
     }
 

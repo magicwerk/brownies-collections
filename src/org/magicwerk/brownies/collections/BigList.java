@@ -1093,7 +1093,7 @@ public class BigList<E> extends IList<E> {
 			if (minCapacity > blockSize) {
 				minCapacity = blockSize;
 			}
-			currNode.block.doEnsureCapacity(minCapacity);
+			rootNode.block.doEnsureCapacity(minCapacity);
 		}
 	}
 
@@ -1106,7 +1106,7 @@ public class BigList<E> extends IList<E> {
         doModify();
 
         if (isOnlyRootBlock()) {
-			currNode.block.trimToSize();
+			rootNode.block.trimToSize();
 		} else {
 			BigList<E> newList = new BigList<E>(blockSize);
 			BlockNode<E> node = rootNode.min();
@@ -1144,7 +1144,7 @@ public class BigList<E> extends IList<E> {
     	checkRange(index, len);
 
     	if (isOnlyRootBlock()) {
-    		return currNode.block.binarySearch(key, comparator);
+    		return rootNode.block.binarySearch(key, comparator);
     	} else {
     		return Collections.binarySearch((List<K>) this, key, comparator);
     	}
@@ -1317,7 +1317,7 @@ public class BigList<E> extends IList<E> {
 
 		public Block(Block<T> that) {
 			super(that.capacity());
-			init(that);
+			addAll(that);
 		}
 
 		/**
