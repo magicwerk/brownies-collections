@@ -934,7 +934,8 @@ public class GapList<E> extends IList<E> {
 		return removed;
 	}
 
-    @Override
+    @SuppressWarnings("unchecked")
+	@Override
     protected void doEnsureCapacity(int minCapacity) {
 		// Note: Same behavior as in ArrayList.ensureCapacity()
 		int oldCapacity = values.length;

@@ -7,7 +7,6 @@ import org.magicwerk.brownies.collections.BigList;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -340,6 +339,7 @@ public IntBigList(int blockSize){
      * @return          created list
      * @param        type of elements stored in the list
      */
+
 public IntBigList(Collection<Integer> coll){
     if (coll instanceof IntBigList) {
         doAssign((IntBigList) coll);
@@ -1076,7 +1076,7 @@ protected void doRemoveAll(int index, int len) {
     // Remove range   
     int startPos = getIntBlockIndex(index, true, 0);
     IntBlockNode startNode = currNode;
-    int endPos = getIntBlockIndex(index + len - 1, true, 0);
+     int endPos = getIntBlockIndex(index + len - 1, true, 0);
     IntBlockNode endNode = currNode;
     if (startNode == endNode) {
         // Delete from single block   
@@ -1264,7 +1264,8 @@ public void sort(int index, int len) {
     }
 }
 
-    @Override
+    
+@Override
 public int binarySearch(int index, int len, int key) {
     checkRange(index, len);
     if (isOnlyRootIntBlock()) {

@@ -18,12 +18,12 @@ public class MergeSort<E> {
 	Comparator<? super E> comparator;
 
 	public static <E> void sort(List<E> list, Comparator<? super E> comparator) {
-		MergeSort sort = new MergeSort(list, comparator);
+		MergeSort<E> sort = new MergeSort<E>(list, comparator);
 		sort.sort();
 	}
 
 	public static <E> void sort(List<E> list, Comparator<? super E> comparator, int from, int to) {
-		MergeSort sort = new MergeSort(list, comparator);
+		MergeSort<E> sort = new MergeSort<E>(list, comparator);
 		sort.sort(from, to);
 	}
 

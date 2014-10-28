@@ -29,10 +29,12 @@ import org.magicwerk.brownies.collections.function.Mapper;
  * @author Thomas Mauch
  * @version $Id$
  */
+@SuppressWarnings("serial")
 public class IdentMapper<E> implements Mapper<E, E>, Serializable {
 
 	/** Singleton instance */
-    public static final IdentMapper INSTANCE = new IdentMapper();
+    @SuppressWarnings("rawtypes")
+	public static final IdentMapper INSTANCE = new IdentMapper();
 
 
     /**
