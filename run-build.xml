@@ -1,7 +1,6 @@
 <project default="build">
-	<property name="release" value="0.9.7"/>
+	<property name="release" value="0.9.8"/>
 	<property name="release-overwrite" value="false"/>
-	<property name="skipFiles-0.9.x" value="**/Big*" />
 
 	<property environment="env"/>
 	<import file="${env.BROWNIES_DEV}/build-lib.xml" />
@@ -22,8 +21,6 @@
 		<delete file="${build.dir}/brownies-collections-only-deps.jar" />
 		<delete file="${build.dir}/brownies-collections-with-all.jar" />
 		<delete file="${build.dir}/brownies-collections-with-deps.jar" />
-
-       	<antcall target="post-build-0.9.x" />
 	</target>
 
 	<!-- ==================== UNUSED ==================== -->
@@ -33,6 +30,7 @@
 	<target name="post-build-0.9.x">
 	    <property name="tmp.bin.jar" value="${build.dir}/brownies-collections.jar" />
         <property name="tmp.bin.dir" value="${build.dir}/brownies-collections.jar.tmp" />
+		<property name="skipFiles-0.9.x" value="**/Big*" />
 
 		<unjar src="${tmp.bin.jar}" dest="${tmp.bin.dir}" />
 		<delete>
