@@ -891,7 +891,8 @@ protected long doRemove(int index) {
     return removed;
 }
 
-    @Override
+    
+@Override
 protected void doEnsureCapacity(int minCapacity) {
     // Note: Same behavior as in ArrayList.ensureCapacity()   
     int oldCapacity = values.length;

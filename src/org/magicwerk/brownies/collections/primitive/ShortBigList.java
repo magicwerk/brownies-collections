@@ -7,7 +7,6 @@ import org.magicwerk.brownies.collections.BigList;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -340,6 +339,7 @@ public ShortBigList(int blockSize){
      * @return          created list
      * @param        type of elements stored in the list
      */
+
 public ShortBigList(Collection<Short> coll){
     if (coll instanceof ShortBigList) {
         doAssign((ShortBigList) coll);
@@ -1076,7 +1076,7 @@ protected void doRemoveAll(int index, int len) {
     // Remove range   
     int startPos = getShortBlockIndex(index, true, 0);
     ShortBlockNode startNode = currNode;
-    int endPos = getShortBlockIndex(index + len - 1, true, 0);
+     int endPos = getShortBlockIndex(index + len - 1, true, 0);
     ShortBlockNode endNode = currNode;
     if (startNode == endNode) {
         // Delete from single block   
@@ -1264,7 +1264,8 @@ public void sort(int index, int len) {
     }
 }
 
-    @Override
+    
+@Override
 public int binarySearch(int index, int len, short key) {
     checkRange(index, len);
     if (isOnlyRootShortBlock()) {

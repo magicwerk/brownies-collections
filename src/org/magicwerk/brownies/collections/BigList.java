@@ -3,7 +3,6 @@ package org.magicwerk.brownies.collections;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -166,7 +165,8 @@ public class BigList<E> extends IList<E> {
      * @return          created list
      * @param <E>       type of elements stored in the list
      */
-    public BigList(Collection<? extends E> coll) {
+    @SuppressWarnings("unchecked")
+	public BigList(Collection<? extends E> coll) {
     	if (coll instanceof BigList) {
     		doAssign((BigList<E>) coll);
         	doClone((BigList<E>) coll);
@@ -944,6 +944,7 @@ public class BigList<E> extends IList<E> {
 		// Remove range
 		int startPos = getBlockIndex(index, true, 0);
 		BlockNode<E> startNode = currNode;
+		@SuppressWarnings("unused")
 		int endPos = getBlockIndex(index+len-1, true, 0);
 		BlockNode<E> endNode = currNode;
 
@@ -1029,7 +1030,7 @@ public class BigList<E> extends IList<E> {
 		    int len = node.block.size();
 		    int dstSize = leftNode.getBlock().size();
             for (int i=0; i<len; i++) {
-                leftNode.block.add(null); // TODO Add method to GapList
+                leftNode.block.add(null);
             }
 			GapList.copy(node.block, 0, leftNode.block, dstSize, len);
 			assert(leftNode.block.size() <= blockSize);
@@ -1139,6 +1140,7 @@ public class BigList<E> extends IList<E> {
     	}
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public <K> int binarySearch(int index, int len, K key, Comparator<? super K> comparator) {
     	checkRange(index, len);

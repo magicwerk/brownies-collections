@@ -34,6 +34,7 @@ public class AnyComparator<T> implements Comparator<T> {
 	/**
 	 * Singleton instance.
 	 */
+	@SuppressWarnings("rawtypes")
 	public static final AnyComparator INSTANCE = new AnyComparator();
 
 	/**

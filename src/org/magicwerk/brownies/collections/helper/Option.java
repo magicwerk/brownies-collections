@@ -26,7 +26,8 @@ package org.magicwerk.brownies.collections.helper;
  * @version $Id$
  */
 public class Option<T> {
-    private static final Option EMPTY = new Option();
+    @SuppressWarnings("rawtypes")
+	private static final Option EMPTY = new Option();
 
     /**
      * @return unmodifiable empty instance

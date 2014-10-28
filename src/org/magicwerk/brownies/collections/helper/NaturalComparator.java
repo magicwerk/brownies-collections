@@ -19,8 +19,6 @@ package org.magicwerk.brownies.collections.helper;
 
 import java.util.Comparator;
 
-import org.magicwerk.brownies.collections.GapList;
-
 /**
  * The NaturalComparator will compare object using their natural order.
  *
@@ -33,14 +31,17 @@ public class NaturalComparator<T> implements Comparator<T> {
 	/**
 	 * Singleton.
 	 */
+	@SuppressWarnings("rawtypes")
 	private static final NaturalComparator INSTANCE = new NaturalComparator();
 	/**
 	 * @return singleton
 	 */
-    public static <T> NaturalComparator<T> INSTANCE() {
+    @SuppressWarnings("unchecked")
+	public static <T> NaturalComparator<T> INSTANCE() {
         return INSTANCE;
     }
-    public static <T> NaturalComparator<T> INSTANCE(Class<T> c) {
+    @SuppressWarnings("unchecked")
+	public static <T> NaturalComparator<T> INSTANCE(Class<T> c) {
         return INSTANCE;
     }
 
@@ -50,6 +51,7 @@ public class NaturalComparator<T> implements Comparator<T> {
 	private NaturalComparator() {
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
     public int compare(T o1, T o2) {
         return ((Comparable) o1).compareTo(o2);
