@@ -26,6 +26,11 @@
 	<!-- ==================== UNUSED ==================== -->
 	<!--
 	Example targets how to remove files from build
+
+	<target name="build-doc">
+       	<antcall target="build-doc-0.9.x" />
+	</target>
+
 	-->
 	<target name="post-build-0.9.x">
 	    <property name="tmp.bin.jar" value="${build.dir}/brownies-collections.jar" />
@@ -49,10 +54,6 @@
         <delete file="${tmp.src.jar}" />
         <jar file="${tmp.src.jar}" basedir="${tmp.src.dir}" />
         <delete dir="${tmp.src.dir}" />
-	</target>
-
-	<target name="build-doc">
-       	<antcall target="build-doc-0.9.x" />
 	</target>
 
     <target name="build-doc-0.9.x" depends="prepare-doc">
