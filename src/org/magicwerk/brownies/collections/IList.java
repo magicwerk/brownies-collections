@@ -388,6 +388,62 @@ public abstract class IList<E> extends AbstractList<E>
     }
 
 	/**
+	 * Returns all elements in the list which match the predicate.
+	 *
+	 * @param predicate	predicate
+	 * @return			all elements in the list which match the predicate
+	 */
+    public IList<E> getWhere(Predicate<E> predicate) {
+        IList<E> list = doCreate(-1);
+		int size = size();
+		for (int i=0; i<size; i++) {
+			E e = doGet(i);
+			if (predicate.allow(e)) {
+				list.add(e);
+			}
+		}
+        return list;
+    }
+
+	/**
+	 * Removes all elements in the list which match the predicate.
+	 *
+	 * @param predicate	predicate
+	 */
+	public void removeWhere(Predicate<E> predicate) {
+	    int size = size();
+		for (int i=0; i<size; i++) {
+			E e = doGet(i);
+			if (predicate.allow(e)) {
+				doRemove(i);
+				size--;
+				i--;
+			}
+		}
+	}
+
+	/**
+	 * Removes and returns all elements in the list which match the predicate.
+	 *
+	 * @param predicate	predicate
+	 * @return			elements which have been removed from the list
+	 */
+	public IList<E> extractWhere(Predicate<E> predicate) {
+	    IList<E> list = doCreate(-1);
+	    int size = size();
+		for (int i=0; i<size; i++) {
+			E e = doGet(i);
+			if (predicate.allow(e)) {
+				list.add(e);
+				doRemove(i);
+				size--;
+				i--;
+			}
+		}
+		return list;
+	}
+
+	/**
 	 * Returns distinct elements in the list.
 	 *
 	 * @return		distinct elements in the list
