@@ -1148,7 +1148,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	        		if (!(allowDuplicates || (key == null && allowDuplicatesNull))) {
 	        			// Revert change and raise error
 	        			keysMap.put(key, oldElem);
-		        		errorDuplicateKey();
+		        		errorDuplicateKey(key);
 	        		}
 
 		        	if (count) {
@@ -1195,7 +1195,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	                }
 	        	}
 	        	if (!add) {
-	        		errorDuplicateKey();
+	        		errorDuplicateKey(key);
 	        	}
 	            keysList.doAdd(addIndex, key);
 	       	}
@@ -1649,8 +1649,8 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 		throw new KeyException("Constraint violation: null key not allowed");
     }
 
-    static void errorDuplicateKey() {
-		throw new DuplicateKeyException();
+    static void errorDuplicateKey(Object key) {
+		throw new DuplicateKeyException(key);
     }
 
     static void errorInvalidData() {
