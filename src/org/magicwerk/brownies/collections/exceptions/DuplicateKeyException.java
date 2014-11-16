@@ -23,7 +23,7 @@ public class DuplicateKeyException extends KeyException {
 
 	public static final String MESSAGE = "Constraint violation: duplicate key not allowed";
 
-	public DuplicateKeyException() {
-		super(MESSAGE);
+	public DuplicateKeyException(Object key) {
+		super(MESSAGE + ": "  + key);
 	}
 }

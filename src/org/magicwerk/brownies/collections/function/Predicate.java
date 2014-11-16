@@ -18,8 +18,7 @@
 package org.magicwerk.brownies.collections.function;
 
 /**
- * The Trigger interface is used by methods for implementing
- * trigger like functionality.
+ * The Predicate interface is used for implementing predicates.
  *
  * @param <E>	element type
  *
