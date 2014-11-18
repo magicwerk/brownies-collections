@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: IDoubleList.java 2529 2014-10-22 23:49:04Z origo $
+ * $Id: IDoubleList.java 2579 2014-11-10 06:35:42Z origo $
  */
 package org.magicwerk.brownies.collections.primitive;
 
@@ -42,7 +42,7 @@ import org.magicwerk.brownies.collections.function.Predicate;
  * It also offers additional methods which are then available in all implementations of GapList and BigList.
  *
  * @author Thomas Mauch
- * @version $Id: IDoubleList.java 2529 2014-10-22 23:49:04Z origo $
+ * @version $Id: IDoubleList.java 2579 2014-11-10 06:35:42Z origo $
  *
  * @param <E> type of elements stored in the list
  * @see	    java.util.List
@@ -377,6 +377,62 @@ public IDoubleList getAll(double elem) {
 }
 
     /**
+	 * Returns all elements in the list which match the predicate.
+	 *
+	 * @param predicate	predicate
+	 * @return			all elements in the list which match the predicate
+	 */
+public IDoubleList getWhere(Predicate predicate) {
+    IDoubleList list = doCreate(-1);
+    int size = size();
+    for (int i = 0; i < size; i++) {
+        double e = doGet(i);
+        if (predicate.allow(e)) {
+            list.add(e);
+        }
+    }
+    return list;
+}
+
+    /**
+	 * Removes all elements in the list which match the predicate.
+	 *
+	 * @param predicate	predicate
+	 */
+public void removeWhere(Predicate predicate) {
+    int size = size();
+    for (int i = 0; i < size; i++) {
+        double e = doGet(i);
+        if (predicate.allow(e)) {
+            doRemove(i);
+            size--;
+            i--;
+        }
+    }
+}
+
+    /**
+	 * Removes and returns all elements in the list which match the predicate.
+	 *
+	 * @param predicate	predicate
+	 * @return			elements which have been removed from the list
+	 */
+public IDoubleList extractWhere(Predicate predicate) {
+    IDoubleList list = doCreate(-1);
+    int size = size();
+    for (int i = 0; i < size; i++) {
+        double e = doGet(i);
+        if (predicate.allow(e)) {
+            list.add(e);
+            doRemove(i);
+            size--;
+            i--;
+        }
+    }
+    return list;
+}
+
+    /**
 	 * Returns distinct elements in the list.
 	 *
 	 * @return		distinct elements in the list
@@ -440,6 +496,52 @@ public int indexOf(double elem) {
     
 public int lastIndexOf(double elem) {
     for (int i = size() - 1; i >= 0; i--) {
+        if (equalsElem(doGet(i), elem)) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+    /**
+	 * Returns the index of the first occurrence of the specified element in this list, starting the search at the specified position.
+	 * If the element is not found, -1 is returned.
+	 * 
+	 * @param elem			element to search for
+	 * @param fromIndex		start index for search
+	 * @return				the index of the first occurrence of the specified element in this list that is greater than or equal to fromIndex,
+	 * 						or -1 if this list does not contain the element
+	 * @see #indexOf(Object)
+	 */
+public int indexOf(double elem, int fromIndex) {
+    if (fromIndex < 0) {
+        fromIndex = 0;
+    }
+    int size = size();
+    for (int i = fromIndex; i < size; i++) {
+        if (equalsElem(doGet(i), elem)) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+    /**
+	 * Returns the index of the last occurrence of the specified element in this list, starting the search at the specified position.
+	 * If the element is not found, -1 is returned.
+	 * 
+	 * @param elem			element to search for
+	 * @param fromIndex		start index for search
+	 * @return				the index of the last occurrence of the specified element in this list that is less than or equal to fromIndex,
+	 * 						or -1 if this list does not contain the element
+	 * @see #lastIndexOf(Object)
+	 */
+public int lastIndexOf(double elem, int fromIndex) {
+    int size = size();
+    if (fromIndex >= size) {
+        fromIndex = size - 1;
+    }
+    for (int i = fromIndex; i >= 0; i--) {
         if (equalsElem(doGet(i), elem)) {
             return i;
         }

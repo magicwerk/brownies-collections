@@ -515,6 +515,52 @@ public abstract class IList<E> extends AbstractList<E>
 		return -1;
 	}
 
+	/**
+	 * Returns the index of the first occurrence of the specified element in this list, starting the search at the specified position.
+	 * If the element is not found, -1 is returned.
+	 * 
+	 * @param elem			element to search for
+	 * @param fromIndex		start index for search
+	 * @return				the index of the first occurrence of the specified element in this list that is greater than or equal to fromIndex,
+	 * 						or -1 if this list does not contain the element
+	 * @see #indexOf(Object)
+	 */
+	public int indexOf(Object elem, int fromIndex) {
+		if (fromIndex < 0) {
+			fromIndex = 0;
+		}
+		int size = size();
+		for (int i=fromIndex; i<size; i++) {
+			if (equalsElem(doGet(i), elem)) {
+				return i;
+			}
+		}
+		return -1;
+	}
+	
+	/**
+	 * Returns the index of the last occurrence of the specified element in this list, starting the search at the specified position.
+	 * If the element is not found, -1 is returned.
+	 * 
+	 * @param elem			element to search for
+	 * @param fromIndex		start index for search
+	 * @return				the index of the last occurrence of the specified element in this list that is less than or equal to fromIndex,
+	 * 						or -1 if this list does not contain the element
+	 * @see #lastIndexOf(Object)
+	 */
+	public int lastIndexOf(Object elem, int fromIndex) {		
+		int size = size();
+		if (fromIndex >= size) {
+			fromIndex = size-1;
+		}
+		for (int i=fromIndex; i>=0; i--) {
+			if (equalsElem(doGet(i), elem)) {
+				return i;
+			}
+		}
+		return -1;
+	}
+	
 	@Override
 	public boolean remove(Object elem) {
 		int index = indexOf(elem);
