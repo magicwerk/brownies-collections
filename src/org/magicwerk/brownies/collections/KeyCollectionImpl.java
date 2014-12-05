@@ -758,7 +758,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         }
 
         /**
-         * Initialize TableCollection with specified options.
+         * Initialize KeyCollectionImpl.
          *
          * @param keyColl collection to initialize
          * @param list    true if a KeyListImpl is built up, false for KeyCollectionImpl
@@ -858,6 +858,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
                 	keyColl.addAll((Collection<? extends E>) Arrays.asList(array));
                 }
         	} else {
+        		keyList.forward = new GapList<E>(); // TODO
         		if (collection != null) {
         			keyList.ensureCapacity(capacity);
         			keyList.addAll(collection);
@@ -888,7 +889,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	     * One of keysMap or keysList is used.
 	     */
 	    Map<K, Object> keysMap;
-	    /** Key storage if this is a sorted KeyListImpl. */
+	    /** Key storage if this is a sorted KeyListImpl, otherwise null */
 	    IList<K> keysList;
 	    /** True to count only number of occurrences of equal elements */
 	    boolean count;
@@ -909,6 +910,17 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	    			copy.keysMap = (Map) ((HashMap) keysMap).clone();
 	    		} else {
 	    			copy.keysMap = (Map) ((TreeMap) keysMap).clone();
+	    		}
+
+	    		// The map cannot only contain simple value, but also instances of KeyMapList
+	    		// for duplicates which must be also be cloned
+	    		for (Object obj: copy.keysMap.entrySet()) {
+	    			Map.Entry entry = (Map.Entry) obj;
+	    			Object val = entry.getValue();
+	    			if (val instanceof KeyMapList) {
+	    				val = new KeyMapList((KeyMapList) val);
+	    				entry.setValue(val);
+	    			}
 	    		}
 	    	} else {
 	    		copy.keysList = keysList.copy();
@@ -1327,12 +1339,15 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     	public KeyMapList() {
     		super();
     	}
+    	public KeyMapList(KeyMapList that) {
+    		super(that);
+    	}
     }
 
     //-- KeyCollection --
 
     /** If true the invariants the GapList are checked for debugging */
-    private static final boolean DEBUG_CHECK = false;
+    private static final boolean DEBUG_CHECK = true; // TODO
 
     /**
      * Size of collection.
@@ -1430,10 +1445,13 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     }
 
     /**
-     * Private method to check invariant of GapList.
+     * Private method to check invariant of KeyCollectionImpl.
      * It is only used for debugging.
      */
     void debugCheck() {
+    	if (keyList != null) {
+    		assert(keyList.size() == size());
+    	}
     	if (keyMaps != null) {
     		for (KeyMap<E,?> keyMap: keyMaps) {
     			if (keyMap != null) {
@@ -1452,8 +1470,8 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	    		}
     		} else {
 	    		for (Object obj: keyMap.keysMap.values()) {
-	    			if (obj instanceof GapList) {
-	    				count += ((GapList) obj).size();
+	    			if (obj instanceof KeyMapList) {
+	    				count += ((KeyMapList) obj).size();
 	    			} else {
 	    				count++;
 	    			}
@@ -1743,9 +1761,10 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         boolean removed = doRemove(elem, ignore);
         if (removed) {
         	size--;
-            if (DEBUG_CHECK) debugCheck();
         }
+        if (DEBUG_CHECK) debugCheck();
         afterDelete((E) elem);
+        if (DEBUG_CHECK) debugCheck();
         return removed;
 	}
 
@@ -1921,6 +1940,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 		try {
 			KeyCollectionImpl copy = (KeyCollectionImpl) super.clone();
 			copy.initCopy(this);
+	        if (DEBUG_CHECK) copy.debugCheck();
 			return copy;
 		}
 		catch (CloneNotSupportedException e) {
@@ -1939,6 +1959,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     	try {
 	    	KeyCollectionImpl copy = (KeyCollectionImpl) super.clone();
 	        copy.initCrop(this);
+	        if (DEBUG_CHECK) copy.debugCheck();
 	        return copy;
 		}
 		catch (CloneNotSupportedException e) {
@@ -2126,12 +2147,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
             // sorted
             int index = SortedLists.binarySearchGet(keyMap.keysList, key, keyMap.comparator);
             if (index >= 0) {
-            	if (keyList.forward == null) {
-            		return (E) keyList.doGet(index);
-            	} else {
-            		assert(keyList.forward == keyMap.keysList);
-            		return (E) keyMap.keysList.doGet(index);
-            	}
+           		return (E) keyList.doGet(index);
             } else {
                 return null;
             }
