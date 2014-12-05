@@ -37,7 +37,7 @@ import org.magicwerk.brownies.collections.helper.Option;
  * @param <E> type of elements stored in the list
  */
 @SuppressWarnings("static-access")
-public class KeyListImpl<E> extends GapList<E> {
+public class KeyListImpl<E> extends IList<E> {
 
     /**
      * Key collection used for key storage.
@@ -50,49 +50,15 @@ public class KeyListImpl<E> extends GapList<E> {
     IList<E> forward;
 
     /** If true the invariants the GapList are checked for debugging */
-    private static final boolean DEBUG_CHECK = false;
+    private static final boolean DEBUG_CHECK = true; // TODO
 
 
-    /*
-     * GapList offers static create() methods which are public.
-     * As TableListImpl extends GapList, it also inherits these methods.
-     * As they cannot be hidden, the will throw an UnsupportedOperationException.
-     * A cleaner solution would be that TableListImpl does not extend GapList.
-     */
-
-    /**
-     * Do not use. Use Builder instead.
-     */
-    public static <E> GapList<E> create() {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Do not use. Use Builder instead.
-     */
-    public static <E> GapList<E> create(int capacity) {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Do not use. Use Builder instead.
-     */
-    public static <E> GapList<E> create(Collection<? extends E> coll) {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * Do not use. Use Builder instead.
-     */
-    public static <E> GapList<E> create(E... elems) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-	void init(Object[] values, int size) {
-    	assert(forward == null);
-        super.init(values, size);
-	}
+    // TODO
+//    @Override
+//	void init(Object[] values, int size) {
+//    	assert(forward == null);
+//        super.init(values, size);
+//	}
 
     /**
      * Private method to check invariant of GapList.
@@ -100,11 +66,7 @@ public class KeyListImpl<E> extends GapList<E> {
      */
     private void debugCheck() {
     	keyColl.debugCheck();
-    	if (forward != null) {
-    		assert(super.size() == 0);
-    	} else {
-    		assert(super.size() == keyColl.size());
-    	}
+    	//forward.debugCheck(); TODO
     }
 
     /**
@@ -149,13 +111,12 @@ public class KeyListImpl<E> extends GapList<E> {
 	    	keyColl.keyList = this;
 	    }
 
-	    // GapList
-	    if (that.forward != null) {
-	    	assert(that.forward == that.keyColl.keyMaps[0].keysList);
-	    	forward = (GapList<E>) keyColl.keyMaps[0].keysList;
-	    } else {
-	    	super.init();
-	    }
+	    // GapList // TODO
+    	if (that.keyColl.keyMaps[0] != null && that.forward == that.keyColl.keyMaps[0].keysList) {
+    		forward = (IList<E>) keyColl.keyMaps[0].keysList;
+    	} else {
+    		forward = new GapList<E>();
+    	}
 
 	    if (DEBUG_CHECK) debugCheck();
 	}
@@ -173,13 +134,12 @@ public class KeyListImpl<E> extends GapList<E> {
 	    	keyColl.keyList = this;
 	    }
 
-        // GapList
-	    if (that.forward != null) {
-	    	assert(that.forward == that.keyColl.keyMaps[0].keysList);
-	    	forward = (GapList<E>) keyColl.keyMaps[0].keysList;
-	    } else {
-	    	super.doClone(that);
-	    }
+        // GapList // TODO
+    	if (that.keyColl.keyMaps[0] != null && that.forward == that.keyColl.keyMaps[0].keysList) {
+    		forward = (IList<E>) keyColl.keyMaps[0].keysList;
+    	} else {
+    		forward = new GapList<E>(that.forward);
+    	}
 
         if (DEBUG_CHECK) debugCheck();
     }
@@ -205,20 +165,12 @@ public class KeyListImpl<E> extends GapList<E> {
 
     @Override
     public int capacity() {
-    	if (forward != null) {
-    		return forward.capacity();
-    	} else {
-    		return super.capacity();
-    	}
+   		return forward.capacity();
     }
 
     @Override
     public int size() {
-    	if (forward != null) {
-    		return forward.size();
-    	} else {
-    		return super.size();
-    	}
+   		return forward.size();
     }
 
     @Override
@@ -232,20 +184,12 @@ public class KeyListImpl<E> extends GapList<E> {
 
     @Override
     protected E doGet(int index) {
-    	if (forward != null) {
-    		return forward.doGet(index);
-    	} else {
-    		return super.doGet(index);
-    	}
+   		return forward.doGet(index);
     }
 
     @Override
 	protected <T> void doGetAll(T[] array, int index, int len) {
-    	if (forward != null) {
-    		forward.doGetAll(array, index, len);
-    	} else {
-    		super.doGetAll(array, index, len);
-    	}
+   		forward.doGetAll(array, index, len);
     }
 
 	@Override
@@ -315,9 +259,7 @@ public class KeyListImpl<E> extends GapList<E> {
     @Override
     public void clear() {
     	keyColl.clear();
-    	if (forward == null) {
-    		super.clear();
-    	}
+    	forward.clear();
     }
 
     @Override
@@ -361,7 +303,7 @@ public class KeyListImpl<E> extends GapList<E> {
 			}
 			keyColl.addSorted(index, elem);
 			if (forward == null) {
-	    		super.doAdd(index, elem);
+				forward.doAdd(index, elem);
 			}
 		} else {
 			// Unsorted list
@@ -370,7 +312,7 @@ public class KeyListImpl<E> extends GapList<E> {
 				// Element is already added to keyColl
 				index = keyColl.size()-1;
 			}
-    		super.doAdd(index, elem);
+			forward.doAdd(index, elem);
 		}
 
         if (DEBUG_CHECK) debugCheck();
@@ -404,19 +346,12 @@ public class KeyListImpl<E> extends GapList<E> {
     	E remove = doGet(index);
     	if (keyColl.isSortedList()) {
         	keyColl.setSorted(index, elem, remove);
-        	if (forward == null) {
-        		super.doSet(index, elem);
-        	} else {
-        		forward.doSet(index, elem);
-        	}
+       		forward.doSet(index, elem);
 
     	} else {
 	    	keyColl.remove(remove);
 	    	try {
 		    	keyColl.add(elem);
-		    	if (forward == null) {
-		    		super.doSet(index, elem);
-		    	}
 	    	}
 	    	catch (RuntimeException e) {
 	    		keyColl.add(remove);
@@ -439,28 +374,17 @@ public class KeyListImpl<E> extends GapList<E> {
     protected E doRemove(int index) {
     	E removed = doGet(index);
 		keyColl.remove(removed);
-    	if (forward == null) {
-    		super.doRemove(index);
-    	}
         return removed;
     }
 
     @Override
 	protected void doRemoveAll(int index, int len) {
-    	if (forward != null) {
-    		forward.doRemoveAll(index, len);
-    	} else {
-    		super.doRemoveAll(index, len);
-    	}
+   		forward.doRemoveAll(index, len);
 	}
 
     @Override
     protected E doReSet(int index, E elem) {
-    	if (forward != null) {
-    		return forward.doReSet(index, elem);
-    	} else {
-    		return super.doReSet(index, elem);
-    	}
+   		return forward.doReSet(index, elem);
     }
 
 	@Override
@@ -575,7 +499,7 @@ public class KeyListImpl<E> extends GapList<E> {
 	    		if (index == -1) {
 	    			keyColl.errorInvalidData();
 	    		}
-	    		super.doRemove(index);
+	    		forward.doRemove(index);
 	    	}
     	}
         if (DEBUG_CHECK) debugCheck();
@@ -646,7 +570,7 @@ public class KeyListImpl<E> extends GapList<E> {
     	// If this is a sorted list, it is obvious that binarySearch will work.
     	// The list can however also be sorted without been declared as being ordered,
     	// so we just try to do the binary search (as if Collections.binarySearch is called)
-    	return super.binarySearch(index, len, key, comparator);
+    	return forward.binarySearch(index, len, key, comparator);
     }
 
     @Override
@@ -658,7 +582,7 @@ public class KeyListImpl<E> extends GapList<E> {
         		throw new IllegalArgumentException("Different comparator specified for sorted list");
     		}
     	} else {
-        	super.sort(index, len, comparator);
+    		forward.sort(index, len, comparator);
     	}
     }
 
@@ -728,11 +652,11 @@ public class KeyListImpl<E> extends GapList<E> {
     		int oldIndex = super.indexOf(elem);
     		int newIndex = keyColl.indexOfSorted(elem);
     		if (oldIndex != newIndex) {
-    			super.doRemove(oldIndex);
+    			forward.doRemove(oldIndex);
     			if (oldIndex < newIndex) {
     				newIndex--;
     			}
-    			super.doAdd(newIndex, elem);
+    			forward.doAdd(newIndex, elem);
     		}
     	}
         if (DEBUG_CHECK) debugCheck();
@@ -750,12 +674,48 @@ public class KeyListImpl<E> extends GapList<E> {
     protected void invalidateKey(int keyIndex, Object oldKey, Object newKey, E elem) {
     	elem = keyColl.doInvalidateKey(keyIndex, oldKey, newKey, elem);
     	if (keyColl.orderByKey == keyIndex && forward == null) {
-    		super.doRemove(super.indexOf(elem));
+    		forward.doRemove(super.indexOf(elem));
     		int index = keyColl.indexOfSorted(elem);
-    		super.doAdd(index, elem);
+    		forward.doAdd(index, elem);
     	}
         if (DEBUG_CHECK) debugCheck();
     }
+
+	@Override
+	public IList<E> unmodifiableList() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	protected E getDefaultElem() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	protected void doEnsureCapacity(int minCapacity) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void trimToSize() {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	protected IList<E> doCreate(int capacity) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	protected void doAssign(IList<E> that) {
+		// TODO Auto-generated method stub
+
+	}
 
     //-- Key methods
 	// The key methods can not be defined here.
