@@ -1449,9 +1449,6 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
      * It is only used for debugging.
      */
     void debugCheck() {
-    	if (keyList != null) {
-    		assert(keyList.size() == size());
-    	}
     	if (keyMaps != null) {
     		for (KeyMap<E,?> keyMap: keyMaps) {
     			if (keyMap != null) {
@@ -1764,7 +1761,6 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         }
         if (DEBUG_CHECK) debugCheck();
         afterDelete((E) elem);
-        if (DEBUG_CHECK) debugCheck();
         return removed;
 	}
 

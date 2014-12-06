@@ -368,7 +368,7 @@ public class Key2List<E,K1,K2> extends KeyListImpl<E> {
     //-- Element methods
 
     @Override
-	public GapList<E> getAll(E elem) {
+	public IList<E> getAll(E elem) {
 		return super.getAll(elem);
 	}
 
@@ -378,7 +378,7 @@ public class Key2List<E,K1,K2> extends KeyListImpl<E> {
 	}
 
 	@Override
-	public GapList<E> removeAll(E elem) {
+	public IList<E> removeAll(E elem) {
 		return super.removeAll(elem);
 	}
 
