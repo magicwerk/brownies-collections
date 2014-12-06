@@ -112,7 +112,7 @@ public class KeyListImpl<E> extends IList<E> {
 	    }
 
 	    // GapList // TODO
-    	if (that.keyColl.keyMaps[0] != null && that.forward == that.keyColl.keyMaps[0].keysList) {
+    	if (that.keyColl.keyMaps != null && that.keyColl.keyMaps[0] != null && that.forward == that.keyColl.keyMaps[0].keysList) {
     		forward = (IList<E>) keyColl.keyMaps[0].keysList;
     	} else {
     		forward = new GapList<E>();
@@ -135,7 +135,7 @@ public class KeyListImpl<E> extends IList<E> {
 	    }
 
         // GapList // TODO
-    	if (that.keyColl.keyMaps[0] != null && that.forward == that.keyColl.keyMaps[0].keysList) {
+    	if (that.keyColl.keyMaps != null && that.keyColl.keyMaps[0] != null && that.forward == that.keyColl.keyMaps[0].keysList) {
     		forward = (IList<E>) keyColl.keyMaps[0].keysList;
     	} else {
     		forward = new GapList<E>(that.forward);
@@ -346,7 +346,6 @@ public class KeyListImpl<E> extends IList<E> {
     	E remove = doGet(index);
     	if (keyColl.isSortedList()) {
         	keyColl.setSorted(index, elem, remove);
-       		forward.doSet(index, elem);
 
     	} else {
 	    	keyColl.remove(remove);
@@ -358,6 +357,7 @@ public class KeyListImpl<E> extends IList<E> {
 	    		throw e;
 	    	}
     	}
+   		forward.doSet(index, elem);
         if (DEBUG_CHECK) debugCheck();
         return remove;
     }
@@ -372,13 +372,17 @@ public class KeyListImpl<E> extends IList<E> {
 
     @Override
     protected E doRemove(int index) {
-    	E removed = doGet(index);
+    	E removed = forward.remove(index);
 		keyColl.remove(removed);
         return removed;
     }
 
     @Override
 	protected void doRemoveAll(int index, int len) {
+    	for (int i=0; i<len; i++) {
+        	E removed = forward.get(index);
+    		keyColl.remove(removed);
+    	}
    		forward.doRemoveAll(index, len);
 	}
 
@@ -494,13 +498,11 @@ public class KeyListImpl<E> extends IList<E> {
     protected E removeByKey(int keyIndex, Object key) {
     	Option<E> removed = keyColl.doRemoveByKey(keyIndex, key);
     	if (removed.hasValue()) {
-	    	if (forward == null) {
-	    		int index = super.indexOf(removed.getValue());
-	    		if (index == -1) {
-	    			keyColl.errorInvalidData();
-	    		}
-	    		forward.doRemove(index);
-	    	}
+    		int index = forward.indexOf(removed.getValue());
+    		if (index == -1) {
+    			keyColl.errorInvalidData();
+    		}
+    		forward.doRemove(index);
     	}
         if (DEBUG_CHECK) debugCheck();
         return removed.getValueOrNull();
@@ -545,10 +547,8 @@ public class KeyListImpl<E> extends IList<E> {
     protected GapList<E> removeAllByKey(int keyIndex, Object key) {
     	GapList<E> removeds = keyColl.removeAllByKey(keyIndex, key);
     	if (!removeds.isEmpty()) {
-	    	if (forward == null) {
-	    		if (!super.removeAll(removeds)) {
-	    			keyColl.errorInvalidData();
-	    		}
+    		if (!forward.removeAll(removeds)) {
+    			keyColl.errorInvalidData();
 	    	}
     	}
         if (DEBUG_CHECK) debugCheck();
@@ -589,11 +589,11 @@ public class KeyListImpl<E> extends IList<E> {
     //-- Element methods
 
     @Override
-	public GapList<E> getAll(E elem) {
+	public IList<E> getAll(E elem) {
 		if (keyColl.hasElemSet()) {
 			return getAllByKey(0, elem);
 		} else {
-			return (GapList<E>) super.getAll(elem);
+			return forward.getAll(elem);
 		}
 	}
 
@@ -602,16 +602,16 @@ public class KeyListImpl<E> extends IList<E> {
 		if (keyColl.hasElemSet()) {
 			return getCountByKey(0, elem);
 		} else {
-			return super.getCount(elem);
+			return forward.getCount(elem);
 		}
 	}
 
 	@Override
-	public GapList<E> removeAll(E elem) {
+	public IList<E> removeAll(E elem) {
 		if (keyColl.hasElemSet()) {
 			return removeAllByKey(0, elem);
 		} else {
-			return (GapList<E>) super.removeAll(elem);
+			return forward.removeAll(elem);
 		}
 	}
 
@@ -707,8 +707,13 @@ public class KeyListImpl<E> extends IList<E> {
 
 	@Override
 	protected IList<E> doCreate(int capacity) {
-		// TODO Auto-generated method stub
-		return null;
+//    	if (capacity == -1) {
+//    		capacity = DEFAULT_CAPACITY;
+//    	}
+//    	return new GapList<E>(capacity);
+
+		// Capacity is not used
+		return this.crop();
 	}
 
 	@Override
