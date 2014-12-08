@@ -858,7 +858,6 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
                 	keyColl.addAll((Collection<? extends E>) Arrays.asList(array));
                 }
         	} else {
-        		keyList.forward = new GapList<E>(); // TODO
         		if (collection != null) {
         			keyList.ensureCapacity(capacity);
         			keyList.addAll(collection);
@@ -868,6 +867,9 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         		} else if (capacity != 0) {
         			keyList.ensureCapacity(capacity);
         		}
+        	}
+        	if (keyList.forward == null) {
+        		keyList.forward = new GapList<E>(); // TODO GapList or BigList
         	}
         }
     }
@@ -1493,6 +1495,10 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 
     boolean isSortedList() {
     	return orderByKey != -1;
+    }
+
+    boolean isSortedListByElem() {
+    	return orderByKey == 0;
     }
 
 	boolean hasElemSet() {
