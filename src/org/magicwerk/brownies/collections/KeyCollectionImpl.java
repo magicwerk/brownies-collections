@@ -1233,6 +1233,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	    	}
 
 	    	if (keysMap != null) {
+	    		// Collection or unsorted list
 	        	if (!keysMap.containsKey(key)) {
 	        		return Option.EMPTY();
 	        	}
@@ -1268,6 +1269,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 			        return new Option(elem);
 	        	}
 	    	} else {
+	    		// Sorted list
 	    		int index = keysList.binarySearch(key, (Comparator<Object>) comparator);
 	    		E elem = null;
 	    		if (index < 0) {
@@ -1277,6 +1279,57 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     			keysList.remove(index);
 	    		return new Option(elem);
 	    	}
+	    }
+
+	    /**
+	     * Removes element by key.
+	     * If there are duplicates, all elements are removed.
+	     *
+	     * @param keyMap	key map
+	     * @param key   	key of element to remove
+	     * @return      	list with all removed elements
+	     */
+	    private GapList<E> doRemoveAllByKey(K key, KeyCollectionImpl keyColl) {
+	    	// If list cannot contain null, handle null explicitly to prevent NPE
+	    	if (key == null) {
+	    		if (!allowNull) {
+	    			return GapList.EMPTY();
+	    		}
+	    	}
+	        if (keysMap != null) {
+	            // Collection or unsorted list
+	        	if (!keysMap.containsKey(key)) {
+	        		return GapList.EMPTY();
+	        	}
+	            Object obj = keysMap.remove(key);
+	            GapList<E> removed;
+	            if (obj instanceof KeyMapList) {
+	                removed = GapList.create((GapList<E>) obj);
+	            } else {
+	            	removed = GapList.create((E) obj);
+	            }
+	            return removed;
+
+	        } else {
+	            // Sorted list
+	        	int index = SortedLists.binarySearchGet(keysList, key, comparator);
+	            if (index < 0) {
+	                return GapList.EMPTY();
+	            }
+	            int start = index;
+	            while (true) {
+	                index++;
+	                if (index == keysList.size()) {
+	                    break;
+	                }
+	                if (!GapList.equalsElem(keysList.get(index), key)) {
+	                    break;
+	                }
+	            }
+	            GapList<E> removed = (GapList<E>) keyColl.keyList.forward.getAll(start, index-start);
+	            keysList.remove(start, index-start);
+	            return removed;
+	        }
 	    }
 
 		public GapList<Object> getValues(int capacity) {
@@ -1546,7 +1599,13 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     	}
     }
 
-    // Called from KeyListImpl.doAdd
+    /**
+     * Called from KeyListImpl.doAdd() to add element to sorted list.
+     * It calls beforeInsert() and afterInsert() as needed.
+     *
+     * @param index	index where element will be added
+     * @param elem	element to add
+     */
     void addSorted(int index, E elem) {
     	// Check whether index is correct for adding element in a sorted list
     	checkIndex(index-1, index, elem);
@@ -1565,7 +1624,12 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
    		afterInsert(elem);
    }
 
-    // Called from KeyListImpl.doAdd
+    /**
+     * Called from KeyListImpl.doAdd() to add element to sorted list.
+     * It calls beforeInsert() and afterInsert() as needed.
+     *
+     * @param elem	element to add
+     */
     void addUnsorted(E elem) {
     	beforeInsert(elem);
     	doAdd(elem, null);
@@ -2447,69 +2511,18 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     @SuppressWarnings("unchecked")
     protected GapList<E> removeAllByKey(int keyIndex, Object key) {
     	checkKeyMap(keyIndex);
-    	GapList<E> removeds = doRemoveAllByKey(keyMaps[keyIndex], key);
+    	GapList<E> removeds = keyMaps[keyIndex].doRemoveAllByKey(key, this);
     	for (E removed: removeds) {
     		for (int i=0; i<keyMaps.length; i++) {
     			if (i != keyIndex && keyMaps[i] != null) {
     				Object k = keyMaps[i].getKey(removed);
-    				doRemoveAllByKey(keyMaps[i], k);
+    				keyMaps[i].doRemoveAllByKey(k, this);
     			}
     		}
     		size--;
     	}
         if (DEBUG_CHECK) debugCheck();
         return removeds;
-    }
-
-    /**
-     * Removes element by key.
-     * If there are duplicates, all elements are removed.
-     *
-     * @param keyMap	key map
-     * @param key   	key of element to remove
-     * @return      	list with all removed elements
-     */
-    private <K> GapList<E> doRemoveAllByKey(KeyMap<E,K> keyMap, K key) {
-    	// If list cannot contain null, handle null explicitly to prevent NPE
-    	if (key == null) {
-    		if (!keyMap.allowNull) {
-    			return GapList.EMPTY();
-    		}
-    	}
-        if (keyMap.keysMap != null) {
-            // not sorted
-        	if (!keyMap.keysMap.containsKey(key)) {
-        		return GapList.EMPTY();
-        	}
-            Object obj = keyMap.keysMap.remove(key);
-            GapList<E> removed;
-            if (obj instanceof KeyMapList) {
-                removed = GapList.create((GapList<E>) obj);
-            } else {
-            	removed = GapList.create((E) obj);
-            }
-            return removed;
-
-        } else {
-            // sorted
-        	int index = SortedLists.binarySearchGet(keyMap.keysList, key, keyMap.comparator);
-            if (index < 0) {
-                return GapList.EMPTY();
-            }
-            int start = index;
-            while (true) {
-                index++;
-                if (index == keyMap.keysList.size()) {
-                    break;
-                }
-                if (!GapList.equalsElem(keyMap.keysList.get(index), key)) {
-                    break;
-                }
-            }
-            GapList<E> removed = (GapList<E>) keyMap.keysList.getAll(start, index-start);
-            keyMap.keysList.remove(start, index-start);
-            return removed;
-        }
     }
 
 	// As in AbstractCollection
