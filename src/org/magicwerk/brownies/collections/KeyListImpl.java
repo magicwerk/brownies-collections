@@ -277,6 +277,7 @@ public class KeyListImpl<E> extends IList<E> {
     	// This method is also called by doAdd(E)
     	keyColl.checkElemAllowed(elem);
 
+    	// Handle maximum size and window
     	if (keyColl.maxSize != 0 && size() >= keyColl.maxSize) {
     		if (keyColl.movingWindow) {
     			if (index == 0) {
@@ -293,6 +294,7 @@ public class KeyListImpl<E> extends IList<E> {
     		}
     	}
 
+    	// Add element
 		if (keyColl.isSortedList()) {
 			// Sorted list
 			if (index == -1) {
@@ -302,7 +304,8 @@ public class KeyListImpl<E> extends IList<E> {
 				}
 			}
 			keyColl.addSorted(index, elem);
-			if (forward == null) {
+			// If list is sorted by element, keyColl points to list so no explicit call to its add method is needed
+			if (!keyColl.isSortedListByElem()) {
 				forward.doAdd(index, elem);
 			}
 		} else {
@@ -368,12 +371,17 @@ public class KeyListImpl<E> extends IList<E> {
         for (int i=0; i<elems.length; i++) {
             doSet(index+i, elems[i]);
         }
+        if (DEBUG_CHECK) debugCheck();
     }
 
     @Override
     protected E doRemove(int index) {
-    	E removed = forward.remove(index);
+    	E removed = forward.get(index);
 		keyColl.remove(removed);
+		if (!keyColl.isSortedListByElem()) {
+			forward.remove(index);
+		}
+        if (DEBUG_CHECK) debugCheck();
         return removed;
     }
 
@@ -384,6 +392,7 @@ public class KeyListImpl<E> extends IList<E> {
     		keyColl.remove(removed);
     	}
    		forward.doRemoveAll(index, len);
+        if (DEBUG_CHECK) debugCheck();
 	}
 
     @Override
@@ -547,8 +556,10 @@ public class KeyListImpl<E> extends IList<E> {
     protected GapList<E> removeAllByKey(int keyIndex, Object key) {
     	GapList<E> removeds = keyColl.removeAllByKey(keyIndex, key);
     	if (!removeds.isEmpty()) {
-    		if (!forward.removeAll(removeds)) {
-    			keyColl.errorInvalidData();
+    		if (!keyColl.isSortedListByElem()) {
+    			if (!forward.removeAll(removeds)) {
+    				keyColl.errorInvalidData();
+    			}
 	    	}
     	}
         if (DEBUG_CHECK) debugCheck();
@@ -648,7 +659,7 @@ public class KeyListImpl<E> extends IList<E> {
      */
     protected void invalidate(E elem) {
     	keyColl.invalidate(elem);
-    	if (keyColl.isSortedList() && forward == null) {
+    	if (keyColl.isSortedList() && !keyColl.isSortedListByElem()) {
     		int oldIndex = super.indexOf(elem);
     		int newIndex = keyColl.indexOfSorted(elem);
     		if (oldIndex != newIndex) {
