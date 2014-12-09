@@ -20,7 +20,7 @@ import java.util.Comparator;
 import java.util.Set;
 
 import org.magicwerk.brownies.collections.KeyCollectionImpl.KeyMap;
-import org.magicwerk.brownies.collections.function.Mapper;
+import org.magicwerk.brownies.collections.function.IFunction;
 import org.magicwerk.brownies.collections.helper.Option;
 
 
@@ -443,7 +443,7 @@ public class KeyListImpl<E> extends IList<E> {
      * @param keyIndex 	key index
      * @return      	mapper for specified key map
      */
-    public Mapper<E,Object> getKeyMapper(int keyIndex) {
+    public IFunction<E,Object> getKeyMapper(int keyIndex) {
     	return keyColl.getKeyMapper(keyIndex);
     }
 

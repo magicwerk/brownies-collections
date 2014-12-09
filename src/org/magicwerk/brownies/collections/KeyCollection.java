@@ -21,8 +21,8 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.Set;
 
-import org.magicwerk.brownies.collections.function.Predicate;
-import org.magicwerk.brownies.collections.function.Trigger;
+import org.magicwerk.brownies.collections.function.IPredicate;
+import org.magicwerk.brownies.collections.function.IConsumer;
 
 
 /**
@@ -68,29 +68,29 @@ public class KeyCollection<E> extends KeyCollectionImpl<E> {
         }
 
         @Override
-        public Builder<E> withConstraint(Predicate<E> constraint) {
+        public Builder<E> withConstraint(IPredicate<E> constraint) {
         	return (Builder<E>) super.withConstraint(constraint);
         }
 
         // -- Triggers
 
         @Override
-        public Builder<E> withBeforeInsertTrigger(Trigger<E> trigger) {
+        public Builder<E> withBeforeInsertTrigger(IConsumer<E> trigger) {
         	return (Builder<E>) super.withBeforeInsertTrigger(trigger);
         }
 
         @Override
-        public Builder<E> withAfterInsertTrigger(Trigger<E> trigger) {
+        public Builder<E> withAfterInsertTrigger(IConsumer<E> trigger) {
         	return (Builder<E>) super.withAfterInsertTrigger(trigger);
         }
 
         @Override
-        public Builder<E> withBeforeDeleteTrigger(Trigger<E> trigger) {
+        public Builder<E> withBeforeDeleteTrigger(IConsumer<E> trigger) {
         	return (Builder<E>) super.withBeforeDeleteTrigger(trigger);
         }
 
         @Override
-        public Builder<E> withAfterDeleteTrigger(Trigger<E> trigger) {
+        public Builder<E> withAfterDeleteTrigger(IConsumer<E> trigger) {
         	return (Builder<E>) super.withAfterDeleteTrigger(trigger);
         }
 
@@ -114,6 +114,11 @@ public class KeyCollection<E> extends KeyCollectionImpl<E> {
         @Override
         public Builder<E> withMaxSize(int maxSize) {
         	return (Builder<E>) super.withMaxSize(maxSize);
+        }
+
+        @Override
+        public Builder<E> withBigList(boolean bigList) {
+        	return (Builder<E>) super.withBigList(bigList);
         }
 
         //-- Element key

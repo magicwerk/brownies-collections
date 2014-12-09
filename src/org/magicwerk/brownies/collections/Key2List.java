@@ -23,9 +23,9 @@ import java.util.Map;
 import java.util.Set;
 
 import org.magicwerk.brownies.collections.KeyCollectionImpl.BuilderImpl;
-import org.magicwerk.brownies.collections.function.Mapper;
-import org.magicwerk.brownies.collections.function.Predicate;
-import org.magicwerk.brownies.collections.function.Trigger;
+import org.magicwerk.brownies.collections.function.IFunction;
+import org.magicwerk.brownies.collections.function.IPredicate;
+import org.magicwerk.brownies.collections.function.IConsumer;
 
 
 /**
@@ -73,29 +73,29 @@ public class Key2List<E,K1,K2> extends KeyListImpl<E> {
         }
 
         @Override
-        public Builder<E,K1,K2> withConstraint(Predicate<E> constraint) {
+        public Builder<E,K1,K2> withConstraint(IPredicate<E> constraint) {
         	return (Builder<E,K1,K2>) super.withConstraint(constraint);
         }
 
         // -- Triggers
 
         @Override
-        public Builder<E,K1,K2> withBeforeInsertTrigger(Trigger<E> trigger) {
+        public Builder<E,K1,K2> withBeforeInsertTrigger(IConsumer<E> trigger) {
         	return (Builder<E,K1,K2>) super.withBeforeInsertTrigger(trigger);
         }
 
         @Override
-        public Builder<E,K1,K2> withAfterInsertTrigger(Trigger<E> trigger) {
+        public Builder<E,K1,K2> withAfterInsertTrigger(IConsumer<E> trigger) {
         	return (Builder<E,K1,K2>) super.withAfterInsertTrigger(trigger);
         }
 
         @Override
-        public Builder<E,K1,K2> withBeforeDeleteTrigger(Trigger<E> trigger) {
+        public Builder<E,K1,K2> withBeforeDeleteTrigger(IConsumer<E> trigger) {
         	return (Builder<E,K1,K2>) super.withBeforeDeleteTrigger(trigger);
         }
 
         @Override
-        public Builder<E,K1,K2> withAfterDeleteTrigger(Trigger<E> trigger) {
+        public Builder<E,K1,K2> withAfterDeleteTrigger(IConsumer<E> trigger) {
         	return (Builder<E,K1,K2>) super.withAfterDeleteTrigger(trigger);
         }
 
@@ -124,6 +124,11 @@ public class Key2List<E,K1,K2> extends KeyListImpl<E> {
         @Override
         public Builder<E,K1,K2> withWindowSize(int maxSize) {
         	return (Builder<E,K1,K2>) super.withWindowSize(maxSize);
+        }
+
+        @Override
+        public Builder<E,K1,K2> withBigList(boolean bigList) {
+        	return (Builder<E,K1,K2>) super.withBigList(bigList);
         }
 
         //-- Element key
@@ -191,7 +196,7 @@ public class Key2List<E,K1,K2> extends KeyListImpl<E> {
          * @param mapper	mapper to use
          * @return			this (fluent interface)
          */
-        public Builder<E,K1,K2> withKey1Map(Mapper<? super E,K1> mapper) {
+        public Builder<E,K1,K2> withKey1Map(IFunction<? super E,K1> mapper) {
         	return (Builder<E,K1,K2>) super.withKeyMap(1, mapper);
         }
 
@@ -263,7 +268,7 @@ public class Key2List<E,K1,K2> extends KeyListImpl<E> {
          * @param mapper	mapper to use
          * @return			this (fluent interface)
          */
-        public Builder<E,K1,K2> withKey2Map(Mapper<? super E,K2> mapper) {
+        public Builder<E,K1,K2> withKey2Map(IFunction<? super E,K2> mapper) {
         	return (Builder<E,K1,K2>) super.withKeyMap(2, mapper);
         }
 
@@ -399,8 +404,8 @@ public class Key2List<E,K1,K2> extends KeyListImpl<E> {
      *
      * @return mapper for key map
      */
-	public Mapper<E,K1> getKey1Mapper() {
-		return (Mapper<E,K1>) super.getKeyMapper(1);
+	public IFunction<E,K1> getKey1Mapper() {
+		return (IFunction<E,K1>) super.getKeyMapper(1);
 	}
 
     /**
@@ -527,8 +532,8 @@ public class Key2List<E,K1,K2> extends KeyListImpl<E> {
      *
      * @return mapper for key map
      */
-	public Mapper<E,K2> getKey2Mapper() {
-		return (Mapper<E,K2>) super.getKeyMapper(2);
+	public IFunction<E,K2> getKey2Mapper() {
+		return (IFunction<E,K2>) super.getKeyMapper(2);
 	}
 
     /**

@@ -18,19 +18,21 @@
 package org.magicwerk.brownies.collections.function;
 
 /**
- * The Predicate interface is used for implementing predicates.
- *
- * @param <E>	element type
+ * A function interface for use in pre-Java 8.
+ * In Java 8 and later, java.util.function.Function could then be used.
  *
  * @author Thomas Mauch
  * @version $Id$
+ *
+ * @param <E> type of elements stored in the list
+ * @param <K> type of key
  */
-public interface Predicate<E> {
-	/**
-	 * Determines whether an element is allowed or not.
-	 *
-	 * @param elem	element to check
-	 * @return		true to allow the element, false for not
-	 */
-	boolean allow(E elem);
+public interface IFunction<T,R> {
+    /**
+     * Returns key for given value.
+     *
+     * @param elem 	element to apply function to
+     * @return  	result of function evaluation
+     */
+    public R apply(T elem);
 }
