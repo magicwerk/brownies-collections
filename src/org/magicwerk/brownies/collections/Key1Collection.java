@@ -418,7 +418,7 @@ public class Key1Collection<E,K> extends KeyCollectionImpl<E> {
 	 * @param elem	element
 	 * @return		element which has been replaced or null otherwise
 	 */
-    public E puByKey1(E elem) {
+    public E putByKey1(E elem) {
 		return super.putByKey(1, elem);
 	}
 
