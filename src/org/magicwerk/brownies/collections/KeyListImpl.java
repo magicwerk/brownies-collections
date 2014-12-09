@@ -16,14 +16,12 @@
  * $Id$
  */
 package org.magicwerk.brownies.collections;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.Set;
 
 import org.magicwerk.brownies.collections.KeyCollectionImpl.KeyMap;
 import org.magicwerk.brownies.collections.function.Mapper;
 import org.magicwerk.brownies.collections.helper.Option;
-
 
 
 /**
@@ -36,29 +34,21 @@ import org.magicwerk.brownies.collections.helper.Option;
  * @see GapList
  * @param <E> type of elements stored in the list
  */
-@SuppressWarnings("static-access")
 public class KeyListImpl<E> extends IList<E> {
 
     /**
-     * Key collection used for key storage.
+     * Key collection used for key storage (never null).
      */
     KeyCollectionImpl<E> keyColl;
     /**
-     * If forward is not null, the pointed to list stores the data for this instance
-     * of KeyListImpl. The inherited GapList will not be used and be empty.
+     * List where the list content of this KeyListImpl is stored (never null).
+     * If this is list sorted by element (key 0), keyColl.keyMaps[0].keysList will also reference this list.
      */
-    IList<E> forward;
+    IList<E> list;
 
     /** If true the invariants the GapList are checked for debugging */
     private static final boolean DEBUG_CHECK = true; // TODO
 
-
-    // TODO
-//    @Override
-//	void init(Object[] values, int size) {
-//    	assert(forward == null);
-//        super.init(values, size);
-//	}
 
     /**
      * Private method to check invariant of GapList.
@@ -66,7 +56,7 @@ public class KeyListImpl<E> extends IList<E> {
      */
     private void debugCheck() {
     	keyColl.debugCheck();
-    	//forward.debugCheck(); TODO
+    	//list.debugCheck();
     }
 
     /**
@@ -112,10 +102,10 @@ public class KeyListImpl<E> extends IList<E> {
 	    }
 
 	    // GapList // TODO
-    	if (that.keyColl.keyMaps != null && that.keyColl.keyMaps[0] != null && that.forward == that.keyColl.keyMaps[0].keysList) {
-    		forward = (IList<E>) keyColl.keyMaps[0].keysList;
+    	if (that.keyColl.keyMaps != null && that.keyColl.keyMaps[0] != null && that.list == that.keyColl.keyMaps[0].keysList) {
+    		list = (IList<E>) keyColl.keyMaps[0].keysList;
     	} else {
-    		forward = new GapList<E>();
+    		list = new GapList<E>();
     	}
 
 	    if (DEBUG_CHECK) debugCheck();
@@ -135,10 +125,10 @@ public class KeyListImpl<E> extends IList<E> {
 	    }
 
         // GapList // TODO
-    	if (that.keyColl.keyMaps != null && that.keyColl.keyMaps[0] != null && that.forward == that.keyColl.keyMaps[0].keysList) {
-    		forward = (IList<E>) keyColl.keyMaps[0].keysList;
+    	if (that.keyColl.keyMaps != null && that.keyColl.keyMaps[0] != null && that.list == that.keyColl.keyMaps[0].keysList) {
+    		list = (IList<E>) keyColl.keyMaps[0].keysList;
     	} else {
-    		forward = new GapList<E>(that.forward);
+    		list = new GapList<E>(that.list);
     	}
 
         if (DEBUG_CHECK) debugCheck();
@@ -165,31 +155,27 @@ public class KeyListImpl<E> extends IList<E> {
 
     @Override
     public int capacity() {
-   		return forward.capacity();
+   		return list.capacity();
     }
 
     @Override
     public int size() {
-   		return forward.size();
+   		return list.size();
     }
 
     @Override
     public E get(int index) {
-    	if (forward != null) {
-    		return forward.get(index);
-    	} else {
-    		return super.get(index);
-    	}
+   		return list.get(index);
     }
 
     @Override
     protected E doGet(int index) {
-   		return forward.doGet(index);
+   		return list.doGet(index);
     }
 
     @Override
 	protected <T> void doGetAll(T[] array, int index, int len) {
-   		forward.doGetAll(array, index, len);
+   		list.doGetAll(array, index, len);
     }
 
 	@Override
@@ -259,7 +245,7 @@ public class KeyListImpl<E> extends IList<E> {
     @Override
     public void clear() {
     	keyColl.clear();
-    	forward.clear();
+    	list.clear();
     }
 
     @Override
@@ -306,7 +292,7 @@ public class KeyListImpl<E> extends IList<E> {
 			keyColl.addSorted(index, elem);
 			// If list is sorted by element, keyColl points to list so no explicit call to its add method is needed
 			if (!keyColl.isSortedListByElem()) {
-				forward.doAdd(index, elem);
+				list.doAdd(index, elem);
 			}
 		} else {
 			// Unsorted list
@@ -315,7 +301,7 @@ public class KeyListImpl<E> extends IList<E> {
 				// Element is already added to keyColl
 				index = keyColl.size()-1;
 			}
-			forward.doAdd(index, elem);
+			list.doAdd(index, elem);
 		}
 
         if (DEBUG_CHECK) debugCheck();
@@ -360,7 +346,7 @@ public class KeyListImpl<E> extends IList<E> {
 	    		throw e;
 	    	}
     	}
-   		forward.doSet(index, elem);
+   		list.doSet(index, elem);
         if (DEBUG_CHECK) debugCheck();
         return remove;
     }
@@ -376,10 +362,10 @@ public class KeyListImpl<E> extends IList<E> {
 
     @Override
     protected E doRemove(int index) {
-    	E removed = forward.get(index);
+    	E removed = list.get(index);
 		keyColl.remove(removed);
 		if (!keyColl.isSortedListByElem()) {
-			forward.remove(index);
+			list.remove(index);
 		}
         if (DEBUG_CHECK) debugCheck();
         return removed;
@@ -388,16 +374,16 @@ public class KeyListImpl<E> extends IList<E> {
     @Override
 	protected void doRemoveAll(int index, int len) {
     	for (int i=0; i<len; i++) {
-        	E removed = forward.get(index);
+        	E removed = list.get(index);
     		keyColl.remove(removed);
     	}
-   		forward.doRemoveAll(index, len);
+   		list.doRemoveAll(index, len);
         if (DEBUG_CHECK) debugCheck();
 	}
 
     @Override
     protected E doReSet(int index, E elem) {
-   		return forward.doReSet(index, elem);
+   		return list.doReSet(index, elem);
     }
 
 	@Override
@@ -507,11 +493,11 @@ public class KeyListImpl<E> extends IList<E> {
     protected E removeByKey(int keyIndex, Object key) {
     	Option<E> removed = keyColl.doRemoveByKey(keyIndex, key);
     	if (removed.hasValue()) {
-    		int index = forward.indexOf(removed.getValue());
+    		int index = list.indexOf(removed.getValue());
     		if (index == -1) {
     			keyColl.errorInvalidData();
     		}
-    		forward.doRemove(index);
+    		list.doRemove(index);
     	}
         if (DEBUG_CHECK) debugCheck();
         return removed.getValueOrNull();
@@ -557,7 +543,7 @@ public class KeyListImpl<E> extends IList<E> {
     	GapList<E> removeds = keyColl.removeAllByKey(keyIndex, key);
     	if (!removeds.isEmpty()) {
     		if (!keyColl.isSortedListByElem()) {
-    			if (!forward.removeAll(removeds)) {
+    			if (!list.removeAll(removeds)) {
     				keyColl.errorInvalidData();
     			}
 	    	}
@@ -581,7 +567,7 @@ public class KeyListImpl<E> extends IList<E> {
     	// If this is a sorted list, it is obvious that binarySearch will work.
     	// The list can however also be sorted without been declared as being ordered,
     	// so we just try to do the binary search (as if Collections.binarySearch is called)
-    	return forward.binarySearch(index, len, key, comparator);
+    	return list.binarySearch(index, len, key, comparator);
     }
 
     @Override
@@ -593,7 +579,7 @@ public class KeyListImpl<E> extends IList<E> {
         		throw new IllegalArgumentException("Different comparator specified for sorted list");
     		}
     	} else {
-    		forward.sort(index, len, comparator);
+    		list.sort(index, len, comparator);
     	}
     }
 
@@ -604,7 +590,7 @@ public class KeyListImpl<E> extends IList<E> {
 		if (keyColl.hasElemSet()) {
 			return getAllByKey(0, elem);
 		} else {
-			return forward.getAll(elem);
+			return list.getAll(elem);
 		}
 	}
 
@@ -613,7 +599,7 @@ public class KeyListImpl<E> extends IList<E> {
 		if (keyColl.hasElemSet()) {
 			return getCountByKey(0, elem);
 		} else {
-			return forward.getCount(elem);
+			return list.getCount(elem);
 		}
 	}
 
@@ -622,7 +608,7 @@ public class KeyListImpl<E> extends IList<E> {
 		if (keyColl.hasElemSet()) {
 			return removeAllByKey(0, elem);
 		} else {
-			return forward.removeAll(elem);
+			return list.removeAll(elem);
 		}
 	}
 
@@ -663,11 +649,11 @@ public class KeyListImpl<E> extends IList<E> {
     		int oldIndex = super.indexOf(elem);
     		int newIndex = keyColl.indexOfSorted(elem);
     		if (oldIndex != newIndex) {
-    			forward.doRemove(oldIndex);
+    			list.doRemove(oldIndex);
     			if (oldIndex < newIndex) {
     				newIndex--;
     			}
-    			forward.doAdd(newIndex, elem);
+    			list.doAdd(newIndex, elem);
     		}
     	}
         if (DEBUG_CHECK) debugCheck();
@@ -684,10 +670,10 @@ public class KeyListImpl<E> extends IList<E> {
      */
     protected void invalidateKey(int keyIndex, Object oldKey, Object newKey, E elem) {
     	elem = keyColl.doInvalidateKey(keyIndex, oldKey, newKey, elem);
-    	if (keyColl.orderByKey == keyIndex && forward == null) {
-    		forward.doRemove(super.indexOf(elem));
+    	if (keyColl.orderByKey == keyIndex && list == null) {
+    		list.doRemove(super.indexOf(elem));
     		int index = keyColl.indexOfSorted(elem);
-    		forward.doAdd(index, elem);
+    		list.doAdd(index, elem);
     	}
         if (DEBUG_CHECK) debugCheck();
     }
