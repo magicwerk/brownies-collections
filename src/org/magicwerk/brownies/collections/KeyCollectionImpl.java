@@ -20,7 +20,6 @@ package org.magicwerk.brownies.collections;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -28,15 +27,15 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.magicwerk.brownies.collections.exceptions.DuplicateKeyException;
 import org.magicwerk.brownies.collections.exceptions.KeyException;
-import org.magicwerk.brownies.collections.function.Mapper;
-import org.magicwerk.brownies.collections.function.Predicate;
-import org.magicwerk.brownies.collections.function.Trigger;
+import org.magicwerk.brownies.collections.function.IFunction;
+import org.magicwerk.brownies.collections.function.IPredicate;
+import org.magicwerk.brownies.collections.function.IConsumer;
+import org.magicwerk.brownies.collections.helper.BigLists;
 import org.magicwerk.brownies.collections.helper.GapLists;
 import org.magicwerk.brownies.collections.helper.IdentMapper;
 import org.magicwerk.brownies.collections.helper.NaturalComparator;
@@ -68,13 +67,13 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     public static class BuilderImpl<E> {
 
         public static class KeyMapBuilder<E,K> {
-        	/** True order collection by this key map */
+        	/** True to order collection by this key map */
         	Boolean orderBy;
             // -- sorted list
             /** Primitive class to use for list storage */
             Class<?> orderByType;
         	// -- mapper
-        	Mapper<E,K> mapper;
+        	IFunction<E,K> mapper;
             // -- null
             Boolean allowNull;
             // -- duplicates
@@ -96,12 +95,12 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     	KeyListImpl keyList;
     	// -- constraint
         boolean allowNullElem = true;
-        Predicate<E> constraint;
+        IPredicate<E> constraint;
         // -- triggers
-        Trigger<E> beforeInsertTrigger;
-        Trigger<E> afterInsertTrigger;
-        Trigger<E> beforeDeleteTrigger;
-        Trigger<E> afterDeleteTrigger;
+        IConsumer<E> beforeInsertTrigger;
+        IConsumer<E> afterInsertTrigger;
+        IConsumer<E> beforeDeleteTrigger;
+        IConsumer<E> afterDeleteTrigger;
         // -- keys
     	GapList<KeyMapBuilder<E,Object>> keyMapBuilders = GapList.create();
         // -- content
@@ -112,6 +111,8 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         Boolean movingWindow;
         /** True to count only number of occurrences of equal elements */
         boolean count;
+        /** True to store list data in a BigList instance, false for a GapList instance */
+        boolean useBigList;
 
         // Interface
 
@@ -137,7 +138,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
          * @param constraint	constraint element must satisfy, null for none (default)
          * @return 				this (fluent interface)
          */
-        protected BuilderImpl<E> withConstraint(Predicate<E> constraint) {
+        protected BuilderImpl<E> withConstraint(IPredicate<E> constraint) {
         	this.constraint = constraint;
         	return this;
         }
@@ -150,7 +151,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
          * @param trigger	insert trigger method, null for none (default)
          * @return			this (fluent interface)
          */
-        protected BuilderImpl<E> withBeforeInsertTrigger(Trigger<E> trigger) {
+        protected BuilderImpl<E> withBeforeInsertTrigger(IConsumer<E> trigger) {
             this.beforeInsertTrigger = trigger;
             return this;
         }
@@ -161,7 +162,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
          * @param trigger	insert trigger method, null for none (default)
          * @return			this (fluent interface)
          */
-        protected BuilderImpl<E> withAfterInsertTrigger(Trigger<E> trigger) {
+        protected BuilderImpl<E> withAfterInsertTrigger(IConsumer<E> trigger) {
             this.afterInsertTrigger = trigger;
             return this;
         }
@@ -172,7 +173,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
          * @param trigger	delete trigger method, null for none (default)
          * @return			this (fluent interface)
          */
-        protected BuilderImpl<E> withBeforeDeleteTrigger(Trigger<E> trigger) {
+        protected BuilderImpl<E> withBeforeDeleteTrigger(IConsumer<E> trigger) {
             this.beforeDeleteTrigger = trigger;
             return this;
         }
@@ -182,7 +183,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
          * @param trigger	delete trigger method, null for none (default)
          * @return			this (fluent interface)
          */
-        protected BuilderImpl<E> withAfterDeleteTrigger(Trigger<E> trigger) {
+        protected BuilderImpl<E> withAfterDeleteTrigger(IConsumer<E> trigger) {
             this.afterDeleteTrigger = trigger;
             return this;
         }
@@ -251,6 +252,17 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         	}
             this.maxSize = maxSize;
             this.movingWindow = true;
+            return this;
+        }
+
+        /**
+         * Specify whether list should be stored in an instance of BigList or GapList.
+         *
+         * @param bigList	true to store list content in an instance of BigList, false for GapList
+         * @return			this (fluent interface)
+         */
+        protected BuilderImpl<E> withBigList(boolean bigList) {
+            this.useBigList = bigList;
             return this;
         }
 
@@ -398,7 +410,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 
         //
 
-        protected BuilderImpl<E> withKeyMap(int keyIndex, Mapper mapper) {
+        protected BuilderImpl<E> withKeyMap(int keyIndex, IFunction mapper) {
         	if (mapper == null) {
         		throw new IllegalArgumentException("Mapper may not be null");
         	}
@@ -714,7 +726,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 
         KeyMap buildKeyMap(KeyMapBuilder keyMapBuilder, boolean list) {
         	KeyMap<E,Object> keyMap = new KeyMap<E,Object>();
-        	keyMap.mapper = (Mapper<E, Object>) keyMapBuilder.mapper;
+        	keyMap.mapper = (IFunction<E, Object>) keyMapBuilder.mapper;
             keyMap.allowNull = isFalse(keyMapBuilder.allowNull);
         	keyMap.allowDuplicates = isFalse(keyMapBuilder.allowDuplicates);
         	keyMap.allowDuplicatesNull = isFalse(keyMapBuilder.allowDuplicatesNull);
@@ -737,7 +749,11 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 
         	if (list && isTrue(keyMapBuilder.orderBy)) {
         		if (keyMapBuilder.orderByType == null) {
-            		keyMap.keysList = new GapList<Object>();
+        			if (useBigList) {
+        				keyMap.keysList = new BigList<Object>();
+        			} else {
+        				keyMap.keysList = new GapList<Object>();
+        			}
         		} else {
                 	if (keyMapBuilder.comparator != null && keyMapBuilder.comparator != NaturalComparator.INSTANCE()) {
                 		throw new IllegalArgumentException("Only natural comparator supported for list type");
@@ -746,7 +762,11 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
                 		throw new IllegalArgumentException("Null values are not supported for primitive list type");
                 	}
                 	keyMap.comparator = NaturalComparator.INSTANCE();
-        			keyMap.keysList = (IList<Object>) GapLists.createWrapperList(keyMapBuilder.orderByType);
+        			if (useBigList) {
+        				keyMap.keysList = (IList<Object>) BigLists.createWrapperList(keyMapBuilder.orderByType);
+        			} else {
+        				keyMap.keysList = (IList<Object>) GapLists.createWrapperList(keyMapBuilder.orderByType);
+        			}
         		}
         	} else if (keyMap.comparator != null) {
         		keyMap.keysMap = new TreeMap(keyMap.comparator);
@@ -877,7 +897,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 
     static class KeyMap<E,K> implements Serializable {
 	    /** A mapper to extract keys out of element. For the element itself , this is always an IdentMapper. */
-	    Mapper<E,K> mapper;
+	    IFunction<E,K> mapper;
 	    /** True to allow null keys */
 	    boolean allowNull;
 	    /** True to allow duplicate values if they are not null */
@@ -955,7 +975,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	    	if (elem == null) {
 	            return null;
 	    	}
-	    	return mapper.getKey(elem);
+	    	return mapper.apply(elem);
 	    }
 
 	    boolean containsKey(Object key) {
@@ -1434,12 +1454,12 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     /**
      * All elements in the list must fulfill this predicate, if null, all elements are allowed
      */
-    Predicate<E> constraint;
+    IPredicate<E> constraint;
     // -- handlers
-    Trigger<E> beforeInsertTrigger;
-    Trigger<E> afterInsertTrigger;
-    Trigger<E> beforeDeleteTrigger;
-    Trigger<E> afterDeleteTrigger;
+    IConsumer<E> beforeInsertTrigger;
+    IConsumer<E> afterInsertTrigger;
+    IConsumer<E> beforeDeleteTrigger;
+    IConsumer<E> afterDeleteTrigger;
     /**
      * Back pointer to KeyListImpl if this object is used to implement a KeyList, Key1List, Key2List.
      * Otherwise null if it is part of a KeyCollection, Key1Collection, Key2Collection.
@@ -1717,7 +1737,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     		}
     	}
     	if (constraint != null) {
-    		if (!constraint.allow(elem)) {
+    		if (!constraint.test(elem)) {
        			errorConstraintElement();
     		}
     	}
@@ -1759,7 +1779,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
      */
     private void beforeInsert(E elem) {
         if (beforeInsertTrigger != null) {
-        	beforeInsertTrigger.handle(elem);
+        	beforeInsertTrigger.accept(elem);
     	}
     }
 
@@ -1770,7 +1790,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
      */
     private void afterInsert(E elem) {
         if (afterInsertTrigger != null) {
-        	afterInsertTrigger.handle(elem);
+        	afterInsertTrigger.accept(elem);
     	}
     }
 
@@ -1782,7 +1802,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
      */
     private void beforeDelete(E elem) {
         if (beforeDeleteTrigger != null) {
-        	beforeDeleteTrigger.handle(elem);
+        	beforeDeleteTrigger.accept(elem);
     	}
     }
 
@@ -1793,7 +1813,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
      */
     private void afterDelete(E elem) {
         if (afterDeleteTrigger != null) {
-   			afterDeleteTrigger.handle(elem);
+   			afterDeleteTrigger.accept(elem);
     	}
     }
 
@@ -2174,7 +2194,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
      * @param keyIndex 	key index
      * @return      	mapper for specified key map
      */
-    protected Mapper<E,Object> getKeyMapper(int keyIndex) {
+    protected IFunction<E,Object> getKeyMapper(int keyIndex) {
     	return getKeyMap(keyIndex).mapper;
 
     }

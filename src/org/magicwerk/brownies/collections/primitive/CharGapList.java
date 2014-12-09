@@ -25,7 +25,7 @@ import java.io.ObjectOutputStream;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
-import org.magicwerk.brownies.collections.function.Mapper;
+import org.magicwerk.brownies.collections.function.IFunction;
 
 /**
  * CharGapList combines the strengths of both ArrayList and LinkedList.
@@ -490,7 +490,7 @@ public CharGapList getAll(char elem) {
 }
 
     @Override
-public <R> GapList<R> mappedList(Mapper<Character, R> mapper) {
+public <R> GapList<R> mappedList(IFunction<Character, R> mapper) {
     return (GapList<R>) super.mappedList(mapper);
 }
 

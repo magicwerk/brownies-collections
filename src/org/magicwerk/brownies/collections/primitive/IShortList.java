@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: IShortList.java 2579 2014-11-10 06:35:42Z origo $
+ * $Id: IShortList.java 2597 2014-11-18 17:10:54Z origo $
  */
 package org.magicwerk.brownies.collections.primitive;
 
@@ -34,15 +34,15 @@ import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.RandomAccess;
 import java.util.Set;
-import org.magicwerk.brownies.collections.function.Mapper;
-import org.magicwerk.brownies.collections.function.Predicate;
+import org.magicwerk.brownies.collections.function.IFunction;
+import org.magicwerk.brownies.collections.function.IPredicate;
 
 /**
  * IShortList is an abstract class which offers all interfaces offered by both ArrayList and LinkedList.
  * It also offers additional methods which are then available in all implementations of GapList and BigList.
  *
  * @author Thomas Mauch
- * @version $Id: IShortList.java 2579 2014-11-10 06:35:42Z origo $
+ * @version $Id: IShortList.java 2597 2014-11-18 17:10:54Z origo $
  *
  * @param <E> type of elements stored in the list
  * @see	    java.util.List
@@ -381,12 +381,12 @@ public IShortList getAll(short elem) {
 	 * @param predicate	predicate
 	 * @return			all elements in the list which match the predicate
 	 */
-public IShortList getWhere(Predicate predicate) {
+public IShortList getWhere(IPredicate predicate) {
     IShortList list = doCreate(-1);
     int size = size();
     for (int i = 0; i < size; i++) {
         short e = doGet(i);
-        if (predicate.allow(e)) {
+        if (predicate.test(e)) {
             list.add(e);
         }
     }
@@ -398,11 +398,11 @@ public IShortList getWhere(Predicate predicate) {
 	 *
 	 * @param predicate	predicate
 	 */
-public void removeWhere(Predicate predicate) {
+public void removeWhere(IPredicate predicate) {
     int size = size();
     for (int i = 0; i < size; i++) {
         short e = doGet(i);
-        if (predicate.allow(e)) {
+        if (predicate.test(e)) {
             doRemove(i);
             size--;
             i--;
@@ -416,12 +416,12 @@ public void removeWhere(Predicate predicate) {
 	 * @param predicate	predicate
 	 * @return			elements which have been removed from the list
 	 */
-public IShortList extractWhere(Predicate predicate) {
+public IShortList extractWhere(IPredicate predicate) {
     IShortList list = doCreate(-1);
     int size = size();
     for (int i = 0; i < size; i++) {
         short e = doGet(i);
-        if (predicate.allow(e)) {
+        if (predicate.test(e)) {
             list.add(e);
             doRemove(i);
             size--;
@@ -451,12 +451,12 @@ public Set getDistinct() {
      * @param mapper	mapper function
      * @return			created list
      */
-public <R> IList<R> mappedList(Mapper<Short, R> mapper) {
+public <R> IList<R> mappedList(IFunction<Short, R> mapper) {
     int size = size();
     @SuppressWarnings("unchecked") IList<R> mappedList = (IList<R>) new GapList<R>(size);
     for (int i = 0; i < size; i++) {
         short e = doGet(i);
-        mappedList.add(mapper.getKey(e));
+        mappedList.add(mapper.apply(e));
     }
     return mappedList;
 }
@@ -467,14 +467,14 @@ public <R> IList<R> mappedList(Mapper<Short, R> mapper) {
      *
      * @param predicate predicate used for filtering
      */
-public void filter(Predicate<Short> predicate) {
+public void filter(IPredicate<Short> predicate) {
     // It is typically faster to copy the allowed elements in a new list   
     // than to remove the not allowed from the existing one   
     IShortList list = doCreate(-1);
     int size = size();
     for (int i = 0; i < size; i++) {
         short e = doGet(i);
-        if (predicate.allow(e)) {
+        if (predicate.test(e)) {
             list.add(e);
         }
     }
@@ -505,7 +505,7 @@ public int lastIndexOf(short elem) {
     /**
 	 * Returns the index of the first occurrence of the specified element in this list, starting the search at the specified position.
 	 * If the element is not found, -1 is returned.
-	 * 
+	 *
 	 * @param elem			element to search for
 	 * @param fromIndex		start index for search
 	 * @return				the index of the first occurrence of the specified element in this list that is greater than or equal to fromIndex,
@@ -528,7 +528,7 @@ public int indexOf(short elem, int fromIndex) {
     /**
 	 * Returns the index of the last occurrence of the specified element in this list, starting the search at the specified position.
 	 * If the element is not found, -1 is returned.
-	 * 
+	 *
 	 * @param elem			element to search for
 	 * @param fromIndex		start index for search
 	 * @return				the index of the last occurrence of the specified element in this list that is less than or equal to fromIndex,

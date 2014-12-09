@@ -18,20 +18,19 @@
 package org.magicwerk.brownies.collections.function;
 
 /**
- * Interface to determine a map value out of a given value.
+ * A consumer interface for use in pre-Java 8.
+ * In Java 8 and later, java.util.function.Consumer could then be used.
+ *
+ * @param <T>	element type
  *
  * @author Thomas Mauch
  * @version $Id$
- *
- * @param <E> type of elements stored in the list
- * @param <K> type of key
  */
-public interface Mapper<E, K> {
+public interface IConsumer<T> {
     /**
-     * Returns key for given value.
+     * Accept element.
      *
-     * @param v value to determine key for
-     * @return  determined key value
+     * @param elem element to consume
      */
-    public K getKey(E v);
+    void accept(T elem);
 }

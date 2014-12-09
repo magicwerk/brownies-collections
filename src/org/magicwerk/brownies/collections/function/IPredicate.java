@@ -18,19 +18,20 @@
 package org.magicwerk.brownies.collections.function;
 
 /**
- * The Trigger interface is used by methods for implementing
- * trigger like functionality.
+ * A predicate interface for use in pre-Java 8.
+ * In Java 8 and later, java.util.function.Predicate could then be used.
  *
- * @param <E>	element type
+ * @param <T>	type
  *
  * @author Thomas Mauch
  * @version $Id$
  */
-public interface Trigger<E> {
-    /**
-     * Handle element.
-     *
-     * @param elem element to handle
-     */
-    void handle(E elem);
+public interface IPredicate<T> {
+	/**
+	 * Evaluates predicate on specified element.
+	 *
+	 * @param elem	element to evaluate
+	 * @return		true if the input matches the predicate, false otherwise
+	 */
+	boolean test(T elem);
 }

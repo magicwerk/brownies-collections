@@ -22,11 +22,9 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.Set;
 
-import org.magicwerk.brownies.collections.Key1List.Builder;
-import org.magicwerk.brownies.collections.function.Mapper;
-import org.magicwerk.brownies.collections.function.Predicate;
-import org.magicwerk.brownies.collections.function.Trigger;
-
+import org.magicwerk.brownies.collections.function.IFunction;
+import org.magicwerk.brownies.collections.function.IPredicate;
+import org.magicwerk.brownies.collections.function.IConsumer;
 
 /**
  * Key1Collection implements a collection with 1 key.
@@ -73,29 +71,29 @@ public class Key1Collection<E,K> extends KeyCollectionImpl<E> {
         }
 
         @Override
-        public Builder<E,K> withConstraint(Predicate<E> constraint) {
+        public Builder<E,K> withConstraint(IPredicate<E> constraint) {
         	return (Builder<E,K>) super.withConstraint(constraint);
         }
 
         // -- Triggers
 
         @Override
-        public Builder<E,K> withBeforeInsertTrigger(Trigger<E> trigger) {
+        public Builder<E,K> withBeforeInsertTrigger(IConsumer<E> trigger) {
         	return (Builder<E,K>) super.withBeforeInsertTrigger(trigger);
         }
 
         @Override
-        public Builder<E,K> withAfterInsertTrigger(Trigger<E> trigger) {
+        public Builder<E,K> withAfterInsertTrigger(IConsumer<E> trigger) {
         	return (Builder<E,K>) super.withAfterInsertTrigger(trigger);
         }
 
         @Override
-        public Builder<E,K> withBeforeDeleteTrigger(Trigger<E> trigger) {
+        public Builder<E,K> withBeforeDeleteTrigger(IConsumer<E> trigger) {
         	return (Builder<E,K>) super.withBeforeDeleteTrigger(trigger);
         }
 
         @Override
-        public Builder<E,K> withAfterDeleteTrigger(Trigger<E> trigger) {
+        public Builder<E,K> withAfterDeleteTrigger(IConsumer<E> trigger) {
         	return (Builder<E,K>) super.withAfterDeleteTrigger(trigger);
         }
 
@@ -119,6 +117,11 @@ public class Key1Collection<E,K> extends KeyCollectionImpl<E> {
         @Override
         public Builder<E,K> withMaxSize(int maxSize) {
         	return (Builder<E,K>) super.withMaxSize(maxSize);
+        }
+
+        @Override
+        public Builder<E,K> withBigList(boolean bigList) {
+        	return (Builder<E,K>) super.withBigList(bigList);
         }
 
         //-- Element key
@@ -181,7 +184,7 @@ public class Key1Collection<E,K> extends KeyCollectionImpl<E> {
          * @param mapper	mapper to use
          * @return			this (fluent interface)
          */
-        public Builder<E,K> withKey1Map(Mapper<? super E,K> mapper) {
+        public Builder<E,K> withKey1Map(IFunction<? super E,K> mapper) {
             return (Builder<E,K>) withKeyMap(1, mapper);
         }
 
@@ -317,8 +320,8 @@ public class Key1Collection<E,K> extends KeyCollectionImpl<E> {
      *
      * @return      	mapper for key map
      */
-	public Mapper<E,K> getKey1Mapper() {
-		return (Mapper<E,K>) super.getKeyMapper(1);
+	public IFunction<E,K> getKey1Mapper() {
+		return (IFunction<E,K>) super.getKeyMapper(1);
 	}
 
     /**

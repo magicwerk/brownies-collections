@@ -31,8 +31,8 @@ import java.util.NoSuchElementException;
 import java.util.RandomAccess;
 import java.util.Set;
 
-import org.magicwerk.brownies.collections.function.Mapper;
-import org.magicwerk.brownies.collections.function.Predicate;
+import org.magicwerk.brownies.collections.function.IFunction;
+import org.magicwerk.brownies.collections.function.IPredicate;
 
 /**
  * IList is an abstract class which offers all interfaces offered by both ArrayList and LinkedList.
@@ -393,12 +393,12 @@ public abstract class IList<E> extends AbstractList<E>
 	 * @param predicate	predicate
 	 * @return			all elements in the list which match the predicate
 	 */
-    public IList<E> getWhere(Predicate<E> predicate) {
+    public IList<E> getWhere(IPredicate<E> predicate) {
         IList<E> list = doCreate(-1);
 		int size = size();
 		for (int i=0; i<size; i++) {
 			E e = doGet(i);
-			if (predicate.allow(e)) {
+			if (predicate.test(e)) {
 				list.add(e);
 			}
 		}
@@ -410,11 +410,11 @@ public abstract class IList<E> extends AbstractList<E>
 	 *
 	 * @param predicate	predicate
 	 */
-	public void removeWhere(Predicate<E> predicate) {
+	public void removeWhere(IPredicate<E> predicate) {
 	    int size = size();
 		for (int i=0; i<size; i++) {
 			E e = doGet(i);
-			if (predicate.allow(e)) {
+			if (predicate.test(e)) {
 				doRemove(i);
 				size--;
 				i--;
@@ -428,12 +428,12 @@ public abstract class IList<E> extends AbstractList<E>
 	 * @param predicate	predicate
 	 * @return			elements which have been removed from the list
 	 */
-	public IList<E> extractWhere(Predicate<E> predicate) {
+	public IList<E> extractWhere(IPredicate<E> predicate) {
 	    IList<E> list = doCreate(-1);
 	    int size = size();
 		for (int i=0; i<size; i++) {
 			E e = doGet(i);
-			if (predicate.allow(e)) {
+			if (predicate.test(e)) {
 				list.add(e);
 				doRemove(i);
 				size--;
@@ -463,13 +463,13 @@ public abstract class IList<E> extends AbstractList<E>
      * @param mapper	mapper function
      * @return			created list
      */
-    public <R> IList<R> mappedList(Mapper<E,R> mapper) {
+    public <R> IList<R> mappedList(IFunction<E,R> mapper) {
 		int size = size();
     	@SuppressWarnings("unchecked")
 		IList<R> mappedList = (IList<R>) doCreate(size);
 		for (int i=0; i<size; i++) {
 			E e = doGet(i);
-			mappedList.add(mapper.getKey(e));
+			mappedList.add(mapper.apply(e));
     	}
     	return mappedList;
     }
@@ -480,14 +480,14 @@ public abstract class IList<E> extends AbstractList<E>
      *
      * @param predicate predicate used for filtering
      */
-    public void filter(Predicate<? super E> predicate) {
+    public void filter(IPredicate<? super E> predicate) {
     	// It is typically faster to copy the allowed elements in a new list
     	// than to remove the not allowed from the existing one
     	IList<E> list = doCreate(-1);
 		int size = size();
 		for (int i=0; i<size; i++) {
 			E e = doGet(i);
-    		if (predicate.allow(e)) {
+    		if (predicate.test(e)) {
     			list.add(e);
     		}
     	}
@@ -518,7 +518,7 @@ public abstract class IList<E> extends AbstractList<E>
 	/**
 	 * Returns the index of the first occurrence of the specified element in this list, starting the search at the specified position.
 	 * If the element is not found, -1 is returned.
-	 * 
+	 *
 	 * @param elem			element to search for
 	 * @param fromIndex		start index for search
 	 * @return				the index of the first occurrence of the specified element in this list that is greater than or equal to fromIndex,
@@ -537,18 +537,18 @@ public abstract class IList<E> extends AbstractList<E>
 		}
 		return -1;
 	}
-	
+
 	/**
 	 * Returns the index of the last occurrence of the specified element in this list, starting the search at the specified position.
 	 * If the element is not found, -1 is returned.
-	 * 
+	 *
 	 * @param elem			element to search for
 	 * @param fromIndex		start index for search
 	 * @return				the index of the last occurrence of the specified element in this list that is less than or equal to fromIndex,
 	 * 						or -1 if this list does not contain the element
 	 * @see #lastIndexOf(Object)
 	 */
-	public int lastIndexOf(Object elem, int fromIndex) {		
+	public int lastIndexOf(Object elem, int fromIndex) {
 		int size = size();
 		if (fromIndex >= size) {
 			fromIndex = size-1;
@@ -560,7 +560,7 @@ public abstract class IList<E> extends AbstractList<E>
 		}
 		return -1;
 	}
-	
+
 	@Override
 	public boolean remove(Object elem) {
 		int index = indexOf(elem);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 by Thomas Mauch
+ * Copyright 2014 by Thomas Mauch
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,46 +18,46 @@
 package org.magicwerk.brownies.collections.helper;
 
 import org.magicwerk.brownies.collections.IList;
-import org.magicwerk.brownies.collections.primitive.BooleanObjGapList;
-import org.magicwerk.brownies.collections.primitive.ByteObjGapList;
-import org.magicwerk.brownies.collections.primitive.CharObjGapList;
-import org.magicwerk.brownies.collections.primitive.DoubleObjGapList;
-import org.magicwerk.brownies.collections.primitive.FloatObjGapList;
-import org.magicwerk.brownies.collections.primitive.IntObjGapList;
-import org.magicwerk.brownies.collections.primitive.LongObjGapList;
-import org.magicwerk.brownies.collections.primitive.ShortObjGapList;
+import org.magicwerk.brownies.collections.primitive.BooleanObjBigList;
+import org.magicwerk.brownies.collections.primitive.ByteObjBigList;
+import org.magicwerk.brownies.collections.primitive.CharObjBigList;
+import org.magicwerk.brownies.collections.primitive.DoubleObjBigList;
+import org.magicwerk.brownies.collections.primitive.FloatObjBigList;
+import org.magicwerk.brownies.collections.primitive.IntObjBigList;
+import org.magicwerk.brownies.collections.primitive.LongObjBigList;
+import org.magicwerk.brownies.collections.primitive.ShortObjBigList;
 
 /**
- * Helper class to create wrapper list objects wrapping primitive GapLists.
+ * Helper class to create wrapper list objects wrapping primitive BigLists.
  *
  * @author Thomas Mauch
  * @version $Id$
  */
-public class GapLists {
+public class BigLists {
     /**
-     * Create a GapList wrapping a primitive GapList, e.g. an IntObjGapList wrapping an IntGapList.
+     * Create a BigList wrapping a primitive BigList, e.g. an IntObjBigList wrapping an IntBigList.
      *
-     * @param type	primitive type for GapList
-     * @return		created wrapping GapList
+     * @param type	primitive type for BigList
+     * @return		created wrapping BigList
      * @throws 		IllegalArgumentException if no primitive type is specified
      */
     public static IList<?> createWrapperList(Class<?> type) {
     	if (type == int.class) {
-    		return new IntObjGapList();
+    		return new IntObjBigList();
     	} else if (type == long.class) {
-        	return new LongObjGapList();
+        	return new LongObjBigList();
     	} else if (type == double.class) {
-        	return new DoubleObjGapList();
+        	return new DoubleObjBigList();
     	} else if (type == float.class) {
-        	return new FloatObjGapList();
+        	return new FloatObjBigList();
     	} else if (type == boolean.class) {
-        	return new BooleanObjGapList();
+        	return new BooleanObjBigList();
     	} else if (type == byte.class) {
-        	return new ByteObjGapList();
+        	return new ByteObjBigList();
     	} else if (type == char.class) {
-        	return new CharObjGapList();
+        	return new CharObjBigList();
     	} else if (type == short.class) {
-        	return new ShortObjGapList();
+        	return new ShortObjBigList();
     	} else {
     		throw new IllegalArgumentException("Primitive type expected: " + type);
     	}

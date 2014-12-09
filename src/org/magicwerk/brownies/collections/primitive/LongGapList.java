@@ -25,7 +25,7 @@ import java.io.ObjectOutputStream;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
-import org.magicwerk.brownies.collections.function.Mapper;
+import org.magicwerk.brownies.collections.function.IFunction;
 
 /**
  * LongGapList combines the strengths of both ArrayList and LinkedList.
@@ -490,7 +490,7 @@ public LongGapList getAll(long elem) {
 }
 
     @Override
-public <R> GapList<R> mappedList(Mapper<Long, R> mapper) {
+public <R> GapList<R> mappedList(IFunction<Long, R> mapper) {
     return (GapList<R>) super.mappedList(mapper);
 }
 
