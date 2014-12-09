@@ -851,13 +851,17 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         	keyList.keyColl = keyColl;
         	keyColl.keyList = keyList;
         	if (keyColl.orderByKey == 0) {
-        		keyList.forward = (IList<E>) keyColl.keyMaps[0].keysList;
+        		keyList.list = (IList<E>) keyColl.keyMaps[0].keysList;
+            	if (keyList.list == null) {
+            		keyList.list = new GapList<E>(); // TODO GapList or BigList
+            	}
                 if (collection != null) {
                 	keyColl.addAll(collection);
                 } else if (array != null) {
                 	keyColl.addAll((Collection<? extends E>) Arrays.asList(array));
                 }
         	} else {
+           		keyList.list = new GapList<E>(); // TODO GapList or BigList
         		if (collection != null) {
         			keyList.ensureCapacity(capacity);
         			keyList.addAll(collection);
@@ -867,9 +871,6 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         		} else if (capacity != 0) {
         			keyList.ensureCapacity(capacity);
         		}
-        	}
-        	if (keyList.forward == null) {
-        		keyList.forward = new GapList<E>(); // TODO GapList or BigList
         	}
         }
     }
@@ -1326,7 +1327,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	                    break;
 	                }
 	            }
-	            GapList<E> removed = (GapList<E>) keyColl.keyList.forward.getAll(start, index-start);
+	            GapList<E> removed = (GapList<E>) keyColl.keyList.list.getAll(start, index-start);
 	            keysList.remove(start, index-start);
 	            return removed;
 	        }
@@ -2425,6 +2426,10 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     	return new Option(key);
     }
 
+    protected E removeByKey(int keyIndex, Object key) {
+    	return doRemoveByKey(keyIndex, key).getValueOrNull();
+    }
+
     /**
      * Removes element by key.
      * If there are duplicates, only one element is removed.
@@ -2446,12 +2451,10 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     			throw e;
     		}
     		for (int i=0; i<keyMaps.length; i++) {
-    			if (i != keyIndex) {
-        			if (keyMaps[i] != null) {
-        				E value = removed.getValue();
-        				Object k = keyMaps[i].getKey(value);
-        				keyMaps[i].remove(k, true, value, this);
-        			}
+    			if (i != keyIndex && keyMaps[i] != null) {
+    				E value = removed.getValue();
+    				Object k = keyMaps[i].getKey(value);
+    				keyMaps[i].remove(k, true, value, this);
     			}
     		}
     		size--;
@@ -2461,8 +2464,40 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         return removed;
     }
 
-    protected E removeByKey(int keyIndex, Object key) {
-    	return doRemoveByKey(keyIndex, key).getValueOrNull();
+    /**
+     * Removes element by key.
+     * If there are duplicates, all elements are removed.
+     *
+     * @param keyIndex	key index
+     * @param key   	key of element to remove
+     * @return      	true if elements have been removed, false otherwise
+     */
+    @SuppressWarnings("unchecked")
+    protected GapList<E> removeAllByKey(int keyIndex, Object key) {
+    	checkKeyMap(keyIndex);
+    	GapList<E> removeds = keyMaps[keyIndex].doRemoveAllByKey(key, this);
+    	for (int n=0; n<removeds.size(); n++) {
+    		E elem = removeds.get(n);
+    		try {
+    			beforeDelete(elem);
+    		}
+    		catch (RuntimeException e) {
+    			for (int n2=n; n2<removeds.size(); n++) {
+    				keyMaps[keyIndex].add(key, removeds.get(n2));
+    			}
+    			throw e;
+    		}
+    		for (int i=0; i<keyMaps.length; i++) {
+    			if (i != keyIndex && keyMaps[i] != null) {
+    				Object k = keyMaps[i].getKey(elem);
+    				keyMaps[i].doRemoveAllByKey(k, this);
+    			}
+    		}
+    		afterDelete(elem);
+    		size--;
+    	}
+        if (DEBUG_CHECK) debugCheck();
+        return removeds;
     }
 
     /**
@@ -2498,31 +2533,6 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
        		throw e;
        	}
     	return oldElem.getValue();
-    }
-
-    /**
-     * Removes element by key.
-     * If there are duplicates, all elements are removed.
-     *
-     * @param keyIndex	key index
-     * @param key   	key of element to remove
-     * @return      	true if elements have been removed, false otherwise
-     */
-    @SuppressWarnings("unchecked")
-    protected GapList<E> removeAllByKey(int keyIndex, Object key) {
-    	checkKeyMap(keyIndex);
-    	GapList<E> removeds = keyMaps[keyIndex].doRemoveAllByKey(key, this);
-    	for (E removed: removeds) {
-    		for (int i=0; i<keyMaps.length; i++) {
-    			if (i != keyIndex && keyMaps[i] != null) {
-    				Object k = keyMaps[i].getKey(removed);
-    				keyMaps[i].doRemoveAllByKey(k, this);
-    			}
-    		}
-    		size--;
-    	}
-        if (DEBUG_CHECK) debugCheck();
-        return removeds;
     }
 
 	// As in AbstractCollection
