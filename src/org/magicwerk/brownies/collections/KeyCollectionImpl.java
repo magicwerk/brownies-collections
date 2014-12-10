@@ -1855,8 +1855,9 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     	if (maxSize != 0 && size >= maxSize) {
     		errorMaxSize();
     	}
-    	doAdd(elem, null);
-    	size++;
+    	if (doAdd(elem, null)) {
+    		size++;
+    	}
         if (DEBUG_CHECK) debugCheck();
         afterInsert(elem);
     	return true;
