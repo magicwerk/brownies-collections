@@ -711,19 +711,16 @@ public class KeyListImpl<E> extends IList<E> {
 
 	@Override
 	protected IList<E> doCreate(int capacity) {
-//    	if (capacity == -1) {
-//    		capacity = DEFAULT_CAPACITY;
-//    	}
-//    	return new GapList<E>(capacity);
-
-		// Capacity is not used
-		return this.crop();
+		if (list instanceof BigList) {
+	    	return new BigList<E>(capacity);
+		} else {
+			return new GapList<E>(capacity);
+		}
 	}
 
 	@Override
 	protected void doAssign(IList<E> that) {
 		// TODO Auto-generated method stub
-
 	}
 
     //-- Key methods
