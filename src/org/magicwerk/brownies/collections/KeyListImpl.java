@@ -57,6 +57,7 @@ public class KeyListImpl<E> extends IList<E> {
     private void debugCheck() {
     	keyColl.debugCheck();
     	//list.debugCheck();
+    	assert(list.size() == keyColl.size() || (keyColl.size() == 0 && keyColl.keyMaps == null));
     }
 
     /**
@@ -299,7 +300,7 @@ public class KeyListImpl<E> extends IList<E> {
 			keyColl.addUnsorted(elem);
 			if (index == -1) {
 				// Element is already added to keyColl
-				index = keyColl.size()-1;
+				index = list.size();
 			}
 			list.doAdd(index, elem);
 		}
@@ -632,7 +633,13 @@ public class KeyListImpl<E> extends IList<E> {
 	 * @return		element which has been replaced or null otherwise
 	 */
 	protected E put(E elem) {
-		return putByKey(0, elem);
+		int index = indexOf(elem);
+		if (index != -1) {
+			return set(index, elem);
+		} else {
+			add(elem);
+			return null;
+		}
 	}
 
     /**

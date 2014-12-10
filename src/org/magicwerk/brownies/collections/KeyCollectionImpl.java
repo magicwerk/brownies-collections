@@ -912,7 +912,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	     * One of keysMap or keysList is used.
 	     */
 	    Map<K, Object> keysMap;
-	    /** Key storage if this is a sorted KeyListImpl, otherwise null */
+	    /** Key storage if this is a KeyListImpl sorted by this key map, otherwise null */
 	    IList<K> keysList;
 	    /** True to count only number of occurrences of equal elements */
 	    boolean count;
@@ -993,11 +993,39 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 
 	    boolean containsValue(Object value) {
 	    	assert(count == false);
+   			return keysMap.containsValue(value);
+	    }
+
+	    Option<E> getContainedKey(Object key) {
+	        if (key == null) {
+	            if (!allowNull) {
+	                return Option.EMPTY();
+	            }
+	        }
 	    	if (keysMap != null) {
-    			return keysMap.containsValue(value);
+	    		Object val = keysMap.get(key);
+	    		if (val != null) {
+	    			return new Option(val);
+	    		} else if (keysMap.containsKey(key)) {
+		    		return new Option(val);
+	    		}
 	    	} else {
-	    		return keysList.binarySearch(value, (Comparator<Object>) comparator) >= 0;
+	    		int index = keysList.binarySearch(key, (Comparator<Object>) comparator);
+	    		if (index >= 0) {
+	    			return new Option(keysList.get(index));
+	    		}
 	    	}
+	    	return Option.EMPTY();
+	    }
+
+	    Option<E> getContainedValue(Object value) {
+	    	assert(count == false);
+    		for (Map.Entry entry: keysMap.entrySet()) {
+    			if ((entry.getValue() == null && value == null) || (entry.getValue() != null && entry.getValue().equals(value))) {
+    				return new Option(entry.getValue());
+    			}
+    		}
+	    	return Option.EMPTY();
 	    }
 
 	    @SuppressWarnings("unchecked")
@@ -1638,9 +1666,10 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     	Object key = keyMap.getKey(elem);
     	IList<Object> list = keyMap.keysList;
 
-   		doAdd(elem, keyMap);
+   		if (doAdd(elem, keyMap)) {
+   	   		size++;
+   		}
     	list.doAdd(index, key);
-   		size++;
 
    		afterInsert(elem);
    }
@@ -1653,8 +1682,9 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
      */
     void addUnsorted(E elem) {
     	beforeInsert(elem);
-    	doAdd(elem, null);
-    	size++;
+    	if (doAdd(elem, null)) {
+    		size++;
+    	}
     	afterInsert(elem);
     }
 
@@ -1841,18 +1871,67 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
      * Remove element.
      *
      * @param elem		element to remove
-     * @param ignore	KeyMap to ignore (null to add element to all maps)
+     * @param ignore	KeyMap to ignore (null to remove element from all key maps)
      * @return			true if element has been removed
      */
 	boolean remove(Object elem, KeyMap ignore) {
 	    beforeDelete((E) elem);
-        boolean removed = doRemove(elem, ignore);
-        if (removed) {
+        Option<E> removed = doRemove(elem, ignore);
+        if (removed.hasValue() || ignore != null) {
         	size--;
         }
         if (DEBUG_CHECK) debugCheck();
         afterDelete((E) elem);
-        return removed;
+        return removed.hasValue();
+	}
+
+	/**
+	 * Adds or replaces element.
+	 * If there is no such element, the element is added.
+	 * If there is such an element and no duplicates
+	 * are allowed, the existing element is replaced.
+	 * If duplicates are allowed, the element is added.
+	 *
+	 * @param elem	element
+	 * @return		element which has been replaced or null otherwise
+	 */
+	protected E put(E elem) {
+		// Try to remove element
+		Option<E> removed = doRemove(elem, null);
+        if (removed.hasValue()) {
+        	try {
+        		beforeDelete(removed.getValue());
+        	}
+        	catch (RuntimeException e) {
+        		doAdd(removed.getValue(), null);
+        		throw e;
+        	}
+        }
+
+        try {
+        	beforeInsert(elem);
+        }
+    	catch (RuntimeException e) {
+    		doAdd(removed.getValue(), null);
+    		throw e;
+    	}
+
+        // Add new element
+        try {
+        	doAdd(elem, null);
+        }
+    	catch (RuntimeException e) {
+    		doAdd(removed.getValue(), null);
+    		throw e;
+    	}
+
+        // Call after triggers
+        if (removed.hasValue()) {
+        	afterDelete(removed.getValue());
+        }
+        afterInsert(elem);
+
+        return removed.getValueOrNull();
 	}
 
 	@Override
@@ -1988,11 +2067,11 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
      * Remove element.
      *
      * @param elem		element to remove
-     * @param ignore	KeyMap to ignore (null to add element to all maps)
-     * @return			true if element has been removed
+     * @param ignore	KeyMap to ignore (null to remove element from all key maps)
+     * @return			optional with element which has been removed
      */
-	boolean doRemove(Object elem, KeyMap ignore) {
-        E removed = null;
+	Option<E> doRemove(Object elem, KeyMap ignore) {
+        Option<E> removed = Option.EMPTY();
         boolean first = true;
         if (keyMaps != null) {
 	        for (int i=0; i<keyMaps.length; i++) {
@@ -2001,20 +2080,20 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 		       		Option<E> obj = keyMaps[i].remove(key, true, elem, this);
 		       		if (first) {
 		       			if (!obj.hasValue()) {
-		       				return false;
+		       				return removed;
 		       			} else {
-		       				removed = obj.getValue();
+		       				removed = obj;
 		       			}
 		       			first = false;
 		       		} else {
-		       			if (!obj.hasValue() || obj.getValue() != removed) {
+		       			if (!obj.hasValue() || obj.getValue() != removed.getValue()) {
 		       				errorInvalidData();
 		       			}
 		       		}
 	        	}
 	        }
         }
-        return true;
+        return removed;
 	}
 
     /**
@@ -2121,11 +2200,12 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
      * Add element.
      *
      * @param elem		element to add
-     * @param ignore	KeyMap to ignore (null to add element to all maps)
+     * @param ignore	KeyMap to ignore (null to add element to all key maps)
+     * @return			true if element has been, false if not (no key maps)
      */
-    void doAdd(E elem, KeyMap ignore) {
+    boolean doAdd(E elem, KeyMap ignore) {
     	if (keyMaps == null) {
-    		return;
+    		return false;
     	}
     	RuntimeException error = null;
 		int i = 0;
@@ -2154,6 +2234,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     			throw error;
     		}
     	}
+    	return true;
     }
 
     /**
@@ -2630,20 +2711,6 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	 */
 	protected Set<E> getDistinct() {
 		return (Set<E>) getDistinctKeys(0);
-	}
-
-	/**
-	 * Adds or replaces element.
-	 * If there is no such element, the element is added.
-	 * If there is such an element and no duplicates
-	 * are allowed, the existing element is replaced.
-	 * If duplicates are allowed, the element is added.
-	 *
-	 * @param elem	element
-	 * @return		element which has been replaced or null otherwise
-	 */
-	protected E put(E elem) {
-		return putByKey(0, elem);
 	}
 
     //-- Key methods
