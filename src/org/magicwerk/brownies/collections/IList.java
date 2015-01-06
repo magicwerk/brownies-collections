@@ -48,11 +48,13 @@ import org.magicwerk.brownies.collections.function.IPredicate;
  * @see	    java.util.LinkedList
  */
 @SuppressWarnings("serial")
-public abstract class IList<E> extends AbstractList<E>
+public abstract class IList<E>
+	// AbstractList provides method subList()
+	extends AbstractList<E>
 	implements
 		// All interfaces of ArrayList
 		List<E>, RandomAccess, Cloneable, Serializable,
-		// Additional interfaces of LinkedList
+		// Additional interfaces of LinkedList and ArrayDeque
 		Deque<E> {
 
 	/**

@@ -13,26 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id$
+ * $Id: IConsumer.java 2637 2014-12-09 21:48:08Z origo $
  */
 package org.magicwerk.brownies.collections.function;
 
 /**
- * A function interface for use in pre-Java 8.
- * In Java 8 and later, java.util.function.Function could then be used.
+ * A supplier interface for use in pre-Java 8.
+ * In Java 8 and later, java.util.function.Supplier could then be used.
+ *
+ * @param <T>	element type
  *
  * @author Thomas Mauch
- * @version $Id$
- *
- * @param <T> type of input argument
- * @param <R> type of return value
+ * @version $Id: IConsumer.java 2637 2014-12-09 21:48:08Z origo $
  */
-public interface IFunction<T,R> {
+public interface ISupplier<T> {
     /**
-     * Returns key for given value.
+     * Returns element.
      *
-     * @param elem 	element to apply function to
-     * @return  	result of function evaluation
+     * @return element
      */
-    public R apply(T elem);
+    T get();
 }
