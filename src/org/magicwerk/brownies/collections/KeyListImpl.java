@@ -644,8 +644,7 @@ public class KeyListImpl<E> extends IList<E> {
 
     /**
      * Invalidate element, i.e. all keys of the element are extracted
-     * again and stored in the key maps. Old key values are removed
-     * if needed.
+     * again and stored in the key maps. Old key values are removed if needed.
      * You must call an invalidate method if an element's key value has changed after adding it to the collection.
      *
      * @param elem element to invalidate
@@ -693,20 +692,17 @@ public class KeyListImpl<E> extends IList<E> {
 
 	@Override
 	protected E getDefaultElem() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	protected void doEnsureCapacity(int minCapacity) {
-		// TODO Auto-generated method stub
-
+		list.doEnsureCapacity(minCapacity);
 	}
 
 	@Override
 	public void trimToSize() {
-		// TODO Auto-generated method stub
-
+		list.trimToSize();
 	}
 
 	@Override
@@ -717,6 +713,7 @@ public class KeyListImpl<E> extends IList<E> {
 			return new GapList<E>(capacity);
 		}
 	}
+
 
 	@Override
 	protected void doAssign(IList<E> that) {

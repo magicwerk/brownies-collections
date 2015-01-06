@@ -34,6 +34,7 @@ import org.magicwerk.brownies.collections.primitive.ShortObjGapList;
  * @version $Id$
  */
 public class GapLists {
+
     /**
      * Create a GapList wrapping a primitive GapList, e.g. an IntObjGapList wrapping an IntGapList.
      *
@@ -63,4 +64,33 @@ public class GapLists {
     	}
     }
 
+    /**
+     * Create a GapList wrapping a primitive GapList, e.g. an IntObjGapList wrapping an IntGapList.
+     *
+     * @param type		primitive type for GapList
+     * @param capacity	initial capacity of created list
+     * @return			created wrapping GapList
+     * @throws 			IllegalArgumentException if no primitive type is specified
+     */
+    public static IList<?> createWrapperList(Class<?> type, int capacity) {
+    	if (type == int.class) {
+    		return new IntObjGapList(capacity);
+    	} else if (type == long.class) {
+        	return new LongObjGapList(capacity);
+    	} else if (type == double.class) {
+        	return new DoubleObjGapList(capacity);
+    	} else if (type == float.class) {
+        	return new FloatObjGapList(capacity);
+    	} else if (type == boolean.class) {
+        	return new BooleanObjGapList(capacity);
+    	} else if (type == byte.class) {
+        	return new ByteObjGapList(capacity);
+    	} else if (type == char.class) {
+        	return new CharObjGapList(capacity);
+    	} else if (type == short.class) {
+        	return new ShortObjGapList(capacity);
+    	} else {
+    		throw new IllegalArgumentException("Primitive type expected: " + type);
+    	}
+    }
 }
