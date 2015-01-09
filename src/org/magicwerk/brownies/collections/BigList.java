@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.magicwerk.brownies.collections.helper.MergeSort;
 
@@ -340,7 +341,9 @@ public class BigList<E> extends IList<E> {
 
     @Override
     protected void finalize() {
-    	// This list will be garbage collected, so unref all referenced blocks
+    	// This list will be garbage collected, so unref all referenced blocks.
+    	// As it is not reachable by any live objects, if is safe to access it from
+    	// the GC thread without synchronization
 		BlockNode<E> node = rootNode.min();
        	while (node != null) {
        		node.block.unref();
@@ -622,9 +625,11 @@ public class BigList<E> extends IList<E> {
 				// Split block for insert
 				int nextBlockLen = blockSize/2;
 				int blockLen = blockSize - nextBlockLen;
-				newBlock.init(nextBlockLen, null);
-				GapList.copy(currNode.block, blockLen, newBlock, 0, nextBlockLen);
-				currNode.block.remove(blockLen, blockSize-blockLen);
+				GapList.transferRemove(currNode.block, blockLen, nextBlockLen, newBlock, 0, 0);
+				// TODO
+				//newBlock.init(nextBlockLen, null);
+				//GapList.copy(currNode.block, blockLen, newBlock, 0, nextBlockLen);
+				//currNode.block.remove(blockLen, blockSize-blockLen);
 
 				// Subtract 1 more because getBlockIndex() has already added 1
 				modify(currNode, -nextBlockLen-1);
@@ -772,7 +777,7 @@ public class BigList<E> extends IList<E> {
 		int addLen = array.length;
 		if (addLen <= space) {
 			// All elements can be added to current block
-			currNode.block.addAll(addPos, array);
+			currNode.block.addArrayAt(addPos, array);
 			modify(currNode, addLen);
 			size += addLen;
 			currBlockEnd += addLen;
@@ -1049,7 +1054,9 @@ public class BigList<E> extends IList<E> {
             for (int i=0; i<len; i++) {
                 leftNode.block.add(null);
             }
-			GapList.copy(node.block, 0, leftNode.block, dstSize, len);
+            GapList.transferCopy(node.block, 0, len, leftNode.block, dstSize, len);
+            // TODO
+			//GapList.copy(node.block, 0, leftNode.block, dstSize, len);
 			assert(leftNode.block.size() <= blockSize);
 
 			modify(leftNode, +len);
@@ -1065,7 +1072,9 @@ public class BigList<E> extends IList<E> {
 	            for (int i=0; i<len; i++) {
 	            	rightNode.block.add(0, null);
 	            }
-				GapList.copy(node.block, 0, rightNode.block, 0, len);
+				GapList.transferCopy(node.block, 0, len, rightNode.block, 0, len);
+				// TODO
+				//GapList.copy(node.block, 0, rightNode.block, 0, len);
 				assert(rightNode.block.size() <= blockSize);
 
 				modify(rightNode, +len);
@@ -1325,7 +1334,7 @@ public class BigList<E> extends IList<E> {
 	 */
 	@SuppressWarnings("serial")
 	public static class Block<T> extends GapList<T> {
-		private int refCount = 1;
+		private AtomicInteger refCount = new AtomicInteger();
 
 		public Block() {
 		}
@@ -1343,14 +1352,14 @@ public class BigList<E> extends IList<E> {
 		 * @return true if block is shared by several BigList instances
 		 */
 		public boolean isShared() {
-			return refCount > 1;
+			return refCount.get() > 1;
 		}
 
 		/**
 		 * Increment reference count as block is used by one BigList instance more.
 		 */
 		public Block<T> ref() {
-			refCount++;
+			refCount.incrementAndGet();
 			return this;
 		}
 
@@ -1358,7 +1367,7 @@ public class BigList<E> extends IList<E> {
 		 * Decrement reference count as block is no longer used by one BigList instance.
 		 */
 		public void unref() {
-			refCount--;
+			refCount.decrementAndGet();
 		}
 
 	}
