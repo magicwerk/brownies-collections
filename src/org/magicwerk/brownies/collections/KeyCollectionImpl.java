@@ -696,7 +696,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         void initKeyMapBuilder(int numKeys) {
         	assert(numKeys >= 0);
         	// add 1 for elem key
-        	keyMapBuilders.init(numKeys+1, null);
+        	keyMapBuilders.initMult(numKeys+1, null);
         }
 
         boolean hasElemMapBuilder() {
@@ -887,7 +887,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         			keyList.addAll(collection);
         		} else if (array != null) {
         			keyList.ensureCapacity(capacity);
-        			keyList.addAll(array);
+        			keyList.addArray(array);
         		} else if (capacity != 0) {
         			keyList.ensureCapacity(capacity);
         		}
@@ -1226,7 +1226,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 		        			list.add(elem);
 		        		} else {
 		    	            list = (GapList<E>) new KeyMapList();
-		    	            list.addAll((E) oldElem, elem);
+		    	            list.addArray((E) oldElem, elem);
 		        		}
 	    	            keysMap.put(key, list);
 		        	}

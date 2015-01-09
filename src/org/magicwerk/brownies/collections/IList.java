@@ -816,7 +816,7 @@ public abstract class IList<E>
      * @param elems elements to be added to this list
      * @return <tt>true</tt> if this list changed as a result of the call
      */
-	public boolean addAll(E... elems) {
+	public boolean addArray(E... elems) {
 		return doAddAll(-1, elems);
 	}
 
@@ -832,7 +832,7 @@ public abstract class IList<E>
      * @return <tt>true</tt> if this list changed as a result of the call
      * @throws IndexOutOfBoundsException if the index is invalid
      */
-    public boolean addAll(int index, E... elems) {
+    public boolean addArrayAt(int index, E... elems) {
         checkIndexAdd(index);
 
         return doAddAll(index, elems);
@@ -870,6 +870,31 @@ public abstract class IList<E>
 		return doAddAll(index, (E[]) list.toArray());
 	}
 
+	public boolean addMult(int num, E elem) {
+		return doAddMult(-1, num, elem);
+	}
+
+	public boolean addMult(int index, int num, E elem) {
+		return doAddMult(index, num, elem);
+	}
+
+	protected boolean doAddMult(int index, int num, E elem) {
+		checkLength(num);
+
+		if (num == 0) {
+			return false;
+		}
+
+		doEnsureCapacity(size() + num);
+		for (int i=0; i<num; i++) {
+			doAdd(index, elem);
+			if (index != -1) {
+			    index++;
+			}
+		}
+		return true;
+	}
+
     /**
      * Helper method for adding multiple elements to the list.
      * This default implementation calls doAdd() for adding each element.
@@ -880,11 +905,11 @@ public abstract class IList<E>
      * @return      true if elements have been added, false otherwise
      */
 	protected boolean doAddAll(int index, E[] array) {
-        doEnsureCapacity(size() + array.length);
-
 		if (array.length == 0) {
 			return false;
 		}
+
+		doEnsureCapacity(size() + array.length);
 		for (E elem: array) {
 			doAdd(index, elem);
 			if (index != -1) {
@@ -1089,60 +1114,90 @@ public abstract class IList<E>
 		return true;
 	}
 
-    // --- Static bulk methods working with two ILists ---
-
-    /**
-     * Moves elements from one list to another.
-     *
-     * @param src		source list
-     * @param srcIndex	index of first element in source list
-     * @param dst		destination list
-     * @param dstIndex	index of first element in source list
-     * @param len		number of elements to move
-     * @param <E> 		type of elements stored in the list
-     * @throws 			IndexOutOfBoundsException if the ranges are invalid
-     */
-    public static <E> void move(IList<E> src, int srcIndex, IList<? super E> dst, int dstIndex, int len) {
-        if (src == dst) {
-            src.move(srcIndex, dstIndex, len);
-
-        } else {
-            src.checkRange(srcIndex, len);
-            dst.checkRange(dstIndex, len);
-
-            E defaultElem = src.getDefaultElem();
-    		for (int i=0; i<len; i++) {
-    			E elem = src.doReSet(srcIndex+i, defaultElem);
-    			dst.doSet(dstIndex+i, elem);
-    		}
-        }
-    }
+    // --- Static bulk transfer methods working with two ILists ---
 
     /**
      * Copies elements from one list to another.
+     * Elements and size of source list does not change.
      *
      * @param src		source list
      * @param srcIndex	index of first element in source list
+     * @param srcLen	number of elements to copy
      * @param dst		destination list
-     * @param dstIndex	index of first element in source list
-     * @param len		number of elements to copy
+     * @param dstIndex	index of first element in destination list
+     * @param dstLen	number of elements to replace in destination list
      * @param <E> 		type of elements stored in the list
      * @throws 			IndexOutOfBoundsException if the ranges are invalid
      */
-    public static <E> void copy(IList<? extends E> src, int srcIndex, IList<E> dst, int dstIndex, int len) {
-        if (src == dst) {
-            src.copy(srcIndex, dstIndex, len);
-
-        } else {
-            src.checkRange(srcIndex, len);
-            dst.checkRange(dstIndex, len);
-
-    		for (int i=0; i<len; i++) {
-    			E elem = src.doGet(srcIndex+i);
-    			dst.doSet(dstIndex+i, elem);
-    		}
+    public static <E> void transferCopy(IList<E> src, int srcIndex, int srcLen, IList<? super E> dst, int dstIndex, int dstLen) {
+    	if (src == dst) {
+    		src.checkLengths(srcLen, dstLen);
+    		src.copy(srcIndex, dstIndex, srcLen);
+    	} else {
+    		src.doTransfer(TRANSFER_COPY, srcIndex, srcLen, dst, dstIndex, dstLen);
     	}
     }
+
+    public static <E> void transferMove(IList<E> src, int srcIndex, int srcLen, IList<? super E> dst, int dstIndex, int dstLen) {
+    	if (src == dst) {
+    		src.checkLengths(srcLen, dstLen);
+    		src.move(srcIndex, dstIndex, srcLen);
+    	} else {
+    		src.doTransfer(TRANSFER_MOVE, srcIndex, srcLen, dst, dstIndex, dstLen);
+    	}
+    }
+
+    public static <E> void transferRemove(IList<E> src, int srcIndex, int srcLen, IList<? super E> dst, int dstIndex, int dstLen) {
+    	if (src == dst) {
+    		src.checkLengths(srcLen, dstLen);
+    		src.drag(srcIndex, dstIndex, srcLen);
+    	} else {
+    		src.doTransfer(TRANSFER_REMOVE, srcIndex, srcLen, dst, dstIndex, dstLen);
+    	}
+    }
+
+    private static final int TRANSFER_COPY = 0;
+    private static final int TRANSFER_MOVE = 1;
+    private static final int TRANSFER_REMOVE = 2;
+
+    void doTransfer(int transferMode, int srcIndex, int srcLen, IList<? super E> dst, int dstIndex, int dstLen) {
+    	// Prepare arguments
+        checkRange(srcIndex, srcLen);
+        if (dstIndex == -1) {
+        	dstIndex = dst.size();
+        } else {
+            dst.checkIndexAdd(dstIndex);
+        }
+        if (dstLen == -1) {
+        	dstLen = dst.size() - dstIndex;
+        } else {
+        	dst.checkLength(dstLen);
+        }
+
+        E defaultElem = getDefaultElem();
+        if (dstLen > srcLen) {
+        	// Remove elements from destination
+        	dst.remove(dstIndex, dstLen-srcLen);
+        } else if (srcLen > dstLen) {
+        	dst.addMult(dstIndex, srcLen-dstLen, defaultElem);
+        }
+
+        // Copy / Remove
+        if (transferMode == TRANSFER_MOVE) {
+    		for (int i=0; i<srcLen; i++) {
+    			E elem = doReSet(srcIndex+i, defaultElem);
+    			dst.doSet(dstIndex+i, elem);
+    		}
+        } else {
+        	for (int i=0; i<srcLen; i++) {
+        		E elem = doGet(srcIndex+i);
+        		dst.doSet(dstIndex+i, elem);
+        	}
+        	if (transferMode == TRANSFER_REMOVE) {
+        		remove(srcIndex, srcLen);
+        	}
+        }
+	}
 
     /**
      * Swaps elements from two lists.
@@ -1155,22 +1210,23 @@ public abstract class IList<E>
      * @param <E> 		type of elements stored in the list
      * @throws 			IndexOutOfBoundsException if the ranges are invalid
      */
-    public static <E> void swap(IList<E> src, int srcIndex, IList<E> dst, int dstIndex, int len) {
-        if (src == dst) {
-            src.swap(srcIndex, dstIndex, len);
+    public static <E> void transferSwap(IList<E> src, int srcIndex, IList<E> dst, int dstIndex, int len) {
+    	if (src == dst) {
+    		src.swap(srcIndex, dstIndex, len);
+    	} else {
+    		src.doTransferSwap(srcIndex, dst, dstIndex, len);
+    	}
+    }
 
-        } else {
-        	src.checkRange(srcIndex, len);
-        	dst.checkRange(dstIndex, len);
+    void doTransferSwap(int srcIndex, IList<E> dst, int dstIndex, int len) {
+    	checkRange(srcIndex, len);
+    	dst.checkRange(dstIndex, len);
 
-        	if (src != dst) {
-        		for (int i=0; i<len; i++) {
-            		E swap = src.doGet(srcIndex+i);
-            		swap = dst.doSet(dstIndex+i, swap);
-            		src.doSet(srcIndex+i, swap);
-        		}
-        	}
-        }
+		for (int i=0; i<len; i++) {
+    		E swap = doGet(srcIndex+i);
+    		swap = dst.doSet(dstIndex+i, swap);
+    		doSet(srcIndex+i, swap);
+		}
     }
 
 
@@ -1318,10 +1374,25 @@ public abstract class IList<E>
      * @param elems elements to set
      * @throws 		IndexOutOfBoundsException if the range is invalid
      */
-    public void setAll(int index, E... elems) {
+    public void setArray(int index, E... elems) {
         checkRange(index, elems.length);
 
         doSetAll(index, elems);
+    }
+
+    /**
+     * Replaces the specified elements.
+     *
+     * @param index index of first element to set
+     * @param elems elements to set
+     * @throws 		IndexOutOfBoundsException if the range is invalid
+     */
+    public void setMult(int index, int num, E elem) {
+        checkRange(index, num);
+
+        for (int i=0; i<num; i++) {
+            doSet(index+i, elem);
+        }
     }
 
     /**
@@ -1361,6 +1432,67 @@ public abstract class IList<E>
 		}
 	}
 
+    /**
+     * Replaces the specified elements.
+     *
+     * @param index index of first element to set
+     * @param list  list with elements to set
+     * @throws 		IndexOutOfBoundsException if the range is invalid
+     */
+    public void initAll(IList<? extends E> list) {
+    	// There is a special implementation accepting an IList
+    	// so the method is also available in the primitive classes.
+	    int size = size();
+	    int collSize = list.size();
+        if (collSize < size) {
+            remove(collSize, size-collSize);
+            setAll(0, list);
+        } else {
+            int i = 0;
+            Iterator<? extends E> iter = list.iterator();
+            while (iter.hasNext()) {
+            	if (i < size) {
+            		doSet(i, iter.next());
+            	} else {
+            		doAdd(i, iter.next());
+            	}
+                i++;
+            }
+        }
+        assert(size() == collSize);
+    }
+
+    /**
+     * Replaces the specified elements.
+     *
+     * @param index index of first element to set
+     * @param coll  collection with elements to set
+     */
+    public void initAll(Collection<? extends E> coll) {
+	    int size = size();
+	    int collSize = coll.size();
+        if (collSize < size) {
+            remove(collSize, size-collSize);
+            setAll(0, coll);
+        } else {
+            int i = 0;
+            Iterator<? extends E> iter = coll.iterator();
+            while (iter.hasNext()) {
+            	if (i < size) {
+            		doSet(i, iter.next());
+            	} else {
+            		doAdd(i, iter.next());
+            	}
+                i++;
+            }
+        }
+        assert(size() == collSize);
+    }
+
+	public void initArray(E... elems) {
+		initAll(Arrays.asList(elems));
+	}
+
 	/**
 	 * Initializes the list so it will afterwards have a size of
 	 * <code>len</code> and contain only the element <code>elem</code>.
@@ -1370,17 +1502,17 @@ public abstract class IList<E>
 	 * @param elem 	element which the list will contain
      * @throws 		IndexOutOfBoundsException if the range is invalid
 	 */
-	public void init(int len, E elem) {
+	public void initMult(int len, E elem) {
 	    checkLength(len);
 
 	    int size = size();
         if (len < size) {
             remove(len, size-len);
-            fill(0, len, elem);
+            setMult(0, len, elem);
         } else {
-            fill(0, size, elem);
+            setMult(0, size, elem);
             for (int i=size; i<len; i++) {
-                add(elem);
+                doAdd(-1, elem);
             }
         }
         assert(size() == len);
@@ -1420,23 +1552,6 @@ public abstract class IList<E>
         for (int i=0; i<size; i++) {
             doSet(i, elem);
         }
-    }
-
-    /**
-     * Fill specified elements.
-     *
-     * @param index	index of first element to fill
-     * @param len	number of elements to fill
-     * @param elem	element used for filling
-     * @throws 		IndexOutOfBoundsException if the range is invalid
-     */
-    // see java.util.Arrays#fill
-    public void fill(int index, int len, E elem) {
-    	checkRange(index, len);
-
-    	for (int i=0; i<len; i++) {
-    		doSet(index+i, elem);
-    	}
     }
 
     /**
@@ -1492,10 +1607,10 @@ public abstract class IList<E>
     	// Set elements to null after the move operation
     	if (srcIndex < dstIndex) {
     		int fill = Math.min(len, dstIndex-srcIndex);
-    		fill(srcIndex, fill, null);
+    		setMult(srcIndex, fill, null);
     	} else if (srcIndex > dstIndex) {
     		int fill = Math.min(len, srcIndex-dstIndex);
-    		fill(srcIndex+len-fill, fill, null);
+    		setMult(srcIndex+len-fill, fill, null);
     	}
     }
 
@@ -1810,6 +1925,25 @@ public abstract class IList<E>
     protected void checkLength(int length) {
         if (length < 0) {
             throw new IndexOutOfBoundsException("Invalid length: " + length);
+        }
+    }
+
+    /**
+     * Check that both specified lengths are valid (>= 0) and equal.
+     *
+     * @param length1 length to check
+     * @param length2 length to check
+     * @throws IndexOutOfBoundsException if lengths are invalid
+     */
+    protected void checkLengths(int len1, int len2) {
+    	if (len1 != len2) {
+            throw new IndexOutOfBoundsException("Invalid lengths: " + len1 + ", " + len2);
+    	}
+        if (len1 < 0) {
+            throw new IndexOutOfBoundsException("Invalid length: " + len1);
+        }
+        if (len2 < 0) {
+            throw new IndexOutOfBoundsException("Invalid length: " + len2);
         }
     }
 
