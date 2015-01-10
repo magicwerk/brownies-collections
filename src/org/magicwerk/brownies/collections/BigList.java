@@ -777,7 +777,7 @@ public class BigList<E> extends IList<E> {
 		int addLen = array.length;
 		if (addLen <= space) {
 			// All elements can be added to current block
-			currNode.block.addArrayAt(addPos, array);
+			currNode.block.addArray(addPos, array);
 			modify(currNode, addLen);
 			size += addLen;
 			currBlockEnd += addLen;
