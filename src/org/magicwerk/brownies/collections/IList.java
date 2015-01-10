@@ -832,7 +832,7 @@ public abstract class IList<E>
      * @return <tt>true</tt> if this list changed as a result of the call
      * @throws IndexOutOfBoundsException if the index is invalid
      */
-    public boolean addArrayAt(int index, E... elems) {
+    public boolean addArray(int index, E... elems) {
         checkIndexAdd(index);
 
         return doAddAll(index, elems);
