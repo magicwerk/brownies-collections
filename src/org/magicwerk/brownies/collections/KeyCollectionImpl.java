@@ -290,9 +290,9 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         }
 
         /**
-         * Specifies that the collection will have the order of this map.
-         * The map must be sorted, if no sort order has been defined,
-         * the natural comparator will be used. If the map allows null
+         * Specifies that the collection will have the order of the element set.
+         * The element set must be sorted, if no sort order has been defined,
+         * the natural comparator will be used. If the set allows null
          * values, the used comparator will sort them last.
          *
          * @param orderBy	if true the collection will have the order of this map
@@ -304,9 +304,9 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         }
 
         /**
-         * Specifies that the list will have the order of this map.
-         * The map will store values of the primitive type specified like <code>int</code>.
-         * The map will be sorted using the natural comparator and no null values are allowed.
+         * Specifies that the list will have the order of the element set.
+         * The set will store values of the primitive type specified like <code>int</code>.
+         * The set will be sorted using the natural comparator and no null values are allowed.
          *
          * @param type	primitive type to use for map (only one map can have the order by option set)
          * @return		this (fluent interface)
