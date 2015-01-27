@@ -34,7 +34,7 @@ import org.magicwerk.brownies.collections.helper.Option;
  * @see GapList
  * @param <E> type of elements stored in the list
  */
-public class KeyListImpl<E> extends IList<E> {
+public abstract class KeyListImpl<E> extends IList<E> {
 
     /**
      * Key collection used for key storage (never null).
@@ -65,6 +65,19 @@ public class KeyListImpl<E> extends IList<E> {
      */
     KeyListImpl() {
     }
+
+    protected KeyListImpl(boolean copy, KeyListImpl<E> that) {
+        if (copy) {
+        	doAssign(that);
+        }
+    }
+
+    @Override
+	protected void doAssign(IList<E> that) {
+		KeyListImpl<E> list = (KeyListImpl<E>) that;
+        this.keyColl = list.keyColl;
+        this.list = list.list;
+	}
 
 	@Override
     public Object clone() {
@@ -685,12 +698,6 @@ public class KeyListImpl<E> extends IList<E> {
     }
 
 	@Override
-	public IList<E> unmodifiableList() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	protected E getDefaultElem() {
 		return null;
 	}
@@ -714,11 +721,6 @@ public class KeyListImpl<E> extends IList<E> {
 		}
 	}
 
-
-	@Override
-	protected void doAssign(IList<E> that) {
-		// TODO Auto-generated method stub
-	}
 
     //-- Key methods
 	// The key methods can not be defined here.

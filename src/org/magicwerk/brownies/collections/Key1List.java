@@ -23,9 +23,9 @@ import java.util.Map;
 import java.util.Set;
 
 import org.magicwerk.brownies.collections.KeyCollectionImpl.BuilderImpl;
+import org.magicwerk.brownies.collections.function.IConsumer;
 import org.magicwerk.brownies.collections.function.IFunction;
 import org.magicwerk.brownies.collections.function.IPredicate;
-import org.magicwerk.brownies.collections.function.IConsumer;
 
 
 /**
@@ -453,6 +453,97 @@ public class Key1List<E,K> extends KeyListImpl<E> {
      */
     public void invalidateKey1(K oldKey, K newKey, E elem) {
     	super.invalidateKey(1, oldKey, newKey, elem);
+    }
+
+
+	// --- ImmutableKey1List ---
+
+	@Override
+    public Key1List<E,K> unmodifiableList() {
+        return new ImmutableKey1List<E,K>(this);
+    }
+
+    protected Key1List(boolean copy, Key1List<E,K> that) {
+        if (copy) {
+        	doAssign(that);
+        }
+    }
+
+    /**
+     * An immutable version of a Key1List.
+     * Note that the client cannot change the list,
+     * but the content may change if the underlying list is changed.
+     */
+    protected static class ImmutableKey1List<E,K> extends Key1List<E,K> {
+
+        /** UID for serialization */
+        private static final long serialVersionUID = -1352274047348922584L;
+
+        /**
+         * Private constructor used internally.
+         *
+         * @param that  list to create an immutable view of
+         */
+        protected ImmutableKey1List(Key1List<E,K> that) {
+            super(true, that);
+        }
+
+        @Override
+        protected boolean doAdd(int index, E elem) {
+        	error();
+        	return false;
+        }
+
+        @Override
+        protected boolean doAddAll(int index, E[] elems) {
+        	error();
+        	return false;
+        }
+
+        @Override
+        protected E doSet(int index, E elem) {
+        	error();
+        	return null;
+        }
+
+        @Override
+        protected void doSetAll(int index, E[] elems) {
+        	error();
+        }
+
+        @Override
+        protected E doReSet(int index, E elem) {
+        	error();
+        	return null;
+        }
+
+        @Override
+        protected E doRemove(int index) {
+        	error();
+        	return null;
+        }
+
+        @Override
+        protected void doRemoveAll(int index, int len) {
+        	error();
+        }
+
+        @Override
+        protected void doClear() {
+        	error();
+        }
+
+        @Override
+        protected void doModify() {
+        	error();
+        }
+
+        /**
+         * Throw exception if an attempt is made to change an immutable list.
+         */
+        private void error() {
+            throw new UnsupportedOperationException("list is immutable");
+        }
     }
 
 }
