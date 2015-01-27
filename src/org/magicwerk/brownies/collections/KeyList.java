@@ -250,4 +250,96 @@ public class KeyList<E> extends KeyListImpl<E> {
     public E put(E elem) {
     	return super.put(elem);
     }
+
+
+	// --- ImmutableKey1List ---
+
+	@Override
+    public KeyList<E> unmodifiableList() {
+        return new ImmutableKeyList<E>(this);
+    }
+
+    protected KeyList(boolean copy, KeyList<E> that) {
+        if (copy) {
+        	doAssign(that);
+        }
+    }
+
+    /**
+     * An immutable version of a Key1List.
+     * Note that the client cannot change the list,
+     * but the content may change if the underlying list is changed.
+     */
+    protected static class ImmutableKeyList<E> extends KeyList<E> {
+
+        /** UID for serialization */
+        private static final long serialVersionUID = -1352274047348922584L;
+
+        /**
+         * Private constructor used internally.
+         *
+         * @param that  list to create an immutable view of
+         */
+        protected ImmutableKeyList(KeyList<E> that) {
+            super(true, that);
+        }
+
+        @Override
+        protected boolean doAdd(int index, E elem) {
+        	error();
+        	return false;
+        }
+
+        @Override
+        protected boolean doAddAll(int index, E[] elems) {
+        	error();
+        	return false;
+        }
+
+        @Override
+        protected E doSet(int index, E elem) {
+        	error();
+        	return null;
+        }
+
+        @Override
+        protected void doSetAll(int index, E[] elems) {
+        	error();
+        }
+
+        @Override
+        protected E doReSet(int index, E elem) {
+        	error();
+        	return null;
+        }
+
+        @Override
+        protected E doRemove(int index) {
+        	error();
+        	return null;
+        }
+
+        @Override
+        protected void doRemoveAll(int index, int len) {
+        	error();
+        }
+
+        @Override
+        protected void doClear() {
+        	error();
+        }
+
+        @Override
+        protected void doModify() {
+        	error();
+        }
+
+        /**
+         * Throw exception if an attempt is made to change an immutable list.
+         */
+        private void error() {
+            throw new UnsupportedOperationException("list is immutable");
+        }
+    }
+
 }
