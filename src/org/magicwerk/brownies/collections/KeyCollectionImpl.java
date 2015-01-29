@@ -914,7 +914,10 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	    Map<K, Object> keysMap;
 	    /** Key storage if this is a KeyListImpl sorted by this key map, otherwise null */
 	    IList<K> keysList;
-	    /** True to count only number of occurrences of equal elements */
+	    /**
+	     * True to count only number of occurrences of equal elements
+	     * (can only be set on keyMap[0] storing the elements).
+	     */
 	    boolean count;
 
 	    KeyMap() {
@@ -1607,6 +1610,9 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 		return keyMaps != null && keyMaps[0] != null;
 	}
 
+    /**
+     * Check whether index is valid for the sorted list.
+     */
     void checkIndex(int loIndex, int hiIndex, E elem) {
    		KeyMap keyMap = keyMaps[orderByKey];
     	Object key = keyMap.getKey(elem);
@@ -1785,20 +1791,24 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 		throw new KeyException("Constraint violation: null key not allowed");
     }
 
+    static void errorMaxSize() {
+		throw new KeyException("Constraint violation: maximum size reached");
+    }
+
     static void errorDuplicateKey(Object key) {
 		throw new DuplicateKeyException(key);
     }
 
     static void errorInvalidData() {
-		throw new KeyException("Invalid data: call update() on change of key data");
+		throw new IllegalStateException("Invalid data: call update() on change of key data");
     }
 
     static void errorInvalidIndex() {
-		throw new KeyException("Invalid index for sorted list");
+		throw new IllegalStateException("Invalid index for sorted list");
     }
 
-    static void errorMaxSize() {
-		throw new KeyException("Maximum size reached");
+    static void errorInvalidateNotSupported() {
+		throw new IllegalStateException("Invalidate is not support if elemCount is true");
     }
 
     /**
@@ -2278,7 +2288,6 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
      */
     protected IFunction<E,Object> getKeyMapper(int keyIndex) {
     	return getKeyMap(keyIndex).mapper;
-
     }
 
     /**
@@ -2449,6 +2458,9 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     	if (keyMaps != null) {
     		for (int i=0; i<keyMaps.length; i++) {
     			if (keyMaps[i] != null) {
+    				if (i == 0 && keyMaps[0].count) {
+    					errorInvalidateNotSupported();
+    				}
     				Option<Object> key = invalidate(keyMaps[i], elem);
     				if (key.hasValue()) {
     					keyMaps[i].add(key.getValue(), elem);
