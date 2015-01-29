@@ -1462,35 +1462,28 @@ public abstract class IList<E>
         assert(size() == collSize);
     }
 
-    /**
-     * Replaces the specified elements.
-     *
-     * @param index index of first element to set
-     * @param coll  collection with elements to set
-     */
+	/**
+	 * Initializes the list so it will afterwards only contain the elements of the collection.
+	 * The list will grow or shrink as needed.
+	 *
+	 * @param coll 	collection with elements
+     * @throws 		IndexOutOfBoundsException if the length is invalid
+	 */
     public void initAll(Collection<? extends E> coll) {
-	    int size = size();
-	    int collSize = coll.size();
-        if (collSize < size) {
-            remove(collSize, size-collSize);
-            setAll(0, coll);
-        } else {
-            int i = 0;
-            Iterator<? extends E> iter = coll.iterator();
-            while (iter.hasNext()) {
-            	if (i < size) {
-            		doSet(i, iter.next());
-            	} else {
-            		doAdd(i, iter.next());
-            	}
-                i++;
-            }
-        }
-        assert(size() == collSize);
+    	clear();
+    	addAll(coll);
     }
 
+	/**
+	 * Initializes the list so it will afterwards only contain the elements of the array.
+	 * The list will grow or shrink as needed.
+	 *
+	 * @param elems array with elements
+     * @throws 		IndexOutOfBoundsException if the length is invalid
+	 */
 	public void initArray(E... elems) {
-		initAll(Arrays.asList(elems));
+		clear();
+		addArray(elems);
 	}
 
 	/**
@@ -1500,22 +1493,13 @@ public abstract class IList<E>
 	 *
 	 * @param len  	length of list
 	 * @param elem 	element which the list will contain
-     * @throws 		IndexOutOfBoundsException if the range is invalid
+     * @throws 		IndexOutOfBoundsException if the length is invalid
 	 */
 	public void initMult(int len, E elem) {
 	    checkLength(len);
 
-	    int size = size();
-        if (len < size) {
-            remove(len, size-len);
-            setMult(0, len, elem);
-        } else {
-            setMult(0, size, elem);
-            for (int i=size; i<len; i++) {
-                doAdd(-1, elem);
-            }
-        }
-        assert(size() == len);
+	    clear();
+	    addMult(len, elem);
 	}
 
 	/**
