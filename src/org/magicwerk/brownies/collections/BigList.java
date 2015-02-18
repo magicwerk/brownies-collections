@@ -1160,7 +1160,7 @@ public class BigList<E> extends IList<E> {
     	checkRange(index, len);
 
     	if (isOnlyRootBlock()) {
-    		currNode.block.sort(index, len, comparator);
+    		rootNode.block.sort(index, len, comparator);
     	} else {
     		MergeSort.sort(this, comparator, index, index+len);
     	}
