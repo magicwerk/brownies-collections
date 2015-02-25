@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: CharBigList.java 2581 2014-11-11 00:49:14Z origo $
+ * $Id: CharBigList.java 2730 2015-02-18 22:18:37Z origo $
  */
 package org.magicwerk.brownies.collections.primitive;
 import org.magicwerk.brownies.collections.helper.ArraysHelper;
@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.magicwerk.brownies.collections.helper.primitive.CharMergeSort;
 
 /**
@@ -43,7 +44,7 @@ import org.magicwerk.brownies.collections.helper.primitive.CharMergeSort;
  * Note that the iterators provided are not fail-fast.<p>
  *
  * @author Thomas Mauch
- * @version $Id: CharBigList.java 2581 2014-11-11 00:49:14Z origo $
+ * @version $Id: CharBigList.java 2730 2015-02-18 22:18:37Z origo $
  */
 public class CharBigList extends ICharList {
 	public static ICharList of(char[] values) {
@@ -511,7 +512,9 @@ public char getDefaultElem() {
 
     @Override
 protected void finalize() {
-    // This list will be garbage collected, so unref all referenced blocks   
+    // This list will be garbage collected, so unref all referenced blocks.   
+    // As it is not reachable by any live objects, if is safe to access it from   
+    // the GC thread without synchronization   
     CharBlockNode node = rootNode.min();
     while (node != null) {
         node.block.unref();
@@ -777,9 +780,11 @@ protected boolean doAdd(int index, char element) {
             // Split block for insert   
             int nextCharBlockLen = blockSize / 2;
             int blockLen = blockSize - nextCharBlockLen;
-            newCharBlock.init(nextCharBlockLen, (char) 0);
-            CharGapList.copy(currNode.block, blockLen, newCharBlock, 0, nextCharBlockLen);
-            currNode.block.remove(blockLen, blockSize - blockLen);
+            CharGapList.transferRemove(currNode.block, blockLen, nextCharBlockLen, newCharBlock, 0, 0);
+            // TODO   
+            //newCharBlock.init(nextCharBlockLen, (char) 0);   
+            //CharGapList.copy(currNode.block, blockLen, newCharBlock, 0, nextCharBlockLen);   
+            //currNode.block.remove(blockLen, blockSize-blockLen);   
             // Subtract 1 more because getCharBlockIndex() has already added 1   
             modify(currNode, -nextCharBlockLen - 1);
             addCharBlock(currCharBlockEnd - nextCharBlockLen, newCharBlock);
@@ -922,7 +927,7 @@ protected boolean doAddAll(int index, char[] array) {
     int addLen = array.length;
     if (addLen <= space) {
         // All elements can be added to current block   
-        currNode.block.addAll(addPos, array);
+        currNode.block.addArray(addPos, array);
         modify(currNode, addLen);
         size += addLen;
         currCharBlockEnd += addLen;
@@ -1179,7 +1184,9 @@ private void merge(CharBlockNode node) {
         for (int i = 0; i < len; i++) {
             leftNode.block.add((char) 0);
         }
-        CharGapList.copy(node.block, 0, leftNode.block, dstSize, len);
+        CharGapList.transferCopy(node.block, 0, len, leftNode.block, dstSize, len);
+        // TODO   
+        //CharGapList.copy(node.block, 0, leftNode.block, dstSize, len);   
         assert (leftNode.block.size() <= blockSize);
         modify(leftNode, +len);
         modify(oldCurrNode, -len);
@@ -1193,7 +1200,9 @@ private void merge(CharBlockNode node) {
             for (int i = 0; i < len; i++) {
                 rightNode.block.add(0, (char) 0);
             }
-            CharGapList.copy(node.block, 0, rightNode.block, 0, len);
+            CharGapList.transferCopy(node.block, 0, len, rightNode.block, 0, len);
+            // TODO   
+            //CharGapList.copy(node.block, 0, rightNode.block, 0, len);   
             assert (rightNode.block.size() <= blockSize);
             modify(rightNode, +len);
             modify(oldCurrNode, -len);
@@ -1275,7 +1284,7 @@ protected ICharList doCreate(int capacity) {
 public void sort(int index, int len) {
     checkRange(index, len);
     if (isOnlyRootCharBlock()) {
-        currNode.block.sort(index, len);
+        rootNode.block.sort(index, len);
     } else {
         CharMergeSort.sort(this, index, index + len);
     }
@@ -1436,7 +1445,7 @@ private void checkNode(CharBlockNode node) {
     
     public static class CharBlock extends CharGapList {
 
-        private int refCount = 1;
+        private AtomicInteger refCount = new AtomicInteger();
 
         public CharBlock(){
 }
@@ -1454,14 +1463,14 @@ private void checkNode(CharBlockNode node) {
 		 * @return true if block is shared by several CharBigList instances
 		 */
 public boolean isShared() {
-    return refCount > 1;
+    return refCount.get() > 1;
 }
 
         /**
 		 * Increment reference count as block is used by one CharBigList instance more.
 		 */
 public CharBlock ref() {
-    refCount++;
+    refCount.incrementAndGet();
     return this;
 }
 
@@ -1469,7 +1478,7 @@ public CharBlock ref() {
 		 * Decrement reference count as block is no longer used by one CharBigList instance.
 		 */
 public void unref() {
-    refCount--;
+    refCount.decrementAndGet();
 }
     }
 
@@ -1947,20 +1956,9 @@ protected boolean doAdd(int index, char elem) {
 }
 
         @Override
-protected boolean doAddAll(int index, char[] elems) {
-    error();
-    return false;
-}
-
-        @Override
 protected char doSet(int index, char elem) {
     error();
     return (char) 0;
-}
-
-        @Override
-protected void doSetAll(int index, char[] elems) {
-    error();
 }
 
         @Override

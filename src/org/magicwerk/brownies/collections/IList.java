@@ -584,6 +584,7 @@ public abstract class IList<E>
 	 * @param elem	element to add
 	 * @return		true if element has been added, false if not
 	 */
+	// CopyOnWriteArrayList contains methods addIfAbsent() and addAllAbsent()
 	public boolean addIfAbsent(E elem) {
 		if (contains(elem)) {
 			return false;
@@ -845,9 +846,8 @@ public abstract class IList<E>
      * @return <tt>true</tt> if this list changed as a result of the call
      * @throws NullPointerException if the specified list is null
      */
-    @SuppressWarnings("unchecked")
     public boolean addAll(IList<? extends E> list) {
-        return doAddAll(-1, (E[]) list.toArray());
+        return doAddAll(-1, list);
     }
 
     /**
@@ -863,33 +863,35 @@ public abstract class IList<E>
      * @throws IndexOutOfBoundsException if the index is invalid
      * @throws NullPointerException if the specified collection is null
      */
-	@SuppressWarnings("unchecked")
     public boolean addAll(int index, IList<? extends E> list) {
 		checkIndexAdd(index);
 
-		return doAddAll(index, (E[]) list.toArray());
+		return doAddAll(index, list);
 	}
 
-	public boolean addMult(int num, E elem) {
-		return doAddMult(-1, num, elem);
-	}
+	/**
+     * Helper method for adding multiple elements to the list.
+     * This default implementation calls doAdd() for adding each element.
+     *
+     * @param index index where element should be added
+     *              (-1 is valid for adding at the end)
+     * @param array array with elements to add
+     * @return      true if elements have been added, false otherwise
+     */
+	protected boolean doAddAll(int index, IList<? extends E> list) {
+		int listSize = list.size();
+		doEnsureCapacity(size() + listSize);
 
-	public boolean addMult(int index, int num, E elem) {
-		return doAddMult(index, num, elem);
-	}
-
-	protected boolean doAddMult(int index, int num, E elem) {
-		checkLength(num);
-
-		if (num == 0) {
+		if (listSize == 0) {
 			return false;
 		}
 
-		doEnsureCapacity(size() + num);
-		for (int i=0; i<num; i++) {
-			doAdd(index, elem);
-			if (index != -1) {
-			    index++;
+		for (int i=0; i<listSize; i++) {
+			E elem = list.get(i);
+			if (doAdd(index, elem)) {
+				if (index != -1) {
+					index++;
+				}
 			}
 		}
 		return true;
@@ -905,12 +907,38 @@ public abstract class IList<E>
      * @return      true if elements have been added, false otherwise
      */
 	protected boolean doAddAll(int index, E[] array) {
+		doEnsureCapacity(size() + array.length);
+
 		if (array.length == 0) {
 			return false;
 		}
 
-		doEnsureCapacity(size() + array.length);
 		for (E elem: array) {
+			if (doAdd(index, elem)) {
+				if (index != -1) {
+					index++;
+				}
+			}
+		}
+		return true;
+	}
+
+	public boolean addMult(int num, E elem) {
+		return doAddMult(-1, num, elem);
+	}
+
+	public boolean addMult(int index, int num, E elem) {
+		return doAddMult(index, num, elem);
+	}
+
+	protected boolean doAddMult(int index, int num, E elem) {
+		checkLength(num);
+		if (num == 0) {
+			return false;
+		}
+
+		doEnsureCapacity(size() + num);
+		for (int i=0; i<num; i++) {
 			doAdd(index, elem);
 			if (index != -1) {
 			    index++;
@@ -1118,7 +1146,11 @@ public abstract class IList<E>
 
     /**
      * Copies elements from one list to another.
-     * Elements and size of source list does not change.
+     * Elements and size of source list do not change.
+     * The elements in the specified range in the destination list are removed and
+     * the elements specified to be copied are inserted.
+     *
+     * If source and destination list are identical, the method behaves like {@link #copy(int, int, int)}.
      *
      * @param src		source list
      * @param srcIndex	index of first element in source list
@@ -1138,6 +1170,23 @@ public abstract class IList<E>
     	}
     }
 
+    /**
+     * Moves elements from one list to another by setting it to null in the source list.
+     * Elements in the source range are set to null, but size of source list does not change.
+     * The elements in the specified range in the destination list are removed and
+     * the elements specified to be moved are inserted.
+     *
+     * If source and destination list are identical, the method behaves like {@link #move(int, int, int)}.
+     *
+     * @param src		source list
+     * @param srcIndex	index of first element in source list
+     * @param srcLen	number of elements to copy
+     * @param dst		destination list
+     * @param dstIndex	index of first element in destination list
+     * @param dstLen	number of elements to replace in destination list
+     * @param <E> 		type of elements stored in the list
+     * @throws 			IndexOutOfBoundsException if the ranges are invalid
+     */
     public static <E> void transferMove(IList<E> src, int srcIndex, int srcLen, IList<? super E> dst, int dstIndex, int dstLen) {
     	if (src == dst) {
     		src.checkLengths(srcLen, dstLen);
@@ -1147,6 +1196,23 @@ public abstract class IList<E>
     	}
     }
 
+    /**
+     * Moves elements from one list to another by removing it from the source list.
+     * So the size of source list will change.
+     * The elements in the specified range in the destination list are removed and
+     * the elements specified to be moved are inserted.
+     *
+     * If source and destination list are identical, the method behaves like {@link #drag(int, int, int)}.
+     *
+     * @param src		source list
+     * @param srcIndex	index of first element in source list
+     * @param srcLen	number of elements to copy
+     * @param dst		destination list
+     * @param dstIndex	index of first element in destination list
+     * @param dstLen	number of elements to replace in destination list
+     * @param <E> 		type of elements stored in the list
+     * @throws 			IndexOutOfBoundsException if the ranges are invalid
+     */
     public static <E> void transferRemove(IList<E> src, int srcIndex, int srcLen, IList<? super E> dst, int dstIndex, int dstLen) {
     	if (src == dst) {
     		src.checkLengths(srcLen, dstLen);
@@ -1176,24 +1242,28 @@ public abstract class IList<E>
 
         E defaultElem = getDefaultElem();
         if (dstLen > srcLen) {
-        	// Remove elements from destination
+        	// Remove elements from destination because the source range is smaller than the destination range
         	dst.remove(dstIndex, dstLen-srcLen);
         } else if (srcLen > dstLen) {
+        	// Add elements to destination because the source range is larger than the destination range
         	dst.addMult(dstIndex, srcLen-dstLen, defaultElem);
         }
 
-        // Copy / Remove
+        // Overwrite the range starting at dstIndex with length srcIndex in dst
         if (transferMode == TRANSFER_MOVE) {
+        	// Move
     		for (int i=0; i<srcLen; i++) {
     			E elem = doReSet(srcIndex+i, defaultElem);
     			dst.doSet(dstIndex+i, elem);
     		}
         } else {
+            // Copy / Remove
         	for (int i=0; i<srcLen; i++) {
         		E elem = doGet(srcIndex+i);
         		dst.doSet(dstIndex+i, elem);
         	}
         	if (transferMode == TRANSFER_REMOVE) {
+        		// Remove
         		remove(srcIndex, srcLen);
         	}
         }
@@ -1201,6 +1271,9 @@ public abstract class IList<E>
 
     /**
      * Swaps elements from two lists.
+     * The size of both source and destination list do not change.
+     *
+     * If source and destination list are identical, the method behaves like {@link #swap(int, int, int)}.
      *
      * @param src		first list
      * @param srcIndex	index of first element in first list
@@ -1349,7 +1422,7 @@ public abstract class IList<E>
      * @param index index of first element to set or add
      * @param coll  collection with elements to set or add
      */
-    public void merge(int index, Collection<? extends E> coll) {
+    public void putAll(int index, Collection<? extends E> coll) {
         checkIndexAdd(index);
 
         // In contrary to addAll() there is no need to first create an array
@@ -1377,7 +1450,9 @@ public abstract class IList<E>
     public void setArray(int index, E... elems) {
         checkRange(index, elems.length);
 
-        doSetAll(index, elems);
+        for (int i=0; i<elems.length; i++) {
+            doSet(index+i, elems[i]);
+        }
     }
 
     /**
@@ -1395,19 +1470,7 @@ public abstract class IList<E>
         }
     }
 
-    /**
-     * Replaces the specified elements.
-     *
-     * @param index index of first element to set
-     * @param elems elements to set
-     */
-    protected void doSetAll(int index, E[] elems) {
-        for (int i=0; i<elems.length; i++) {
-            doSet(index+i, elems[i]);
-        }
-    }
-
-	/**
+ 	/**
 	 * Remove specified range of elements from list.
 	 *
 	 * @param index	index of first element to remove
@@ -1448,19 +1511,47 @@ public abstract class IList<E>
             remove(collSize, size-collSize);
             setAll(0, list);
         } else {
-            int i = 0;
-            Iterator<? extends E> iter = list.iterator();
-            while (iter.hasNext()) {
-            	if (i < size) {
-            		doSet(i, iter.next());
-            	} else {
-            		doAdd(i, iter.next());
-            	}
-                i++;
-            }
+        	for (int i=0; i<size; i++) {
+        		set(i, list.get(i));
+        	}
+        	for (int i=size; i<collSize; i++) {
+        		add(i, list.get(i));
+        	}
         }
         assert(size() == collSize);
     }
+
+    /**
+     * Replaces the specified elements.
+     *
+     * @param index index of first element to set
+     * @param list  list with elements to set
+     * @throws 		IndexOutOfBoundsException if the range is invalid
+     */
+    public void replaceAll(int index, int len, IList<? extends E> list) {
+    	// There is a special implementation accepting an IList
+    	// so the method is also available in the primitive classes.
+    	int srcLen = 0;
+    	if (list != null) {
+    		srcLen = list.size();
+    	}
+    	if (len > srcLen) {
+    		// Destination range is larger, so remove elements
+    		doRemoveAll(index, len-srcLen);
+            for (int i=0; i<list.size(); i++) {
+                doSet(index+i, list.get(i));
+            }
+    	} else {
+    		// Destination range is larger, so remove elements
+        	for (int i=0; i<len; i++) {
+        		doSet(i, list.get(i));
+        	}
+        	for (int i=len; i<list.size(); i++) {
+        		doAdd(i, list.get(i));
+        	}
+    	}
+    }
+
 
 	/**
 	 * Initializes the list so it will afterwards only contain the elements of the collection.
@@ -1620,6 +1711,29 @@ public abstract class IList<E>
     }
 
     /**
+     * Swap the specified elements in the list.
+     *
+     * @param index1	index of first element in first range to swap
+     * @param index2	index of first element in second range to swap
+     * @param len		number of elements to swap
+     * @throws 			IndexOutOfBoundsException if the ranges are invalid
+     */
+    public void swap(int index1, int index2, int len) {
+    	checkRange(index1, len);
+    	checkRange(index2, len);
+    	if ((index1 < index2 && index1+len > index2) ||
+    		index1 > index2 && index2+len > index1) {
+    		throw new IndexOutOfBoundsException("Swap ranges overlap");
+    	}
+
+    	for (int i=0; i<len; i++) {
+    		E swap = doGet(index1+i);
+    		swap = doReSet(index2+i, swap);
+    		doReSet(index1+i, swap);
+    	}
+    }
+
+    /**
      * Reverses the order of all elements in the specified list.
      */
     public void reverse() {
@@ -1645,29 +1759,6 @@ public abstract class IList<E>
     		doReSet(pos1, swap);
     		pos1++;
     		pos2--;
-    	}
-    }
-
-    /**
-     * Swap the specified elements in the list.
-     *
-     * @param index1	index of first element in first range to swap
-     * @param index2	index of first element in second range to swap
-     * @param len		number of elements to swap
-     * @throws 			IndexOutOfBoundsException if the ranges are invalid
-     */
-    public void swap(int index1, int index2, int len) {
-    	checkRange(index1, len);
-    	checkRange(index2, len);
-    	if ((index1 < index2 && index1+len > index2) ||
-    		index1 > index2 && index2+len > index1) {
-    		throw new IndexOutOfBoundsException("Swap ranges overlap");
-    	}
-
-    	for (int i=0; i<len; i++) {
-    		E swap = doGet(index1+i);
-    		swap = doReSet(index2+i, swap);
-    		doReSet(index1+i, swap);
     	}
     }
 
@@ -1903,20 +1994,20 @@ public abstract class IList<E>
     /**
      * Check that specified length is valid (>= 0).
      *
-     * @param length length to check
+     * @param len length to check
      * @throws IndexOutOfBoundsException if length is invalid
      */
-    protected void checkLength(int length) {
-        if (length < 0) {
-            throw new IndexOutOfBoundsException("Invalid length: " + length);
+    protected void checkLength(int len) {
+        if (len < 0) {
+            throw new IndexOutOfBoundsException("Invalid length: " + len);
         }
     }
 
     /**
      * Check that both specified lengths are valid (>= 0) and equal.
      *
-     * @param length1 length to check
-     * @param length2 length to check
+     * @param len1 length to check
+     * @param len2 length to check
      * @throws IndexOutOfBoundsException if lengths are invalid
      */
     protected void checkLengths(int len1, int len2) {

@@ -1258,20 +1258,9 @@ public class GapList<E> extends IList<E> {
         }
 
         @Override
-        protected boolean doAddAll(int index, E[] elems) {
-        	error();
-        	return false;
-        }
-
-        @Override
         protected E doSet(int index, E elem) {
         	error();
         	return null;
-        }
-
-        @Override
-        protected void doSetAll(int index, E[] elems) {
-        	error();
         }
 
         @Override

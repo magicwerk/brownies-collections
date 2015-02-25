@@ -322,26 +322,6 @@ public abstract class KeyListImpl<E> extends IList<E> {
         return true;
     }
 
-	@Override
-	protected boolean doAddAll(int index, E[] array) {
-    	// delegate to doAdd()
-		if (array.length == 0) {
-			return false;
-		}
-		for (E elem: array) {
-			int size = size();
-			doAdd(index, elem);
-			if (index != -1) {
-				// If size has not changed, this is a list with max size,
-				// so there is no need to increment the insert index
-				if (size() != size) {
-					index++;
-				}
-			}
-		}
-		return true;
-	}
-
     @Override
     protected E doSet(int index, E elem) {
     	keyColl.checkElemAllowed(elem);
@@ -363,15 +343,6 @@ public abstract class KeyListImpl<E> extends IList<E> {
    		list.doSet(index, elem);
         if (DEBUG_CHECK) debugCheck();
         return remove;
-    }
-
-    @Override
-    protected void doSetAll(int index, E[] elems) {
-    	// delegate to doSet()
-        for (int i=0; i<elems.length; i++) {
-            doSet(index+i, elems[i]);
-        }
-        if (DEBUG_CHECK) debugCheck();
     }
 
     @Override

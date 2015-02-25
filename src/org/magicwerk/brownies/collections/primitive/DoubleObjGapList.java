@@ -186,18 +186,8 @@ public class DoubleObjGapList extends IList<Double> {
 	}
 
 	@Override
-	protected boolean doAddAll(int index, Double[] elem) {
-		return list.doAddAll(index, toPrimitive(elem));
-	}
-
-	@Override
 	protected Double doSet(int index, Double elem) {
 		return list.doSet(index, elem);
-	}
-
-	@Override
-	protected void doSetAll(int index, Double[] elem) {
-		list.doSetAll(index, toPrimitive(elem));
 	}
 
 	@Override
@@ -362,27 +352,27 @@ public class DoubleObjGapList extends IList<Double> {
 	}
 
 	@Override
-	public boolean addAll(Double... elems) {
+	public boolean addArray(Double... elems) {
 		double[] e = toPrimitive(elems);
-		return list.addAll(e);
+		return list.addArray(e);
 	}
 
 	@Override
-	public boolean addAll(int index, Double... elems) {
+	public boolean addArray(int index, Double... elems) {
 		double[] e = toPrimitive(elems);
-		return list.addAll(index, e);
+		return list.addArray(index, e);
 	}
 
 	@Override
 	public boolean addAll(IList<? extends Double> list2) {
 		double[] e = toPrimitive(list2);
-		return list.addAll(e);
+		return list.addArray(e);
 	}
 
 	@Override
 	public boolean addAll(int index, IList<? extends Double> list2) {
 		double[] e = toPrimitive(list2);
-		return list.addAll(index, e);
+		return list.addArray(index, e);
 	}
 
 	@Override
@@ -416,19 +406,19 @@ public class DoubleObjGapList extends IList<Double> {
 	@Override
 	public void setAll(int index, IList<? extends Double> list2) {
 		double[] e = toPrimitive(list2);
-		list.setAll(index, e);
+		list.setArray(index, e);
 	}
 
 	@Override
 	public void setAll(int index, Collection<? extends Double> coll) {
 		double[] e = toPrimitive(coll);
-		list.setAll(index, e);
+		list.setArray(index, e);
 	}
 
 	@Override
-	public void setAll(int index, Double... elems) {
+	public void setArray(int index, Double... elems) {
 		double[] e = toPrimitive(elems);
-		list.setAll(index, e);
+		list.setArray(index, e);
 	}
 
 	@Override
@@ -477,20 +467,9 @@ public class DoubleObjGapList extends IList<Double> {
         }
 
         @Override
-        protected boolean doAddAll(int index, Double[] elems) {
-        	error();
-        	return false;
-        }
-
-        @Override
         protected Double doSet(int index, Double elem) {
         	error();
         	return null;
-        }
-
-        @Override
-        protected void doSetAll(int index, Double[] elems) {
-        	error();
         }
 
         @Override

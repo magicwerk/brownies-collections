@@ -311,7 +311,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
          * @param type	primitive type to use for map (only one map can have the order by option set)
          * @return		this (fluent interface)
          */
-        // only for KeyList
+        // only for KeyList / Key1List / Key2List
         protected BuilderImpl<E> withElemOrderBy(Class<?> type) {
             return withKeyOrderBy(0, type);
         }
@@ -436,11 +436,26 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         	if (type == null) {
         		throw new IllegalArgumentException("Order by type may not be null");
         	}
+        	if (!type.isPrimitive()) {
+        		throw new IllegalArgumentException("Class type must be primitive");
+        	}
         	KeyMapBuilder kmb = getKeyMapBuilder(keyIndex);
         	if (kmb.orderBy != null) {
         		throw new IllegalArgumentException("Order by already set");
         	}
         	kmb.orderBy = true;
+        	kmb.orderByType = type;
+            return this;
+        }
+
+        protected BuilderImpl<E> withKeyClass(int keyIndex, Class<?> type) {
+        	if (type == null) {
+        		throw new IllegalArgumentException("Class type may not be null");
+        	}
+        	if (!type.isPrimitive()) {
+        		throw new IllegalArgumentException("Class type must be primitive");
+        	}
+        	KeyMapBuilder kmb = getKeyMapBuilder(keyIndex);
         	kmb.orderByType = type;
             return this;
         }
@@ -724,6 +739,12 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         	return !(b != null && !b);
         }
 
+        /**
+         * Initialize KeyMap.
+         *
+         * @param keyMapBuild 	key map builder to use for initialization
+         * @param list   		true if a KeyListImpl is built up, false for KeyCollectionImpl
+         */
         KeyMap buildKeyMap(KeyMapBuilder keyMapBuilder, boolean list) {
         	KeyMap<E,Object> keyMap = new KeyMap<E,Object>();
         	keyMap.mapper = (IFunction<E, Object>) keyMapBuilder.mapper;
@@ -864,8 +885,8 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         /**
          * This method is called if a KeyList, Key1List, Key2List is initialized.
          *
-         * @param keyColl
-         * @param keyList
+         * @param keyColl	KeyCollectionImpl which has already been initialized
+         * @param keyList	KeyListImpl to initialize
          */
         void init(KeyCollectionImpl keyColl, KeyListImpl keyList) {
         	keyList.keyColl = keyColl;
@@ -873,7 +894,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         	if (keyColl.orderByKey == 0) {
         		keyList.list = (IList<E>) keyColl.keyMaps[0].keysList;
             	if (keyList.list == null) {
-            		keyList.list = new GapList<E>(); // TODO GapList or BigList
+            		keyList.list = initList();
             	}
                 if (collection != null) {
                 	keyColl.addAll(collection);
@@ -881,7 +902,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
                 	keyColl.addAll((Collection<? extends E>) Arrays.asList(array));
                 }
         	} else {
-           		keyList.list = new GapList<E>(); // TODO GapList or BigList
+           		keyList.list = initList();
         		if (collection != null) {
         			keyList.ensureCapacity(capacity);
         			keyList.addAll(collection);
@@ -892,6 +913,28 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         			keyList.ensureCapacity(capacity);
         		}
         	}
+        }
+
+        IList initList() {
+        	Class<?> primitive = null;
+        	KeyMapBuilder kmb = keyMapBuilders.get(0);
+        	if (kmb != null) {
+        		primitive = kmb.orderByType;
+        	}
+
+        	if (primitive == null) {
+        		if (useBigList) {
+        			return new BigList<Object>();
+        		} else {
+					return new GapList<Object>();
+        		}
+        	} else {
+        		if (useBigList) {
+        			return BigLists.createWrapperList(primitive);
+        		} else {
+        			return GapLists.createWrapperList(primitive);
+        		}
+			}
         }
     }
 

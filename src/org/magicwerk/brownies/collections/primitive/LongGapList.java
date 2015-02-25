@@ -1200,20 +1200,9 @@ protected boolean doAdd(int index, long elem) {
 }
 
         @Override
-protected boolean doAddAll(int index, long[] elems) {
-    error();
-    return false;
-}
-
-        @Override
 protected long doSet(int index, long elem) {
     error();
     return 0;
-}
-
-        @Override
-protected void doSetAll(int index, long[] elems) {
-    error();
 }
 
         @Override

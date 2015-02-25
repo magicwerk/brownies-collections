@@ -186,18 +186,8 @@ public class FloatObjGapList extends IList<Float> {
 	}
 
 	@Override
-	protected boolean doAddAll(int index, Float[] elem) {
-		return list.doAddAll(index, toPrimitive(elem));
-	}
-
-	@Override
 	protected Float doSet(int index, Float elem) {
 		return list.doSet(index, elem);
-	}
-
-	@Override
-	protected void doSetAll(int index, Float[] elem) {
-		list.doSetAll(index, toPrimitive(elem));
 	}
 
 	@Override
@@ -362,27 +352,27 @@ public class FloatObjGapList extends IList<Float> {
 	}
 
 	@Override
-	public boolean addAll(Float... elems) {
+	public boolean addArray(Float... elems) {
 		float[] e = toPrimitive(elems);
-		return list.addAll(e);
+		return list.addArray(e);
 	}
 
 	@Override
-	public boolean addAll(int index, Float... elems) {
+	public boolean addArray(int index, Float... elems) {
 		float[] e = toPrimitive(elems);
-		return list.addAll(index, e);
+		return list.addArray(index, e);
 	}
 
 	@Override
 	public boolean addAll(IList<? extends Float> list2) {
 		float[] e = toPrimitive(list2);
-		return list.addAll(e);
+		return list.addArray(e);
 	}
 
 	@Override
 	public boolean addAll(int index, IList<? extends Float> list2) {
 		float[] e = toPrimitive(list2);
-		return list.addAll(index, e);
+		return list.addArray(index, e);
 	}
 
 	@Override
@@ -416,19 +406,19 @@ public class FloatObjGapList extends IList<Float> {
 	@Override
 	public void setAll(int index, IList<? extends Float> list2) {
 		float[] e = toPrimitive(list2);
-		list.setAll(index, e);
+		list.setArray(index, e);
 	}
 
 	@Override
 	public void setAll(int index, Collection<? extends Float> coll) {
 		float[] e = toPrimitive(coll);
-		list.setAll(index, e);
+		list.setArray(index, e);
 	}
 
 	@Override
-	public void setAll(int index, Float... elems) {
+	public void setArray(int index, Float... elems) {
 		float[] e = toPrimitive(elems);
-		list.setAll(index, e);
+		list.setArray(index, e);
 	}
 
 	@Override
@@ -477,20 +467,9 @@ public class FloatObjGapList extends IList<Float> {
         }
 
         @Override
-        protected boolean doAddAll(int index, Float[] elems) {
-        	error();
-        	return false;
-        }
-
-        @Override
         protected Float doSet(int index, Float elem) {
         	error();
         	return null;
-        }
-
-        @Override
-        protected void doSetAll(int index, Float[] elems) {
-        	error();
         }
 
         @Override
