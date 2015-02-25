@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: ShortBigList.java 2581 2014-11-11 00:49:14Z origo $
+ * $Id: ShortBigList.java 2730 2015-02-18 22:18:37Z origo $
  */
 package org.magicwerk.brownies.collections.primitive;
 import org.magicwerk.brownies.collections.helper.ArraysHelper;
@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.magicwerk.brownies.collections.helper.primitive.ShortMergeSort;
 
 /**
@@ -43,7 +44,7 @@ import org.magicwerk.brownies.collections.helper.primitive.ShortMergeSort;
  * Note that the iterators provided are not fail-fast.<p>
  *
  * @author Thomas Mauch
- * @version $Id: ShortBigList.java 2581 2014-11-11 00:49:14Z origo $
+ * @version $Id: ShortBigList.java 2730 2015-02-18 22:18:37Z origo $
  */
 public class ShortBigList extends IShortList {
 	public static IShortList of(short[] values) {
@@ -511,7 +512,9 @@ public short getDefaultElem() {
 
     @Override
 protected void finalize() {
-    // This list will be garbage collected, so unref all referenced blocks   
+    // This list will be garbage collected, so unref all referenced blocks.   
+    // As it is not reachable by any live objects, if is safe to access it from   
+    // the GC thread without synchronization   
     ShortBlockNode node = rootNode.min();
     while (node != null) {
         node.block.unref();
@@ -777,9 +780,11 @@ protected boolean doAdd(int index, short element) {
             // Split block for insert   
             int nextShortBlockLen = blockSize / 2;
             int blockLen = blockSize - nextShortBlockLen;
-            newShortBlock.init(nextShortBlockLen, (short) 0);
-            ShortGapList.copy(currNode.block, blockLen, newShortBlock, 0, nextShortBlockLen);
-            currNode.block.remove(blockLen, blockSize - blockLen);
+            ShortGapList.transferRemove(currNode.block, blockLen, nextShortBlockLen, newShortBlock, 0, 0);
+            // TODO   
+            //newShortBlock.init(nextShortBlockLen, (short) 0);   
+            //ShortGapList.copy(currNode.block, blockLen, newShortBlock, 0, nextShortBlockLen);   
+            //currNode.block.remove(blockLen, blockSize-blockLen);   
             // Subtract 1 more because getShortBlockIndex() has already added 1   
             modify(currNode, -nextShortBlockLen - 1);
             addShortBlock(currShortBlockEnd - nextShortBlockLen, newShortBlock);
@@ -922,7 +927,7 @@ protected boolean doAddAll(int index, short[] array) {
     int addLen = array.length;
     if (addLen <= space) {
         // All elements can be added to current block   
-        currNode.block.addAll(addPos, array);
+        currNode.block.addArray(addPos, array);
         modify(currNode, addLen);
         size += addLen;
         currShortBlockEnd += addLen;
@@ -1179,7 +1184,9 @@ private void merge(ShortBlockNode node) {
         for (int i = 0; i < len; i++) {
             leftNode.block.add((short) 0);
         }
-        ShortGapList.copy(node.block, 0, leftNode.block, dstSize, len);
+        ShortGapList.transferCopy(node.block, 0, len, leftNode.block, dstSize, len);
+        // TODO   
+        //ShortGapList.copy(node.block, 0, leftNode.block, dstSize, len);   
         assert (leftNode.block.size() <= blockSize);
         modify(leftNode, +len);
         modify(oldCurrNode, -len);
@@ -1193,7 +1200,9 @@ private void merge(ShortBlockNode node) {
             for (int i = 0; i < len; i++) {
                 rightNode.block.add(0, (short) 0);
             }
-            ShortGapList.copy(node.block, 0, rightNode.block, 0, len);
+            ShortGapList.transferCopy(node.block, 0, len, rightNode.block, 0, len);
+            // TODO   
+            //ShortGapList.copy(node.block, 0, rightNode.block, 0, len);   
             assert (rightNode.block.size() <= blockSize);
             modify(rightNode, +len);
             modify(oldCurrNode, -len);
@@ -1275,7 +1284,7 @@ protected IShortList doCreate(int capacity) {
 public void sort(int index, int len) {
     checkRange(index, len);
     if (isOnlyRootShortBlock()) {
-        currNode.block.sort(index, len);
+        rootNode.block.sort(index, len);
     } else {
         ShortMergeSort.sort(this, index, index + len);
     }
@@ -1436,7 +1445,7 @@ private void checkNode(ShortBlockNode node) {
     
     public static class ShortBlock extends ShortGapList {
 
-        private int refCount = 1;
+        private AtomicInteger refCount = new AtomicInteger();
 
         public ShortBlock(){
 }
@@ -1454,14 +1463,14 @@ private void checkNode(ShortBlockNode node) {
 		 * @return true if block is shared by several ShortBigList instances
 		 */
 public boolean isShared() {
-    return refCount > 1;
+    return refCount.get() > 1;
 }
 
         /**
 		 * Increment reference count as block is used by one ShortBigList instance more.
 		 */
 public ShortBlock ref() {
-    refCount++;
+    refCount.incrementAndGet();
     return this;
 }
 
@@ -1469,7 +1478,7 @@ public ShortBlock ref() {
 		 * Decrement reference count as block is no longer used by one ShortBigList instance.
 		 */
 public void unref() {
-    refCount--;
+    refCount.decrementAndGet();
 }
     }
 
@@ -1947,20 +1956,9 @@ protected boolean doAdd(int index, short elem) {
 }
 
         @Override
-protected boolean doAddAll(int index, short[] elems) {
-    error();
-    return false;
-}
-
-        @Override
 protected short doSet(int index, short elem) {
     error();
     return (short) 0;
-}
-
-        @Override
-protected void doSetAll(int index, short[] elems) {
-    error();
 }
 
         @Override

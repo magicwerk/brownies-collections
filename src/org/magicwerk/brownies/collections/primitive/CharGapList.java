@@ -1200,20 +1200,9 @@ protected boolean doAdd(int index, char elem) {
 }
 
         @Override
-protected boolean doAddAll(int index, char[] elems) {
-    error();
-    return false;
-}
-
-        @Override
 protected char doSet(int index, char elem) {
     error();
     return (char) 0;
-}
-
-        @Override
-protected void doSetAll(int index, char[] elems) {
-    error();
 }
 
         @Override

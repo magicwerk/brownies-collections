@@ -183,18 +183,8 @@ public class ByteObjBigList extends IList<Byte> {
 	}
 
 	@Override
-	protected boolean doAddAll(int index, Byte[] elem) {
-		return list.doAddAll(index, toPrimitive(elem));
-	}
-
-	@Override
 	protected Byte doSet(int index, Byte elem) {
 		return list.doSet(index, elem);
-	}
-
-	@Override
-	protected void doSetAll(int index, Byte[] elem) {
-		list.doSetAll(index, toPrimitive(elem));
 	}
 
 	@Override
@@ -359,27 +349,27 @@ public class ByteObjBigList extends IList<Byte> {
 	}
 
 	@Override
-	public boolean addAll(Byte... elems) {
+	public boolean addArray(Byte... elems) {
 		byte[] e = toPrimitive(elems);
-		return list.addAll(e);
+		return list.addArray(e);
 	}
 
 	@Override
-	public boolean addAll(int index, Byte... elems) {
+	public boolean addArray(int index, Byte... elems) {
 		byte[] e = toPrimitive(elems);
-		return list.addAll(index, e);
+		return list.addArray(index, e);
 	}
 
 	@Override
 	public boolean addAll(IList<? extends Byte> list2) {
 		byte[] e = toPrimitive(list2);
-		return list.addAll(e);
+		return list.addArray(e);
 	}
 
 	@Override
 	public boolean addAll(int index, IList<? extends Byte> list2) {
 		byte[] e = toPrimitive(list2);
-		return list.addAll(index, e);
+		return list.addArray(index, e);
 	}
 
 	@Override
@@ -413,19 +403,19 @@ public class ByteObjBigList extends IList<Byte> {
 	@Override
 	public void setAll(int index, IList<? extends Byte> list2) {
 		byte[] e = toPrimitive(list2);
-		list.setAll(index, e);
+		list.setArray(index, e);
 	}
 
 	@Override
 	public void setAll(int index, Collection<? extends Byte> coll) {
 		byte[] e = toPrimitive(coll);
-		list.setAll(index, e);
+		list.setArray(index, e);
 	}
 
 	@Override
-	public void setAll(int index, Byte... elems) {
+	public void setArray(int index, Byte... elems) {
 		byte[] e = toPrimitive(elems);
-		list.setAll(index, e);
+		list.setArray(index, e);
 	}
 
 	@Override
@@ -474,20 +464,9 @@ public class ByteObjBigList extends IList<Byte> {
         }
 
         @Override
-        protected boolean doAddAll(int index, Byte[] elems) {
-        	error();
-        	return false;
-        }
-
-        @Override
         protected Byte doSet(int index, Byte elem) {
         	error();
         	return null;
-        }
-
-        @Override
-        protected void doSetAll(int index, Byte[] elems) {
-        	error();
         }
 
         @Override

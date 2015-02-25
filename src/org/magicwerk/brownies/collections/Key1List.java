@@ -489,13 +489,12 @@ public class Key1List<E,K> extends KeyListImpl<E> {
         }
 
         @Override
-        protected boolean doAdd(int index, E elem) {
+        protected void doEnsureCapacity(int capacity) {
         	error();
-        	return false;
         }
 
         @Override
-        protected boolean doAddAll(int index, E[] elems) {
+        protected boolean doAdd(int index, E elem) {
         	error();
         	return false;
         }
@@ -504,11 +503,6 @@ public class Key1List<E,K> extends KeyListImpl<E> {
         protected E doSet(int index, E elem) {
         	error();
         	return null;
-        }
-
-        @Override
-        protected void doSetAll(int index, E[] elems) {
-        	error();
         }
 
         @Override

@@ -183,18 +183,8 @@ public class IntObjBigList extends IList<Integer> {
 	}
 
 	@Override
-	protected boolean doAddAll(int index, Integer[] elem) {
-		return list.doAddAll(index, toPrimitive(elem));
-	}
-
-	@Override
 	protected Integer doSet(int index, Integer elem) {
 		return list.doSet(index, elem);
-	}
-
-	@Override
-	protected void doSetAll(int index, Integer[] elem) {
-		list.doSetAll(index, toPrimitive(elem));
 	}
 
 	@Override
@@ -359,27 +349,27 @@ public class IntObjBigList extends IList<Integer> {
 	}
 
 	@Override
-	public boolean addAll(Integer... elems) {
+	public boolean addArray(Integer... elems) {
 		int[] e = toPrimitive(elems);
-		return list.addAll(e);
+		return list.addArray(e);
 	}
 
 	@Override
-	public boolean addAll(int index, Integer... elems) {
+	public boolean addArray(int index, Integer... elems) {
 		int[] e = toPrimitive(elems);
-		return list.addAll(index, e);
+		return list.addArray(index, e);
 	}
 
 	@Override
 	public boolean addAll(IList<? extends Integer> list2) {
 		int[] e = toPrimitive(list2);
-		return list.addAll(e);
+		return list.addArray(e);
 	}
 
 	@Override
 	public boolean addAll(int index, IList<? extends Integer> list2) {
 		int[] e = toPrimitive(list2);
-		return list.addAll(index, e);
+		return list.addArray(index, e);
 	}
 
 	@Override
@@ -413,19 +403,19 @@ public class IntObjBigList extends IList<Integer> {
 	@Override
 	public void setAll(int index, IList<? extends Integer> list2) {
 		int[] e = toPrimitive(list2);
-		list.setAll(index, e);
+		list.setArray(index, e);
 	}
 
 	@Override
 	public void setAll(int index, Collection<? extends Integer> coll) {
 		int[] e = toPrimitive(coll);
-		list.setAll(index, e);
+		list.setArray(index, e);
 	}
 
 	@Override
-	public void setAll(int index, Integer... elems) {
+	public void setArray(int index, Integer... elems) {
 		int[] e = toPrimitive(elems);
-		list.setAll(index, e);
+		list.setArray(index, e);
 	}
 
 	@Override
@@ -474,20 +464,9 @@ public class IntObjBigList extends IList<Integer> {
         }
 
         @Override
-        protected boolean doAddAll(int index, Integer[] elems) {
-        	error();
-        	return false;
-        }
-
-        @Override
         protected Integer doSet(int index, Integer elem) {
         	error();
         	return null;
-        }
-
-        @Override
-        protected void doSetAll(int index, Integer[] elems) {
-        	error();
         }
 
         @Override

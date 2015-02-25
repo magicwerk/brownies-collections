@@ -183,18 +183,8 @@ public class ShortObjBigList extends IList<Short> {
 	}
 
 	@Override
-	protected boolean doAddAll(int index, Short[] elem) {
-		return list.doAddAll(index, toPrimitive(elem));
-	}
-
-	@Override
 	protected Short doSet(int index, Short elem) {
 		return list.doSet(index, elem);
-	}
-
-	@Override
-	protected void doSetAll(int index, Short[] elem) {
-		list.doSetAll(index, toPrimitive(elem));
 	}
 
 	@Override
@@ -359,27 +349,27 @@ public class ShortObjBigList extends IList<Short> {
 	}
 
 	@Override
-	public boolean addAll(Short... elems) {
+	public boolean addArray(Short... elems) {
 		short[] e = toPrimitive(elems);
-		return list.addAll(e);
+		return list.addArray(e);
 	}
 
 	@Override
-	public boolean addAll(int index, Short... elems) {
+	public boolean addArray(int index, Short... elems) {
 		short[] e = toPrimitive(elems);
-		return list.addAll(index, e);
+		return list.addArray(index, e);
 	}
 
 	@Override
 	public boolean addAll(IList<? extends Short> list2) {
 		short[] e = toPrimitive(list2);
-		return list.addAll(e);
+		return list.addArray(e);
 	}
 
 	@Override
 	public boolean addAll(int index, IList<? extends Short> list2) {
 		short[] e = toPrimitive(list2);
-		return list.addAll(index, e);
+		return list.addArray(index, e);
 	}
 
 	@Override
@@ -413,19 +403,19 @@ public class ShortObjBigList extends IList<Short> {
 	@Override
 	public void setAll(int index, IList<? extends Short> list2) {
 		short[] e = toPrimitive(list2);
-		list.setAll(index, e);
+		list.setArray(index, e);
 	}
 
 	@Override
 	public void setAll(int index, Collection<? extends Short> coll) {
 		short[] e = toPrimitive(coll);
-		list.setAll(index, e);
+		list.setArray(index, e);
 	}
 
 	@Override
-	public void setAll(int index, Short... elems) {
+	public void setArray(int index, Short... elems) {
 		short[] e = toPrimitive(elems);
-		list.setAll(index, e);
+		list.setArray(index, e);
 	}
 
 	@Override
@@ -474,20 +464,9 @@ public class ShortObjBigList extends IList<Short> {
         }
 
         @Override
-        protected boolean doAddAll(int index, Short[] elems) {
-        	error();
-        	return false;
-        }
-
-        @Override
         protected Short doSet(int index, Short elem) {
         	error();
         	return null;
-        }
-
-        @Override
-        protected void doSetAll(int index, Short[] elems) {
-        	error();
         }
 
         @Override

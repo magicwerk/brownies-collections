@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: DoubleBigList.java 2581 2014-11-11 00:49:14Z origo $
+ * $Id: DoubleBigList.java 2730 2015-02-18 22:18:37Z origo $
  */
 package org.magicwerk.brownies.collections.primitive;
 import org.magicwerk.brownies.collections.helper.ArraysHelper;
@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.magicwerk.brownies.collections.helper.primitive.DoubleMergeSort;
 
 /**
@@ -43,7 +44,7 @@ import org.magicwerk.brownies.collections.helper.primitive.DoubleMergeSort;
  * Note that the iterators provided are not fail-fast.<p>
  *
  * @author Thomas Mauch
- * @version $Id: DoubleBigList.java 2581 2014-11-11 00:49:14Z origo $
+ * @version $Id: DoubleBigList.java 2730 2015-02-18 22:18:37Z origo $
  */
 public class DoubleBigList extends IDoubleList {
 	public static IDoubleList of(double[] values) {
@@ -511,7 +512,9 @@ public double getDefaultElem() {
 
     @Override
 protected void finalize() {
-    // This list will be garbage collected, so unref all referenced blocks   
+    // This list will be garbage collected, so unref all referenced blocks.   
+    // As it is not reachable by any live objects, if is safe to access it from   
+    // the GC thread without synchronization   
     DoubleBlockNode node = rootNode.min();
     while (node != null) {
         node.block.unref();
@@ -777,9 +780,11 @@ protected boolean doAdd(int index, double element) {
             // Split block for insert   
             int nextDoubleBlockLen = blockSize / 2;
             int blockLen = blockSize - nextDoubleBlockLen;
-            newDoubleBlock.init(nextDoubleBlockLen, 0);
-            DoubleGapList.copy(currNode.block, blockLen, newDoubleBlock, 0, nextDoubleBlockLen);
-            currNode.block.remove(blockLen, blockSize - blockLen);
+            DoubleGapList.transferRemove(currNode.block, blockLen, nextDoubleBlockLen, newDoubleBlock, 0, 0);
+            // TODO   
+            //newDoubleBlock.init(nextDoubleBlockLen, 0);   
+            //DoubleGapList.copy(currNode.block, blockLen, newDoubleBlock, 0, nextDoubleBlockLen);   
+            //currNode.block.remove(blockLen, blockSize-blockLen);   
             // Subtract 1 more because getDoubleBlockIndex() has already added 1   
             modify(currNode, -nextDoubleBlockLen - 1);
             addDoubleBlock(currDoubleBlockEnd - nextDoubleBlockLen, newDoubleBlock);
@@ -922,7 +927,7 @@ protected boolean doAddAll(int index, double[] array) {
     int addLen = array.length;
     if (addLen <= space) {
         // All elements can be added to current block   
-        currNode.block.addAll(addPos, array);
+        currNode.block.addArray(addPos, array);
         modify(currNode, addLen);
         size += addLen;
         currDoubleBlockEnd += addLen;
@@ -1179,7 +1184,9 @@ private void merge(DoubleBlockNode node) {
         for (int i = 0; i < len; i++) {
             leftNode.block.add(0);
         }
-        DoubleGapList.copy(node.block, 0, leftNode.block, dstSize, len);
+        DoubleGapList.transferCopy(node.block, 0, len, leftNode.block, dstSize, len);
+        // TODO   
+        //DoubleGapList.copy(node.block, 0, leftNode.block, dstSize, len);   
         assert (leftNode.block.size() <= blockSize);
         modify(leftNode, +len);
         modify(oldCurrNode, -len);
@@ -1193,7 +1200,9 @@ private void merge(DoubleBlockNode node) {
             for (int i = 0; i < len; i++) {
                 rightNode.block.add(0, 0);
             }
-            DoubleGapList.copy(node.block, 0, rightNode.block, 0, len);
+            DoubleGapList.transferCopy(node.block, 0, len, rightNode.block, 0, len);
+            // TODO   
+            //DoubleGapList.copy(node.block, 0, rightNode.block, 0, len);   
             assert (rightNode.block.size() <= blockSize);
             modify(rightNode, +len);
             modify(oldCurrNode, -len);
@@ -1275,7 +1284,7 @@ protected IDoubleList doCreate(int capacity) {
 public void sort(int index, int len) {
     checkRange(index, len);
     if (isOnlyRootDoubleBlock()) {
-        currNode.block.sort(index, len);
+        rootNode.block.sort(index, len);
     } else {
         DoubleMergeSort.sort(this, index, index + len);
     }
@@ -1436,7 +1445,7 @@ private void checkNode(DoubleBlockNode node) {
     
     public static class DoubleBlock extends DoubleGapList {
 
-        private int refCount = 1;
+        private AtomicInteger refCount = new AtomicInteger();
 
         public DoubleBlock(){
 }
@@ -1454,14 +1463,14 @@ private void checkNode(DoubleBlockNode node) {
 		 * @return true if block is shared by several DoubleBigList instances
 		 */
 public boolean isShared() {
-    return refCount > 1;
+    return refCount.get() > 1;
 }
 
         /**
 		 * Increment reference count as block is used by one DoubleBigList instance more.
 		 */
 public DoubleBlock ref() {
-    refCount++;
+    refCount.incrementAndGet();
     return this;
 }
 
@@ -1469,7 +1478,7 @@ public DoubleBlock ref() {
 		 * Decrement reference count as block is no longer used by one DoubleBigList instance.
 		 */
 public void unref() {
-    refCount--;
+    refCount.decrementAndGet();
 }
     }
 
@@ -1947,20 +1956,9 @@ protected boolean doAdd(int index, double elem) {
 }
 
         @Override
-protected boolean doAddAll(int index, double[] elems) {
-    error();
-    return false;
-}
-
-        @Override
 protected double doSet(int index, double elem) {
     error();
     return 0;
-}
-
-        @Override
-protected void doSetAll(int index, double[] elems) {
-    error();
 }
 
         @Override

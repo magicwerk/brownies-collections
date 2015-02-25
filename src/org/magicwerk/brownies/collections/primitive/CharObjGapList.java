@@ -186,18 +186,8 @@ public class CharObjGapList extends IList<Character> {
 	}
 
 	@Override
-	protected boolean doAddAll(int index, Character[] elem) {
-		return list.doAddAll(index, toPrimitive(elem));
-	}
-
-	@Override
 	protected Character doSet(int index, Character elem) {
 		return list.doSet(index, elem);
-	}
-
-	@Override
-	protected void doSetAll(int index, Character[] elem) {
-		list.doSetAll(index, toPrimitive(elem));
 	}
 
 	@Override
@@ -362,27 +352,27 @@ public class CharObjGapList extends IList<Character> {
 	}
 
 	@Override
-	public boolean addAll(Character... elems) {
+	public boolean addArray(Character... elems) {
 		char[] e = toPrimitive(elems);
-		return list.addAll(e);
+		return list.addArray(e);
 	}
 
 	@Override
-	public boolean addAll(int index, Character... elems) {
+	public boolean addArray(int index, Character... elems) {
 		char[] e = toPrimitive(elems);
-		return list.addAll(index, e);
+		return list.addArray(index, e);
 	}
 
 	@Override
 	public boolean addAll(IList<? extends Character> list2) {
 		char[] e = toPrimitive(list2);
-		return list.addAll(e);
+		return list.addArray(e);
 	}
 
 	@Override
 	public boolean addAll(int index, IList<? extends Character> list2) {
 		char[] e = toPrimitive(list2);
-		return list.addAll(index, e);
+		return list.addArray(index, e);
 	}
 
 	@Override
@@ -416,19 +406,19 @@ public class CharObjGapList extends IList<Character> {
 	@Override
 	public void setAll(int index, IList<? extends Character> list2) {
 		char[] e = toPrimitive(list2);
-		list.setAll(index, e);
+		list.setArray(index, e);
 	}
 
 	@Override
 	public void setAll(int index, Collection<? extends Character> coll) {
 		char[] e = toPrimitive(coll);
-		list.setAll(index, e);
+		list.setArray(index, e);
 	}
 
 	@Override
-	public void setAll(int index, Character... elems) {
+	public void setArray(int index, Character... elems) {
 		char[] e = toPrimitive(elems);
-		list.setAll(index, e);
+		list.setArray(index, e);
 	}
 
 	@Override
@@ -477,20 +467,9 @@ public class CharObjGapList extends IList<Character> {
         }
 
         @Override
-        protected boolean doAddAll(int index, Character[] elems) {
-        	error();
-        	return false;
-        }
-
-        @Override
         protected Character doSet(int index, Character elem) {
         	error();
         	return null;
-        }
-
-        @Override
-        protected void doSetAll(int index, Character[] elems) {
-        	error();
         }
 
         @Override

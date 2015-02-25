@@ -186,18 +186,8 @@ public class BooleanObjGapList extends IList<Boolean> {
 	}
 
 	@Override
-	protected boolean doAddAll(int index, Boolean[] elem) {
-		return list.doAddAll(index, toPrimitive(elem));
-	}
-
-	@Override
 	protected Boolean doSet(int index, Boolean elem) {
 		return list.doSet(index, elem);
-	}
-
-	@Override
-	protected void doSetAll(int index, Boolean[] elem) {
-		list.doSetAll(index, toPrimitive(elem));
 	}
 
 	@Override
@@ -362,27 +352,27 @@ public class BooleanObjGapList extends IList<Boolean> {
 	}
 
 	@Override
-	public boolean addAll(Boolean... elems) {
+	public boolean addArray(Boolean... elems) {
 		boolean[] e = toPrimitive(elems);
-		return list.addAll(e);
+		return list.addArray(e);
 	}
 
 	@Override
-	public boolean addAll(int index, Boolean... elems) {
+	public boolean addArray(int index, Boolean... elems) {
 		boolean[] e = toPrimitive(elems);
-		return list.addAll(index, e);
+		return list.addArray(index, e);
 	}
 
 	@Override
 	public boolean addAll(IList<? extends Boolean> list2) {
 		boolean[] e = toPrimitive(list2);
-		return list.addAll(e);
+		return list.addArray(e);
 	}
 
 	@Override
 	public boolean addAll(int index, IList<? extends Boolean> list2) {
 		boolean[] e = toPrimitive(list2);
-		return list.addAll(index, e);
+		return list.addArray(index, e);
 	}
 
 	@Override
@@ -416,19 +406,19 @@ public class BooleanObjGapList extends IList<Boolean> {
 	@Override
 	public void setAll(int index, IList<? extends Boolean> list2) {
 		boolean[] e = toPrimitive(list2);
-		list.setAll(index, e);
+		list.setArray(index, e);
 	}
 
 	@Override
 	public void setAll(int index, Collection<? extends Boolean> coll) {
 		boolean[] e = toPrimitive(coll);
-		list.setAll(index, e);
+		list.setArray(index, e);
 	}
 
 	@Override
-	public void setAll(int index, Boolean... elems) {
+	public void setArray(int index, Boolean... elems) {
 		boolean[] e = toPrimitive(elems);
-		list.setAll(index, e);
+		list.setArray(index, e);
 	}
 
 	@Override
@@ -477,20 +467,9 @@ public class BooleanObjGapList extends IList<Boolean> {
         }
 
         @Override
-        protected boolean doAddAll(int index, Boolean[] elems) {
-        	error();
-        	return false;
-        }
-
-        @Override
         protected Boolean doSet(int index, Boolean elem) {
         	error();
         	return null;
-        }
-
-        @Override
-        protected void doSetAll(int index, Boolean[] elems) {
-        	error();
         }
 
         @Override

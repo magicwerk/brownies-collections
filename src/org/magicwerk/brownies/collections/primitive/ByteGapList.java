@@ -1200,20 +1200,9 @@ protected boolean doAdd(int index, byte elem) {
 }
 
         @Override
-protected boolean doAddAll(int index, byte[] elems) {
-    error();
-    return false;
-}
-
-        @Override
 protected byte doSet(int index, byte elem) {
     error();
     return (byte) 0;
-}
-
-        @Override
-protected void doSetAll(int index, byte[] elems) {
-    error();
 }
 
         @Override

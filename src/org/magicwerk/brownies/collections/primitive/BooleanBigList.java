@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: BooleanBigList.java 2581 2014-11-11 00:49:14Z origo $
+ * $Id: BooleanBigList.java 2730 2015-02-18 22:18:37Z origo $
  */
 package org.magicwerk.brownies.collections.primitive;
 import org.magicwerk.brownies.collections.helper.ArraysHelper;
@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.magicwerk.brownies.collections.helper.primitive.BooleanMergeSort;
 
 /**
@@ -43,7 +44,7 @@ import org.magicwerk.brownies.collections.helper.primitive.BooleanMergeSort;
  * Note that the iterators provided are not fail-fast.<p>
  *
  * @author Thomas Mauch
- * @version $Id: BooleanBigList.java 2581 2014-11-11 00:49:14Z origo $
+ * @version $Id: BooleanBigList.java 2730 2015-02-18 22:18:37Z origo $
  */
 public class BooleanBigList extends IBooleanList {
 	public static IBooleanList of(boolean[] values) {
@@ -511,7 +512,9 @@ public boolean getDefaultElem() {
 
     @Override
 protected void finalize() {
-    // This list will be garbage collected, so unref all referenced blocks   
+    // This list will be garbage collected, so unref all referenced blocks.   
+    // As it is not reachable by any live objects, if is safe to access it from   
+    // the GC thread without synchronization   
     BooleanBlockNode node = rootNode.min();
     while (node != null) {
         node.block.unref();
@@ -777,9 +780,11 @@ protected boolean doAdd(int index, boolean element) {
             // Split block for insert   
             int nextBooleanBlockLen = blockSize / 2;
             int blockLen = blockSize - nextBooleanBlockLen;
-            newBooleanBlock.init(nextBooleanBlockLen, false);
-            BooleanGapList.copy(currNode.block, blockLen, newBooleanBlock, 0, nextBooleanBlockLen);
-            currNode.block.remove(blockLen, blockSize - blockLen);
+            BooleanGapList.transferRemove(currNode.block, blockLen, nextBooleanBlockLen, newBooleanBlock, 0, 0);
+            // TODO   
+            //newBooleanBlock.init(nextBooleanBlockLen, false);   
+            //BooleanGapList.copy(currNode.block, blockLen, newBooleanBlock, 0, nextBooleanBlockLen);   
+            //currNode.block.remove(blockLen, blockSize-blockLen);   
             // Subtract 1 more because getBooleanBlockIndex() has already added 1   
             modify(currNode, -nextBooleanBlockLen - 1);
             addBooleanBlock(currBooleanBlockEnd - nextBooleanBlockLen, newBooleanBlock);
@@ -922,7 +927,7 @@ protected boolean doAddAll(int index, boolean[] array) {
     int addLen = array.length;
     if (addLen <= space) {
         // All elements can be added to current block   
-        currNode.block.addAll(addPos, array);
+        currNode.block.addArray(addPos, array);
         modify(currNode, addLen);
         size += addLen;
         currBooleanBlockEnd += addLen;
@@ -1179,7 +1184,9 @@ private void merge(BooleanBlockNode node) {
         for (int i = 0; i < len; i++) {
             leftNode.block.add(false);
         }
-        BooleanGapList.copy(node.block, 0, leftNode.block, dstSize, len);
+        BooleanGapList.transferCopy(node.block, 0, len, leftNode.block, dstSize, len);
+        // TODO   
+        //BooleanGapList.copy(node.block, 0, leftNode.block, dstSize, len);   
         assert (leftNode.block.size() <= blockSize);
         modify(leftNode, +len);
         modify(oldCurrNode, -len);
@@ -1193,7 +1200,9 @@ private void merge(BooleanBlockNode node) {
             for (int i = 0; i < len; i++) {
                 rightNode.block.add(0, false);
             }
-            BooleanGapList.copy(node.block, 0, rightNode.block, 0, len);
+            BooleanGapList.transferCopy(node.block, 0, len, rightNode.block, 0, len);
+            // TODO   
+            //BooleanGapList.copy(node.block, 0, rightNode.block, 0, len);   
             assert (rightNode.block.size() <= blockSize);
             modify(rightNode, +len);
             modify(oldCurrNode, -len);
@@ -1275,7 +1284,7 @@ protected IBooleanList doCreate(int capacity) {
 public void sort(int index, int len) {
     checkRange(index, len);
     if (isOnlyRootBooleanBlock()) {
-        currNode.block.sort(index, len);
+        rootNode.block.sort(index, len);
     } else {
         BooleanMergeSort.sort(this, index, index + len);
     }
@@ -1436,7 +1445,7 @@ private void checkNode(BooleanBlockNode node) {
     
     public static class BooleanBlock extends BooleanGapList {
 
-        private int refCount = 1;
+        private AtomicInteger refCount = new AtomicInteger();
 
         public BooleanBlock(){
 }
@@ -1454,14 +1463,14 @@ private void checkNode(BooleanBlockNode node) {
 		 * @return true if block is shared by several BooleanBigList instances
 		 */
 public boolean isShared() {
-    return refCount > 1;
+    return refCount.get() > 1;
 }
 
         /**
 		 * Increment reference count as block is used by one BooleanBigList instance more.
 		 */
 public BooleanBlock ref() {
-    refCount++;
+    refCount.incrementAndGet();
     return this;
 }
 
@@ -1469,7 +1478,7 @@ public BooleanBlock ref() {
 		 * Decrement reference count as block is no longer used by one BooleanBigList instance.
 		 */
 public void unref() {
-    refCount--;
+    refCount.decrementAndGet();
 }
     }
 
@@ -1947,20 +1956,9 @@ protected boolean doAdd(int index, boolean elem) {
 }
 
         @Override
-protected boolean doAddAll(int index, boolean[] elems) {
-    error();
-    return false;
-}
-
-        @Override
 protected boolean doSet(int index, boolean elem) {
     error();
     return false;
-}
-
-        @Override
-protected void doSetAll(int index, boolean[] elems) {
-    error();
 }
 
         @Override

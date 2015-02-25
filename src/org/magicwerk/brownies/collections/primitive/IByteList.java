@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: IByteList.java 2597 2014-11-18 17:10:54Z origo $
+ * $Id: IByteList.java 2714 2015-01-29 01:06:52Z origo $
  */
 package org.magicwerk.brownies.collections.primitive;
 
@@ -42,7 +42,7 @@ import org.magicwerk.brownies.collections.function.IPredicate;
  * It also offers additional methods which are then available in all implementations of GapList and BigList.
  *
  * @author Thomas Mauch
- * @version $Id: IByteList.java 2597 2014-11-18 17:10:54Z origo $
+ * @version $Id: IByteList.java 2714 2015-01-29 01:06:52Z origo $
  *
  * @param <E> type of elements stored in the list
  * @see	    java.util.List
@@ -569,6 +569,7 @@ public boolean contains(byte elem) {
 	 * @param elem	element to add
 	 * @return		true if element has been added, false if not
 	 */
+// CopyOnWriteArrayList contains methods addIfAbsent() and addAllAbsent()  
 public boolean addIfAbsent(byte elem) {
     if (contains(elem)) {
         return false;
@@ -798,7 +799,7 @@ public boolean addAll(int index, Collection<Byte> coll) {
      * @param elems elements to be added to this list
      * @return <tt>true</tt> if this list changed as a result of the call
      */
-public boolean addAll(byte... elems) {
+public boolean addArray(byte... elems) {
     return doAddAll(-1, elems);
 }
 
@@ -814,7 +815,7 @@ public boolean addAll(byte... elems) {
      * @return <tt>true</tt> if this list changed as a result of the call
      * @throws IndexOutOfBoundsException if the index is invalid
      */
-public boolean addAll(int index, byte... elems) {
+public boolean addArray(int index, byte... elems) {
     checkIndexAdd(index);
     return doAddAll(index, elems);
 }
@@ -826,9 +827,8 @@ public boolean addAll(int index, byte... elems) {
      * @return <tt>true</tt> if this list changed as a result of the call
      * @throws NullPointerException if the specified list is null
      */
-@SuppressWarnings("unchecked")
 public boolean addAll(IByteList list) {
-    return doAddAll(-1, (byte[]) list.toArray());
+    return doAddAll(-1, list);
 }
 
     /**
@@ -844,10 +844,35 @@ public boolean addAll(IByteList list) {
      * @throws IndexOutOfBoundsException if the index is invalid
      * @throws NullPointerException if the specified collection is null
      */
-@SuppressWarnings("unchecked")
 public boolean addAll(int index, IByteList list) {
     checkIndexAdd(index);
-    return doAddAll(index, (byte[]) list.toArray());
+    return doAddAll(index, list);
+}
+
+    /**
+     * Helper method for adding multiple elements to the list.
+     * This default implementation calls doAdd() for adding each element.
+     *
+     * @param index index where element should be added
+     *              (-1 is valid for adding at the end)
+     * @param array array with elements to add
+     * @return      true if elements have been added, false otherwise
+     */
+protected boolean doAddAll(int index, IByteList list) {
+    int listSize = list.size();
+    doEnsureCapacity(size() + listSize);
+    if (listSize == 0) {
+        return false;
+    }
+    for (int i = 0; i < listSize; i++) {
+        byte elem = list.get(i);
+        if (doAdd(index, elem)) {
+            if (index != -1) {
+                index++;
+            }
+        }
+    }
+    return true;
 }
 
     /**
@@ -865,6 +890,30 @@ protected boolean doAddAll(int index, byte[] array) {
         return false;
     }
     for (byte elem : array) {
+        if (doAdd(index, elem)) {
+            if (index != -1) {
+                index++;
+            }
+        }
+    }
+    return true;
+}
+
+    public boolean addMult(int num, byte elem) {
+    return doAddMult(-1, num, elem);
+}
+
+    public boolean addMult(int index, int num, byte elem) {
+    return doAddMult(index, num, elem);
+}
+
+    protected boolean doAddMult(int index, int num, byte elem) {
+    checkLength(num);
+    if (num == 0) {
+        return false;
+    }
+    doEnsureCapacity(size() + num);
+    for (int i = 0; i < num; i++) {
         doAdd(index, elem);
         if (index != -1) {
             index++;
@@ -1051,58 +1100,137 @@ public boolean removeLastOccurrence(byte elem) {
     return true;
 }
 
-    // --- Static bulk methods working with two IByteLists ---  
+    // --- Static bulk transfer methods working with two IByteLists ---  
 /**
-     * Moves elements from one list to another.
+     * Copies elements from one list to another.
+     * Elements and size of source list do not change.
+     * The elements in the specified range in the destination list are removed and
+     * the elements specified to be copied are inserted.
+     *
+     * If source and destination list are identical, the method behaves like {@link #copy(int, int, int)}.
      *
      * @param src		source list
      * @param srcIndex	index of first element in source list
+     * @param srcLen	number of elements to copy
      * @param dst		destination list
-     * @param dstIndex	index of first element in source list
-     * @param len		number of elements to move
+     * @param dstIndex	index of first element in destination list
+     * @param dstLen	number of elements to replace in destination list
      * @param <E> 		type of elements stored in the list
      * @throws 			IndexOutOfBoundsException if the ranges are invalid
      */
-public static void move(IByteList src, int srcIndex, IByteList dst, int dstIndex, int len) {
+public static void transferCopy(IByteList src, int srcIndex, int srcLen, IByteList dst, int dstIndex, int dstLen) {
     if (src == dst) {
-        src.move(srcIndex, dstIndex, len);
+        src.checkLengths(srcLen, dstLen);
+        src.copy(srcIndex, dstIndex, srcLen);
     } else {
-        src.checkRange(srcIndex, len);
-        dst.checkRange(dstIndex, len);
-        byte defaultElem = src.getDefaultElem();
-        for (int i = 0; i < len; i++) {
-            byte elem = src.doReSet(srcIndex + i, defaultElem);
-            dst.doSet(dstIndex + i, elem);
-        }
+        src.doTransfer(TRANSFER_COPY, srcIndex, srcLen, dst, dstIndex, dstLen);
     }
 }
 
     /**
-     * Copies elements from one list to another.
+     * Moves elements from one list to another by setting it to null in the source list.
+     * Elements in the source range are set to null, but size of source list does not change.
+     * The elements in the specified range in the destination list are removed and
+     * the elements specified to be moved are inserted.
+     *
+     * If source and destination list are identical, the method behaves like {@link #move(int, int, int)}.
      *
      * @param src		source list
      * @param srcIndex	index of first element in source list
+     * @param srcLen	number of elements to copy
      * @param dst		destination list
-     * @param dstIndex	index of first element in source list
-     * @param len		number of elements to copy
+     * @param dstIndex	index of first element in destination list
+     * @param dstLen	number of elements to replace in destination list
      * @param <E> 		type of elements stored in the list
      * @throws 			IndexOutOfBoundsException if the ranges are invalid
      */
-public static void copy(IByteList src, int srcIndex, IByteList dst, int dstIndex, int len) {
+public static void transferMove(IByteList src, int srcIndex, int srcLen, IByteList dst, int dstIndex, int dstLen) {
     if (src == dst) {
-        src.copy(srcIndex, dstIndex, len);
+        src.checkLengths(srcLen, dstLen);
+        src.move(srcIndex, dstIndex, srcLen);
     } else {
-        src.checkRange(srcIndex, len);
-        dst.checkRange(dstIndex, len);
-        for (int i = 0; i < len; i++) {
-            byte elem = src.doGet(srcIndex + i);
+        src.doTransfer(TRANSFER_MOVE, srcIndex, srcLen, dst, dstIndex, dstLen);
+    }
+}
+
+    /**
+     * Moves elements from one list to another by removing it from the source list.
+     * So the size of source list will change.
+     * The elements in the specified range in the destination list are removed and
+     * the elements specified to be moved are inserted.
+     *
+     * If source and destination list are identical, the method behaves like {@link #drag(int, int, int)}.
+     *
+     * @param src		source list
+     * @param srcIndex	index of first element in source list
+     * @param srcLen	number of elements to copy
+     * @param dst		destination list
+     * @param dstIndex	index of first element in destination list
+     * @param dstLen	number of elements to replace in destination list
+     * @param <E> 		type of elements stored in the list
+     * @throws 			IndexOutOfBoundsException if the ranges are invalid
+     */
+public static void transferRemove(IByteList src, int srcIndex, int srcLen, IByteList dst, int dstIndex, int dstLen) {
+    if (src == dst) {
+        src.checkLengths(srcLen, dstLen);
+        src.drag(srcIndex, dstIndex, srcLen);
+    } else {
+        src.doTransfer(TRANSFER_REMOVE, srcIndex, srcLen, dst, dstIndex, dstLen);
+    }
+}
+
+    private static final int TRANSFER_COPY = 0;
+
+    private static final int TRANSFER_MOVE = 1;
+
+    private static final int TRANSFER_REMOVE = 2;
+
+    void doTransfer(int transferMode, int srcIndex, int srcLen, IByteList dst, int dstIndex, int dstLen) {
+    // Prepare arguments   
+    checkRange(srcIndex, srcLen);
+    if (dstIndex == -1) {
+        dstIndex = dst.size();
+    } else {
+        dst.checkIndexAdd(dstIndex);
+    }
+    if (dstLen == -1) {
+        dstLen = dst.size() - dstIndex;
+    } else {
+        dst.checkLength(dstLen);
+    }
+    byte defaultElem = getDefaultElem();
+    if (dstLen > srcLen) {
+        // Remove elements from destination because the source range is smaller than the destination range   
+        dst.remove(dstIndex, dstLen - srcLen);
+    } else if (srcLen > dstLen) {
+        // Add elements to destination because the source range is larger than the destination range   
+        dst.addMult(dstIndex, srcLen - dstLen, defaultElem);
+    }
+    // Overwrite the range starting at dstIndex with length srcIndex in dst   
+    if (transferMode == TRANSFER_MOVE) {
+        // Move   
+        for (int i = 0; i < srcLen; i++) {
+            byte elem = doReSet(srcIndex + i, defaultElem);
             dst.doSet(dstIndex + i, elem);
+        }
+    } else {
+        // Copy / Remove   
+        for (int i = 0; i < srcLen; i++) {
+            byte elem = doGet(srcIndex + i);
+            dst.doSet(dstIndex + i, elem);
+        }
+        if (transferMode == TRANSFER_REMOVE) {
+            // Remove   
+            remove(srcIndex, srcLen);
         }
     }
 }
 
     /**
      * Swaps elements from two lists.
+     * The size of both source and destination list do not change.
+     *
+     * If source and destination list are identical, the method behaves like {@link #swap(int, int, int)}.
      *
      * @param src		first list
      * @param srcIndex	index of first element in first list
@@ -1112,19 +1240,21 @@ public static void copy(IByteList src, int srcIndex, IByteList dst, int dstIndex
      * @param <E> 		type of elements stored in the list
      * @throws 			IndexOutOfBoundsException if the ranges are invalid
      */
-public static void swap(IByteList src, int srcIndex, IByteList dst, int dstIndex, int len) {
+public static void transferSwap(IByteList src, int srcIndex, IByteList dst, int dstIndex, int len) {
     if (src == dst) {
         src.swap(srcIndex, dstIndex, len);
     } else {
-        src.checkRange(srcIndex, len);
-        dst.checkRange(dstIndex, len);
-        if (src != dst) {
-            for (int i = 0; i < len; i++) {
-                byte swap = src.doGet(srcIndex + i);
-                swap = dst.doSet(dstIndex + i, swap);
-                src.doSet(srcIndex + i, swap);
-            }
-        }
+        src.doTransferSwap(srcIndex, dst, dstIndex, len);
+    }
+}
+
+    void doTransferSwap(int srcIndex, IByteList dst, int dstIndex, int len) {
+    checkRange(srcIndex, len);
+    dst.checkRange(dstIndex, len);
+    for (int i = 0; i < len; i++) {
+        byte swap = doGet(srcIndex + i);
+        swap = dst.doSet(dstIndex + i, swap);
+        doSet(srcIndex + i, swap);
     }
 }
 
@@ -1237,7 +1367,7 @@ public void setAll(int index, Collection<Byte> coll) {
      * @param index index of first element to set or add
      * @param coll  collection with elements to set or add
      */
-public void merge(int index, Collection<Byte> coll) {
+public void putAll(int index, Collection<Byte> coll) {
     checkIndexAdd(index);
     // In contrary to addAll() there is no need to first create an array   
     // containing the collection elements, as the list will not grow.   
@@ -1261,9 +1391,11 @@ public void merge(int index, Collection<Byte> coll) {
      * @param elems elements to set
      * @throws 		IndexOutOfBoundsException if the range is invalid
      */
-public void setAll(int index, byte... elems) {
+public void setArray(int index, byte... elems) {
     checkRange(index, elems.length);
-    doSetAll(index, elems);
+    for (int i = 0; i < elems.length; i++) {
+        doSet(index + i, elems[i]);
+    }
 }
 
     /**
@@ -1271,10 +1403,12 @@ public void setAll(int index, byte... elems) {
      *
      * @param index index of first element to set
      * @param elems elements to set
+     * @throws 		IndexOutOfBoundsException if the range is invalid
      */
-protected void doSetAll(int index, byte[] elems) {
-    for (int i = 0; i < elems.length; i++) {
-        doSet(index + i, elems[i]);
+public void setMult(int index, int num, byte elem) {
+    checkRange(index, num);
+    for (int i = 0; i < num; i++) {
+        doSet(index + i, elem);
     }
 }
 
@@ -1303,27 +1437,99 @@ protected void doRemoveAll(int index, int len) {
 }
 
     /**
+     * Replaces the specified elements.
+     *
+     * @param index index of first element to set
+     * @param list  list with elements to set
+     * @throws 		IndexOutOfBoundsException if the range is invalid
+     */
+public void initAll(IByteList list) {
+    // There is a special implementation accepting an IByteList   
+    // so the method is also available in the primitive classes.   
+    int size = size();
+    int collSize = list.size();
+    if (collSize < size) {
+        remove(collSize, size - collSize);
+        setAll(0, list);
+    } else {
+        for (int i = 0; i < size; i++) {
+            set(i, list.get(i));
+        }
+        for (int i = size; i < collSize; i++) {
+            add(i, list.get(i));
+        }
+    }
+    assert (size() == collSize);
+}
+
+    /**
+     * Replaces the specified elements.
+     *
+     * @param index index of first element to set
+     * @param list  list with elements to set
+     * @throws 		IndexOutOfBoundsException if the range is invalid
+     */
+public void replaceAll(int index, int len, IByteList list) {
+    // There is a special implementation accepting an IByteList   
+    // so the method is also available in the primitive classes.   
+    int srcLen = 0;
+    if (list != null) {
+        srcLen = list.size();
+    }
+    if (len > srcLen) {
+        // Destination range is larger, so remove elements   
+        doRemoveAll(index, len - srcLen);
+        for (int i = 0; i < list.size(); i++) {
+            doSet(index + i, list.get(i));
+        }
+    } else {
+        // Destination range is larger, so remove elements   
+        for (int i = 0; i < len; i++) {
+            doSet(i, list.get(i));
+        }
+        for (int i = len; i < list.size(); i++) {
+            doAdd(i, list.get(i));
+        }
+    }
+}
+
+    /**
+	 * Initializes the list so it will afterwards only contain the elements of the collection.
+	 * The list will grow or shrink as needed.
+	 *
+	 * @param coll 	collection with elements
+     * @throws 		IndexOutOfBoundsException if the length is invalid
+	 */
+public void initAll(Collection<Byte> coll) {
+    clear();
+    addAll(coll);
+}
+
+    /**
+	 * Initializes the list so it will afterwards only contain the elements of the array.
+	 * The list will grow or shrink as needed.
+	 *
+	 * @param elems array with elements
+     * @throws 		IndexOutOfBoundsException if the length is invalid
+	 */
+public void initArray(byte... elems) {
+    clear();
+    addArray(elems);
+}
+
+    /**
 	 * Initializes the list so it will afterwards have a size of
 	 * <code>len</code> and contain only the element <code>elem</code>.
 	 * The list will grow or shrink as needed.
 	 *
 	 * @param len  	length of list
 	 * @param elem 	element which the list will contain
-     * @throws 		IndexOutOfBoundsException if the range is invalid
+     * @throws 		IndexOutOfBoundsException if the length is invalid
 	 */
-public void init(int len, byte elem) {
+public void initMult(int len, byte elem) {
     checkLength(len);
-    int size = size();
-    if (len < size) {
-        remove(len, size - len);
-        fill(0, len, elem);
-    } else {
-        fill(0, size, elem);
-        for (int i = size; i < len; i++) {
-            add(elem);
-        }
-    }
-    assert (size() == len);
+    clear();
+    addMult(len, elem);
 }
 
     /**
@@ -1358,22 +1564,6 @@ public void fill(byte elem) {
     int size = size();
     for (int i = 0; i < size; i++) {
         doSet(i, elem);
-    }
-}
-
-    /**
-     * Fill specified elements.
-     *
-     * @param index	index of first element to fill
-     * @param len	number of elements to fill
-     * @param elem	element used for filling
-     * @throws 		IndexOutOfBoundsException if the range is invalid
-     */
-// see java.util.Arrays#fill  
-public void fill(int index, int len, byte elem) {
-    checkRange(index, len);
-    for (int i = 0; i < len; i++) {
-        doSet(index + i, elem);
     }
 }
 
@@ -1427,10 +1617,10 @@ public void move(int srcIndex, int dstIndex, int len) {
     // Set elements to (byte) 0 after the move operation    
     if (srcIndex < dstIndex) {
         int fill = Math.min(len, dstIndex - srcIndex);
-        fill(srcIndex, fill, (byte) 0);
+        setMult(srcIndex, fill, (byte) 0);
     } else if (srcIndex > dstIndex) {
         int fill = Math.min(len, srcIndex - dstIndex);
-        fill(srcIndex + len - fill, fill, (byte) 0);
+        setMult(srcIndex + len - fill, fill, (byte) 0);
     }
 }
 
@@ -1451,6 +1641,27 @@ public void drag(int srcIndex, int dstIndex, int len) {
         doRotate(srcIndex, len + (dstIndex - srcIndex), dstIndex - srcIndex);
     } else if (srcIndex > dstIndex) {
         doRotate(dstIndex, len + (srcIndex - dstIndex), dstIndex - srcIndex);
+    }
+}
+
+    /**
+     * Swap the specified elements in the list.
+     *
+     * @param index1	index of first element in first range to swap
+     * @param index2	index of first element in second range to swap
+     * @param len		number of elements to swap
+     * @throws 			IndexOutOfBoundsException if the ranges are invalid
+     */
+public void swap(int index1, int index2, int len) {
+    checkRange(index1, len);
+    checkRange(index2, len);
+    if ((index1 < index2 && index1 + len > index2) || index1 > index2 && index2 + len > index1) {
+        throw new IndexOutOfBoundsException("Swap ranges overlap");
+    }
+    for (int i = 0; i < len; i++) {
+        byte swap = doGet(index1 + i);
+        swap = doReSet(index2 + i, swap);
+        doReSet(index1 + i, swap);
     }
 }
 
@@ -1479,27 +1690,6 @@ public void reverse(int index, int len) {
         doReSet(pos1, swap);
         pos1++;
         pos2--;
-    }
-}
-
-    /**
-     * Swap the specified elements in the list.
-     *
-     * @param index1	index of first element in first range to swap
-     * @param index2	index of first element in second range to swap
-     * @param len		number of elements to swap
-     * @throws 			IndexOutOfBoundsException if the ranges are invalid
-     */
-public void swap(int index1, int index2, int len) {
-    checkRange(index1, len);
-    checkRange(index2, len);
-    if ((index1 < index2 && index1 + len > index2) || index1 > index2 && index2 + len > index1) {
-        throw new IndexOutOfBoundsException("Swap ranges overlap");
-    }
-    for (int i = 0; i < len; i++) {
-        byte swap = doGet(index1 + i);
-        swap = doReSet(index2 + i, swap);
-        doReSet(index1 + i, swap);
     }
 }
 
@@ -1732,12 +1922,31 @@ protected void checkRange(int index, int len) {
     /**
      * Check that specified length is valid (>= 0).
      *
-     * @param length length to check
+     * @param len length to check
      * @throws IndexOutOfBoundsException if length is invalid
      */
-protected void checkLength(int length) {
-    if (length < 0) {
-        throw new IndexOutOfBoundsException("Invalid length: " + length);
+protected void checkLength(int len) {
+    if (len < 0) {
+        throw new IndexOutOfBoundsException("Invalid length: " + len);
+    }
+}
+
+    /**
+     * Check that both specified lengths are valid (>= 0) and equal.
+     *
+     * @param len1 length to check
+     * @param len2 length to check
+     * @throws IndexOutOfBoundsException if lengths are invalid
+     */
+protected void checkLengths(int len1, int len2) {
+    if (len1 != len2) {
+        throw new IndexOutOfBoundsException("Invalid lengths: " + len1 + ", " + len2);
+    }
+    if (len1 < 0) {
+        throw new IndexOutOfBoundsException("Invalid length: " + len1);
+    }
+    if (len2 < 0) {
+        throw new IndexOutOfBoundsException("Invalid length: " + len2);
     }
 }
 
