@@ -1287,7 +1287,7 @@ public abstract class IList<E>
      */
 	@Override
 	public boolean addAll(Collection<? extends E> coll) {
-		return doReplaceAll(-1, 0, coll);
+		return doReplaceAll(size(), 0, coll);
 	}
 
     /**
@@ -1320,7 +1320,7 @@ public abstract class IList<E>
      * @throws NullPointerException if the specified list is null
      */
     public boolean addAll(IList<? extends E> list) {
-        return doReplaceAll(-1, 0, list);
+        return doReplaceAll(size(), 0, list);
     }
 
     /**
@@ -1349,7 +1349,7 @@ public abstract class IList<E>
      * @return <tt>true</tt> if this list changed as a result of the call
      */
 	public boolean addArray(E... elems) {
-		return doReplaceArray(-1, 0, elems);
+		return doReplaceArray(size(), 0, elems);
 	}
 
     /**
@@ -1377,7 +1377,7 @@ public abstract class IList<E>
      * @return <tt>true</tt> if this list changed as a result of the call
      */
 	public boolean addMult(int len, E elem) {
-		return doReplaceMult(-1, 0, len, elem);
+		return doReplaceMult(size(), 0, len, elem);
 	}
 
     /**
@@ -1677,7 +1677,7 @@ public abstract class IList<E>
     	}
         Iterator<? extends E> iter = coll.iterator();
         int i = 0;
-        for (i=0; i<srcLen; i++) {
+        for (i=0; i<len; i++) {
             doSet(index+i, iter.next());
         }
        	for (i=len; i<srcLen; i++) {
@@ -1731,7 +1731,7 @@ public abstract class IList<E>
     		// Destination range is larger, so remove elements
     		doRemoveAll(index, len-srcLen);
     	}
-        for (int i=0; i<srcLen; i++) {
+        for (int i=0; i<len; i++) {
             doSet(index+i, array[i]);
         }
     	for (int i=len; i<srcLen; i++) {
