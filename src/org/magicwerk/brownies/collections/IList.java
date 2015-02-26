@@ -133,6 +133,30 @@ public abstract class IList<E>
 		doRemoveAll(0, size());
 	}
 
+	/**
+     * Resizes the list so it will afterwards have a size of
+     * <code>len</code>. If the list must grow, the specified
+     * element <code>elem</code> will be used for filling.
+     *
+     * @param len  	length of list
+     * @param elem 	element which will be used for extending the list
+     * @throws 	 	IndexOutOfBoundsException if the range is invalid
+	 */
+	public void resize(int len, E elem) {
+	    checkLength(len);
+
+	    int size = size();
+        if (len < size) {
+            remove(len, size-len);
+        } else {
+            for (int i=size; i<len; i++) {
+                add(elem);
+            }
+        }
+        assert(size() == len);
+	}
+
+
 	@Override
 	abstract public int size();
 
@@ -765,110 +789,6 @@ public abstract class IList<E>
 		}
 	}
 
-    /**
-     * Adds all of the elements in the specified collection into this list.
-     * The new elements will appear in the list in the order that they
-     * are returned by the specified collection's iterator.
-     *
-     * @param coll collection containing elements to be added to this list
-     * @return <tt>true</tt> if this list changed as a result of the call
-     * @throws NullPointerException if the specified collection is null
-     */
-	@Override
-	public boolean addAll(Collection<? extends E> coll) {
-        // ArrayList.addAll() also first creates an array containing the
-        // collection elements. This guarantees that the list's capacity
-        // must only be increased once.
-        @SuppressWarnings("unchecked")
-        E[] array = (E[]) toArray(coll);
-        return doAddAll(-1, array);
-	}
-
-    /**
-     * Inserts all of the elements in the specified collection into this
-     * list, starting at the specified position.
-     * Shifts the element currently at that position (if any) and any
-     * subsequent elements to the right (increases their indices).
-     * The new elements will appear in the list in the order that they
-     * are returned by the specified collection's iterator.
-     *
-     * @param index index at which to insert the first element from the
-     *              specified collection
-     * @param coll collection containing elements to be inserted into this list
-     * @return <tt>true</tt> if this list changed as a result of the call
-     * @throws IndexOutOfBoundsException if the index is invalid
-     * @throws NullPointerException if the specified collection is null
-     */
-    @Override
-    public boolean addAll(int index, Collection<? extends E> coll) {
-        checkIndexAdd(index);
-
-        // ArrayList.addAll() also first creates an array containing the
-        // collection elements. This guarantees that the list's capacity
-        // must only be increased once.
-        @SuppressWarnings("unchecked")
-        E[] array = (E[]) toArray(coll);
-        return doAddAll(index, array);
-    }
-
-    /**
-     * Adds all specified elements into this list.
-     *
-     * @param elems elements to be added to this list
-     * @return <tt>true</tt> if this list changed as a result of the call
-     */
-	public boolean addArray(E... elems) {
-		return doAddAll(-1, elems);
-	}
-
-    /**
-     * Inserts the specified elements into this list,
-     * starting at the specified position.
-     * Shifts the element currently at that position (if any) and any
-     * subsequent elements to the right (increases their indices).
-     *
-     * @param index index at which to insert the first element from the
-     *              specified collection
-     * @param elems elements to be inserted into this list
-     * @return <tt>true</tt> if this list changed as a result of the call
-     * @throws IndexOutOfBoundsException if the index is invalid
-     */
-    public boolean addArray(int index, E... elems) {
-        checkIndexAdd(index);
-
-        return doAddAll(index, elems);
-    }
-
-    /**
-     * Adds all of the elements in the specified list into this list.
-     *
-     * @param list collection containing elements to be added to this list
-     * @return <tt>true</tt> if this list changed as a result of the call
-     * @throws NullPointerException if the specified list is null
-     */
-    public boolean addAll(IList<? extends E> list) {
-        return doAddAll(-1, list);
-    }
-
-    /**
-     * Inserts all of the elements in the specified list into this
-     * list, starting at the specified position.
-     * Shifts the element currently at that position (if any) and any
-     * subsequent elements to the right (increases their indices).
-     *
-     * @param index index at which to insert the first element from the
-     *              specified collection
-     * @param list list containing elements to be inserted into this list
-     * @return <tt>true</tt> if this list changed as a result of the call
-     * @throws IndexOutOfBoundsException if the index is invalid
-     * @throws NullPointerException if the specified collection is null
-     */
-    public boolean addAll(int index, IList<? extends E> list) {
-		checkIndexAdd(index);
-
-		return doAddAll(index, list);
-	}
-
 	/**
      * Helper method for adding multiple elements to the list.
      * This default implementation calls doAdd() for adding each element.
@@ -892,56 +812,6 @@ public abstract class IList<E>
 				if (index != -1) {
 					index++;
 				}
-			}
-		}
-		return true;
-	}
-
-    /**
-     * Helper method for adding multiple elements to the list.
-     * This default implementation calls doAdd() for adding each element.
-     *
-     * @param index index where element should be added
-     *              (-1 is valid for adding at the end)
-     * @param array array with elements to add
-     * @return      true if elements have been added, false otherwise
-     */
-	protected boolean doAddAll(int index, E[] array) {
-		doEnsureCapacity(size() + array.length);
-
-		if (array.length == 0) {
-			return false;
-		}
-
-		for (E elem: array) {
-			if (doAdd(index, elem)) {
-				if (index != -1) {
-					index++;
-				}
-			}
-		}
-		return true;
-	}
-
-	public boolean addMult(int num, E elem) {
-		return doAddMult(-1, num, elem);
-	}
-
-	public boolean addMult(int index, int num, E elem) {
-		return doAddMult(index, num, elem);
-	}
-
-	protected boolean doAddMult(int index, int num, E elem) {
-		checkLength(num);
-		if (num == 0) {
-			return false;
-		}
-
-		doEnsureCapacity(size() + num);
-		for (int i=0; i<num; i++) {
-			doAdd(index, elem);
-			if (index != -1) {
-			    index++;
 			}
 		}
 		return true;
@@ -1379,97 +1249,6 @@ public abstract class IList<E>
 
     // -- Mutators --
 
-    /**
-     * Replaces the specified elements.
-     *
-     * @param index index of first element to set
-     * @param list  list with elements to set
-     * @throws 		IndexOutOfBoundsException if the range is invalid
-     */
-    public void setAll(int index, IList<? extends E> list) {
-    	// There is a special implementation accepting an IList
-    	// so the method is also available in the primitive classes.
-	    int size = list.size();
-        checkRange(index, size);
-
-        for (int i=0; i<size; i++) {
-            doSet(index+i, list.get(i));
-        }
-    }
-
-    /**
-     * Replaces the specified elements.
-     *
-     * @param index index of first element to set
-     * @param coll  collection with elements to set
-     */
-    public void setAll(int index, Collection<? extends E> coll) {
-        checkRange(index, coll.size());
-
-        // In contrary to addAll() there is no need to first create an array
-        // containing the collection elements, as the list will not grow.
-        int i = 0;
-        Iterator<? extends E> iter = coll.iterator();
-        while (iter.hasNext()) {
-            doSet(index+i, iter.next());
-            i++;
-        }
-    }
-
-    /**
-     * Set or add the specified elements.
-     *
-     * @param index index of first element to set or add
-     * @param coll  collection with elements to set or add
-     */
-    public void putAll(int index, Collection<? extends E> coll) {
-        checkIndexAdd(index);
-
-        // In contrary to addAll() there is no need to first create an array
-        // containing the collection elements, as the list will not grow.
-        int size = size();
-        Iterator<? extends E> iter = coll.iterator();
-        while (iter.hasNext()) {
-        	E val = iter.next();
-        	if (index < size) {
-        		doSet(index, val);
-        	} else {
-        		doAdd(index, val);
-        	}
-    		index++;
-        }
-    }
-
-    /**
-     * Replaces the specified elements.
-     *
-     * @param index index of first element to set
-     * @param elems elements to set
-     * @throws 		IndexOutOfBoundsException if the range is invalid
-     */
-    public void setArray(int index, E... elems) {
-        checkRange(index, elems.length);
-
-        for (int i=0; i<elems.length; i++) {
-            doSet(index+i, elems[i]);
-        }
-    }
-
-    /**
-     * Replaces the specified elements.
-     *
-     * @param index index of first element to set
-     * @param elems elements to set
-     * @throws 		IndexOutOfBoundsException if the range is invalid
-     */
-    public void setMult(int index, int num, E elem) {
-        checkRange(index, num);
-
-        for (int i=0; i<num; i++) {
-            doSet(index+i, elem);
-        }
-    }
-
  	/**
 	 * Remove specified range of elements from list.
 	 *
@@ -1495,63 +1274,236 @@ public abstract class IList<E>
 		}
 	}
 
+    // -- addAll()
+
     /**
-     * Replaces the specified elements.
+     * Adds all of the elements in the specified collection into this list.
+     * The new elements will appear in the list in the order that they
+     * are returned by the specified collection's iterator.
+     *
+     * @param coll collection containing elements to be added to this list
+     * @return <tt>true</tt> if this list changed as a result of the call
+     * @throws NullPointerException if the specified collection is null
+     */
+	@Override
+	public boolean addAll(Collection<? extends E> coll) {
+		return doReplaceAll(-1, 0, coll);
+	}
+
+    /**
+     * Inserts all of the elements in the specified collection into this
+     * list, starting at the specified position.
+     * Shifts the element currently at that position (if any) and any
+     * subsequent elements to the right (increases their indices).
+     * The new elements will appear in the list in the order that they
+     * are returned by the specified collection's iterator.
+     *
+     * @param index index at which to insert the first element from the
+     *              specified collection
+     * @param coll collection containing elements to be inserted into this list
+     * @return <tt>true</tt> if this list changed as a result of the call
+     * @throws IndexOutOfBoundsException if the index is invalid
+     * @throws NullPointerException if the specified collection is null
+     */
+    @Override
+    public boolean addAll(int index, Collection<? extends E> coll) {
+        checkIndexAdd(index);
+
+        return doReplaceAll(index, 0, coll);
+    }
+
+    /**
+     * Adds all of the elements in the specified list into this list.
+     *
+     * @param list collection containing elements to be added to this list
+     * @return <tt>true</tt> if this list changed as a result of the call
+     * @throws NullPointerException if the specified list is null
+     */
+    public boolean addAll(IList<? extends E> list) {
+        return doReplaceAll(-1, 0, list);
+    }
+
+    /**
+     * Inserts all of the elements in the specified list into this
+     * list, starting at the specified position.
+     * Shifts the element currently at that position (if any) and any
+     * subsequent elements to the right (increases their indices).
+     *
+     * @param index index at which to insert the first element from the
+     *              specified collection
+     * @param list list containing elements to be inserted into this list
+     * @return <tt>true</tt> if this list changed as a result of the call
+     * @throws IndexOutOfBoundsException if the index is invalid
+     * @throws NullPointerException if the specified collection is null
+     */
+    public boolean addAll(int index, IList<? extends E> list) {
+		checkIndexAdd(index);
+
+		return doReplaceAll(index, 0, list);
+	}
+
+    /**
+     * Adds all specified elements into this list.
+     *
+     * @param elems elements to be added to this list
+     * @return <tt>true</tt> if this list changed as a result of the call
+     */
+	public boolean addArray(E... elems) {
+		return doReplaceArray(-1, 0, elems);
+	}
+
+    /**
+     * Inserts the specified elements into this list,
+     * starting at the specified position.
+     * Shifts the element currently at that position (if any) and any
+     * subsequent elements to the right (increases their indices).
+     *
+     * @param index index at which to insert the first element from the
+     *              specified collection
+     * @param elems elements to be inserted into this list
+     * @return <tt>true</tt> if this list changed as a result of the call
+     * @throws IndexOutOfBoundsException if the index is invalid
+     */
+    public boolean addArray(int index, E... elems) {
+        checkIndexAdd(index);
+
+        return doReplaceArray(index, 0, elems);
+    }
+
+    /**
+     * Adds all specified elements into this list.
+     *
+     * @param elems elements to be added to this list
+     * @return <tt>true</tt> if this list changed as a result of the call
+     */
+	public boolean addMult(int len, E elem) {
+		return doReplaceMult(-1, 0, len, elem);
+	}
+
+    /**
+     * Inserts the specified elements into this list,
+     * starting at the specified position.
+     * Shifts the element currently at that position (if any) and any
+     * subsequent elements to the right (increases their indices).
+     *
+     * @param index index at which to insert the first element from the
+     *              specified collection
+     * @param elems elements to be inserted into this list
+     * @return <tt>true</tt> if this list changed as a result of the call
+     * @throws IndexOutOfBoundsException if the index is invalid
+     */
+    public boolean addMult(int index, int len, E elem) {
+        checkIndexAdd(index);
+
+        return doReplaceMult(index, 0, len, elem);
+    }
+
+	// -- setAll()
+
+    /**
+     * Sets the specified elements.
      *
      * @param index index of first element to set
      * @param list  list with elements to set
      * @throws 		IndexOutOfBoundsException if the range is invalid
      */
-    public void initAll(IList<? extends E> list) {
-    	// There is a special implementation accepting an IList
-    	// so the method is also available in the primitive classes.
-	    int size = size();
-	    int collSize = list.size();
-        if (collSize < size) {
-            remove(collSize, size-collSize);
-            setAll(0, list);
-        } else {
-        	for (int i=0; i<size; i++) {
-        		set(i, list.get(i));
-        	}
-        	for (int i=size; i<collSize; i++) {
-        		add(i, list.get(i));
-        	}
-        }
-        assert(size() == collSize);
+    public void setAll(int index, IList<? extends E> list) {
+    	int listSize = list.size();
+        checkRange(index, listSize);
+
+        doReplaceAll(index, listSize, list);
     }
 
     /**
-     * Replaces the specified elements.
+     * Sets the specified elements.
+     *
+     * @param index index of first element to set
+     * @param coll  collection with elements to set
+     */
+    public void setAll(int index, Collection<? extends E> coll) {
+    	int collSize = coll.size();
+        checkRange(index, collSize);
+
+        doReplaceAll(index, collSize, coll);
+    }
+
+    /**
+     * Sets the specified elements.
      *
      * @param index index of first element to set
      * @param list  list with elements to set
      * @throws 		IndexOutOfBoundsException if the range is invalid
      */
-    public void replaceAll(int index, int len, IList<? extends E> list) {
-    	// There is a special implementation accepting an IList
-    	// so the method is also available in the primitive classes.
-    	int srcLen = 0;
-    	if (list != null) {
-    		srcLen = list.size();
-    	}
-    	if (len > srcLen) {
-    		// Destination range is larger, so remove elements
-    		doRemoveAll(index, len-srcLen);
-            for (int i=0; i<list.size(); i++) {
-                doSet(index+i, list.get(i));
-            }
-    	} else {
-    		// Destination range is larger, so remove elements
-        	for (int i=0; i<len; i++) {
-        		doSet(i, list.get(i));
-        	}
-        	for (int i=len; i<list.size(); i++) {
-        		doAdd(i, list.get(i));
-        	}
-    	}
+    public void setArray(int index, E... elems) {
+    	int arrayLen = elems.length;
+        checkRange(index, arrayLen);
+
+        doReplaceArray(index, arrayLen, elems);
     }
 
+    /**
+     * Sets the specified elements.
+     *
+     * @param index index of first element to set
+     * @param coll  collection with elements to set
+     */
+    public void setMult(int index, int len, E elem) {
+        checkRange(index, len);
+
+        doReplaceMult(index, len, len, elem);
+    }
+
+    // -- putAll()
+
+    /**
+     * Set or add the specified elements.
+     *
+     * @param index index of first element to set or add
+     * @param coll  collection with elements to set or add
+     */
+    public void putAll(int index, Collection<? extends E> coll) {
+        checkIndexAdd(index);
+
+        doReplaceAll(index, -1, coll);
+    }
+
+    /**
+     * Set or add the specified elements.
+     *
+     * @param index index of first element to set or add
+     * @param list  list with elements to set or add
+     */
+    public void putAll(int index, IList<? extends E> list) {
+        checkIndexAdd(index);
+
+        doReplaceAll(index, -1, list);
+    }
+
+    /**
+     * Set or add the specified elements.
+     *
+     * @param index index of first element to set or add
+     * @param coll  collection with elements to set or add
+     */
+    public void putArray(int index, E... elems) {
+        checkIndexAdd(index);
+
+        doReplaceArray(index, -1, elems);
+    }
+
+    /**
+     * Set or add the specified elements.
+     *
+     * @param index index of first element to set or add
+     * @param coll  collection with elements to set or add
+     */
+    public void putMult(int index, int len, E elem) {
+        checkIndexAdd(index);
+
+        doReplaceMult(index, -1, len, elem);
+    }
+
+    // -- initAll()
 
 	/**
 	 * Initializes the list so it will afterwards only contain the elements of the collection.
@@ -1561,8 +1513,18 @@ public abstract class IList<E>
      * @throws 		IndexOutOfBoundsException if the length is invalid
 	 */
     public void initAll(Collection<? extends E> coll) {
-    	clear();
-    	addAll(coll);
+    	doReplaceAll(0, size(), coll);
+    }
+
+	/**
+	 * Initializes the list so it will afterwards only contain the elements of the collection.
+	 * The list will grow or shrink as needed.
+	 *
+	 * @param coll 	collection with elements
+     * @throws 		IndexOutOfBoundsException if the length is invalid
+	 */
+    public void initAll(IList<? extends E> list) {
+    	doReplaceAll(0, size(), list);
     }
 
 	/**
@@ -1573,8 +1535,7 @@ public abstract class IList<E>
      * @throws 		IndexOutOfBoundsException if the length is invalid
 	 */
 	public void initArray(E... elems) {
-		clear();
-		addArray(elems);
+		doReplaceArray(0, size(), elems);
 	}
 
 	/**
@@ -1589,32 +1550,223 @@ public abstract class IList<E>
 	public void initMult(int len, E elem) {
 	    checkLength(len);
 
-	    clear();
-	    addMult(len, elem);
+	    doReplaceMult(0, size(), len, elem);
 	}
 
-	/**
-     * Resizes the list so it will afterwards have a size of
-     * <code>len</code>. If the list must grow, the specified
-     * element <code>elem</code> will be used for filling.
+	// -- replaceAll()
+
+    /**
+     * Replaces the specified range with new elements.
+     * This method is very powerful as it offers the functionality of many other methods
+     * which are therefore only offered for convenience: <br/>
+     * - addAll(index, list) -> replaceAll(index, 0, list) <br/>
+     * - setAll(index, list) -> replaceAll(index, list.size(), list) <br/>
+     * - putAll(index, list) -> replaceAll(index, -1, list) <br/>
+     * - initAll(list)       -> replaceAll(0, this.size(), list) <br/>
+     * - remove(index, list) -> replaceAll(index, list.size(), null) <br/>
      *
-     * @param len  	length of list
-     * @param elem 	element which will be used for extending the list
-     * @throws 	 	IndexOutOfBoundsException if the range is invalid
-	 */
-	public void resize(int len, E elem) {
-	    checkLength(len);
+     * @param index index of first element to replace, use -1 for the position after the last element (this.size())
+     * @param len	number of elements to replace, use -1 for getting behavior of putAll()
+     * @param list  list with elements which replace the old elements, use null if elements should only be removed
+     * @throws 		IndexOutOfBoundsException if the range is invalid
+     */
+    public void replaceAll(int index, int len, Collection<? extends E> coll) {
+    	// Check arguments
+    	if (index == -1) {
+    		index = size();
+    	} else {
+    		checkIndexAdd(index);
+    	}
+    	if (len == -1) {
+    		len = size()-index;
+    		if (coll != null) {
+    			if (coll.size() < len) {
+    				len = coll.size();
+    			}
+    		}
+    	} else {
+    		checkRange(index, len);
+    	}
 
-	    int size = size();
-        if (len < size) {
-            remove(len, size-len);
-        } else {
-            for (int i=size; i<len; i++) {
-                add(elem);
-            }
+    	// Call worker method
+    	doReplaceAll(index, len, coll);
+    }
+
+    public void replaceAll(int index, int len, IList<? extends E> list) {
+    	// Check arguments
+    	if (index == -1) {
+    		index = size();
+    	} else {
+    		checkIndexAdd(index);
+    	}
+    	if (len == -1) {
+    		len = size()-index;
+    		if (list != null) {
+    			if (list.size() < len) {
+    				len = list.size();
+    			}
+    		}
+    	} else {
+    		checkRange(index, len);
+    	}
+
+    	// Call worker method
+    	doReplaceAll(index, len, list);
+    }
+
+    public void replaceArray(int index, int len, E... elems) {
+    	// Check arguments
+    	if (index == -1) {
+    		index = size();
+    	} else {
+    		checkIndexAdd(index);
+    	}
+    	if (len == -1) {
+    		len = size()-index;
+    		if (elems != null) {
+    			if (elems.length < len) {
+    				len = elems.length;
+    			}
+    		}
+    	} else {
+    		checkRange(index, len);
+    	}
+
+    	// Call worker method
+    	doReplaceArray(index, len, elems);
+    }
+
+    public void replaceMult(int index, int len, int numElems, E elem) {
+    	// Check arguments
+    	if (index == -1) {
+    		index = size();
+    	} else {
+    		checkIndexAdd(index);
+    	}
+    	if (len == -1) {
+    		len = size()-index;
+    		if (numElems > 0) {
+    			if (numElems < len) {
+    				len = numElems;
+    			}
+    		}
+    	} else {
+    		checkRange(index, len);
+    	}
+
+    	// Call worker method
+    	doReplaceMult(index, len, numElems, elem);
+    }
+
+
+    // -- doReplaceAll()
+
+    protected boolean doReplaceAll(int index, int len, Collection<? extends E> coll) {
+    	assert(index >= 0 && index <= size());
+    	assert(len >= 0 && index+len <= size());
+
+    	int srcLen = 0;
+    	if (coll != null) {
+    		srcLen = coll.size();
+    	}
+    	doEnsureCapacity(size()-len+srcLen);
+
+    	if (len > srcLen) {
+    		// Destination range is larger, so remove elements
+    		doRemoveAll(index, len-srcLen);
+    	}
+        Iterator<? extends E> iter = coll.iterator();
+        int i = 0;
+        for (i=0; i<srcLen; i++) {
+            doSet(index+i, iter.next());
         }
-        assert(size() == len);
-	}
+       	for (i=len; i<srcLen; i++) {
+       		if (!doAdd(index+i, iter.next())) {
+       			index--;
+       		}
+    	}
+    	return len > 0 || srcLen > 0;
+    }
+
+    protected boolean doReplaceAll(int index, int len, IList<? extends E> list) {
+    	// There is a special implementation accepting an IList
+    	// so the method is also available in the primitive classes.
+    	assert(index >= 0 && index <= size());
+    	assert(len >= 0 && index+len <= size());
+
+    	int srcLen = 0;
+    	if (list != null) {
+    		srcLen = list.size();
+    	}
+    	doEnsureCapacity(size()-len+srcLen);
+
+    	if (len > srcLen) {
+    		// Destination range is larger, so remove elements
+    		doRemoveAll(index, len-srcLen);
+    	}
+    	for (int i=0; i<len; i++) {
+    		doSet(index+i, list.doGet(i));
+    	}
+    	for (int i=len; i<srcLen; i++) {
+    		if (!doAdd(index+i, list.doGet(i))) {
+    			index--;
+    		}
+    	}
+    	return len > 0 || srcLen > 0;
+    }
+
+    protected boolean doReplaceArray(int index, int len, E[] array) {
+    	// There is a special implementation accepting an IList
+    	// so the method is also available in the primitive classes.
+    	assert(index >= 0 && index <= size());
+    	assert(len >= 0 && index+len <= size());
+
+    	int srcLen = 0;
+    	if (array != null) {
+    		srcLen = array.length;
+    	}
+    	doEnsureCapacity(size()-len+srcLen);
+
+    	if (len > srcLen) {
+    		// Destination range is larger, so remove elements
+    		doRemoveAll(index, len-srcLen);
+    	}
+        for (int i=0; i<srcLen; i++) {
+            doSet(index+i, array[i]);
+        }
+    	for (int i=len; i<srcLen; i++) {
+    		if (!doAdd(index+i, array[i])) {
+    			index--;
+    		}
+    	}
+    	return len > 0 || srcLen > 0;
+    }
+
+    protected boolean doReplaceMult(int index, int len, int numElems, E elem) {
+    	// There is a special implementation accepting an IList
+    	// so the method is also available in the primitive classes.
+    	assert(index >= 0 && index <= size());
+    	assert(len >= 0 && index+len <= size());
+
+    	int srcLen = numElems;
+    	doEnsureCapacity(size()-len+srcLen);
+
+    	if (len > srcLen) {
+    		// Destination range is larger, so remove elements
+    		doRemoveAll(index, len-srcLen);
+    	}
+    	for (int i=0; i<len; i++) {
+    		doSet(index+i, elem);
+    	}
+    	for (int i=len; i<srcLen; i++) {
+    		if (!doAdd(index+i, elem)) {
+    			index--;
+    		}
+    	}
+    	return len > 0 || srcLen > 0;
+    }
+
+    //
 
     /**
      * Fill list.
