@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: ILongList.java 2714 2015-01-29 01:06:52Z origo $
+ * $Id: ILongList.java 2739 2015-02-27 00:20:40Z origo $
  */
 package org.magicwerk.brownies.collections.primitive;
 
@@ -42,9 +42,9 @@ import org.magicwerk.brownies.collections.function.IPredicate;
  * It also offers additional methods which are then available in all implementations of GapList and BigList.
  *
  * @author Thomas Mauch
- * @version $Id: ILongList.java 2714 2015-01-29 01:06:52Z origo $
+ * @version $Id: ILongList.java 2739 2015-02-27 00:20:40Z origo $
  *
- * @param <E> type of elements stored in the list
+ * @param  type of elements stored in the list
  * @see	    java.util.List
  * @see	    java.util.Deque
  * @see	    java.util.ArrayList
@@ -126,6 +126,28 @@ public void clear() {
 
     protected void doClear() {
     doRemoveAll(0, size());
+}
+
+    /**
+     * Resizes the list so it will afterwards have a size of
+     * <code>len</code>. If the list must grow, the specified
+     * element <code>elem</code> will be used for filling.
+     *
+     * @param len  	length of list
+     * @param elem 	element which will be used for extending the list
+     * @throws 	 	IndexOutOfBoundsException if the range is invalid
+	 */
+public void resize(int len, long elem) {
+    checkLength(len);
+    int size = size();
+    if (len < size) {
+        remove(len, size - len);
+    } else {
+        for (int i = size; i < len; i++) {
+            add(elem);
+        }
+    }
+    assert (size() == len);
 }
 
     
@@ -751,105 +773,6 @@ protected void doGetAll(long[] array, int index, int len) {
 }
 
     /**
-     * Adds all of the elements in the specified collection into this list.
-     * The new elements will appear in the list in the order that they
-     * are returned by the specified collection's iterator.
-     *
-     * @param coll collection containing elements to be added to this list
-     * @return <tt>true</tt> if this list changed as a result of the call
-     * @throws NullPointerException if the specified collection is null
-     */
-
-public boolean addAll(Collection<Long> coll) {
-    // ArrayList.addAll() also first creates an array containing the   
-    // collection elements. This guarantees that the list's capacity   
-    // must only be increased once.   
-    @SuppressWarnings("unchecked") long[] array = (long[]) toArray(coll);
-    return doAddAll(-1, array);
-}
-
-    /**
-     * Inserts all of the elements in the specified collection into this
-     * list, starting at the specified position.
-     * Shifts the element currently at that position (if any) and any
-     * subsequent elements to the right (increases their indices).
-     * The new elements will appear in the list in the order that they
-     * are returned by the specified collection's iterator.
-     *
-     * @param index index at which to insert the first element from the
-     *              specified collection
-     * @param coll collection containing elements to be inserted into this list
-     * @return <tt>true</tt> if this list changed as a result of the call
-     * @throws IndexOutOfBoundsException if the index is invalid
-     * @throws NullPointerException if the specified collection is null
-     */
-
-public boolean addAll(int index, Collection<Long> coll) {
-    checkIndexAdd(index);
-    // ArrayList.addAll() also first creates an array containing the   
-    // collection elements. This guarantees that the list's capacity   
-    // must only be increased once.   
-    @SuppressWarnings("unchecked") long[] array = (long[]) toArray(coll);
-    return doAddAll(index, array);
-}
-
-    /**
-     * Adds all specified elements into this list.
-     *
-     * @param elems elements to be added to this list
-     * @return <tt>true</tt> if this list changed as a result of the call
-     */
-public boolean addArray(long... elems) {
-    return doAddAll(-1, elems);
-}
-
-    /**
-     * Inserts the specified elements into this list,
-     * starting at the specified position.
-     * Shifts the element currently at that position (if any) and any
-     * subsequent elements to the right (increases their indices).
-     *
-     * @param index index at which to insert the first element from the
-     *              specified collection
-     * @param elems elements to be inserted into this list
-     * @return <tt>true</tt> if this list changed as a result of the call
-     * @throws IndexOutOfBoundsException if the index is invalid
-     */
-public boolean addArray(int index, long... elems) {
-    checkIndexAdd(index);
-    return doAddAll(index, elems);
-}
-
-    /**
-     * Adds all of the elements in the specified list into this list.
-     *
-     * @param list collection containing elements to be added to this list
-     * @return <tt>true</tt> if this list changed as a result of the call
-     * @throws NullPointerException if the specified list is null
-     */
-public boolean addAll(ILongList list) {
-    return doAddAll(-1, list);
-}
-
-    /**
-     * Inserts all of the elements in the specified list into this
-     * list, starting at the specified position.
-     * Shifts the element currently at that position (if any) and any
-     * subsequent elements to the right (increases their indices).
-     *
-     * @param index index at which to insert the first element from the
-     *              specified collection
-     * @param list list containing elements to be inserted into this list
-     * @return <tt>true</tt> if this list changed as a result of the call
-     * @throws IndexOutOfBoundsException if the index is invalid
-     * @throws NullPointerException if the specified collection is null
-     */
-public boolean addAll(int index, ILongList list) {
-    checkIndexAdd(index);
-    return doAddAll(index, list);
-}
-
-    /**
      * Helper method for adding multiple elements to the list.
      * This default implementation calls doAdd() for adding each element.
      *
@@ -864,62 +787,21 @@ protected boolean doAddAll(int index, ILongList list) {
     if (listSize == 0) {
         return false;
     }
+    boolean changed = false;
+    int prevSize = size();
     for (int i = 0; i < listSize; i++) {
         long elem = list.get(i);
         if (doAdd(index, elem)) {
+            changed = true;
             if (index != -1) {
-                index++;
+                if (prevSize != size()) {
+                    prevSize = size();
+                    index++;
+                }
             }
         }
     }
-    return true;
-}
-
-    /**
-     * Helper method for adding multiple elements to the list.
-     * This default implementation calls doAdd() for adding each element.
-     *
-     * @param index index where element should be added
-     *              (-1 is valid for adding at the end)
-     * @param array array with elements to add
-     * @return      true if elements have been added, false otherwise
-     */
-protected boolean doAddAll(int index, long[] array) {
-    doEnsureCapacity(size() + array.length);
-    if (array.length == 0) {
-        return false;
-    }
-    for (long elem : array) {
-        if (doAdd(index, elem)) {
-            if (index != -1) {
-                index++;
-            }
-        }
-    }
-    return true;
-}
-
-    public boolean addMult(int num, long elem) {
-    return doAddMult(-1, num, elem);
-}
-
-    public boolean addMult(int index, int num, long elem) {
-    return doAddMult(index, num, elem);
-}
-
-    protected boolean doAddMult(int index, int num, long elem) {
-    checkLength(num);
-    if (num == 0) {
-        return false;
-    }
-    doEnsureCapacity(size() + num);
-    for (int i = 0; i < num; i++) {
-        doAdd(index, elem);
-        if (index != -1) {
-            index++;
-        }
-    }
-    return true;
+    return changed;
 }
 
 
@@ -1115,7 +997,7 @@ public boolean removeLastOccurrence(long elem) {
      * @param dst		destination list
      * @param dstIndex	index of first element in destination list
      * @param dstLen	number of elements to replace in destination list
-     * @param <E> 		type of elements stored in the list
+     * @param  		type of elements stored in the list
      * @throws 			IndexOutOfBoundsException if the ranges are invalid
      */
 public static void transferCopy(ILongList src, int srcIndex, int srcLen, ILongList dst, int dstIndex, int dstLen) {
@@ -1141,7 +1023,7 @@ public static void transferCopy(ILongList src, int srcIndex, int srcLen, ILongLi
      * @param dst		destination list
      * @param dstIndex	index of first element in destination list
      * @param dstLen	number of elements to replace in destination list
-     * @param <E> 		type of elements stored in the list
+     * @param  		type of elements stored in the list
      * @throws 			IndexOutOfBoundsException if the ranges are invalid
      */
 public static void transferMove(ILongList src, int srcIndex, int srcLen, ILongList dst, int dstIndex, int dstLen) {
@@ -1167,7 +1049,7 @@ public static void transferMove(ILongList src, int srcIndex, int srcLen, ILongLi
      * @param dst		destination list
      * @param dstIndex	index of first element in destination list
      * @param dstLen	number of elements to replace in destination list
-     * @param <E> 		type of elements stored in the list
+     * @param  		type of elements stored in the list
      * @throws 			IndexOutOfBoundsException if the ranges are invalid
      */
 public static void transferRemove(ILongList src, int srcIndex, int srcLen, ILongList dst, int dstIndex, int dstLen) {
@@ -1237,7 +1119,7 @@ public static void transferRemove(ILongList src, int srcIndex, int srcLen, ILong
      * @param dst		second list
      * @param dstIndex	index of first element in second list
      * @param len		number of elements to swap
-     * @param <E> 		type of elements stored in the list
+     * @param  		type of elements stored in the list
      * @throws 			IndexOutOfBoundsException if the ranges are invalid
      */
 public static void transferSwap(ILongList src, int srcIndex, ILongList dst, int dstIndex, int len) {
@@ -1327,92 +1209,6 @@ public long[] getArray(int index, int len) {
 
     // -- Mutators --  
 /**
-     * Replaces the specified elements.
-     *
-     * @param index index of first element to set
-     * @param list  list with elements to set
-     * @throws 		IndexOutOfBoundsException if the range is invalid
-     */
-public void setAll(int index, ILongList list) {
-    // There is a special implementation accepting an ILongList   
-    // so the method is also available in the primitive classes.   
-    int size = list.size();
-    checkRange(index, size);
-    for (int i = 0; i < size; i++) {
-        doSet(index + i, list.get(i));
-    }
-}
-
-    /**
-     * Replaces the specified elements.
-     *
-     * @param index index of first element to set
-     * @param coll  collection with elements to set
-     */
-public void setAll(int index, Collection<Long> coll) {
-    checkRange(index, coll.size());
-    // In contrary to addAll() there is no need to first create an array   
-    // containing the collection elements, as the list will not grow.   
-    int i = 0;
-    Iterator<Long> iter = coll.iterator();
-    while (iter.hasNext()) {
-        doSet(index + i, iter.next());
-        i++;
-    }
-}
-
-    /**
-     * Set or add the specified elements.
-     *
-     * @param index index of first element to set or add
-     * @param coll  collection with elements to set or add
-     */
-public void putAll(int index, Collection<Long> coll) {
-    checkIndexAdd(index);
-    // In contrary to addAll() there is no need to first create an array   
-    // containing the collection elements, as the list will not grow.   
-    int size = size();
-    Iterator<Long> iter = coll.iterator();
-    while (iter.hasNext()) {
-        long val = iter.next();
-        if (index < size) {
-            doSet(index, val);
-        } else {
-            doAdd(index, val);
-        }
-        index++;
-    }
-}
-
-    /**
-     * Replaces the specified elements.
-     *
-     * @param index index of first element to set
-     * @param elems elements to set
-     * @throws 		IndexOutOfBoundsException if the range is invalid
-     */
-public void setArray(int index, long... elems) {
-    checkRange(index, elems.length);
-    for (int i = 0; i < elems.length; i++) {
-        doSet(index + i, elems[i]);
-    }
-}
-
-    /**
-     * Replaces the specified elements.
-     *
-     * @param index index of first element to set
-     * @param elems elements to set
-     * @throws 		IndexOutOfBoundsException if the range is invalid
-     */
-public void setMult(int index, int num, long elem) {
-    checkRange(index, num);
-    for (int i = 0; i < num; i++) {
-        doSet(index + i, elem);
-    }
-}
-
-    /**
 	 * Remove specified range of elements from list.
 	 *
 	 * @param index	index of first element to remove
@@ -1436,61 +1232,246 @@ protected void doRemoveAll(int index, int len) {
     }
 }
 
-    /**
-     * Replaces the specified elements.
+    // -- addAll()  
+/**
+     * Adds all of the elements in the specified list into this list.
      *
-     * @param index index of first element to set
-     * @param list  list with elements to set
-     * @throws 		IndexOutOfBoundsException if the range is invalid
+     * @param list collection containing elements to be added to this list
+     * @return <tt>true</tt> if this list changed as a result of the call
+     * @throws NullPointerException if the specified list is null
      */
-public void initAll(ILongList list) {
-    // There is a special implementation accepting an ILongList   
-    // so the method is also available in the primitive classes.   
-    int size = size();
-    int collSize = list.size();
-    if (collSize < size) {
-        remove(collSize, size - collSize);
-        setAll(0, list);
-    } else {
-        for (int i = 0; i < size; i++) {
-            set(i, list.get(i));
-        }
-        for (int i = size; i < collSize; i++) {
-            add(i, list.get(i));
-        }
-    }
-    assert (size() == collSize);
+public boolean addAll(ILongList list) {
+    return doAddAll(-1, list);
 }
 
     /**
-     * Replaces the specified elements.
+     * Inserts all of the elements in the specified list into this
+     * list, starting at the specified position.
+     * Shifts the element currently at that position (if any) and any
+     * subsequent elements to the right (increases their indices).
+     *
+     * @param index index at which to insert the first element from the
+     *              specified collection
+     * @param list list containing elements to be inserted into this list
+     * @return <tt>true</tt> if this list changed as a result of the call
+     * @throws IndexOutOfBoundsException if the index is invalid
+     * @throws NullPointerException if the specified collection is null
+     */
+public boolean addAll(int index, ILongList list) {
+    checkIndexAdd(index);
+    return doAddAll(index, list);
+}
+
+    /**
+     * Adds all of the elements in the specified collection into this list.
+     * The new elements will appear in the list in the order that they
+     * are returned by the specified collection's iterator.
+     *
+     * @param coll collection containing elements to be added to this list
+     * @return <tt>true</tt> if this list changed as a result of the call
+     * @throws NullPointerException if the specified collection is null
+     */
+
+public boolean addAll(Collection<Long> coll) {
+    if (coll instanceof List) {
+        return doAddAll(-1, new IReadOnlyLongListFromList((List<Long>) coll));
+    } else {
+        return doAddAll(-1, new IReadOnlyLongListFromCollection(coll));
+    }
+}
+
+    /**
+     * Inserts all of the elements in the specified collection into this
+     * list, starting at the specified position.
+     * Shifts the element currently at that position (if any) and any
+     * subsequent elements to the right (increases their indices).
+     * The new elements will appear in the list in the order that they
+     * are returned by the specified collection's iterator.
+     *
+     * @param index index at which to insert the first element from the
+     *              specified collection
+     * @param coll collection containing elements to be inserted into this list
+     * @return <tt>true</tt> if this list changed as a result of the call
+     * @throws IndexOutOfBoundsException if the index is invalid
+     * @throws NullPointerException if the specified collection is null
+     */
+
+public boolean addAll(int index, Collection<Long> coll) {
+    checkIndexAdd(index);
+    if (coll instanceof List) {
+        return doAddAll(index, new IReadOnlyLongListFromList((List<Long>) coll));
+    } else {
+        return doAddAll(index, new IReadOnlyLongListFromCollection(coll));
+    }
+}
+
+    /**
+     * Adds all specified elements into this list.
+     *
+     * @param elems elements to be added to this list
+     * @return <tt>true</tt> if this list changed as a result of the call
+     */
+public boolean addArray(long... elems) {
+    return doAddAll(-1, new IReadOnlyLongListFromArray(elems));
+}
+
+    /**
+     * Inserts the specified elements into this list,
+     * starting at the specified position.
+     * Shifts the element currently at that position (if any) and any
+     * subsequent elements to the right (increases their indices).
+     *
+     * @param index index at which to insert the first element from the
+     *              specified collection
+     * @param elems elements to be inserted into this list
+     * @return <tt>true</tt> if this list changed as a result of the call
+     * @throws IndexOutOfBoundsException if the index is invalid
+     */
+public boolean addArray(int index, long... elems) {
+    checkIndexAdd(index);
+    return doAddAll(index, new IReadOnlyLongListFromArray(elems));
+}
+
+    /**
+     * Adds all specified elements into this list.
+     *
+     * @param elems elements to be added to this list
+     * @return <tt>true</tt> if this list changed as a result of the call
+     */
+public boolean addMult(int len, long elem) {
+    return doAddAll(-1, new IReadOnlyLongListFromMult(len, elem));
+}
+
+    /**
+     * Inserts the specified elements into this list,
+     * starting at the specified position.
+     * Shifts the element currently at that position (if any) and any
+     * subsequent elements to the right (increases their indices).
+     *
+     * @param index index at which to insert the first element from the
+     *              specified collection
+     * @param elems elements to be inserted into this list
+     * @return <tt>true</tt> if this list changed as a result of the call
+     * @throws IndexOutOfBoundsException if the index is invalid
+     */
+public boolean addMult(int index, int len, long elem) {
+    checkIndexAdd(index);
+    return doAddAll(index, new IReadOnlyLongListFromMult(len, elem));
+}
+
+    // -- setAll()  
+/**
+     * Sets the specified elements.
      *
      * @param index index of first element to set
      * @param list  list with elements to set
      * @throws 		IndexOutOfBoundsException if the range is invalid
      */
-public void replaceAll(int index, int len, ILongList list) {
-    // There is a special implementation accepting an ILongList   
-    // so the method is also available in the primitive classes.   
-    int srcLen = 0;
-    if (list != null) {
-        srcLen = list.size();
-    }
-    if (len > srcLen) {
-        // Destination range is larger, so remove elements   
-        doRemoveAll(index, len - srcLen);
-        for (int i = 0; i < list.size(); i++) {
-            doSet(index + i, list.get(i));
-        }
+public void setAll(int index, ILongList list) {
+    int listSize = list.size();
+    checkRange(index, listSize);
+    doReplaceAll(index, listSize, list);
+}
+
+    /**
+     * Sets the specified elements.
+     *
+     * @param index index of first element to set
+     * @param coll  collection with elements to set
+     */
+public void setAll(int index, Collection<Long> coll) {
+    int collSize = coll.size();
+    checkRange(index, collSize);
+    if (coll instanceof List) {
+        doReplaceAll(index, collSize, new IReadOnlyLongListFromList((List<Long>) coll));
     } else {
-        // Destination range is larger, so remove elements   
-        for (int i = 0; i < len; i++) {
-            doSet(i, list.get(i));
-        }
-        for (int i = len; i < list.size(); i++) {
-            doAdd(i, list.get(i));
-        }
+        doReplaceAll(index, collSize, new IReadOnlyLongListFromCollection(coll));
     }
+}
+
+    /**
+     * Sets the specified elements.
+     *
+     * @param index index of first element to set
+     * @param list  list with elements to set
+     * @throws 		IndexOutOfBoundsException if the range is invalid
+     */
+public void setArray(int index, long... elems) {
+    int arrayLen = elems.length;
+    checkRange(index, arrayLen);
+    doReplaceAll(index, arrayLen, new IReadOnlyLongListFromArray(elems));
+}
+
+    /**
+     * Sets the specified elements.
+     *
+     * @param index index of first element to set
+     * @param coll  collection with elements to set
+     */
+public void setMult(int index, int len, long elem) {
+    checkRange(index, len);
+    doReplaceAll(index, len, new IReadOnlyLongListFromMult(len, elem));
+}
+
+    // -- putAll()  
+/**
+     * Set or add the specified elements.
+     *
+     * @param index index of first element to set or add
+     * @param list  list with elements to set or add
+     */
+public void putAll(int index, ILongList list) {
+    checkIndexAdd(index);
+    doReplaceAll(index, -1, list);
+}
+
+    /**
+     * Set or add the specified elements.
+     *
+     * @param index index of first element to set or add
+     * @param coll  collection with elements to set or add
+     */
+public void putAll(int index, Collection<Long> coll) {
+    checkIndexAdd(index);
+    if (coll instanceof List) {
+        doReplaceAll(index, -1, new IReadOnlyLongListFromList((List<Long>) coll));
+    } else {
+        doReplaceAll(index, -1, new IReadOnlyLongListFromCollection(coll));
+    }
+}
+
+    /**
+     * Set or add the specified elements.
+     *
+     * @param index index of first element to set or add
+     * @param coll  collection with elements to set or add
+     */
+public void putArray(int index, long... elems) {
+    checkIndexAdd(index);
+    doReplaceAll(index, -1, new IReadOnlyLongListFromArray(elems));
+}
+
+    /**
+     * Set or add the specified elements.
+     *
+     * @param index index of first element to set or add
+     * @param coll  collection with elements to set or add
+     */
+public void putMult(int index, int len, long elem) {
+    checkIndexAdd(index);
+    doReplaceAll(index, -1, new IReadOnlyLongListFromMult(len, elem));
+}
+
+    // -- initAll()  
+/**
+	 * Initializes the list so it will afterwards only contain the elements of the collection.
+	 * The list will grow or shrink as needed.
+	 *
+	 * @param coll 	collection with elements
+     * @throws 		IndexOutOfBoundsException if the length is invalid
+	 */
+public void initAll(ILongList list) {
+    doReplaceAll(0, size(), list);
 }
 
     /**
@@ -1501,8 +1482,11 @@ public void replaceAll(int index, int len, ILongList list) {
      * @throws 		IndexOutOfBoundsException if the length is invalid
 	 */
 public void initAll(Collection<Long> coll) {
-    clear();
-    addAll(coll);
+    if (coll instanceof List) {
+        doReplaceAll(0, size(), new IReadOnlyLongListFromList((List<Long>) coll));
+    } else {
+        doReplaceAll(0, size(), new IReadOnlyLongListFromCollection(coll));
+    }
 }
 
     /**
@@ -1513,8 +1497,7 @@ public void initAll(Collection<Long> coll) {
      * @throws 		IndexOutOfBoundsException if the length is invalid
 	 */
 public void initArray(long... elems) {
-    clear();
-    addArray(elems);
+    doReplaceAll(0, size(), new IReadOnlyLongListFromArray(elems));
 }
 
     /**
@@ -1528,33 +1511,91 @@ public void initArray(long... elems) {
 	 */
 public void initMult(int len, long elem) {
     checkLength(len);
-    clear();
-    addMult(len, elem);
+    doReplaceAll(0, size(), new IReadOnlyLongListFromMult(len, elem));
 }
 
-    /**
-     * Resizes the list so it will afterwards have a size of
-     * <code>len</code>. If the list must grow, the specified
-     * element <code>elem</code> will be used for filling.
+    // -- replaceAll()  
+/**
+     * Replaces the specified range with new elements.
+     * This method is very powerful as it offers the functionality of many other methods
+     * which are therefore only offered for convenience: <br/>
+     * - addAll(index, list) -> replaceAll(index, 0, list) <br/>
+     * - setAll(index, list) -> replaceAll(index, list.size(), list) <br/>
+     * - putAll(index, list) -> replaceAll(index, -1, list) <br/>
+     * - initAll(list)       -> replaceAll(0, this.size(), list) <br/>
+     * - remove(index, list) -> replaceAll(index, list.size(), null) <br/>
      *
-     * @param len  	length of list
-     * @param elem 	element which will be used for extending the list
-     * @throws 	 	IndexOutOfBoundsException if the range is invalid
-	 */
-public void resize(int len, long elem) {
-    checkLength(len);
-    int size = size();
-    if (len < size) {
-        remove(len, size - len);
+     * @param index index of first element to replace, use -1 for the position after the last element (this.size())
+     * @param len	number of elements to replace, use -1 for getting behavior of putAll()
+     * @param list  list with elements which replace the old elements, use null if elements should only be removed
+     * @throws 		IndexOutOfBoundsException if the range is invalid
+     */
+public void replaceAll(int index, int len, ILongList list) {
+    // Check arguments   
+    if (index == -1) {
+        index = size();
     } else {
-        for (int i = size; i < len; i++) {
-            add(elem);
+        checkIndexAdd(index);
+    }
+    if (len == -1) {
+        len = size() - index;
+        if (list != null) {
+            if (list.size() < len) {
+                len = list.size();
+            }
+        }
+    } else {
+        checkRange(index, len);
+    }
+    // Call worker method   
+    doReplaceAll(index, len, list);
+}
+
+    public void replaceAll(int index, int len, Collection<Long> coll) {
+    if (coll instanceof List) {
+        doReplaceAll(index, len, new IReadOnlyLongListFromList((List<Long>) coll));
+    } else {
+        doReplaceAll(index, len, new IReadOnlyLongListFromCollection(coll));
+    }
+}
+
+    public void replaceArray(int index, int len, long... elems) {
+    doReplaceAll(index, len, new IReadOnlyLongListFromArray(elems));
+}
+
+    public void replaceMult(int index, int len, int numElems, long elem) {
+    doReplaceAll(index, len, new IReadOnlyLongListFromMult(numElems, elem));
+}
+
+    // -- doReplaceAll()  
+protected boolean doReplaceAll(int index, int len, ILongList list) {
+    // There is a special implementation accepting an ILongList   
+    // so the method is also available in the primitive classes.   
+    assert (index >= 0 && index <= size());
+    assert (len >= 0 && index + len <= size());
+    int srcLen = 0;
+    if (list != null) {
+        srcLen = list.size();
+    }
+    doEnsureCapacity(size() - len + srcLen);
+    if (len > srcLen) {
+        // Destination range is larger, so remove elements   
+        doRemoveAll(index, len - srcLen);
+        len = srcLen;
+    }
+    for (int i = 0; i < len; i++) {
+        doSet(index + i, list.doGet(i));
+    }
+    for (int i = len; i < srcLen; i++) {
+        if (!doAdd(index + i, list.doGet(i))) {
+            index--;
         }
     }
-    assert (size() == len);
+    return len > 0 || srcLen > 0;
 }
 
-    /**
+    //  
+/**
      * Fill list.
      *
      * @param elem  element used for filling
@@ -1953,4 +1994,173 @@ protected void checkLengths(int len1, int len2) {
 
 
 
+
+    // --- End class ListIter ---  
+    protected abstract static class IReadOnlyLongList extends ILongList {
+
+        
+public ILongList unmodifiableList() {
+    error();
+    return null;
+}
+
+        
+protected void doClone(ILongList that) {
+    error();
+}
+
+        
+public int capacity() {
+    error();
+    return 0;
+}
+
+        
+protected long doSet(int index, long elem) {
+    error();
+    return 0;
+}
+
+        
+protected long doReSet(int index, long elem) {
+    error();
+    return 0;
+}
+
+        
+protected long getDefaultElem() {
+    error();
+    return 0;
+}
+
+        
+protected boolean doAdd(int index, long elem) {
+    error();
+    return false;
+}
+
+        
+protected long doRemove(int index) {
+    error();
+    return 0;
+}
+
+        
+protected void doEnsureCapacity(int minCapacity) {
+    error();
+}
+
+        
+public void trimToSize() {
+    error();
+}
+
+        
+protected ILongList doCreate(int capacity) {
+    error();
+    return null;
+}
+
+        
+protected void doAssign(ILongList that) {
+    error();
+}
+
+        
+public void sort(int index, int len) {
+    error();
+}
+
+        
+public int binarySearch(int index, int len, long key) {
+    error();
+    return 0;
+}
+
+        /**
+         * Throw exception if an attempt is made to change an immutable list.
+         */
+private void error() {
+    throw new UnsupportedOperationException("list is read-only");
+}
+    }
+
+    protected static class IReadOnlyLongListFromArray extends IReadOnlyLongList {
+
+        long[] array;
+
+        IReadOnlyLongListFromArray(long[] array){
+    this.array = array;
+}
+
+        
+public int size() {
+    return array.length;
+}
+
+        
+protected long doGet(int index) {
+    return array[index];
+}
+    }
+
+    protected static class IReadOnlyLongListFromMult extends IReadOnlyLongList {
+
+        int len;
+
+        long elem;
+
+        IReadOnlyLongListFromMult(int len, long elem){
+    this.len = len;
+    this.elem = elem;
+}
+
+        
+public int size() {
+    return len;
+}
+
+        
+protected long doGet(int index) {
+    return elem;
+}
+    }
+
+    protected static class IReadOnlyLongListFromCollection extends IReadOnlyLongList {
+
+        long[] array;
+
+        IReadOnlyLongListFromCollection(Collection<Long> coll){
+    array = toArray(coll);
+}
+
+        
+public int size() {
+    return array.length;
+}
+
+        
+protected long doGet(int index) {
+    return array[index];
+}
+    }
+
+    protected static class IReadOnlyLongListFromList extends IReadOnlyLongList {
+
+        List<Long> list2;
+
+        IReadOnlyLongListFromList(List<Long> list){
+    this.list2 = (List) list;
+}
+
+        
+public int size() {
+    return list2.size();
+}
+
+        
+protected long doGet(int index) {
+    return list2.get(index);
+}
+    }
 }

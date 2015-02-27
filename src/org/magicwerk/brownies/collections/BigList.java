@@ -838,7 +838,8 @@ public class BigList<E> extends IList<E> {
 				// Add elements in the middle
 
 				// Split first block to remove tail elements if necessary
-				GapList<E> list2 = GapList.create(list);	// TODO avoid unnecessary copy
+				GapList<E> list2 = GapList.create();	// TODO avoid unnecessary copy
+				list2.addAll(list);
 				int remove = currNode.block.size()-addPos;
 				if (remove > 0) {
 					list2.addAll((List) currNode.block.getAll(addPos, remove));
