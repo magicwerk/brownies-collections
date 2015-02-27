@@ -2387,20 +2387,20 @@ public abstract class IList<E>
     }
 
     protected static class IReadOnlyListFromList<E> extends IReadOnlyList<E> {
-    	List<? extends E> list;
+    	List<E> list2;
 
     	IReadOnlyListFromList(List<? extends E> list) {
-    		this.list = list;
+    		this.list2 = (List<E>) list;
     	}
 
 		@Override
 		public int size() {
-			return list.size();
+			return list2.size();
 		}
 
 		@Override
 		protected E doGet(int index) {
-			return list.get(index);
+			return list2.get(index);
 		}
     }
 

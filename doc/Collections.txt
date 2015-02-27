@@ -1,25 +1,16 @@
-init()				GapList.create()				new GapList()
-													new GapList(int capacity)
-init(Collection<E>)	GapList.create(Collection<E>)	new GapList(Collection<E>)
-init(E ...)			GapList.create(E ...)
+new GapList()
+new GapList(int capacity)
+new GapList(Collection<E>)
 
-Single element:
-get(index), remove(index), set(index, value), add(value), add(index, value),
-
-Multiple elements:
-
-create()
-createArray(...)
-createAll(collection)
-createMult(num, elem)
+GapList.create()
+GapList.create(Collection<E>)
+GapList.create(E ...)
 
 clear()
-initArray(...)
-initAll(collection)
-initMult(num, elem)
+resize(size, elem)
 
 addAll(collection), addAll(int, collection)
-addArray(...),      addArrayAt(int, ...)
+addArray(...),      addArray(int, ...)
 addMult(num, elem), addMult(int, num, elem)
 
 setAll(index, collection)
@@ -30,6 +21,25 @@ putAll(index, collection)
 putArray(index, ...)
 putMult(index, num, elem)
 
+initAll(collection)
+initArray(...)
+initMult(num, elem)
+
+replaceAll(collection)
+replaceArray(...)
+replaceMult(num, elem)
+
+replace(index, 0, collection) = addAll(index, collection)
+replace(index, collection.size, collection) = setAll(index, collection)
+replace(index, -1, collection) = putAll(index, collection)
+replace(0, this.size, collection) = initAll(collection)
+replace(index, length, null) = remove(index, length)
+
+
+Single element:
+get(index), remove(index), set(index, value), add(value), add(index, value),
+
+Multiple elements:
 
 
 E[] getArray(index, length) --> DELETE
@@ -37,9 +47,11 @@ E[] getArray(index, length) --> DELETE
 List get(index, length)
 List getWhere(cond)
 
+-- remove elements and return them
 List extract(index, length)
 List extractWhere(cond)
 
+-- set element position to null and return them
 List erase(index, length)
 List eraseWhere(cond)
 
@@ -49,51 +61,28 @@ void removeWhere(cond)
 
 void retain(index, length)
 void retainAll(Collection)
-void retainWhere()
+void retainWhere(cond)
 
+
+//
+
+void reverse()
+void revese(index, len)
+
+void rotate(dist)
+void rotate(index, len, dist)
+
+// Copy / Move / Drag / Swap
+// Size of list does not change
 void copy(int srcIndex, int dstIndex, int len)
 void move(int srcIndex, int dstIndex, int len)
 void drag(int srcIndex, int dstIndex, int len)
-
 void swap(int index1, int index2, int len)
 
-void copy(srcIndex, dstIndex, 
-
-void transfer(int srcIndex, int dstIndex, int len, mode=copy/move/drag/swap)
-void transfer(int srcIndex, int len, mode=copy/move/drag/swap, Collection dst, int dstIndex, mode=add/set/put)
-
-replace(index, 0, collection) = addAll(index, collection)
-replace(index, collection.size, collection) = setAll(index, collection)
-replace(index, length, null) = remove(index, length)
-replace(index, min(this.size-index, collection.size, collection) = merge(index, collection)
-replace(0, this.size, collection) = init(collection)
-
-replaceAll(index, len, Collection dst)
-replaceArray(index, len, E ...)
-replaceMult(index, len, E elem)
-
-replaceCopy(index, len, Collection dst, dstIndex, dstLen)
-replaceMove(int
-replaceRemove(int
-
-replaceSwap(index, len, Collection dst, dstIndex)
-
-copyReplace(int srcIndex, 
-
-static void swap(IList<E> src, int srcIndex, IList<E> dst, int dstIndex, int len)
-
-
-static void copy(IList<E> src, int srcIndex, IList<? super E> dst, int dstIndex, int len)
-static void move(IList<E> src, int srcIndex, IList<? super E> dst, int dstIndex, int len)
-
-
-
-
-
-static void transfer(
-	IList<E> list1, int index1, int len1, none/null/remove/swap
-	IList<E> list2, int index2, int len2
-
+static void transferCopy(src, srcIndex, srcLen, dst, dstIndex, dstLen)
+static void transferMove(src, srcIndex, srcLen, dst, dstIndex, dstLen)
+static void transferRemove(src, srcIndex, srcLen, dst, dstIndex, dstLen)
+static void transferSwap(src, srcIndex, dst, dstIndex, len)
 
 source part:
 - copy: leave unchanged
@@ -104,28 +93,5 @@ destination part:
 - add
 - set
 - put
-
-copyAdd / moveAdd
-copySet / moveSet
-copyPut / movePut
-
-resize(size, elem)
-
-
-merge(index, len, collection, index, len, mergeMode
-
-replace(index, length, collection)
-
-Forwarding:
-
-read:
-size(), get(), doGet(), doGetAll(), capacity
-equals, hashcode: are implemented in terms of size() and doGet()
-
-write:
-doAdd, doAddAll, doRemove, doRemoveAll, doSet, doSetAll, doReSet, doModify
-sort(int, int, Comparator), binarySearch(int, int, Object, Comparator)
-clone
-
 
 

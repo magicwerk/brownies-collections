@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: IntBigList.java 2730 2015-02-18 22:18:37Z origo $
+ * $Id: IntBigList.java 2739 2015-02-27 00:20:40Z origo $
  */
 package org.magicwerk.brownies.collections.primitive;
 import org.magicwerk.brownies.collections.helper.ArraysHelper;
@@ -44,7 +44,7 @@ import org.magicwerk.brownies.collections.helper.primitive.IntMergeSort;
  * Note that the iterators provided are not fail-fast.<p>
  *
  * @author Thomas Mauch
- * @version $Id: IntBigList.java 2730 2015-02-18 22:18:37Z origo $
+ * @version $Id: IntBigList.java 2739 2015-02-27 00:20:40Z origo $
  */
 public class IntBigList extends IIntList {
 	public static IIntList of(int[] values) {
@@ -908,8 +908,8 @@ private void modify(IntBlockNode node, int modify) {
 }
 
     @Override
-protected boolean doAddAll(int index, int[] array) {
-    if (array.length == 0) {
+protected boolean doAddAll(int index, IIntList list) {
+    if (list.size() == 0) {
         return false;
     }
     if (index == -1) {
@@ -918,16 +918,16 @@ protected boolean doAddAll(int index, int[] array) {
     if (CHECK)
         check();
     int oldSize = size;
-    if (array.length == 1) {
-        return doAdd(index, array[0]);
+    if (list.size() == 1) {
+        return doAdd(index, list.get(0));
     }
     int addPos = getIntBlockIndex(index, true, 0);
     IntBlock addIntBlock = currNode.block;
     int space = blockSize - addIntBlock.size();
-    int addLen = array.length;
+    int addLen = list.size();
     if (addLen <= space) {
         // All elements can be added to current block   
-        currNode.block.addArray(addPos, array);
+        currNode.block.addAll(addPos, list);
         modify(currNode, addLen);
         size += addLen;
         currIntBlockEnd += addLen;
@@ -935,7 +935,7 @@ protected boolean doAddAll(int index, int[] array) {
         if (index == size) {
             // Add elements at end   
             for (int i = 0; i < space; i++) {
-                currNode.block.add(addPos + i, array[i]);
+                currNode.block.add(addPos + i, list.get(i));
             }
             modify(currNode, space);
             int done = space;
@@ -944,7 +944,7 @@ protected boolean doAddAll(int index, int[] array) {
                 IntBlock nextIntBlock = new IntBlock(blockSize);
                 int add = Math.min(todo, blockSize);
                 for (int i = 0; i < add; i++) {
-                    nextIntBlock.add(i, array[done + i]);
+                    nextIntBlock.add(i, list.get(done + i));
                 }
                 done += add;
                 todo -= add;
@@ -958,7 +958,7 @@ protected boolean doAddAll(int index, int[] array) {
             // Add elements at head   
             assert (addPos == 0);
             for (int i = 0; i < space; i++) {
-                currNode.block.add(addPos + i, array[addLen - space + i]);
+                currNode.block.add(addPos + i, list.get(addLen - space + i));
             }
             modify(currNode, space);
             int done = space;
@@ -967,7 +967,7 @@ protected boolean doAddAll(int index, int[] array) {
                 IntBlock nextIntBlock = new IntBlock(blockSize);
                 int add = Math.min(todo, blockSize);
                 for (int i = 0; i < add; i++) {
-                    nextIntBlock.add(i, array[addLen - done - add + i]);
+                    nextIntBlock.add(i, list.get(addLen - done - add + i));
                 }
                 done += add;
                 todo -= add;
@@ -980,17 +980,19 @@ protected boolean doAddAll(int index, int[] array) {
         } else {
             // Add elements in the middle   
             // Split first block to remove tail elements if necessary   
-            IntGapList list = IntGapList.create(array);
+            IntGapList list2 = IntGapList.create();
+            // TODO avoid unnecessary copy   
+            list2.addAll(list);
             int remove = currNode.block.size() - addPos;
             if (remove > 0) {
-                list.addAll(currNode.block.getAll(addPos, remove));
+                list2.addAll((IIntList) currNode.block.getAll(addPos, remove));
                 currNode.block.remove(addPos, remove);
                 modify(currNode, -remove);
                 size -= remove;
                 currIntBlockEnd -= remove;
             }
             // Calculate how many blocks we need for the elements   
-            int numElems = currNode.block.size() + list.size();
+            int numElems = currNode.block.size() + list2.size();
             int numIntBlocks = (numElems - 1) / blockSize + 1;
             assert (numIntBlocks > 1);
             int has = currNode.block.size();
@@ -999,7 +1001,7 @@ protected boolean doAddAll(int index, int[] array) {
             if (has < should) {
                 // Elements must be added to first block   
                 int add = should - has;
-                IIntList sublist = list.getAll(0, add);
+                IIntList sublist = list2.getAll(0, add);
                 listPos += add;
                 currNode.block.addAll(addPos, sublist);
                 modify(currNode, add);
@@ -1022,7 +1024,7 @@ protected boolean doAddAll(int index, int[] array) {
                 should = numElems / numIntBlocks;
                 int add = should - move;
                 assert (add >= 0);
-                IIntList sublist = list.getAll(0, add);
+                IIntList sublist = list2.getAll(0, add);
                 nextIntBlock.addAll(move, sublist);
                 listPos += add;
                 assert (nextIntBlock.size() == should);
@@ -1045,7 +1047,7 @@ protected boolean doAddAll(int index, int[] array) {
             while (numIntBlocks > 0) {
                 int add = numElems / numIntBlocks;
                 assert (add > 0);
-                IIntList sublist = list.getAll(listPos, add);
+                IIntList sublist = list2.getAll(listPos, add);
                 listPos += add;
                 IntBlock nextIntBlock = new IntBlock();
                 nextIntBlock.addAll(sublist);
