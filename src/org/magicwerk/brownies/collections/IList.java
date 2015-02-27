@@ -806,15 +806,21 @@ public abstract class IList<E>
 			return false;
 		}
 
+		boolean changed = false;
+		int prevSize = size();
 		for (int i=0; i<listSize; i++) {
 			E elem = list.get(i);
 			if (doAdd(index, elem)) {
+				changed = true;
 				if (index != -1) {
-					index++;
+					if (prevSize != size()) {
+						prevSize = size();
+						index++;
+					}
 				}
 			}
 		}
-		return true;
+		return changed;
 	}
 
 	// Iterators
@@ -1277,6 +1283,36 @@ public abstract class IList<E>
     // -- addAll()
 
     /**
+     * Adds all of the elements in the specified list into this list.
+     *
+     * @param list collection containing elements to be added to this list
+     * @return <tt>true</tt> if this list changed as a result of the call
+     * @throws NullPointerException if the specified list is null
+     */
+    public boolean addAll(IList<? extends E> list) {
+        return doAddAll(-1, list);
+    }
+
+    /**
+     * Inserts all of the elements in the specified list into this
+     * list, starting at the specified position.
+     * Shifts the element currently at that position (if any) and any
+     * subsequent elements to the right (increases their indices).
+     *
+     * @param index index at which to insert the first element from the
+     *              specified collection
+     * @param list list containing elements to be inserted into this list
+     * @return <tt>true</tt> if this list changed as a result of the call
+     * @throws IndexOutOfBoundsException if the index is invalid
+     * @throws NullPointerException if the specified collection is null
+     */
+    public boolean addAll(int index, IList<? extends E> list) {
+		checkIndexAdd(index);
+
+		return doAddAll(index, list);
+	}
+
+    /**
      * Adds all of the elements in the specified collection into this list.
      * The new elements will appear in the list in the order that they
      * are returned by the specified collection's iterator.
@@ -1287,7 +1323,11 @@ public abstract class IList<E>
      */
 	@Override
 	public boolean addAll(Collection<? extends E> coll) {
-		return doReplaceAll(size(), 0, coll);
+    	if (coll instanceof List) {
+    		return doAddAll(-1, new IReadOnlyListFromList<E>((List<? extends E>) coll));
+    	} else {
+    		return doAddAll(-1, new IReadOnlyListFromCollection<E>(coll));
+    	}
 	}
 
     /**
@@ -1309,38 +1349,12 @@ public abstract class IList<E>
     public boolean addAll(int index, Collection<? extends E> coll) {
         checkIndexAdd(index);
 
-        return doReplaceAll(index, 0, coll);
+    	if (coll instanceof List) {
+    		return doAddAll(index, new IReadOnlyListFromList<E>((List<? extends E>) coll));
+    	} else {
+    		return doAddAll(index, new IReadOnlyListFromCollection<E>(coll));
+    	}
     }
-
-    /**
-     * Adds all of the elements in the specified list into this list.
-     *
-     * @param list collection containing elements to be added to this list
-     * @return <tt>true</tt> if this list changed as a result of the call
-     * @throws NullPointerException if the specified list is null
-     */
-    public boolean addAll(IList<? extends E> list) {
-        return doReplaceAll(size(), 0, list);
-    }
-
-    /**
-     * Inserts all of the elements in the specified list into this
-     * list, starting at the specified position.
-     * Shifts the element currently at that position (if any) and any
-     * subsequent elements to the right (increases their indices).
-     *
-     * @param index index at which to insert the first element from the
-     *              specified collection
-     * @param list list containing elements to be inserted into this list
-     * @return <tt>true</tt> if this list changed as a result of the call
-     * @throws IndexOutOfBoundsException if the index is invalid
-     * @throws NullPointerException if the specified collection is null
-     */
-    public boolean addAll(int index, IList<? extends E> list) {
-		checkIndexAdd(index);
-
-		return doReplaceAll(index, 0, list);
-	}
 
     /**
      * Adds all specified elements into this list.
@@ -1349,7 +1363,7 @@ public abstract class IList<E>
      * @return <tt>true</tt> if this list changed as a result of the call
      */
 	public boolean addArray(E... elems) {
-		return doReplaceArray(size(), 0, elems);
+		return doAddAll(-1, new IReadOnlyListFromArray<E>(elems));
 	}
 
     /**
@@ -1367,7 +1381,7 @@ public abstract class IList<E>
     public boolean addArray(int index, E... elems) {
         checkIndexAdd(index);
 
-        return doReplaceArray(index, 0, elems);
+		return doAddAll(index, new IReadOnlyListFromArray<E>(elems));
     }
 
     /**
@@ -1377,7 +1391,7 @@ public abstract class IList<E>
      * @return <tt>true</tt> if this list changed as a result of the call
      */
 	public boolean addMult(int len, E elem) {
-		return doReplaceMult(size(), 0, len, elem);
+		return doAddAll(-1, new IReadOnlyListFromMult<E>(len, elem));
 	}
 
     /**
@@ -1395,7 +1409,7 @@ public abstract class IList<E>
     public boolean addMult(int index, int len, E elem) {
         checkIndexAdd(index);
 
-        return doReplaceMult(index, 0, len, elem);
+		return doAddAll(index, new IReadOnlyListFromMult<E>(len, elem));
     }
 
 	// -- setAll()
@@ -1424,7 +1438,11 @@ public abstract class IList<E>
     	int collSize = coll.size();
         checkRange(index, collSize);
 
-        doReplaceAll(index, collSize, coll);
+    	if (coll instanceof List) {
+    		doReplaceAll(index, collSize, new IReadOnlyListFromList<E>((List<? extends E>) coll));
+    	} else {
+    		doReplaceAll(index, collSize, new IReadOnlyListFromCollection<E>(coll));
+    	}
     }
 
     /**
@@ -1438,7 +1456,7 @@ public abstract class IList<E>
     	int arrayLen = elems.length;
         checkRange(index, arrayLen);
 
-        doReplaceArray(index, arrayLen, elems);
+		doReplaceAll(index, arrayLen, new IReadOnlyListFromArray<E>(elems));
     }
 
     /**
@@ -1450,22 +1468,10 @@ public abstract class IList<E>
     public void setMult(int index, int len, E elem) {
         checkRange(index, len);
 
-        doReplaceMult(index, len, len, elem);
+		doReplaceAll(index, len, new IReadOnlyListFromMult<E>(len, elem));
     }
 
     // -- putAll()
-
-    /**
-     * Set or add the specified elements.
-     *
-     * @param index index of first element to set or add
-     * @param coll  collection with elements to set or add
-     */
-    public void putAll(int index, Collection<? extends E> coll) {
-        checkIndexAdd(index);
-
-        doReplaceAll(index, -1, coll);
-    }
 
     /**
      * Set or add the specified elements.
@@ -1485,10 +1491,26 @@ public abstract class IList<E>
      * @param index index of first element to set or add
      * @param coll  collection with elements to set or add
      */
+    public void putAll(int index, Collection<? extends E> coll) {
+        checkIndexAdd(index);
+
+    	if (coll instanceof List) {
+    		doReplaceAll(index, -1, new IReadOnlyListFromList<E>((List<? extends E>) coll));
+    	} else {
+    		doReplaceAll(index, -1, new IReadOnlyListFromCollection<E>(coll));
+    	}
+    }
+
+    /**
+     * Set or add the specified elements.
+     *
+     * @param index index of first element to set or add
+     * @param coll  collection with elements to set or add
+     */
     public void putArray(int index, E... elems) {
         checkIndexAdd(index);
 
-        doReplaceArray(index, -1, elems);
+		doReplaceAll(index, -1, new IReadOnlyListFromArray<E>(elems));
     }
 
     /**
@@ -1500,21 +1522,10 @@ public abstract class IList<E>
     public void putMult(int index, int len, E elem) {
         checkIndexAdd(index);
 
-        doReplaceMult(index, -1, len, elem);
+		doReplaceAll(index, -1, new IReadOnlyListFromMult<E>(len, elem));
     }
 
     // -- initAll()
-
-	/**
-	 * Initializes the list so it will afterwards only contain the elements of the collection.
-	 * The list will grow or shrink as needed.
-	 *
-	 * @param coll 	collection with elements
-     * @throws 		IndexOutOfBoundsException if the length is invalid
-	 */
-    public void initAll(Collection<? extends E> coll) {
-    	doReplaceAll(0, size(), coll);
-    }
 
 	/**
 	 * Initializes the list so it will afterwards only contain the elements of the collection.
@@ -1528,6 +1539,21 @@ public abstract class IList<E>
     }
 
 	/**
+	 * Initializes the list so it will afterwards only contain the elements of the collection.
+	 * The list will grow or shrink as needed.
+	 *
+	 * @param coll 	collection with elements
+     * @throws 		IndexOutOfBoundsException if the length is invalid
+	 */
+    public void initAll(Collection<? extends E> coll) {
+    	if (coll instanceof List) {
+    		doReplaceAll(0, size(), new IReadOnlyListFromList<E>((List<? extends E>) coll));
+    	} else {
+    		doReplaceAll(0, size(), new IReadOnlyListFromCollection<E>(coll));
+    	}
+    }
+
+	/**
 	 * Initializes the list so it will afterwards only contain the elements of the array.
 	 * The list will grow or shrink as needed.
 	 *
@@ -1535,7 +1561,7 @@ public abstract class IList<E>
      * @throws 		IndexOutOfBoundsException if the length is invalid
 	 */
 	public void initArray(E... elems) {
-		doReplaceArray(0, size(), elems);
+    	doReplaceAll(0, size(), new IReadOnlyListFromArray<E>(elems));
 	}
 
 	/**
@@ -1550,7 +1576,7 @@ public abstract class IList<E>
 	public void initMult(int len, E elem) {
 	    checkLength(len);
 
-	    doReplaceMult(0, size(), len, elem);
+    	doReplaceAll(0, size(), new IReadOnlyListFromMult<E>(len, elem));
 	}
 
 	// -- replaceAll()
@@ -1570,28 +1596,6 @@ public abstract class IList<E>
      * @param list  list with elements which replace the old elements, use null if elements should only be removed
      * @throws 		IndexOutOfBoundsException if the range is invalid
      */
-    public void replaceAll(int index, int len, Collection<? extends E> coll) {
-    	// Check arguments
-    	if (index == -1) {
-    		index = size();
-    	} else {
-    		checkIndexAdd(index);
-    	}
-    	if (len == -1) {
-    		len = size()-index;
-    		if (coll != null) {
-    			if (coll.size() < len) {
-    				len = coll.size();
-    			}
-    		}
-    	} else {
-    		checkRange(index, len);
-    	}
-
-    	// Call worker method
-    	doReplaceAll(index, len, coll);
-    }
-
     public void replaceAll(int index, int len, IList<? extends E> list) {
     	// Check arguments
     	if (index == -1) {
@@ -1614,79 +1618,24 @@ public abstract class IList<E>
     	doReplaceAll(index, len, list);
     }
 
-    public void replaceArray(int index, int len, E... elems) {
-    	// Check arguments
-    	if (index == -1) {
-    		index = size();
+    public void replaceAll(int index, int len, Collection<? extends E> coll) {
+    	if (coll instanceof List) {
+    		doReplaceAll(index, len, new IReadOnlyListFromList<E>((List<? extends E>) coll));
     	} else {
-    		checkIndexAdd(index);
+    		doReplaceAll(index, len, new IReadOnlyListFromCollection<E>(coll));
     	}
-    	if (len == -1) {
-    		len = size()-index;
-    		if (elems != null) {
-    			if (elems.length < len) {
-    				len = elems.length;
-    			}
-    		}
-    	} else {
-    		checkRange(index, len);
-    	}
+    }
 
-    	// Call worker method
-    	doReplaceArray(index, len, elems);
+    public void replaceArray(int index, int len, E... elems) {
+    	doReplaceAll(index, len, new IReadOnlyListFromArray<E>(elems));
     }
 
     public void replaceMult(int index, int len, int numElems, E elem) {
-    	// Check arguments
-    	if (index == -1) {
-    		index = size();
-    	} else {
-    		checkIndexAdd(index);
-    	}
-    	if (len == -1) {
-    		len = size()-index;
-    		if (numElems > 0) {
-    			if (numElems < len) {
-    				len = numElems;
-    			}
-    		}
-    	} else {
-    		checkRange(index, len);
-    	}
-
-    	// Call worker method
-    	doReplaceMult(index, len, numElems, elem);
+    	doReplaceAll(index, len, new IReadOnlyListFromMult<E>(numElems, elem));
     }
 
 
     // -- doReplaceAll()
-
-    protected boolean doReplaceAll(int index, int len, Collection<? extends E> coll) {
-    	assert(index >= 0 && index <= size());
-    	assert(len >= 0 && index+len <= size());
-
-    	int srcLen = 0;
-    	if (coll != null) {
-    		srcLen = coll.size();
-    	}
-    	doEnsureCapacity(size()-len+srcLen);
-
-    	if (len > srcLen) {
-    		// Destination range is larger, so remove elements
-    		doRemoveAll(index, len-srcLen);
-    	}
-        Iterator<? extends E> iter = coll.iterator();
-        int i = 0;
-        for (i=0; i<len; i++) {
-            doSet(index+i, iter.next());
-        }
-       	for (i=len; i<srcLen; i++) {
-       		if (!doAdd(index+i, iter.next())) {
-       			index--;
-       		}
-    	}
-    	return len > 0 || srcLen > 0;
-    }
 
     protected boolean doReplaceAll(int index, int len, IList<? extends E> list) {
     	// There is a special implementation accepting an IList
@@ -1703,63 +1652,13 @@ public abstract class IList<E>
     	if (len > srcLen) {
     		// Destination range is larger, so remove elements
     		doRemoveAll(index, len-srcLen);
+    		len = srcLen;
     	}
     	for (int i=0; i<len; i++) {
     		doSet(index+i, list.doGet(i));
     	}
     	for (int i=len; i<srcLen; i++) {
     		if (!doAdd(index+i, list.doGet(i))) {
-    			index--;
-    		}
-    	}
-    	return len > 0 || srcLen > 0;
-    }
-
-    protected boolean doReplaceArray(int index, int len, E[] array) {
-    	// There is a special implementation accepting an IList
-    	// so the method is also available in the primitive classes.
-    	assert(index >= 0 && index <= size());
-    	assert(len >= 0 && index+len <= size());
-
-    	int srcLen = 0;
-    	if (array != null) {
-    		srcLen = array.length;
-    	}
-    	doEnsureCapacity(size()-len+srcLen);
-
-    	if (len > srcLen) {
-    		// Destination range is larger, so remove elements
-    		doRemoveAll(index, len-srcLen);
-    	}
-        for (int i=0; i<len; i++) {
-            doSet(index+i, array[i]);
-        }
-    	for (int i=len; i<srcLen; i++) {
-    		if (!doAdd(index+i, array[i])) {
-    			index--;
-    		}
-    	}
-    	return len > 0 || srcLen > 0;
-    }
-
-    protected boolean doReplaceMult(int index, int len, int numElems, E elem) {
-    	// There is a special implementation accepting an IList
-    	// so the method is also available in the primitive classes.
-    	assert(index >= 0 && index <= size());
-    	assert(len >= 0 && index+len <= size());
-
-    	int srcLen = numElems;
-    	doEnsureCapacity(size()-len+srcLen);
-
-    	if (len > srcLen) {
-    		// Destination range is larger, so remove elements
-    		doRemoveAll(index, len-srcLen);
-    	}
-    	for (int i=0; i<len; i++) {
-    		doSet(index+i, elem);
-    	}
-    	for (int i=len; i<srcLen; i++) {
-    		if (!doAdd(index+i, elem)) {
     			index--;
     		}
     	}
@@ -2341,5 +2240,168 @@ public abstract class IList<E>
     }
 
     // --- End class ListIter ---
+
+    protected static abstract class IReadOnlyList<E> extends IList<E> {
+
+		@Override
+		public IList<E> unmodifiableList() {
+			error();
+			return null;
+		}
+
+		@Override
+		protected void doClone(IList<E> that) {
+			error();
+		}
+
+		@Override
+		public int capacity() {
+			error();
+			return 0;
+		}
+
+		@Override
+		protected E doSet(int index, E elem) {
+			error();
+			return null;
+		}
+
+		@Override
+		protected E doReSet(int index, E elem) {
+			error();
+			return null;
+		}
+
+		@Override
+		protected E getDefaultElem() {
+			error();
+			return null;
+		}
+
+		@Override
+		protected boolean doAdd(int index, E elem) {
+			error();
+			return false;
+		}
+
+		@Override
+		protected E doRemove(int index) {
+			error();
+			return null;
+		}
+
+		@Override
+		protected void doEnsureCapacity(int minCapacity) {
+			error();
+		}
+
+		@Override
+		public void trimToSize() {
+			error();
+		}
+
+		@Override
+		protected IList<E> doCreate(int capacity) {
+			error();
+			return null;
+		}
+
+		@Override
+		protected void doAssign(IList<E> that) {
+			error();
+		}
+
+		@Override
+		public void sort(int index, int len, Comparator<? super E> comparator) {
+			error();
+		}
+
+		@Override
+		public <K> int binarySearch(int index, int len, K key, Comparator<? super K> comparator) {
+			error();
+			return 0;
+		}
+
+        /**
+         * Throw exception if an attempt is made to change an immutable list.
+         */
+        private void error() {
+            throw new UnsupportedOperationException("list is read-only");
+        }
+    }
+
+    protected static class IReadOnlyListFromArray<E> extends IReadOnlyList<E> {
+    	E[] array;
+
+    	IReadOnlyListFromArray(E[] array) {
+    		this.array = array;
+    	}
+
+		@Override
+		public int size() {
+			return array.length;
+		}
+
+		@Override
+		protected E doGet(int index) {
+			return array[index];
+		}
+    }
+
+    protected static class IReadOnlyListFromMult<E> extends IReadOnlyList<E> {
+    	int len;
+    	E elem;
+
+    	IReadOnlyListFromMult(int len, E elem) {
+    		this.len = len;
+    		this.elem = elem;
+    	}
+
+		@Override
+		public int size() {
+			return len;
+		}
+
+		@Override
+		protected E doGet(int index) {
+			return elem;
+		}
+    }
+
+    protected static class IReadOnlyListFromCollection<E> extends IReadOnlyList<E> {
+    	Object[] array;
+
+    	IReadOnlyListFromCollection(Collection<? extends E> coll) {
+    		array = coll.toArray();
+    	}
+
+		@Override
+		public int size() {
+			return array.length;
+		}
+
+		@Override
+		protected E doGet(int index) {
+			return (E) array[index];
+		}
+    }
+
+    protected static class IReadOnlyListFromList<E> extends IReadOnlyList<E> {
+    	List<? extends E> list;
+
+    	IReadOnlyListFromList(List<? extends E> list) {
+    		this.list = list;
+    	}
+
+		@Override
+		public int size() {
+			return list.size();
+		}
+
+		@Override
+		protected E doGet(int index) {
+			return list.get(index);
+		}
+    }
 
 }

@@ -756,8 +756,8 @@ public class BigList<E> extends IList<E> {
 	}
 
 	@Override
-	protected boolean doAddAll(int index, E[] array) {
-		if (array.length == 0) {
+	protected boolean doAddAll(int index, IList<? extends E> list) {
+		if (list.size() == 0) {
 			return false;
 		}
 		if (index == -1) {
@@ -766,18 +766,18 @@ public class BigList<E> extends IList<E> {
 		if (CHECK) check();
 		int oldSize = size;
 
-		if (array.length == 1) {
-			return doAdd(index, array[0]);
+		if (list.size() == 1) {
+			return doAdd(index, list.get(0));
 		}
 
 		int addPos = getBlockIndex(index, true, 0);
 		Block<E> addBlock = currNode.block;
 		int space = blockSize - addBlock.size();
 
-		int addLen = array.length;
+		int addLen = list.size();
 		if (addLen <= space) {
 			// All elements can be added to current block
-			currNode.block.addArray(addPos, array);
+			currNode.block.addAll(addPos, list);
 			modify(currNode, addLen);
 			size += addLen;
 			currBlockEnd += addLen;
@@ -786,7 +786,7 @@ public class BigList<E> extends IList<E> {
 			if (index == size) {
 				// Add elements at end
 				for (int i=0; i<space; i++) {
-					currNode.block.add(addPos+i, array[i]);
+					currNode.block.add(addPos+i, list.get(i));
 				}
 				modify(currNode, space);
 
@@ -796,7 +796,7 @@ public class BigList<E> extends IList<E> {
 					Block<E> nextBlock = new Block<E>(blockSize);
 					int add = Math.min(todo, blockSize);
 					for(int i=0; i<add; i++) {
-						nextBlock.add(i, array[done+i]);
+						nextBlock.add(i, list.get(done+i));
 					}
 					done += add;
 					todo -= add;
@@ -812,7 +812,7 @@ public class BigList<E> extends IList<E> {
 				// Add elements at head
 				assert(addPos == 0);
 				for (int i=0; i<space; i++) {
-					currNode.block.add(addPos+i, array[addLen-space+i]);
+					currNode.block.add(addPos+i, list.get(addLen-space+i));
 				}
 				modify(currNode, space);
 
@@ -822,7 +822,7 @@ public class BigList<E> extends IList<E> {
 					Block<E> nextBlock = new Block<E>(blockSize);
 					int add = Math.min(todo, blockSize);
 					for(int i=0; i<add; i++) {
-						nextBlock.add(i, array[addLen-done-add+i]);
+						nextBlock.add(i, list.get(addLen-done-add+i));
 					}
 					done += add;
 					todo -= add;
@@ -838,10 +838,10 @@ public class BigList<E> extends IList<E> {
 				// Add elements in the middle
 
 				// Split first block to remove tail elements if necessary
-				GapList<E> list = GapList.create(array);
+				GapList<E> list2 = GapList.create(list);	// TODO avoid unnecessary copy
 				int remove = currNode.block.size()-addPos;
 				if (remove > 0) {
-					list.addAll(currNode.block.getAll(addPos, remove));
+					list2.addAll((List) currNode.block.getAll(addPos, remove));
 					currNode.block.remove(addPos, remove);
 					modify(currNode, -remove);
 					size -= remove;
@@ -849,7 +849,7 @@ public class BigList<E> extends IList<E> {
 				}
 
 				// Calculate how many blocks we need for the elements
-				int numElems = currNode.block.size() + list.size();
+				int numElems = currNode.block.size() + list2.size();
 				int numBlocks = (numElems-1)/blockSize+1;
 				assert(numBlocks > 1);
 
@@ -859,7 +859,7 @@ public class BigList<E> extends IList<E> {
 				if (has < should) {
 					// Elements must be added to first block
 					int add = should-has;
-					List<E> sublist = list.getAll(0, add);
+					List<? extends E> sublist = list2.getAll(0, add);
 					listPos += add;
 
 					currNode.block.addAll(addPos, sublist);
@@ -885,7 +885,7 @@ public class BigList<E> extends IList<E> {
 					should = numElems / numBlocks;
 					int add = should-move;
 					assert(add >= 0);
-					List<E> sublist = list.getAll(0, add);
+					List<? extends E> sublist = list2.getAll(0, add);
 					nextBlock.addAll(move, sublist);
 					listPos += add;
 					assert(nextBlock.size() == should);
@@ -910,7 +910,7 @@ public class BigList<E> extends IList<E> {
 				while (numBlocks > 0) {
 					int add = numElems / numBlocks;
 					assert(add > 0);
-					List<E> sublist = list.getAll(listPos, add);
+					List<? extends E> sublist = list2.getAll(listPos, add);
 					listPos += add;
 
 					Block<E> nextBlock = new Block<E>();
