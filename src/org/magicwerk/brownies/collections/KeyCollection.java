@@ -117,8 +117,8 @@ public class KeyCollection<E> extends KeyCollectionImpl<E> {
         }
 
         @Override
-        public Builder<E> withBigList(boolean bigList) {
-        	return (Builder<E>) super.withBigList(bigList);
+        public Builder<E> withElemBig(boolean bigList) {
+        	return (Builder<E>) super.withElemBig(bigList);
         }
 
         //-- Element key

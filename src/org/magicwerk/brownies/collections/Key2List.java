@@ -127,8 +127,8 @@ public class Key2List<E,K1,K2> extends KeyListImpl<E> {
         }
 
         @Override
-        public Builder<E,K1,K2> withBigList(boolean bigList) {
-        	return (Builder<E,K1,K2>) super.withBigList(bigList);
+        public Builder<E,K1,K2> withElemBig(boolean bigList) {
+        	return (Builder<E,K1,K2>) super.withElemBig(bigList);
         }
 
         //-- Element key

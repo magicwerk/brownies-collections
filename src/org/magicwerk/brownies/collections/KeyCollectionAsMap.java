@@ -25,14 +25,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.magicwerk.brownies.collections.helper.Option;
-
 /**
  * Implements a Map based on a KeyCollection key.
  *
  * @author Thomas Mauch
  * @version $Id$
  */
+@SuppressWarnings("serial")
 public class KeyCollectionAsMap<E, K> implements Map<K, E>, Serializable {
 	KeyCollectionImpl<E> coll;
 	int keyIndex;
@@ -56,6 +55,7 @@ public class KeyCollectionAsMap<E, K> implements Map<K, E>, Serializable {
 		if (!(o instanceof Map)) {
 			return false;
 		}
+		@SuppressWarnings("unchecked")
 		Map<K, E> m = (Map<K, E>) o;
 		if (m.size() != size()) {
 			return false;
@@ -128,6 +128,7 @@ public class KeyCollectionAsMap<E, K> implements Map<K, E>, Serializable {
 	 * Note that the returned set is immutable.
 	 * </i></p>
 	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public Set<K> keySet() {
 		return new CollectionAsSet(coll.getDistinctKeys(keyIndex), true);
@@ -170,6 +171,7 @@ public class KeyCollectionAsMap<E, K> implements Map<K, E>, Serializable {
 	 * Note that the returned set is immutable.
 	 * </i></p>
 	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public Set<Entry<K, E>> entrySet() {
 		Set<K> keys = (Set<K>) coll.getDistinctKeys(keyIndex);
@@ -208,7 +210,7 @@ public class KeyCollectionAsMap<E, K> implements Map<K, E>, Serializable {
 	public E put(K key, E elem) {
 		checkMutable();
 		if (!GapList.equalsElem(key, coll.getKey(keyIndex, elem))) {
-			coll.errorInvalidData();
+			KeyCollectionImpl.errorInvalidData();
 		}
 		if (coll.containsKey(1, key)) {
 			E oldElem = coll.removeByKey(keyIndex, key);

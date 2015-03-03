@@ -1,5 +1,5 @@
 <project default="build">
-	<property name="release" value="0.9.8"/>
+	<property name="release" value="0.9.9"/>
 	<property name="release-overwrite" value="false"/>
 
 	<property environment="env"/>

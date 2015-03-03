@@ -29,7 +29,7 @@ import org.magicwerk.brownies.collections.function.IPredicate;
 
 
 /**
- * Key2List implements a key list with 1 key.
+ * Key1List implements a key list with 1 key.
  * This key can be accessed fast.
  * It can provide fast access to its elements like a Set.
  * The elements allowed in the list can be constraint (null/duplicate values).
@@ -126,8 +126,8 @@ public class Key1List<E,K> extends KeyListImpl<E> {
         }
 
         @Override
-        public Builder<E,K> withBigList(boolean bigList) {
-        	return (Builder<E,K>) super.withBigList(bigList);
+        public Builder<E,K> withElemBig(boolean bigList) {
+        	return (Builder<E,K>) super.withElemBig(bigList);
         }
 
         //-- Element key

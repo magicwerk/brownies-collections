@@ -2491,6 +2491,7 @@ public abstract class IList<E>
 			return array.length;
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
 		protected E doGet(int index) {
 			return (E) array[index];
@@ -2500,7 +2501,8 @@ public abstract class IList<E>
     protected static class IReadOnlyListFromList<E> extends IReadOnlyList<E> {
     	List<E> list2;
 
-    	IReadOnlyListFromList(List<? extends E> list) {
+    	@SuppressWarnings("unchecked")
+		IReadOnlyListFromList(List<? extends E> list) {
     		this.list2 = (List<E>) list;
     	}
 
