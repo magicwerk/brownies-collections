@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: CharBigList.java 2739 2015-02-27 00:20:40Z origo $
+ * $Id: CharBigList.java 2743 2015-03-01 01:10:32Z origo $
  */
 package org.magicwerk.brownies.collections.primitive;
 import org.magicwerk.brownies.collections.helper.ArraysHelper;
@@ -44,7 +44,7 @@ import org.magicwerk.brownies.collections.helper.primitive.CharMergeSort;
  * Note that the iterators provided are not fail-fast.<p>
  *
  * @author Thomas Mauch
- * @version $Id: CharBigList.java 2739 2015-02-27 00:20:40Z origo $
+ * @version $Id: CharBigList.java 2743 2015-03-01 01:10:32Z origo $
  */
 public class CharBigList extends ICharList {
 	public static ICharList of(char[] values) {
@@ -370,35 +370,6 @@ public CharBigList(Collection<Character> coll){
         }
         assert (size() == coll.size());
     }
-}
-
-    /**
-	 * Initialize the list to be empty.
-	 */
-public void init() {
-    clear();
-}
-
-    /**
-     * Initialize the list to have the specified elements.
-     *
-     * @param elems	elements
-     */
-public void init(char... elems) {
-    clear();
-    for (char elem : elems) {
-        add(elem);
-    }
-}
-
-    /**
-     * Initialize the list to have all elements in the specified collection.
-     *
-     * @param that	collection
-     */
-public void init(Collection<Character> that) {
-    clear();
-    addAll(that);
 }
 
     /**
@@ -985,7 +956,7 @@ protected boolean doAddAll(int index, ICharList list) {
             list2.addAll(list);
             int remove = currNode.block.size() - addPos;
             if (remove > 0) {
-                list2.addAll((ICharList) currNode.block.getAll(addPos, remove));
+                list2.addAll(currNode.block.getAll(addPos, remove));
                 currNode.block.remove(addPos, remove);
                 modify(currNode, -remove);
                 size -= remove;
@@ -1187,8 +1158,6 @@ private void merge(CharBlockNode node) {
             leftNode.block.add((char) 0);
         }
         CharGapList.transferCopy(node.block, 0, len, leftNode.block, dstSize, len);
-        // TODO   
-        //CharGapList.copy(node.block, 0, leftNode.block, dstSize, len);   
         assert (leftNode.block.size() <= blockSize);
         modify(leftNode, +len);
         modify(oldCurrNode, -len);
@@ -1203,8 +1172,6 @@ private void merge(CharBlockNode node) {
                 rightNode.block.add(0, (char) 0);
             }
             CharGapList.transferCopy(node.block, 0, len, rightNode.block, 0, len);
-            // TODO   
-            //CharGapList.copy(node.block, 0, rightNode.block, 0, len);   
             assert (rightNode.block.size() <= blockSize);
             modify(rightNode, +len);
             modify(oldCurrNode, -len);
@@ -2007,6 +1974,6 @@ private void error() {
 
 	public void init(String str) {
 		char[] array = str.toCharArray();
-		init(array);
+		initArray(array);
 	}
 }

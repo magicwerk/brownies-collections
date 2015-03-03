@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: ByteBigList.java 2739 2015-02-27 00:20:40Z origo $
+ * $Id: ByteBigList.java 2743 2015-03-01 01:10:32Z origo $
  */
 package org.magicwerk.brownies.collections.primitive;
 import org.magicwerk.brownies.collections.helper.ArraysHelper;
@@ -44,7 +44,7 @@ import org.magicwerk.brownies.collections.helper.primitive.ByteMergeSort;
  * Note that the iterators provided are not fail-fast.<p>
  *
  * @author Thomas Mauch
- * @version $Id: ByteBigList.java 2739 2015-02-27 00:20:40Z origo $
+ * @version $Id: ByteBigList.java 2743 2015-03-01 01:10:32Z origo $
  */
 public class ByteBigList extends IByteList {
 	public static IByteList of(byte[] values) {
@@ -370,35 +370,6 @@ public ByteBigList(Collection<Byte> coll){
         }
         assert (size() == coll.size());
     }
-}
-
-    /**
-	 * Initialize the list to be empty.
-	 */
-public void init() {
-    clear();
-}
-
-    /**
-     * Initialize the list to have the specified elements.
-     *
-     * @param elems	elements
-     */
-public void init(byte... elems) {
-    clear();
-    for (byte elem : elems) {
-        add(elem);
-    }
-}
-
-    /**
-     * Initialize the list to have all elements in the specified collection.
-     *
-     * @param that	collection
-     */
-public void init(Collection<Byte> that) {
-    clear();
-    addAll(that);
 }
 
     /**
@@ -985,7 +956,7 @@ protected boolean doAddAll(int index, IByteList list) {
             list2.addAll(list);
             int remove = currNode.block.size() - addPos;
             if (remove > 0) {
-                list2.addAll((IByteList) currNode.block.getAll(addPos, remove));
+                list2.addAll(currNode.block.getAll(addPos, remove));
                 currNode.block.remove(addPos, remove);
                 modify(currNode, -remove);
                 size -= remove;
@@ -1187,8 +1158,6 @@ private void merge(ByteBlockNode node) {
             leftNode.block.add((byte) 0);
         }
         ByteGapList.transferCopy(node.block, 0, len, leftNode.block, dstSize, len);
-        // TODO   
-        //ByteGapList.copy(node.block, 0, leftNode.block, dstSize, len);   
         assert (leftNode.block.size() <= blockSize);
         modify(leftNode, +len);
         modify(oldCurrNode, -len);
@@ -1203,8 +1172,6 @@ private void merge(ByteBlockNode node) {
                 rightNode.block.add(0, (byte) 0);
             }
             ByteGapList.transferCopy(node.block, 0, len, rightNode.block, 0, len);
-            // TODO   
-            //ByteGapList.copy(node.block, 0, rightNode.block, 0, len);   
             assert (rightNode.block.size() <= blockSize);
             modify(rightNode, +len);
             modify(oldCurrNode, -len);

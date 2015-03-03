@@ -156,7 +156,6 @@ public abstract class IList<E>
         assert(size() == len);
 	}
 
-
 	@Override
 	abstract public int size();
 
@@ -201,6 +200,26 @@ public abstract class IList<E>
     	checkIndex(index);
 		return doSet(index, elem);
 	}
+
+    /**
+     * Sets or adds the element.
+     * If the index is smaller than the size of the list, the existing element is replaced.
+     * If the index equals the size of the list, the element is added.
+     *
+     * @param index	index where element will be placed
+     * @param elem	element to put
+     * @return		old element if an element was replaced, null if the element was added
+     */
+    public E put(int index, E elem) {
+    	checkIndexAdd(index);
+
+    	if (index < size()) {
+    		return doSet(index, elem);
+    	} else {
+    		doAdd(-1, elem);
+    		return null;
+    	}
+    }
 
     /**
      * Sets an element at specified position.
@@ -441,6 +460,23 @@ public abstract class IList<E>
 		for (int i=0; i<size; i++) {
 			E e = doGet(i);
 			if (predicate.test(e)) {
+				doRemove(i);
+				size--;
+				i--;
+			}
+		}
+	}
+
+	/**
+	 * Retains all elements in the list which match the predicate.
+	 *
+	 * @param predicate	predicate
+	 */
+	public void retainWhere(IPredicate<E> predicate) {
+	    int size = size();
+		for (int i=0; i<size; i++) {
+			E e = doGet(i);
+			if (!predicate.test(e)) {
 				doRemove(i);
 				size--;
 				i--;
@@ -1385,9 +1421,9 @@ public abstract class IList<E>
     }
 
     /**
-     * Adds all specified elements into this list.
+     * Adds element multiple time to list.
      *
-     * @param elems elements to be added to this list
+     * @param elem element to be added to this list
      * @return <tt>true</tt> if this list changed as a result of the call
      */
 	public boolean addMult(int len, E elem) {
@@ -1395,14 +1431,13 @@ public abstract class IList<E>
 	}
 
     /**
-     * Inserts the specified elements into this list,
-     * starting at the specified position.
+     * Inserts element multiple time to list, starting at the specified position.
      * Shifts the element currently at that position (if any) and any
      * subsequent elements to the right (increases their indices).
      *
      * @param index index at which to insert the first element from the
      *              specified collection
-     * @param elems elements to be inserted into this list
+     * @param elem element to be inserted into this list
      * @return <tt>true</tt> if this list changed as a result of the call
      * @throws IndexOutOfBoundsException if the index is invalid
      */
@@ -1460,10 +1495,10 @@ public abstract class IList<E>
     }
 
     /**
-     * Sets the specified elements.
+     * Sets the element multiple times.
      *
      * @param index index of first element to set
-     * @param coll  collection with elements to set
+     * @param elem	element to set
      */
     public void setMult(int index, int len, E elem) {
         checkRange(index, len);
@@ -1481,48 +1516,59 @@ public abstract class IList<E>
      */
     public void putAll(int index, IList<? extends E> list) {
         checkIndexAdd(index);
+    	checkNonNull(list);
 
-        doReplaceAll(index, -1, list);
+        int len = size()-index;
+		if (list != null) {
+			if (list.size() < len) {
+				len = list.size();
+			}
+		}
+
+    	// Call worker method
+    	doReplaceAll(index, len, list);
     }
 
     /**
      * Set or add the specified elements.
+     * If the index is smaller than the size of the list, the existing element is replaced.
+     * If the index equals the size of the list, the element is added.
      *
      * @param index index of first element to set or add
      * @param coll  collection with elements to set or add
      */
     public void putAll(int index, Collection<? extends E> coll) {
-        checkIndexAdd(index);
-
-    	if (coll instanceof List) {
-    		doReplaceAll(index, -1, new IReadOnlyListFromList<E>((List<? extends E>) coll));
+    	if (coll instanceof IList) {
+    		putAll(index, (IList<? extends E>) coll);
+    	} else if (coll instanceof List) {
+    		putAll(index, new IReadOnlyListFromList<E>((List<? extends E>) coll));
     	} else {
-    		doReplaceAll(index, -1, new IReadOnlyListFromCollection<E>(coll));
+    		putAll(index, new IReadOnlyListFromCollection<E>(coll));
     	}
     }
 
     /**
      * Set or add the specified elements.
+     * If the index is smaller than the size of the list, the existing element is replaced.
+     * If the index equals the size of the list, the element is added.
      *
      * @param index index of first element to set or add
      * @param coll  collection with elements to set or add
      */
     public void putArray(int index, E... elems) {
-        checkIndexAdd(index);
-
-		doReplaceAll(index, -1, new IReadOnlyListFromArray<E>(elems));
+        putAll(index, new IReadOnlyListFromArray<E>(elems));
     }
 
     /**
-     * Set or add the specified elements.
+     * Set or add the specified element multiple times.
+     * If the index is smaller than the size of the list, the existing element is replaced.
+     * If the index equals the size of the list, the element is added.
      *
      * @param index index of first element to set or add
-     * @param coll  collection with elements to set or add
+     * @param len 	element to set or add
      */
     public void putMult(int index, int len, E elem) {
-        checkIndexAdd(index);
-
-		doReplaceAll(index, -1, new IReadOnlyListFromMult<E>(len, elem));
+		putAll(index, new IReadOnlyListFromMult<E>(len, elem));
     }
 
     // -- initAll()
@@ -1535,6 +1581,7 @@ public abstract class IList<E>
      * @throws 		IndexOutOfBoundsException if the length is invalid
 	 */
     public void initAll(IList<? extends E> list) {
+    	checkNonNull(list);
     	doReplaceAll(0, size(), list);
     }
 
@@ -1546,10 +1593,12 @@ public abstract class IList<E>
      * @throws 		IndexOutOfBoundsException if the length is invalid
 	 */
     public void initAll(Collection<? extends E> coll) {
-    	if (coll instanceof List) {
-    		doReplaceAll(0, size(), new IReadOnlyListFromList<E>((List<? extends E>) coll));
+    	if (coll instanceof IList) {
+    		initAll((IList<? extends E>) coll);
+    	} else if (coll instanceof List) {
+    		initAll(new IReadOnlyListFromList<E>((List<? extends E>) coll));
     	} else {
-    		doReplaceAll(0, size(), new IReadOnlyListFromCollection<E>(coll));
+    		initAll(new IReadOnlyListFromCollection<E>(coll));
     	}
     }
 
@@ -1561,7 +1610,7 @@ public abstract class IList<E>
      * @throws 		IndexOutOfBoundsException if the length is invalid
 	 */
 	public void initArray(E... elems) {
-    	doReplaceAll(0, size(), new IReadOnlyListFromArray<E>(elems));
+    	initAll(new IReadOnlyListFromArray<E>(elems));
 	}
 
 	/**
@@ -1576,10 +1625,74 @@ public abstract class IList<E>
 	public void initMult(int len, E elem) {
 	    checkLength(len);
 
-    	doReplaceAll(0, size(), new IReadOnlyListFromMult<E>(len, elem));
+    	initAll(new IReadOnlyListFromMult<E>(len, elem));
 	}
 
 	// -- replaceAll()
+
+    /**
+     * Replaces the specified range with new elements.
+     * This method is very powerful as it offers the functionality of many other methods
+     * which are therefore only offered for convenience: <br/>
+     * - addAll(index, list) -> replaceAll(index, 0, list) <br/>
+     * - setAll(index, list) -> replaceAll(index, list.size(), list) <br/>
+     * - putAll(index, list) -> replaceAll(index, -1, list) <br/>
+     * - initAll(list)       -> replaceAll(0, this.size(), list) <br/>
+     * - remove(index, list) -> replaceAll(index, list.size(), null) <br/>
+     *
+     * @param index index of first element to replace, use -1 for the position after the last element (this.size())
+     * @param len	number of elements to replace, use -1 for getting behavior of putAll()
+     * @param coll  collection with elements which replace the old elements, use null if elements should only be removed
+     * @throws 		IndexOutOfBoundsException if the range is invalid
+     */
+    public void replaceAll(int index, int len, Collection<? extends E> coll) {
+    	if (coll instanceof IList) {
+    		replaceAll(index, len, (IList<? extends E>) coll);
+    	} else if (coll instanceof List) {
+    		replaceAll(index, len, new IReadOnlyListFromList<E>((List<? extends E>) coll));
+    	} else {
+    		replaceAll(index, len, new IReadOnlyListFromCollection<E>(coll));
+    	}
+    }
+
+    /**
+     * Replaces the specified range with new elements.
+     * This method is very powerful as it offers the functionality of many other methods
+     * which are therefore only offered for convenience: <br/>
+     * - addAll(index, list) -> replaceAll(index, 0, list) <br/>
+     * - setAll(index, list) -> replaceAll(index, list.size(), list) <br/>
+     * - putAll(index, list) -> replaceAll(index, -1, list) <br/>
+     * - initAll(list)       -> replaceAll(0, this.size(), list) <br/>
+     * - remove(index, list) -> replaceAll(index, list.size(), null) <br/>
+     *
+     * @param index index of first element to replace, use -1 for the position after the last element (this.size())
+     * @param len	number of elements to replace, use -1 for getting behavior of putAll()
+     * @param elems array with elements which replace the old elements, use null if elements should only be removed
+     * @throws 		IndexOutOfBoundsException if the range is invalid
+     */
+    public void replaceArray(int index, int len, E... elems) {
+    	replaceAll(index, len, new IReadOnlyListFromArray<E>(elems));
+    }
+
+    /**
+     * Replaces the specified range with new elements.
+     * This method is very powerful as it offers the functionality of many other methods
+     * which are therefore only offered for convenience: <br/>
+     * - addAll(index, list) -> replaceAll(index, 0, list) <br/>
+     * - setAll(index, list) -> replaceAll(index, list.size(), list) <br/>
+     * - putAll(index, list) -> replaceAll(index, -1, list) <br/>
+     * - initAll(list)       -> replaceAll(0, this.size(), list) <br/>
+     * - remove(index, list) -> replaceAll(index, list.size(), null) <br/>
+     *
+     * @param index 	index of first element to replace, use -1 for the position after the last element (this.size())
+     * @param len		number of elements to replace, use -1 for getting behavior of putAll()
+     * @param numElems  number of time element has to be added
+     * @param elem  	element to add
+     * @throws 			IndexOutOfBoundsException if the range is invalid
+     */
+    public void replaceMult(int index, int len, int numElems, E elem) {
+    	replaceAll(index, len, new IReadOnlyListFromMult<E>(numElems, elem));
+    }
 
     /**
      * Replaces the specified range with new elements.
@@ -1618,23 +1731,6 @@ public abstract class IList<E>
     	doReplaceAll(index, len, list);
     }
 
-    public void replaceAll(int index, int len, Collection<? extends E> coll) {
-    	if (coll instanceof List) {
-    		doReplaceAll(index, len, new IReadOnlyListFromList<E>((List<? extends E>) coll));
-    	} else {
-    		doReplaceAll(index, len, new IReadOnlyListFromCollection<E>(coll));
-    	}
-    }
-
-    public void replaceArray(int index, int len, E... elems) {
-    	doReplaceAll(index, len, new IReadOnlyListFromArray<E>(elems));
-    }
-
-    public void replaceMult(int index, int len, int numElems, E elem) {
-    	doReplaceAll(index, len, new IReadOnlyListFromMult<E>(numElems, elem));
-    }
-
-
     // -- doReplaceAll()
 
     protected boolean doReplaceAll(int index, int len, IList<? extends E> list) {
@@ -1642,6 +1738,7 @@ public abstract class IList<E>
     	// so the method is also available in the primitive classes.
     	assert(index >= 0 && index <= size());
     	assert(len >= 0 && index+len <= size());
+    	assert(list != null);
 
     	int srcLen = 0;
     	if (list != null) {
@@ -2073,6 +2170,18 @@ public abstract class IList<E>
         }
     }
 
+    /**
+     * Check that object is not null.
+     *
+     * @param obj object to check
+     * @throws NullPointerException if object is null
+     */
+    protected void checkNonNull(Object obj) {
+    	if (obj == null) {
+            throw new NullPointerException("Argument may not be null");
+    	}
+    }
+
     // --- Start class Iter ---
 
     /**
@@ -2353,6 +2462,8 @@ public abstract class IList<E>
     	E elem;
 
     	IReadOnlyListFromMult(int len, E elem) {
+    		checkLength(len);
+
     		this.len = len;
     		this.elem = elem;
     	}

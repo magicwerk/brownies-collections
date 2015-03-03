@@ -34,6 +34,7 @@ import org.magicwerk.brownies.collections.helper.Option;
  * @see GapList
  * @param <E> type of elements stored in the list
  */
+@SuppressWarnings("serial")
 public abstract class KeyListImpl<E> extends IList<E> {
 
     /**
@@ -46,8 +47,8 @@ public abstract class KeyListImpl<E> extends IList<E> {
      */
     IList<E> list;
 
-    /** If true the invariants the GapList are checked for debugging */
-    private static final boolean DEBUG_CHECK = true; // TODO
+    /** If true the invariants are checked for debugging */
+    private static final boolean DEBUG_CHECK = false;
 
 
     /**
@@ -85,8 +86,9 @@ public abstract class KeyListImpl<E> extends IList<E> {
     }
 
     @Override
-    public KeyListImpl copy() {
-    	KeyListImpl copy = (KeyListImpl) super.clone();
+    public KeyListImpl<E> copy() {
+    	@SuppressWarnings("unchecked")
+		KeyListImpl<E> copy = (KeyListImpl<E>) super.clone();
         copy.initCopy(this);
         return copy;
     }
@@ -97,8 +99,9 @@ public abstract class KeyListImpl<E> extends IList<E> {
      *
      * @return  an empty copy of this list
      */
-    public KeyListImpl crop() {
-    	KeyListImpl crop = (KeyListImpl) super.clone();
+    public KeyListImpl<E> crop() {
+    	@SuppressWarnings("unchecked")
+		KeyListImpl<E> crop = (KeyListImpl<E>) super.clone();
         crop.initCrop(this);
         return crop;
     }
@@ -107,19 +110,20 @@ public abstract class KeyListImpl<E> extends IList<E> {
 	 *
 	 * @param that source object
 	 */
-    void initCrop(KeyListImpl<E> that) {
-	    // TableCollection
+    @SuppressWarnings("unchecked")
+	void initCrop(KeyListImpl<E> that) {
+	    // KeyCollectionImpl
 	    keyColl = new KeyCollectionImpl<E>();
 	    keyColl.initCrop(that.keyColl);
 	    if (keyColl.keyList != null) {
 	    	keyColl.keyList = this;
 	    }
 
-	    // GapList // TODO
+	    // List
     	if (that.keyColl.keyMaps != null && that.keyColl.keyMaps[0] != null && that.list == that.keyColl.keyMaps[0].keysList) {
     		list = (IList<E>) keyColl.keyMaps[0].keysList;
     	} else {
-    		list = new GapList<E>();
+    		list = that.list.doCreate(-1);
     	}
 
 	    if (DEBUG_CHECK) debugCheck();
@@ -130,19 +134,21 @@ public abstract class KeyListImpl<E> extends IList<E> {
      *
      * @param that source object
      */
-    void initCopy(KeyListImpl<E> that) {
-	    // TableCollection
+    @SuppressWarnings("unchecked")
+	void initCopy(KeyListImpl<E> that) {
+	    // KeyCollectionImpl
 	    keyColl = new KeyCollectionImpl<E>();
 	    keyColl.initCopy(that.keyColl);
 	    if (keyColl.keyList != null) {
 	    	keyColl.keyList = this;
 	    }
 
-        // GapList // TODO
-    	if (that.keyColl.keyMaps != null && that.keyColl.keyMaps[0] != null && that.list == that.keyColl.keyMaps[0].keysList) {
+        // List
+	    if (that.keyColl.keyMaps != null && that.keyColl.keyMaps[0] != null && that.list == that.keyColl.keyMaps[0].keysList) {
     		list = (IList<E>) keyColl.keyMaps[0].keysList;
     	} else {
-    		list = new GapList<E>(that.list);
+    		list = that.list.doCreate(-1);
+    		list.addAll(that.list);
     	}
 
         if (DEBUG_CHECK) debugCheck();
@@ -290,7 +296,7 @@ public abstract class KeyListImpl<E> extends IList<E> {
    				doRemove(0);
    				index = index-1;
     		} else {
-    			keyColl.errorMaxSize();
+    			KeyCollectionImpl.errorMaxSize();
     		}
     	}
 
@@ -480,7 +486,7 @@ public abstract class KeyListImpl<E> extends IList<E> {
     	if (removed.hasValue()) {
     		int index = list.indexOf(removed.getValue());
     		if (index == -1) {
-    			keyColl.errorInvalidData();
+    			KeyCollectionImpl.errorInvalidData();
     		}
     		list.doRemove(index);
     	}
@@ -498,7 +504,7 @@ public abstract class KeyListImpl<E> extends IList<E> {
     		index = indexOfKey(keyIndex, key);
     	}
     	if (index != -1) {
-    		KeyMap keyMap = keyColl.getKeyMap(keyIndex);
+			KeyMap<E, Object> keyMap = keyColl.getKeyMap(keyIndex);
     		if (elem != null) {
     			add = keyMap.allowDuplicates;
     		} else {
@@ -529,7 +535,7 @@ public abstract class KeyListImpl<E> extends IList<E> {
     	if (!removeds.isEmpty()) {
     		if (!keyColl.isSortedListByElem()) {
     			if (!list.removeAll(removeds)) {
-    				keyColl.errorInvalidData();
+    				KeyCollectionImpl.errorInvalidData();
     			}
 	    	}
     	}
@@ -597,6 +603,7 @@ public abstract class KeyListImpl<E> extends IList<E> {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Set<E> getDistinct() {
 		if (keyColl.hasElemSet()) {

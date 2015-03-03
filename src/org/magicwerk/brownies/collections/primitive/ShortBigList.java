@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: ShortBigList.java 2739 2015-02-27 00:20:40Z origo $
+ * $Id: ShortBigList.java 2743 2015-03-01 01:10:32Z origo $
  */
 package org.magicwerk.brownies.collections.primitive;
 import org.magicwerk.brownies.collections.helper.ArraysHelper;
@@ -44,7 +44,7 @@ import org.magicwerk.brownies.collections.helper.primitive.ShortMergeSort;
  * Note that the iterators provided are not fail-fast.<p>
  *
  * @author Thomas Mauch
- * @version $Id: ShortBigList.java 2739 2015-02-27 00:20:40Z origo $
+ * @version $Id: ShortBigList.java 2743 2015-03-01 01:10:32Z origo $
  */
 public class ShortBigList extends IShortList {
 	public static IShortList of(short[] values) {
@@ -370,35 +370,6 @@ public ShortBigList(Collection<Short> coll){
         }
         assert (size() == coll.size());
     }
-}
-
-    /**
-	 * Initialize the list to be empty.
-	 */
-public void init() {
-    clear();
-}
-
-    /**
-     * Initialize the list to have the specified elements.
-     *
-     * @param elems	elements
-     */
-public void init(short... elems) {
-    clear();
-    for (short elem : elems) {
-        add(elem);
-    }
-}
-
-    /**
-     * Initialize the list to have all elements in the specified collection.
-     *
-     * @param that	collection
-     */
-public void init(Collection<Short> that) {
-    clear();
-    addAll(that);
 }
 
     /**
@@ -985,7 +956,7 @@ protected boolean doAddAll(int index, IShortList list) {
             list2.addAll(list);
             int remove = currNode.block.size() - addPos;
             if (remove > 0) {
-                list2.addAll((IShortList) currNode.block.getAll(addPos, remove));
+                list2.addAll(currNode.block.getAll(addPos, remove));
                 currNode.block.remove(addPos, remove);
                 modify(currNode, -remove);
                 size -= remove;
@@ -1187,8 +1158,6 @@ private void merge(ShortBlockNode node) {
             leftNode.block.add((short) 0);
         }
         ShortGapList.transferCopy(node.block, 0, len, leftNode.block, dstSize, len);
-        // TODO   
-        //ShortGapList.copy(node.block, 0, leftNode.block, dstSize, len);   
         assert (leftNode.block.size() <= blockSize);
         modify(leftNode, +len);
         modify(oldCurrNode, -len);
@@ -1203,8 +1172,6 @@ private void merge(ShortBlockNode node) {
                 rightNode.block.add(0, (short) 0);
             }
             ShortGapList.transferCopy(node.block, 0, len, rightNode.block, 0, len);
-            // TODO   
-            //ShortGapList.copy(node.block, 0, rightNode.block, 0, len);   
             assert (rightNode.block.size() <= blockSize);
             modify(rightNode, +len);
             modify(oldCurrNode, -len);

@@ -181,7 +181,6 @@ public class KeyCollection<E> extends KeyCollectionImpl<E> {
         /**
          * @return created collection
          */
-        @SuppressWarnings("unchecked")
 		public KeyCollection<E> build() {
         	if (keyColl == null) {
                	keyColl = new KeyCollection<E>();
