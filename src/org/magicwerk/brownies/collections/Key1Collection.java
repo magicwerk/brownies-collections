@@ -120,8 +120,8 @@ public class Key1Collection<E,K> extends KeyCollectionImpl<E> {
         }
 
         @Override
-        public Builder<E,K> withBigList(boolean bigList) {
-        	return (Builder<E,K>) super.withBigList(bigList);
+        public Builder<E,K> withElemBig(boolean bigList) {
+        	return (Builder<E,K>) super.withElemBig(bigList);
         }
 
         //-- Element key

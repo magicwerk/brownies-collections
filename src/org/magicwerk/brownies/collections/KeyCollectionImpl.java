@@ -259,11 +259,11 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         /**
          * Specify whether list should be stored in an instance of BigList or GapList.
          *
-         * @param bigList	true to store list content in an instance of BigList, false for GapList
-         * @return			this (fluent interface)
+         * @param big	true to store list content in an instance of BigList, false for GapList
+         * @return		this (fluent interface)
          */
-        protected BuilderImpl<E> withBigList(boolean bigList) {
-            this.useBigList = bigList;
+        protected BuilderImpl<E> withElemBig(boolean big) {
+            this.useBigList = big;
             return this;
         }
 

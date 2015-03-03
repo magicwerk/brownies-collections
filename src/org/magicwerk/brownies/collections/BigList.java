@@ -595,10 +595,6 @@ public class BigList<E> extends IList<E> {
 				int nextBlockLen = blockSize/2;
 				int blockLen = blockSize - nextBlockLen;
 				GapList.transferRemove(currNode.block, blockLen, nextBlockLen, newBlock, 0, 0);
-				// TODO
-				//newBlock.init(nextBlockLen, null);
-				//GapList.copy(currNode.block, blockLen, newBlock, 0, nextBlockLen);
-				//currNode.block.remove(blockLen, blockSize-blockLen);
 
 				// Subtract 1 more because getBlockIndex() has already added 1
 				modify(currNode, -nextBlockLen-1);
