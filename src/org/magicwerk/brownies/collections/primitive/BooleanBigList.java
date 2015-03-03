@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: BooleanBigList.java 2739 2015-02-27 00:20:40Z origo $
+ * $Id: BooleanBigList.java 2743 2015-03-01 01:10:32Z origo $
  */
 package org.magicwerk.brownies.collections.primitive;
 import org.magicwerk.brownies.collections.helper.ArraysHelper;
@@ -44,7 +44,7 @@ import org.magicwerk.brownies.collections.helper.primitive.BooleanMergeSort;
  * Note that the iterators provided are not fail-fast.<p>
  *
  * @author Thomas Mauch
- * @version $Id: BooleanBigList.java 2739 2015-02-27 00:20:40Z origo $
+ * @version $Id: BooleanBigList.java 2743 2015-03-01 01:10:32Z origo $
  */
 public class BooleanBigList extends IBooleanList {
 	public static IBooleanList of(boolean[] values) {
@@ -370,35 +370,6 @@ public BooleanBigList(Collection<Boolean> coll){
         }
         assert (size() == coll.size());
     }
-}
-
-    /**
-	 * Initialize the list to be empty.
-	 */
-public void init() {
-    clear();
-}
-
-    /**
-     * Initialize the list to have the specified elements.
-     *
-     * @param elems	elements
-     */
-public void init(boolean... elems) {
-    clear();
-    for (boolean elem : elems) {
-        add(elem);
-    }
-}
-
-    /**
-     * Initialize the list to have all elements in the specified collection.
-     *
-     * @param that	collection
-     */
-public void init(Collection<Boolean> that) {
-    clear();
-    addAll(that);
 }
 
     /**
@@ -985,7 +956,7 @@ protected boolean doAddAll(int index, IBooleanList list) {
             list2.addAll(list);
             int remove = currNode.block.size() - addPos;
             if (remove > 0) {
-                list2.addAll((IBooleanList) currNode.block.getAll(addPos, remove));
+                list2.addAll(currNode.block.getAll(addPos, remove));
                 currNode.block.remove(addPos, remove);
                 modify(currNode, -remove);
                 size -= remove;
@@ -1187,8 +1158,6 @@ private void merge(BooleanBlockNode node) {
             leftNode.block.add(false);
         }
         BooleanGapList.transferCopy(node.block, 0, len, leftNode.block, dstSize, len);
-        // TODO   
-        //BooleanGapList.copy(node.block, 0, leftNode.block, dstSize, len);   
         assert (leftNode.block.size() <= blockSize);
         modify(leftNode, +len);
         modify(oldCurrNode, -len);
@@ -1203,8 +1172,6 @@ private void merge(BooleanBlockNode node) {
                 rightNode.block.add(0, false);
             }
             BooleanGapList.transferCopy(node.block, 0, len, rightNode.block, 0, len);
-            // TODO   
-            //BooleanGapList.copy(node.block, 0, rightNode.block, 0, len);   
             assert (rightNode.block.size() <= blockSize);
             modify(rightNode, +len);
             modify(oldCurrNode, -len);

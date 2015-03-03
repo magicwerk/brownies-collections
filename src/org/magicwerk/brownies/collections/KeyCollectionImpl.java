@@ -59,6 +59,7 @@ import org.magicwerk.brownies.collections.helper.SortedLists;
  * @see GapList
  * @param <E> type of elements stored in the list
  */
+@SuppressWarnings("serial")
 public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Cloneable {
 
 	/**
@@ -91,8 +92,8 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         }
 
     	// KeyList to build
-    	KeyCollectionImpl keyColl;
-    	KeyListImpl keyList;
+    	KeyCollectionImpl<E> keyColl;
+    	KeyListImpl<E> keyList;
     	// -- constraint
         boolean allowNullElem = true;
         IPredicate<E> constraint;
@@ -410,11 +411,12 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 
         //
 
-        protected BuilderImpl<E> withKeyMap(int keyIndex, IFunction mapper) {
+        @SuppressWarnings({ "rawtypes", "unchecked" })
+		protected BuilderImpl<E> withKeyMap(int keyIndex, IFunction mapper) {
         	if (mapper == null) {
         		throw new IllegalArgumentException("Mapper may not be null");
         	}
-        	KeyMapBuilder kmb = getKeyMapBuilder(keyIndex);
+        	KeyMapBuilder<?, ?> kmb = getKeyMapBuilder(keyIndex);
         	if (kmb.mapper != null) {
         		throw new IllegalArgumentException("Mapper already set");
         	}
@@ -423,7 +425,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         }
 
         protected BuilderImpl<E> withKeyOrderBy(int keyIndex, boolean orderBy) {
-        	KeyMapBuilder kmb = getKeyMapBuilder(keyIndex);
+        	KeyMapBuilder<?, ?> kmb = getKeyMapBuilder(keyIndex);
         	if (kmb.orderBy != null) {
         		throw new IllegalArgumentException("Order by already set");
         	}
@@ -439,7 +441,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         	if (!type.isPrimitive()) {
         		throw new IllegalArgumentException("Class type must be primitive");
         	}
-        	KeyMapBuilder kmb = getKeyMapBuilder(keyIndex);
+        	KeyMapBuilder<?, ?> kmb = getKeyMapBuilder(keyIndex);
         	if (kmb.orderBy != null) {
         		throw new IllegalArgumentException("Order by already set");
         	}
@@ -455,13 +457,13 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         	if (!type.isPrimitive()) {
         		throw new IllegalArgumentException("Class type must be primitive");
         	}
-        	KeyMapBuilder kmb = getKeyMapBuilder(keyIndex);
+        	KeyMapBuilder<?, ?> kmb = getKeyMapBuilder(keyIndex);
         	kmb.orderByType = type;
             return this;
         }
 
         protected BuilderImpl<E> withKeyNull(int keyIndex, boolean allowNull) {
-        	KeyMapBuilder kmb = getKeyMapBuilder(keyIndex);
+        	KeyMapBuilder<?, ?> kmb = getKeyMapBuilder(keyIndex);
         	if (kmb.allowNull != null) {
         		throw new IllegalArgumentException("AllowNull already set");
         	}
@@ -473,7 +475,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         }
 
         protected BuilderImpl<E> withKeyDuplicates(int keyIndex, boolean allowDuplicates, boolean allowDuplicatesNull) {
-        	KeyMapBuilder kmb = getKeyMapBuilder(keyIndex);
+        	KeyMapBuilder<?, ?> kmb = getKeyMapBuilder(keyIndex);
         	if (kmb.allowDuplicates != null) {
         		throw new IllegalArgumentException("AllowDuplicates already set");
         	}
@@ -483,7 +485,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         }
 
         protected BuilderImpl<E> withKeySort(int keyIndex, boolean sort) {
-        	KeyMapBuilder kmb = getKeyMapBuilder(keyIndex);
+        	KeyMapBuilder<?, ?> kmb = getKeyMapBuilder(keyIndex);
         	if (kmb.sort != null) {
         		throw new IllegalArgumentException("Sort already set");
         	}
@@ -495,7 +497,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         }
 
         protected BuilderImpl<E> withKeySort(int keyIndex, Comparator<?> comparator) {
-        	KeyMapBuilder kmb = getKeyMapBuilder(keyIndex);
+        	KeyMapBuilder<?, ?> kmb = getKeyMapBuilder(keyIndex);
         	if (kmb.sort != null) {
         		throw new IllegalArgumentException("Sort already set");
         	}
@@ -507,7 +509,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         }
 
         protected BuilderImpl<E> withKeySort(int keyIndex, Comparator<?> comparator, boolean sortNullsFirst) {
-        	KeyMapBuilder kmb = getKeyMapBuilder(keyIndex);
+        	KeyMapBuilder<?, ?> kmb = getKeyMapBuilder(keyIndex);
         	if (kmb.sort != null) {
         		throw new IllegalArgumentException("Sort already set");
         	}
@@ -1042,7 +1044,8 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
    			return keysMap.containsValue(value);
 	    }
 
-	    Option<E> getContainedKey(Object key) {
+	    @SuppressWarnings({ "unchecked", "rawtypes" })
+		Option<E> getContainedKey(Object key) {
 	        if (key == null) {
 	            if (!allowNull) {
 	                return Option.EMPTY();
@@ -1064,9 +1067,10 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	    	return Option.EMPTY();
 	    }
 
-	    Option<E> getContainedValue(Object value) {
+	    @SuppressWarnings("unchecked")
+		Option<E> getContainedValue(Object value) {
 	    	assert(count == false);
-    		for (Map.Entry entry: keysMap.entrySet()) {
+    		for (Map.Entry<?,?> entry: keysMap.entrySet()) {
     			if ((entry.getValue() == null && value == null) || (entry.getValue() != null && entry.getValue().equals(value))) {
     				return new Option(entry.getValue());
     			}
@@ -1075,7 +1079,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	    }
 
 	    @SuppressWarnings("unchecked")
-		Iterator<E> iteratorValues(KeyCollectionImpl keyColl) {
+		Iterator<E> iteratorValues(KeyCollectionImpl<E> keyColl) {
 	    	assert(keysMap != null);
     		if (count) {
     			return (Iterator<E>) new KeyMapCountIter(keyColl, this, keysMap);
@@ -1131,7 +1135,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 					// This call can fail with NoSuchElementException
 					Object o = mapIter.next();
 					if (o instanceof KeyMapList) {
-						listIter = ((KeyMapList) o).iterator();
+						listIter = ((KeyMapList<E>) o).iterator();
 						elem = listIter.next();
 					} else {
 						elem = (E) o;
@@ -1496,8 +1500,8 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 
     //-- KeyCollection --
 
-    /** If true the invariants the GapList are checked for debugging */
-    private static final boolean DEBUG_CHECK = true; // TODO
+    /** If true the invariants are checked for debugging */
+    private static final boolean DEBUG_CHECK = false;
 
     /**
      * Size of collection.
@@ -1551,7 +1555,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
      *
      * @param that source object
      */
-    void initCopy(KeyCollectionImpl that) {
+    void initCopy(KeyCollectionImpl<E> that) {
     	size = that.size;
     	if (that.keyMaps != null) {
 	    	keyMaps = new KeyMap[that.keyMaps.length];
@@ -1575,7 +1579,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
      *
      * @param that source object
      */
-    void initCrop(KeyCollectionImpl that) {
+    void initCrop(KeyCollectionImpl<E> that) {
     	size = 0;
     	if (that.keyMaps != null) {
 	    	keyMaps = new KeyMap[that.keyMaps.length];
@@ -1763,7 +1767,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     }
 
     int binarySearchSorted(E elem) {
-    	KeyMap keyMap = keyMaps[orderByKey];
+    	KeyMap<E, Object> keyMap = keyMaps[orderByKey];
     	Object key = keyMap.getKey(elem);
     	int index = keyMap.keysList.binarySearch(key, keyMap.comparator);
     	if (index >= 0) {
@@ -1779,7 +1783,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     }
 
     int indexOfSorted(E elem) {
-    	KeyMap keyMap = keyMaps[orderByKey];
+    	KeyMap<E, Object> keyMap = keyMaps[orderByKey];
     	Object key = keyMap.getKey(elem);
     	int index = keyMap.keysList.binarySearch(key, keyMap.comparator);
     	return (index < 0) ? -1 : index;
@@ -2234,21 +2238,6 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         	keyMap.keysList.clear();
         }
     }
-
-	/**
-	 * Produce key out of specified element.
-	 *
-	 * @param elem element
-	 * @return     key of specified element
-	 * @throws IllegalArgumentException if a null key is produced and null keys are not allowed
-	 */
-	private <K> K getKey(KeyMap<E,K> keyMap, E elem) {
-	    K key = keyMap.getKey(elem); // TODO do we need both getKey() methods?
-        if (key == null && !keyMap.allowNull) {
-            throw new IllegalArgumentException("Null key not allowed");
-        }
-        return key;
-	}
 
     /**
      * Add element.

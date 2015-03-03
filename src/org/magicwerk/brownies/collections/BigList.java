@@ -180,8 +180,6 @@ public class BigList<E> extends IList<E> {
      * Create new list with specified elements.
      *
      * @param coll      collection with element
-     * @return          created list
-     * @param <E>       type of elements stored in the list
      */
     @SuppressWarnings("unchecked")
 	public BigList(Collection<? extends E> coll) {
@@ -199,35 +197,6 @@ public class BigList<E> extends IList<E> {
 	        }
 	        assert(size() == coll.size());
     	}
-    }
-
-	/**
-	 * Initialize the list to be empty.
-	 */
-    public void init() {
-    	clear();
-    }
-
-    /**
-     * Initialize the list to have the specified elements.
-     *
-     * @param elems	elements
-     */
-    public void init(E... elems) {
-    	clear();
-        for (E elem: elems) {
-            add(elem);
-        }
-    }
-
-    /**
-     * Initialize the list to have all elements in the specified collection.
-     *
-     * @param that	collection
-     */
-    public void init(Collection<? extends E> that) {
-    	clear();
-    	addAll(that);
     }
 
     /**
@@ -842,7 +811,7 @@ public class BigList<E> extends IList<E> {
 				list2.addAll(list);
 				int remove = currNode.block.size()-addPos;
 				if (remove > 0) {
-					list2.addAll((List) currNode.block.getAll(addPos, remove));
+					list2.addAll(currNode.block.getAll(addPos, remove));
 					currNode.block.remove(addPos, remove);
 					modify(currNode, -remove);
 					size -= remove;
@@ -1056,8 +1025,6 @@ public class BigList<E> extends IList<E> {
                 leftNode.block.add(null);
             }
             GapList.transferCopy(node.block, 0, len, leftNode.block, dstSize, len);
-            // TODO
-			//GapList.copy(node.block, 0, leftNode.block, dstSize, len);
 			assert(leftNode.block.size() <= blockSize);
 
 			modify(leftNode, +len);
@@ -1074,8 +1041,6 @@ public class BigList<E> extends IList<E> {
 	            	rightNode.block.add(0, null);
 	            }
 				GapList.transferCopy(node.block, 0, len, rightNode.block, 0, len);
-				// TODO
-				//GapList.copy(node.block, 0, rightNode.block, 0, len);
 				assert(rightNode.block.size() <= blockSize);
 
 				modify(rightNode, +len);

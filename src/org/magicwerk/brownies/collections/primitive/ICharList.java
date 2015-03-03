@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: ICharList.java 2739 2015-02-27 00:20:40Z origo $
+ * $Id: ICharList.java 2744 2015-03-01 01:28:51Z origo $
  */
 package org.magicwerk.brownies.collections.primitive;
 
@@ -42,7 +42,7 @@ import org.magicwerk.brownies.collections.function.IPredicate;
  * It also offers additional methods which are then available in all implementations of GapList and BigList.
  *
  * @author Thomas Mauch
- * @version $Id: ICharList.java 2739 2015-02-27 00:20:40Z origo $
+ * @version $Id: ICharList.java 2744 2015-03-01 01:28:51Z origo $
  *
  * @param  type of elements stored in the list
  * @see	    java.util.List
@@ -196,6 +196,25 @@ public char set(int index, char elem) {
 }
 
     /**
+     * Sets or adds the element.
+     * If the index is smaller than the size of the list, the existing element is replaced.
+     * If the index equals the size of the list, the element is added.
+     *
+     * @param index	index where element will be placed
+     * @param elem	element to put
+     * @return		old element if an element was replaced, null if the element was added
+     */
+public char put(int index, char elem) {
+    checkIndexAdd(index);
+    if (index < size()) {
+        return doSet(index, elem);
+    } else {
+        doAdd(-1, elem);
+        return (char) 0;
+    }
+}
+
+    /**
      * Sets an element at specified position.
      * This method is used internally if existing elements will be moved etc.
      * Override if you need to validity checks.
@@ -286,7 +305,7 @@ public abstract void trimToSize();
 
     
 public boolean equals(Object obj) {
-    if (obj == this) {
+    if (obj == null) {
         return true;
     }
     if (obj instanceof CharObjGapList) {
@@ -425,6 +444,23 @@ public void removeWhere(IPredicate predicate) {
     for (int i = 0; i < size; i++) {
         char e = doGet(i);
         if (predicate.test(e)) {
+            doRemove(i);
+            size--;
+            i--;
+        }
+    }
+}
+
+    /**
+	 * Retains all elements in the list which match the predicate.
+	 *
+	 * @param predicate	predicate
+	 */
+public void retainWhere(IPredicate predicate) {
+    int size = size();
+    for (int i = 0; i < size; i++) {
+        char e = doGet(i);
+        if (!predicate.test(e)) {
             doRemove(i);
             size--;
             i--;
@@ -1422,7 +1458,15 @@ public void setMult(int index, int len, char elem) {
      */
 public void putAll(int index, ICharList list) {
     checkIndexAdd(index);
-    doReplaceAll(index, -1, list);
+    checkNonNull(list);
+    int len = size() - index;
+    if (list != null) {
+        if (list.size() < len) {
+            len = list.size();
+        }
+    }
+    // Call worker method   
+    doReplaceAll(index, len, list);
 }
 
     /**
@@ -1432,11 +1476,12 @@ public void putAll(int index, ICharList list) {
      * @param coll  collection with elements to set or add
      */
 public void putAll(int index, Collection<Character> coll) {
-    checkIndexAdd(index);
-    if (coll instanceof List) {
-        doReplaceAll(index, -1, new IReadOnlyCharListFromList((List<Character>) coll));
+    if (coll instanceof ICharList) {
+        putAll(index, (ICharList) coll);
+    } else if (coll instanceof List) {
+        putAll(index, new IReadOnlyCharListFromList((List<Character>) coll));
     } else {
-        doReplaceAll(index, -1, new IReadOnlyCharListFromCollection(coll));
+        putAll(index, new IReadOnlyCharListFromCollection(coll));
     }
 }
 
@@ -1447,8 +1492,7 @@ public void putAll(int index, Collection<Character> coll) {
      * @param coll  collection with elements to set or add
      */
 public void putArray(int index, char... elems) {
-    checkIndexAdd(index);
-    doReplaceAll(index, -1, new IReadOnlyCharListFromArray(elems));
+    putAll(index, new IReadOnlyCharListFromArray(elems));
 }
 
     /**
@@ -1458,8 +1502,7 @@ public void putArray(int index, char... elems) {
      * @param coll  collection with elements to set or add
      */
 public void putMult(int index, int len, char elem) {
-    checkIndexAdd(index);
-    doReplaceAll(index, -1, new IReadOnlyCharListFromMult(len, elem));
+    putAll(index, new IReadOnlyCharListFromMult(len, elem));
 }
 
     // -- initAll()  
@@ -1471,6 +1514,7 @@ public void putMult(int index, int len, char elem) {
      * @throws 		IndexOutOfBoundsException if the length is invalid
 	 */
 public void initAll(ICharList list) {
+    checkNonNull(list);
     doReplaceAll(0, size(), list);
 }
 
@@ -1482,10 +1526,12 @@ public void initAll(ICharList list) {
      * @throws 		IndexOutOfBoundsException if the length is invalid
 	 */
 public void initAll(Collection<Character> coll) {
-    if (coll instanceof List) {
-        doReplaceAll(0, size(), new IReadOnlyCharListFromList((List<Character>) coll));
+    if (coll instanceof ICharList) {
+        initAll((ICharList) coll);
+    } else if (coll instanceof List) {
+        initAll(new IReadOnlyCharListFromList((List<Character>) coll));
     } else {
-        doReplaceAll(0, size(), new IReadOnlyCharListFromCollection(coll));
+        initAll(new IReadOnlyCharListFromCollection(coll));
     }
 }
 
@@ -1497,7 +1543,7 @@ public void initAll(Collection<Character> coll) {
      * @throws 		IndexOutOfBoundsException if the length is invalid
 	 */
 public void initArray(char... elems) {
-    doReplaceAll(0, size(), new IReadOnlyCharListFromArray(elems));
+    initAll(new IReadOnlyCharListFromArray(elems));
 }
 
     /**
@@ -1511,11 +1557,29 @@ public void initArray(char... elems) {
 	 */
 public void initMult(int len, char elem) {
     checkLength(len);
-    doReplaceAll(0, size(), new IReadOnlyCharListFromMult(len, elem));
+    initAll(new IReadOnlyCharListFromMult(len, elem));
 }
 
     // -- replaceAll()  
-/**
+public void replaceAll(int index, int len, Collection<Character> coll) {
+    if (coll instanceof ICharList) {
+        replaceAll(index, len, (ICharList) coll);
+    } else if (coll instanceof List) {
+        replaceAll(index, len, new IReadOnlyCharListFromList((List<Character>) coll));
+    } else {
+        replaceAll(index, len, new IReadOnlyCharListFromCollection(coll));
+    }
+}
+
+    public void replaceArray(int index, int len, char... elems) {
+    replaceAll(index, len, new IReadOnlyCharListFromArray(elems));
+}
+
+    public void replaceMult(int index, int len, int numElems, char elem) {
+    replaceAll(index, len, new IReadOnlyCharListFromMult(numElems, elem));
+}
+
+    /**
      * Replaces the specified range with new elements.
      * This method is very powerful as it offers the functionality of many other methods
      * which are therefore only offered for convenience: <br/>
@@ -1549,22 +1613,6 @@ public void replaceAll(int index, int len, ICharList list) {
     }
     // Call worker method   
     doReplaceAll(index, len, list);
-}
-
-    public void replaceAll(int index, int len, Collection<Character> coll) {
-    if (coll instanceof List) {
-        doReplaceAll(index, len, new IReadOnlyCharListFromList((List<Character>) coll));
-    } else {
-        doReplaceAll(index, len, new IReadOnlyCharListFromCollection(coll));
-    }
-}
-
-    public void replaceArray(int index, int len, char... elems) {
-    doReplaceAll(index, len, new IReadOnlyCharListFromArray(elems));
-}
-
-    public void replaceMult(int index, int len, int numElems, char elem) {
-    doReplaceAll(index, len, new IReadOnlyCharListFromMult(numElems, elem));
 }
 
     // -- doReplaceAll()  
@@ -1988,6 +2036,18 @@ protected void checkLengths(int len1, int len2) {
     }
     if (len2 < 0) {
         throw new IndexOutOfBoundsException("Invalid length: " + len2);
+    }
+}
+
+    /**
+     * Check that object is not null.
+     *
+     * @param obj object to check
+     * @throws NullPointerException if object is null
+     */
+protected void checkNonNull(Object obj) {
+    if (obj == null) {
+        throw new NullPointerException("Argument may not be (char) 0");
     }
 }
 

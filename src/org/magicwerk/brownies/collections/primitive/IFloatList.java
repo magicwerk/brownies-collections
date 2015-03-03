@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: IFloatList.java 2739 2015-02-27 00:20:40Z origo $
+ * $Id: IFloatList.java 2744 2015-03-01 01:28:51Z origo $
  */
 package org.magicwerk.brownies.collections.primitive;
 
@@ -42,7 +42,7 @@ import org.magicwerk.brownies.collections.function.IPredicate;
  * It also offers additional methods which are then available in all implementations of GapList and BigList.
  *
  * @author Thomas Mauch
- * @version $Id: IFloatList.java 2739 2015-02-27 00:20:40Z origo $
+ * @version $Id: IFloatList.java 2744 2015-03-01 01:28:51Z origo $
  *
  * @param  type of elements stored in the list
  * @see	    java.util.List
@@ -196,6 +196,25 @@ public float set(int index, float elem) {
 }
 
     /**
+     * Sets or adds the element.
+     * If the index is smaller than the size of the list, the existing element is replaced.
+     * If the index equals the size of the list, the element is added.
+     *
+     * @param index	index where element will be placed
+     * @param elem	element to put
+     * @return		old element if an element was replaced, null if the element was added
+     */
+public float put(int index, float elem) {
+    checkIndexAdd(index);
+    if (index < size()) {
+        return doSet(index, elem);
+    } else {
+        doAdd(-1, elem);
+        return 0;
+    }
+}
+
+    /**
      * Sets an element at specified position.
      * This method is used internally if existing elements will be moved etc.
      * Override if you need to validity checks.
@@ -286,7 +305,7 @@ public abstract void trimToSize();
 
     
 public boolean equals(Object obj) {
-    if (obj == this) {
+    if (obj == null) {
         return true;
     }
     if (obj instanceof FloatObjGapList) {
@@ -426,6 +445,23 @@ public void removeWhere(IPredicate predicate) {
     for (int i = 0; i < size; i++) {
         float e = doGet(i);
         if (predicate.test(e)) {
+            doRemove(i);
+            size--;
+            i--;
+        }
+    }
+}
+
+    /**
+	 * Retains all elements in the list which match the predicate.
+	 *
+	 * @param predicate	predicate
+	 */
+public void retainWhere(IPredicate predicate) {
+    int size = size();
+    for (int i = 0; i < size; i++) {
+        float e = doGet(i);
+        if (!predicate.test(e)) {
             doRemove(i);
             size--;
             i--;
@@ -1423,7 +1459,15 @@ public void setMult(int index, int len, float elem) {
      */
 public void putAll(int index, IFloatList list) {
     checkIndexAdd(index);
-    doReplaceAll(index, -1, list);
+    checkNonNull(list);
+    int len = size() - index;
+    if (list != null) {
+        if (list.size() < len) {
+            len = list.size();
+        }
+    }
+    // Call worker method   
+    doReplaceAll(index, len, list);
 }
 
     /**
@@ -1433,11 +1477,12 @@ public void putAll(int index, IFloatList list) {
      * @param coll  collection with elements to set or add
      */
 public void putAll(int index, Collection<Float> coll) {
-    checkIndexAdd(index);
-    if (coll instanceof List) {
-        doReplaceAll(index, -1, new IReadOnlyFloatListFromList((List<Float>) coll));
+    if (coll instanceof IFloatList) {
+        putAll(index, (IFloatList) coll);
+    } else if (coll instanceof List) {
+        putAll(index, new IReadOnlyFloatListFromList((List<Float>) coll));
     } else {
-        doReplaceAll(index, -1, new IReadOnlyFloatListFromCollection(coll));
+        putAll(index, new IReadOnlyFloatListFromCollection(coll));
     }
 }
 
@@ -1448,8 +1493,7 @@ public void putAll(int index, Collection<Float> coll) {
      * @param coll  collection with elements to set or add
      */
 public void putArray(int index, float... elems) {
-    checkIndexAdd(index);
-    doReplaceAll(index, -1, new IReadOnlyFloatListFromArray(elems));
+    putAll(index, new IReadOnlyFloatListFromArray(elems));
 }
 
     /**
@@ -1459,8 +1503,7 @@ public void putArray(int index, float... elems) {
      * @param coll  collection with elements to set or add
      */
 public void putMult(int index, int len, float elem) {
-    checkIndexAdd(index);
-    doReplaceAll(index, -1, new IReadOnlyFloatListFromMult(len, elem));
+    putAll(index, new IReadOnlyFloatListFromMult(len, elem));
 }
 
     // -- initAll()  
@@ -1472,6 +1515,7 @@ public void putMult(int index, int len, float elem) {
      * @throws 		IndexOutOfBoundsException if the length is invalid
 	 */
 public void initAll(IFloatList list) {
+    checkNonNull(list);
     doReplaceAll(0, size(), list);
 }
 
@@ -1483,10 +1527,12 @@ public void initAll(IFloatList list) {
      * @throws 		IndexOutOfBoundsException if the length is invalid
 	 */
 public void initAll(Collection<Float> coll) {
-    if (coll instanceof List) {
-        doReplaceAll(0, size(), new IReadOnlyFloatListFromList((List<Float>) coll));
+    if (coll instanceof IFloatList) {
+        initAll((IFloatList) coll);
+    } else if (coll instanceof List) {
+        initAll(new IReadOnlyFloatListFromList((List<Float>) coll));
     } else {
-        doReplaceAll(0, size(), new IReadOnlyFloatListFromCollection(coll));
+        initAll(new IReadOnlyFloatListFromCollection(coll));
     }
 }
 
@@ -1498,7 +1544,7 @@ public void initAll(Collection<Float> coll) {
      * @throws 		IndexOutOfBoundsException if the length is invalid
 	 */
 public void initArray(float... elems) {
-    doReplaceAll(0, size(), new IReadOnlyFloatListFromArray(elems));
+    initAll(new IReadOnlyFloatListFromArray(elems));
 }
 
     /**
@@ -1512,11 +1558,29 @@ public void initArray(float... elems) {
 	 */
 public void initMult(int len, float elem) {
     checkLength(len);
-    doReplaceAll(0, size(), new IReadOnlyFloatListFromMult(len, elem));
+    initAll(new IReadOnlyFloatListFromMult(len, elem));
 }
 
     // -- replaceAll()  
-/**
+public void replaceAll(int index, int len, Collection<Float> coll) {
+    if (coll instanceof IFloatList) {
+        replaceAll(index, len, (IFloatList) coll);
+    } else if (coll instanceof List) {
+        replaceAll(index, len, new IReadOnlyFloatListFromList((List<Float>) coll));
+    } else {
+        replaceAll(index, len, new IReadOnlyFloatListFromCollection(coll));
+    }
+}
+
+    public void replaceArray(int index, int len, float... elems) {
+    replaceAll(index, len, new IReadOnlyFloatListFromArray(elems));
+}
+
+    public void replaceMult(int index, int len, int numElems, float elem) {
+    replaceAll(index, len, new IReadOnlyFloatListFromMult(numElems, elem));
+}
+
+    /**
      * Replaces the specified range with new elements.
      * This method is very powerful as it offers the functionality of many other methods
      * which are therefore only offered for convenience: <br/>
@@ -1550,22 +1614,6 @@ public void replaceAll(int index, int len, IFloatList list) {
     }
     // Call worker method   
     doReplaceAll(index, len, list);
-}
-
-    public void replaceAll(int index, int len, Collection<Float> coll) {
-    if (coll instanceof List) {
-        doReplaceAll(index, len, new IReadOnlyFloatListFromList((List<Float>) coll));
-    } else {
-        doReplaceAll(index, len, new IReadOnlyFloatListFromCollection(coll));
-    }
-}
-
-    public void replaceArray(int index, int len, float... elems) {
-    doReplaceAll(index, len, new IReadOnlyFloatListFromArray(elems));
-}
-
-    public void replaceMult(int index, int len, int numElems, float elem) {
-    doReplaceAll(index, len, new IReadOnlyFloatListFromMult(numElems, elem));
 }
 
     // -- doReplaceAll()  
@@ -1989,6 +2037,18 @@ protected void checkLengths(int len1, int len2) {
     }
     if (len2 < 0) {
         throw new IndexOutOfBoundsException("Invalid length: " + len2);
+    }
+}
+
+    /**
+     * Check that object is not null.
+     *
+     * @param obj object to check
+     * @throws NullPointerException if object is null
+     */
+protected void checkNonNull(Object obj) {
+    if (obj == null) {
+        throw new NullPointerException("Argument may not be 0");
     }
 }
 

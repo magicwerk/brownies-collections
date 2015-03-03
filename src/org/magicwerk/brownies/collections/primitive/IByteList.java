@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: IByteList.java 2739 2015-02-27 00:20:40Z origo $
+ * $Id: IByteList.java 2744 2015-03-01 01:28:51Z origo $
  */
 package org.magicwerk.brownies.collections.primitive;
 
@@ -42,7 +42,7 @@ import org.magicwerk.brownies.collections.function.IPredicate;
  * It also offers additional methods which are then available in all implementations of GapList and BigList.
  *
  * @author Thomas Mauch
- * @version $Id: IByteList.java 2739 2015-02-27 00:20:40Z origo $
+ * @version $Id: IByteList.java 2744 2015-03-01 01:28:51Z origo $
  *
  * @param  type of elements stored in the list
  * @see	    java.util.List
@@ -196,6 +196,25 @@ public byte set(int index, byte elem) {
 }
 
     /**
+     * Sets or adds the element.
+     * If the index is smaller than the size of the list, the existing element is replaced.
+     * If the index equals the size of the list, the element is added.
+     *
+     * @param index	index where element will be placed
+     * @param elem	element to put
+     * @return		old element if an element was replaced, null if the element was added
+     */
+public byte put(int index, byte elem) {
+    checkIndexAdd(index);
+    if (index < size()) {
+        return doSet(index, elem);
+    } else {
+        doAdd(-1, elem);
+        return (byte) 0;
+    }
+}
+
+    /**
      * Sets an element at specified position.
      * This method is used internally if existing elements will be moved etc.
      * Override if you need to validity checks.
@@ -286,7 +305,7 @@ public abstract void trimToSize();
 
     
 public boolean equals(Object obj) {
-    if (obj == this) {
+    if (obj == null) {
         return true;
     }
     if (obj instanceof ByteObjGapList) {
@@ -425,6 +444,23 @@ public void removeWhere(IPredicate predicate) {
     for (int i = 0; i < size; i++) {
         byte e = doGet(i);
         if (predicate.test(e)) {
+            doRemove(i);
+            size--;
+            i--;
+        }
+    }
+}
+
+    /**
+	 * Retains all elements in the list which match the predicate.
+	 *
+	 * @param predicate	predicate
+	 */
+public void retainWhere(IPredicate predicate) {
+    int size = size();
+    for (int i = 0; i < size; i++) {
+        byte e = doGet(i);
+        if (!predicate.test(e)) {
             doRemove(i);
             size--;
             i--;
@@ -1422,7 +1458,15 @@ public void setMult(int index, int len, byte elem) {
      */
 public void putAll(int index, IByteList list) {
     checkIndexAdd(index);
-    doReplaceAll(index, -1, list);
+    checkNonNull(list);
+    int len = size() - index;
+    if (list != null) {
+        if (list.size() < len) {
+            len = list.size();
+        }
+    }
+    // Call worker method   
+    doReplaceAll(index, len, list);
 }
 
     /**
@@ -1432,11 +1476,12 @@ public void putAll(int index, IByteList list) {
      * @param coll  collection with elements to set or add
      */
 public void putAll(int index, Collection<Byte> coll) {
-    checkIndexAdd(index);
-    if (coll instanceof List) {
-        doReplaceAll(index, -1, new IReadOnlyByteListFromList((List<Byte>) coll));
+    if (coll instanceof IByteList) {
+        putAll(index, (IByteList) coll);
+    } else if (coll instanceof List) {
+        putAll(index, new IReadOnlyByteListFromList((List<Byte>) coll));
     } else {
-        doReplaceAll(index, -1, new IReadOnlyByteListFromCollection(coll));
+        putAll(index, new IReadOnlyByteListFromCollection(coll));
     }
 }
 
@@ -1447,8 +1492,7 @@ public void putAll(int index, Collection<Byte> coll) {
      * @param coll  collection with elements to set or add
      */
 public void putArray(int index, byte... elems) {
-    checkIndexAdd(index);
-    doReplaceAll(index, -1, new IReadOnlyByteListFromArray(elems));
+    putAll(index, new IReadOnlyByteListFromArray(elems));
 }
 
     /**
@@ -1458,8 +1502,7 @@ public void putArray(int index, byte... elems) {
      * @param coll  collection with elements to set or add
      */
 public void putMult(int index, int len, byte elem) {
-    checkIndexAdd(index);
-    doReplaceAll(index, -1, new IReadOnlyByteListFromMult(len, elem));
+    putAll(index, new IReadOnlyByteListFromMult(len, elem));
 }
 
     // -- initAll()  
@@ -1471,6 +1514,7 @@ public void putMult(int index, int len, byte elem) {
      * @throws 		IndexOutOfBoundsException if the length is invalid
 	 */
 public void initAll(IByteList list) {
+    checkNonNull(list);
     doReplaceAll(0, size(), list);
 }
 
@@ -1482,10 +1526,12 @@ public void initAll(IByteList list) {
      * @throws 		IndexOutOfBoundsException if the length is invalid
 	 */
 public void initAll(Collection<Byte> coll) {
-    if (coll instanceof List) {
-        doReplaceAll(0, size(), new IReadOnlyByteListFromList((List<Byte>) coll));
+    if (coll instanceof IByteList) {
+        initAll((IByteList) coll);
+    } else if (coll instanceof List) {
+        initAll(new IReadOnlyByteListFromList((List<Byte>) coll));
     } else {
-        doReplaceAll(0, size(), new IReadOnlyByteListFromCollection(coll));
+        initAll(new IReadOnlyByteListFromCollection(coll));
     }
 }
 
@@ -1497,7 +1543,7 @@ public void initAll(Collection<Byte> coll) {
      * @throws 		IndexOutOfBoundsException if the length is invalid
 	 */
 public void initArray(byte... elems) {
-    doReplaceAll(0, size(), new IReadOnlyByteListFromArray(elems));
+    initAll(new IReadOnlyByteListFromArray(elems));
 }
 
     /**
@@ -1511,11 +1557,29 @@ public void initArray(byte... elems) {
 	 */
 public void initMult(int len, byte elem) {
     checkLength(len);
-    doReplaceAll(0, size(), new IReadOnlyByteListFromMult(len, elem));
+    initAll(new IReadOnlyByteListFromMult(len, elem));
 }
 
     // -- replaceAll()  
-/**
+public void replaceAll(int index, int len, Collection<Byte> coll) {
+    if (coll instanceof IByteList) {
+        replaceAll(index, len, (IByteList) coll);
+    } else if (coll instanceof List) {
+        replaceAll(index, len, new IReadOnlyByteListFromList((List<Byte>) coll));
+    } else {
+        replaceAll(index, len, new IReadOnlyByteListFromCollection(coll));
+    }
+}
+
+    public void replaceArray(int index, int len, byte... elems) {
+    replaceAll(index, len, new IReadOnlyByteListFromArray(elems));
+}
+
+    public void replaceMult(int index, int len, int numElems, byte elem) {
+    replaceAll(index, len, new IReadOnlyByteListFromMult(numElems, elem));
+}
+
+    /**
      * Replaces the specified range with new elements.
      * This method is very powerful as it offers the functionality of many other methods
      * which are therefore only offered for convenience: <br/>
@@ -1549,22 +1613,6 @@ public void replaceAll(int index, int len, IByteList list) {
     }
     // Call worker method   
     doReplaceAll(index, len, list);
-}
-
-    public void replaceAll(int index, int len, Collection<Byte> coll) {
-    if (coll instanceof List) {
-        doReplaceAll(index, len, new IReadOnlyByteListFromList((List<Byte>) coll));
-    } else {
-        doReplaceAll(index, len, new IReadOnlyByteListFromCollection(coll));
-    }
-}
-
-    public void replaceArray(int index, int len, byte... elems) {
-    doReplaceAll(index, len, new IReadOnlyByteListFromArray(elems));
-}
-
-    public void replaceMult(int index, int len, int numElems, byte elem) {
-    doReplaceAll(index, len, new IReadOnlyByteListFromMult(numElems, elem));
 }
 
     // -- doReplaceAll()  
@@ -1988,6 +2036,18 @@ protected void checkLengths(int len1, int len2) {
     }
     if (len2 < 0) {
         throw new IndexOutOfBoundsException("Invalid length: " + len2);
+    }
+}
+
+    /**
+     * Check that object is not null.
+     *
+     * @param obj object to check
+     * @throws NullPointerException if object is null
+     */
+protected void checkNonNull(Object obj) {
+    if (obj == null) {
+        throw new NullPointerException("Argument may not be (byte) 0");
     }
 }
 
