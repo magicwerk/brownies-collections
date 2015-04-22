@@ -1392,13 +1392,13 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	    	// If list cannot contain null, handle null explicitly to prevent NPE
 	    	if (key == null) {
 	    		if (!allowNull) {
-	    			return GapList.EMPTY();
+	    			return GapList.create();
 	    		}
 	    	}
 	        if (keysMap != null) {
 	            // Collection or unsorted list
 	        	if (!keysMap.containsKey(key)) {
-	        		return GapList.EMPTY();
+	        		return GapList.create();
 	        	}
 	            Object obj = keysMap.remove(key);
 	            GapList<E> removed;
@@ -1413,7 +1413,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	            // Sorted list
 	        	int index = SortedLists.binarySearchGet(keysList, key, comparator);
 	            if (index < 0) {
-	                return GapList.EMPTY();
+	                return GapList.create();
 	            }
 	            int start = index;
 	            while (true) {
@@ -2369,7 +2369,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
      *
      * @param keyIndex	key index
      * @param key   	key which elements must have
-     * @return      	list with all keys (null if key is null)
+     * @return      	list with all elements
      */
     protected GapList<E> getAllByKey(int keyIndex, Object key) {
     	return doGetAllByKey(getKeyMap(keyIndex), key);
@@ -2379,7 +2379,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         // Handle null key if not allowed to prevent NPE
         if (key == null) {
             if (!keyMap.allowNull) {
-                return GapList.EMPTY();
+                return GapList.create();
             }
         }
 
