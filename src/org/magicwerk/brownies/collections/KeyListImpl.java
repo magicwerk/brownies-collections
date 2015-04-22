@@ -456,7 +456,7 @@ public abstract class KeyListImpl<E> extends IList<E> {
      *
      * @param keyIndex	key index
      * @param key   	key which elements must have
-     * @return      	list with all keys (null if key is null)
+     * @return      	list with all elements
      */
     public GapList<E> getAllByKey(int keyIndex, Object key) {
     	return keyColl.getAllByKey(keyIndex, key);
