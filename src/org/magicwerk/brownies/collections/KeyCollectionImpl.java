@@ -968,8 +968,8 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	    KeyMap() {
 	    }
 
-	    KeyMap copy() {
-	    	KeyMap copy = new KeyMap();
+	    KeyMap<E,K> copy() {
+	    	KeyMap<E,K> copy = new KeyMap<E,K>();
 	    	copy.mapper = mapper;
 	    	copy.allowNull = allowNull;
 	    	copy.allowDuplicates = allowDuplicates;
@@ -999,8 +999,8 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	    	return copy;
 	    }
 
-	    KeyMap crop() {
-	    	KeyMap copy = new KeyMap();
+	    KeyMap<E,K> crop() {
+	    	KeyMap<E,K> copy = new KeyMap<E,K>();
 	    	copy.mapper = mapper;
 	    	copy.allowNull = allowNull;
 	    	copy.allowDuplicates = allowDuplicates;
@@ -1009,12 +1009,12 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	    	copy.count = count;
 	    	if (keysMap != null) {
 	    		if (keysMap instanceof HashMap) {
-	    			copy.keysMap = new HashMap();
+	    			copy.keysMap = new HashMap<K,Object>();
 	    		} else {
-	    			copy.keysMap = new TreeMap();
+	    			copy.keysMap = new TreeMap<K,Object>();
 	    		}
 	    	} else {
-	    		copy.keysList = new GapList();
+	    		copy.keysList = new GapList<K>();
 	    	}
 	    	return copy;
 	    }
@@ -1078,27 +1078,26 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	    	return Option.EMPTY();
 	    }
 
-	    @SuppressWarnings("unchecked")
 		Iterator<E> iteratorValues(KeyCollectionImpl<E> keyColl) {
 	    	assert(keysMap != null);
     		if (count) {
-    			return (Iterator<E>) new KeyMapCountIter(keyColl, this, keysMap);
+    			return (Iterator<E>) new KeyMapCountIter<E,K>(keyColl, this, keysMap);
     		} else {
-    			return (Iterator<E>) new KeyMapIter(keyColl, this, keysMap);
+    			return (Iterator<E>) new KeyMapIter<E,K>(keyColl, this, keysMap);
     		}
 	    }
 
 	    static class KeyMapIter<E,K> implements Iterator<E> {
 
-	    	KeyCollectionImpl tableColl;
+	    	KeyCollectionImpl<E> keyColl;
 	    	KeyMap<E,K> keyMap;
 	    	Iterator<Object> mapIter;
 	    	Iterator<E> listIter;
 	    	boolean hasElem;
 	    	E elem;
 
-	    	public KeyMapIter(KeyCollectionImpl tableColl, KeyMap<E,K> keyMap, Map<K,Object> map) {
-	    		this.tableColl = tableColl;
+	    	public KeyMapIter(KeyCollectionImpl<E> tableColl, KeyMap<E,K> keyMap, Map<K,Object> map) {
+	    		this.keyColl = tableColl;
 	    		this.keyMap = keyMap;
 	    		this.mapIter = map.values().iterator();
 	    	}
@@ -1157,13 +1156,13 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 				} else {
 					mapIter.remove();
 				}
-				tableColl.remove(elem, keyMap);
+				keyColl.remove(elem, keyMap);
 			}
 	    }
 
 	    static class KeyMapCountIter<E,K> implements Iterator<E> {
 
-	    	KeyCollectionImpl keyColl;
+	    	KeyCollectionImpl<E> keyColl;
 	    	KeyMap<E,K> keyMap;
 	    	Map<K,Object> map;
 	    	Iterator<Entry<K, Object>> mapIter;
@@ -1171,7 +1170,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	    	int count;
 	    	boolean hasElem;
 
-	    	public KeyMapCountIter(KeyCollectionImpl keyColl, KeyMap<E,K> keyMap, Map<K,Object> map) {
+	    	public KeyMapCountIter(KeyCollectionImpl<E> keyColl, KeyMap<E,K> keyMap, Map<K,Object> map) {
 	    		this.keyColl = keyColl;
 	    		this.keyMap = keyMap;
 	    		this.map = map;
@@ -1275,7 +1274,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 		        			list = (GapList<E>) oldElem;
 		        			list.add(elem);
 		        		} else {
-		    	            list = (GapList<E>) new KeyMapList();
+		    	            list = new KeyMapList<E>();
 		    	            list.addArray((E) oldElem, elem);
 		        		}
 	    	            keysMap.put(key, list);
@@ -1388,7 +1387,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	     * @param key   	key of element to remove
 	     * @return      	list with all removed elements
 	     */
-	    private GapList<E> doRemoveAllByKey(K key, KeyCollectionImpl keyColl) {
+	    private GapList<E> doRemoveAllByKey(K key, KeyCollectionImpl<E> keyColl) {
 	    	// If list cannot contain null, handle null explicitly to prevent NPE
 	    	if (key == null) {
 	    		if (!allowNull) {
@@ -1430,24 +1429,6 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	            return removed;
 	        }
 	    }
-
-		public GapList<Object> getValues(int capacity) {
-			GapList<Object> list = null;
-	        if (keysMap != null) {
-	        	list = new GapList(capacity);
-	        	for (Object obj: keysMap.values()) {
-			        if (obj instanceof KeyMapList) {
-			        	list.addAll((GapList) obj);
-			        } else {
-			        	list.add(obj);
-			        }
-	        	}
-	        } else {
-	        	list = (GapList<Object>) keysList.unmodifiableList();
-	        }
-        	assert(keysList.size() == capacity);
-			return list;
-		}
 
 		Set<K> getDistinctKeys() {
 	        if (keysMap != null) {
@@ -1542,7 +1523,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
      * Back pointer to KeyListImpl if this object is used to implement a KeyList, Key1List, Key2List.
      * Otherwise null if it is part of a KeyCollection, Key1Collection, Key2Collection.
      */
-    KeyListImpl keyList;
+    KeyListImpl<E> keyList;
 
     /**
      * Private constructor.
@@ -2027,10 +2008,6 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 		return added;
 	}
 
-    public GapList<Object> getKeyValues(int keyIndex) {
-    	return getKeyMap(keyIndex).getValues(size);
-    }
-
     /**
      * Returns all elements contained in this collection as list.
      *
@@ -2401,7 +2378,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
             if (index >= 0) {
                 GapList<E> list = new GapList<E>();
                 while (true) {
-                    list.add((E) keyMap.keysList.doGet(index));
+                    list.add(keyList.doGet(index));
                     index++;
                     if (index == keyMap.keysList.size()) {
                         break;
