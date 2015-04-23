@@ -8,9 +8,7 @@
     <property name="AppSvnExplorer.location" value="../../../Local-Magicwerk/AppSvnExplorer"/>
     <property name="Brownies-Collections-Test.location" value="../Brownies-Collections-Test"/>
     <property name="Brownies-Core.location" value="../Brownies-Core"/>
-    <property name="Brownies-Dev.location" value="../Brownies-Dev"/>
     <property name="Brownies-Swt.location" value="../Brownies-Swt"/>
-    <property name="Brownies-Values.location" value="../Brownies-Values"/>
     <property name="EvalSwtStyledText.location" value="../../../Local-Magicwerk/EvalSwtStyledText"/>
     <property name="ECLIPSE_HOME" value="../../../../Eclipse/Eclipse-JEE-4.4.0-x64/"/>
     <property name="debuglevel" value="source,lines,vars"/>
@@ -60,20 +58,8 @@
                 <propertyref name="build.compiler"/>
             </propertyset>
         </ant>
-        <ant antfile="build.xml" dir="${Brownies-Dev.location}" inheritAll="false" target="clean"/>
-        <ant antfile="build.xml" dir="${Brownies-Dev.location}" inheritAll="false" target="build">
-            <propertyset>
-                <propertyref name="build.compiler"/>
-            </propertyset>
-        </ant>
         <ant antfile="build.xml" dir="${Brownies-Swt.location}" inheritAll="false" target="clean"/>
         <ant antfile="build.xml" dir="${Brownies-Swt.location}" inheritAll="false" target="build">
-            <propertyset>
-                <propertyref name="build.compiler"/>
-            </propertyset>
-        </ant>
-        <ant antfile="build.xml" dir="${Brownies-Values.location}" inheritAll="false" target="clean"/>
-        <ant antfile="build.xml" dir="${Brownies-Values.location}" inheritAll="false" target="build">
             <propertyset>
                 <propertyref name="build.compiler"/>
             </propertyset>
