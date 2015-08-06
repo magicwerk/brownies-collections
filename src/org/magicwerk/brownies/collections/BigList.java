@@ -326,8 +326,8 @@ public class BigList<E> extends IList<E> {
 	}
 
 	/**
-	 * {@inheritDoc}
-	 * For BigList, always -1 is returned.
+	 * As BigList grows and shrinks automatically, the term capacity does not really make sense.
+	 * Therefore always -1 is returned.
 	 */
 	@Override
 	public int capacity() {
@@ -1295,8 +1295,8 @@ public class BigList<E> extends IList<E> {
 	 * instances with a copy-on-write approach.
 	 */
 	@SuppressWarnings("serial")
-	public static class Block<T> extends GapList<T> {
-		private AtomicInteger refCount = new AtomicInteger();
+	static class Block<T> extends GapList<T> {
+		private AtomicInteger refCount = new AtomicInteger(1);
 
 		public Block() {
 		}
