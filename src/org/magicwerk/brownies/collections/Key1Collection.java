@@ -22,9 +22,9 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.Set;
 
+import org.magicwerk.brownies.collections.function.IConsumer;
 import org.magicwerk.brownies.collections.function.IFunction;
 import org.magicwerk.brownies.collections.function.IPredicate;
-import org.magicwerk.brownies.collections.function.IConsumer;
 
 /**
  * Key1Collection implements a collection with 1 key.
@@ -117,11 +117,6 @@ public class Key1Collection<E,K> extends KeyCollectionImpl<E> {
         @Override
         public Builder<E,K> withMaxSize(int maxSize) {
         	return (Builder<E,K>) super.withMaxSize(maxSize);
-        }
-
-        @Override
-        public Builder<E,K> withElemBig(boolean bigList) {
-        	return (Builder<E,K>) super.withElemBig(bigList);
         }
 
         //-- Element key

@@ -21,8 +21,8 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.Set;
 
-import org.magicwerk.brownies.collections.function.IPredicate;
 import org.magicwerk.brownies.collections.function.IConsumer;
+import org.magicwerk.brownies.collections.function.IPredicate;
 
 
 /**
@@ -114,11 +114,6 @@ public class KeyCollection<E> extends KeyCollectionImpl<E> {
         @Override
         public Builder<E> withMaxSize(int maxSize) {
         	return (Builder<E>) super.withMaxSize(maxSize);
-        }
-
-        @Override
-        public Builder<E> withElemBig(boolean bigList) {
-        	return (Builder<E>) super.withElemBig(bigList);
         }
 
         //-- Element key
