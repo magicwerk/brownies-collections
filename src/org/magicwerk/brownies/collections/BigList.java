@@ -1061,6 +1061,8 @@ public class BigList<E> extends IList<E> {
 					doRemove(oldCurrNode);
 				}
 			} else if (index != 0 && index != size-1) {
+				// Do not merge if remove happens at head or tail.
+				// Reason: if removing continues, we can remove the whole block without merging
 				merge(currNode);
 			}
 		}
