@@ -32,9 +32,9 @@ import java.util.TreeSet;
 
 import org.magicwerk.brownies.collections.exceptions.DuplicateKeyException;
 import org.magicwerk.brownies.collections.exceptions.KeyException;
+import org.magicwerk.brownies.collections.function.IConsumer;
 import org.magicwerk.brownies.collections.function.IFunction;
 import org.magicwerk.brownies.collections.function.IPredicate;
-import org.magicwerk.brownies.collections.function.IConsumer;
 import org.magicwerk.brownies.collections.helper.BigLists;
 import org.magicwerk.brownies.collections.helper.GapLists;
 import org.magicwerk.brownies.collections.helper.IdentMapper;
@@ -81,9 +81,9 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
             Boolean allowDuplicates;
             boolean allowDuplicatesNull;
             // -- sorted list
-            /** True to sort using natural comparator */
+            /** True to sort */
             Boolean sort;
-            /** Comparator to use for sorting */
+            /** Comparator to use for sorting (null for natural comparator) */
             Comparator<?> comparator;
             /** The specified comparator can handle null values */
             boolean comparatorSortsNull;
@@ -818,11 +818,19 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 
             int orderByKey = -1;
             int size = keyMapBuilders.size();
-            if (size == 1 && keyMapBuilders.get(0) == null) {
-            	if (!list) {
-            		withElemSet();
+            if (size == 1) {
+            	KeyMapBuilder kmb = keyMapBuilders.get(0);
+            	if (kmb == null) {
+	            	if (!list) {
+	            		withElemSet();
+	            	} else {
+	            		size = 0;
+	            	}
             	} else {
-            		size = 0;
+            		// If orderByType is only set to define a list type, no key map must be created
+                	if (list && kmb.orderByType != null && kmb.orderBy == null && kmb.mapper == null && kmb.allowDuplicates == null && kmb.allowNull == null && kmb.sort == null) {
+                		size = 0;
+                	}
             	}
             }
             if (size > 0) {
@@ -855,8 +863,8 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	            }
             }
 
-            // TableCollectionImpl must have a defined order,
-            // TableListImpl will use the list order
+            // KeyCollectionImpl must have a defined order,
+            // KeyListImpl will use the list order
             if (orderByKey == -1 && !list) {
 	            if (keyColl.keyMaps != null) {
 	            	if (keyColl.keyMaps[0] != null) {

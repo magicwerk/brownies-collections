@@ -667,7 +667,7 @@ public abstract class KeyListImpl<E> extends IList<E> {
      */
     protected void invalidateKey(int keyIndex, Object oldKey, Object newKey, E elem) {
     	elem = keyColl.doInvalidateKey(keyIndex, oldKey, newKey, elem);
-    	if (keyColl.orderByKey == keyIndex && list == null) {
+    	if (keyColl.orderByKey == keyIndex && list != null) {
     		list.doRemove(super.indexOf(elem));
     		int index = keyColl.indexOfSorted(elem);
     		list.doAdd(index, elem);
