@@ -127,8 +127,8 @@ public class Key1Collection<E,K> extends KeyCollectionImpl<E> {
         }
 
         @Override
-        public Builder<E,K> withElemOrderBy(boolean orderBy) {
-        	return (Builder<E,K>) super.withElemOrderBy(orderBy);
+        public Builder<E,K> withOrderByElem(boolean orderBy) {
+        	return (Builder<E,K>) super.withOrderByElem(orderBy);
         }
 
         @Override
@@ -184,8 +184,8 @@ public class Key1Collection<E,K> extends KeyCollectionImpl<E> {
         }
 
         @Override
-        public Builder<E,K> withKey1OrderBy(boolean orderBy) {
-        	return (Builder<E,K>) super.withKey1OrderBy(orderBy);
+        public Builder<E,K> withOrderByKey1(boolean orderBy) {
+        	return (Builder<E,K>) super.withOrderByKey1(orderBy);
         }
 
         @Override
@@ -209,7 +209,8 @@ public class Key1Collection<E,K> extends KeyCollectionImpl<E> {
         }
 
         /**
-         * Set comparator to use for sorting.
+         * Set comparator to use for sorting the key map.
+         * Note that this does not automatically sort the collection itself, call a withOrderBy method for this.
          *
          * @param comparator    comparator to use for sorting
          * @return              this (fluent interface)
@@ -219,7 +220,8 @@ public class Key1Collection<E,K> extends KeyCollectionImpl<E> {
         }
 
         /**
-         * Set comparator to use for sorting.
+         * Set comparator to use for sorting the key map.
+         * Note that this does not automatically sort the collection itself, call a withOrderBy method for this.
          *
          * @param comparator            comparator to use for sorting
          * @param sortNullsFirst   		true if null will be sorted first, false for last

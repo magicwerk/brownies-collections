@@ -126,8 +126,8 @@ public class Key1List<E,K> extends KeyListImpl<E> {
         }
 
         @Override
-        public Builder<E,K> withElemBig(boolean bigList) {
-        	return (Builder<E,K>) super.withElemBig(bigList);
+        public Builder<E,K> withListBig(boolean bigList) {
+        	return (Builder<E,K>) super.withListBig(bigList);
         }
 
         //-- Element key
@@ -138,13 +138,8 @@ public class Key1List<E,K> extends KeyListImpl<E> {
         }
 
         @Override
-        public Builder<E,K> withElemOrderBy(boolean orderBy) {
-        	return (Builder<E,K>) super.withElemOrderBy(orderBy);
-        }
-
-        @Override
-        public Builder<E,K> withElemOrderBy(Class<?> type) {
-        	return (Builder<E,K>) super.withElemOrderBy(type);
+        public Builder<E,K> withOrderByElem(boolean orderBy) {
+        	return (Builder<E,K>) super.withOrderByElem(orderBy);
         }
 
         @Override
@@ -200,13 +195,13 @@ public class Key1List<E,K> extends KeyListImpl<E> {
         }
 
         @Override
-        public Builder<E,K> withKey1OrderBy(boolean orderBy) {
-        	return (Builder<E,K>) super.withKey1OrderBy(orderBy);
+        public Builder<E,K> withOrderByKey1(boolean orderBy) {
+        	return (Builder<E,K>) super.withOrderByKey1(orderBy);
         }
 
         @Override
-        public Builder<E,K> withKey1OrderBy(Class<?> type) {
-        	return (Builder<E,K>) super.withKey1OrderBy(type);
+        public Builder<E,K> withOrderByKey1(Class<?> type) {
+        	return (Builder<E,K>) super.withOrderByKey1(type);
         }
 
         @Override
@@ -230,7 +225,8 @@ public class Key1List<E,K> extends KeyListImpl<E> {
         }
 
         /**
-         * Set comparator to use for sorting.
+         * Set comparator to use for sorting the key map.
+         * Note that this does not automatically sort the list itself, call a withOrderBy method for this.
          *
          * @param comparator    comparator to use for sorting
          * @return              this (fluent interface)
@@ -240,7 +236,8 @@ public class Key1List<E,K> extends KeyListImpl<E> {
         }
 
         /**
-         * Set comparator to use for sorting.
+         * Set comparator to use for sorting the key map.
+         * Note that this does not automatically sort the list itself, call a withOrderBy method for this.
          *
          * @param comparator            comparator to use for sorting
          * @param sortNullsFirst   		true if null will be sorted first, false for last

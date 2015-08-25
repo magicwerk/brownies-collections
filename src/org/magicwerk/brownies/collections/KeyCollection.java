@@ -129,8 +129,8 @@ public class KeyCollection<E> extends KeyCollectionImpl<E> {
         }
 
         @Override
-        public Builder<E> withElemOrderBy(boolean orderBy) {
-        	return (Builder<E>) super.withElemOrderBy(orderBy);
+        public Builder<E> withOrderByElem(boolean orderBy) {
+        	return (Builder<E>) super.withOrderByElem(orderBy);
         }
 
         @Override

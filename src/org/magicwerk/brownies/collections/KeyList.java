@@ -122,8 +122,8 @@ public class KeyList<E> extends KeyListImpl<E> {
         }
 
         @Override
-        public Builder<E> withElemBig(boolean bigList) {
-        	return (Builder<E>) super.withElemBig(bigList);
+        public Builder<E> withListBig(boolean bigList) {
+        	return (Builder<E>) super.withListBig(bigList);
         }
 
         //-- Element key
@@ -138,13 +138,13 @@ public class KeyList<E> extends KeyListImpl<E> {
         }
 
         @Override
-        public Builder<E> withElemOrderBy(boolean orderBy) {
-        	return (Builder<E>) super.withElemOrderBy(orderBy);
+        public Builder<E> withOrderByElem(boolean orderBy) {
+        	return (Builder<E>) super.withOrderByElem(orderBy);
         }
 
         @Override
-        public Builder<E> withElemOrderBy(Class<?> type) {
-        	return (Builder<E>) super.withElemOrderBy(type);
+        public Builder<E> withOrderByElem(Class<?> type) {
+        	return (Builder<E>) super.withOrderByElem(type);
         }
 
         @Override
