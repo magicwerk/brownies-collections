@@ -129,8 +129,8 @@ public class Key2Collection<E,K1,K2> extends KeyCollectionImpl<E> {
         }
 
         @Override
-        public Builder<E,K1,K2> withElemOrderBy(boolean orderBy) {
-        	return (Builder<E,K1,K2>) super.withElemOrderBy(orderBy);
+        public Builder<E,K1,K2> withOrderByElem(boolean orderBy) {
+        	return (Builder<E,K1,K2>) super.withOrderByElem(orderBy);
         }
 
         @Override
@@ -186,8 +186,8 @@ public class Key2Collection<E,K1,K2> extends KeyCollectionImpl<E> {
         }
 
         @Override
-        public Builder<E,K1,K2> withKey1OrderBy(boolean orderBy) {
-        	return (Builder<E,K1,K2>) super.withKey1OrderBy(orderBy);
+        public Builder<E,K1,K2> withOrderByKey1(boolean orderBy) {
+        	return (Builder<E,K1,K2>) super.withOrderByKey1(orderBy);
         }
 
         @Override
@@ -211,7 +211,8 @@ public class Key2Collection<E,K1,K2> extends KeyCollectionImpl<E> {
         }
 
         /**
-         * Set comparator to use for sorting.
+         * Set comparator to use for sorting the key map.
+         * Note that this does not automatically sort the list collection, call a withOrderBy method for this.
          *
          * @param comparator    comparator to use for sorting
          * @return              this (fluent interface)
@@ -221,7 +222,8 @@ public class Key2Collection<E,K1,K2> extends KeyCollectionImpl<E> {
         }
 
         /**
-         * Set comparator to use for sorting.
+         * Set comparator to use for sorting the key map.
+         * Note that this does not automatically sort the list collection, call a withOrderBy method for this.
          *
          * @param comparator            comparator to use for sorting
          * @param sortNullsFirst   		true if null will be sorted first, false for last
@@ -254,8 +256,8 @@ public class Key2Collection<E,K1,K2> extends KeyCollectionImpl<E> {
         }
 
         @Override
-        public Builder<E,K1,K2> withKey2OrderBy(boolean orderBy) {
-        	return (Builder<E,K1,K2>) super.withKey2OrderBy(orderBy);
+        public Builder<E,K1,K2> withOrderByKey2(boolean orderBy) {
+        	return (Builder<E,K1,K2>) super.withOrderByKey2(orderBy);
         }
 
         @Override
@@ -279,7 +281,8 @@ public class Key2Collection<E,K1,K2> extends KeyCollectionImpl<E> {
         }
 
         /**
-         * Set comparator to use for sorting.
+         * Set comparator to use for sorting the key map.
+         * Note that this does not automatically sort the collection itself, call a withOrderBy method for this.
          *
          * @param comparator    comparator to use for sorting
          * @return              this (fluent interface)
@@ -289,7 +292,8 @@ public class Key2Collection<E,K1,K2> extends KeyCollectionImpl<E> {
         }
 
         /**
-         * Set comparator to use for sorting.
+         * Set comparator to use for sorting the key map.
+         * Note that this does not automatically sort the collection itself, call a withOrderBy method for this.
          *
          * @param comparator            comparator to use for sorting
          * @param sortNullsFirst   		true if null will be sorted first, false for last

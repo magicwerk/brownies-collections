@@ -127,8 +127,8 @@ public class Key2List<E,K1,K2> extends KeyListImpl<E> {
         }
 
         @Override
-        public Builder<E,K1,K2> withElemBig(boolean bigList) {
-        	return (Builder<E,K1,K2>) super.withElemBig(bigList);
+        public Builder<E,K1,K2> withListBig(boolean bigList) {
+        	return (Builder<E,K1,K2>) super.withListBig(bigList);
         }
 
         //-- Element key
@@ -139,13 +139,8 @@ public class Key2List<E,K1,K2> extends KeyListImpl<E> {
         }
 
         @Override
-        public Builder<E,K1,K2> withElemOrderBy(boolean orderBy) {
-        	return (Builder<E,K1,K2>) super.withElemOrderBy(orderBy);
-        }
-
-        @Override
-        public Builder<E,K1,K2> withElemOrderBy(Class<?> type) {
-        	return (Builder<E,K1,K2>) super.withElemOrderBy(type);
+        public Builder<E,K1,K2> withOrderByElem(boolean orderBy) {
+        	return (Builder<E,K1,K2>) super.withOrderByElem(orderBy);
         }
 
         @Override
@@ -201,13 +196,13 @@ public class Key2List<E,K1,K2> extends KeyListImpl<E> {
         }
 
         @Override
-        public Builder<E,K1,K2> withKey1OrderBy(boolean orderBy) {
-        	return (Builder<E,K1,K2>) super.withKey1OrderBy(orderBy);
+        public Builder<E,K1,K2> withOrderByKey1(boolean orderBy) {
+        	return (Builder<E,K1,K2>) super.withOrderByKey1(orderBy);
         }
 
         @Override
-        public Builder<E,K1,K2> withKey1OrderBy(Class<?> type) {
-        	return (Builder<E,K1,K2>) super.withKey1OrderBy(type);
+        public Builder<E,K1,K2> withOrderByKey1(Class<?> type) {
+        	return (Builder<E,K1,K2>) super.withOrderByKey1(type);
         }
 
         @Override
@@ -231,7 +226,8 @@ public class Key2List<E,K1,K2> extends KeyListImpl<E> {
         }
 
         /**
-         * Set comparator to use for sorting.
+         * Set comparator to use for sorting the key map.
+         * Note that this does not automatically sort the list itself, call a withOrderBy method for this.
          *
          * @param comparator    comparator to use for sorting
          * @return              this (fluent interface)
@@ -241,7 +237,8 @@ public class Key2List<E,K1,K2> extends KeyListImpl<E> {
         }
 
         /**
-         * Set comparator to use for sorting.
+         * Set comparator to use for sorting the key map.
+         * Note that this does not automatically sort the list itself, call a withOrderBy method for this.
          *
          * @param comparator            comparator to use for sorting
          * @param sortNullsFirst   		true if null will be sorted first, false for last
@@ -273,13 +270,13 @@ public class Key2List<E,K1,K2> extends KeyListImpl<E> {
         }
 
         @Override
-        public Builder<E,K1,K2> withKey2OrderBy(boolean orderBy) {
-        	return (Builder<E,K1,K2>) super.withKey2OrderBy(orderBy);
+        public Builder<E,K1,K2> withOrderByKey2(boolean orderBy) {
+        	return (Builder<E,K1,K2>) super.withOrderByKey2(orderBy);
         }
 
         @Override
-        public Builder<E,K1,K2> withKey2OrderBy(Class<?> type) {
-        	return (Builder<E,K1,K2>) super.withKey2OrderBy(type);
+        public Builder<E,K1,K2> withOrderByKey2(Class<?> type) {
+        	return (Builder<E,K1,K2>) super.withOrderByKey2(type);
         }
 
         @Override
@@ -303,7 +300,8 @@ public class Key2List<E,K1,K2> extends KeyListImpl<E> {
         }
 
         /**
-         * Set comparator to use for sorting.
+         * Set comparator to use for sorting the key map.
+         * Note that this does not automatically sort the list itself, call a withOrderBy method for this.
          *
          * @param comparator    comparator to use for sorting
          * @return              this (fluent interface)
@@ -313,7 +311,8 @@ public class Key2List<E,K1,K2> extends KeyListImpl<E> {
         }
 
         /**
-         * Set comparator to use for sorting.
+         * Set comparator to use for sorting the key map.
+         * Note that this does not automatically sort the list itself, call a withOrderBy method for this.
          *
          * @param comparator            comparator to use for sorting
          * @param sortNullsFirst   		true if null will be sorted first, false for last

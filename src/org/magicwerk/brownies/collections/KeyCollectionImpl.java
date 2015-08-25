@@ -72,7 +72,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         	Boolean orderBy;
             // -- sorted list
             /** Primitive class to use for list storage */
-            Class<?> orderByType;
+            Class<?> primitiveListType;
         	// -- mapper
         	IFunction<E,K> mapper;
             // -- null
@@ -112,15 +112,15 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         Boolean movingWindow;
         /** True to count only number of occurrences of equal elements */
         boolean count;
-        /** True to store list data in a BigList instance, false for a GapList instance */
+        /** True to store list data in a BigList instance, false for a GapList instance (only used for KeyList, Key1List, Key2List) */
         boolean useBigList;
 
         // Interface
 
         /**
          * Specifies whether null elements are allowed or not.
-         * A null element will have a null key.
-         * This method has the same effect as {@link #withElemNull}.
+         * A null element will have null keys.
+         * This method does not implicitly create an element set, where as {@link #withElemNull} does.
          *
          * @param allowNull true to allow null elements (default), false to disallow
          * @return          this (fluent interfaces)
@@ -262,7 +262,8 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
          * @param big	true to store list content in an instance of BigList, false for GapList
          * @return		this (fluent interface)
          */
-        protected BuilderImpl<E> withElemBig(boolean big) {
+        // only for KeyList / Key1List / Key2List
+        protected BuilderImpl<E> withListBig(boolean big) {
             this.useBigList = big;
             return this;
         }
@@ -296,11 +297,11 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
          * the natural comparator will be used. If the set allows null
          * values, the used comparator will sort them last.
          *
-         * @param orderBy	if true the collection will have the order of this map
-         * 					(default is false, only one map can have this option set)
+         * @param orderBy	if true the collection will have the order of the element set
+         * 					(default is false, only one key map or the element set can have the order by option set)
          * @return			this (fluent interface)
          */
-        protected BuilderImpl<E> withElemOrderBy(boolean orderBy) {
+        protected BuilderImpl<E> withOrderByElem(boolean orderBy) {
             return withKeyOrderBy(0, orderBy);
         }
 
@@ -309,17 +310,19 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
          * The set will store values of the primitive type specified like <code>int</code>.
          * The set will be sorted using the natural comparator and no null values are allowed.
          *
-         * @param type	primitive type to use for map (only one map can have the order by option set)
+         * @param type	primitive type to use for key map
+         * 				(only one key map or the element set can have the order by option set)
          * @return		this (fluent interface)
          */
-        // only for KeyList / Key1List / Key2List
-        protected BuilderImpl<E> withElemOrderBy(Class<?> type) {
-            return withKeyOrderBy(0, type);
+        // only for KeyList (if the element is a primitive, no keys can be extracted from it so Key1List and Key2List does not make sense)
+        protected BuilderImpl<E> withOrderByElem(Class<?> type) {
+            return withOrderByKey(0, type);
         }
 
         /**
          * Specifies whether null elements are allowed or not.
-         * A null element will have a null key.
+         * A null element will have null keys.
+         * This method does implicitly create an element set, where as {@link #withNull} does not.
          *
          * @param allowNull true to allow null elements, false to disallow (default is true)
          * @return          this (fluent interfaces)
@@ -330,6 +333,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 
         /**
          * Specify whether duplicates are allowed or not.
+         * This method does implicitly create an element set.
          *
          * @param allowDuplicates   true to allow duplicates (default is true)
          * @return              	this (fluent interfaces)
@@ -340,6 +344,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 
         /**
          * Specify whether duplicates are allowed or not.
+         * This method does implicitly create an element set.
          *
          * @param allowDuplicates		true to allow duplicates (default is true)
          * @param allowDuplicatesNull	true to allow duplicate null values (default is true)
@@ -350,8 +355,10 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         }
 
         /**
-         * Specify that the collection should be sorted using the natural comparator.
+         * Specify that the element set should be sorted using the natural comparator.
          * If the collection supports null values, they are sorted last.
+         * This method does implicitly create an element set.
+         * Note that this does not automatically sort the collection itself, call a withOrderBy method for this.
          *
          * @param sort    true to sorted, false for unsorted (default is false)
          * @return        this (fluent interface)
@@ -361,10 +368,12 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         }
 
         /**
-         * Set comparator to use for sorting.
+         * Set comparator to use for sorting the element set.
          * If the collection allows null values, the comparator must be able to compare null values.
          * If the comparator does not support null values, use withElemSort(Comparator, boolean) to
          * explicitly specify how null values should be sorted.
+         * This method does implicitly create an element set.
+         * Note that this does not automatically sort the collection itself, call a withOrderBy method for this.
          *
          * @param comparator    comparator to use for sorting (null for natural comparator)
          * @return              this (fluent interface)
@@ -374,10 +383,11 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         }
 
         /**
-         * Set comparator to use for sorting.
+         * Set comparator to use for sorting the element set.
          * This method should be used if the collection can contain null values, but the comparator
          * is not able to handle them. The parameter sortNullsFirst determine how the null values
          * should be sorted.
+         * This method does implicitly create an element set.
          *
          * @param comparator           comparator to use for sorting
          * @param sortNullsFirst	   true to sort null values first, false for last
@@ -430,11 +440,10 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         		throw new IllegalArgumentException("Order by already set");
         	}
         	kmb.orderBy = orderBy;
-        	kmb.orderByType = null;
             return this;
         }
 
-        protected BuilderImpl<E> withKeyOrderBy(int keyIndex, Class<?> type) {
+        protected BuilderImpl<E> withOrderByKey(int keyIndex, Class<?> type) {
         	if (type == null) {
         		throw new IllegalArgumentException("Order by type may not be null");
         	}
@@ -446,10 +455,11 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         		throw new IllegalArgumentException("Order by already set");
         	}
         	kmb.orderBy = true;
-        	kmb.orderByType = type;
+        	kmb.primitiveListType = type;
             return this;
         }
 
+        // only for KeyList.withElemClass
         protected BuilderImpl<E> withKeyClass(int keyIndex, Class<?> type) {
         	if (type == null) {
         		throw new IllegalArgumentException("Class type may not be null");
@@ -458,7 +468,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         		throw new IllegalArgumentException("Class type must be primitive");
         	}
         	KeyMapBuilder<?, ?> kmb = getKeyMapBuilder(keyIndex);
-        	kmb.orderByType = type;
+        	kmb.primitiveListType = type;
             return this;
         }
 
@@ -535,23 +545,31 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         // -- Key1
 
         /**
-         * Add key map.
+         * Specifies that the collection will have the order of the key map.
+         * The key map must be sorted, if no sort order has been defined,
+         * the natural comparator will be used. If the map allows null
+         * values, the used comparator will sort them last.
          *
-         * @param orderBy	true to force the collection to have the order of this map
+         * @param orderBy	if true the collection will have the order of the key map
+         * 					(default is false, only one key map or the element set can have the order by option set)
          * @return			this (fluent interface)
          */
-        protected BuilderImpl<E> withKey1OrderBy(boolean orderBy) {
+        protected BuilderImpl<E> withOrderByKey1(boolean orderBy) {
             return withKeyOrderBy(1, orderBy);
         }
 
         /**
-         * Specify element type to use.
+         * Specifies that the list will have the order of the key map.
+         * The key map will store values of the primitive type specified like <code>int</code>.
+         * The key map will be sorted using the natural comparator and no null values are allowed.
          *
-         * @param type	type to use
+         * @param type	primitive type to use for key map
+         * 				(only one key map or the element set can have the order by option set)
          * @return		this (fluent interface)
          */
-        protected BuilderImpl<E> withKey1OrderBy(Class<?> type) {
-            return withKeyOrderBy(1, type);
+        // only for Key1List / Key2List
+        protected BuilderImpl<E> withOrderByKey1(Class<?> type) {
+            return withOrderByKey(1, type);
         }
 
         /**
@@ -587,11 +605,13 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         }
 
         /**
-         * Determines that list should be sorted.
+         * Set comparator to use for sorting the key map.
+         * Note that this does not automatically sort the list itself, call a withOrderBy method for this.
          *
-         * @param sort	  ture to sort list
+         * @param sort	  true to sort key map
          * @return        this (fluent interface)
          */
+        // The other overloaded methods also named withKey1Sort must defined directly in the concrete classes due to the generic types
         protected BuilderImpl<E> withKey1Sort(boolean sort) {
         	return withKeySort(1, sort);
         }
@@ -621,23 +641,30 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         // -- Key2
 
         /**
-         * Add key map.
+         * Specifies that the collection will have the order of the key map.
+         * The key map must be sorted, if no sort order has been defined,
+         * the natural comparator will be used. If the map allows null
+         * values, the used comparator will sort them last.
          *
-         * @param orderBy	true to force the collection to have the order of this map
+         * @param orderBy	if true the collection will have the order of the key map
+         * 					(default is false, only one key map or the element set can have the order by option set)
          * @return			this (fluent interface)
          */
-        protected BuilderImpl<E> withKey2OrderBy(boolean orderBy) {
+        protected BuilderImpl<E> withOrderByKey2(boolean orderBy) {
             return withKeyOrderBy(2, orderBy);
         }
 
         /**
-         * Specify element type to use.
+         * Specifies that the list will have the order of the key map.
+         * The key map will store values of the primitive type specified like <code>int</code>.
+         * The key map will be sorted using the natural comparator and no null values are allowed.
          *
-         * @param type	type to use
+         * @param type	primitive type to use for key map
+         * 				(only one key map or the element set can have the order by option set)
          * @return		this (fluent interface)
          */
-        protected BuilderImpl<E> withKey2OrderBy(Class<?> type) {
-            return withKeyOrderBy(2, type);
+        protected BuilderImpl<E> withOrderByKey2(Class<?> type) {
+            return withOrderByKey(2, type);
         }
 
         /**
@@ -673,11 +700,13 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         }
 
         /**
-         * Determines that list should be sorted.
+         * Set comparator to use for sorting the key map.
+         * Note that this does not automatically sort the list itself, call a withOrderBy method for this.
          *
-         * @param sort    true to sort keys
+         * @param sort    true to sort key map
          * @return        this (fluent interface)
          */
+        // The other overloaded methods also named withKey2Sort must defined directly in the concrete classes due to the generic types
         protected BuilderImpl<E> withKey2Sort(boolean sort) {
         	return withKeySort(2, sort);
         }
@@ -771,7 +800,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         	}
 
         	if (list && isTrue(keyMapBuilder.orderBy)) {
-        		if (keyMapBuilder.orderByType == null) {
+        		if (keyMapBuilder.primitiveListType == null) {
         			if (useBigList) {
         				keyMap.keysList = new BigList<Object>();
         			} else {
@@ -786,9 +815,9 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
                 	}
                 	keyMap.comparator = NaturalComparator.INSTANCE();
         			if (useBigList) {
-        				keyMap.keysList = (IList<Object>) BigLists.createWrapperList(keyMapBuilder.orderByType);
+        				keyMap.keysList = (IList<Object>) BigLists.createWrapperList(keyMapBuilder.primitiveListType);
         			} else {
-        				keyMap.keysList = (IList<Object>) GapLists.createWrapperList(keyMapBuilder.orderByType);
+        				keyMap.keysList = (IList<Object>) GapLists.createWrapperList(keyMapBuilder.primitiveListType);
         			}
         		}
         	} else if (keyMap.comparator != null) {
@@ -827,8 +856,8 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	            		size = 0;
 	            	}
             	} else {
-            		// If orderByType is only set to define a list type, no key map must be created
-                	if (list && kmb.orderByType != null && kmb.orderBy == null && kmb.mapper == null && kmb.allowDuplicates == null && kmb.allowNull == null && kmb.sort == null) {
+            		// If primitiveListType is only set to define a list type, no key map must be created
+                	if (list && kmb.primitiveListType != null && kmb.orderBy == null && kmb.mapper == null && kmb.allowDuplicates == null && kmb.allowNull == null && kmb.sort == null) {
                 		size = 0;
                 	}
             	}
@@ -925,14 +954,14 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         	}
         }
 
-        IList initList() {
-        	Class<?> primitive = null;
-        	KeyMapBuilder kmb = keyMapBuilders.get(0);
+        IList<?> initList() {
+        	Class<?> primitiveListType = null;
+        	KeyMapBuilder<?,?> kmb = keyMapBuilders.get(0);
         	if (kmb != null) {
-        		primitive = kmb.orderByType;
+        		primitiveListType = kmb.primitiveListType;
         	}
 
-        	if (primitive == null) {
+        	if (primitiveListType == null) {
         		if (useBigList) {
         			return new BigList<Object>();
         		} else {
@@ -940,9 +969,9 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         		}
         	} else {
         		if (useBigList) {
-        			return BigLists.createWrapperList(primitive);
+        			return BigLists.createWrapperList(primitiveListType);
         		} else {
-        			return GapLists.createWrapperList(primitive);
+        			return GapLists.createWrapperList(primitiveListType);
         		}
 			}
         }
