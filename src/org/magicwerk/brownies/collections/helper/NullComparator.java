@@ -27,7 +27,7 @@ import java.util.Comparator;
  * @author Thomas Mauch
  * @version $Id$
  */
-public class NullComparator<T> implements Comparator<T> {
+public class NullComparator<T> extends SingletonComparator<T> {
     private Comparator<T> comparator;
     private boolean nullsFirst;
 

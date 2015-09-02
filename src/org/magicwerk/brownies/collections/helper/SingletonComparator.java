@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 by Thomas Mauch
+ * Copyright 2015 by Thomas Mauch
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,29 +20,25 @@ package org.magicwerk.brownies.collections.helper;
 import java.util.Comparator;
 
 /**
- * Reverse comparator.
- *
- * @param <T> type of object to compare
+ * Abstract base class for implementing a singleton comparator.
  *
  * @author Thomas Mauch
  * @version $Id$
  */
-public class ReverseComparator<T> extends SingletonComparator<T> {
-	/** Comparator to reverse */
-	private Comparator<T> comparator;
+abstract class SingletonComparator<T> implements Comparator<T> {
 
-	/**
-	 * Create reverse comparator.
-	 *
-	 * @param comparator	comparator which must be reversed
-	 */
-	public ReverseComparator(Comparator<T> comparator) {
-		this.comparator = comparator;
+	@Override
+	public boolean equals(Object that) {
+		if (this == null || that == null) {
+			return this == that;
+		}
+		return this.getClass().getName().equals(that.getClass().getName());
 	}
 
-    @Override
-    public int compare(T key1, T key2) {
-    	return comparator.compare(key2, key1);
-    }
+	@Override
+	public int hashCode() {
+		return getClass().getName().hashCode();
+	}
+
 
 }
