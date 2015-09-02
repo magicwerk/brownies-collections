@@ -17,7 +17,6 @@
  */
 package org.magicwerk.brownies.collections.helper;
 
-import java.util.Comparator;
 
 /**
  * The NaturalComparator will compare object using their natural order.
@@ -27,7 +26,7 @@ import java.util.Comparator;
  * @author Thomas Mauch
  * @version $Id$
  */
-public class NaturalComparator<T> implements Comparator<T> {
+public class NaturalComparator<T> extends SingletonComparator<T> {
 	/**
 	 * Singleton.
 	 */

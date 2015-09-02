@@ -17,7 +17,6 @@
  */
 package org.magicwerk.brownies.collections.helper;
 
-import java.util.Comparator;
 
 /**
  * The AnyComparator can compare elements of any object type,
@@ -30,7 +29,7 @@ import java.util.Comparator;
  * @author Thomas Mauch
  * @version $Id$
  */
-public class AnyComparator<T> implements Comparator<T> {
+public class AnyComparator<T> extends SingletonComparator<T> {
 	/**
 	 * Singleton instance.
 	 */
