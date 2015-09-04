@@ -134,37 +134,6 @@ public class KeyCollectionAsMap<E, K> implements Map<K, E>, Serializable {
 		return new CollectionAsSet(coll.getDistinctKeys(keyIndex), true);
 	}
 
-	static class MapEntry<K, E> implements Entry<K, E> {
-		K key;
-		E elem;
-
-		MapEntry(K key, E elem) {
-			this.key = key;
-			this.elem = elem;
-		}
-
-		@Override
-		public K getKey() {
-			return key;
-		}
-
-		@Override
-		public E getValue() {
-			return elem;
-		}
-
-		@Override
-		public E setValue(E value) {
-			throw new AssertionError();
-		}
-
-		@Override
-		public String toString() {
-			return "MapEntry [key=" + key + ", elem=" + elem + "]";
-		}
-
-	}
-
 	/**
 	 * {@inheritDoc}
 	 * <p><i>
@@ -178,7 +147,7 @@ public class KeyCollectionAsMap<E, K> implements Map<K, E>, Serializable {
 		List<Entry<K, E>> entries = new GapList(keys.size());
 		for (K key : keys) {
 			E elem = coll.getByKey(keyIndex, key);
-			entries.add(new MapEntry<K, E>(key, elem));
+			entries.add(new ImmutableMapEntry<K, E>(key, elem));
 		}
 		return new CollectionAsSet(entries, true);
 	}

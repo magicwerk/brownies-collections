@@ -128,8 +128,9 @@ public class KeyList<E> extends KeyListImpl<E> {
 
         //-- Element key
 
-        public Builder<E> withElemClass(Class<?> type) {
-        	return (Builder<E>) super.withKeyClass(0, type);
+        @Override
+        public Builder<E> withListType(Class<?> type) {
+        	return (Builder<E>) super.withListType(type);
         }
 
         @Override

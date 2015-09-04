@@ -256,18 +256,6 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
             return this;
         }
 
-        /**
-         * Specify whether list should be stored in an instance of BigList or GapList.
-         *
-         * @param big	true to store list content in an instance of BigList, false for GapList
-         * @return		this (fluent interface)
-         */
-        // only for KeyList / Key1List / Key2List
-        protected BuilderImpl<E> withListBig(boolean big) {
-            this.useBigList = big;
-            return this;
-        }
-
         //-- Element key
 
         /**
@@ -302,7 +290,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
          * @return			this (fluent interface)
          */
         protected BuilderImpl<E> withOrderByElem(boolean orderBy) {
-            return withKeyOrderBy(0, orderBy);
+            return withOrderByKey(0, orderBy);
         }
 
         /**
@@ -434,7 +422,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
             return this;
         }
 
-        protected BuilderImpl<E> withKeyOrderBy(int keyIndex, boolean orderBy) {
+        protected BuilderImpl<E> withOrderByKey(int keyIndex, boolean orderBy) {
         	KeyMapBuilder<?, ?> kmb = getKeyMapBuilder(keyIndex);
         	if (kmb.orderBy != null) {
         		throw new IllegalArgumentException("Order by already set");
@@ -459,16 +447,34 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
             return this;
         }
 
-        // only for KeyList.withElemClass
-        protected BuilderImpl<E> withKeyClass(int keyIndex, Class<?> type) {
+        /**
+         * Specifies that the list will store its elements as primitive type.
+         *
+         * @param type	primitive type to use for list
+         * @return		this (fluent interface)
+         */
+        // only for KeyList.withListType
+        protected BuilderImpl<E> withListType(Class<?> type) {
         	if (type == null) {
         		throw new IllegalArgumentException("Class type may not be null");
         	}
         	if (!type.isPrimitive()) {
         		throw new IllegalArgumentException("Class type must be primitive");
         	}
-        	KeyMapBuilder<?, ?> kmb = getKeyMapBuilder(keyIndex);
+        	KeyMapBuilder<?, ?> kmb = getKeyMapBuilder(0);
         	kmb.primitiveListType = type;
+            return this;
+        }
+
+        /**
+         * Specify whether list should be stored in an instance of BigList or GapList.
+         *
+         * @param big	true to store list content in an instance of BigList, false for GapList
+         * @return		this (fluent interface)
+         */
+        // only for KeyList / Key1List / Key2List
+        protected BuilderImpl<E> withListBig(boolean big) {
+            this.useBigList = big;
             return this;
         }
 
@@ -555,7 +561,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
          * @return			this (fluent interface)
          */
         protected BuilderImpl<E> withOrderByKey1(boolean orderBy) {
-            return withKeyOrderBy(1, orderBy);
+            return withOrderByKey(1, orderBy);
         }
 
         /**
@@ -651,7 +657,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
          * @return			this (fluent interface)
          */
         protected BuilderImpl<E> withOrderByKey2(boolean orderBy) {
-            return withKeyOrderBy(2, orderBy);
+            return withOrderByKey(2, orderBy);
         }
 
         /**

@@ -644,7 +644,7 @@ public class GapList<E> extends IList<E> {
 					int src = gapStart+gapSize;
 					int dst = gapStart;
 					int len = physIdx-gapEnd;
-					moveGap(src, dst, len);
+					moveDataWithGap(src, dst, len);
 					physIdx--;
 					gapSize--;
 					gapIndex = index;
@@ -664,7 +664,7 @@ public class GapList<E> extends IList<E> {
 					int src = physIdx;
 					int dst = physIdx+gapSize;
 					int len = gapStart-physIdx;
-					moveGap(src, dst, len);
+					moveDataWithGap(src, dst, len);
 					gapSize--;
 					gapStart = physIdx+1;
 					gapIndex = index+1;
@@ -678,7 +678,6 @@ public class GapList<E> extends IList<E> {
 							gapSize = 0;
 						}
 					}
-
 				}
 			}
 		}
@@ -693,7 +692,7 @@ public class GapList<E> extends IList<E> {
 	}
 
 	/**
-	 * Move a range of elements in the values array.
+	 * Move a range of elements in the values array and adjust the gap.
 	 * The elements are first copied and the source range is then
 	 * filled with null.
 	 *
@@ -701,7 +700,7 @@ public class GapList<E> extends IList<E> {
 	 * @param dst	start index of destination range
 	 * @param len	number of elements to move
 	 */
-	private void moveGap(int src, int dst, int len) {
+	private void moveDataWithGap(int src, int dst, int len) {
 		if (DEBUG_TRACE) {
 			debugLog("moveGap: " + src + "-" + src+len + " -> " + dst + "-" + dst+len);
 		}
@@ -753,7 +752,7 @@ public class GapList<E> extends IList<E> {
 	 * @param dst	start index of destination range
 	 * @param len	number of elements to move
 	 */
-	void moveData(int src, int dst, int len) {
+	private void moveData(int src, int dst, int len) {
 		if (DEBUG_TRACE) {
 			debugLog("moveData: " + src + "-" + src+len + " -> " + dst + "-" + dst+len);
 			if (DEBUG_DUMP) {
@@ -764,20 +763,19 @@ public class GapList<E> extends IList<E> {
 
 		// Write null into array slots which are not used anymore
 		// This is necessary to allow GC to reclaim non used objects.
+		int start;
+		int end;
 		if (src <= dst) {
-			int start = src;
-			int end = (dst < src+len) ? dst : src+len;
-			assert(end-start <= len);
-			for (int i=start; i<end; i++) {
-				values[i] = null;
-			}
+			start = src;
+			end = (dst < src+len) ? dst : src+len;
 		} else {
-			int start = (src > dst+len) ? src : dst+len;
-			int end = src+len;
-			assert(end-start <= len);
-			for (int i=start; i<end; i++) {
-				values[i] = null;
-			}
+			start = (src > dst+len) ? src : dst+len;
+			end = src+len;
+		}
+		// Inline of Arrays.fill
+		assert(end-start <= len);
+		for (int i=start; i<end; i++) {
+			values[i] = null;
 		}
 
 		if (DEBUG_TRACE) {
@@ -906,7 +904,7 @@ public class GapList<E> extends IList<E> {
 					int src = gapStart+gapSize;
 					int dst = gapStart;
 					int len = physIdx-gapEnd;
-					moveGap(src, dst, len);
+					moveDataWithGap(src, dst, len);
 					gapStart += len;
 					if (gapStart >= values.length) {
 						gapStart -= values.length;
@@ -917,7 +915,7 @@ public class GapList<E> extends IList<E> {
 					int src = physIdx+1;
 					int dst = physIdx+gapSize+1;
 					int len = gapStart-physIdx-1;
-					moveGap(src, dst, len);
+					moveDataWithGap(src, dst, len);
 					gapStart = physIdx;
 					gapSize++;
 				}
