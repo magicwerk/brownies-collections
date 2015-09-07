@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: IFloatList.java 2744 2015-03-01 01:28:51Z origo $
+ * $Id: IFloatList.java 2935 2015-09-07 16:35:35Z origo $
  */
 package org.magicwerk.brownies.collections.primitive;
 
@@ -42,7 +42,7 @@ import org.magicwerk.brownies.collections.function.IPredicate;
  * It also offers additional methods which are then available in all implementations of GapList and BigList.
  *
  * @author Thomas Mauch
- * @version $Id: IFloatList.java 2744 2015-03-01 01:28:51Z origo $
+ * @version $Id: IFloatList.java 2935 2015-09-07 16:35:35Z origo $
  *
  * @param  type of elements stored in the list
  * @see	    java.util.List
@@ -1370,9 +1370,9 @@ public boolean addArray(int index, float... elems) {
 }
 
     /**
-     * Adds all specified elements into this list.
+     * Adds element multiple time to list.
      *
-     * @param elems elements to be added to this list
+     * @param elem element to be added to this list
      * @return <tt>true</tt> if this list changed as a result of the call
      */
 public boolean addMult(int len, float elem) {
@@ -1380,14 +1380,13 @@ public boolean addMult(int len, float elem) {
 }
 
     /**
-     * Inserts the specified elements into this list,
-     * starting at the specified position.
+     * Inserts element multiple time to list, starting at the specified position.
      * Shifts the element currently at that position (if any) and any
      * subsequent elements to the right (increases their indices).
      *
      * @param index index at which to insert the first element from the
      *              specified collection
-     * @param elems elements to be inserted into this list
+     * @param elem element to be inserted into this list
      * @return <tt>true</tt> if this list changed as a result of the call
      * @throws IndexOutOfBoundsException if the index is invalid
      */
@@ -1440,10 +1439,10 @@ public void setArray(int index, float... elems) {
 }
 
     /**
-     * Sets the specified elements.
+     * Sets the element multiple times.
      *
      * @param index index of first element to set
-     * @param coll  collection with elements to set
+     * @param elem	element to set
      */
 public void setMult(int index, int len, float elem) {
     checkRange(index, len);
@@ -1472,6 +1471,8 @@ public void putAll(int index, IFloatList list) {
 
     /**
      * Set or add the specified elements.
+     * If the index is smaller than the size of the list, the existing element is replaced.
+     * If the index equals the size of the list, the element is added.
      *
      * @param index index of first element to set or add
      * @param coll  collection with elements to set or add
@@ -1488,6 +1489,8 @@ public void putAll(int index, Collection<Float> coll) {
 
     /**
      * Set or add the specified elements.
+     * If the index is smaller than the size of the list, the existing element is replaced.
+     * If the index equals the size of the list, the element is added.
      *
      * @param index index of first element to set or add
      * @param coll  collection with elements to set or add
@@ -1497,10 +1500,12 @@ public void putArray(int index, float... elems) {
 }
 
     /**
-     * Set or add the specified elements.
+     * Set or add the specified element multiple times.
+     * If the index is smaller than the size of the list, the existing element is replaced.
+     * If the index equals the size of the list, the element is added.
      *
      * @param index index of first element to set or add
-     * @param coll  collection with elements to set or add
+     * @param len 	element to set or add
      */
 public void putMult(int index, int len, float elem) {
     putAll(index, new IReadOnlyFloatListFromMult(len, elem));
@@ -1562,6 +1567,21 @@ public void initMult(int len, float elem) {
 }
 
     // -- replaceAll()  
+/**
+     * Replaces the specified range with new elements.
+     * This method is very powerful as it offers the functionality of many other methods
+     * which are therefore only offered for convenience: <br/>
+     * - addAll(index, list) -> replaceAll(index, 0, list) <br/>
+     * - setAll(index, list) -> replaceAll(index, list.size(), list) <br/>
+     * - putAll(index, list) -> replaceAll(index, -1, list) <br/>
+     * - initAll(list)       -> replaceAll(0, this.size(), list) <br/>
+     * - remove(index, list) -> replaceAll(index, list.size(), null) <br/>
+     *
+     * @param index index of first element to replace, use -1 for the position after the last element (this.size())
+     * @param len	number of elements to replace, use -1 for getting behavior of putAll()
+     * @param coll  collection with elements which replace the old elements, use null if elements should only be removed
+     * @throws 		IndexOutOfBoundsException if the range is invalid
+     */
 public void replaceAll(int index, int len, Collection<Float> coll) {
     if (coll instanceof IFloatList) {
         replaceAll(index, len, (IFloatList) coll);
@@ -1572,11 +1592,42 @@ public void replaceAll(int index, int len, Collection<Float> coll) {
     }
 }
 
-    public void replaceArray(int index, int len, float... elems) {
+    /**
+     * Replaces the specified range with new elements.
+     * This method is very powerful as it offers the functionality of many other methods
+     * which are therefore only offered for convenience: <br/>
+     * - addAll(index, list) -> replaceAll(index, 0, list) <br/>
+     * - setAll(index, list) -> replaceAll(index, list.size(), list) <br/>
+     * - putAll(index, list) -> replaceAll(index, -1, list) <br/>
+     * - initAll(list)       -> replaceAll(0, this.size(), list) <br/>
+     * - remove(index, list) -> replaceAll(index, list.size(), null) <br/>
+     *
+     * @param index index of first element to replace, use -1 for the position after the last element (this.size())
+     * @param len	number of elements to replace, use -1 for getting behavior of putAll()
+     * @param elems array with elements which replace the old elements, use null if elements should only be removed
+     * @throws 		IndexOutOfBoundsException if the range is invalid
+     */
+public void replaceArray(int index, int len, float... elems) {
     replaceAll(index, len, new IReadOnlyFloatListFromArray(elems));
 }
 
-    public void replaceMult(int index, int len, int numElems, float elem) {
+    /**
+     * Replaces the specified range with new elements.
+     * This method is very powerful as it offers the functionality of many other methods
+     * which are therefore only offered for convenience: <br/>
+     * - addAll(index, list) -> replaceAll(index, 0, list) <br/>
+     * - setAll(index, list) -> replaceAll(index, list.size(), list) <br/>
+     * - putAll(index, list) -> replaceAll(index, -1, list) <br/>
+     * - initAll(list)       -> replaceAll(0, this.size(), list) <br/>
+     * - remove(index, list) -> replaceAll(index, list.size(), null) <br/>
+     *
+     * @param index 	index of first element to replace, use -1 for the position after the last element (this.size())
+     * @param len		number of elements to replace, use -1 for getting behavior of putAll()
+     * @param numElems  number of time element has to be added
+     * @param elem  	element to add
+     * @throws 			IndexOutOfBoundsException if the range is invalid
+     */
+public void replaceMult(int index, int len, int numElems, float elem) {
     replaceAll(index, len, new IReadOnlyFloatListFromMult(numElems, elem));
 }
 
@@ -1627,15 +1678,10 @@ protected boolean doReplaceAll(int index, int len, IFloatList list) {
         srcLen = list.size();
     }
     doEnsureCapacity(size() - len + srcLen);
-    if (len > srcLen) {
-        // Destination range is larger, so remove elements   
-        doRemoveAll(index, len - srcLen);
-        len = srcLen;
-    }
-    for (int i = 0; i < len; i++) {
-        doSet(index + i, list.doGet(i));
-    }
-    for (int i = len; i < srcLen; i++) {
+    // Remove elements   
+    doRemoveAll(index, len);
+    // Add elements   
+    for (int i = 0; i < srcLen; i++) {
         if (!doAdd(index + i, list.doGet(i))) {
             index--;
         }
@@ -2172,6 +2218,7 @@ protected float doGet(int index) {
         float elem;
 
         IReadOnlyFloatListFromMult(int len, float elem){
+    checkLength(len);
     this.len = len;
     this.elem = elem;
 }
@@ -2200,7 +2247,8 @@ public int size() {
     return array.length;
 }
 
-        
+        @SuppressWarnings("unchecked")
+
 protected float doGet(int index) {
     return array[index];
 }
@@ -2210,7 +2258,8 @@ protected float doGet(int index) {
 
         List<Float> list2;
 
-        IReadOnlyFloatListFromList(List<Float> list){
+        @SuppressWarnings("unchecked")
+IReadOnlyFloatListFromList(List<Float> list){
     this.list2 = (List) list;
 }
 

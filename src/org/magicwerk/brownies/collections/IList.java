@@ -1738,7 +1738,6 @@ public abstract class IList<E>
     	// so the method is also available in the primitive classes.
     	assert(index >= 0 && index <= size());
     	assert(len >= 0 && index+len <= size());
-    	assert(list != null);
 
     	int srcLen = 0;
     	if (list != null) {

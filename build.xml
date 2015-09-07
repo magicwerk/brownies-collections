@@ -10,7 +10,6 @@
     <property name="Brownies-Core.location" value="../Brownies-Core"/>
     <property name="Brownies-Swt.location" value="../Brownies-Swt"/>
     <property name="EvalSwtStyledText.location" value="../../../Local-Magicwerk/EvalSwtStyledText"/>
-    <property name="ECLIPSE_HOME" value="../../../../Eclipse/Eclipse-JEE-4.4.0-x64/"/>
     <property name="debuglevel" value="source,lines,vars"/>
     <property name="target" value="1.6"/>
     <property name="source" value="1.6"/>
@@ -41,47 +40,14 @@
     </target>
     <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects">
         <ant antfile="build.xml" dir="${AppSvnExplorer.location}" inheritAll="false" target="clean"/>
-        <ant antfile="build.xml" dir="${AppSvnExplorer.location}" inheritAll="false" target="build">
-            <propertyset>
-                <propertyref name="build.compiler"/>
-            </propertyset>
-        </ant>
+        <ant antfile="build.xml" dir="${AppSvnExplorer.location}" inheritAll="false" target="build"/>
         <ant antfile="build.xml" dir="${Brownies-Collections-Test.location}" inheritAll="false" target="clean"/>
-        <ant antfile="build.xml" dir="${Brownies-Collections-Test.location}" inheritAll="false" target="build">
-            <propertyset>
-                <propertyref name="build.compiler"/>
-            </propertyset>
-        </ant>
+        <ant antfile="build.xml" dir="${Brownies-Collections-Test.location}" inheritAll="false" target="build"/>
         <ant antfile="build.xml" dir="${Brownies-Core.location}" inheritAll="false" target="clean"/>
-        <ant antfile="build.xml" dir="${Brownies-Core.location}" inheritAll="false" target="build">
-            <propertyset>
-                <propertyref name="build.compiler"/>
-            </propertyset>
-        </ant>
+        <ant antfile="build.xml" dir="${Brownies-Core.location}" inheritAll="false" target="build"/>
         <ant antfile="build.xml" dir="${Brownies-Swt.location}" inheritAll="false" target="clean"/>
-        <ant antfile="build.xml" dir="${Brownies-Swt.location}" inheritAll="false" target="build">
-            <propertyset>
-                <propertyref name="build.compiler"/>
-            </propertyset>
-        </ant>
+        <ant antfile="build.xml" dir="${Brownies-Swt.location}" inheritAll="false" target="build"/>
         <ant antfile="build.xml" dir="${EvalSwtStyledText.location}" inheritAll="false" target="clean"/>
-        <ant antfile="build.xml" dir="${EvalSwtStyledText.location}" inheritAll="false" target="build">
-            <propertyset>
-                <propertyref name="build.compiler"/>
-            </propertyset>
-        </ant>
-    </target>
-    <target description="copy Eclipse compiler jars to ant lib directory" name="init-eclipse-compiler">
-        <copy todir="${ant.library.dir}">
-            <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
-        </copy>
-        <unzip dest="${ant.library.dir}">
-            <patternset includes="jdtCompilerAdapter.jar"/>
-            <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
-        </unzip>
-    </target>
-    <target description="compile project with Eclipse compiler" name="build-eclipse-compiler">
-        <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
-        <antcall target="build"/>
+        <ant antfile="build.xml" dir="${EvalSwtStyledText.location}" inheritAll="false" target="build"/>
     </target>
 </project>

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: FloatBigList.java 2743 2015-03-01 01:10:32Z origo $
+ * $Id: FloatBigList.java 2914 2015-08-14 16:52:30Z origo $
  */
 package org.magicwerk.brownies.collections.primitive;
 import org.magicwerk.brownies.collections.helper.ArraysHelper;
@@ -44,7 +44,7 @@ import org.magicwerk.brownies.collections.helper.primitive.FloatMergeSort;
  * Note that the iterators provided are not fail-fast.<p>
  *
  * @author Thomas Mauch
- * @version $Id: FloatBigList.java 2743 2015-03-01 01:10:32Z origo $
+ * @version $Id: FloatBigList.java 2914 2015-08-14 16:52:30Z origo $
  */
 public class FloatBigList extends IFloatList {
 	public static IFloatList of(float[] values) {
@@ -354,8 +354,6 @@ public FloatBigList(int blockSize){
      * Create new list with specified elements.
      *
      * @param coll      collection with element
-     * @return          created list
-     * @param        type of elements stored in the list
      */
 
 public FloatBigList(Collection<Float> coll){
@@ -499,8 +497,8 @@ public int size() {
 }
 
     /**
-	 * {@inheritDoc}
-	 * For FloatBigList, always -1 is returned.
+	 * As FloatBigList grows and shrinks automatically, the term capacity does not really make sense.
+	 * Therefore always -1 is returned.
 	 */
 @Override
 public int capacity() {
@@ -752,10 +750,6 @@ protected boolean doAdd(int index, float element) {
             int nextFloatBlockLen = blockSize / 2;
             int blockLen = blockSize - nextFloatBlockLen;
             FloatGapList.transferRemove(currNode.block, blockLen, nextFloatBlockLen, newFloatBlock, 0, 0);
-            // TODO   
-            //newFloatBlock.init(nextFloatBlockLen, 0);   
-            //FloatGapList.copy(currNode.block, blockLen, newFloatBlock, 0, nextFloatBlockLen);   
-            //currNode.block.remove(blockLen, blockSize-blockLen);   
             // Subtract 1 more because getFloatBlockIndex() has already added 1   
             modify(currNode, -nextFloatBlockLen - 1);
             addFloatBlock(currFloatBlockEnd - nextFloatBlockLen, newFloatBlock);
@@ -1194,6 +1188,8 @@ private void merge(FloatBlockNode node) {
                 doRemove(oldCurrNode);
             }
         } else if (index != 0 && index != size - 1) {
+            // Do not merge if remove happens at head or tail.   
+            // Reason: if removing continues, we can remove the whole block without merging   
             merge(currNode);
         }
     }
@@ -1412,9 +1408,9 @@ private void checkNode(FloatBlockNode node) {
 	 * instances with a copy-on-write approach.
 	 */
     
-    public static class FloatBlock extends FloatGapList {
+    static class FloatBlock extends FloatGapList {
 
-        private AtomicInteger refCount = new AtomicInteger();
+        private AtomicInteger refCount = new AtomicInteger(1);
 
         public FloatBlock(){
 }
