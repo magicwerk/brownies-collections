@@ -1746,15 +1746,11 @@ public abstract class IList<E>
     	}
     	doEnsureCapacity(size()-len+srcLen);
 
-    	if (len > srcLen) {
-    		// Destination range is larger, so remove elements
-    		doRemoveAll(index, len-srcLen);
-    		len = srcLen;
-    	}
-    	for (int i=0; i<len; i++) {
-    		doSet(index+i, list.doGet(i));
-    	}
-    	for (int i=len; i<srcLen; i++) {
+    	// Remove elements
+   		doRemoveAll(index, len);
+
+   		// Add elements
+    	for (int i=0; i<srcLen; i++) {
     		if (!doAdd(index+i, list.doGet(i))) {
     			index--;
     		}

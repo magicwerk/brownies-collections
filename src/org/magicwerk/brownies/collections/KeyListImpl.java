@@ -365,7 +365,7 @@ public abstract class KeyListImpl<E> extends IList<E> {
     @Override
 	protected void doRemoveAll(int index, int len) {
     	for (int i=0; i<len; i++) {
-        	E removed = list.get(index);
+        	E removed = list.get(index+i);
     		keyColl.remove(removed);
     	}
    		list.doRemoveAll(index, len);
