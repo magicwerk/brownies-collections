@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: DoubleBigList.java 2743 2015-03-01 01:10:32Z origo $
+ * $Id: DoubleBigList.java 2914 2015-08-14 16:52:30Z origo $
  */
 package org.magicwerk.brownies.collections.primitive;
 import org.magicwerk.brownies.collections.helper.ArraysHelper;
@@ -44,7 +44,7 @@ import org.magicwerk.brownies.collections.helper.primitive.DoubleMergeSort;
  * Note that the iterators provided are not fail-fast.<p>
  *
  * @author Thomas Mauch
- * @version $Id: DoubleBigList.java 2743 2015-03-01 01:10:32Z origo $
+ * @version $Id: DoubleBigList.java 2914 2015-08-14 16:52:30Z origo $
  */
 public class DoubleBigList extends IDoubleList {
 	public static IDoubleList of(double[] values) {
@@ -354,8 +354,6 @@ public DoubleBigList(int blockSize){
      * Create new list with specified elements.
      *
      * @param coll      collection with element
-     * @return          created list
-     * @param        type of elements stored in the list
      */
 
 public DoubleBigList(Collection<Double> coll){
@@ -499,8 +497,8 @@ public int size() {
 }
 
     /**
-	 * {@inheritDoc}
-	 * For DoubleBigList, always -1 is returned.
+	 * As DoubleBigList grows and shrinks automatically, the term capacity does not really make sense.
+	 * Therefore always -1 is returned.
 	 */
 @Override
 public int capacity() {
@@ -752,10 +750,6 @@ protected boolean doAdd(int index, double element) {
             int nextDoubleBlockLen = blockSize / 2;
             int blockLen = blockSize - nextDoubleBlockLen;
             DoubleGapList.transferRemove(currNode.block, blockLen, nextDoubleBlockLen, newDoubleBlock, 0, 0);
-            // TODO   
-            //newDoubleBlock.init(nextDoubleBlockLen, 0);   
-            //DoubleGapList.copy(currNode.block, blockLen, newDoubleBlock, 0, nextDoubleBlockLen);   
-            //currNode.block.remove(blockLen, blockSize-blockLen);   
             // Subtract 1 more because getDoubleBlockIndex() has already added 1   
             modify(currNode, -nextDoubleBlockLen - 1);
             addDoubleBlock(currDoubleBlockEnd - nextDoubleBlockLen, newDoubleBlock);
@@ -1194,6 +1188,8 @@ private void merge(DoubleBlockNode node) {
                 doRemove(oldCurrNode);
             }
         } else if (index != 0 && index != size - 1) {
+            // Do not merge if remove happens at head or tail.   
+            // Reason: if removing continues, we can remove the whole block without merging   
             merge(currNode);
         }
     }
@@ -1412,9 +1408,9 @@ private void checkNode(DoubleBlockNode node) {
 	 * instances with a copy-on-write approach.
 	 */
     
-    public static class DoubleBlock extends DoubleGapList {
+    static class DoubleBlock extends DoubleGapList {
 
-        private AtomicInteger refCount = new AtomicInteger();
+        private AtomicInteger refCount = new AtomicInteger(1);
 
         public DoubleBlock(){
 }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: ShortBigList.java 2743 2015-03-01 01:10:32Z origo $
+ * $Id: ShortBigList.java 2914 2015-08-14 16:52:30Z origo $
  */
 package org.magicwerk.brownies.collections.primitive;
 import org.magicwerk.brownies.collections.helper.ArraysHelper;
@@ -44,7 +44,7 @@ import org.magicwerk.brownies.collections.helper.primitive.ShortMergeSort;
  * Note that the iterators provided are not fail-fast.<p>
  *
  * @author Thomas Mauch
- * @version $Id: ShortBigList.java 2743 2015-03-01 01:10:32Z origo $
+ * @version $Id: ShortBigList.java 2914 2015-08-14 16:52:30Z origo $
  */
 public class ShortBigList extends IShortList {
 	public static IShortList of(short[] values) {
@@ -354,8 +354,6 @@ public ShortBigList(int blockSize){
      * Create new list with specified elements.
      *
      * @param coll      collection with element
-     * @return          created list
-     * @param        type of elements stored in the list
      */
 
 public ShortBigList(Collection<Short> coll){
@@ -499,8 +497,8 @@ public int size() {
 }
 
     /**
-	 * {@inheritDoc}
-	 * For ShortBigList, always -1 is returned.
+	 * As ShortBigList grows and shrinks automatically, the term capacity does not really make sense.
+	 * Therefore always -1 is returned.
 	 */
 @Override
 public int capacity() {
@@ -752,10 +750,6 @@ protected boolean doAdd(int index, short element) {
             int nextShortBlockLen = blockSize / 2;
             int blockLen = blockSize - nextShortBlockLen;
             ShortGapList.transferRemove(currNode.block, blockLen, nextShortBlockLen, newShortBlock, 0, 0);
-            // TODO   
-            //newShortBlock.init(nextShortBlockLen, (short) 0);   
-            //ShortGapList.copy(currNode.block, blockLen, newShortBlock, 0, nextShortBlockLen);   
-            //currNode.block.remove(blockLen, blockSize-blockLen);   
             // Subtract 1 more because getShortBlockIndex() has already added 1   
             modify(currNode, -nextShortBlockLen - 1);
             addShortBlock(currShortBlockEnd - nextShortBlockLen, newShortBlock);
@@ -1194,6 +1188,8 @@ private void merge(ShortBlockNode node) {
                 doRemove(oldCurrNode);
             }
         } else if (index != 0 && index != size - 1) {
+            // Do not merge if remove happens at head or tail.   
+            // Reason: if removing continues, we can remove the whole block without merging   
             merge(currNode);
         }
     }
@@ -1412,9 +1408,9 @@ private void checkNode(ShortBlockNode node) {
 	 * instances with a copy-on-write approach.
 	 */
     
-    public static class ShortBlock extends ShortGapList {
+    static class ShortBlock extends ShortGapList {
 
-        private AtomicInteger refCount = new AtomicInteger();
+        private AtomicInteger refCount = new AtomicInteger(1);
 
         public ShortBlock(){
 }

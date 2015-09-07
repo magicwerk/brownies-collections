@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: IByteList.java 2744 2015-03-01 01:28:51Z origo $
+ * $Id: IByteList.java 2935 2015-09-07 16:35:35Z origo $
  */
 package org.magicwerk.brownies.collections.primitive;
 
@@ -42,7 +42,7 @@ import org.magicwerk.brownies.collections.function.IPredicate;
  * It also offers additional methods which are then available in all implementations of GapList and BigList.
  *
  * @author Thomas Mauch
- * @version $Id: IByteList.java 2744 2015-03-01 01:28:51Z origo $
+ * @version $Id: IByteList.java 2935 2015-09-07 16:35:35Z origo $
  *
  * @param  type of elements stored in the list
  * @see	    java.util.List
@@ -1369,9 +1369,9 @@ public boolean addArray(int index, byte... elems) {
 }
 
     /**
-     * Adds all specified elements into this list.
+     * Adds element multiple time to list.
      *
-     * @param elems elements to be added to this list
+     * @param elem element to be added to this list
      * @return <tt>true</tt> if this list changed as a result of the call
      */
 public boolean addMult(int len, byte elem) {
@@ -1379,14 +1379,13 @@ public boolean addMult(int len, byte elem) {
 }
 
     /**
-     * Inserts the specified elements into this list,
-     * starting at the specified position.
+     * Inserts element multiple time to list, starting at the specified position.
      * Shifts the element currently at that position (if any) and any
      * subsequent elements to the right (increases their indices).
      *
      * @param index index at which to insert the first element from the
      *              specified collection
-     * @param elems elements to be inserted into this list
+     * @param elem element to be inserted into this list
      * @return <tt>true</tt> if this list changed as a result of the call
      * @throws IndexOutOfBoundsException if the index is invalid
      */
@@ -1439,10 +1438,10 @@ public void setArray(int index, byte... elems) {
 }
 
     /**
-     * Sets the specified elements.
+     * Sets the element multiple times.
      *
      * @param index index of first element to set
-     * @param coll  collection with elements to set
+     * @param elem	element to set
      */
 public void setMult(int index, int len, byte elem) {
     checkRange(index, len);
@@ -1471,6 +1470,8 @@ public void putAll(int index, IByteList list) {
 
     /**
      * Set or add the specified elements.
+     * If the index is smaller than the size of the list, the existing element is replaced.
+     * If the index equals the size of the list, the element is added.
      *
      * @param index index of first element to set or add
      * @param coll  collection with elements to set or add
@@ -1487,6 +1488,8 @@ public void putAll(int index, Collection<Byte> coll) {
 
     /**
      * Set or add the specified elements.
+     * If the index is smaller than the size of the list, the existing element is replaced.
+     * If the index equals the size of the list, the element is added.
      *
      * @param index index of first element to set or add
      * @param coll  collection with elements to set or add
@@ -1496,10 +1499,12 @@ public void putArray(int index, byte... elems) {
 }
 
     /**
-     * Set or add the specified elements.
+     * Set or add the specified element multiple times.
+     * If the index is smaller than the size of the list, the existing element is replaced.
+     * If the index equals the size of the list, the element is added.
      *
      * @param index index of first element to set or add
-     * @param coll  collection with elements to set or add
+     * @param len 	element to set or add
      */
 public void putMult(int index, int len, byte elem) {
     putAll(index, new IReadOnlyByteListFromMult(len, elem));
@@ -1561,6 +1566,21 @@ public void initMult(int len, byte elem) {
 }
 
     // -- replaceAll()  
+/**
+     * Replaces the specified range with new elements.
+     * This method is very powerful as it offers the functionality of many other methods
+     * which are therefore only offered for convenience: <br/>
+     * - addAll(index, list) -> replaceAll(index, 0, list) <br/>
+     * - setAll(index, list) -> replaceAll(index, list.size(), list) <br/>
+     * - putAll(index, list) -> replaceAll(index, -1, list) <br/>
+     * - initAll(list)       -> replaceAll(0, this.size(), list) <br/>
+     * - remove(index, list) -> replaceAll(index, list.size(), null) <br/>
+     *
+     * @param index index of first element to replace, use -1 for the position after the last element (this.size())
+     * @param len	number of elements to replace, use -1 for getting behavior of putAll()
+     * @param coll  collection with elements which replace the old elements, use null if elements should only be removed
+     * @throws 		IndexOutOfBoundsException if the range is invalid
+     */
 public void replaceAll(int index, int len, Collection<Byte> coll) {
     if (coll instanceof IByteList) {
         replaceAll(index, len, (IByteList) coll);
@@ -1571,11 +1591,42 @@ public void replaceAll(int index, int len, Collection<Byte> coll) {
     }
 }
 
-    public void replaceArray(int index, int len, byte... elems) {
+    /**
+     * Replaces the specified range with new elements.
+     * This method is very powerful as it offers the functionality of many other methods
+     * which are therefore only offered for convenience: <br/>
+     * - addAll(index, list) -> replaceAll(index, 0, list) <br/>
+     * - setAll(index, list) -> replaceAll(index, list.size(), list) <br/>
+     * - putAll(index, list) -> replaceAll(index, -1, list) <br/>
+     * - initAll(list)       -> replaceAll(0, this.size(), list) <br/>
+     * - remove(index, list) -> replaceAll(index, list.size(), null) <br/>
+     *
+     * @param index index of first element to replace, use -1 for the position after the last element (this.size())
+     * @param len	number of elements to replace, use -1 for getting behavior of putAll()
+     * @param elems array with elements which replace the old elements, use null if elements should only be removed
+     * @throws 		IndexOutOfBoundsException if the range is invalid
+     */
+public void replaceArray(int index, int len, byte... elems) {
     replaceAll(index, len, new IReadOnlyByteListFromArray(elems));
 }
 
-    public void replaceMult(int index, int len, int numElems, byte elem) {
+    /**
+     * Replaces the specified range with new elements.
+     * This method is very powerful as it offers the functionality of many other methods
+     * which are therefore only offered for convenience: <br/>
+     * - addAll(index, list) -> replaceAll(index, 0, list) <br/>
+     * - setAll(index, list) -> replaceAll(index, list.size(), list) <br/>
+     * - putAll(index, list) -> replaceAll(index, -1, list) <br/>
+     * - initAll(list)       -> replaceAll(0, this.size(), list) <br/>
+     * - remove(index, list) -> replaceAll(index, list.size(), null) <br/>
+     *
+     * @param index 	index of first element to replace, use -1 for the position after the last element (this.size())
+     * @param len		number of elements to replace, use -1 for getting behavior of putAll()
+     * @param numElems  number of time element has to be added
+     * @param elem  	element to add
+     * @throws 			IndexOutOfBoundsException if the range is invalid
+     */
+public void replaceMult(int index, int len, int numElems, byte elem) {
     replaceAll(index, len, new IReadOnlyByteListFromMult(numElems, elem));
 }
 
@@ -1626,15 +1677,10 @@ protected boolean doReplaceAll(int index, int len, IByteList list) {
         srcLen = list.size();
     }
     doEnsureCapacity(size() - len + srcLen);
-    if (len > srcLen) {
-        // Destination range is larger, so remove elements   
-        doRemoveAll(index, len - srcLen);
-        len = srcLen;
-    }
-    for (int i = 0; i < len; i++) {
-        doSet(index + i, list.doGet(i));
-    }
-    for (int i = len; i < srcLen; i++) {
+    // Remove elements   
+    doRemoveAll(index, len);
+    // Add elements   
+    for (int i = 0; i < srcLen; i++) {
         if (!doAdd(index + i, list.doGet(i))) {
             index--;
         }
@@ -2171,6 +2217,7 @@ protected byte doGet(int index) {
         byte elem;
 
         IReadOnlyByteListFromMult(int len, byte elem){
+    checkLength(len);
     this.len = len;
     this.elem = elem;
 }
@@ -2199,7 +2246,8 @@ public int size() {
     return array.length;
 }
 
-        
+        @SuppressWarnings("unchecked")
+
 protected byte doGet(int index) {
     return array[index];
 }
@@ -2209,7 +2257,8 @@ protected byte doGet(int index) {
 
         List<Byte> list2;
 
-        IReadOnlyByteListFromList(List<Byte> list){
+        @SuppressWarnings("unchecked")
+IReadOnlyByteListFromList(List<Byte> list){
     this.list2 = (List) list;
 }
 

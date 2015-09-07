@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: CharBigList.java 2743 2015-03-01 01:10:32Z origo $
+ * $Id: CharBigList.java 2914 2015-08-14 16:52:30Z origo $
  */
 package org.magicwerk.brownies.collections.primitive;
 import org.magicwerk.brownies.collections.helper.ArraysHelper;
@@ -44,7 +44,7 @@ import org.magicwerk.brownies.collections.helper.primitive.CharMergeSort;
  * Note that the iterators provided are not fail-fast.<p>
  *
  * @author Thomas Mauch
- * @version $Id: CharBigList.java 2743 2015-03-01 01:10:32Z origo $
+ * @version $Id: CharBigList.java 2914 2015-08-14 16:52:30Z origo $
  */
 public class CharBigList extends ICharList {
 	public static ICharList of(char[] values) {
@@ -354,8 +354,6 @@ public CharBigList(int blockSize){
      * Create new list with specified elements.
      *
      * @param coll      collection with element
-     * @return          created list
-     * @param        type of elements stored in the list
      */
 
 public CharBigList(Collection<Character> coll){
@@ -499,8 +497,8 @@ public int size() {
 }
 
     /**
-	 * {@inheritDoc}
-	 * For CharBigList, always -1 is returned.
+	 * As CharBigList grows and shrinks automatically, the term capacity does not really make sense.
+	 * Therefore always -1 is returned.
 	 */
 @Override
 public int capacity() {
@@ -752,10 +750,6 @@ protected boolean doAdd(int index, char element) {
             int nextCharBlockLen = blockSize / 2;
             int blockLen = blockSize - nextCharBlockLen;
             CharGapList.transferRemove(currNode.block, blockLen, nextCharBlockLen, newCharBlock, 0, 0);
-            // TODO   
-            //newCharBlock.init(nextCharBlockLen, (char) 0);   
-            //CharGapList.copy(currNode.block, blockLen, newCharBlock, 0, nextCharBlockLen);   
-            //currNode.block.remove(blockLen, blockSize-blockLen);   
             // Subtract 1 more because getCharBlockIndex() has already added 1   
             modify(currNode, -nextCharBlockLen - 1);
             addCharBlock(currCharBlockEnd - nextCharBlockLen, newCharBlock);
@@ -1194,6 +1188,8 @@ private void merge(CharBlockNode node) {
                 doRemove(oldCurrNode);
             }
         } else if (index != 0 && index != size - 1) {
+            // Do not merge if remove happens at head or tail.   
+            // Reason: if removing continues, we can remove the whole block without merging   
             merge(currNode);
         }
     }
@@ -1412,9 +1408,9 @@ private void checkNode(CharBlockNode node) {
 	 * instances with a copy-on-write approach.
 	 */
     
-    public static class CharBlock extends CharGapList {
+    static class CharBlock extends CharGapList {
 
-        private AtomicInteger refCount = new AtomicInteger();
+        private AtomicInteger refCount = new AtomicInteger(1);
 
         public CharBlock(){
 }

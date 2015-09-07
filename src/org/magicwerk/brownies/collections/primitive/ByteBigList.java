@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: ByteBigList.java 2743 2015-03-01 01:10:32Z origo $
+ * $Id: ByteBigList.java 2914 2015-08-14 16:52:30Z origo $
  */
 package org.magicwerk.brownies.collections.primitive;
 import org.magicwerk.brownies.collections.helper.ArraysHelper;
@@ -44,7 +44,7 @@ import org.magicwerk.brownies.collections.helper.primitive.ByteMergeSort;
  * Note that the iterators provided are not fail-fast.<p>
  *
  * @author Thomas Mauch
- * @version $Id: ByteBigList.java 2743 2015-03-01 01:10:32Z origo $
+ * @version $Id: ByteBigList.java 2914 2015-08-14 16:52:30Z origo $
  */
 public class ByteBigList extends IByteList {
 	public static IByteList of(byte[] values) {
@@ -354,8 +354,6 @@ public ByteBigList(int blockSize){
      * Create new list with specified elements.
      *
      * @param coll      collection with element
-     * @return          created list
-     * @param        type of elements stored in the list
      */
 
 public ByteBigList(Collection<Byte> coll){
@@ -499,8 +497,8 @@ public int size() {
 }
 
     /**
-	 * {@inheritDoc}
-	 * For ByteBigList, always -1 is returned.
+	 * As ByteBigList grows and shrinks automatically, the term capacity does not really make sense.
+	 * Therefore always -1 is returned.
 	 */
 @Override
 public int capacity() {
@@ -752,10 +750,6 @@ protected boolean doAdd(int index, byte element) {
             int nextByteBlockLen = blockSize / 2;
             int blockLen = blockSize - nextByteBlockLen;
             ByteGapList.transferRemove(currNode.block, blockLen, nextByteBlockLen, newByteBlock, 0, 0);
-            // TODO   
-            //newByteBlock.init(nextByteBlockLen, (byte) 0);   
-            //ByteGapList.copy(currNode.block, blockLen, newByteBlock, 0, nextByteBlockLen);   
-            //currNode.block.remove(blockLen, blockSize-blockLen);   
             // Subtract 1 more because getByteBlockIndex() has already added 1   
             modify(currNode, -nextByteBlockLen - 1);
             addByteBlock(currByteBlockEnd - nextByteBlockLen, newByteBlock);
@@ -1194,6 +1188,8 @@ private void merge(ByteBlockNode node) {
                 doRemove(oldCurrNode);
             }
         } else if (index != 0 && index != size - 1) {
+            // Do not merge if remove happens at head or tail.   
+            // Reason: if removing continues, we can remove the whole block without merging   
             merge(currNode);
         }
     }
@@ -1412,9 +1408,9 @@ private void checkNode(ByteBlockNode node) {
 	 * instances with a copy-on-write approach.
 	 */
     
-    public static class ByteBlock extends ByteGapList {
+    static class ByteBlock extends ByteGapList {
 
-        private AtomicInteger refCount = new AtomicInteger();
+        private AtomicInteger refCount = new AtomicInteger(1);
 
         public ByteBlock(){
 }
