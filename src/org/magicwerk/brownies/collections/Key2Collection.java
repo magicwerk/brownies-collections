@@ -479,14 +479,22 @@ public class Key2Collection<E,K1,K2> extends KeyCollectionImpl<E> {
 	}
 
 	/**
-	 * Adds or replaces element with specified key.
-	 * If there is no element with specified key, the element is added.
-	 * If there is an element with specified key and no duplicates
-	 * are allowed, the existing element is replaced.
-	 * If duplicates are allowed, the element is added.
+	 * Adds or replaces element by key.
+	 * If there is no such element, the element is added.
+	 * If there is such an element, the element is replaced.
+	 * So said simply, it is a shortcut for the following code:
+	 * <pre>
+	 * if (containsKey1(elem)) {
+	 *   removeByKey1(elem);
+	 * }
+	 * add(elem);
+	 * </pre>
+	 * However the method is atomic in the sense that all or none operations are executed.
+	 * So if there is already such an element, but adding the new one fails due to a constraint violation,
+	 * the old element remains in the list.
 	 *
-	 * @param elem	element
-	 * @return		element which has been replaced or null otherwise
+	 * @param elem		element
+	 * @return			element which has been replaced or null otherwise
 	 */
     public E putByKey1(E elem) {
 		return super.putByKey(1, elem);
@@ -601,14 +609,22 @@ public class Key2Collection<E,K1,K2> extends KeyCollectionImpl<E> {
 	}
 
 	/**
-	 * Adds or replaces element with specified key.
-	 * If there is no element with specified key, the element is added.
-	 * If there is an element with specified key and no duplicates
-	 * are allowed, the existing element is replaced.
-	 * If duplicates are allowed, the element is added.
+	 * Adds or replaces element by key.
+	 * If there is no such element, the element is added.
+	 * If there is such an element, the element is replaced.
+	 * So said simply, it is a shortcut for the following code:
+	 * <pre>
+	 * if (containsKey2(elem)) {
+	 *   removeByKey2(elem);
+	 * }
+	 * add(elem);
+	 * </pre>
+	 * However the method is atomic in the sense that all or none operations are executed.
+	 * So if there is already such an element, but adding the new one fails due to a constraint violation,
+	 * the old element remains in the list.
 	 *
-	 * @param elem	element
-	 * @return		element which has been replaced or null otherwise
+	 * @param elem		element
+	 * @return			element which has been replaced or null otherwise
 	 */
     public E putByKey2(E elem) {
 		return super.putByKey(2, elem);

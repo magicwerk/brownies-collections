@@ -19,7 +19,6 @@ package org.magicwerk.brownies.collections;
 import java.util.Comparator;
 import java.util.Set;
 
-import org.magicwerk.brownies.collections.KeyCollectionImpl.KeyMap;
 import org.magicwerk.brownies.collections.function.IFunction;
 import org.magicwerk.brownies.collections.helper.Option;
 
@@ -495,7 +494,6 @@ public abstract class KeyListImpl<E> extends IList<E> {
     }
 
     protected E putByKey(int keyIndex, E elem) {
-    	boolean add = true;
     	int index;
     	if (keyIndex == 0 && (keyColl.keyMaps == null || keyColl.keyMaps[0] == null)) {
     		index = indexOf(elem);
@@ -503,17 +501,8 @@ public abstract class KeyListImpl<E> extends IList<E> {
     		Object key = keyColl.getKey(keyIndex, elem);
     		index = indexOfKey(keyIndex, key);
     	}
-    	if (index != -1) {
-			KeyMap<E, Object> keyMap = keyColl.getKeyMap(keyIndex);
-    		if (elem != null) {
-    			add = keyMap.allowDuplicates;
-    		} else {
-    			add = keyMap.allowDuplicatesNull;
-    		}
-    	}
-
     	E replaced = null;
-    	if (add) {
+    	if (index == -1) {
     		doAdd(-1, elem);
     	} else {
     		replaced = doSet(index, elem);
@@ -616,9 +605,17 @@ public abstract class KeyListImpl<E> extends IList<E> {
 	/**
 	 * Adds or replaces element.
 	 * If there is no such element, the element is added.
-	 * If there is such an element key and no duplicates
-	 * are allowed, the existing element is replaced.
-	 * If duplicates are allowed, the element is added.
+	 * If there is such an element, the element is replaced.
+	 * So said simply, it is a shortcut for the following code:
+	 * <pre>
+	 * if (contains(elem)) {
+	 *   remove(elem);
+	 * }
+	 * add(elem);
+	 * </pre>
+	 * However the method is atomic in the sense that all or none operations are executed.
+	 * So if there is already such an element, but adding the new one fails due to a constraint violation,
+	 * the old element remains in the list.
 	 *
 	 * @param elem	element
 	 * @return		element which has been replaced or null otherwise
