@@ -1782,6 +1782,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     		doAdd(elem, keyMap);
     	}
     	catch (RuntimeException e) {
+    		// adding failed due to violated constraint, so roll back change
     		doAdd((E) oldElem, keyMap);
     		throw e;
     	}
@@ -1931,11 +1932,8 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     @Override
     public boolean add(E elem) {
         // This method is also used by addAll()
+    	checkAddElem(elem);
     	beforeInsert(elem);
-    	checkElemAllowed(elem);
-    	if (maxSize != 0 && size >= maxSize) {
-    		errorMaxSize();
-    	}
     	if (doAdd(elem, null)) {
     		size++;
     	}
@@ -1947,6 +1945,13 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	@Override
 	public boolean remove(Object elem) {
 		return remove(elem, null);
+	}
+
+	void checkAddElem(E elem) {
+    	checkElemAllowed(elem);
+    	if (maxSize != 0 && size >= maxSize) {
+    		errorMaxSize();
+    	}
 	}
 
     /**
@@ -1970,50 +1975,23 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	/**
 	 * Adds or replaces element.
 	 * If there is no such element, the element is added.
-	 * If there is such an element and no duplicates
-	 * are allowed, the existing element is replaced.
-	 * If duplicates are allowed, the element is added.
+	 * If there is such an element, the element is replaced.
+	 * So said simply, it is a shortcut for the following code:
+	 * <pre>
+	 * if (contains(elem)) {
+	 *   remove(elem);
+	 * }
+	 * add(elem);
+	 * </pre>
+	 * However the method is atomic in the sense that all or none operations are executed.
+	 * So if there is already such an element, but adding the new one fails due to a constraint violation,
+	 * the old element remains in the list.
 	 *
 	 * @param elem	element
 	 * @return		element which has been replaced or null otherwise
 	 */
 	protected E put(E elem) {
-		// Try to remove element
-		Option<E> removed = doRemove(elem, null);
-        if (removed.hasValue()) {
-        	try {
-        		beforeDelete(removed.getValue());
-        	}
-        	catch (RuntimeException e) {
-        		doAdd(removed.getValue(), null);
-        		throw e;
-        	}
-        }
-
-        try {
-        	beforeInsert(elem);
-        }
-    	catch (RuntimeException e) {
-    		doAdd(removed.getValue(), null);
-    		throw e;
-    	}
-
-        // Add new element
-        try {
-        	doAdd(elem, null);
-        }
-    	catch (RuntimeException e) {
-    		doAdd(removed.getValue(), null);
-    		throw e;
-    	}
-
-        // Call after triggers
-        if (removed.hasValue()) {
-        	afterDelete(removed.getValue());
-        }
-        afterInsert(elem);
-
-        return removed.getValueOrNull();
+		return putByKey(0, elem);
 	}
 
 	@Override
@@ -2143,6 +2121,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 
     /**
      * Remove element.
+     * It does not adjust the size and does not call triggers.
      *
      * @param elem		element to remove
      * @param ignore	KeyMap to ignore (null to remove element from all key maps)
@@ -2158,7 +2137,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 		       		Option<E> obj = keyMaps[i].remove(key, true, elem, this);
 		       		if (first) {
 		       			if (!obj.hasValue()) {
-		       				return removed;
+		       				return Option.EMPTY();
 		       			} else {
 		       				removed = obj;
 		       			}
@@ -2261,10 +2240,12 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 
     /**
      * Add element.
+     * This method does not change size, check whether the element may be added or calls any triggers,
+     * so this must be done by the calling method.
      *
      * @param elem		element to add
      * @param ignore	KeyMap to ignore (null to add element to all key maps)
-     * @return			true if element has been, false if not (no key maps)
+     * @return			true if element has been added, false if not (no key maps)
      */
     boolean doAdd(E elem, KeyMap ignore) {
     	if (keyMaps == null) {
@@ -2598,11 +2579,12 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 
     /**
      * Removes element by key.
+     * It adjusts the size, but does not call triggers.
      * If there are duplicates, only one element is removed.
      *
      * @param keyIndex	index of key map
      * @param key   	key of element to remove
-     * @return      	removed element or null if no element has been removed
+     * @return      	option with removed element as value or option without value if no element has been removed
      */
     protected Option<E> doRemoveByKey(int keyIndex, Object key) {
     	checkKeyMap(keyIndex);
@@ -2666,39 +2648,57 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         return removeds;
     }
 
-    /**
-     * Puts element in collection using specified key map.
-     *
-     * @param keyIndex	key index
-     * @param elem		element
-     * @return			element which has been replaced, null otherwise
-     */
     protected E putByKey(int keyIndex, E elem) {
-    	checkKeyMap(keyIndex);
-		Object k = keyMaps[keyIndex].getKey(elem);
-		boolean add = false;
-    	if (!containsKey(keyIndex, k)) {
-    		add = true;
-    	} else {
-    		if (elem != null) {
-    			add = keyMaps[keyIndex].allowDuplicates;
-    		} else {
-    			add = keyMaps[keyIndex].allowDuplicatesNull;
-    		}
+		// Try to remove element
+		Option<E> removed;
+		if (keyIndex == 0) {
+			removed = doRemove(elem, null);
+			if (removed.hasValue()) {
+				size--;
+			}
+		} else {
+			Object key = getKey(keyIndex, elem);
+			removed = doRemoveByKey(keyIndex, key);
+		}
+        if (removed.hasValue()) {
+        	try {
+        		beforeDelete(removed.getValue());
+        	}
+        	catch (RuntimeException e) {
+        		doAdd(removed.getValue(), null);
+        		throw e;
+        	}
+        }
+
+        try {
+        	beforeInsert(elem);
+        }
+    	catch (RuntimeException e) {
+        	size++;
+    		doAdd(removed.getValue(), null);
+    		throw e;
     	}
 
-    	Option<E> oldElem = new Option(null);
-    	if (!add) {
-    		oldElem = doRemoveByKey(keyIndex, elem);
+        // Add new element
+        try {
+        	checkAddElem(elem);
+        	doAdd(elem, null);
+        	size++;
+        }
+    	catch (RuntimeException e) {
+        	size++;
+    		doAdd(removed.getValue(), null);
+    		throw e;
     	}
-    	try {
-    		add(elem);
-    	}
-       	catch (RuntimeException e) {
-       		add(oldElem.getValue());
-       		throw e;
-       	}
-    	return oldElem.getValue();
+
+        // Call after triggers
+        if (removed.hasValue()) {
+        	afterDelete(removed.getValue());
+        }
+        afterInsert(elem);
+
+        if (DEBUG_CHECK) debugCheck();
+        return removed.getValueOrNull();
     }
 
 	// As in AbstractCollection
