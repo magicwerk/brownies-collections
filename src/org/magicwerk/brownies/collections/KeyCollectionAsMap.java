@@ -26,14 +26,15 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Implements a Map based on a KeyCollection key.
+ * Implements a Map based on a key map in a KeyCollection or KeyList.
  *
  * @author Thomas Mauch
  * @version $Id$
  */
 @SuppressWarnings("serial")
-public class KeyCollectionAsMap<E, K> implements Map<K, E>, Serializable {
+public class KeyCollectionAsMap<K,E> implements Map<K,E>, Serializable {
 	KeyCollectionImpl<E> coll;
+	KeyListImpl<E> list;
 	int keyIndex;
 	boolean immutable;
 
@@ -41,7 +42,20 @@ public class KeyCollectionAsMap<E, K> implements Map<K, E>, Serializable {
 		if (coll == null) {
 			throw new IllegalArgumentException("Collection may not be null");
 		}
+		coll.checkAsMap(keyIndex);
+
 		this.coll = coll;
+		this.keyIndex = keyIndex;
+		this.immutable = immutable;
+	}
+
+	public KeyCollectionAsMap(KeyListImpl<E> list, int keyIndex, boolean immutable) {
+		if (list == null) {
+			throw new IllegalArgumentException("List may not be null");
+		}
+		list.keyColl.checkAsMap(keyIndex);
+
+		this.list = list;
 		this.keyIndex = keyIndex;
 		this.immutable = immutable;
 	}
@@ -85,39 +99,67 @@ public class KeyCollectionAsMap<E, K> implements Map<K, E>, Serializable {
 
 	@Override
 	public int hashCode() {
-		return coll.hashCode();
+		if (coll != null) {
+			return coll.hashCode();
+		} else {
+			return list.hashCode();
+		}
 	}
 
 	@Override
 	public String toString() {
-		return coll.toString();
+		if (coll != null) {
+			return coll.toString();
+		} else {
+			return list.toString();
+		}
 	}
 
 	// Map: read methods
 
 	@Override
 	public int size() {
-		return coll.size();
+		if (coll != null) {
+			return coll.size();
+		} else {
+			return list.size();
+		}
 	}
 
 	@Override
 	public boolean isEmpty() {
-		return coll.isEmpty();
+		if (coll != null) {
+			return coll.isEmpty();
+		} else {
+			return list.isEmpty();
+		}
 	}
 
 	@Override
 	public boolean containsKey(Object key) {
-		return coll.containsKey(keyIndex, key);
+		if (coll != null) {
+			return coll.containsKey(keyIndex, key);
+		} else {
+			return list.containsKey(keyIndex, key);
+		}
 	}
 
 	@Override
 	public boolean containsValue(Object value) {
-		return coll.contains(value);
+		if (coll != null) {
+			return coll.contains(value);
+		} else {
+			return list.contains(value);
+		}
 	}
 
 	@Override
 	public E get(Object key) {
-		return coll.getByKey(keyIndex, key);
+		if (coll != null) {
+			return coll.getByKey(keyIndex, key);
+		} else {
+			return list.getByKey(keyIndex, key);
+		}
 	}
 
 	// Map: iterator methods
@@ -131,7 +173,11 @@ public class KeyCollectionAsMap<E, K> implements Map<K, E>, Serializable {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public Set<K> keySet() {
-		return new CollectionAsSet(coll.getDistinctKeys(keyIndex), true);
+		if (coll != null) {
+			return new CollectionAsSet(coll.getDistinctKeys(keyIndex), true);
+		} else {
+			return new CollectionAsSet(list.getDistinctKeys(keyIndex), true);
+		}
 	}
 
 	/**
@@ -143,21 +189,39 @@ public class KeyCollectionAsMap<E, K> implements Map<K, E>, Serializable {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public Set<Entry<K, E>> entrySet() {
-		Set<K> keys = (Set<K>) coll.getDistinctKeys(keyIndex);
-		List<Entry<K, E>> entries = new GapList(keys.size());
-		for (K key : keys) {
-			E elem = coll.getByKey(keyIndex, key);
-			entries.add(new ImmutableMapEntry<K, E>(key, elem));
+		if (coll != null) {
+			Set<K> keys = (Set<K>) coll.getDistinctKeys(keyIndex);
+			List<Entry<K, E>> entries = new GapList(keys.size());
+			for (K key : keys) {
+				E elem = coll.getByKey(keyIndex, key);
+				entries.add(new ImmutableMapEntry<K, E>(key, elem));
+			}
+			return new CollectionAsSet(entries, true);
+		} else {
+			Set<K> keys = (Set<K>) list.getDistinctKeys(keyIndex);
+			List<Entry<K, E>> entries = new GapList(keys.size());
+			for (K key : keys) {
+				E elem = list.getByKey(keyIndex, key);
+				entries.add(new ImmutableMapEntry<K, E>(key, elem));
+			}
+			return new CollectionAsSet(entries, true);
 		}
-		return new CollectionAsSet(entries, true);
 	}
 
 	@Override
 	public Collection<E> values() {
-		if (immutable) {
-			return Collections.unmodifiableCollection(coll);
+		if (coll != null) {
+			if (immutable) {
+				return Collections.unmodifiableCollection(coll);
+			} else {
+				return coll;
+			}
 		} else {
-			return coll;
+			if (immutable) {
+				return Collections.unmodifiableCollection(list);
+			} else {
+				return list;
+			}
 		}
 	}
 
@@ -172,29 +236,37 @@ public class KeyCollectionAsMap<E, K> implements Map<K, E>, Serializable {
 	@Override
 	public void clear() {
 		checkMutable();
-		coll.clear();
+		if (coll != null) {
+			coll.clear();
+		} else {
+			list.clear();
+		}
 	}
 
 	@Override
 	public E put(K key, E elem) {
 		checkMutable();
-		if (!GapList.equalsElem(key, coll.getKey(keyIndex, elem))) {
-			KeyCollectionImpl.errorInvalidData();
-		}
-		if (coll.containsKey(1, key)) {
-			E oldElem = coll.removeByKey(keyIndex, key);
-			coll.add(elem);
-			return oldElem;
+		if (coll != null) {
+			if (!GapList.equalsElem(key, coll.getKey(keyIndex, elem))) {
+				KeyCollectionImpl.errorInvalidData();
+			}
+			return coll.putByKey(keyIndex, elem);
 		} else {
-			coll.add(elem);
-			return null;
+			if (!GapList.equalsElem(key, list.keyColl.getKey(keyIndex, elem))) {
+				KeyCollectionImpl.errorInvalidData();
+			}
+			return list.putByKey(keyIndex, elem);
 		}
 	}
 
 	@Override
 	public E remove(Object key) {
 		checkMutable();
-		return coll.removeByKey(keyIndex, key);
+		if (coll != null) {
+			return coll.removeByKey(keyIndex, key);
+		} else {
+			return list.removeByKey(keyIndex, key);
+		}
 	}
 
 	@Override

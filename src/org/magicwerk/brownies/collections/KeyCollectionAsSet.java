@@ -33,6 +33,8 @@ public class KeyCollectionAsSet<E> extends CollectionAsSet<E> implements Seriali
 
     public KeyCollectionAsSet(KeyCollectionImpl<E> coll, boolean immutable) {
     	super(coll, immutable);
+
+    	coll.checkAsSet();
     }
 
 	@Override

@@ -336,12 +336,15 @@ public class Key1List<E,K> extends KeyListImpl<E> {
 	}
 
     /**
-     * Returns an immutable map view to the key map.
+     * Returns a map view to the key map.
+     * The collection can be modified through the map as long as the constraint are not violated.
+     * The collections returned by the methods entrySet(), keySet(), and values() are immutable however.
      *
      * @return map view to key map
+     * @throws IllegalArgumentException if the key map cannot be viewed as Map
      */
     public Map<K,E> asMap1() {
-    	return new KeyCollectionAsMap<E,K>(this.keyColl, 1, true);
+    	return (Map<K,E>) new KeyCollectionAsMap<K,E>(this, 1, false);
     }
 
     /**

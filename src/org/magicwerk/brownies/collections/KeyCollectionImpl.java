@@ -2206,13 +2206,10 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	}
 
     /**
-     * Returns a set view of the collection.
-     * Note that this method does not check whether the collection really
-     * is really a set as defined by the Set interface. It makes only sure
-     * that the add() method will return false instead of throwing a
-     * DuplicateKeyException.
+     * Returns a Set view of the element set.
      *
      * @return set view
+     * @throws IllegalArgumentException if the element set cannot be viewed as Set
      */
     public Set<E> asSet() {
     	return new KeyCollectionAsSet(this, false);
@@ -2302,9 +2299,45 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     	return getKeyMap(keyIndex).getDistinctKeys();
     }
 
+    /**
+     * Check whether there is a KeyMap (can also be the elements set) with specified index.
+     *
+     * @param keyIndex 	key map index
+     * @throws IllegalArgumentException if there is no such key map
+     */
     void checkKeyMap(int keyIndex) {
     	if (keyMaps == null || keyIndex >= keyMaps.length || keyIndex < 0 || keyMaps[keyIndex] == null) {
     		throw new IllegalArgumentException("Invalid key index: " + keyIndex);
+    	}
+    }
+
+    /**
+     * Check whether the key map can be viewed as Map.
+     *
+     * @param keyIndex 	key map index
+     * @throws IllegalArgumentException if the key map cannot be viewed as Map
+     */
+    void checkAsMap(int keyIndex) {
+    	if (keyMaps == null || keyIndex >= keyMaps.length || keyIndex <= 0 || keyMaps[keyIndex] == null) {
+    		throw new IllegalArgumentException("Invalid key index: " + keyIndex);
+    	}
+    	if (keyMaps[keyIndex].allowDuplicates || keyMaps[keyIndex].allowDuplicatesNull) {
+    		throw new IllegalArgumentException("Key map must not allow duplicates");
+    	}
+    }
+
+    /**
+     * Check whether the element set can be viewed as Set.
+     *
+     * @param keyIndex 	key map index
+     * @throws IllegalArgumentException if the element set cannot be viewed as Set
+     */
+    void checkAsSet() {
+    	if (keyMaps == null || keyMaps[0] == null) {
+    		throw new IllegalArgumentException("No element set");
+    	}
+    	if (keyMaps[0].allowDuplicates || keyMaps[0].allowDuplicatesNull) {
+    		throw new IllegalArgumentException("Element set must not allow duplicates");
     	}
     }
 

@@ -323,15 +323,14 @@ public class Key1Collection<E,K> extends KeyCollectionImpl<E> {
 
     /**
      * Returns a map view to the key map.
-     * The collection can be modified through the map as long
-     * as the constraint are not violated.
-     * The collections returned by the methods entrySet(), keySet(), and
-     * values() are immutable however.
+     * The collection can be modified through the map as long as the constraint are not violated.
+     * The collections returned by the methods entrySet(), keySet(), and values() are immutable however.
      *
      * @return map view to key map
+     * @throws IllegalArgumentException if the key map cannot be viewed as Map
      */
 	public Map<K,E> asMap1() {
-    	return (Map<K,E>) new KeyCollectionAsMap<E,Object>(this, 1, false);
+    	return new KeyCollectionAsMap<K,E>(this, 1, false);
     }
 
 	/**

@@ -158,13 +158,10 @@ public abstract class KeyListImpl<E> extends IList<E> {
     }
 
     /**
-     * Returns a set view of the collection.
-     * Note that this method does not check whether the collection really
-     * is really a set as defined by the Set interface. It makes only sure
-     * that the add() method will return false instead of throwing a
-     * DuplicateKeyException.
+     * Returns a Set view of the element set.
      *
      * @return set view
+     * @throws IllegalArgumentException if the element set cannot be viewed as Set
      */
     public Set<E> asSet() {
     	return new CollectionAsSet<E>(this, false);
