@@ -395,15 +395,14 @@ public class Key2Collection<E,K1,K2> extends KeyCollectionImpl<E> {
 
     /**
      * Returns a map view to the key map.
-     * The collection can be modified through the map as long
-     * as the constraint are not violated.
-     * The collections returned by the methods entrySet(), keySet(), and
-     * values() are immutable however.
+     * The collection can be modified through the map as long as the constraint are not violated.
+     * The collections returned by the methods entrySet(), keySet(), and values() are immutable however.
      *
      * @return map view to key map
+     * @throws IllegalArgumentException if the key map cannot be viewed as Map
      */
     public Map<K1,E> asMap1() {
-    	return new KeyCollectionAsMap<E,K1>(this, 1, false);
+    	return new KeyCollectionAsMap<K1,E>(this, 1, false);
     }
 
 	/**
@@ -525,15 +524,14 @@ public class Key2Collection<E,K1,K2> extends KeyCollectionImpl<E> {
 
     /**
      * Returns a map view to the key map.
-     * The collection can be modified through the map as long
-     * as the constraint are not violated.
-     * The collections returned by the methods entrySet(), keySet(), and
-     * values() are immutable however.
+     * The collection can be modified through the map as long as the constraint are not violated.
+     * The collections returned by the methods entrySet(), keySet(), and values() are immutable however.
      *
      * @return map view to key map
+     * @throws IllegalArgumentException if the key map cannot be viewed as Map
      */
     public Map<K2,E> asMap2() {
-    	return new KeyCollectionAsMap<E,K2>(this, 2, false);
+    	return new KeyCollectionAsMap<K2,E>(this, 2, false);
     }
 
 	/**
