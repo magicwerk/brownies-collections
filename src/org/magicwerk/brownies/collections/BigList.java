@@ -904,6 +904,8 @@ public class BigList<E> extends IList<E> {
 
 	@Override
 	protected void doClear() {
+		finalize();
+
 		rootNode = null;
 		currBlockStart = 0;
 		currBlockEnd = 0;
