@@ -283,7 +283,7 @@ public abstract class KeyListImpl<E> extends IList<E> {
     	if (keyColl.maxSize != 0 && size() >= keyColl.maxSize) {
     		if (keyColl.movingWindow) {
     			if (index == 0) {
-    				// the element inserted at position 0 will removed again due to the limited size
+    				// the element inserted at position 0 will be removed again due to the limited size
     				return false;
     			}
     			if (index == -1) {
