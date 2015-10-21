@@ -174,7 +174,9 @@ public class FloatObjBigList extends IList<Float> {
 
 	@Override
 	protected void doGetAll(Object[] elems, int index, int len) {
-		list.doGetAll(toPrimitive((Float[]) elems), index, len);
+		for (int i=0; i<len; i++) {
+			elems[i] = list.doGet(index+i);
+		}
 	}
 
 	@Override

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: BooleanBigList.java 2914 2015-08-14 16:52:30Z origo $
+ * $Id: BooleanBigList.java 2964 2015-10-18 22:43:57Z origo $
  */
 package org.magicwerk.brownies.collections.primitive;
 import org.magicwerk.brownies.collections.helper.ArraysHelper;
@@ -44,7 +44,7 @@ import org.magicwerk.brownies.collections.helper.primitive.BooleanMergeSort;
  * Note that the iterators provided are not fail-fast.<p>
  *
  * @author Thomas Mauch
- * @version $Id: BooleanBigList.java 2914 2015-08-14 16:52:30Z origo $
+ * @version $Id: BooleanBigList.java 2964 2015-10-18 22:43:57Z origo $
  */
 public class BooleanBigList extends IBooleanList {
 	public static IBooleanList of(boolean[] values) {
@@ -1039,6 +1039,7 @@ protected boolean doAddAll(int index, IBooleanList list) {
 
     @Override
 protected void doClear() {
+    finalize();
     rootNode = null;
     currBooleanBlockStart = 0;
     currBooleanBlockEnd = 0;

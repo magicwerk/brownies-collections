@@ -177,7 +177,9 @@ public class ShortObjGapList extends IList<Short> {
 
 	@Override
 	protected void doGetAll(Object[] elems, int index, int len) {
-		list.doGetAll(toPrimitive((Short[]) elems), index, len);
+		for (int i=0; i<len; i++) {
+			elems[i] = list.doGet(index+i);
+		}
 	}
 
 	@Override
