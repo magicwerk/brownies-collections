@@ -174,7 +174,9 @@ public class CharObjBigList extends IList<Character> {
 
 	@Override
 	protected void doGetAll(Object[] elems, int index, int len) {
-		list.doGetAll(toPrimitive((Character[]) elems), index, len);
+		for (int i=0; i<len; i++) {
+			elems[i] = list.doGet(index+i);
+		}
 	}
 
 	@Override

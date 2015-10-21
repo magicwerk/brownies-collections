@@ -174,7 +174,9 @@ public class DoubleObjBigList extends IList<Double> {
 
 	@Override
 	protected void doGetAll(Object[] elems, int index, int len) {
-		list.doGetAll(toPrimitive((Double[]) elems), index, len);
+		for (int i=0; i<len; i++) {
+			elems[i] = list.doGet(index+i);
+		}
 	}
 
 	@Override

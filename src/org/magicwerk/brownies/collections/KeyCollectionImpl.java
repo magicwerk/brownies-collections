@@ -1581,6 +1581,9 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
      */
     void initCopy(KeyCollectionImpl<E> that) {
     	size = that.size;
+    	// keyList is copied later
+    	keyList = that.keyList;
+    	// Copy keyMaps
     	if (that.keyMaps != null) {
 	    	keyMaps = new KeyMap[that.keyMaps.length];
 	    	for (int i=0; i<keyMaps.length; i++) {
@@ -1589,13 +1592,15 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	    		}
 	    	}
     	}
+    	maxSize = that.maxSize;
+    	movingWindow = that.movingWindow;
     	allowNullElem = that.allowNullElem;
     	constraint = that.constraint;
+    	orderByKey = that.orderByKey;
     	beforeInsertTrigger = that.beforeInsertTrigger;
     	afterInsertTrigger = that.afterInsertTrigger;
     	beforeDeleteTrigger = that.beforeDeleteTrigger;
     	afterDeleteTrigger = that.afterDeleteTrigger;
-    	orderByKey = that.orderByKey;
     }
 
     /**
@@ -1605,6 +1610,9 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
      */
     void initCrop(KeyCollectionImpl<E> that) {
     	size = 0;
+    	// keyList is copied later
+    	keyList = that.keyList;
+    	// Copy keyMaps
     	if (that.keyMaps != null) {
 	    	keyMaps = new KeyMap[that.keyMaps.length];
 	    	for (int i=0; i<keyMaps.length; i++) {
@@ -1613,13 +1621,15 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	    		}
 	    	}
     	}
+    	maxSize = that.maxSize;
+    	movingWindow = that.movingWindow;
     	allowNullElem = that.allowNullElem;
     	constraint = that.constraint;
+    	orderByKey = that.orderByKey;
     	beforeInsertTrigger = that.beforeInsertTrigger;
     	afterInsertTrigger = that.afterInsertTrigger;
     	beforeDeleteTrigger = that.beforeDeleteTrigger;
     	afterDeleteTrigger = that.afterDeleteTrigger;
-    	orderByKey = that.orderByKey;
     }
 
     /**
@@ -1669,11 +1679,16 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     	return keyMaps[keyIndex].getKey(elem);
     }
 
-    boolean isSortedList() {
+    /**
+     * Determines whether this list is sorted or not.
+     *
+     * @return true if this a sorted list, false if not
+     */
+    public boolean isSorted() {
     	return orderByKey != -1;
     }
 
-    boolean isSortedListByElem() {
+    boolean isSortedByElem() {
     	return orderByKey == 0;
     }
 
@@ -1711,11 +1726,11 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     		if (cmp == 0) {
     			if (elem != null) {
     				if (!keyMap.allowDuplicates) {
-    					cmp = 1;
+    					errorDuplicateKey(key);
     				}
     			} else {
     				if (!keyMap.allowDuplicatesNull) {
-    					cmp = 1;
+    					errorDuplicateKey(key);
     				}
     			}
     		}
@@ -2143,7 +2158,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 		       			}
 		       			first = false;
 		       		} else {
-		       			if (!obj.hasValue() || obj.getValue() != removed.getValue()) {
+		       			if (!obj.hasValue() || !obj.getValue().equals(removed.getValue())) {
 		       				errorInvalidData();
 		       			}
 		       		}
