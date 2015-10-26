@@ -682,23 +682,6 @@ public abstract class IList<E>
 	    return true;
 	}
 
-	@Override
-    public boolean removeAll(Collection<?> coll) {
-	    // Note that this method is already implemented in AbstractCollection.
-		// It has been duplicated so the method is also available in the primitive classes.
-	    boolean modified = false;
-	    int size = size();
-		for (int i=0; i<size; i++) {
-			if (coll.contains(doGet(i))) {
-				doRemove(i);
-				size--;
-				i--;
-				modified = true;
-			}
-		}
-		return modified;
-    }
-
 	/**
 	 * Removes all equal elements.
 	 *
@@ -720,12 +703,31 @@ public abstract class IList<E>
 		return list;
     }
 
+	@Override
+    public boolean removeAll(Collection<?> coll) {
+	    // Note that this method is already implemented in AbstractCollection.
+		// It has been duplicated so the method is also available in the primitive classes.
+    	checkNonNull(coll);
+	    boolean modified = false;
+	    int size = size();
+		for (int i=0; i<size; i++) {
+			if (coll.contains(doGet(i))) {
+				doRemove(i);
+				size--;
+				i--;
+				modified = true;
+			}
+		}
+		return modified;
+    }
+
     /**
      * @see #removeAll(Collection)
      */
     public boolean removeAll(IList<?> coll) {
     	// There is a special implementation accepting an IList
     	// so the method is also available in the primitive classes.
+    	checkNonNull(coll);
 	    boolean modified = false;
 	    int size = size();
 		for (int i=0; i<size; i++) {
@@ -743,6 +745,7 @@ public abstract class IList<E>
     public boolean retainAll(Collection<?> coll) {
 	    // Note that this method is already implemented in AbstractCollection.
 		// It has been duplicated so the method is also available in the primitive classes.
+    	checkNonNull(coll);
 	    boolean modified = false;
 	    int size = size();
 		for (int i=0; i<size; i++) {
@@ -762,6 +765,7 @@ public abstract class IList<E>
     public boolean retainAll(IList<?> coll) {
     	// There is a special implementation accepting an IList
     	// so the method is also available in the primitive classes.
+    	checkNonNull(coll);
 	    boolean modified = false;
 	    int size = size();
 		for (int i=0; i<size; i++) {
