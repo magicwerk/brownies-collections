@@ -1692,6 +1692,14 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     	return orderByKey == 0;
     }
 
+    Comparator getElemSortComparator() {
+    	Comparator comparator = keyMaps[orderByKey].comparator;
+    	if (comparator instanceof NaturalComparator) {
+    		return null;
+    	}
+    	return comparator;
+    }
+
 	boolean hasElemSet() {
 		return keyMaps != null && keyMaps[0] != null;
 	}
@@ -1827,21 +1835,6 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     	Object key = keyMap.getKey(elem);
     	int index = keyMap.keysList.binarySearch(key, keyMap.comparator);
     	return (index < 0) ? -1 : index;
-    }
-
-    /**
-     * Returns comparator used for sorting.
-     * If there is no sorting because the elements are stored in a HashMap
-     * or because the order is determined by the list order, null is returned.
-     *
-     * @return comparator used for sorting, null if there is no sorting
-     */
-    Comparator getSortComparator() {
-    	if (orderByKey == -1) {
-    		return null;
-    	} else {
-    		return keyMaps[orderByKey].comparator;
-    	}
     }
 
     //
