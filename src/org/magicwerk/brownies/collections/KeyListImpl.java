@@ -566,12 +566,14 @@ public abstract class KeyListImpl<E> extends IList<E> {
 
     @Override
     public void sort(int index, int len, Comparator<? super E> comparator) {
-    	// If this is sorted list, the comparator must be equal to the specified one
-    	Comparator<?> sortComparator = keyColl.getSortComparator();
-    	if (sortComparator != null) {
-    		if (sortComparator != comparator) {
-        		throw new IllegalArgumentException("Different comparator specified for sorted list");
+    	if (keyColl.isSorted()) {
+    		// If this is sorted list, the comparator must be equal to the specified one
+    		if (keyColl.isSortedByElem()) {
+    			if (GapList.equalsElem(comparator, keyColl.getElemSortComparator())) {
+    				return;
+    			}
     		}
+        	throw new IllegalArgumentException("Different comparator specified for sorted list");
     	} else {
     		list.sort(index, len, comparator);
     	}

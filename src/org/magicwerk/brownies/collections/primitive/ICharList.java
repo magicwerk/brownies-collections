@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: ICharList.java 2943 2015-09-07 22:55:10Z origo $
+ * $Id: ICharList.java 2969 2015-10-26 22:54:12Z origo $
  */
 package org.magicwerk.brownies.collections.primitive;
 
@@ -42,7 +42,7 @@ import org.magicwerk.brownies.collections.function.IPredicate;
  * It also offers additional methods which are then available in all implementations of GapList and BigList.
  *
  * @author Thomas Mauch
- * @version $Id: ICharList.java 2943 2015-09-07 22:55:10Z origo $
+ * @version $Id: ICharList.java 2969 2015-10-26 22:54:12Z origo $
  *
  * @param  type of elements stored in the list
  * @see	    java.util.List
@@ -665,23 +665,6 @@ public boolean containsAll(Collection<Character> coll) {
     return true;
 }
 
-    
-public boolean removeAll(Collection<Character> coll) {
-    // Note that this method is already implemented in AbstractCollection.   
-    // It has been duplicated so the method is also available in the primitive classes.   
-    boolean modified = false;
-    int size = size();
-    for (int i = 0; i < size; i++) {
-        if (coll.contains(doGet(i))) {
-            doRemove(i);
-            size--;
-            i--;
-            modified = true;
-        }
-    }
-    return modified;
-}
-
     /**
 	 * Removes all equal elements.
 	 *
@@ -703,12 +686,31 @@ public ICharList removeAll(char elem) {
     return list;
 }
 
+    
+public boolean removeAll(Collection<Character> coll) {
+    // Note that this method is already implemented in AbstractCollection.   
+    // It has been duplicated so the method is also available in the primitive classes.   
+    checkNonNull(coll);
+    boolean modified = false;
+    int size = size();
+    for (int i = 0; i < size; i++) {
+        if (coll.contains(doGet(i))) {
+            doRemove(i);
+            size--;
+            i--;
+            modified = true;
+        }
+    }
+    return modified;
+}
+
     /**
      * @see #removeAll(Collection)
      */
 public boolean removeAll(ICharList coll) {
     // There is a special implementation accepting an ICharList   
     // so the method is also available in the primitive classes.   
+    checkNonNull(coll);
     boolean modified = false;
     int size = size();
     for (int i = 0; i < size; i++) {
@@ -726,6 +728,7 @@ public boolean removeAll(ICharList coll) {
 public boolean retainAll(Collection<Character> coll) {
     // Note that this method is already implemented in AbstractCollection.   
     // It has been duplicated so the method is also available in the primitive classes.   
+    checkNonNull(coll);
     boolean modified = false;
     int size = size();
     for (int i = 0; i < size; i++) {
@@ -745,6 +748,7 @@ public boolean retainAll(Collection<Character> coll) {
 public boolean retainAll(ICharList coll) {
     // There is a special implementation accepting an ICharList   
     // so the method is also available in the primitive classes.   
+    checkNonNull(coll);
     boolean modified = false;
     int size = size();
     for (int i = 0; i < size; i++) {
