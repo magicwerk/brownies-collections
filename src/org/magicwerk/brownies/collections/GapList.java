@@ -946,9 +946,12 @@ public class GapList<E> extends IList<E> {
 	    	newCapacity = minCapacity;
     	}
 
-		E[] newValues = null;
-		if (start == 0) {
-			newValues = Arrays.copyOf(values, newCapacity);
+		E[] newValues = (E []) new Object[newCapacity];
+		if (size == 0) {
+			;
+		} else if (start == 0) {
+	        System.arraycopy(values, 0, newValues, 0, values.length);
+
 		} else if (start > 0) {
 			int grow = newCapacity-values.length;
 			newValues = (E []) new Object[newCapacity];
