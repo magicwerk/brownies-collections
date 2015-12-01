@@ -547,7 +547,22 @@ public abstract class KeyListImpl<E> extends IList<E> {
     }
 
     /**
-     * Returns list containing all distinct keys.
+     * Returns list containing all keys in element order.
+     *
+     * @param keyIndex	key index
+     * @return 			list containing all keys
+     */
+    protected GapList<?> getAllKeys(int keyIndex) {
+    	IFunction mapper = keyColl.getKeyMap(keyIndex).mapper;
+    	GapList<Object> list = GapList.create();
+    	for (Object obj: this) {
+    		list.add(mapper.apply(obj));
+    	}
+    	return list;
+    }
+
+    /**
+     * Returns set containing all distinct keys.
      *
      * @param keyIndex 	key index
      * @return 			list containing all distinct keys

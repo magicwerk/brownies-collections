@@ -2298,13 +2298,28 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     }
 
     /**
-     * Returns list containing all distinct keys.
+     * Returns set containing all distinct keys.
      *
      * @param keyIndex	key index
      * @return 			list containing all distinct keys
      */
     protected Set<?> getDistinctKeys(int keyIndex) {
     	return getKeyMap(keyIndex).getDistinctKeys();
+    }
+
+    /**
+     * Returns list containing all keys in element order.
+     *
+     * @param keyIndex	key index
+     * @return 			list containing all keys
+     */
+    protected GapList<?> getAllKeys(int keyIndex) {
+    	IFunction mapper = getKeyMap(keyIndex).mapper;
+    	GapList<Object> list = GapList.create();
+    	for (Object obj: this) {
+    		list.add(mapper.apply(obj));
+    	}
+    	return list;
     }
 
     /**

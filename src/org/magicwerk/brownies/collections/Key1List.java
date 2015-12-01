@@ -419,6 +419,10 @@ public class Key1List<E,K> extends KeyListImpl<E> {
 		return super.removeAllByKey(1, key);
 	}
 
+	public GapList<K> getAllKeys1() {
+		return (GapList<K>) super.getAllKeys(1);
+	}
+
 	/**
 	 * Returns all distinct keys in the same order as in the key map.
 	 *
