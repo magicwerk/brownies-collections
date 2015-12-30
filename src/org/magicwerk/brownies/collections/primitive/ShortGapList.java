@@ -903,9 +903,11 @@ protected void doEnsureCapacity(int minCapacity) {
     if (newCapacity < minCapacity) {
         newCapacity = minCapacity;
     }
-    short[] newValues = null;
-    if (start == 0) {
-        newValues = Arrays.copyOf(values, newCapacity);
+    short[] newValues = (short[]) new short[newCapacity];
+    if (size == 0) {
+        ;
+    } else if (start == 0) {
+        System.arraycopy(values, 0, newValues, 0, values.length);
     } else if (start > 0) {
         int grow = newCapacity - values.length;
         newValues = (short[]) new short[newCapacity];
