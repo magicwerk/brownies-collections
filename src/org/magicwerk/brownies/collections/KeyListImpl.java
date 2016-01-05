@@ -552,10 +552,10 @@ public abstract class KeyListImpl<E> extends IList<E> {
      * @param keyIndex	key index
      * @return 			list containing all keys
      */
-    protected GapList<?> getAllKeys(int keyIndex) {
-    	IFunction mapper = keyColl.getKeyMap(keyIndex).mapper;
+    protected GapList<Object> getAllKeys(int keyIndex) {
+    	IFunction<E,Object> mapper = keyColl.getKeyMap(keyIndex).mapper;
     	GapList<Object> list = GapList.create();
-    	for (Object obj: this) {
+    	for (E obj: this) {
     		list.add(mapper.apply(obj));
     	}
     	return list;

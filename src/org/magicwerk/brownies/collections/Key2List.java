@@ -491,6 +491,16 @@ public class Key2List<E,K1,K2> extends KeyListImpl<E> {
 		return super.removeAllByKey(1, key);
 	}
 
+    /**
+     * Returns list containing all keys in element order.
+     *
+     * @return 			list containing all keys
+     */
+	@SuppressWarnings("unchecked")
+	public GapList<K1> getAllKeys1() {
+		return (GapList<K1>) super.getAllKeys(1);
+	}
+
 	/**
 	 * Returns all distinct keys in the same order as in the key map.
 	 *
@@ -628,6 +638,16 @@ public class Key2List<E,K1,K2> extends KeyListImpl<E> {
 	 */
 	public GapList<E> removeAllByKey2(K2 key) {
 		return super.removeAllByKey(2, key);
+	}
+
+    /**
+     * Returns list containing all keys in element order.
+     *
+     * @return 			list containing all keys
+     */
+	@SuppressWarnings("unchecked")
+	public GapList<K2> getAllKeys2() {
+		return (GapList<K2>) super.getAllKeys(2);
 	}
 
 	/**

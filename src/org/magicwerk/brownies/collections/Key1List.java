@@ -419,6 +419,12 @@ public class Key1List<E,K> extends KeyListImpl<E> {
 		return super.removeAllByKey(1, key);
 	}
 
+    /**
+     * Returns list containing all keys in element order.
+     *
+     * @return 			list containing all keys
+     */
+	@SuppressWarnings("unchecked")
 	public GapList<K> getAllKeys1() {
 		return (GapList<K>) super.getAllKeys(1);
 	}
