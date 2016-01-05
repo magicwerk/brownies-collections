@@ -1056,7 +1056,9 @@ public class GapList<E> extends IList<E> {
 			doModify();
 			doClear();
 		} else {
-			super.doRemoveAll(index, len);
+			for (int i=0; i<len; i++) {
+				doRemove(index);
+			}
 		}
 	}
 

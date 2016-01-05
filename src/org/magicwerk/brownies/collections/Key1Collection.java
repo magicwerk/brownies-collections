@@ -395,12 +395,23 @@ public class Key1Collection<E,K> extends KeyCollectionImpl<E> {
 		return super.removeAllByKey(1, key);
 	}
 
+    /**
+     * Returns list containing all keys in element order.
+     *
+     * @return 			list containing all keys
+     */
+	@SuppressWarnings("unchecked")
+	public GapList<K> getAllKeys1() {
+		return (GapList<K>) super.getAllKeys(1);
+	}
+
 	/**
 	 * Returns all distinct keys in the same order as in the key map.
 	 *
 	 * @return		distinct keys
 	 */
-    public Set<K> getDistinctKeys1() {
+    @SuppressWarnings("unchecked")
+	public Set<K> getDistinctKeys1() {
 		return (Set<K>) super.getDistinctKeys(1);
 	}
 
