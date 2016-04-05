@@ -185,6 +185,30 @@ public class Key2Collection<E,K1,K2> extends KeyCollectionImpl<E> {
         	return (Builder<E,K1,K2>) super.withKeyMap(1, mapper);
         }
 
+        /**
+         * Specify this key to be a primary key.
+         * This is identical to calling
+         * withKey1Map(mapper), withKey1Null(false), and withKey1Duplicates(false).
+         *
+         * @param mapper	mapper to use
+         * @return			this (fluent interface)
+         */
+        public Builder<E,K1,K2> withPrimaryKey1Map(IFunction<? super E,K1> mapper) {
+        	return (Builder<E,K1,K2>) super.withPrimaryKeyMap(1, mapper);
+        }
+
+        /**
+         * Specify this key to be a unique key.
+         * This is identical to calling
+         * withKey1Map(mapper), withKey1Null(true), and withKey1Duplicates(false, true).
+         *
+         * @param mapper	mapper to use
+         * @return			this (fluent interface)
+         */
+        public Builder<E,K1,K2> withUniqueKey1Map(IFunction<? super E,K1> mapper) {
+        	return (Builder<E,K1,K2>) super.withUniqueKeyMap(1, mapper);
+        }
+
         @Override
         public Builder<E,K1,K2> withOrderByKey1(boolean orderBy) {
         	return (Builder<E,K1,K2>) super.withOrderByKey1(orderBy);
@@ -233,16 +257,6 @@ public class Key2Collection<E,K1,K2> extends KeyCollectionImpl<E> {
         	return (Builder<E,K1,K2>) super.withKeySort(1, comparator, sortNullsFirst);
         }
 
-        @Override
-        public Builder<E,K1,K2> withPrimaryKey1() {
-        	return (Builder<E,K1,K2>) super.withPrimaryKey1();
-        }
-
-        @Override
-        public Builder<E,K1,K2> withUniqueKey1() {
-        	return (Builder<E,K1,K2>) super.withUniqueKey1();
-        }
-
         // -- Key2
 
         /**
@@ -253,6 +267,30 @@ public class Key2Collection<E,K1,K2> extends KeyCollectionImpl<E> {
          */
         public Builder<E,K1,K2> withKey2Map(IFunction<? super E,K2> mapper) {
         	return (Builder<E,K1,K2>) super.withKeyMap(2, mapper);
+        }
+
+        /**
+         * Specify this key to be a primary key.
+         * This is identical to calling
+         * withKey2Map(mapper), withKey2Null(false), and withKey2Duplicates(false).
+         *
+         * @param mapper	mapper to use
+         * @return			this (fluent interface)
+         */
+        public Builder<E,K1,K2> withPrimaryKey2Map(IFunction<? super E,K2> mapper) {
+        	return (Builder<E,K1,K2>) super.withPrimaryKeyMap(2, mapper);
+        }
+
+		/**
+         * Specify this key to be a unique key.
+         * This is identical to calling
+         * withKey2Map(mapper), withKey2Null(true), and withKey2Duplicates(false, true).
+         *
+         * @param mapper	mapper to use
+         * @return			this (fluent interface)
+         */
+        public Builder<E,K1,K2> withUniqueKey2Map(IFunction<? super E,K2> mapper) {
+        	return (Builder<E,K1,K2>) super.withUniqueKeyMap(2, mapper);
         }
 
         @Override
@@ -301,16 +339,6 @@ public class Key2Collection<E,K1,K2> extends KeyCollectionImpl<E> {
          */
         public Builder<E,K1,K2> withKey2Sort(Comparator<? super K2> comparator, boolean sortNullsFirst) {
         	return (Builder<E,K1,K2>) super.withKeySort(2, comparator, sortNullsFirst);
-        }
-
-        @Override
-        public Builder<E,K1,K2> withPrimaryKey2() {
-        	return (Builder<E,K1,K2>) super.withPrimaryKey2();
-        }
-
-        @Override
-        public Builder<E,K1,K2> withUniqueKey2() {
-        	return (Builder<E,K1,K2>) super.withUniqueKey2();
         }
 
         /**
