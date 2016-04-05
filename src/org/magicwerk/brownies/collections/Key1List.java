@@ -194,6 +194,30 @@ public class Key1List<E,K> extends KeyListImpl<E> {
         	return (Builder<E,K>) super.withKeyMap(1, mapper);
         }
 
+        /**
+         * Specify this key to be a primary key.
+         * This is identical to calling
+         * withKey1Map(mapper), withKey1Null(false), and withKey1Duplicates(false).
+         *
+         * @param mapper	mapper to use
+         * @return			this (fluent interface)
+         */
+        public Builder<E,K> withPrimaryKey1Map(IFunction<? super E,K> mapper) {
+        	return (Builder<E,K>) super.withPrimaryKeyMap(1, mapper);
+        }
+
+        /**
+         * Specify this key to be a unique key.
+         * This is identical to calling
+         * withKey1Map(mapper), withKey1Null(true), and withKey1Duplicates(false, true).
+         *
+         * @param mapper	mapper to use
+         * @return			this (fluent interface)
+         */
+        public Builder<E,K> withUniqueKey1Map(IFunction<? super E,K> mapper) {
+        	return (Builder<E,K>) super.withUniqueKeyMap(1, mapper);
+        }
+
         @Override
         public Builder<E,K> withOrderByKey1(boolean orderBy) {
         	return (Builder<E,K>) super.withOrderByKey1(orderBy);
@@ -245,16 +269,6 @@ public class Key1List<E,K> extends KeyListImpl<E> {
          */
         public Builder<E,K> withKey1Sort(Comparator<? super K> comparator, boolean sortNullsFirst) {
         	return (Builder<E,K>) super.withKeySort(1, comparator, sortNullsFirst);
-        }
-
-        @Override
-        public Builder<E,K> withPrimaryKey1() {
-        	return (Builder<E,K>) super.withPrimaryKey1();
-        }
-
-        @Override
-        public Builder<E,K> withUniqueKey1() {
-        	return (Builder<E,K>) super.withUniqueKey1();
         }
 
         /**

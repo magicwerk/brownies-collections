@@ -393,7 +393,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
          * @return	this (fluent interface)
          */
         protected BuilderImpl<E> withPrimaryElem() {
-        	return withPrimaryKey(0);
+        	return withPrimaryKeyMap(0, null);
         }
 
         /**
@@ -404,7 +404,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
          * @return	this (fluent interface)
          */
         protected BuilderImpl<E> withUniqueElem() {
-            return withUniqueKey(0);
+            return withUniqueKeyMap(0, null);
         }
 
         //
@@ -536,19 +536,30 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
             return this;
         }
 
-        protected BuilderImpl<E> withPrimaryKey(int keyIndex) {
+        @SuppressWarnings("rawtypes")
+		protected BuilderImpl<E> withPrimaryKeyMap(int keyIndex, IFunction mapper) {
+        	if (mapper != null) {
+        		withKeyMap(keyIndex, mapper);
+        	}
         	withKeyNull(keyIndex, false);
         	withKeyDuplicates(keyIndex, false, false);
             return this;
         }
 
-        protected BuilderImpl<E> withUniqueKey(int keyIndex) {
+        @SuppressWarnings("rawtypes")
+		protected BuilderImpl<E> withUniqueKeyMap(int keyIndex, IFunction mapper) {
+        	if (mapper != null) {
+        		withKeyMap(keyIndex, mapper);
+        	}
         	withKeyNull(keyIndex, true);
         	withKeyDuplicates(keyIndex, false, true);
             return this;
         }
 
         // -- Key1
+        //
+        // Just define methods which can be overridden so Javadoc can be inherited.
+        // All methods with generic type parameters must explicitly be defined in concrete classes.
 
         /**
          * Specifies that the collection will have the order of the key map.
@@ -622,29 +633,10 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         	return withKeySort(1, sort);
         }
 
-        /**
-         * Specify this key to be a primary key.
-         * This is identical to calling
-         * withKey1Null(false) and withKey1Duplicates(false).
-         *
-         * @return	this (fluent interface)
-         */
-        protected BuilderImpl<E> withPrimaryKey1() {
-        	return withPrimaryKey(1);
-        }
-
-        /**
-         * Specify this key to be a unique key.
-         * This is identical to calling
-         * withKey1Null(true) and withKey1Duplicates(false, true).
-         *
-         * @return	this (fluent interface)
-         */
-        protected BuilderImpl<E> withUniqueKey1() {
-            return withUniqueKey(1);
-        }
-
         // -- Key2
+        //
+        // Just define methods which can be overridden so Javadoc can be inherited.
+        // All methods with generic type parameters must explicitly be defined in concrete classes.
 
         /**
          * Specifies that the collection will have the order of the key map.
@@ -715,28 +707,6 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         // The other overloaded methods also named withKey2Sort must defined directly in the concrete classes due to the generic types
         protected BuilderImpl<E> withKey2Sort(boolean sort) {
         	return withKeySort(2, sort);
-        }
-
-        /**
-         * Specify this key to be a primary key.
-         * This is identical to calling
-         * withKey2Null(false) and withKey2Duplicates(false).
-         *
-         * @return	this (fluent interface)
-         */
-        protected BuilderImpl<E> withPrimaryKey2() {
-        	return withPrimaryKey(2);
-        }
-
-        /**
-         * Specify this key to be a unique key.
-         * This is identical to calling
-         * withKey1Null(true) and withKey1Duplicates(false, true).
-         *
-         * @return	this (fluent interface)
-         */
-        protected BuilderImpl<E> withUniqueKey2() {
-            return withUniqueKey(2);
         }
 
 
