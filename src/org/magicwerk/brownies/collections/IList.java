@@ -1144,6 +1144,9 @@ public abstract class IList<E>
 
     void doTransfer(int transferMode, int srcIndex, int srcLen, IList<? super E> dst, int dstIndex, int dstLen) {
     	// Prepare arguments
+    	if (srcLen == -1) {
+    		srcLen = size()-srcIndex;
+    	}
         checkRange(srcIndex, srcLen);
         if (dstIndex == -1) {
         	dstIndex = dst.size();
