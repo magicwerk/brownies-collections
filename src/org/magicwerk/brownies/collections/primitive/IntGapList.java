@@ -1008,7 +1008,9 @@ protected void doRemoveAll(int index, int len) {
         doModify();
         doClear();
     } else {
-        super.doRemoveAll(index, len);
+        for (int i = 0; i < len; i++) {
+            doRemove(index);
+        }
     }
 }
 

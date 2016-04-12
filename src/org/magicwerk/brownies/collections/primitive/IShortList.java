@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: IShortList.java 2969 2015-10-26 22:54:12Z origo $
+ * $Id: IShortList.java 3137 2016-04-11 20:44:57Z origo $
  */
 package org.magicwerk.brownies.collections.primitive;
 
@@ -42,7 +42,7 @@ import org.magicwerk.brownies.collections.function.IPredicate;
  * It also offers additional methods which are then available in all implementations of GapList and BigList.
  *
  * @author Thomas Mauch
- * @version $Id: IShortList.java 2969 2015-10-26 22:54:12Z origo $
+ * @version $Id: IShortList.java 3137 2016-04-11 20:44:57Z origo $
  *
  * @param  type of elements stored in the list
  * @see	    java.util.List
@@ -1109,6 +1109,9 @@ public static void transferRemove(IShortList src, int srcIndex, int srcLen, ISho
 
     void doTransfer(int transferMode, int srcIndex, int srcLen, IShortList dst, int dstIndex, int dstLen) {
     // Prepare arguments   
+    if (srcLen == -1) {
+        srcLen = size() - srcIndex;
+    }
     checkRange(srcIndex, srcLen);
     if (dstIndex == -1) {
         dstIndex = dst.size();
