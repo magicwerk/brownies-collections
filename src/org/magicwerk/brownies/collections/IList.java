@@ -1490,9 +1490,9 @@ public abstract class IList<E>
     /**
      * Sets the specified elements.
      *
-     * @param index index of first element to set
-     * @param list  list with elements to set
-     * @throws 		IndexOutOfBoundsException if the range is invalid
+     * @param index 	index of first element to set
+     * @param elemes	array with elements to set
+     * @throws 			IndexOutOfBoundsException if the range is invalid
      */
     public void setArray(int index, E... elems) {
     	int arrayLen = elems.length;
@@ -1560,7 +1560,7 @@ public abstract class IList<E>
      * If the index equals the size of the list, the element is added.
      *
      * @param index index of first element to set or add
-     * @param coll  collection with elements to set or add
+     * @param elems	array with elements to set or add
      */
     public void putArray(int index, E... elems) {
         putAll(index, new IReadOnlyListFromArray<E>(elems));
@@ -1584,7 +1584,7 @@ public abstract class IList<E>
 	 * Initializes the list so it will afterwards only contain the elements of the collection.
 	 * The list will grow or shrink as needed.
 	 *
-	 * @param coll 	collection with elements
+	 * @param list 	list with elements
      * @throws 		IndexOutOfBoundsException if the length is invalid
 	 */
     public void initAll(IList<? extends E> list) {
