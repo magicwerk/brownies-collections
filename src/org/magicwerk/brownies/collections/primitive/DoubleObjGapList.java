@@ -314,33 +314,59 @@ public class DoubleObjGapList extends IList<Double> {
 		return list.retainAll((Collection<Double>) coll);
 	}
 
-	@Override
-	public Object[] toArray() {
-		return toArray(0, size());
-	}
-
-	@Override
+	/**
+	 * Returns an array containing the specified elements in this list.
+	 * @see List#toArray()
+	 *
+	 * @param index	index of first element to copy
+	 * @param len	number of elements to copy
+	 * @return		array containing the specified elements
+	 */
 	public Object[] toArray(int index, int len) {
-		Object[] elems = new Object[len];
+		Object[] array = new Object[len];
 		for (int i=0; i<len; i++) {
-			elems[i] = list.get(i);
+			array[i] = list.get(i);
 		}
-		return elems;
+        return array;
 	}
 
-	@Override
-	public <T> T[] toArray(T[] array) {
-		int size = list.size();
-		if (array.length < size) {
-			array = (T[]) java.lang.reflect.Array.newInstance(array.getClass().getComponentType(), size);
-		}
-		for (int i = 0; i < size; i++) {
+	/**
+	 * Returns an array containing the specified elements in this list.
+	 * @see List#toArray(Object[])
+	 *
+	 * @param array	the array into which the elements of this list are to be stored, if it is big enough; otherwise, a new array of the same runtime type is allocated for this purpose
+	 * @param index	index of first element to copy
+	 * @param len	number of elements to copy
+	 * @return		array containing the specified elements
+	 */
+	@SuppressWarnings("unchecked")
+	public <T> T[] toArray(T[] array, int index, int len) {
+        if (array.length < len) {
+        	array = (T[]) doCreateArray(array.getClass().getComponentType(), len);
+        }
+		for (int i=0; i<len; i++) {
 			array[i] = (T) (Double) list.get(i);
 		}
-		if (array.length > size) {
-			array[size] = null;
+        if (array.length > len) {
+        	array[len] = null;
+        }
+        return array;
+	}
+
+	/**
+	 * Returns an array containing the specified elements in this list.
+	 *
+	 * @param clazz	class for array elements 
+	 * @param index	index of first element to copy
+	 * @param len	number of elements to copy
+	 * @return		array containing the specified elements
+	 */
+	public <T> T[] toArray(Class<T> clazz, int index, int len) {
+		T[] array = doCreateArray(clazz, len);
+		for (int i=0; i<len; i++) {
+			array[i] = (T) (Double) list.get(i);
 		}
-		return array;
+        return array;
 	}
 
 	@Override
@@ -395,14 +421,8 @@ public class DoubleObjGapList extends IList<Double> {
 
 	@Override
 	public GapList<Double> getAll(int index, int len) {
-		double[] elems = list.getArray(index, len);
+		double[] elems = list.toArray(double.class, index, len);
 		return GapList.create(toWrapper(elems));
-	}
-
-	@Override
-	public Double[] getArray(int index, int len) {
-		double[] elems = list.getArray(index, len);
-		return toWrapper(elems);
 	}
 
 	@Override

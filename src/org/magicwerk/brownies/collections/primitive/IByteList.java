@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: IByteList.java 3137 2016-04-11 20:44:57Z origo $
+ * $Id: IByteList.java 3309 2016-10-10 12:41:09Z origo $
  */
 package org.magicwerk.brownies.collections.primitive;
 
@@ -42,7 +42,7 @@ import org.magicwerk.brownies.collections.function.IPredicate;
  * It also offers additional methods which are then available in all implementations of GapList and BigList.
  *
  * @author Thomas Mauch
- * @version $Id: IByteList.java 3137 2016-04-11 20:44:57Z origo $
+ * @version $Id: IByteList.java 3309 2016-10-10 12:41:09Z origo $
  *
  * @param  type of elements stored in the list
  * @see	    java.util.List
@@ -764,18 +764,31 @@ public boolean retainAll(IByteList coll) {
 
     
 public byte[] toArray() {
-    int size = size();
-    byte[] array = new byte[size];
-    doGetAll(array, 0, size);
-    return array;
+    return toArray(0, size());
+}
+
+    
+public byte[] toArray(byte[] array) {
+    return toArray(array, 0, size());
+}
+
+    /**
+	 * Returns an array containing the elements in this list.
+	 *
+	 * @param clazz	class for array elements 
+	 * @return		array containing the specified elements
+	 */
+public byte[] toArray(Class clazz) {
+    return toArray(clazz, 0, size());
 }
 
     /**
 	 * Returns an array containing the specified elements in this list.
+	 * @see List#toArray()
 	 *
 	 * @param index	index of first element to copy
 	 * @param len	number of elements to copy
-	 * @return		array the specified elements
+	 * @return		array containing the specified elements
 	 */
 public byte[] toArray(int index, int len) {
     byte[] array = new byte[len];
@@ -783,18 +796,51 @@ public byte[] toArray(int index, int len) {
     return array;
 }
 
-    @SuppressWarnings("unchecked")
-
-public byte[] toArray(byte[] array) {
-    int size = size();
-    if (array.length < size) {
-        array = (byte[]) java.lang.reflect.Array.newInstance(array.getClass().getComponentType(), size);
+    /**
+	 * Returns an array containing the specified elements in this list.
+	 * @see List#toArray(Object[])
+	 *
+	 * @param array	the array into which the elements of this list are to be stored, if it is big enough; otherwise, a new array of the same runtime type is allocated for this purpose
+	 * @param index	index of first element to copy
+	 * @param len	number of elements to copy
+	 * @return		array containing the specified elements
+	 */
+@SuppressWarnings("unchecked")
+public byte[] toArray(byte[] array, int index, int len) {
+    if (array.length < len) {
+        array = (byte[]) doCreateArray(array.getClass().getComponentType(), len);
     }
-    doGetAll(array, 0, size);
-    if (array.length > size) {
-        array[size] = (byte) 0;
+    doGetAll(array, index, len);
+    if (array.length > len) {
+        array[len] = (byte) 0;
     }
     return array;
+}
+
+    /**
+	 * Returns an array containing the specified elements in this list.
+	 *
+	 * @param clazz	class for array elements 
+	 * @param index	index of first element to copy
+	 * @param len	number of elements to copy
+	 * @return		array containing the specified elements
+	 */
+public byte[] toArray(Class clazz, int index, int len) {
+    byte[] array = doCreateArray(clazz, len);
+    doGetAll(array, index, len);
+    return null;
+}
+
+    /**
+	 * Create array.
+	 * 
+	 * @param clazz	class for array elements 
+	 * @param len	array length
+	 * @return		created array
+	 */
+@SuppressWarnings("unchecked")
+protected byte[] doCreateArray(Class clazz, int len) {
+    return null;
 }
 
     /**
@@ -1234,22 +1280,6 @@ public IByteList extract(int index, int len) {
     return list;
 }
 
-    /**
-     * Returns specified range of elements from list as array.
-     *
-     * @param index index of first element to retrieve
-     * @param len   number of elements to retrieve
-     * @return      array containing the specified range of elements
-     */
-public byte[] getArray(int index, int len) {
-    checkRange(index, len);
-    @SuppressWarnings("unchecked") byte[] array = (byte[]) new byte[len];
-    for (int i = 0; i < len; i++) {
-        array[i] = doGet(index + i);
-    }
-    return array;
-}
-
     // -- Mutators --  
 /**
 	 * Remove specified range of elements from list.
@@ -1434,9 +1464,9 @@ public void setAll(int index, Collection<Byte> coll) {
     /**
      * Sets the specified elements.
      *
-     * @param index index of first element to set
-     * @param list  list with elements to set
-     * @throws 		IndexOutOfBoundsException if the range is invalid
+     * @param index 	index of first element to set
+     * @param elemes	array with elements to set
+     * @throws 			IndexOutOfBoundsException if the range is invalid
      */
 public void setArray(int index, byte... elems) {
     int arrayLen = elems.length;
@@ -1499,7 +1529,7 @@ public void putAll(int index, Collection<Byte> coll) {
      * If the index equals the size of the list, the element is added.
      *
      * @param index index of first element to set or add
-     * @param coll  collection with elements to set or add
+     * @param elems	array with elements to set or add
      */
 public void putArray(int index, byte... elems) {
     putAll(index, new IReadOnlyByteListFromArray(elems));
@@ -1522,7 +1552,7 @@ public void putMult(int index, int len, byte elem) {
 	 * Initializes the list so it will afterwards only contain the elements of the collection.
 	 * The list will grow or shrink as needed.
 	 *
-	 * @param coll 	collection with elements
+	 * @param list 	list with elements
      * @throws 		IndexOutOfBoundsException if the length is invalid
 	 */
 public void initAll(IByteList list) {
