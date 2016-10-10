@@ -781,10 +781,16 @@ public abstract class IList<E>
 
 	@Override
 	public Object[] toArray() {
-	    int size = size();
-		Object[] array = new Object[size];
-		doGetAll(array, 0, size);
-        return array;
+		return toArray(0, size());
+	}
+
+	@Override
+	public <T> T[] toArray(T[] array) {
+        return toArray(array, 0, size());
+	}
+
+	public <T> T[] toArray(Class<T> clazz) {
+		return toArray(clazz, 0, size());
 	}
 
 	/**
@@ -800,18 +806,50 @@ public abstract class IList<E>
         return array;
 	}
 
+	/**
+	 * Returns an array containing the specified elements in this list.
+	 *
+	 * @param array	array which will hold the specified elements
+	 * @param index	index of first element to copy
+	 * @param len	number of elements to copy
+	 * @return		array the specified elements
+	 */
 	@SuppressWarnings("unchecked")
-	@Override
-	public <T> T[] toArray(T[] array) {
-	    int size = size();
-        if (array.length < size) {
-        	array = (T[]) java.lang.reflect.Array.newInstance(array.getClass().getComponentType(), size);
+	public <T> T[] toArray(T[] array, int index, int len) {
+        if (array.length < len) {
+        	array = (T[]) createArray(array.getClass().getComponentType(), len);
         }
-        doGetAll(array, 0, size);
-        if (array.length > size) {
-        	array[size] = null;
+        doGetAll(array, index, len);
+        if (array.length > len) {
+        	array[len] = null;
         }
         return array;
+	}
+
+	/**
+	 * Returns an array containing the specified elements in this list.
+	 *
+	 * @param clazz	class for array elements 
+	 * @param index	index of first element to copy
+	 * @param len	number of elements to copy
+	 * @return		array the specified elements
+	 */
+	public <T> T[] toArray(Class<T> clazz, int index, int len) {
+		T[] array = createArray(clazz, len);
+        doGetAll(array, index, len);
+        return array;
+	}
+
+	/**
+	 * Create array.
+	 * 
+	 * @param clazz	class for array elements 
+	 * @param len	array length
+	 * @return		created array
+	 */
+	@SuppressWarnings("unchecked")
+	static <T> T[] createArray(Class<T> clazz, int len) {
+		return (T[]) java.lang.reflect.Array.newInstance(clazz, len);
 	}
 
 	/**
@@ -1276,24 +1314,6 @@ public abstract class IList<E>
         }
         remove(index, len);
         return list;
-    }
-
-    /**
-     * Returns specified range of elements from list as array.
-     *
-     * @param index index of first element to retrieve
-     * @param len   number of elements to retrieve
-     * @return      array containing the specified range of elements
-     */
-    public E[] getArray(int index, int len) {
-        checkRange(index, len);
-
-        @SuppressWarnings("unchecked")
-        E[] array = (E[]) new Object[len];
-        for (int i=0; i<len; i++) {
-            array[i] = doGet(index+i);
-        }
-        return array;
     }
 
     // -- Mutators --
