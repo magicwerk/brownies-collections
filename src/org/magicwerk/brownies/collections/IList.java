@@ -789,16 +789,23 @@ public abstract class IList<E>
         return toArray(array, 0, size());
 	}
 
+	/**
+	 * Returns an array containing the elements in this list.
+	 *
+	 * @param clazz	class for array elements 
+	 * @return		array containing the specified elements
+	 */
 	public <T> T[] toArray(Class<T> clazz) {
 		return toArray(clazz, 0, size());
 	}
 
 	/**
 	 * Returns an array containing the specified elements in this list.
+	 * @see List#toArray()
 	 *
 	 * @param index	index of first element to copy
 	 * @param len	number of elements to copy
-	 * @return		array the specified elements
+	 * @return		array containing the specified elements
 	 */
 	public Object[] toArray(int index, int len) {
 		Object[] array = new Object[len];
@@ -808,16 +815,17 @@ public abstract class IList<E>
 
 	/**
 	 * Returns an array containing the specified elements in this list.
+	 * @see List#toArray(Object[])
 	 *
-	 * @param array	array which will hold the specified elements
+	 * @param array	the array into which the elements of this list are to be stored, if it is big enough; otherwise, a new array of the same runtime type is allocated for this purpose
 	 * @param index	index of first element to copy
 	 * @param len	number of elements to copy
-	 * @return		array the specified elements
+	 * @return		array containing the specified elements
 	 */
 	@SuppressWarnings("unchecked")
 	public <T> T[] toArray(T[] array, int index, int len) {
         if (array.length < len) {
-        	array = (T[]) createArray(array.getClass().getComponentType(), len);
+        	array = (T[]) doCreateArray(array.getClass().getComponentType(), len);
         }
         doGetAll(array, index, len);
         if (array.length > len) {
@@ -832,10 +840,10 @@ public abstract class IList<E>
 	 * @param clazz	class for array elements 
 	 * @param index	index of first element to copy
 	 * @param len	number of elements to copy
-	 * @return		array the specified elements
+	 * @return		array containing the specified elements
 	 */
 	public <T> T[] toArray(Class<T> clazz, int index, int len) {
-		T[] array = createArray(clazz, len);
+		T[] array = doCreateArray(clazz, len);
         doGetAll(array, index, len);
         return array;
 	}
@@ -848,7 +856,7 @@ public abstract class IList<E>
 	 * @return		created array
 	 */
 	@SuppressWarnings("unchecked")
-	static <T> T[] createArray(Class<T> clazz, int len) {
+	protected <T> T[] doCreateArray(Class<T> clazz, int len) {
 		return (T[]) java.lang.reflect.Array.newInstance(clazz, len);
 	}
 
