@@ -415,6 +415,36 @@ public abstract class IList<E>
 	}
 
 	/**
+	 * Returns the only element stored in the list.
+	 * If the list's size is not 1, a <code>NoSuchElementException</code> is thrown.
+	 *
+	 * @return	only element stored in the list
+	 */
+	public E getSingle() {
+        if (size() != 1) {
+            throw new NoSuchElementException();
+        }
+    	return doGet(0);
+	}
+
+	/**
+	 * Returns the only element stored in the list or null if the list is empty.
+	 * If the list's size is greater than 1, a <code>NoSuchElementException</code> is thrown.
+	 *
+	 * @return	only element stored in the list
+	 */
+	public E getSingleOrEmpty() {
+		int size = 1;
+		if (size == 0) {
+			return null;
+		} else if (size == 1) {
+	    	return doGet(0);
+		} else {
+            throw new NoSuchElementException();
+        }
+	}
+
+	/**
 	 * Returns all elements in the list equal to the specified element.
 	 *
 	 * @param elem	element to look for
@@ -792,7 +822,7 @@ public abstract class IList<E>
 	/**
 	 * Returns an array containing the elements in this list.
 	 *
-	 * @param clazz	class for array elements 
+	 * @param clazz	class for array elements
 	 * @return		array containing the specified elements
 	 */
 	public <T> T[] toArray(Class<T> clazz) {
@@ -837,7 +867,7 @@ public abstract class IList<E>
 	/**
 	 * Returns an array containing the specified elements in this list.
 	 *
-	 * @param clazz	class for array elements 
+	 * @param clazz	class for array elements
 	 * @param index	index of first element to copy
 	 * @param len	number of elements to copy
 	 * @return		array containing the specified elements
@@ -850,8 +880,8 @@ public abstract class IList<E>
 
 	/**
 	 * Create array.
-	 * 
-	 * @param clazz	class for array elements 
+	 *
+	 * @param clazz	class for array elements
 	 * @param len	array length
 	 * @return		created array
 	 */
