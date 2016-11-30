@@ -17,6 +17,17 @@
  */
 package org.magicwerk.brownies.collections.helper;
 
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collector;
+
+import org.magicwerk.brownies.collections.GapList;
 import org.magicwerk.brownies.collections.IList;
 import org.magicwerk.brownies.collections.primitive.BooleanObjGapList;
 import org.magicwerk.brownies.collections.primitive.ByteObjGapList;
@@ -35,62 +46,136 @@ import org.magicwerk.brownies.collections.primitive.ShortObjGapList;
  */
 public class GapLists {
 
-    /**
-     * Create a GapList wrapping a primitive GapList, e.g. an IntObjGapList wrapping an IntGapList.
-     *
-     * @param type	primitive type for GapList
-     * @return		created wrapping GapList
-     * @throws 		IllegalArgumentException if no primitive type is specified
-     */
-    public static IList<?> createWrapperList(Class<?> type) {
-    	if (type == int.class) {
-    		return new IntObjGapList();
-    	} else if (type == long.class) {
-        	return new LongObjGapList();
-    	} else if (type == double.class) {
-        	return new DoubleObjGapList();
-    	} else if (type == float.class) {
-        	return new FloatObjGapList();
-    	} else if (type == boolean.class) {
-        	return new BooleanObjGapList();
-    	} else if (type == byte.class) {
-        	return new ByteObjGapList();
-    	} else if (type == char.class) {
-        	return new CharObjGapList();
-    	} else if (type == short.class) {
-        	return new ShortObjGapList();
-    	} else {
-    		throw new IllegalArgumentException("Primitive type expected: " + type);
-    	}
-    }
+	/**
+	 * Create a GapList wrapping a primitive GapList, e.g. an IntObjGapList wrapping an IntGapList.
+	 *
+	 * @param type	primitive type for GapList
+	 * @return		created wrapping GapList
+	 * @throws 		IllegalArgumentException if no primitive type is specified
+	 */
+	public static IList<?> createWrapperList(Class<?> type) {
+		if (type == int.class) {
+			return new IntObjGapList();
+		} else if (type == long.class) {
+			return new LongObjGapList();
+		} else if (type == double.class) {
+			return new DoubleObjGapList();
+		} else if (type == float.class) {
+			return new FloatObjGapList();
+		} else if (type == boolean.class) {
+			return new BooleanObjGapList();
+		} else if (type == byte.class) {
+			return new ByteObjGapList();
+		} else if (type == char.class) {
+			return new CharObjGapList();
+		} else if (type == short.class) {
+			return new ShortObjGapList();
+		} else {
+			throw new IllegalArgumentException("Primitive type expected: " + type);
+		}
+	}
 
-    /**
-     * Create a GapList wrapping a primitive GapList, e.g. an IntObjGapList wrapping an IntGapList.
-     *
-     * @param type		primitive type for GapList
-     * @param capacity	initial capacity of created list
-     * @return			created wrapping GapList
-     * @throws 			IllegalArgumentException if no primitive type is specified
-     */
-    public static IList<?> createWrapperList(Class<?> type, int capacity) {
-    	if (type == int.class) {
-    		return new IntObjGapList(capacity);
-    	} else if (type == long.class) {
-        	return new LongObjGapList(capacity);
-    	} else if (type == double.class) {
-        	return new DoubleObjGapList(capacity);
-    	} else if (type == float.class) {
-        	return new FloatObjGapList(capacity);
-    	} else if (type == boolean.class) {
-        	return new BooleanObjGapList(capacity);
-    	} else if (type == byte.class) {
-        	return new ByteObjGapList(capacity);
-    	} else if (type == char.class) {
-        	return new CharObjGapList(capacity);
-    	} else if (type == short.class) {
-        	return new ShortObjGapList(capacity);
-    	} else {
-    		throw new IllegalArgumentException("Primitive type expected: " + type);
-    	}
-    }
+	/**
+	 * Create a GapList wrapping a primitive GapList, e.g. an IntObjGapList wrapping an IntGapList.
+	 *
+	 * @param type		primitive type for GapList
+	 * @param capacity	initial capacity of created list
+	 * @return			created wrapping GapList
+	 * @throws 			IllegalArgumentException if no primitive type is specified
+	 */
+	public static IList<?> createWrapperList(Class<?> type, int capacity) {
+		if (type == int.class) {
+			return new IntObjGapList(capacity);
+		} else if (type == long.class) {
+			return new LongObjGapList(capacity);
+		} else if (type == double.class) {
+			return new DoubleObjGapList(capacity);
+		} else if (type == float.class) {
+			return new FloatObjGapList(capacity);
+		} else if (type == boolean.class) {
+			return new BooleanObjGapList(capacity);
+		} else if (type == byte.class) {
+			return new ByteObjGapList(capacity);
+		} else if (type == char.class) {
+			return new CharObjGapList(capacity);
+		} else if (type == short.class) {
+			return new ShortObjGapList(capacity);
+		} else {
+			throw new IllegalArgumentException("Primitive type expected: " + type);
+		}
+	}
+
+	/**
+	 * Return collector which collects the elements into a GapList.
+	 *
+	 * @return collector
+	 */
+	public static <T> Collector<T, ?, IList<T>> toGapList() {
+		return new CollectorImpl<>((Supplier<List<T>>) GapList::new, List::add,
+				(left, right) -> {
+					left.addAll(right);
+					return left;
+				},
+				CollectorImpl.CH_ID);
+	}
+
+	private static class CollectorImpl<T, A, R> implements Collector<T, A, R> {
+		private final Supplier<A> supplier;
+		private final BiConsumer<A, T> accumulator;
+		private final BinaryOperator<A> combiner;
+		private final Function<A, R> finisher;
+		private final Set<Characteristics> characteristics;
+
+		CollectorImpl(Supplier<A> supplier,
+				BiConsumer<A, T> accumulator,
+				BinaryOperator<A> combiner,
+				Function<A, R> finisher,
+				Set<Characteristics> characteristics) {
+			this.supplier = supplier;
+			this.accumulator = accumulator;
+			this.combiner = combiner;
+			this.finisher = finisher;
+			this.characteristics = characteristics;
+		}
+
+		CollectorImpl(Supplier<A> supplier,
+				BiConsumer<A, T> accumulator,
+				BinaryOperator<A> combiner,
+				Set<Characteristics> characteristics) {
+			this(supplier, accumulator, combiner, castingIdentity(), characteristics);
+		}
+
+		static final Set<Collector.Characteristics> CH_ID = Collections.unmodifiableSet(EnumSet.of(Collector.Characteristics.IDENTITY_FINISH));
+
+		@Override
+		public BiConsumer<A, T> accumulator() {
+			return accumulator;
+		}
+
+		@Override
+		public Supplier<A> supplier() {
+			return supplier;
+		}
+
+		@Override
+		public BinaryOperator<A> combiner() {
+			return combiner;
+		}
+
+		@Override
+		public Function<A, R> finisher() {
+			return finisher;
+		}
+
+		@Override
+		public Set<Characteristics> characteristics() {
+			return characteristics;
+		}
+
+		@SuppressWarnings("unchecked")
+		private static <I, R> Function<I, R> castingIdentity() {
+			return i -> (R) i;
+		}
+	}
+
 }
