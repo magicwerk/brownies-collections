@@ -139,7 +139,9 @@ public class GapList<E> extends IList<E> {
 	 */
 	public static <E> GapList<E> create(E... elems) {
 		GapList<E> list = new GapList<E>();
-		list.init(elems);
+		if (elems != null) {
+			list.init(elems);
+		}
 		return list;
 	}
 

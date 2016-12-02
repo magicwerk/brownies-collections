@@ -428,6 +428,19 @@ public abstract class IList<E>
 	}
 
 	/**
+	 * Returns an element stored in the list.
+	 * If the list is not empty, the first element is returned, otherwise null.
+	 *
+	 * @return	an element stored in the list
+	 */
+	public E getAny() {
+        if (size() == 0) {
+            return null;
+        }
+    	return doGet(0);
+	}
+
+	/**
 	 * Returns the only element stored in the list or null if the list is empty.
 	 * If the list's size is greater than 1, a <code>NoSuchElementException</code> is thrown.
 	 *
