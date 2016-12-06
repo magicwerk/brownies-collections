@@ -312,7 +312,7 @@ public static IntBigList create() {
      * @param        type of elements stored in the list
      */
 public static IntBigList create(Collection<Integer> coll) {
-    return new IntBigList(coll);
+    return new IntBigList((coll != null) ? coll : Collections.emptyList());
 }
 
     /**
@@ -324,8 +324,10 @@ public static IntBigList create(Collection<Integer> coll) {
 	 */
 public static IntBigList create(int... elems) {
     IntBigList list = new IntBigList();
-    for (int elem : elems) {
-        list.add(elem);
+    if (elems != null) {
+        for (int elem : elems) {
+            list.add(elem);
+        }
     }
     return list;
 }

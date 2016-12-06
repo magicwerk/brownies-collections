@@ -24,6 +24,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import org.magicwerk.brownies.collections.function.IFunction;
 
@@ -131,7 +132,7 @@ public static DoubleGapList create() {
      * @param        type of elements stored in the list
      */
 public static DoubleGapList create(Collection<Double> coll) {
-    return new DoubleGapList(coll);
+    return new DoubleGapList(((coll != null)) ? coll : Collections.emptyList());
 }
 
     /**
@@ -143,7 +144,11 @@ public static DoubleGapList create(Collection<Double> coll) {
 	 */
 public static DoubleGapList create(double... elems) {
     DoubleGapList list = new DoubleGapList();
-    list.init(elems);
+    if (elems != null) {
+        if (elems != null) {
+            list.init(elems);
+        }
+    }
     return list;
 }
 

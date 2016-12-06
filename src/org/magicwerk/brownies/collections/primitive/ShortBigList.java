@@ -312,7 +312,7 @@ public static ShortBigList create() {
      * @param        type of elements stored in the list
      */
 public static ShortBigList create(Collection<Short> coll) {
-    return new ShortBigList(coll);
+    return new ShortBigList((coll != null) ? coll : Collections.emptyList());
 }
 
     /**
@@ -324,8 +324,10 @@ public static ShortBigList create(Collection<Short> coll) {
 	 */
 public static ShortBigList create(short... elems) {
     ShortBigList list = new ShortBigList();
-    for (short elem : elems) {
-        list.add(elem);
+    if (elems != null) {
+        for (short elem : elems) {
+            list.add(elem);
+        }
     }
     return list;
 }

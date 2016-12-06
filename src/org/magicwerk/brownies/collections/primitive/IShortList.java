@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: IShortList.java 3309 2016-10-10 12:41:09Z origo $
+ * $Id: IShortList.java 3405 2016-12-02 13:12:30Z origo $
  */
 package org.magicwerk.brownies.collections.primitive;
 
@@ -42,7 +42,7 @@ import org.magicwerk.brownies.collections.function.IPredicate;
  * It also offers additional methods which are then available in all implementations of GapList and BigList.
  *
  * @author Thomas Mauch
- * @version $Id: IShortList.java 3309 2016-10-10 12:41:09Z origo $
+ * @version $Id: IShortList.java 3405 2016-12-02 13:12:30Z origo $
  *
  * @param  type of elements stored in the list
  * @see	    java.util.List
@@ -396,6 +396,49 @@ public int getCount(short elem) {
         }
     }
     return count;
+}
+
+    /**
+	 * Returns the only element stored in the list.
+	 * If the list's size is not 1, a <code>NoSuchElementException</code> is thrown.
+	 *
+	 * @return	only element stored in the list
+	 */
+public short getSingle() {
+    if (size() != 1) {
+        throw new NoSuchElementException();
+    }
+    return doGet(0);
+}
+
+    /**
+	 * Returns an element stored in the list.
+	 * If the list is not empty, the first element is returned, otherwise null.
+	 *
+	 * @return	an element stored in the list
+	 */
+public short getAny() {
+    if (size() == 0) {
+        return (short) 0;
+    }
+    return doGet(0);
+}
+
+    /**
+	 * Returns the only element stored in the list or null if the list is empty.
+	 * If the list's size is greater than 1, a <code>NoSuchElementException</code> is thrown.
+	 *
+	 * @return	only element stored in the list
+	 */
+public short getSingleOrEmpty() {
+    int size = 1;
+    if (size == 0) {
+        return (short) 0;
+    } else if (size == 1) {
+        return doGet(0);
+    } else {
+        throw new NoSuchElementException();
+    }
 }
 
     /**
@@ -775,7 +818,7 @@ public short[] toArray(short[] array) {
     /**
 	 * Returns an array containing the elements in this list.
 	 *
-	 * @param clazz	class for array elements 
+	 * @param clazz	class for array elements
 	 * @return		array containing the specified elements
 	 */
 public short[] toArray(Class clazz) {
@@ -820,7 +863,7 @@ public short[] toArray(short[] array, int index, int len) {
     /**
 	 * Returns an array containing the specified elements in this list.
 	 *
-	 * @param clazz	class for array elements 
+	 * @param clazz	class for array elements
 	 * @param index	index of first element to copy
 	 * @param len	number of elements to copy
 	 * @return		array containing the specified elements
@@ -833,8 +876,8 @@ public short[] toArray(Class clazz, int index, int len) {
 
     /**
 	 * Create array.
-	 * 
-	 * @param clazz	class for array elements 
+	 *
+	 * @param clazz	class for array elements
 	 * @param len	array length
 	 * @return		created array
 	 */

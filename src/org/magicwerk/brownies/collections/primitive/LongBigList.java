@@ -312,7 +312,7 @@ public static LongBigList create() {
      * @param        type of elements stored in the list
      */
 public static LongBigList create(Collection<Long> coll) {
-    return new LongBigList(coll);
+    return new LongBigList((coll != null) ? coll : Collections.emptyList());
 }
 
     /**
@@ -324,8 +324,10 @@ public static LongBigList create(Collection<Long> coll) {
 	 */
 public static LongBigList create(long... elems) {
     LongBigList list = new LongBigList();
-    for (long elem : elems) {
-        list.add(elem);
+    if (elems != null) {
+        for (long elem : elems) {
+            list.add(elem);
+        }
     }
     return list;
 }

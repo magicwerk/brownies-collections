@@ -24,6 +24,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import org.magicwerk.brownies.collections.function.IFunction;
 
@@ -131,7 +132,7 @@ public static FloatGapList create() {
      * @param        type of elements stored in the list
      */
 public static FloatGapList create(Collection<Float> coll) {
-    return new FloatGapList(coll);
+    return new FloatGapList(((coll != null)) ? coll : Collections.emptyList());
 }
 
     /**
@@ -143,7 +144,11 @@ public static FloatGapList create(Collection<Float> coll) {
 	 */
 public static FloatGapList create(float... elems) {
     FloatGapList list = new FloatGapList();
-    list.init(elems);
+    if (elems != null) {
+        if (elems != null) {
+            list.init(elems);
+        }
+    }
     return list;
 }
 
