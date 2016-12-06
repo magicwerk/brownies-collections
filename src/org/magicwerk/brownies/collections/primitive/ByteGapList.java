@@ -24,6 +24,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import org.magicwerk.brownies.collections.function.IFunction;
 
@@ -131,7 +132,7 @@ public static ByteGapList create() {
      * @param        type of elements stored in the list
      */
 public static ByteGapList create(Collection<Byte> coll) {
-    return new ByteGapList(coll);
+    return new ByteGapList(((coll != null)) ? coll : Collections.emptyList());
 }
 
     /**
@@ -143,7 +144,11 @@ public static ByteGapList create(Collection<Byte> coll) {
 	 */
 public static ByteGapList create(byte... elems) {
     ByteGapList list = new ByteGapList();
-    list.init(elems);
+    if (elems != null) {
+        if (elems != null) {
+            list.init(elems);
+        }
+    }
     return list;
 }
 

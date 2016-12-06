@@ -312,7 +312,7 @@ public static DoubleBigList create() {
      * @param        type of elements stored in the list
      */
 public static DoubleBigList create(Collection<Double> coll) {
-    return new DoubleBigList(coll);
+    return new DoubleBigList((coll != null) ? coll : Collections.emptyList());
 }
 
     /**
@@ -324,8 +324,10 @@ public static DoubleBigList create(Collection<Double> coll) {
 	 */
 public static DoubleBigList create(double... elems) {
     DoubleBigList list = new DoubleBigList();
-    for (double elem : elems) {
-        list.add(elem);
+    if (elems != null) {
+        for (double elem : elems) {
+            list.add(elem);
+        }
     }
     return list;
 }

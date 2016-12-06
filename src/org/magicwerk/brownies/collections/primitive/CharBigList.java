@@ -312,7 +312,7 @@ public static CharBigList create() {
      * @param        type of elements stored in the list
      */
 public static CharBigList create(Collection<Character> coll) {
-    return new CharBigList(coll);
+    return new CharBigList((coll != null) ? coll : Collections.emptyList());
 }
 
     /**
@@ -324,8 +324,10 @@ public static CharBigList create(Collection<Character> coll) {
 	 */
 public static CharBigList create(char... elems) {
     CharBigList list = new CharBigList();
-    for (char elem : elems) {
-        list.add(elem);
+    if (elems != null) {
+        for (char elem : elems) {
+            list.add(elem);
+        }
     }
     return list;
 }
@@ -1961,6 +1963,8 @@ private void error() {
     throw new UnsupportedOperationException("list is immutable");
 }
     }
+   // Special string methods 
+
 	public static CharBigList create(String str) {
 		return new CharBigList(str);
 	}
@@ -1973,4 +1977,5 @@ private void error() {
 		char[] array = str.toCharArray();
 		initArray(array);
 	}
+
 }

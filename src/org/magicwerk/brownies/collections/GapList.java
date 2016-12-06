@@ -22,6 +22,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 
 import org.magicwerk.brownies.collections.function.IFunction;
@@ -127,7 +128,7 @@ public class GapList<E> extends IList<E> {
      * @param <E>       type of elements stored in the list
      */
 	public static <E> GapList<E> create(Collection<? extends E> coll) {
-		return new GapList<E>(coll);
+		return new GapList<E>((coll != null) ? coll : Collections.emptyList());
 	}
 
 	/**
@@ -140,7 +141,9 @@ public class GapList<E> extends IList<E> {
 	public static <E> GapList<E> create(E... elems) {
 		GapList<E> list = new GapList<E>();
 		if (elems != null) {
-			list.init(elems);
+			if (elems != null) {
+				list.init(elems);
+			}
 		}
 		return list;
 	}

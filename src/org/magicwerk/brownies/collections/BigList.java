@@ -138,7 +138,7 @@ public class BigList<E> extends IList<E> {
      * @param <E>       type of elements stored in the list
      */
 	public static <E> BigList<E> create(Collection<? extends E> coll) {
-		return new BigList<E>(coll);
+		return new BigList<E>((coll != null) ? coll : Collections.emptyList());
 	}
 
 	/**
@@ -150,9 +150,11 @@ public class BigList<E> extends IList<E> {
 	 */
 	public static <E> BigList<E> create(E... elems) {
 		BigList<E> list = new BigList<E>();
-        for (E elem: elems) {
-            list.add(elem);
-        }
+		if (elems != null) {
+			for (E elem: elems) {
+				list.add(elem);
+			}
+		}
 		return list;
 	}
 

@@ -312,7 +312,7 @@ public static BooleanBigList create() {
      * @param        type of elements stored in the list
      */
 public static BooleanBigList create(Collection<Boolean> coll) {
-    return new BooleanBigList(coll);
+    return new BooleanBigList((coll != null) ? coll : Collections.emptyList());
 }
 
     /**
@@ -324,8 +324,10 @@ public static BooleanBigList create(Collection<Boolean> coll) {
 	 */
 public static BooleanBigList create(boolean... elems) {
     BooleanBigList list = new BooleanBigList();
-    for (boolean elem : elems) {
-        list.add(elem);
+    if (elems != null) {
+        for (boolean elem : elems) {
+            list.add(elem);
+        }
     }
     return list;
 }

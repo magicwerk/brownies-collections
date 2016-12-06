@@ -312,7 +312,7 @@ public static FloatBigList create() {
      * @param        type of elements stored in the list
      */
 public static FloatBigList create(Collection<Float> coll) {
-    return new FloatBigList(coll);
+    return new FloatBigList((coll != null) ? coll : Collections.emptyList());
 }
 
     /**
@@ -324,8 +324,10 @@ public static FloatBigList create(Collection<Float> coll) {
 	 */
 public static FloatBigList create(float... elems) {
     FloatBigList list = new FloatBigList();
-    for (float elem : elems) {
-        list.add(elem);
+    if (elems != null) {
+        for (float elem : elems) {
+            list.add(elem);
+        }
     }
     return list;
 }

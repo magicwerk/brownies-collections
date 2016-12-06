@@ -312,7 +312,7 @@ public static ByteBigList create() {
      * @param        type of elements stored in the list
      */
 public static ByteBigList create(Collection<Byte> coll) {
-    return new ByteBigList(coll);
+    return new ByteBigList((coll != null) ? coll : Collections.emptyList());
 }
 
     /**
@@ -324,8 +324,10 @@ public static ByteBigList create(Collection<Byte> coll) {
 	 */
 public static ByteBigList create(byte... elems) {
     ByteBigList list = new ByteBigList();
-    for (byte elem : elems) {
-        list.add(elem);
+    if (elems != null) {
+        for (byte elem : elems) {
+            list.add(elem);
+        }
     }
     return list;
 }

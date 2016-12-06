@@ -24,6 +24,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import org.magicwerk.brownies.collections.function.IFunction;
 
@@ -131,7 +132,7 @@ public static ShortGapList create() {
      * @param        type of elements stored in the list
      */
 public static ShortGapList create(Collection<Short> coll) {
-    return new ShortGapList(coll);
+    return new ShortGapList(((coll != null)) ? coll : Collections.emptyList());
 }
 
     /**
@@ -143,7 +144,11 @@ public static ShortGapList create(Collection<Short> coll) {
 	 */
 public static ShortGapList create(short... elems) {
     ShortGapList list = new ShortGapList();
-    list.init(elems);
+    if (elems != null) {
+        if (elems != null) {
+            list.init(elems);
+        }
+    }
     return list;
 }
 
