@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: CharBigList.java 2964 2015-10-18 22:43:57Z origo $
+ * $Id: CharBigList.java 3408 2016-12-06 00:20:45Z origo $
  */
 package org.magicwerk.brownies.collections.primitive;
 import org.magicwerk.brownies.collections.helper.ArraysHelper;
@@ -44,7 +44,7 @@ import org.magicwerk.brownies.collections.helper.primitive.CharMergeSort;
  * Note that the iterators provided are not fail-fast.<p>
  *
  * @author Thomas Mauch
- * @version $Id: CharBigList.java 2964 2015-10-18 22:43:57Z origo $
+ * @version $Id: CharBigList.java 3408 2016-12-06 00:20:45Z origo $
  */
 public class CharBigList extends ICharList {
 	public static ICharList of(char[] values) {
