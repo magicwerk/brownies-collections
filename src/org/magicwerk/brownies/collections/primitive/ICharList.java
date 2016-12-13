@@ -342,20 +342,9 @@ public int hashCode() {
 
     
 public String toString() {
-    StringBuilder buf = new StringBuilder();
-    buf.append("[");
-    int size = size();
-    for (int i = 0; i < size; i++) {
-        if (i > 0) {
-            buf.append(", ");
-        }
-        buf.append(doGet(i));
-    }
-    buf.append("]");
-    return buf.toString();
+return new String(toArray());
 }
 
-    
 public boolean isEmpty() {
     return size() == 0;
 }
