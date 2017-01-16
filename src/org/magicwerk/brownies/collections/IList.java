@@ -30,6 +30,7 @@ import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.RandomAccess;
 import java.util.Set;
+import java.util.function.UnaryOperator;
 
 import org.magicwerk.brownies.collections.function.IFunction;
 import org.magicwerk.brownies.collections.function.IPredicate;
@@ -577,6 +578,15 @@ public abstract class IList<E>
 			mappedList.add(mapper.apply(e));
     	}
     	return mappedList;
+    }
+
+    public void map(UnaryOperator<E> operator) {
+		int size = size();
+		for (int i=0; i<size; i++) {
+			E e = doGet(i);
+			e = operator.apply(e);
+			doSet(i, e);
+    	}
     }
 
     /**
