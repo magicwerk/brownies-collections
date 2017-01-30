@@ -720,11 +720,7 @@ public abstract class KeyListImpl<E> extends IList<E> {
 
 	@Override
 	protected IList<E> doCreate(int capacity) {
-		if (list instanceof BigList) {
-	    	return new BigList<E>(capacity);
-		} else {
-			return new GapList<E>(capacity);
-		}
+		return list.doCreate(capacity);
 	}
 
 
