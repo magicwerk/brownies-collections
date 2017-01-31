@@ -472,7 +472,11 @@ public class Key1List<E,K> extends KeyListImpl<E> {
 	 * @return		element which has been replaced or null otherwise
 	 */
     public E putByKey1(E elem) {
-		return super.putByKey(1, elem);
+		return super.putByKey(1, elem, true);
+	}
+
+    public E putIfAbsentByKey1(E elem) {
+		return super.putByKey(1, elem, false);
 	}
 
     /**
