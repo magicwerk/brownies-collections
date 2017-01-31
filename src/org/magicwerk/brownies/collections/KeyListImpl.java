@@ -94,6 +94,18 @@ public abstract class KeyListImpl<E> extends IList<E> {
     }
 
     /**
+     * Returns the elements stored in the KeyList as simple IList without constraints etc.
+     * The KeyList itself becomes empty, it is equal to a list created by calling crop().
+     *
+     * @return IList with elements
+     */
+    public IList<E> unwrap() {
+    	IList<E> l = list;
+    	this.initCrop(this);
+    	return l;
+    }
+
+    /**
      * Returns a copy this list but without elements.
      * The new list will use the same comparator, ordering, etc.
      *
@@ -105,6 +117,7 @@ public abstract class KeyListImpl<E> extends IList<E> {
         crop.initCrop(this);
         return crop;
     }
+
 	/**
 	 * Initialize object for crop() operation.
 	 *
@@ -507,7 +520,15 @@ public abstract class KeyListImpl<E> extends IList<E> {
         return removed.getValueOrNull();
     }
 
-    protected E putByKey(int keyIndex, E elem) {
+    /**
+     * Put element by key into list.
+     *
+     * @param keyIndex	key index
+     * @param elem		element to put
+     * @param replace	true to replace an existing element with the same key, false to let the element unchanged
+     * @return			replaced element or null if no element has been replaced
+     */
+    protected E putByKey(int keyIndex, E elem, boolean replace) {
     	int index;
     	if (keyIndex == 0 && (keyColl.keyMaps == null || keyColl.keyMaps[0] == null)) {
     		index = indexOf(elem);
@@ -519,7 +540,9 @@ public abstract class KeyListImpl<E> extends IList<E> {
     	if (index == -1) {
     		doAdd(-1, elem);
     	} else {
-    		replaced = doSet(index, elem);
+    		if (replace) {
+    			replaced = doSet(index, elem);
+    		}
     	}
         if (DEBUG_CHECK) debugCheck();
     	return replaced;
