@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 import org.magicwerk.brownies.collections.function.IConsumer;
 import org.magicwerk.brownies.collections.function.IFunction;
@@ -179,7 +180,7 @@ public class Key1Collection<E,K> extends KeyCollectionImpl<E> {
          * @param mapper	mapper to use
          * @return			this (fluent interface)
          */
-        public Builder<E,K> withKey1Map(IFunction<? super E,K> mapper) {
+        public Builder<E,K> withKey1Map(Function<? super E,K> mapper) {
             return (Builder<E,K>) withKeyMap(1, mapper);
         }
 
@@ -191,7 +192,7 @@ public class Key1Collection<E,K> extends KeyCollectionImpl<E> {
          * @param mapper	mapper to use
          * @return			this (fluent interface)
          */
-        public Builder<E,K> withPrimaryKey1Map(IFunction<? super E,K> mapper) {
+        public Builder<E,K> withPrimaryKey1Map(Function<? super E,K> mapper) {
         	return (Builder<E,K>) super.withPrimaryKeyMap(1, mapper);
         }
 
@@ -203,7 +204,7 @@ public class Key1Collection<E,K> extends KeyCollectionImpl<E> {
          * @param mapper	mapper to use
          * @return			this (fluent interface)
          */
-        public Builder<E,K> withUniqueKey1Map(IFunction<? super E,K> mapper) {
+        public Builder<E,K> withUniqueKey1Map(Function<? super E,K> mapper) {
         	return (Builder<E,K>) super.withUniqueKeyMap(1, mapper);
         }
 

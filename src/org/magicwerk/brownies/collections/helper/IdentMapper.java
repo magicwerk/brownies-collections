@@ -18,8 +18,7 @@
 package org.magicwerk.brownies.collections.helper;
 
 import java.io.Serializable;
-
-import org.magicwerk.brownies.collections.function.IFunction;
+import java.util.function.Function;
 
 /**
  * Identity mapper.
@@ -30,7 +29,7 @@ import org.magicwerk.brownies.collections.function.IFunction;
  * @version $Id$
  */
 @SuppressWarnings("serial")
-public class IdentMapper<E> implements IFunction<E, E>, Serializable {
+public class IdentMapper<E> implements Function<E, E>, Serializable {
 
 	/** Singleton instance */
     @SuppressWarnings("rawtypes")
