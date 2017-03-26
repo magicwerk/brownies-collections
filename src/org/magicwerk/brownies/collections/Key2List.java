@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 import org.magicwerk.brownies.collections.KeyCollectionImpl.BuilderImpl;
 import org.magicwerk.brownies.collections.function.IConsumer;
@@ -191,7 +192,7 @@ public class Key2List<E,K1,K2> extends KeyListImpl<E> {
          * @param mapper	mapper to use
          * @return			this (fluent interface)
          */
-        public Builder<E,K1,K2> withKey1Map(IFunction<? super E,K1> mapper) {
+        public Builder<E,K1,K2> withKey1Map(Function<? super E,K1> mapper) {
         	return (Builder<E,K1,K2>) super.withKeyMap(1, mapper);
         }
 
@@ -203,7 +204,7 @@ public class Key2List<E,K1,K2> extends KeyListImpl<E> {
          * @param mapper	mapper to use
          * @return			this (fluent interface)
          */
-        public Builder<E,K1,K2> withPrimaryKey1Map(IFunction<? super E,K1> mapper) {
+        public Builder<E,K1,K2> withPrimaryKey1Map(Function<? super E,K1> mapper) {
         	return (Builder<E,K1,K2>) super.withPrimaryKeyMap(1, mapper);
         }
 
@@ -215,7 +216,7 @@ public class Key2List<E,K1,K2> extends KeyListImpl<E> {
          * @param mapper	mapper to use
          * @return			this (fluent interface)
          */
-        public Builder<E,K1,K2> withUniqueKey1Map(IFunction<? super E,K1> mapper) {
+        public Builder<E,K1,K2> withUniqueKey1Map(Function<? super E,K1> mapper) {
         	return (Builder<E,K1,K2>) super.withUniqueKeyMap(1, mapper);
         }
 
@@ -279,7 +280,7 @@ public class Key2List<E,K1,K2> extends KeyListImpl<E> {
          * @param mapper	mapper to use
          * @return			this (fluent interface)
          */
-        public Builder<E,K1,K2> withKey2Map(IFunction<? super E,K2> mapper) {
+        public Builder<E,K1,K2> withKey2Map(Function<? super E,K2> mapper) {
         	return (Builder<E,K1,K2>) super.withKeyMap(2, mapper);
         }
 
@@ -291,7 +292,7 @@ public class Key2List<E,K1,K2> extends KeyListImpl<E> {
          * @param mapper	mapper to use
          * @return			this (fluent interface)
          */
-        public Builder<E,K1,K2> withPrimaryKey2Map(IFunction<? super E,K2> mapper) {
+        public Builder<E,K1,K2> withPrimaryKey2Map(Function<? super E,K2> mapper) {
         	return (Builder<E,K1,K2>) super.withPrimaryKeyMap(2, mapper);
         }
 
@@ -303,7 +304,7 @@ public class Key2List<E,K1,K2> extends KeyListImpl<E> {
          * @param mapper	mapper to use
          * @return			this (fluent interface)
          */
-        public Builder<E,K1,K2> withUniqueKey2Map(IFunction<? super E,K2> mapper) {
+        public Builder<E,K1,K2> withUniqueKey2Map(Function<? super E,K2> mapper) {
         	return (Builder<E,K1,K2>) super.withUniqueKeyMap(2, mapper);
         }
 

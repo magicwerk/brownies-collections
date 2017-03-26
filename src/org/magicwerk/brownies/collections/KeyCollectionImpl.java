@@ -29,6 +29,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.function.Function;
 
 import org.magicwerk.brownies.collections.exceptions.DuplicateKeyException;
 import org.magicwerk.brownies.collections.exceptions.KeyException;
@@ -74,7 +75,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
             /** Primitive class to use for list storage */
             Class<?> primitiveListType;
         	// -- mapper
-        	IFunction<E,K> mapper;
+        	Function<E,K> mapper;
             // -- null
             Boolean allowNull;
             // -- duplicates
@@ -410,7 +411,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         //
 
         @SuppressWarnings({ "rawtypes", "unchecked" })
-		protected BuilderImpl<E> withKeyMap(int keyIndex, IFunction mapper) {
+		protected BuilderImpl<E> withKeyMap(int keyIndex, Function mapper) {
         	if (mapper == null) {
         		throw new IllegalArgumentException("Mapper may not be null");
         	}
@@ -537,7 +538,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         }
 
         @SuppressWarnings("rawtypes")
-		protected BuilderImpl<E> withPrimaryKeyMap(int keyIndex, IFunction mapper) {
+		protected BuilderImpl<E> withPrimaryKeyMap(int keyIndex, Function mapper) {
         	if (mapper != null) {
         		withKeyMap(keyIndex, mapper);
         	}
@@ -547,7 +548,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
         }
 
         @SuppressWarnings("rawtypes")
-		protected BuilderImpl<E> withUniqueKeyMap(int keyIndex, IFunction mapper) {
+		protected BuilderImpl<E> withUniqueKeyMap(int keyIndex, Function mapper) {
         	if (mapper != null) {
         		withKeyMap(keyIndex, mapper);
         	}
@@ -754,7 +755,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
          */
         KeyMap buildKeyMap(KeyMapBuilder keyMapBuilder, boolean list) {
         	KeyMap<E,Object> keyMap = new KeyMap<E,Object>();
-        	keyMap.mapper = (IFunction<E, Object>) keyMapBuilder.mapper;
+        	keyMap.mapper = (Function<E, Object>) keyMapBuilder.mapper;
             keyMap.allowNull = isFalse(keyMapBuilder.allowNull);
         	keyMap.allowDuplicates = isFalse(keyMapBuilder.allowDuplicates);
         	keyMap.allowDuplicatesNull = isFalse(keyMapBuilder.allowDuplicatesNull);
@@ -955,7 +956,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 
     static class KeyMap<E,K> implements Serializable {
 	    /** A mapper to extract keys out of element. For the element itself , this is always an IdentMapper. */
-	    IFunction<E,K> mapper;
+	    Function<E,K> mapper;
 	    /** True to allow null keys */
 	    boolean allowNull;
 	    /** True to allow duplicate values if they are not null */
@@ -2284,7 +2285,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
      * @return 			list containing all keys
      */
     protected GapList<?> getAllKeys(int keyIndex) {
-    	IFunction mapper = getKeyMap(keyIndex).mapper;
+    	Function mapper = getKeyMap(keyIndex).mapper;
     	GapList<Object> list = GapList.create();
     	for (Object obj: this) {
     		list.add(mapper.apply(obj));
@@ -2345,7 +2346,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
      * @param keyIndex 	key index
      * @return      	mapper for specified key map
      */
-    protected IFunction<E,Object> getKeyMapper(int keyIndex) {
+    protected Function<E,Object> getKeyMapper(int keyIndex) {
     	return getKeyMap(keyIndex).mapper;
     }
 
