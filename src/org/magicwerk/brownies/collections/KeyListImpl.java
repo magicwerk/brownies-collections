@@ -18,8 +18,8 @@
 package org.magicwerk.brownies.collections;
 import java.util.Comparator;
 import java.util.Set;
+import java.util.function.Function;
 
-import org.magicwerk.brownies.collections.function.IFunction;
 import org.magicwerk.brownies.collections.helper.Option;
 
 
@@ -460,7 +460,7 @@ public abstract class KeyListImpl<E> extends IList<E> {
      * @param keyIndex 	key index
      * @return      	mapper for specified key map
      */
-    public IFunction<E,Object> getKeyMapper(int keyIndex) {
+    public Function<E,Object> getKeyMapper(int keyIndex) {
     	return keyColl.getKeyMapper(keyIndex);
     }
 
@@ -576,7 +576,7 @@ public abstract class KeyListImpl<E> extends IList<E> {
      * @return 			list containing all keys
      */
     protected GapList<Object> getAllKeys(int keyIndex) {
-    	IFunction<E,Object> mapper = keyColl.getKeyMap(keyIndex).mapper;
+    	Function<E,Object> mapper = keyColl.getKeyMap(keyIndex).mapper;
     	GapList<Object> list = GapList.create();
     	for (E obj: this) {
     		list.add(mapper.apply(obj));
