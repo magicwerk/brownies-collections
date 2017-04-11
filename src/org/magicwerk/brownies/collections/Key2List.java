@@ -21,13 +21,11 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import org.magicwerk.brownies.collections.KeyCollectionImpl.BuilderImpl;
-import org.magicwerk.brownies.collections.function.IConsumer;
-import org.magicwerk.brownies.collections.function.IFunction;
-import org.magicwerk.brownies.collections.function.IPredicate;
-
 
 /**
  * Key2List implements a key list with 2 keys.
@@ -74,29 +72,29 @@ public class Key2List<E,K1,K2> extends KeyListImpl<E> {
         }
 
         @Override
-        public Builder<E,K1,K2> withConstraint(IPredicate<E> constraint) {
+        public Builder<E,K1,K2> withConstraint(Predicate<E> constraint) {
         	return (Builder<E,K1,K2>) super.withConstraint(constraint);
         }
 
         // -- Triggers
 
         @Override
-        public Builder<E,K1,K2> withBeforeInsertTrigger(IConsumer<E> trigger) {
+        public Builder<E,K1,K2> withBeforeInsertTrigger(Consumer<E> trigger) {
         	return (Builder<E,K1,K2>) super.withBeforeInsertTrigger(trigger);
         }
 
         @Override
-        public Builder<E,K1,K2> withAfterInsertTrigger(IConsumer<E> trigger) {
+        public Builder<E,K1,K2> withAfterInsertTrigger(Consumer<E> trigger) {
         	return (Builder<E,K1,K2>) super.withAfterInsertTrigger(trigger);
         }
 
         @Override
-        public Builder<E,K1,K2> withBeforeDeleteTrigger(IConsumer<E> trigger) {
+        public Builder<E,K1,K2> withBeforeDeleteTrigger(Consumer<E> trigger) {
         	return (Builder<E,K1,K2>) super.withBeforeDeleteTrigger(trigger);
         }
 
         @Override
-        public Builder<E,K1,K2> withAfterDeleteTrigger(IConsumer<E> trigger) {
+        public Builder<E,K1,K2> withAfterDeleteTrigger(Consumer<E> trigger) {
         	return (Builder<E,K1,K2>) super.withAfterDeleteTrigger(trigger);
         }
 
@@ -432,8 +430,8 @@ public class Key2List<E,K1,K2> extends KeyListImpl<E> {
      *
      * @return mapper for key map
      */
-	public IFunction<E,K1> getKey1Mapper() {
-		return (IFunction<E,K1>) super.getKeyMapper(1);
+	public Function<E,K1> getKey1Mapper() {
+		return (Function<E,K1>) super.getKeyMapper(1);
 	}
 
     /**
@@ -585,8 +583,8 @@ public class Key2List<E,K1,K2> extends KeyListImpl<E> {
      *
      * @return mapper for key map
      */
-	public IFunction<E,K2> getKey2Mapper() {
-		return (IFunction<E,K2>) super.getKeyMapper(2);
+	public Function<E,K2> getKey2Mapper() {
+		return (Function<E,K2>) super.getKeyMapper(2);
 	}
 
     /**

@@ -29,13 +29,12 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import org.magicwerk.brownies.collections.exceptions.DuplicateKeyException;
 import org.magicwerk.brownies.collections.exceptions.KeyException;
-import org.magicwerk.brownies.collections.function.IConsumer;
-import org.magicwerk.brownies.collections.function.IFunction;
-import org.magicwerk.brownies.collections.function.IPredicate;
 import org.magicwerk.brownies.collections.helper.BigLists;
 import org.magicwerk.brownies.collections.helper.GapLists;
 import org.magicwerk.brownies.collections.helper.IdentMapper;
@@ -43,7 +42,6 @@ import org.magicwerk.brownies.collections.helper.NaturalComparator;
 import org.magicwerk.brownies.collections.helper.NullComparator;
 import org.magicwerk.brownies.collections.helper.Option;
 import org.magicwerk.brownies.collections.helper.SortedLists;
-
 
 /**
  * Add:
@@ -97,12 +95,12 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     	KeyListImpl<E> keyList;
     	// -- constraint
         boolean allowNullElem = true;
-        IPredicate<E> constraint;
+        Predicate<E> constraint;
         // -- triggers
-        IConsumer<E> beforeInsertTrigger;
-        IConsumer<E> afterInsertTrigger;
-        IConsumer<E> beforeDeleteTrigger;
-        IConsumer<E> afterDeleteTrigger;
+        Consumer<E> beforeInsertTrigger;
+        Consumer<E> afterInsertTrigger;
+        Consumer<E> beforeDeleteTrigger;
+        Consumer<E> afterDeleteTrigger;
         // -- keys
     	GapList<KeyMapBuilder<E,Object>> keyMapBuilders = GapList.create();
         // -- content
@@ -140,7 +138,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
          * @param constraint	constraint element must satisfy, null for none (default)
          * @return 				this (fluent interface)
          */
-        protected BuilderImpl<E> withConstraint(IPredicate<E> constraint) {
+        protected BuilderImpl<E> withConstraint(Predicate<E> constraint) {
         	this.constraint = constraint;
         	return this;
         }
@@ -153,7 +151,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
          * @param trigger	insert trigger method, null for none (default)
          * @return			this (fluent interface)
          */
-        protected BuilderImpl<E> withBeforeInsertTrigger(IConsumer<E> trigger) {
+        protected BuilderImpl<E> withBeforeInsertTrigger(Consumer<E> trigger) {
             this.beforeInsertTrigger = trigger;
             return this;
         }
@@ -164,7 +162,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
          * @param trigger	insert trigger method, null for none (default)
          * @return			this (fluent interface)
          */
-        protected BuilderImpl<E> withAfterInsertTrigger(IConsumer<E> trigger) {
+        protected BuilderImpl<E> withAfterInsertTrigger(Consumer<E> trigger) {
             this.afterInsertTrigger = trigger;
             return this;
         }
@@ -175,7 +173,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
          * @param trigger	delete trigger method, null for none (default)
          * @return			this (fluent interface)
          */
-        protected BuilderImpl<E> withBeforeDeleteTrigger(IConsumer<E> trigger) {
+        protected BuilderImpl<E> withBeforeDeleteTrigger(Consumer<E> trigger) {
             this.beforeDeleteTrigger = trigger;
             return this;
         }
@@ -185,7 +183,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
          * @param trigger	delete trigger method, null for none (default)
          * @return			this (fluent interface)
          */
-        protected BuilderImpl<E> withAfterDeleteTrigger(IConsumer<E> trigger) {
+        protected BuilderImpl<E> withAfterDeleteTrigger(Consumer<E> trigger) {
             this.afterDeleteTrigger = trigger;
             return this;
         }
@@ -1527,12 +1525,12 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
     /**
      * All elements in the list must fulfill this predicate, if null, all elements are allowed
      */
-    IPredicate<E> constraint;
+    Predicate<E> constraint;
     // -- handlers
-    IConsumer<E> beforeInsertTrigger;
-    IConsumer<E> afterInsertTrigger;
-    IConsumer<E> beforeDeleteTrigger;
-    IConsumer<E> afterDeleteTrigger;
+    Consumer<E> beforeInsertTrigger;
+    Consumer<E> afterInsertTrigger;
+    Consumer<E> beforeDeleteTrigger;
+    Consumer<E> afterDeleteTrigger;
     /**
      * Back pointer to KeyListImpl if this object is used to implement a KeyList, Key1List, Key2List.
      * Otherwise null if it is part of a KeyCollection, Key1Collection, Key2Collection.

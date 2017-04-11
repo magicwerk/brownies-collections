@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: ILongList.java 3405 2016-12-02 13:12:30Z origo $
+ * $Id: ILongList.java 3448 2017-01-31 07:46:38Z origo $
  */
 package org.magicwerk.brownies.collections.primitive;
 
@@ -34,15 +34,16 @@ import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.RandomAccess;
 import java.util.Set;
-import org.magicwerk.brownies.collections.function.IFunction;
-import org.magicwerk.brownies.collections.function.IPredicate;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.UnaryOperator;
 
 /**
  * ILongList is an abstract class which offers all interfaces offered by both ArrayList and LinkedList.
  * It also offers additional methods which are then available in all implementations of GapList and BigList.
  *
  * @author Thomas Mauch
- * @version $Id: ILongList.java 3405 2016-12-02 13:12:30Z origo $
+ * @version $Id: ILongList.java 3448 2017-01-31 07:46:38Z origo $
  *
  * @param  type of elements stored in the list
  * @see	    java.util.List
@@ -412,19 +413,6 @@ public long getSingle() {
 }
 
     /**
-	 * Returns an element stored in the list.
-	 * If the list is not empty, the first element is returned, otherwise null.
-	 *
-	 * @return	an element stored in the list
-	 */
-public long getAny() {
-    if (size() == 0) {
-        return 0;
-    }
-    return doGet(0);
-}
-
-    /**
 	 * Returns the only element stored in the list or null if the list is empty.
 	 * If the list's size is greater than 1, a <code>NoSuchElementException</code> is thrown.
 	 *
@@ -465,7 +453,7 @@ public ILongList getAll(long elem) {
 	 * @param predicate	predicate
 	 * @return			all elements in the list which match the predicate
 	 */
-public ILongList getWhere(IPredicate predicate) {
+public ILongList getWhere(Predicate predicate) {
     ILongList list = doCreate(-1);
     int size = size();
     for (int i = 0; i < size; i++) {
@@ -482,7 +470,7 @@ public ILongList getWhere(IPredicate predicate) {
 	 *
 	 * @param predicate	predicate
 	 */
-public void removeWhere(IPredicate predicate) {
+public void removeWhere(Predicate predicate) {
     int size = size();
     for (int i = 0; i < size; i++) {
         long e = doGet(i);
@@ -499,7 +487,7 @@ public void removeWhere(IPredicate predicate) {
 	 *
 	 * @param predicate	predicate
 	 */
-public void retainWhere(IPredicate predicate) {
+public void retainWhere(Predicate predicate) {
     int size = size();
     for (int i = 0; i < size; i++) {
         long e = doGet(i);
@@ -517,7 +505,7 @@ public void retainWhere(IPredicate predicate) {
 	 * @param predicate	predicate
 	 * @return			elements which have been removed from the list
 	 */
-public ILongList extractWhere(IPredicate predicate) {
+public ILongList extractWhere(Predicate predicate) {
     ILongList list = doCreate(-1);
     int size = size();
     for (int i = 0; i < size; i++) {
@@ -552,7 +540,7 @@ public Set getDistinct() {
      * @param mapper	mapper function
      * @return			created list
      */
-public <R> IList<R> mappedList(IFunction<Long, R> mapper) {
+public <R> IList<R> mappedList(Function<Long, R> mapper) {
     int size = size();
     @SuppressWarnings("unchecked") IList<R> mappedList = (IList<R>) new GapList<R>(size);
     for (int i = 0; i < size; i++) {
@@ -562,13 +550,22 @@ public <R> IList<R> mappedList(IFunction<Long, R> mapper) {
     return mappedList;
 }
 
+    public void map(UnaryOperator<Long> operator) {
+    int size = size();
+    for (int i = 0; i < size; i++) {
+        long e = doGet(i);
+        e = operator.apply(e);
+        doSet(i, e);
+    }
+}
+
     /**
      * Filter the list using the specified predicate.
      * Only element which are allowed remain in the list, the others are removed
      *
      * @param predicate predicate used for filtering
      */
-public void filter(IPredicate<Long> predicate) {
+public void filter(Predicate<Long> predicate) {
     // It is typically faster to copy the allowed elements in a new list   
     // than to remove the not allowed from the existing one   
     ILongList list = doCreate(-1);
