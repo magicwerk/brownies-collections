@@ -24,8 +24,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-
-import org.magicwerk.brownies.collections.function.IFunction;
+import java.util.function.Function;
 
 /**
  * GapList combines the strengths of both ArrayList and LinkedList.
@@ -520,7 +519,7 @@ public class GapList<E> extends IList<E> {
 	}
 
 	@Override
-    public <R> GapList<R> mappedList(IFunction<E,R> mapper) {
+    public <R> GapList<R> mappedList(Function<E,R> mapper) {
 		return (GapList<R>) super.mappedList(mapper);
 	}
 

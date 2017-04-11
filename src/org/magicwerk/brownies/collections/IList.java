@@ -30,10 +30,9 @@ import java.util.ListIterator;
 import java.util.NoSuchElementException;
 import java.util.RandomAccess;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
-
-import org.magicwerk.brownies.collections.function.IFunction;
-import org.magicwerk.brownies.collections.function.IPredicate;
 
 /**
  * IList is an abstract class which offers all interfaces offered by both ArrayList and LinkedList.
@@ -469,7 +468,7 @@ public abstract class IList<E>
 	 * @param predicate	predicate
 	 * @return			all elements in the list which match the predicate
 	 */
-    public IList<E> getWhere(IPredicate<E> predicate) {
+    public IList<E> getWhere(Predicate<E> predicate) {
         IList<E> list = doCreate(-1);
 		int size = size();
 		for (int i=0; i<size; i++) {
@@ -486,7 +485,7 @@ public abstract class IList<E>
 	 *
 	 * @param predicate	predicate
 	 */
-	public void removeWhere(IPredicate<E> predicate) {
+	public void removeWhere(Predicate<E> predicate) {
 	    int size = size();
 		for (int i=0; i<size; i++) {
 			E e = doGet(i);
@@ -503,7 +502,7 @@ public abstract class IList<E>
 	 *
 	 * @param predicate	predicate
 	 */
-	public void retainWhere(IPredicate<E> predicate) {
+	public void retainWhere(Predicate<E> predicate) {
 	    int size = size();
 		for (int i=0; i<size; i++) {
 			E e = doGet(i);
@@ -521,7 +520,7 @@ public abstract class IList<E>
 	 * @param predicate	predicate
 	 * @return			elements which have been removed from the list
 	 */
-	public IList<E> extractWhere(IPredicate<E> predicate) {
+	public IList<E> extractWhere(Predicate<E> predicate) {
 	    IList<E> list = doCreate(-1);
 	    int size = size();
 		for (int i=0; i<size; i++) {
@@ -556,7 +555,7 @@ public abstract class IList<E>
      * @param mapper	mapper function
      * @return			created list
      */
-    public <R> IList<R> mappedList(IFunction<E,R> mapper) {
+    public <R> IList<R> mappedList(Function<E,R> mapper) {
 		int size = size();
     	@SuppressWarnings("unchecked")
 		IList<R> mappedList = (IList<R>) doCreate(size);
@@ -582,7 +581,7 @@ public abstract class IList<E>
      *
      * @param predicate predicate used for filtering
      */
-    public void filter(IPredicate<? super E> predicate) {
+    public void filter(Predicate<? super E> predicate) {
     	// It is typically faster to copy the allowed elements in a new list
     	// than to remove the not allowed from the existing one
     	IList<E> list = doCreate(-1);

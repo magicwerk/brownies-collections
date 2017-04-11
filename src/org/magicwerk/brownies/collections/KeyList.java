@@ -20,11 +20,10 @@ package org.magicwerk.brownies.collections;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import org.magicwerk.brownies.collections.KeyCollectionImpl.BuilderImpl;
-import org.magicwerk.brownies.collections.function.IConsumer;
-import org.magicwerk.brownies.collections.function.IPredicate;
-
 
 /**
  * KeyList implements a list.
@@ -68,29 +67,29 @@ public class KeyList<E> extends KeyListImpl<E> {
         }
 
         @Override
-        public Builder<E> withConstraint(IPredicate<E> constraint) {
+        public Builder<E> withConstraint(Predicate<E> constraint) {
         	return (Builder<E>) super.withConstraint(constraint);
         }
 
         // -- Triggers
 
         @Override
-        public Builder<E> withBeforeInsertTrigger(IConsumer<E> trigger) {
+        public Builder<E> withBeforeInsertTrigger(Consumer<E> trigger) {
         	return (Builder<E>) super.withBeforeInsertTrigger(trigger);
         }
 
         @Override
-        public Builder<E> withAfterInsertTrigger(IConsumer<E> trigger) {
+        public Builder<E> withAfterInsertTrigger(Consumer<E> trigger) {
         	return (Builder<E>) super.withAfterInsertTrigger(trigger);
         }
 
         @Override
-        public Builder<E> withBeforeDeleteTrigger(IConsumer<E> trigger) {
+        public Builder<E> withBeforeDeleteTrigger(Consumer<E> trigger) {
         	return (Builder<E>) super.withBeforeDeleteTrigger(trigger);
         }
 
         @Override
-        public Builder<E> withAfterDeleteTrigger(IConsumer<E> trigger) {
+        public Builder<E> withAfterDeleteTrigger(Consumer<E> trigger) {
         	return (Builder<E>) super.withAfterDeleteTrigger(trigger);
         }
 

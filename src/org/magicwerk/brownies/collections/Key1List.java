@@ -21,13 +21,11 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import org.magicwerk.brownies.collections.KeyCollectionImpl.BuilderImpl;
-import org.magicwerk.brownies.collections.function.IConsumer;
-import org.magicwerk.brownies.collections.function.IFunction;
-import org.magicwerk.brownies.collections.function.IPredicate;
-
 
 /**
  * Key1List implements a key list with 1 key.
@@ -73,29 +71,29 @@ public class Key1List<E,K> extends KeyListImpl<E> {
         }
 
         @Override
-        public Builder<E,K> withConstraint(IPredicate<E> constraint) {
+        public Builder<E,K> withConstraint(Predicate<E> constraint) {
         	return (Builder<E,K>) super.withConstraint(constraint);
         }
 
         // -- Triggers
 
         @Override
-        public Builder<E,K> withBeforeInsertTrigger(IConsumer<E> trigger) {
+        public Builder<E,K> withBeforeInsertTrigger(Consumer<E> trigger) {
         	return (Builder<E,K>) super.withBeforeInsertTrigger(trigger);
         }
 
         @Override
-        public Builder<E,K> withAfterInsertTrigger(IConsumer<E> trigger) {
+        public Builder<E,K> withAfterInsertTrigger(Consumer<E> trigger) {
         	return (Builder<E,K>) super.withAfterInsertTrigger(trigger);
         }
 
         @Override
-        public Builder<E,K> withBeforeDeleteTrigger(IConsumer<E> trigger) {
+        public Builder<E,K> withBeforeDeleteTrigger(Consumer<E> trigger) {
         	return (Builder<E,K>) super.withBeforeDeleteTrigger(trigger);
         }
 
         @Override
-        public Builder<E,K> withAfterDeleteTrigger(IConsumer<E> trigger) {
+        public Builder<E,K> withAfterDeleteTrigger(Consumer<E> trigger) {
         	return (Builder<E,K>) super.withAfterDeleteTrigger(trigger);
         }
 
@@ -346,8 +344,8 @@ public class Key1List<E,K> extends KeyListImpl<E> {
      *
      * @return mapper for key map
      */
-	public IFunction<E,K> getKey1Mapper() {
-		return (IFunction<E,K>) super.getKeyMapper(1);
+	public Function<E,K> getKey1Mapper() {
+		return (Function<E,K>) super.getKeyMapper(1);
 	}
 
     /**

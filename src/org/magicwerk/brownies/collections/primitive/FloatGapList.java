@@ -26,7 +26,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import org.magicwerk.brownies.collections.function.IFunction;
+import java.util.function.Function;
 
 /**
  * FloatGapList combines the strengths of both ArrayList and LinkedList.
@@ -495,7 +495,7 @@ public FloatGapList getAll(float elem) {
 }
 
     @Override
-public <R> GapList<R> mappedList(IFunction<Float, R> mapper) {
+public <R> GapList<R> mappedList(Function<Float, R> mapper) {
     return (GapList<R>) super.mappedList(mapper);
 }
 

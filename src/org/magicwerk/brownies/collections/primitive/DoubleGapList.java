@@ -26,7 +26,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import org.magicwerk.brownies.collections.function.IFunction;
+import java.util.function.Function;
 
 /**
  * DoubleGapList combines the strengths of both ArrayList and LinkedList.
@@ -495,7 +495,7 @@ public DoubleGapList getAll(double elem) {
 }
 
     @Override
-public <R> GapList<R> mappedList(IFunction<Double, R> mapper) {
+public <R> GapList<R> mappedList(Function<Double, R> mapper) {
     return (GapList<R>) super.mappedList(mapper);
 }
 

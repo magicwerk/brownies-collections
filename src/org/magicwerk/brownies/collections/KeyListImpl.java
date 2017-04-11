@@ -22,7 +22,6 @@ import java.util.function.Function;
 
 import org.magicwerk.brownies.collections.helper.Option;
 
-
 /**
  * A KeyList add key handling features to GapList.
  * It is the abstract base class for both SetList and MapList.

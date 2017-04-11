@@ -26,7 +26,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import org.magicwerk.brownies.collections.function.IFunction;
+import java.util.function.Function;
 
 /**
  * BooleanGapList combines the strengths of both ArrayList and LinkedList.
@@ -495,7 +495,7 @@ public BooleanGapList getAll(boolean elem) {
 }
 
     @Override
-public <R> GapList<R> mappedList(IFunction<Boolean, R> mapper) {
+public <R> GapList<R> mappedList(Function<Boolean, R> mapper) {
     return (GapList<R>) super.mappedList(mapper);
 }
 
