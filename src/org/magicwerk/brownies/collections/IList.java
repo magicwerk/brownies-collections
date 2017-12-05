@@ -483,9 +483,12 @@ public abstract class IList<E>
 	/**
 	 * Removes all elements in the list which match the predicate.
 	 *
-	 * @param predicate	predicate
+     * @param predicate a predicate which returns {@code true} for elements to be removed
+     * @return 			{@code true} if any elements were removed
 	 */
-	public void removeWhere(Predicate<E> predicate) {
+    @Override
+	public boolean removeIf(Predicate<? super E> predicate) {
+    	boolean removed = false;
 	    int size = size();
 		for (int i=0; i<size; i++) {
 			E e = doGet(i);
@@ -493,16 +496,20 @@ public abstract class IList<E>
 				doRemove(i);
 				size--;
 				i--;
+				removed = true;
 			}
 		}
+		return removed;
 	}
 
 	/**
 	 * Retains all elements in the list which match the predicate.
 	 *
-	 * @param predicate	predicate
+     * @param predicate a predicate which returns {@code true} for elements to be retained
+     * @return 			{@code true} if any elements were removed
 	 */
-	public void retainWhere(Predicate<E> predicate) {
+	public boolean retainIf(Predicate<? super E> predicate) {
+		boolean modified = false;
 	    int size = size();
 		for (int i=0; i<size; i++) {
 			E e = doGet(i);
@@ -510,8 +517,10 @@ public abstract class IList<E>
 				doRemove(i);
 				size--;
 				i--;
+				modified = true;
 			}
 		}
+		return modified;
 	}
 
 	/**
@@ -520,7 +529,7 @@ public abstract class IList<E>
 	 * @param predicate	predicate
 	 * @return			elements which have been removed from the list
 	 */
-	public IList<E> extractWhere(Predicate<E> predicate) {
+	public IList<E> extractIf(Predicate<? super E> predicate) {
 	    IList<E> list = doCreate(-1);
 	    int size = size();
 		for (int i=0; i<size; i++) {
