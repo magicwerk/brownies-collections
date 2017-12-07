@@ -434,7 +434,7 @@ public abstract class IList<E>
 	 * @return	only element stored in the list
 	 */
 	public E getSingleOrEmpty() {
-		int size = 1;
+		int size = size();
 		if (size == 0) {
 			return null;
 		} else if (size == 1) {
@@ -615,6 +615,16 @@ public abstract class IList<E>
 		return -1;
 	}
 
+	public int indexOfIf(Predicate<? super E> predicate) {
+		int size = size();
+		for (int i=0; i<size; i++) {
+			if (predicate.test(doGet(i))) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
 	@Override
 	public int lastIndexOf(Object elem) {
 		for (int i=size()-1; i>=0; i--) {
@@ -684,6 +694,10 @@ public abstract class IList<E>
 	@Override
 	public boolean contains(Object elem) {
 		return indexOf(elem) != -1;
+	}
+
+	public boolean containsIf(Predicate<? super E> predicate) {
+		return indexOf(predicate) != -1;
 	}
 
 	/**
