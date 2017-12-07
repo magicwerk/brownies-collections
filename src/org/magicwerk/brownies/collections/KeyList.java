@@ -197,9 +197,11 @@ public class KeyList<E> extends KeyListImpl<E> {
                	keyColl = new KeyCollectionImpl<E>();
         	}
         	build(keyColl, true);
-        	KeyList<E> list = new KeyList<E>();
-        	init(keyColl, list);
-        	return list;
+        	if (keyList == null) {
+        		keyList = new KeyList<E>();
+        	}
+        	init(keyColl, keyList);
+        	return (KeyList<E>) keyList;
         }
     }
 

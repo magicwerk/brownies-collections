@@ -367,9 +367,11 @@ public class Key2List<E,K1,K2> extends KeyListImpl<E> {
                	keyColl = new KeyCollectionImpl<E>();
         	}
         	build(keyColl, true);
-        	Key2List<E,K1,K2> list = new Key2List<E,K1,K2>();
-        	init(keyColl, list);
-        	return list;
+        	if (keyList == null) {
+        		keyList = new Key2List<E,K1,K2>();
+        	}
+        	init(keyColl, keyList);
+        	return (Key2List<E, K1, K2>) keyList;
         }
     }
 
