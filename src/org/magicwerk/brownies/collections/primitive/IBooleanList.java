@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: IBooleanList.java 3448 2017-01-31 07:46:38Z origo $
+ * $Id: IBooleanList.java 3834 2018-02-12 20:18:06Z origo $
  */
 package org.magicwerk.brownies.collections.primitive;
 
@@ -43,7 +43,7 @@ import java.util.function.UnaryOperator;
  * It also offers additional methods which are then available in all implementations of GapList and BigList.
  *
  * @author Thomas Mauch
- * @version $Id: IBooleanList.java 3448 2017-01-31 07:46:38Z origo $
+ * @version $Id: IBooleanList.java 3834 2018-02-12 20:18:06Z origo $
  *
  * @param  type of elements stored in the list
  * @see	    java.util.List
@@ -420,7 +420,7 @@ public boolean getSingle() {
 	 * @return	only element stored in the list
 	 */
 public boolean getSingleOrEmpty() {
-    int size = 1;
+    int size = size();
     if (size == 0) {
         return false;
     } else if (size == 1) {
@@ -454,7 +454,7 @@ public IBooleanList getAll(boolean elem) {
 	 * @param predicate	predicate
 	 * @return			all elements in the list which match the predicate
 	 */
-public IBooleanList getWhere(Predicate predicate) {
+public IBooleanList getIf(Predicate predicate) {
     IBooleanList list = doCreate(-1);
     int size = size();
     for (int i = 0; i < size; i++) {
@@ -469,9 +469,12 @@ public IBooleanList getWhere(Predicate predicate) {
     /**
 	 * Removes all elements in the list which match the predicate.
 	 *
-	 * @param predicate	predicate
+     * @param predicate a predicate which returns {@code true} for elements to be removed
+     * @return 			{@code true} if any elements were removed
 	 */
-public void removeWhere(Predicate predicate) {
+
+public boolean removeIf(Predicate<Boolean> predicate) {
+    boolean removed = false;
     int size = size();
     for (int i = 0; i < size; i++) {
         boolean e = doGet(i);
@@ -479,16 +482,20 @@ public void removeWhere(Predicate predicate) {
             doRemove(i);
             size--;
             i--;
+            removed = true;
         }
     }
+    return removed;
 }
 
     /**
 	 * Retains all elements in the list which match the predicate.
 	 *
-	 * @param predicate	predicate
+     * @param predicate a predicate which returns {@code true} for elements to be retained
+     * @return 			{@code true} if any elements were removed
 	 */
-public void retainWhere(Predicate predicate) {
+public boolean retainIf(Predicate<Boolean> predicate) {
+    boolean modified = false;
     int size = size();
     for (int i = 0; i < size; i++) {
         boolean e = doGet(i);
@@ -496,8 +503,10 @@ public void retainWhere(Predicate predicate) {
             doRemove(i);
             size--;
             i--;
+            modified = true;
         }
     }
+    return modified;
 }
 
     /**
@@ -506,7 +515,7 @@ public void retainWhere(Predicate predicate) {
 	 * @param predicate	predicate
 	 * @return			elements which have been removed from the list
 	 */
-public IBooleanList extractWhere(Predicate predicate) {
+public IBooleanList extractIf(Predicate<Boolean> predicate) {
     IBooleanList list = doCreate(-1);
     int size = size();
     for (int i = 0; i < size; i++) {
@@ -591,6 +600,24 @@ public int indexOf(boolean elem) {
     return -1;
 }
 
+    /**
+	 * Returns the index of the first element which matches the specified element in this list.
+	 *
+	 * @param predicate		predicate used to search element
+	 * @return				the index of the first element which matches the specified element,
+	 * 						or -1 if this list does not contain the element
+	 * @see #indexOf(Object)
+	 */
+public int indexOfIf(Predicate<Boolean> predicate) {
+    int size = size();
+    for (int i = 0; i < size; i++) {
+        if (predicate.test(doGet(i))) {
+            return i;
+        }
+    }
+    return -1;
+}
+
     
 public int lastIndexOf(boolean elem) {
     for (int i = size() - 1; i >= 0; i--) {
@@ -660,6 +687,15 @@ public boolean removeElem(boolean elem) {
     
 public boolean contains(boolean elem) {
     return indexOf(elem) != -1;
+}
+
+    /**
+	 * 
+	 * @param predicate
+	 * @return
+	 */
+public boolean containsIf(Predicate<Boolean> predicate) {
+    return indexOfIf(predicate) != -1;
 }
 
     /**
