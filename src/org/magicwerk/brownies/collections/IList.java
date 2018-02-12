@@ -615,6 +615,14 @@ public abstract class IList<E>
 		return -1;
 	}
 
+	/**
+	 * Returns the index of the first element which matches the specified element in this list.
+	 *
+	 * @param predicate		predicate used to search element
+	 * @return				the index of the first element which matches the specified element,
+	 * 						or -1 if this list does not contain the element
+	 * @see #indexOf(Object)
+	 */
 	public int indexOfIf(Predicate<? super E> predicate) {
 		int size = size();
 		for (int i=0; i<size; i++) {
@@ -696,8 +704,13 @@ public abstract class IList<E>
 		return indexOf(elem) != -1;
 	}
 
+	/**
+	 * 
+	 * @param predicate
+	 * @return
+	 */
 	public boolean containsIf(Predicate<? super E> predicate) {
-		return indexOf(predicate) != -1;
+		return indexOfIf(predicate) != -1;
 	}
 
 	/**
