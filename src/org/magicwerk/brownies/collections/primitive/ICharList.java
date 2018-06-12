@@ -893,7 +893,7 @@ public char[] toArray(char[] array, int index, int len) {
 public char[] toArray(Class clazz, int index, int len) {
     char[] array = doCreateArray(clazz, len);
     doGetAll(array, index, len);
-    return null;
+    return array;
 }
 
     /**
@@ -905,7 +905,7 @@ public char[] toArray(Class clazz, int index, int len) {
 	 */
 @SuppressWarnings("unchecked")
 protected char[] doCreateArray(Class clazz, int len) {
-    return null;
+    return (char[]) java.lang.reflect.Array.newInstance(clazz, len);
 }
 
     /**

@@ -904,7 +904,7 @@ public byte[] toArray(byte[] array, int index, int len) {
 public byte[] toArray(Class clazz, int index, int len) {
     byte[] array = doCreateArray(clazz, len);
     doGetAll(array, index, len);
-    return null;
+    return array;
 }
 
     /**
@@ -916,7 +916,7 @@ public byte[] toArray(Class clazz, int index, int len) {
 	 */
 @SuppressWarnings("unchecked")
 protected byte[] doCreateArray(Class clazz, int len) {
-    return null;
+    return (byte[]) java.lang.reflect.Array.newInstance(clazz, len);
 }
 
     /**

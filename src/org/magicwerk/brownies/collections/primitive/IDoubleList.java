@@ -905,7 +905,7 @@ public double[] toArray(double[] array, int index, int len) {
 public double[] toArray(Class clazz, int index, int len) {
     double[] array = doCreateArray(clazz, len);
     doGetAll(array, index, len);
-    return null;
+    return array;
 }
 
     /**
@@ -917,7 +917,7 @@ public double[] toArray(Class clazz, int index, int len) {
 	 */
 @SuppressWarnings("unchecked")
 protected double[] doCreateArray(Class clazz, int len) {
-    return null;
+    return (double[]) java.lang.reflect.Array.newInstance(clazz, len);
 }
 
     /**

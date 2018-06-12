@@ -904,7 +904,7 @@ public long[] toArray(long[] array, int index, int len) {
 public long[] toArray(Class clazz, int index, int len) {
     long[] array = doCreateArray(clazz, len);
     doGetAll(array, index, len);
-    return null;
+    return array;
 }
 
     /**
@@ -916,7 +916,7 @@ public long[] toArray(Class clazz, int index, int len) {
 	 */
 @SuppressWarnings("unchecked")
 protected long[] doCreateArray(Class clazz, int len) {
-    return null;
+    return (long[]) java.lang.reflect.Array.newInstance(clazz, len);
 }
 
     /**

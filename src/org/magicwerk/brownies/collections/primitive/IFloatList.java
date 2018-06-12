@@ -905,7 +905,7 @@ public float[] toArray(float[] array, int index, int len) {
 public float[] toArray(Class clazz, int index, int len) {
     float[] array = doCreateArray(clazz, len);
     doGetAll(array, index, len);
-    return null;
+    return array;
 }
 
     /**
@@ -917,7 +917,7 @@ public float[] toArray(Class clazz, int index, int len) {
 	 */
 @SuppressWarnings("unchecked")
 protected float[] doCreateArray(Class clazz, int len) {
-    return null;
+    return (float[]) java.lang.reflect.Array.newInstance(clazz, len);
 }
 
     /**

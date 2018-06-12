@@ -905,7 +905,7 @@ public boolean[] toArray(boolean[] array, int index, int len) {
 public boolean[] toArray(Class clazz, int index, int len) {
     boolean[] array = doCreateArray(clazz, len);
     doGetAll(array, index, len);
-    return null;
+    return array;
 }
 
     /**
@@ -917,7 +917,7 @@ public boolean[] toArray(Class clazz, int index, int len) {
 	 */
 @SuppressWarnings("unchecked")
 protected boolean[] doCreateArray(Class clazz, int len) {
-    return null;
+    return (boolean[]) java.lang.reflect.Array.newInstance(clazz, len);
 }
 
     /**
