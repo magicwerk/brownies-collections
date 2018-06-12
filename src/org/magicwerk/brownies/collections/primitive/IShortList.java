@@ -904,7 +904,7 @@ public short[] toArray(short[] array, int index, int len) {
 public short[] toArray(Class clazz, int index, int len) {
     short[] array = doCreateArray(clazz, len);
     doGetAll(array, index, len);
-    return null;
+    return array;
 }
 
     /**
@@ -916,7 +916,7 @@ public short[] toArray(Class clazz, int index, int len) {
 	 */
 @SuppressWarnings("unchecked")
 protected short[] doCreateArray(Class clazz, int len) {
-    return null;
+    return (short[]) java.lang.reflect.Array.newInstance(clazz, len);
 }
 
     /**
