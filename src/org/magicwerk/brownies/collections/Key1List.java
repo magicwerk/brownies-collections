@@ -458,10 +458,12 @@ public class Key1List<E,K> extends KeyListImpl<E> {
 	 * If there is such an element, the element is replaced.
 	 * So said simply, it is a shortcut for the following code:
 	 * <pre>
-	 * if (containsKey1(elem)) {
-	 *   removeByKey1(elem);
+	 * index = indexOfKey1(elemKey)
+	 * if (index != -1) {
+	 *   putByKey1(elem);
+	 * } else {
+	 *   add(elem);
 	 * }
-	 * add(elem);
 	 * </pre>
 	 * However the method is atomic in the sense that all or none operations are executed.
 	 * So if there is already such an element, but adding the new one fails due to a constraint violation,

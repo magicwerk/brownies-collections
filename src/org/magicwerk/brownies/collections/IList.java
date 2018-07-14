@@ -1511,6 +1511,14 @@ public abstract class IList<E>
 	public boolean addArray(E... elems) {
 		return doAddAll(-1, new IReadOnlyListFromArray<E>(elems));
 	}
+	
+	public boolean addArray(E[] elems, int offset, int length) {
+		return doAddAll(-1, new IReadOnlyListFromArray<E>(elems, offset, length));
+	}
+
+	public boolean addArray(int index, E[] elems, int offset, int length) {
+		return doAddAll(index, new IReadOnlyListFromArray<E>(elems, offset, length));
+	}
 
     /**
      * Inserts the specified elements into this list,
@@ -1602,6 +1610,13 @@ public abstract class IList<E>
         checkRange(index, arrayLen);
 
 		doReplaceAll(index, arrayLen, new IReadOnlyListFromArray<E>(elems));
+    }
+
+    public void setArray(int index, E[] elems, int offset, int length) {
+    	int arrayLen = elems.length;
+        checkRange(index, arrayLen);
+
+		doReplaceAll(index, arrayLen, new IReadOnlyListFromArray<E>(elems, offset, length));
     }
 
     /**
@@ -2546,19 +2561,29 @@ public abstract class IList<E>
 
     protected static class IReadOnlyListFromArray<E> extends IReadOnlyList<E> {
     	E[] array;
+    	int offset;
+    	int length;
 
     	IReadOnlyListFromArray(E[] array) {
     		this.array = array;
+    		this.offset = 0;
+    		this.length = array.length;
+    	}
+
+    	IReadOnlyListFromArray(E[] array, int offset, int length) {
+    		this.array = array;
+    		this.offset = offset;
+    		this.length = length;
     	}
 
 		@Override
 		public int size() {
-			return array.length;
+			return length;
 		}
 
 		@Override
 		protected E doGet(int index) {
-			return array[index];
+			return array[offset+index];
 		}
     }
 
