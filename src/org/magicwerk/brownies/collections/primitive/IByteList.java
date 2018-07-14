@@ -1464,6 +1464,14 @@ public boolean addArray(byte... elems) {
     return doAddAll(-1, new IReadOnlyByteListFromArray(elems));
 }
 
+    public boolean addArray(byte[] elems, int offset, int length) {
+    return doAddAll(-1, new IReadOnlyByteListFromArray(elems, offset, length));
+}
+
+    public boolean addArray(int index, byte[] elems, int offset, int length) {
+    return doAddAll(index, new IReadOnlyByteListFromArray(elems, offset, length));
+}
+
     /**
      * Inserts the specified elements into this list,
      * starting at the specified position.
@@ -1548,6 +1556,12 @@ public void setArray(int index, byte... elems) {
     int arrayLen = elems.length;
     checkRange(index, arrayLen);
     doReplaceAll(index, arrayLen, new IReadOnlyByteListFromArray(elems));
+}
+
+    public void setArray(int index, byte[] elems, int offset, int length) {
+    int arrayLen = elems.length;
+    checkRange(index, arrayLen);
+    doReplaceAll(index, arrayLen, new IReadOnlyByteListFromArray(elems, offset, length));
 }
 
     /**
@@ -2308,18 +2322,30 @@ private void error() {
 
         byte[] array;
 
+        int offset;
+
+        int length;
+
         IReadOnlyByteListFromArray(byte[] array){
     this.array = array;
+    this.offset = 0;
+    this.length = array.length;
+}
+
+        IReadOnlyByteListFromArray(byte[] array, int offset, int length){
+    this.array = array;
+    this.offset = offset;
+    this.length = length;
 }
 
         
 public int size() {
-    return array.length;
+    return length;
 }
 
         
 protected byte doGet(int index) {
-    return array[index];
+    return array[offset + index];
 }
     }
 

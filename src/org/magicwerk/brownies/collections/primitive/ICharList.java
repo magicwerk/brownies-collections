@@ -1453,6 +1453,14 @@ public boolean addArray(char... elems) {
     return doAddAll(-1, new IReadOnlyCharListFromArray(elems));
 }
 
+    public boolean addArray(char[] elems, int offset, int length) {
+    return doAddAll(-1, new IReadOnlyCharListFromArray(elems, offset, length));
+}
+
+    public boolean addArray(int index, char[] elems, int offset, int length) {
+    return doAddAll(index, new IReadOnlyCharListFromArray(elems, offset, length));
+}
+
     /**
      * Inserts the specified elements into this list,
      * starting at the specified position.
@@ -1537,6 +1545,12 @@ public void setArray(int index, char... elems) {
     int arrayLen = elems.length;
     checkRange(index, arrayLen);
     doReplaceAll(index, arrayLen, new IReadOnlyCharListFromArray(elems));
+}
+
+    public void setArray(int index, char[] elems, int offset, int length) {
+    int arrayLen = elems.length;
+    checkRange(index, arrayLen);
+    doReplaceAll(index, arrayLen, new IReadOnlyCharListFromArray(elems, offset, length));
 }
 
     /**
@@ -2297,18 +2311,30 @@ private void error() {
 
         char[] array;
 
+        int offset;
+
+        int length;
+
         IReadOnlyCharListFromArray(char[] array){
     this.array = array;
+    this.offset = 0;
+    this.length = array.length;
+}
+
+        IReadOnlyCharListFromArray(char[] array, int offset, int length){
+    this.array = array;
+    this.offset = offset;
+    this.length = length;
 }
 
         
 public int size() {
-    return array.length;
+    return length;
 }
 
         
 protected char doGet(int index) {
-    return array[index];
+    return array[offset + index];
 }
     }
 
