@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: ICharList.java 3834 2018-02-12 20:18:06Z origo $
+ * $Id: ICharList.java 4083 2018-07-14 14:42:03Z origo $
  */
 package org.magicwerk.brownies.collections.primitive;
 
@@ -43,7 +43,7 @@ import java.util.function.UnaryOperator;
  * It also offers additional methods which are then available in all implementations of GapList and BigList.
  *
  * @author Thomas Mauch
- * @version $Id: ICharList.java 3834 2018-02-12 20:18:06Z origo $
+ * @version $Id: ICharList.java 4083 2018-07-14 14:42:03Z origo $
  *
  * @param  type of elements stored in the list
  * @see	    java.util.List

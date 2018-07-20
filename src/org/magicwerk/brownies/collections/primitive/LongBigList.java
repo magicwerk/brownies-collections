@@ -969,6 +969,9 @@ protected boolean doAddAll(int index, ILongList list) {
                 // Elements must be added to first block   
                 int add = should - has;
                 ILongList sublist = list2.getAll(0, add);
+                if (sublist.size() != add) {
+                    ILongList sublist2 = list2.getAll(0, add);
+                }
                 listPos += add;
                 currNode.block.addAll(addPos, sublist);
                 modify(currNode, add);

@@ -304,7 +304,7 @@ public class GapList<E> extends IList<E> {
 	 * Initialize the list to be empty.
 	 * The list will have the default initial capacity.
 	 */
-	public void init() {
+	void init() {
 		init(EMPTY_VALUES, 0);
 	}
 
@@ -314,7 +314,7 @@ public class GapList<E> extends IList<E> {
 	 *
 	 * @param coll collection with elements
 	 */
-	public void init(Collection<? extends E> coll) {
+	void init(Collection<? extends E> coll) {
 		Object[] array = toArray(coll);
 		init(array, array.length);
 	}
@@ -325,7 +325,7 @@ public class GapList<E> extends IList<E> {
      *
 	 * @param elems array with elements
 	 */
-	public void init(E... elems) {
+	void init(E... elems) {
 		Object[] array = elems.clone();
 		init(array, array.length);
 	}
@@ -411,6 +411,7 @@ public class GapList<E> extends IList<E> {
 		this.values = (E[]) values;
 		this.size = size;
 
+		// start and end are both 0 because either size == 0 or size == values.length 
 		start = 0;
 		end = 0;
 		gapSize = 0;
@@ -510,7 +511,12 @@ public class GapList<E> extends IList<E> {
 
 	@Override
 	public GapList<E> getAll(int index, int len) {
-		return (GapList<E>) super.getAll(index, len);
+        checkRange(index, len);
+
+        GapList<E> list = doCreate(len);
+        list.size = len;
+        doGetAll(list.values, index, len);
+        return list;
 	}
 
 	@Override
@@ -1047,7 +1053,7 @@ public class GapList<E> extends IList<E> {
     }
 
     @Override
-    public IList<E> doCreate(int capacity) {
+    public GapList<E> doCreate(int capacity) {
     	if (capacity == -1) {
     		capacity = DEFAULT_CAPACITY;
     	}

@@ -283,7 +283,7 @@ public IntGapList(Collection<Integer> coll){
 	 * Initialize the list to be empty.
 	 * The list will have the default initial capacity.
 	 */
-public void init() {
+void init() {
     init(EMPTY_VALUES, 0);
 }
 
@@ -293,7 +293,7 @@ public void init() {
 	 *
 	 * @param coll collection with elements
 	 */
-public void init(Collection<Integer> coll) {
+void init(Collection<Integer> coll) {
     int[] array = toArray(coll);
     init(array, array.length);
 }
@@ -304,7 +304,7 @@ public void init(Collection<Integer> coll) {
      *
 	 * @param elems array with elements
 	 */
-public void init(int... elems) {
+void init(int... elems) {
     int[] array = elems.clone();
     init(array, array.length);
 }
@@ -389,6 +389,7 @@ private void normalize() {
 void init(int[] values, int size) {
     this.values = (int[]) values;
     this.size = size;
+    // start and end are both 0 because either size == 0 or size == values.length    
     start = 0;
     end = 0;
     gapSize = 0;
@@ -486,7 +487,11 @@ public void add(int index, int elem) {
 
     @Override
 public IntGapList getAll(int index, int len) {
-    return (IntGapList) super.getAll(index, len);
+    checkRange(index, len);
+    IntGapList list = doCreate(len);
+    list.size = len;
+    doGetAll(list.values, index, len);
+    return list;
 }
 
     @Override
@@ -1000,7 +1005,7 @@ private void readObject(ObjectInputStream ois) throws IOException, ClassNotFound
 }
 
     @Override
-public IIntList doCreate(int capacity) {
+public IntGapList doCreate(int capacity) {
     if (capacity == -1) {
         capacity = DEFAULT_CAPACITY;
     }

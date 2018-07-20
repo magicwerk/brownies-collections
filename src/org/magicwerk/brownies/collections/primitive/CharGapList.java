@@ -283,7 +283,7 @@ public CharGapList(Collection<Character> coll){
 	 * Initialize the list to be empty.
 	 * The list will have the default initial capacity.
 	 */
-public void init() {
+void init() {
     init(EMPTY_VALUES, 0);
 }
 
@@ -293,7 +293,7 @@ public void init() {
 	 *
 	 * @param coll collection with elements
 	 */
-public void init(Collection<Character> coll) {
+void init(Collection<Character> coll) {
     char[] array = toArray(coll);
     init(array, array.length);
 }
@@ -304,7 +304,7 @@ public void init(Collection<Character> coll) {
      *
 	 * @param elems array with elements
 	 */
-public void init(char... elems) {
+void init(char... elems) {
     char[] array = elems.clone();
     init(array, array.length);
 }
@@ -389,6 +389,7 @@ private void normalize() {
 void init(char[] values, int size) {
     this.values = (char[]) values;
     this.size = size;
+    // start and end are both 0 because either size == 0 or size == values.length    
     start = 0;
     end = 0;
     gapSize = 0;
@@ -486,7 +487,11 @@ public void add(int index, char elem) {
 
     @Override
 public CharGapList getAll(int index, int len) {
-    return (CharGapList) super.getAll(index, len);
+    checkRange(index, len);
+    CharGapList list = doCreate(len);
+    list.size = len;
+    doGetAll(list.values, index, len);
+    return list;
 }
 
     @Override
@@ -1000,7 +1005,7 @@ private void readObject(ObjectInputStream ois) throws IOException, ClassNotFound
 }
 
     @Override
-public ICharList doCreate(int capacity) {
+public CharGapList doCreate(int capacity) {
     if (capacity == -1) {
         capacity = DEFAULT_CAPACITY;
     }
