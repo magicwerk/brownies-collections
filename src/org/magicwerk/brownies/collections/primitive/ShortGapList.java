@@ -283,7 +283,7 @@ public ShortGapList(Collection<Short> coll){
 	 * Initialize the list to be empty.
 	 * The list will have the default initial capacity.
 	 */
-public void init() {
+void init() {
     init(EMPTY_VALUES, 0);
 }
 
@@ -293,7 +293,7 @@ public void init() {
 	 *
 	 * @param coll collection with elements
 	 */
-public void init(Collection<Short> coll) {
+void init(Collection<Short> coll) {
     short[] array = toArray(coll);
     init(array, array.length);
 }
@@ -304,7 +304,7 @@ public void init(Collection<Short> coll) {
      *
 	 * @param elems array with elements
 	 */
-public void init(short... elems) {
+void init(short... elems) {
     short[] array = elems.clone();
     init(array, array.length);
 }
@@ -389,6 +389,7 @@ private void normalize() {
 void init(short[] values, int size) {
     this.values = (short[]) values;
     this.size = size;
+    // start and end are both 0 because either size == 0 or size == values.length    
     start = 0;
     end = 0;
     gapSize = 0;
@@ -486,7 +487,11 @@ public void add(int index, short elem) {
 
     @Override
 public ShortGapList getAll(int index, int len) {
-    return (ShortGapList) super.getAll(index, len);
+    checkRange(index, len);
+    ShortGapList list = doCreate(len);
+    list.size = len;
+    doGetAll(list.values, index, len);
+    return list;
 }
 
     @Override
@@ -1000,7 +1005,7 @@ private void readObject(ObjectInputStream ois) throws IOException, ClassNotFound
 }
 
     @Override
-public IShortList doCreate(int capacity) {
+public ShortGapList doCreate(int capacity) {
     if (capacity == -1) {
         capacity = DEFAULT_CAPACITY;
     }
