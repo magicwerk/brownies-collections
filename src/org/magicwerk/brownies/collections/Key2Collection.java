@@ -40,350 +40,350 @@ import java.util.function.Predicate;
  * @param <K2> type of second key
  */
 @SuppressWarnings("serial")
-public class Key2Collection<E,K1,K2> extends KeyCollectionImpl<E> {
+public class Key2Collection<E, K1, K2> extends KeyCollectionImpl<E> {
 
-    /**
-     * Builder to construct Key2Collection instances.
-     */
-    public static class Builder<E,K1,K2> extends BuilderImpl<E> {
-        /**
-         * Default constructor.
-         */
-        public Builder() {
-        	this(null);
-        }
-
-        /**
-         * Private constructor used if extending Key2Collection.
-         *
-         * @param keyColl	key collection
-         */
-        Builder(Key2Collection<E,K1,K2> keyColl) {
-        	this.keyColl = keyColl;
-        	initKeyMapBuilder(2);
-        }
-
-        // -- Constraint
-
-        @Override
-        public Builder<E,K1,K2> withNull(boolean allowNull) {
-        	return (Builder<E,K1,K2>) super.withNull(allowNull);
-        }
-
-        @Override
-        public Builder<E,K1,K2> withConstraint(Predicate<E> constraint) {
-        	return (Builder<E,K1,K2>) super.withConstraint(constraint);
-        }
-
-        // -- Triggers
-
-        @Override
-        public Builder<E,K1,K2> withBeforeInsertTrigger(Consumer<E> trigger) {
-        	return (Builder<E,K1,K2>) super.withBeforeInsertTrigger(trigger);
-        }
-
-        @Override
-        public Builder<E,K1,K2> withAfterInsertTrigger(Consumer<E> trigger) {
-        	return (Builder<E,K1,K2>) super.withAfterInsertTrigger(trigger);
-        }
-
-        @Override
-        public Builder<E,K1,K2> withBeforeDeleteTrigger(Consumer<E> trigger) {
-        	return (Builder<E,K1,K2>) super.withBeforeDeleteTrigger(trigger);
-        }
-
-        @Override
-        public Builder<E,K1,K2> withAfterDeleteTrigger(Consumer<E> trigger) {
-        	return (Builder<E,K1,K2>) super.withAfterDeleteTrigger(trigger);
-        }
-
-        //-- Content
-
-        @Override
-        public Builder<E,K1,K2> withCapacity(int capacity) {
-        	return (Builder<E,K1,K2>) super.withCapacity(capacity);
-        }
-
-        @Override
-        public Builder<E,K1,K2> withContent(Collection<? extends E> elements) {
-        	return (Builder<E,K1,K2>) super.withContent(elements);
-        }
-
-        @Override
-        public Builder<E,K1,K2> withContent(E... elements) {
-        	return (Builder<E,K1,K2>) super.withContent(elements);
-        }
-
-        @Override
-        public Builder<E,K1,K2> withMaxSize(int maxSize) {
-        	return (Builder<E,K1,K2>) super.withMaxSize(maxSize);
-        }
-
-        //-- Element key
-
-        @Override
-        public Builder<E,K1,K2> withElemSet() {
-        	return (Builder<E,K1,K2>) super.withElemSet();
-        }
-
-        @Override
-        public Builder<E,K1,K2> withOrderByElem(boolean orderBy) {
-        	return (Builder<E,K1,K2>) super.withOrderByElem(orderBy);
-        }
-
-        @Override
-        public Builder<E,K1,K2> withElemNull(boolean allowNull) {
-        	return (Builder<E,K1,K2>) super.withElemNull(allowNull);
-        }
-
-        @Override
-        public Builder<E,K1,K2> withElemDuplicates(boolean allowDuplicates) {
-        	return (Builder<E,K1,K2>) super.withElemDuplicates(allowDuplicates);
-        }
-
-        @Override
-        public Builder<E,K1,K2> withElemDuplicates(boolean allowDuplicates, boolean allowDuplicatesNull) {
-        	return (Builder<E,K1,K2>) super.withElemDuplicates(allowDuplicates, allowDuplicatesNull);
-        }
-
-        @Override
-        public Builder<E,K1,K2> withElemSort(boolean sort) {
-        	return (Builder<E,K1,K2>) super.withElemSort(sort);
-        }
-
-        @Override
-        public Builder<E,K1,K2> withElemSort(Comparator<? super E> comparator) {
-        	return (Builder<E,K1,K2>) super.withElemSort(comparator);
-        }
-
-        @Override
-        public Builder<E,K1,K2> withElemSort(Comparator<? super E> comparator, boolean sortNullsFirst) {
-        	return (Builder<E,K1,K2>) super.withElemSort(comparator, sortNullsFirst);
-        }
-
-        @Override
-        public Builder<E,K1,K2> withPrimaryElem() {
-        	return (Builder<E,K1,K2>) super.withPrimaryElem();
-        }
-
-        @Override
-        public Builder<E,K1,K2> withUniqueElem() {
-        	return (Builder<E,K1,K2>) super.withUniqueElem();
-        }
-
-        // -- Key1
-
-        /**
-         * Add key map.
-         *
-         * @param mapper	mapper to use
-         * @return			this (fluent interface)
-         */
-        public Builder<E,K1,K2> withKey1Map(Function<? super E,K1> mapper) {
-        	return (Builder<E,K1,K2>) super.withKeyMap(1, mapper);
-        }
-
-        /**
-         * Specify this key to be a primary key.
-         * This is identical to calling
-         * withKey1Map(mapper), withKey1Null(false), and withKey1Duplicates(false).
-         *
-         * @param mapper	mapper to use
-         * @return			this (fluent interface)
-         */
-        public Builder<E,K1,K2> withPrimaryKey1Map(Function<? super E,K1> mapper) {
-        	return (Builder<E,K1,K2>) super.withPrimaryKeyMap(1, mapper);
-        }
-
-        /**
-         * Specify this key to be a unique key.
-         * This is identical to calling
-         * withKey1Map(mapper), withKey1Null(true), and withKey1Duplicates(false, true).
-         *
-         * @param mapper	mapper to use
-         * @return			this (fluent interface)
-         */
-        public Builder<E,K1,K2> withUniqueKey1Map(Function<? super E,K1> mapper) {
-        	return (Builder<E,K1,K2>) super.withUniqueKeyMap(1, mapper);
-        }
-
-        @Override
-        public Builder<E,K1,K2> withOrderByKey1(boolean orderBy) {
-        	return (Builder<E,K1,K2>) super.withOrderByKey1(orderBy);
-        }
-
-        @Override
-        public Builder<E,K1,K2> withKey1Null(boolean allowNull) {
-        	return (Builder<E,K1,K2>) super.withKey1Null(allowNull);
-        }
-
-        @Override
-        public Builder<E,K1,K2> withKey1Duplicates(boolean allowDuplicates) {
-        	return (Builder<E,K1,K2>) super.withKey1Duplicates(allowDuplicates);
-        }
-
-        @Override
-        public Builder<E,K1,K2> withKey1Duplicates(boolean allowDuplicates, boolean allowDuplicatesNull) {
-        	return (Builder<E,K1,K2>) super.withKey1Duplicates(allowDuplicates, allowDuplicatesNull);
-        }
-
-        @Override
-        public Builder<E,K1,K2> withKey1Sort(boolean sort) {
-        	return (Builder<E,K1,K2>) super.withKey1Sort(sort);
-        }
-
-        /**
-         * Set comparator to use for sorting the key map.
-         * Note that this does not automatically sort the list collection, call a withOrderBy method for this.
-         *
-         * @param comparator    comparator to use for sorting
-         * @return              this (fluent interface)
-         */
-        public Builder<E,K1,K2> withKey1Sort(Comparator<? super K1> comparator) {
-        	return (Builder<E,K1,K2>) super.withKeySort(1, comparator);
-        }
-
-        /**
-         * Set comparator to use for sorting the key map.
-         * Note that this does not automatically sort the list collection, call a withOrderBy method for this.
-         *
-         * @param comparator            comparator to use for sorting
-         * @param sortNullsFirst   		true if null will be sorted first, false for last
-         * @return                      this (fluent interface)
-         */
-        public Builder<E,K1,K2> withKey1Sort(Comparator<? super K1> comparator, boolean sortNullsFirst) {
-        	return (Builder<E,K1,K2>) super.withKeySort(1, comparator, sortNullsFirst);
-        }
-
-        // -- Key2
-
-        /**
-         * Add key map.
-         *
-         * @param mapper	mapper to use
-         * @return			this (fluent interface)
-         */
-        public Builder<E,K1,K2> withKey2Map(Function<? super E,K2> mapper) {
-        	return (Builder<E,K1,K2>) super.withKeyMap(2, mapper);
-        }
-
-        /**
-         * Specify this key to be a primary key.
-         * This is identical to calling
-         * withKey2Map(mapper), withKey2Null(false), and withKey2Duplicates(false).
-         *
-         * @param mapper	mapper to use
-         * @return			this (fluent interface)
-         */
-        public Builder<E,K1,K2> withPrimaryKey2Map(Function<? super E,K2> mapper) {
-        	return (Builder<E,K1,K2>) super.withPrimaryKeyMap(2, mapper);
-        }
+	/**
+	 * Builder to construct Key2Collection instances.
+	 */
+	public static class Builder<E, K1, K2> extends BuilderImpl<E> {
+		/**
+		 * Default constructor.
+		 */
+		public Builder() {
+			this(null);
+		}
 
 		/**
-         * Specify this key to be a unique key.
-         * This is identical to calling
-         * withKey2Map(mapper), withKey2Null(true), and withKey2Duplicates(false, true).
-         *
-         * @param mapper	mapper to use
-         * @return			this (fluent interface)
-         */
-        public Builder<E,K1,K2> withUniqueKey2Map(Function<? super E,K2> mapper) {
-        	return (Builder<E,K1,K2>) super.withUniqueKeyMap(2, mapper);
-        }
+		 * Private constructor used if extending Key2Collection.
+		 *
+		 * @param keyColl	key collection
+		 */
+		Builder(Key2Collection<E, K1, K2> keyColl) {
+			this.keyColl = keyColl;
+			initKeyMapBuilder(2);
+		}
 
-        @Override
-        public Builder<E,K1,K2> withOrderByKey2(boolean orderBy) {
-        	return (Builder<E,K1,K2>) super.withOrderByKey2(orderBy);
-        }
+		// -- Constraint
 
-        @Override
-        public Builder<E,K1,K2> withKey2Null(boolean allowNull) {
-        	return (Builder<E,K1,K2>) super.withKey2Null(allowNull);
-        }
+		@Override
+		public Builder<E, K1, K2> withNull(boolean allowNull) {
+			return (Builder<E, K1, K2>) super.withNull(allowNull);
+		}
 
-        @Override
-        public Builder<E,K1,K2> withKey2Duplicates(boolean allowDuplicates) {
-        	return (Builder<E,K1,K2>) super.withKey2Duplicates(allowDuplicates);
-        }
+		@Override
+		public Builder<E, K1, K2> withConstraint(Predicate<E> constraint) {
+			return (Builder<E, K1, K2>) super.withConstraint(constraint);
+		}
 
-        @Override
-        public Builder<E,K1,K2> withKey2Duplicates(boolean allowDuplicates, boolean allowDuplicatesNull) {
-        	return (Builder<E,K1,K2>) super.withKey2Duplicates(allowDuplicates, allowDuplicatesNull);
-        }
+		// -- Triggers
 
-        @Override
-        public Builder<E,K1,K2> withKey2Sort(boolean sort) {
-        	return (Builder<E,K1,K2>) super.withKey2Sort(sort);
-        }
+		@Override
+		public Builder<E, K1, K2> withBeforeInsertTrigger(Consumer<E> trigger) {
+			return (Builder<E, K1, K2>) super.withBeforeInsertTrigger(trigger);
+		}
 
-        /**
-         * Set comparator to use for sorting the key map.
-         * Note that this does not automatically sort the collection itself, call a withOrderBy method for this.
-         *
-         * @param comparator    comparator to use for sorting
-         * @return              this (fluent interface)
-         */
-        public Builder<E,K1,K2> withKey2Sort(Comparator<? super K2> comparator) {
-        	return (Builder<E,K1,K2>) super.withKeySort(2, comparator);
-        }
+		@Override
+		public Builder<E, K1, K2> withAfterInsertTrigger(Consumer<E> trigger) {
+			return (Builder<E, K1, K2>) super.withAfterInsertTrigger(trigger);
+		}
 
-        /**
-         * Set comparator to use for sorting the key map.
-         * Note that this does not automatically sort the collection itself, call a withOrderBy method for this.
-         *
-         * @param comparator            comparator to use for sorting
-         * @param sortNullsFirst   		true if null will be sorted first, false for last
-         * @return                      this (fluent interface)
-         */
-        public Builder<E,K1,K2> withKey2Sort(Comparator<? super K2> comparator, boolean sortNullsFirst) {
-        	return (Builder<E,K1,K2>) super.withKeySort(2, comparator, sortNullsFirst);
-        }
+		@Override
+		public Builder<E, K1, K2> withBeforeDeleteTrigger(Consumer<E> trigger) {
+			return (Builder<E, K1, K2>) super.withBeforeDeleteTrigger(trigger);
+		}
 
-        /**
-         * @return created collection
-         */
-        @SuppressWarnings("unchecked")
-		public Key2Collection<E,K1,K2> build() {
-        	if (keyColl == null) {
-               	keyColl = new Key2Collection<E,K1,K2>();
-        	}
-        	build(keyColl, false);
-        	init(keyColl);
-        	return (Key2Collection<E,K1,K2>) keyColl;
-        }
-    }
+		@Override
+		public Builder<E, K1, K2> withAfterDeleteTrigger(Consumer<E> trigger) {
+			return (Builder<E, K1, K2>) super.withAfterDeleteTrigger(trigger);
+		}
 
-    /**
-     * Protected constructor used by builder or derived collections.
-     */
-    protected Key2Collection() {
-    }
+		//-- Content
 
-    /**
-     * @return builder to use in extending classes
-     */
-    protected Builder<E,K1,K2> getBuilder() {
-    	return new Builder<E,K1,K2>(this);
-    }
+		@Override
+		public Builder<E, K1, K2> withCapacity(int capacity) {
+			return (Builder<E, K1, K2>) super.withCapacity(capacity);
+		}
 
-    @Override
-    public Key2Collection<E,K1,K2> copy() {
-        return (Key2Collection<E,K1,K2>) super.copy();
-    }
+		@Override
+		public Builder<E, K1, K2> withContent(Collection<? extends E> elements) {
+			return (Builder<E, K1, K2>) super.withContent(elements);
+		}
 
-    @Override
-    public Key2Collection<E,K1,K2> crop() {
-        return (Key2Collection<E,K1,K2>) super.crop();
-    }
+		@Override
+		public Builder<E, K1, K2> withContent(E... elements) {
+			return (Builder<E, K1, K2>) super.withContent(elements);
+		}
 
-    //-- Element methods
+		@Override
+		public Builder<E, K1, K2> withMaxSize(int maxSize) {
+			return (Builder<E, K1, K2>) super.withMaxSize(maxSize);
+		}
 
-    @Override
+		//-- Element key
+
+		@Override
+		public Builder<E, K1, K2> withElemSet() {
+			return (Builder<E, K1, K2>) super.withElemSet();
+		}
+
+		@Override
+		public Builder<E, K1, K2> withOrderByElem(boolean orderBy) {
+			return (Builder<E, K1, K2>) super.withOrderByElem(orderBy);
+		}
+
+		@Override
+		public Builder<E, K1, K2> withElemNull(boolean allowNull) {
+			return (Builder<E, K1, K2>) super.withElemNull(allowNull);
+		}
+
+		@Override
+		public Builder<E, K1, K2> withElemDuplicates(boolean allowDuplicates) {
+			return (Builder<E, K1, K2>) super.withElemDuplicates(allowDuplicates);
+		}
+
+		@Override
+		public Builder<E, K1, K2> withElemDuplicates(boolean allowDuplicates, boolean allowDuplicatesNull) {
+			return (Builder<E, K1, K2>) super.withElemDuplicates(allowDuplicates, allowDuplicatesNull);
+		}
+
+		@Override
+		public Builder<E, K1, K2> withElemSort(boolean sort) {
+			return (Builder<E, K1, K2>) super.withElemSort(sort);
+		}
+
+		@Override
+		public Builder<E, K1, K2> withElemSort(Comparator<? super E> comparator) {
+			return (Builder<E, K1, K2>) super.withElemSort(comparator);
+		}
+
+		@Override
+		public Builder<E, K1, K2> withElemSort(Comparator<? super E> comparator, boolean sortNullsFirst) {
+			return (Builder<E, K1, K2>) super.withElemSort(comparator, sortNullsFirst);
+		}
+
+		@Override
+		public Builder<E, K1, K2> withPrimaryElem() {
+			return (Builder<E, K1, K2>) super.withPrimaryElem();
+		}
+
+		@Override
+		public Builder<E, K1, K2> withUniqueElem() {
+			return (Builder<E, K1, K2>) super.withUniqueElem();
+		}
+
+		// -- Key1
+
+		/**
+		 * Add key map.
+		 *
+		 * @param mapper	mapper to use
+		 * @return			this (fluent interface)
+		 */
+		public Builder<E, K1, K2> withKey1Map(Function<? super E, K1> mapper) {
+			return (Builder<E, K1, K2>) super.withKeyMap(1, mapper);
+		}
+
+		/**
+		 * Specify this key to be a primary key.
+		 * This is identical to calling
+		 * withKey1Map(mapper), withKey1Null(false), and withKey1Duplicates(false).
+		 *
+		 * @param mapper	mapper to use
+		 * @return			this (fluent interface)
+		 */
+		public Builder<E, K1, K2> withPrimaryKey1Map(Function<? super E, K1> mapper) {
+			return (Builder<E, K1, K2>) super.withPrimaryKeyMap(1, mapper);
+		}
+
+		/**
+		 * Specify this key to be a unique key.
+		 * This is identical to calling
+		 * withKey1Map(mapper), withKey1Null(true), and withKey1Duplicates(false, true).
+		 *
+		 * @param mapper	mapper to use
+		 * @return			this (fluent interface)
+		 */
+		public Builder<E, K1, K2> withUniqueKey1Map(Function<? super E, K1> mapper) {
+			return (Builder<E, K1, K2>) super.withUniqueKeyMap(1, mapper);
+		}
+
+		@Override
+		public Builder<E, K1, K2> withOrderByKey1(boolean orderBy) {
+			return (Builder<E, K1, K2>) super.withOrderByKey1(orderBy);
+		}
+
+		@Override
+		public Builder<E, K1, K2> withKey1Null(boolean allowNull) {
+			return (Builder<E, K1, K2>) super.withKey1Null(allowNull);
+		}
+
+		@Override
+		public Builder<E, K1, K2> withKey1Duplicates(boolean allowDuplicates) {
+			return (Builder<E, K1, K2>) super.withKey1Duplicates(allowDuplicates);
+		}
+
+		@Override
+		public Builder<E, K1, K2> withKey1Duplicates(boolean allowDuplicates, boolean allowDuplicatesNull) {
+			return (Builder<E, K1, K2>) super.withKey1Duplicates(allowDuplicates, allowDuplicatesNull);
+		}
+
+		@Override
+		public Builder<E, K1, K2> withKey1Sort(boolean sort) {
+			return (Builder<E, K1, K2>) super.withKey1Sort(sort);
+		}
+
+		/**
+		 * Set comparator to use for sorting the key map.
+		 * Note that this does not automatically sort the list collection, call a withOrderBy method for this.
+		 *
+		 * @param comparator    comparator to use for sorting
+		 * @return              this (fluent interface)
+		 */
+		public Builder<E, K1, K2> withKey1Sort(Comparator<? super K1> comparator) {
+			return (Builder<E, K1, K2>) super.withKeySort(1, comparator);
+		}
+
+		/**
+		 * Set comparator to use for sorting the key map.
+		 * Note that this does not automatically sort the list collection, call a withOrderBy method for this.
+		 *
+		 * @param comparator            comparator to use for sorting
+		 * @param sortNullsFirst   		true if null will be sorted first, false for last
+		 * @return                      this (fluent interface)
+		 */
+		public Builder<E, K1, K2> withKey1Sort(Comparator<? super K1> comparator, boolean sortNullsFirst) {
+			return (Builder<E, K1, K2>) super.withKeySort(1, comparator, sortNullsFirst);
+		}
+
+		// -- Key2
+
+		/**
+		 * Add key map.
+		 *
+		 * @param mapper	mapper to use
+		 * @return			this (fluent interface)
+		 */
+		public Builder<E, K1, K2> withKey2Map(Function<? super E, K2> mapper) {
+			return (Builder<E, K1, K2>) super.withKeyMap(2, mapper);
+		}
+
+		/**
+		 * Specify this key to be a primary key.
+		 * This is identical to calling
+		 * withKey2Map(mapper), withKey2Null(false), and withKey2Duplicates(false).
+		 *
+		 * @param mapper	mapper to use
+		 * @return			this (fluent interface)
+		 */
+		public Builder<E, K1, K2> withPrimaryKey2Map(Function<? super E, K2> mapper) {
+			return (Builder<E, K1, K2>) super.withPrimaryKeyMap(2, mapper);
+		}
+
+		/**
+		 * Specify this key to be a unique key.
+		 * This is identical to calling
+		 * withKey2Map(mapper), withKey2Null(true), and withKey2Duplicates(false, true).
+		 *
+		 * @param mapper	mapper to use
+		 * @return			this (fluent interface)
+		 */
+		public Builder<E, K1, K2> withUniqueKey2Map(Function<? super E, K2> mapper) {
+			return (Builder<E, K1, K2>) super.withUniqueKeyMap(2, mapper);
+		}
+
+		@Override
+		public Builder<E, K1, K2> withOrderByKey2(boolean orderBy) {
+			return (Builder<E, K1, K2>) super.withOrderByKey2(orderBy);
+		}
+
+		@Override
+		public Builder<E, K1, K2> withKey2Null(boolean allowNull) {
+			return (Builder<E, K1, K2>) super.withKey2Null(allowNull);
+		}
+
+		@Override
+		public Builder<E, K1, K2> withKey2Duplicates(boolean allowDuplicates) {
+			return (Builder<E, K1, K2>) super.withKey2Duplicates(allowDuplicates);
+		}
+
+		@Override
+		public Builder<E, K1, K2> withKey2Duplicates(boolean allowDuplicates, boolean allowDuplicatesNull) {
+			return (Builder<E, K1, K2>) super.withKey2Duplicates(allowDuplicates, allowDuplicatesNull);
+		}
+
+		@Override
+		public Builder<E, K1, K2> withKey2Sort(boolean sort) {
+			return (Builder<E, K1, K2>) super.withKey2Sort(sort);
+		}
+
+		/**
+		 * Set comparator to use for sorting the key map.
+		 * Note that this does not automatically sort the collection itself, call a withOrderBy method for this.
+		 *
+		 * @param comparator    comparator to use for sorting
+		 * @return              this (fluent interface)
+		 */
+		public Builder<E, K1, K2> withKey2Sort(Comparator<? super K2> comparator) {
+			return (Builder<E, K1, K2>) super.withKeySort(2, comparator);
+		}
+
+		/**
+		 * Set comparator to use for sorting the key map.
+		 * Note that this does not automatically sort the collection itself, call a withOrderBy method for this.
+		 *
+		 * @param comparator            comparator to use for sorting
+		 * @param sortNullsFirst   		true if null will be sorted first, false for last
+		 * @return                      this (fluent interface)
+		 */
+		public Builder<E, K1, K2> withKey2Sort(Comparator<? super K2> comparator, boolean sortNullsFirst) {
+			return (Builder<E, K1, K2>) super.withKeySort(2, comparator, sortNullsFirst);
+		}
+
+		/**
+		 * @return created collection
+		 */
+		@SuppressWarnings("unchecked")
+		public Key2Collection<E, K1, K2> build() {
+			if (keyColl == null) {
+				keyColl = new Key2Collection<E, K1, K2>();
+			}
+			build(keyColl, false);
+			init(keyColl);
+			return (Key2Collection<E, K1, K2>) keyColl;
+		}
+	}
+
+	/**
+	 * Protected constructor used by builder or derived collections.
+	 */
+	protected Key2Collection() {
+	}
+
+	/**
+	 * @return builder to use in extending classes
+	 */
+	protected Builder<E, K1, K2> getBuilder() {
+		return new Builder<E, K1, K2>(this);
+	}
+
+	@Override
+	public Key2Collection<E, K1, K2> copy() {
+		return (Key2Collection<E, K1, K2>) super.copy();
+	}
+
+	@Override
+	public Key2Collection<E, K1, K2> crop() {
+		return (Key2Collection<E, K1, K2>) super.crop();
+	}
+
+	//-- Element methods
+
+	@Override
 	public GapList<E> getAll(E elem) {
 		return super.getAll(elem);
 	}
 
-    @Override
+	@Override
 	public int getCount(E elem) {
 		return super.getCount(elem);
 	}
@@ -408,28 +408,28 @@ public class Key2Collection<E,K1,K2> extends KeyCollectionImpl<E> {
 		super.invalidate(elem);
 	}
 
-    //-- Key1 methods
+	//-- Key1 methods
 
-    /**
-     * Returns mapper for key map.
-     *
-     * @return      	mapper for key map
-     */
-	public Function<E,K1> getKey1Mapper() {
-		return (Function<E,K1>) super.getKeyMapper(1);
+	/**
+	 * Returns mapper for key map.
+	 *
+	 * @return      	mapper for key map
+	 */
+	public Function<E, K1> getKey1Mapper() {
+		return (Function<E, K1>) super.getKeyMapper(1);
 	}
 
-    /**
-     * Returns a map view to the key map.
-     * The collection can be modified through the map as long as the constraint are not violated.
-     * The collections returned by the methods entrySet(), keySet(), and values() are immutable however.
-     *
-     * @return map view to key map
-     * @throws IllegalArgumentException if the key map cannot be viewed as Map
-     */
-    public Map<K1,E> asMap1() {
-    	return new KeyCollectionAsMap<K1,E>(this, 1, false);
-    }
+	/**
+	 * Returns a map view to the key map.
+	 * The collection can be modified through the map as long as the constraint are not violated.
+	 * The collections returned by the methods entrySet(), keySet(), and values() are immutable however.
+	 *
+	 * @return map view to key map
+	 * @throws IllegalArgumentException if the key map cannot be viewed as Map
+	 */
+	public Map<K1, E> asMap1() {
+		return new KeyCollectionAsMap<K1, E>(this, 1, false);
+	}
 
 	/**
 	 * Checks whether an element with specified key exists.
@@ -437,16 +437,16 @@ public class Key2Collection<E,K1,K2> extends KeyCollectionImpl<E> {
 	 * @param key	key
 	 * @return		true if element with specified key exists, otherwise false
 	 */
-    public boolean containsKey1(K1 key) {
-    	return super.containsKey(1, key);
-    }
+	public boolean containsKey1(K1 key) {
+		return super.containsKey(1, key);
+	}
 
 	/**
-	 * Returns all elements with specified key.
-	 * The returned list is immutable.
+	 * Returns element with specified key.
+	 * If there are several elements with the same key, the one added first will be returned.
 	 *
 	 * @param key	key
-	 * @return		all elements with specified key (never null)
+	 * @return		element with specified key or null
 	 */
 	public E getByKey1(K1 key) {
 		return super.getByKey(1, key);
@@ -493,11 +493,11 @@ public class Key2Collection<E,K1,K2> extends KeyCollectionImpl<E> {
 		return super.removeAllByKey(1, key);
 	}
 
-    /**
-     * Returns list containing all keys in element order.
-     *
-     * @return 			list containing all keys
-     */
+	/**
+	 * Returns list containing all keys in element order.
+	 *
+	 * @return 			list containing all keys
+	 */
 	@SuppressWarnings("unchecked")
 	public GapList<K1> getAllKeys1() {
 		return (GapList<K1>) super.getAllKeys(1);
@@ -531,44 +531,44 @@ public class Key2Collection<E,K1,K2> extends KeyCollectionImpl<E> {
 	 * @param elem		element
 	 * @return			element which has been replaced or null otherwise
 	 */
-    public E putByKey1(E elem) {
+	public E putByKey1(E elem) {
 		return super.putByKey(1, elem);
 	}
 
-    /**
-     * Invalidate key value of element.
-     * You must call an invalidate method if an element's key value has changed after adding it to the collection.
-     *
-     * @param oldKey	old key value
-     * @param newKey	new key value
-     * @param elem		element to invalidate (can be null if there are no duplicates with this key)
-     */
-    public void invalidateKey1(K1 oldKey, K1 newKey, E elem) {
-    	super.invalidateKey(1, oldKey, newKey, elem);
-    }
-
-    //-- Key2 methods
-
-    /**
-     * Returns mapper for key map.
-     *
-     * @return      	mapper for key map
-     */
-	public Function<E,K2> getKey2Mapper() {
-		return (Function<E,K2>) super.getKeyMapper(2);
+	/**
+	 * Invalidate key value of element.
+	 * You must call an invalidate method if an element's key value has changed after adding it to the collection.
+	 *
+	 * @param oldKey	old key value
+	 * @param newKey	new key value
+	 * @param elem		element to invalidate (can be null if there are no duplicates with this key)
+	 */
+	public void invalidateKey1(K1 oldKey, K1 newKey, E elem) {
+		super.invalidateKey(1, oldKey, newKey, elem);
 	}
 
-    /**
-     * Returns a map view to the key map.
-     * The collection can be modified through the map as long as the constraint are not violated.
-     * The collections returned by the methods entrySet(), keySet(), and values() are immutable however.
-     *
-     * @return map view to key map
-     * @throws IllegalArgumentException if the key map cannot be viewed as Map
-     */
-    public Map<K2,E> asMap2() {
-    	return new KeyCollectionAsMap<K2,E>(this, 2, false);
-    }
+	//-- Key2 methods
+
+	/**
+	 * Returns mapper for key map.
+	 *
+	 * @return      	mapper for key map
+	 */
+	public Function<E, K2> getKey2Mapper() {
+		return (Function<E, K2>) super.getKeyMapper(2);
+	}
+
+	/**
+	 * Returns a map view to the key map.
+	 * The collection can be modified through the map as long as the constraint are not violated.
+	 * The collections returned by the methods entrySet(), keySet(), and values() are immutable however.
+	 *
+	 * @return map view to key map
+	 * @throws IllegalArgumentException if the key map cannot be viewed as Map
+	 */
+	public Map<K2, E> asMap2() {
+		return new KeyCollectionAsMap<K2, E>(this, 2, false);
+	}
 
 	/**
 	 * Checks whether an element with specified key exists.
@@ -576,9 +576,9 @@ public class Key2Collection<E,K1,K2> extends KeyCollectionImpl<E> {
 	 * @param key	key
 	 * @return		true if element with specified key exists, otherwise false
 	 */
-    public boolean containsKey2(K2 key) {
-    	return super.containsKey(2, key);
-    }
+	public boolean containsKey2(K2 key) {
+		return super.containsKey(2, key);
+	}
 
 	/**
 	 * Returns element with specified key.
@@ -632,11 +632,11 @@ public class Key2Collection<E,K1,K2> extends KeyCollectionImpl<E> {
 		return super.removeAllByKey(2, key);
 	}
 
-    /**
-     * Returns list containing all keys in element order.
-     *
-     * @return 			list containing all keys
-     */
+	/**
+	 * Returns list containing all keys in element order.
+	 *
+	 * @return 			list containing all keys
+	 */
 	@SuppressWarnings("unchecked")
 	public GapList<K2> getAllKeys2() {
 		return (GapList<K2>) super.getAllKeys(2);
@@ -670,20 +670,20 @@ public class Key2Collection<E,K1,K2> extends KeyCollectionImpl<E> {
 	 * @param elem		element
 	 * @return			element which has been replaced or null otherwise
 	 */
-    public E putByKey2(E elem) {
+	public E putByKey2(E elem) {
 		return super.putByKey(2, elem);
 	}
 
-    /**
-     * Invalidate key value of element.
-     * You must call an invalidate method if an element's key value has changed after adding it to the collection.
-     *
-     * @param oldKey	old key value
-     * @param newKey	new key value
-     * @param elem		element to invalidate (can be null if there are no duplicates with this key)
-     */
-    public void invalidateKey2(K2 oldKey, K2 newKey, E elem) {
-    	super.invalidateKey(2, oldKey, newKey, elem);
-    }
+	/**
+	 * Invalidate key value of element.
+	 * You must call an invalidate method if an element's key value has changed after adding it to the collection.
+	 *
+	 * @param oldKey	old key value
+	 * @param newKey	new key value
+	 * @param elem		element to invalidate (can be null if there are no duplicates with this key)
+	 */
+	public void invalidateKey2(K2 oldKey, K2 newKey, E elem) {
+		super.invalidateKey(2, oldKey, newKey, elem);
+	}
 
 }
