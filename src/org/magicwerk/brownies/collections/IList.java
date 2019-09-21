@@ -50,8 +50,7 @@ import java.util.function.UnaryOperator;
 @SuppressWarnings("serial")
 public abstract class IList<E>
 		// AbstractList provides method subList()
-		extends AbstractList<E>
-		implements
+		extends AbstractList<E> implements
 		// All interfaces of ArrayList
 		List<E>, RandomAccess, Cloneable, Serializable,
 		// Additional interfaces of LinkedList and ArrayDeque
@@ -566,14 +565,35 @@ public abstract class IList<E>
 	public <R> IList<R> mappedList(Function<E, R> mapper) {
 		int size = size();
 		@SuppressWarnings("unchecked")
-		IList<R> mappedList = (IList<R>) doCreate(size);
+		IList<R> list = (IList<R>) doCreate(size);
 		for (int i = 0; i < size; i++) {
 			E e = doGet(i);
-			mappedList.add(mapper.apply(e));
+			list.add(mapper.apply(e));
 		}
-		return mappedList;
+		return list;
 	}
 
+	/**
+	 * Create a new list by applying the specified mapper to all elements.
+	 *
+	 * @param mapper	mapper operator
+	 * @return			created list
+	 */
+	public IList<E> mappedList(UnaryOperator<E> operator) {
+		int size = size();
+		IList<E> list = doCreate(size);
+		for (int i = 0; i < size; i++) {
+			E e = doGet(i);
+			list.add(operator.apply(e));
+		}
+		return list;
+	}
+
+	/**
+	 * Change the list by applying the specified operator to all elements.
+	 *
+	 * @param operator	operator
+	 */
 	public void map(UnaryOperator<E> operator) {
 		int size = size();
 		for (int i = 0; i < size; i++) {
@@ -1998,8 +2018,7 @@ public abstract class IList<E>
 	public void swap(int index1, int index2, int len) {
 		checkRange(index1, len);
 		checkRange(index2, len);
-		if ((index1 < index2 && index1 + len > index2) ||
-				index1 > index2 && index2 + len > index1) {
+		if ((index1 < index2 && index1 + len > index2) || index1 > index2 && index2 + len > index1) {
 			throw new IndexOutOfBoundsException("Swap ranges overlap");
 		}
 

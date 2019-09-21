@@ -1059,6 +1059,10 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 		}
 
 		boolean containsValue(Object key, Object value) {
+			if (keysMap == null) {
+				return keysList.contains(value);
+			}
+
 			assert (count == false);
 			Object obj = keysMap.get(key);
 			if (obj == null && value == null) {
@@ -1079,6 +1083,10 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 		}
 
 		boolean containsValue(Object value) {
+			if (keysMap == null) {
+				return keysList.contains(value);
+			}
+
 			assert (count == false);
 			for (Object obj : keysMap.values()) {
 				if (obj instanceof KeyMapList) {
