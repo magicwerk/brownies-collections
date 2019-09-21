@@ -29,37 +29,37 @@ import java.util.Set;
  * @version $Id$
  */
 public class CollectionAsSet<K> implements Set<K> {
-    Collection<K> coll;
-    boolean immutable;
+	Collection<K> coll;
+	boolean immutable;
 
-    public CollectionAsSet(Collection<K> coll, boolean immutable) {
-    	if (coll == null) {
-    		throw new IllegalArgumentException("Collection may not be null");
-    	}
-        this.coll = coll;
-        this.immutable = immutable;
-    }
+	public CollectionAsSet(Collection<K> coll, boolean immutable) {
+		if (coll == null) {
+			throw new IllegalArgumentException("Collection may not be null");
+		}
+		this.coll = coll;
+		this.immutable = immutable;
+	}
 
-    @Override
-    public boolean equals(Object obj) {
-    	// as in AbstractSet.java:
-    	if (!(obj instanceof Set)) {
-    	    return false;
-    	}
-    	return coll.equals(obj);
-    }
+	@Override
+	public boolean equals(Object obj) {
+		// as in AbstractSet.java:
+		if (!(obj instanceof Set)) {
+			return false;
+		}
+		return coll.equals(obj);
+	}
 
-    @Override
-    public int hashCode() {
-    	return coll.hashCode();
-    }
+	@Override
+	public int hashCode() {
+		return coll.hashCode();
+	}
 
-    @Override
-    public String toString() {
-    	return coll.toString();
-    }
+	@Override
+	public String toString() {
+		return coll.toString();
+	}
 
-    // Set: read methods
+	// Set: read methods
 
 	@Override
 	public int size() {
@@ -104,22 +104,30 @@ public class CollectionAsSet<K> implements Set<K> {
 
 	// Set: write methods
 
-    void checkMutable() {
-    	if (immutable) {
-    		throw new UnsupportedOperationException("Set is immutable");
-    	}
-    }
+	void checkMutable() {
+		if (immutable) {
+			throw new UnsupportedOperationException("Set is immutable");
+		}
+	}
 
 	@Override
 	public boolean add(K e) {
 		checkMutable();
-		return coll.add(e);
+		try {
+			return coll.add(e);
+		} catch (Exception ex) {
+			return false;
+		}
 	}
 
 	@Override
 	public boolean addAll(Collection<? extends K> c) {
 		checkMutable();
-		return coll.addAll(c);
+		boolean changed = false;
+		for (K e : c) {
+			changed = add(e) || changed;
+		}
+		return changed;
 	}
 
 	@Override

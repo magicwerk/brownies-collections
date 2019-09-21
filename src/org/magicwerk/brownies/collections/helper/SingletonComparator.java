@@ -17,6 +17,7 @@
  */
 package org.magicwerk.brownies.collections.helper;
 
+import java.io.Serializable;
 import java.util.Comparator;
 
 /**
@@ -25,7 +26,7 @@ import java.util.Comparator;
  * @author Thomas Mauch
  * @version $Id$
  */
-abstract class SingletonComparator<T> implements Comparator<T> {
+abstract class SingletonComparator<T> implements Comparator<T>, Serializable {
 
 	@Override
 	public boolean equals(Object that) {
@@ -39,6 +40,5 @@ abstract class SingletonComparator<T> implements Comparator<T> {
 	public int hashCode() {
 		return getClass().getName().hashCode();
 	}
-
 
 }
