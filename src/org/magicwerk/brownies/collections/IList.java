@@ -557,34 +557,34 @@ public abstract class IList<E>
 	}
 
 	/**
-	 * Create a new list by applying the specified mapper to all elements.
+	 * Create a new list by applying the specified mapping function to all elements.
 	 *
-	 * @param mapper	mapper function
-	 * @return			created list
+	 * @param func	mapping function
+	 * @return		created list
 	 */
-	public <R> IList<R> mappedList(Function<E, R> mapper) {
+	public <R> IList<R> mappedList(Function<E, R> func) {
 		int size = size();
 		@SuppressWarnings("unchecked")
 		IList<R> list = (IList<R>) doCreate(size);
 		for (int i = 0; i < size; i++) {
 			E e = doGet(i);
-			list.add(mapper.apply(e));
+			list.add(func.apply(e));
 		}
 		return list;
 	}
 
 	/**
-	 * Create a new list by applying the specified mapper to all elements.
+	 * Create a new list by applying the specified transforming operator to all elements.
 	 *
-	 * @param mapper	mapper operator
-	 * @return			created list
+	 * @param op	transforming operator
+	 * @return		created list
 	 */
-	public IList<E> mappedList(UnaryOperator<E> operator) {
+	public IList<E> transformedList(UnaryOperator<E> op) {
 		int size = size();
 		IList<E> list = doCreate(size);
 		for (int i = 0; i < size; i++) {
 			E e = doGet(i);
-			list.add(operator.apply(e));
+			list.add(op.apply(e));
 		}
 		return list;
 	}
@@ -592,13 +592,13 @@ public abstract class IList<E>
 	/**
 	 * Change the list by applying the specified operator to all elements.
 	 *
-	 * @param operator	operator
+	 * @param op	transforming operator
 	 */
-	public void map(UnaryOperator<E> operator) {
+	public void transform(UnaryOperator<E> op) {
 		int size = size();
 		for (int i = 0; i < size; i++) {
 			E e = doGet(i);
-			e = operator.apply(e);
+			e = op.apply(e);
 			doSet(i, e);
 		}
 	}
@@ -736,9 +736,10 @@ public abstract class IList<E>
 	}
 
 	/**
-	 * 
-	 * @param predicate
-	 * @return
+	 * Determines whether the list contains a matching element.
+	 *
+	 * @param predicate		predicate used to search element
+	 * @return				true if the list contains a matching element, false otherwise
 	 */
 	public boolean containsIf(Predicate<? super E> predicate) {
 		return indexOfIf(predicate) != -1;
@@ -987,7 +988,7 @@ public abstract class IList<E>
 	 *
 	 * @param index index where element should be added
 	 *              (-1 is valid for adding at the end)
-	 * @param array array with elements to add
+	 * @param list	list with elements to add
 	 * @return      true if elements have been added, false otherwise
 	 */
 	protected boolean doAddAll(int index, IList<? extends E> list) {
@@ -1630,9 +1631,9 @@ public abstract class IList<E>
 	/**
 	 * Sets the specified elements.
 	 *
-	 * @param index 	index of first element to set
-	 * @param elemes	array with elements to set
-	 * @throws 			IndexOutOfBoundsException if the range is invalid
+	 * @param index index of first element to set
+	 * @param elems	array with elements to set
+	 * @throws 		IndexOutOfBoundsException if the range is invalid
 	 */
 	public void setArray(int index, E... elems) {
 		int arrayLen = elems.length;

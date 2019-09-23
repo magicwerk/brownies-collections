@@ -969,9 +969,6 @@ protected boolean doAddAll(int index, IByteList list) {
                 // Elements must be added to first block   
                 int add = should - has;
                 IByteList sublist = list2.getAll(0, add);
-                if (sublist.size() != add) {
-                    IByteList sublist2 = list2.getAll(0, add);
-                }
                 listPos += add;
                 currNode.block.addAll(addPos, sublist);
                 modify(currNode, add);

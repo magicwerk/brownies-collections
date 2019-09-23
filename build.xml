@@ -5,15 +5,13 @@
               directory with the processing instruction <?eclipse.ant.import?>
               as the first entry and export the buildfile again. --><project basedir="." default="build" name="Brownies-Collections">
     <property environment="env"/>
-    <property name="AppSvnExplorer.location" value="../../../Local-Magicwerk/AppSvnExplorer"/>
     <property name="Brownies-Collections-Test.location" value="../Brownies-Collections-Test"/>
     <property name="Brownies-Core.location" value="../Brownies-Core"/>
     <property name="Brownies-Swt.location" value="../Brownies-Swt"/>
-    <property name="EvalSwtStyledText.location" value="../../../Local-Magicwerk/EvalSwtStyledText"/>
-    <property name="ECLIPSE_HOME" value="../../../../Eclipse/Eclipse-JEE-4.4.0-x64/"/>
+    <property name="ECLIPSE_HOME" value="../../../../Eclipse/Eclipse-JEE-4.8.0/"/>
     <property name="debuglevel" value="source,lines,vars"/>
-    <property name="target" value="1.6"/>
-    <property name="source" value="1.6"/>
+    <property name="target" value="1.8"/>
+    <property name="source" value="1.8"/>
     <path id="Brownies-Collections.classpath">
         <pathelement location="bin"/>
     </path>
@@ -21,7 +19,6 @@
         <mkdir dir="bin"/>
         <copy includeemptydirs="false" todir="bin">
             <fileset dir="src">
-                <exclude name="**/*.launch"/>
                 <exclude name="**/*.java"/>
             </fileset>
         </copy>
@@ -40,12 +37,6 @@
         </javac>
     </target>
     <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects">
-        <ant antfile="build.xml" dir="${AppSvnExplorer.location}" inheritAll="false" target="clean"/>
-        <ant antfile="build.xml" dir="${AppSvnExplorer.location}" inheritAll="false" target="build">
-            <propertyset>
-                <propertyref name="build.compiler"/>
-            </propertyset>
-        </ant>
         <ant antfile="build.xml" dir="${Brownies-Collections-Test.location}" inheritAll="false" target="clean"/>
         <ant antfile="build.xml" dir="${Brownies-Collections-Test.location}" inheritAll="false" target="build">
             <propertyset>
@@ -60,12 +51,6 @@
         </ant>
         <ant antfile="build.xml" dir="${Brownies-Swt.location}" inheritAll="false" target="clean"/>
         <ant antfile="build.xml" dir="${Brownies-Swt.location}" inheritAll="false" target="build">
-            <propertyset>
-                <propertyref name="build.compiler"/>
-            </propertyset>
-        </ant>
-        <ant antfile="build.xml" dir="${EvalSwtStyledText.location}" inheritAll="false" target="clean"/>
-        <ant antfile="build.xml" dir="${EvalSwtStyledText.location}" inheritAll="false" target="build">
             <propertyset>
                 <propertyref name="build.compiler"/>
             </propertyset>
