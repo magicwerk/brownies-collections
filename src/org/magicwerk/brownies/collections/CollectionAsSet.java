@@ -24,6 +24,7 @@ import java.util.Set;
 
 /**
  * Implements a Set based on a Collection.
+ * It supports both mutable and immutable sets.
  *
  * @author Thomas Mauch
  * @version $Id$
