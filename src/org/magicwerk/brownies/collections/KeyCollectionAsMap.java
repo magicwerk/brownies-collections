@@ -32,8 +32,10 @@ import java.util.Set;
  * @version $Id$
  */
 @SuppressWarnings("serial")
-public class KeyCollectionAsMap<K,E> implements Map<K,E>, Serializable {
+public class KeyCollectionAsMap<K, E> implements Map<K, E>, Serializable {
+	/** Reference to KeyCollectionImpl containing data (exactly one of the fields coll and list is set) */
 	KeyCollectionImpl<E> coll;
+	/** Reference to KeyListImpl containing data (exactly one of the fields coll and list is set) */
 	KeyListImpl<E> list;
 	int keyIndex;
 	boolean immutable;
