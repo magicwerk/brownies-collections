@@ -1,84 +1,26 @@
 <project>
 	<modelVersion>4.0.0</modelVersion>
+    <parent>
+		<groupId>org.magicwerk.brownies</groupId>
+		<artifactId>pom-base</artifactId>
+		<version>1.0-SNAPSHOT</version>
+        <relativePath>../Brownies-Dev/pom-base.xml</relativePath>
+    </parent>
+
 	<groupId>org.magicwerk</groupId>
 	<artifactId>brownies-collections</artifactId>
-	<packaging>jar</packaging>
-	<name>Brownies Collections</name>
 	<version>1.0-SNAPSHOT</version>
+	<packaging>jar</packaging>
+
+	<name>Brownies Collections</name>
 	<description>Brownies Collections provides GapList which combines the
 		strengths of both ArrayList and LinkedList. It also features powerful
 		List implementations for all primitive data types.</description>
-	<url>http://www.magicwerk.org/collections</url>
-	<licenses>
-		<license>
-			<name>The Apache Software License, Version 2.0</name>
-			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-			<distribution>repo</distribution>
-		</license>
-	</licenses>
+	<url>http://www.magicwerk.org/collections</url>	
 	<scm>
 		<url>http://www.magicwerk.org/res/collections/download/brownies-collections-0.9.3-sources.jar
 		</url>
 		<connection>http://www.magicwerk.org/page-collections-download.html
 		</connection>
-	</scm>
-	<developers>
-		<developer>
-			<name>Thomas Mauch</name>
-			<email>magicwerk@gmail.com</email>
-		</developer>
-	</developers>
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-	</properties>
-	<build>
-		<sourceDirectory>src</sourceDirectory>
-		<testSourceDirectory>test</testSourceDirectory>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.8.0</version>
-				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
-				<version>3.0.1</version>
-				<executions>
-					<execution>
-						<id>attach-sources</id>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>3.0.1</version>
-				<configuration>
-         			<doclint>none</doclint>
-      			</configuration>
-      			<executions>
-					<execution>
-						<id>attach-javadocs</id>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-	      	<plugin>
-        		<groupId>org.sonarsource.scanner.maven</groupId>
-        		<artifactId>sonar-maven-plugin</artifactId>
-        		<version>3.6.0.1398</version>
-      		</plugin>
-		</plugins>
-	</build>
-
+	</scm>	
 </project>
