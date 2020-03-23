@@ -114,11 +114,10 @@ public class CollectionAsSet<K> implements Set<K> {
 	@Override
 	public boolean add(K e) {
 		checkMutable();
-		try {
-			return coll.add(e);
-		} catch (Exception ex) {
+		if (!coll.contains(e)) {
 			return false;
 		}
+		return coll.add(e);
 	}
 
 	@Override

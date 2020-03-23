@@ -18,7 +18,6 @@
 package org.magicwerk.brownies.collections;
 
 import java.io.Serializable;
-import java.util.Collection;
 
 import org.magicwerk.brownies.collections.exceptions.DuplicateKeyException;
 
@@ -31,33 +30,20 @@ import org.magicwerk.brownies.collections.exceptions.DuplicateKeyException;
 @SuppressWarnings("serial")
 public class KeyCollectionAsSet<E> extends CollectionAsSet<E> implements Serializable {
 
-    public KeyCollectionAsSet(KeyCollectionImpl<E> coll, boolean immutable) {
-    	super(coll, immutable);
+	public KeyCollectionAsSet(KeyCollectionImpl<E> coll, boolean immutable) {
+		super(coll, immutable);
 
-    	coll.checkAsSet();
-    }
+		coll.checkAsSet();
+	}
 
 	@Override
 	public boolean add(E e) {
 		checkMutable();
 		try {
 			return coll.add(e);
-		}
-		catch (DuplicateKeyException ex) {
+		} catch (DuplicateKeyException ex) {
 			return false;
 		}
-	}
-
-	@Override
-	public boolean addAll(Collection<? extends E> c) {
-		checkMutable();
-		boolean changed = false;
-		for (E e: c) {
-			if (add(e)) {
-				changed = true;
-			}
-		}
-		return changed;
 	}
 
 }

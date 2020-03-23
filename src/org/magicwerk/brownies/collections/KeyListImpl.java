@@ -486,8 +486,10 @@ public abstract class KeyListImpl<E> extends IList<E> {
 	 * @param key   	key which elements must have
 	 * @return      	list with all elements
 	 */
-	public GapList<E> getAllByKey(int keyIndex, Object key) {
-		return keyColl.getAllByKey(keyIndex, key);
+	public IList<E> getAllByKey(int keyIndex, Object key) {
+		IList<E> list = crop();
+		keyColl.getAllByKey(keyIndex, key, list);
+		return list;
 	}
 
 	/**
@@ -560,8 +562,9 @@ public abstract class KeyListImpl<E> extends IList<E> {
 	 * @param key   	key of element to remove
 	 * @return      	true if elements have been removed, false otherwise
 	 */
-	protected GapList<E> removeAllByKey(int keyIndex, Object key) {
-		GapList<E> removeds = keyColl.removeAllByKey(keyIndex, key);
+	protected IList<E> removeAllByKey(int keyIndex, Object key) {
+		IList<E> removeds = crop();
+		keyColl.removeAllByKey(keyIndex, key, removeds);
 		if (!removeds.isEmpty()) {
 			if (!keyColl.isSortedByElem()) {
 				if (!list.removeAll(removeds)) {
@@ -580,7 +583,7 @@ public abstract class KeyListImpl<E> extends IList<E> {
 	 * @param keyIndex	key index
 	 * @return 			list containing all keys
 	 */
-	protected GapList<Object> getAllKeys(int keyIndex) {
+	protected IList<Object> getAllKeys(int keyIndex) {
 		Function<E, Object> mapper = keyColl.getKeyMap(keyIndex).mapper;
 		GapList<Object> list = GapList.create();
 		for (E obj : this) {

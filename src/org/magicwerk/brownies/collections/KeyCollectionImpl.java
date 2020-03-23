@@ -110,6 +110,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 		int capacity;
 		int maxSize;
 		Boolean movingWindow;
+		boolean setBehavior;
 		/** True to count only number of occurrences of equal elements */
 		boolean count;
 		/** True to store list data in a BigList instance, false for a GapList instance (only used for KeyList, Key1List, Key2List) */
@@ -258,6 +259,18 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 		}
 
 		//-- Element key
+
+		/**
+		 * Specifies that the collection only counts the number of occurrences
+		 * of equal elements, but does not store the elements themselves.
+		 *
+		 * @param count	true to count only number of occurrences (default is false)
+		 * @return		this (fluent interface)
+		 */
+		protected BuilderImpl<E> withSetBehavior(boolean setBehavior) {
+			this.setBehavior = setBehavior;
+			return this;
+		}
 
 		/**
 		 * Specifies that the collection only counts the number of occurrences
@@ -813,6 +826,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 		 * @param list    true if a KeyListImpl is built up, false for KeyCollectionImpl
 		 */
 		void build(KeyCollectionImpl keyColl, boolean list) {
+			keyColl.setBehavior = setBehavior;
 			keyColl.allowNullElem = allowNullElem;
 			keyColl.constraint = constraint;
 			keyColl.beforeInsertTrigger = beforeInsertTrigger;
@@ -1443,34 +1457,34 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 		 *
 		 * @param keyMap	key map
 		 * @param key   	key of element to remove
-		 * @return      	list with all removed elements
+		 * @param coll      collection to store all removed elements, null to not store them
 		 */
-		private GapList<E> doRemoveAllByKey(K key, KeyCollectionImpl<E> keyColl) {
+		private void doRemoveAllByKey(K key, KeyCollectionImpl<E> keyColl, Collection<E> coll) {
 			// If list cannot contain null, handle null explicitly to prevent NPE
 			if (key == null) {
 				if (!allowNull) {
-					return GapList.create();
+					return;
 				}
 			}
 			if (keysMap != null) {
 				// Collection or unsorted list
 				if (!keysMap.containsKey(key)) {
-					return GapList.create();
+					return;
 				}
 				Object obj = keysMap.remove(key);
-				GapList<E> removed;
-				if (obj instanceof KeyMapList) {
-					removed = GapList.create((GapList<E>) obj);
-				} else {
-					removed = GapList.create((E) obj);
+				if (coll != null) {
+					if (obj instanceof KeyMapList) {
+						coll.addAll((GapList<E>) obj);
+					} else {
+						coll.add((E) obj);
+					}
 				}
-				return removed;
 
 			} else {
 				// Sorted list
 				int index = SortedLists.binarySearchGet(keysList, key, comparator);
 				if (index < 0) {
-					return GapList.create();
+					return;
 				}
 				int start = index;
 				while (true) {
@@ -1482,9 +1496,10 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 						break;
 					}
 				}
-				GapList<E> removed = (GapList<E>) keyColl.keyList.list.getAll(start, index - start);
+				if (coll != null) {
+					coll.addAll(keyColl.keyList.list.getAll(start, index - start));
+				}
 				keysList.remove(start, index - start);
-				return removed;
 			}
 		}
 
@@ -1570,6 +1585,10 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	 */
 	boolean allowNullElem;
 	/**
+	 * true if collections implements {@link Set}, false for @{link Collection} (behavior of {@link #add} changes)
+	 */
+	boolean setBehavior;
+	/**
 	 * All elements in the list must fulfill this predicate, if null, all elements are allowed
 	 */
 	Predicate<E> constraint;
@@ -1583,6 +1602,8 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	 * Otherwise null if it is part of a KeyCollection, Key1Collection, Key2Collection.
 	 */
 	KeyListImpl<E> keyList;
+
+	//
 
 	/**
 	 * Private constructor.
@@ -1906,6 +1927,14 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 		throw new IllegalStateException("Invalidate is not support if elemCount is true");
 	}
 
+	static void errorInvalidSetBehavior() {
+		throw new IllegalStateException("Invalid configuration: setBehavior must be true");
+	}
+
+	static void errorInvaliDuplicates() {
+		throw new IllegalStateException("Invalid configuration: duplicates are not allowed");
+	}
+
 	/**
 	 * This method is called before a new element is added.
 	 * If the addition should not happen, an exception can be thrown.
@@ -1957,9 +1986,18 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 		// This method is also used by addAll()
 		checkAddElem(elem);
 		beforeInsert(elem);
-		if (doAdd(elem, null)) {
-			size++;
+
+		try {
+			if (doAdd(elem, null)) {
+				size++;
+			}
+		} catch (DuplicateKeyException ex) {
+			if (setBehavior) {
+				return false;
+			}
+			throw ex;
 		}
+
 		if (DEBUG_CHECK)
 			debugCheck();
 		afterInsert(elem);
@@ -2348,7 +2386,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	 * @param keyIndex	key index
 	 * @return 			list containing all keys
 	 */
-	protected GapList<?> getAllKeys(int keyIndex) {
+	protected IList<?> getAllKeys(int keyIndex) {
 		Function mapper = getKeyMap(keyIndex).mapper;
 		GapList<Object> list = GapList.create();
 		for (Object obj : this) {
@@ -2457,21 +2495,34 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	}
 
 	/**
-	 * Returns a list with all elements with the specified key.
+	 * Returns a collection with all elements with the specified key.
 	 *
 	 * @param keyIndex	key index
 	 * @param key   	key which elements must have
 	 * @return      	list with all elements
 	 */
-	protected GapList<E> getAllByKey(int keyIndex, Object key) {
-		return doGetAllByKey(getKeyMap(keyIndex), key);
+	protected Collection<E> getAllByKey(int keyIndex, Object key) {
+		Collection<E> coll = crop();
+		getAllByKey(keyIndex, key, coll);
+		return coll;
 	}
 
-	private <K> GapList<E> doGetAllByKey(KeyMap<E, K> keyMap, K key) {
+	/**
+	 * Fill the collection with all elements with the specified key.
+	 *
+	 * @param keyIndex	key index
+	 * @param key   	key which elements must have
+	 * @param coll      collection with all elements
+	 */
+	protected void getAllByKey(int keyIndex, Object key, Collection<E> coll) {
+		doGetAllByKey(getKeyMap(keyIndex), key, coll);
+	}
+
+	private <K> void doGetAllByKey(KeyMap<E, K> keyMap, K key, Collection<E> coll) {
 		// Handle null key if not allowed to prevent NPE
 		if (key == null) {
 			if (!keyMap.allowNull) {
-				return GapList.create();
+				return;
 			}
 		}
 
@@ -2479,12 +2530,11 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 			// not sorted
 			Object obj = keyMap.keysMap.get(key);
 			if (obj == null) {
-				return GapList.create();
+				;
 			} else if (obj instanceof KeyMapList) {
-				GapList<E> list = (GapList<E>) obj;
-				return list.copy();
+				coll.addAll((GapList<E>) obj);
 			} else {
-				return (GapList<E>) GapList.create(keyMap.keysMap.get(key));
+				coll.add((E) obj);
 			}
 
 		} else {
@@ -2493,9 +2543,8 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 			// - keyList: contains elements, sorted by key
 			int index = SortedLists.binarySearchGet(keyMap.keysList, key, keyMap.comparator);
 			if (index >= 0) {
-				GapList<E> list = new GapList<E>();
 				while (true) {
-					list.add(keyList.doGet(index));
+					coll.add(keyList.doGet(index));
 					index++;
 					if (index == keyMap.keysList.size()) {
 						break;
@@ -2504,9 +2553,6 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 						break;
 					}
 				}
-				return list;
-			} else {
-				return GapList.create();
 			}
 		}
 	}
@@ -2715,24 +2761,30 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	 * @param key   	key of element to remove
 	 * @return      	true if elements have been removed, false otherwise
 	 */
+	protected Collection<E> removeAllByKey(int keyIndex, Object key) {
+		Collection<E> removeds = crop();
+		removeAllByKey(keyIndex, key, removeds);
+		return removeds;
+	}
+
 	@SuppressWarnings("unchecked")
-	protected GapList<E> removeAllByKey(int keyIndex, Object key) {
+	protected void removeAllByKey(int keyIndex, Object key, Collection<E> removeds) {
 		checkKeyMap(keyIndex);
-		GapList<E> removeds = keyMaps[keyIndex].doRemoveAllByKey(key, this);
-		for (int n = 0; n < removeds.size(); n++) {
-			E elem = removeds.get(n);
+		keyMaps[keyIndex].doRemoveAllByKey(key, this, removeds);
+
+		for (E elem : removeds) {
 			try {
 				beforeDelete(elem);
 			} catch (RuntimeException e) {
-				for (int n2 = n; n2 < removeds.size(); n++) {
-					keyMaps[keyIndex].add(key, removeds.get(n2));
+				for (E elem2 : removeds) {
+					keyMaps[keyIndex].add(key, elem2);
 				}
 				throw e;
 			}
 			for (int i = 0; i < keyMaps.length; i++) {
 				if (i != keyIndex && keyMaps[i] != null) {
 					Object k = keyMaps[i].getKey(elem);
-					keyMaps[i].doRemoveAllByKey(k, this);
+					keyMaps[i].doRemoveAllByKey(k, this, null);
 				}
 			}
 			afterDelete(elem);
@@ -2740,7 +2792,6 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 		}
 		if (DEBUG_CHECK)
 			debugCheck();
-		return removeds;
 	}
 
 	protected E putByKey(int keyIndex, E elem) {
@@ -2838,7 +2889,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	 * @param elem	element
 	 * @return		all equal elements (never null)
 	 */
-	protected GapList<E> getAll(E elem) {
+	protected Collection<E> getAll(E elem) {
 		return getAllByKey(0, elem);
 	}
 
@@ -2858,7 +2909,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	 * @param elem	element
 	 * @return		removed equal elements (never null)
 	 */
-	protected GapList<E> removeAll(E elem) {
+	protected Collection<E> removeAll(E elem) {
 		return removeAllByKey(0, elem);
 	}
 

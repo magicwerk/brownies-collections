@@ -24,23 +24,22 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 /**
- * KeyCollection implements a collection.
- * It can provide fast access to its elements like a Set.
- * The elements allowed in the collection can be constraint (null/duplicate values).
+ * KeySet implements a set.
+ * The elements allowed in the set can be constraint (null/duplicate values).
  *
  * @author Thomas Mauch
  * @version $Id$
  *
- * @see Key1List
- * @param <E> type of elements stored in the collection
+ * @see Key1Collection
+ * @param <E> type of elements stored in the set
  */
 @SuppressWarnings("serial")
-public class KeyCollection<E> extends KeyCollectionImpl<E> {
+public class KeySet<E> extends KeyCollection<E> implements Set<E> {
 
 	/**
 	 * Builder to construct KeyCollection instances.
 	 */
-	public static class Builder<E> extends BuilderImpl<E> {
+	public static class Builder<E> extends KeyCollection.Builder<E> {
 		/**
 		 * Default constructor.
 		 */
@@ -49,26 +48,58 @@ public class KeyCollection<E> extends KeyCollectionImpl<E> {
 		}
 
 		/**
-		 * Private constructor used if extending KeyCollection.
+		 * Private constructor used if extending KeySet.
 		 *
-		 * @param keyColl	key collection
+		 * @param keySet	key set
 		 */
-		Builder(KeyCollection<E> keyColl) {
-			this.keyColl = keyColl;
+		Builder(KeySet<E> keySet) {
+			this.keyColl = keySet;
 			initKeyMapBuilder(0);
 		}
 
 		/**
 		 * @return created collection
 		 */
-		public KeyCollection<E> build() {
+		@Override
+		public KeySet<E> build() {
+			withSetBehavior(true);
+			withElemDuplicates(false);
+
 			if (keyColl == null) {
-				keyColl = new KeyCollection<>();
+				keyColl = new KeySet<>();
 			}
 			build(keyColl, false);
 			init(keyColl);
-			return (KeyCollection<E>) keyColl;
+			return (KeySet<E>) keyColl;
 		}
+
+		// Builder: Overriden
+
+		@Override
+		public Builder<E> withSetBehavior(boolean setBehavior) {
+			if (!setBehavior) {
+				KeyCollectionImpl.errorInvalidSetBehavior();
+			}
+			return this;
+		}
+
+		@Override
+		public Builder<E> withElemDuplicates(boolean allowDuplicates) {
+			if (allowDuplicates) {
+				KeyCollectionImpl.errorInvaliDuplicates();
+			}
+			return (Builder<E>) super.withElemDuplicates(allowDuplicates);
+		}
+
+		@Override
+		public Builder<E> withElemDuplicates(boolean allowDuplicates, boolean allowDuplicatesNull) {
+			if (allowDuplicates || allowDuplicatesNull) {
+				KeyCollectionImpl.errorInvaliDuplicates();
+			}
+			return (Builder<E>) super.withElemDuplicates(allowDuplicates, allowDuplicatesNull);
+		}
+
+		// Builder: Verbatim copy of KeyCollection
 
 		// -- Constraint
 
@@ -129,11 +160,6 @@ public class KeyCollection<E> extends KeyCollectionImpl<E> {
 		//-- Element key
 
 		@Override
-		public Builder<E> withSetBehavior(boolean setBehavior) {
-			return (Builder<E>) super.withSetBehavior(setBehavior);
-		}
-
-		@Override
 		public Builder<E> withElemCount(boolean count) {
 			return (Builder<E>) super.withElemCount(count);
 		}
@@ -156,16 +182,6 @@ public class KeyCollection<E> extends KeyCollectionImpl<E> {
 		@Override
 		public Builder<E> withElemNull(boolean allowNull) {
 			return (Builder<E>) super.withElemNull(allowNull);
-		}
-
-		@Override
-		public Builder<E> withElemDuplicates(boolean allowDuplicates) {
-			return (Builder<E>) super.withElemDuplicates(allowDuplicates);
-		}
-
-		@Override
-		public Builder<E> withElemDuplicates(boolean allowDuplicates, boolean allowDuplicatesNull) {
-			return (Builder<E>) super.withElemDuplicates(allowDuplicates, allowDuplicatesNull);
 		}
 
 		@Override
@@ -192,64 +208,35 @@ public class KeyCollection<E> extends KeyCollectionImpl<E> {
 		public Builder<E> withUniqueElem() {
 			return (Builder<E>) super.withUniqueElem();
 		}
-
 	}
 
 	/**
 	 * Protected constructor used by builder or derived collections.
 	 */
-	protected KeyCollection() {
+	protected KeySet() {
 	}
 
 	/**
 	 * @return builder to use in extending classes
 	 */
+	@Override
 	protected Builder<E> getBuilder() {
 		return new Builder<>(this);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public KeyCollection<E> copy() {
-		return (KeyCollection<E>) super.copy();
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public KeyCollection<E> crop() {
-		return (KeyCollection<E>) super.crop();
-	}
-
-	//-- Element methods
-
-	@Override
-	public KeyCollection<E> getAll(E elem) {
-		return (KeyCollection<E>) super.getAll(elem);
+	public KeySet<E> copy() {
+		return (KeySet<E>) super.copy();
 	}
 
 	@Override
-	public int getCount(E elem) {
-		return super.getCount(elem);
+	public KeySet<E> crop() {
+		return (KeySet<E>) super.crop();
 	}
 
 	@Override
-	public KeyCollection<E> removeAll(E elem) {
-		return (KeyCollection<E>) super.removeAll(elem);
-	}
-
-	@Override
-	public Set<E> getDistinct() {
-		return super.getDistinct();
-	}
-
-	@Override
-	public E put(E elem) {
-		return super.put(elem);
-	}
-
-	@Override
-	public void invalidate(E elem) {
-		super.invalidate(elem);
+	public KeySet<E> getAll(E elem) {
+		return (KeySet<E>) super.getAll(elem);
 	}
 
 }
