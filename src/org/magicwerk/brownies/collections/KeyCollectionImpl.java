@@ -1040,7 +1040,8 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 				if (keysMap instanceof HashMap) {
 					copy.keysMap = new HashMap<K, Object>();
 				} else {
-					copy.keysMap = new TreeMap<K, Object>();
+					TreeMap<K, Object> treeMap = (TreeMap<K, Object>) keysMap;
+					copy.keysMap = new TreeMap<K, Object>(treeMap.comparator());
 				}
 			} else {
 				copy.keysList = new GapList<K>();
