@@ -2852,8 +2852,14 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 		if (o == this) {
 			return true;
 		}
-		if (!(o instanceof Collection)) {
-			return false;
+		if (setBehavior) {
+			if (!(o instanceof Set)) {
+				return false;
+			}
+		} else {
+			if (!(o instanceof Collection)) {
+				return false;
+			}
 		}
 		Collection c = (Collection) o;
 		if (c.size() != size()) {

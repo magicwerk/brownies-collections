@@ -114,7 +114,7 @@ public class CollectionAsSet<K> implements Set<K> {
 	@Override
 	public boolean add(K e) {
 		checkMutable();
-		if (!coll.contains(e)) {
+		if (coll.contains(e)) {
 			return false;
 		}
 		return coll.add(e);
