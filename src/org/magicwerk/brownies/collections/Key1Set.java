@@ -82,7 +82,7 @@ public class Key1Set<E, K> extends Key1Collection<E, K> implements Set<E> {
 			if (!setBehavior) {
 				KeyCollectionImpl.errorInvalidSetBehavior();
 			}
-			return this;
+			return (Builder<E, K>) super.withSetBehavior(setBehavior);
 		}
 
 		@Override
