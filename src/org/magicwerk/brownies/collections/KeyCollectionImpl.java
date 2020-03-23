@@ -1074,7 +1074,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 
 		boolean containsValue(Object key, Object value) {
 			if (keysMap == null) {
-				return keysList.contains(value);
+				return keysList.contains(key);
 			}
 
 			assert (count == false);
