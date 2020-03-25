@@ -17,7 +17,6 @@
  */
 package org.magicwerk.brownies.collections.exceptions;
 
-
 /**
  * All exceptions thrown in KeyCollection/KeyList implementations
  * are of type KeyException.
