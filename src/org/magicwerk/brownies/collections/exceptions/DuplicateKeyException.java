@@ -17,13 +17,42 @@
  */
 package org.magicwerk.brownies.collections.exceptions;
 
-
+/**
+ * Exception thrown if an action is not allowed due to a duplicate key error.
+ *  
+ * @author Thomas Mauch
+ * @version $Id$
+ */
 @SuppressWarnings("serial")
 public class DuplicateKeyException extends KeyException {
 
 	public static final String MESSAGE = "Constraint violation: duplicate key not allowed";
 
-	public DuplicateKeyException(Object key) {
-		super(MESSAGE + ": "  + key);
+	/** Key which is not allowed due to a duplicate */
+	Object key;
+	/** If false, the exception will not contain a stack trace which makes raising the exception faster */
+	boolean needsStackTrace;
+
+	//
+
+	public DuplicateKeyException(Object key, boolean needsStackTrace) {
+		super(MESSAGE + ": " + key);
+
+		this.key = key;
+		this.needsStackTrace = needsStackTrace;
 	}
+
+	public Object getKey() {
+		return key;
+	}
+
+	@Override
+	public Throwable fillInStackTrace() {
+		if (needsStackTrace) {
+			return super.fillInStackTrace();
+		} else {
+			return this;
+		}
+	}
+
 }
