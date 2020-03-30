@@ -17,7 +17,6 @@
  */
 package org.magicwerk.brownies.collections.helper;
 
-
 /**
  * The AnyComparator can compare elements of any object type,
  * even if they do not implement Comparable. As the comparison
@@ -30,6 +29,7 @@ package org.magicwerk.brownies.collections.helper;
  * @version $Id$
  */
 public class AnyComparator<T> extends SingletonComparator<T> {
+
 	/**
 	 * Singleton instance.
 	 */
@@ -37,30 +37,38 @@ public class AnyComparator<T> extends SingletonComparator<T> {
 	public static final AnyComparator INSTANCE = new AnyComparator();
 
 	/**
+	 * Returns singleton instance.
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T> AnyComparator<T> INSTANCE() {
+		return INSTANCE;
+	}
+
+	/**
 	 * Prevent construction.
 	 */
 	private AnyComparator() {
 	}
 
-    @Override
-    public int compare(T key1, T key2) {
-        if (key1 == key2) {
-            return 0;
-        }
-        int hash1 = key1.hashCode();
-        int hash2 = key2.hashCode();
-        // Prevent overflow
-        int cmp = (hash1 < hash2 ? -1 : (hash1 > hash2 ? 1 : 0));
-        if (cmp != 0) {
-            return cmp;
-        }
-        // Objects have same hashcode
-        if (key1.equals(key2)) {
-            return 0;
-        }
-        // Objects have same hashcode, but are not equal, so use identity hash code to distinguish them
-        hash1 = System.identityHashCode(key1);
-        hash2 = System.identityHashCode(key2);
-        return (hash1 < hash2 ? -1 : (hash1 > hash2 ? 1 : 0));
-    }
+	@Override
+	public int compare(T key1, T key2) {
+		if (key1 == key2) {
+			return 0;
+		}
+		int hash1 = key1.hashCode();
+		int hash2 = key2.hashCode();
+		// Prevent overflow
+		int cmp = (hash1 < hash2 ? -1 : (hash1 > hash2 ? 1 : 0));
+		if (cmp != 0) {
+			return cmp;
+		}
+		// Objects have same hashcode
+		if (key1.equals(key2)) {
+			return 0;
+		}
+		// Objects have same hashcode, but are not equal, so use identity hash code to distinguish them
+		hash1 = System.identityHashCode(key1);
+		hash2 = System.identityHashCode(key2);
+		return (hash1 < hash2 ? -1 : (hash1 > hash2 ? 1 : 0));
+	}
 }
