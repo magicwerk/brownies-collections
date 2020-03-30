@@ -17,7 +17,6 @@
  */
 package org.magicwerk.brownies.collections.helper;
 
-
 /**
  * The NaturalComparator will compare object using their natural order.
  *
@@ -27,22 +26,28 @@ package org.magicwerk.brownies.collections.helper;
  * @version $Id$
  */
 public class NaturalComparator<T> extends SingletonComparator<T> {
+
 	/**
-	 * Singleton.
+	 * Singleton instance.
 	 */
 	@SuppressWarnings("rawtypes")
 	private static final NaturalComparator INSTANCE = new NaturalComparator();
+
 	/**
-	 * @return singleton
+	 * Returns singleton instance.
 	 */
-    @SuppressWarnings("unchecked")
+	@SuppressWarnings("unchecked")
 	public static <T> NaturalComparator<T> INSTANCE() {
-        return INSTANCE;
-    }
-    @SuppressWarnings("unchecked")
+		return INSTANCE;
+	}
+
+	/**
+	 * Returns singleton instance.
+	 */
+	@SuppressWarnings("unchecked")
 	public static <T> NaturalComparator<T> INSTANCE(Class<T> c) {
-        return INSTANCE;
-    }
+		return INSTANCE;
+	}
 
 	/**
 	 * Prevent construction.
@@ -52,7 +57,7 @@ public class NaturalComparator<T> extends SingletonComparator<T> {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-    public int compare(T o1, T o2) {
-        return ((Comparable) o1).compareTo(o2);
-    }
+	public int compare(T o1, T o2) {
+		return ((Comparable) o1).compareTo(o2);
+	}
 }
