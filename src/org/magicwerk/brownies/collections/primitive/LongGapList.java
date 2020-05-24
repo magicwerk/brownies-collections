@@ -51,11 +51,11 @@ import java.util.function.Function;
 public class LongGapList extends ILongList {
 
     /*
-     * Helper variables to enable code for debugging.
-     * As the variables are declared as "static final boolean", the JVM
-     * will be able to detect unused branches and will not execute the
-     * code (the same approach is used for the assert statement).
-     */
+	 * Helper variables to enable code for debugging.
+	 * As the variables are declared as "static final boolean", the JVM
+	 * will be able to detect unused branches and will not execute the
+	 * code (the same approach is used for the assert statement).
+	 */
     /** If true the invariants the LongGapList are checked for debugging */
     private static final boolean DEBUG_CHECK = false;
 
@@ -78,8 +78,8 @@ public class LongGapList extends ILongList {
     private static final LongGapList EMPTY = LongGapList.create().unmodifiableList();
 
     /**
-     * @return unmodifiable empty instance
-     */
+	 * @return unmodifiable empty instance
+	 */
 
 public static  LongGapList EMPTY() {
     return EMPTY;
@@ -114,23 +114,23 @@ public static  LongGapList EMPTY() {
 
     // --- Static methods ---  
 /**
-     * Create new list.
-     *
-     * @return          created list
-     * @param        type of elements stored in the list
-     */
+	 * Create new list.
+	 *
+	 * @return          created list
+	 * @param        type of elements stored in the list
+	 */
 // This separate method is needed as the varargs variant creates the list with specific size  
 public static LongGapList create() {
     return new LongGapList();
 }
 
     /**
-     * Create new list with specified elements.
-     *
-     * @param coll      collection with element
-     * @return          created list
-     * @param        type of elements stored in the list
-     */
+	 * Create new list with specified elements.
+	 *
+	 * @param coll      collection with element
+	 * @return          created list
+	 * @param        type of elements stored in the list
+	 */
 public static LongGapList create(Collection<Long> coll) {
     return new LongGapList(((coll != null)) ? coll : Collections.emptyList());
 }
@@ -175,16 +175,15 @@ private final int physIndex(int idx) {
 	 *
 	 * @param idx0  start index
 	 * @param idx1	end index
-	 * @return		array with physical start and end indexes (may contain 2, 4, or 6 elements)
+	 * @return		array with physical start and end indexes (may contain 0, 2, 4, or 6 elements)
 	 */
 private int[] physIndex(int idx0, int idx1) {
     assert (idx0 >= 0 && idx1 <= size && idx0 <= idx1);
     if (idx0 == idx1) {
         return new int[0];
     }
-    // Decrement idx1 to make sure we get the physical index   
-    // of an existing position. We will increment the physical index   
-    // again before returning.   
+    // Decrement idx1 to make sure we get the physical index of an existing position.    
+    // We will increment the physical index again before returning.   
     idx1--;
     int pidx0 = physIndex(idx0);
     if (idx1 == idx0) {
@@ -200,32 +199,40 @@ private int[] physIndex(int idx0, int idx1) {
             return new int[] { pidx0, pidx1 + 1 };
         }
     } else {
-        assert (pidx0 > pidx1);
         assert (start != 0);
-        if (gapSize > 0 && pidx1 > gapStart && gapStart > 0) {
-            assert (pidx0 < values.length);
-            assert (0 < gapStart);
-            assert (gapStart + gapSize < pidx1 + 1);
-            return new int[] { pidx0, values.length, 0, gapStart, gapStart + gapSize, pidx1 + 1 };
-        } else if (gapSize > 0 && pidx0 < gapStart && gapStart + gapSize < values.length) {
-            assert (pidx0 < gapStart);
-            assert (gapStart + gapSize < values.length);
-            assert (0 < pidx1 + 1);
-            return new int[] { pidx0, gapStart, gapStart + gapSize, values.length, 0, pidx1 + 1 };
-        } else {
-            assert (pidx0 < values.length);
-            assert (0 < pidx1 + 1);
-            int end = values.length;
-            if (gapSize > 0 && gapStart > pidx0) {
-                end = gapStart;
-            }
-            int start = 0;
-            if (gapSize > 0 && (gapStart + gapSize) % values.length < pidx1 + 1) {
-                start = (gapStart + gapSize) % values.length;
-            }
-            return new int[] { pidx0, end, start, pidx1 + 1 };
-        }
+        return doPhysIndex(pidx0, pidx1);
     }
+}
+
+    private int[] doPhysIndex(int pidx0, int pidx1) {
+    assert (pidx0 > pidx1);
+    if (gapSize > 0 && pidx1 > gapStart && gapStart > 0) {
+        assert (pidx0 < values.length);
+        assert (0 < gapStart);
+        assert (gapStart + gapSize < pidx1 + 1);
+        return new int[] { pidx0, values.length, 0, gapStart, gapStart + gapSize, pidx1 + 1 };
+    } else if (gapSize > 0 && pidx0 < gapStart && gapStart + gapSize < values.length) {
+        assert (pidx0 < gapStart);
+        assert (gapStart + gapSize < values.length);
+        assert (0 < pidx1 + 1);
+        return new int[] { pidx0, gapStart, gapStart + gapSize, values.length, 0, pidx1 + 1 };
+    } else {
+        return doPhysIndex2(pidx0, pidx1);
+    }
+}
+
+    private int[] doPhysIndex2(int pidx0, int pidx1) {
+    assert (pidx0 < values.length);
+    assert (0 < pidx1 + 1);
+    int end = values.length;
+    if (gapSize > 0 && gapStart > pidx0) {
+        end = gapStart;
+    }
+    int start = 0;
+    if (gapSize > 0 && (gapStart + gapSize) % values.length < pidx1 + 1) {
+        start = (gapStart + gapSize) % values.length;
+    }
+    return new int[] { pidx0, end, start, pidx1 + 1 };
 }
 
     @Override
@@ -241,12 +248,12 @@ protected void doAssign(ILongList that) {
 }
 
     /**
-     * Constructor used internally, e.g. for ImmutableLongGapList.
-     *
-     * @param copy true to copy all instance values from source,
-     *             if false nothing is done
-     * @param that list to copy
-     */
+	 * Constructor used internally, e.g. for ImmutableLongGapList.
+	 *
+	 * @param copy true to copy all instance values from source,
+	 *             if false nothing is done
+	 * @param that list to copy
+	 */
 protected LongGapList(boolean copy, LongGapList that){
     if (copy) {
         doAssign(that);
@@ -261,7 +268,7 @@ public LongGapList(){
 }
 
     /**
-     * Construct a list with specified initial capacity.
+	 * Construct a list with specified initial capacity.
 	 *
 	 * @param capacity	capacity
 	 */
@@ -299,9 +306,9 @@ void init(Collection<Long> coll) {
 }
 
     /**
-     * Initialize the list to contain the specified elements only.
+	 * Initialize the list to contain the specified elements only.
 	 * The list will have an initial capacity to hold these elements.
-     *
+	 *
 	 * @param elems array with elements
 	 */
 void init(long... elems) {
@@ -315,11 +322,11 @@ public long getDefaultElem() {
 }
 
     /**
-     * Returns a shallow copy of this <tt>LongGapList</tt> instance.
-     * (the new list will contain the same elements as the source list, i.e. the elements themselves are not copied).
-     * This method is identical to clone() except that the result is casted to LongGapList.
-     *
-     * @return a copy of this <tt>LongGapList</tt> instance
+	 * Returns a shallow copy of this <tt>LongGapList</tt> instance.
+	 * (the new list will contain the same elements as the source list, i.e. the elements themselves are not copied).
+	 * This method is identical to clone() except that the result is casted to LongGapList.
+	 *
+	 * @return a copy of this <tt>LongGapList</tt> instance
 	 */
 @Override
 public LongGapList copy() {
@@ -327,12 +334,12 @@ public LongGapList copy() {
 }
 
     /**
-     * Increases the capacity of this <tt>LongGapList</tt> instance, if
-     * necessary, to ensure that it can hold at least the number of elements
-     * specified by the minimum capacity argument.
-     *
-     * @param   minCapacity   the desired minimum capacity
-     */
+	 * Increases the capacity of this <tt>LongGapList</tt> instance, if
+	 * necessary, to ensure that it can hold at least the number of elements
+	 * specified by the minimum capacity argument.
+	 *
+	 * @param   minCapacity   the desired minimum capacity
+	 */
 // Only overridden to change Javadoc  
 @Override
 public void ensureCapacity(int minCapacity) {
@@ -340,13 +347,13 @@ public void ensureCapacity(int minCapacity) {
 }
 
     /**
-     * Returns a shallow copy of this <tt>LongGapList</tt> instance
-     * (The elements themselves are not copied).
-     * The capacity of the list will be set to the number of elements,
-     * so after calling clone(), size and capacity are equal.
-     *
-     * @return a copy of this <tt>LongGapList</tt> instance
-     */
+	 * Returns a shallow copy of this <tt>LongGapList</tt> instance
+	 * (The elements themselves are not copied).
+	 * The capacity of the list will be set to the number of elements,
+	 * so after calling clone(), size and capacity are equal.
+	 *
+	 * @return a copy of this <tt>LongGapList</tt> instance
+	 */
 // Only overridden to change Javadoc  
 @Override
 public Object clone() {
@@ -361,22 +368,31 @@ public LongGapList unmodifiableList() {
 
     @Override
 protected void doClone(ILongList that) {
-    // Do not simply clone the array, but make sure its capacity   
-    // is equal to the size (as in ArrayList)   
+    // Do not simply clone the array, but make sure its capacity is equal to the size (as in ArrayList)   
     init(that.toArray(), that.size());
 }
 
     /**
-	 * Normalize data of LongGapList so the elements are found
-	 * from values[0] to values[size-1].
-	 * This method can help to speed up operations like sort or
-	 * binarySearch.
+	 * Normalize data of LongGapList so the elements are found from values[0] to values[size-1].
+	 * This method can help to speed up operations like sort or binarySearch.
 	 */
-private void normalize() {
-    if (start == 0 && end == 0 && gapSize == 0 && gapStart == 0 && gapIndex == 0) {
+void ensureNormalized(int minCapacity) {
+    int newCapacity = calculateNewCapacity(minCapacity);
+    boolean capacityFits = (newCapacity == -1);
+    boolean alreadyNormalized = isNormalized();
+    if (capacityFits && alreadyNormalized) {
         return;
     }
-    init(toArray(), size());
+    long[] newValues = (long[]) new long[newCapacity];
+    doGetAll(newValues, 0, size);
+    init(newValues, size);
+}
+
+    /**
+	 * Checks whether elements are stored normalized, i.e. start is at position 0 and there is no gap.
+	 */
+boolean isNormalized() {
+    return start == 0 && gapSize == 0 && gapStart == 0 && gapIndex == 0;
 }
 
     /**
@@ -389,9 +405,11 @@ private void normalize() {
 void init(long[] values, int size) {
     this.values = (long[]) values;
     this.size = size;
-    // start and end are both 0 because either size == 0 or size == values.length    
     start = 0;
-    end = 0;
+    end = size;
+    if (end >= values.length) {
+        end -= values.length;
+    }
     gapSize = 0;
     gapStart = 0;
     gapIndex = 0;
@@ -502,6 +520,60 @@ public LongGapList getAll(long elem) {
     @Override
 public <R> GapList<R> mappedList(Function<Long, R> mapper) {
     return (GapList<R>) super.mappedList(mapper);
+}
+
+    /**
+	 * Prepare direct access to an array buffer for fast adding elements to the list. 
+	 * The size of the list will be increased by len being index+len after the call.
+	 * The added elements will be initialized to their default value.
+	 * If not all elements prepared are used, call {@link #releaseAddBuffer} to release them.
+	 * <p>
+	 * Example:
+	 * <pre>
+	 * int index = list.size()
+	 * int len = 1000;
+	 * byte[] values = list.getAddBuffer(index, len) 
+	 * int read = inputstream.read(values, index, len)
+	 * list.releaseAddBuffer(index, read)
+	 * <pre>
+	 * 
+	 * @param index	index of first buffer position (must be equal to the size of the list)
+	 * @param len	number of elements which the buffer can held
+	 * @return		array holding the elements of the list 
+	 */
+long[] prepareAddBuffer(int index, int len) {
+    assert (index == size);
+    assert (len >= 0);
+    if (len > 0) {
+        ensureNormalized(index + len);
+        size += len;
+        end += len;
+    }
+    if (DEBUG_DUMP)
+        debugDump();
+    if (DEBUG_CHECK)
+        debugCheck();
+    return values;
+}
+
+    /**
+	 * Releases the buffer retrieved by {@link #prepareAddBuffer}.
+	 * The size of the list will be index+len after the call.
+	 * 
+	 * @param index	index of first buffer position as passed to {@link #prepareAddBuffer}
+	 * @param len	number of elements used in the buffer
+	 */
+void releaseAddBuffer(int index, int len) {
+    assert (isNormalized());
+    assert (index + len <= size);
+    if (index + len < size) {
+        size = index + len;
+        end = size;
+    }
+    if (DEBUG_DUMP)
+        debugDump();
+    if (DEBUG_CHECK)
+        debugCheck();
 }
 
     @Override
@@ -903,20 +975,15 @@ protected long doRemove(int index) {
     
 @Override
 protected void doEnsureCapacity(int minCapacity) {
-    // Note: Same behavior as in ArrayList.ensureCapacity()   
-    int oldCapacity = values.length;
-    if (minCapacity <= oldCapacity) {
+    int newCapacity = calculateNewCapacity(minCapacity);
+    if (newCapacity == values.length) {
         return;
-    }
-    minCapacity = Math.max(DEFAULT_CAPACITY, minCapacity);
-    int newCapacity = (oldCapacity * 3) / 2 + 1;
-    if (newCapacity < minCapacity) {
-        newCapacity = minCapacity;
     }
     long[] newValues = (long[]) new long[newCapacity];
     if (size == 0) {
         ;
     } else if (start == 0) {
+        // Copy all elements from values to newValues   
         System.arraycopy(values, 0, newValues, 0, values.length);
     } else if (start > 0) {
         int grow = newCapacity - values.length;
@@ -943,9 +1010,30 @@ protected void doEnsureCapacity(int minCapacity) {
 }
 
     /**
-     * Trims the capacity of this LongGapList instance to be the list's current size.
-     * An application can use this operation to minimize the storage of an instance.
-     */
+	 * Calculate new capacity.
+	 * The capacity will not shrink, so the returned capacity can be equal to values.length.
+	 * 
+	 * @param minCapacity the desired minimum capacity
+	 * @return	the new capacity to use
+	 */
+int calculateNewCapacity(int minCapacity) {
+    // Note: Same behavior as in ArrayList.ensureCapacity()   
+    int oldCapacity = values.length;
+    if (minCapacity <= oldCapacity) {
+        return values.length;
+    }
+    minCapacity = Math.max(DEFAULT_CAPACITY, minCapacity);
+    int newCapacity = (oldCapacity * 3) / 2 + 1;
+    if (newCapacity < minCapacity) {
+        newCapacity = minCapacity;
+    }
+    return newCapacity;
+}
+
+    /**
+	 * Trims the capacity of this LongGapList instance to be the list's current size.
+	 * An application can use this operation to minimize the storage of an instance.
+	 */
 @Override
 public void trimToSize() {
     doModify();
@@ -968,14 +1056,14 @@ protected void doGetAll(long[] array, int index, int len) {
 
     // --- Serialization ---  
 /**
-     * Serialize a LongGapList object.
-     *
-     * @serialData The length of the array backing the <tt>LongGapList</tt>
-     *             instance is emitted (int), followed by all of its elements
-     *             (each an <tt>Object</tt>) in the proper order.
-     * @param oos  output stream for serialization
-     * @throws 	   IOException if serialization fails
-     */
+	 * Serialize a LongGapList object.
+	 *
+	 * @serialData The length of the array backing the <tt>LongGapList</tt>
+	 *             instance is emitted (int), followed by all of its elements
+	 *             (each an <tt>Object</tt>) in the proper order.
+	 * @param oos  output stream for serialization
+	 * @throws 	   IOException if serialization fails
+	 */
 private void writeObject(ObjectOutputStream oos) throws IOException {
     // Write out array length   
     int size = size();
@@ -987,12 +1075,12 @@ private void writeObject(ObjectOutputStream oos) throws IOException {
 }
 
     /**
-     * Deserialize a LongGapList object.
- 	 *
-     * @param ois  input stream for serialization
-     * @throws 	   IOException if serialization fails
-     * @throws 	   ClassNotFoundException if serialization fails
-     */
+	 * Deserialize a LongGapList object.
+	 *
+	 * @param ois  input stream for serialization
+	 * @throws 	   IOException if serialization fails
+	 * @throws 	   ClassNotFoundException if serialization fails
+	 */
 
 private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
     // Read in array length and allocate array   
@@ -1027,7 +1115,7 @@ protected void doRemoveAll(int index, int len) {
     @Override
 public void sort(int index, int len) {
     checkRange(index, len);
-    normalize();
+    ensureNormalized(size);
     ArraysHelper.sort(values, index, index + len);
 }
 
@@ -1035,7 +1123,7 @@ public void sort(int index, int len) {
 @Override
 public int binarySearch(int index, int len, long key) {
     checkRange(index, len);
-    normalize();
+    ensureNormalized(size);
     return ArraysHelper.binarySearch((long[]) values, index, index + len, key);
 }
 
@@ -1188,20 +1276,20 @@ private void debugLog(String msg) {
 
     // --- ImmutableLongGapList ---  
     /**
-     * An immutable version of a LongGapList.
-     * Note that the client cannot change the list,
-     * but the content may change if the underlying list is changed.
-     */
+	 * An immutable version of a LongGapList.
+	 * Note that the client cannot change the list,
+	 * but the content may change if the underlying list is changed.
+	 */
     protected static class ImmutableLongGapList extends LongGapList {
 
         /** UID for serialization */
         private static final long serialVersionUID = -1352274047348922584L;
 
         /**
-         * Private constructor used internally.
-         *
-         * @param that  list to create an immutable view of
-         */
+		 * Private constructor used internally.
+		 *
+		 * @param that  list to create an immutable view of
+		 */
 protected ImmutableLongGapList(LongGapList that){
     super(true, that);
 }
@@ -1246,8 +1334,8 @@ protected void doModify() {
 }
 
         /**
-         * Throw exception if an attempt is made to change an immutable list.
-         */
+		 * Throw exception if an attempt is made to change an immutable list.
+		 */
 private void error() {
     throw new UnsupportedOperationException("list is immutable");
 }

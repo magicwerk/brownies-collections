@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: IDoubleList.java 4520 2019-09-21 00:41:58Z origo $
+ * $Id$
  */
 package org.magicwerk.brownies.collections.primitive;
 
@@ -43,7 +43,7 @@ import java.util.function.UnaryOperator;
  * It also offers additional methods which are then available in all implementations of GapList and BigList.
  *
  * @author Thomas Mauch
- * @version $Id: IDoubleList.java 4520 2019-09-21 00:41:58Z origo $
+ * @version $Id$
  *
  * @param  type of elements stored in the list
  * @see	    java.util.List
@@ -275,14 +275,13 @@ public double remove(int index) {
 protected abstract double doRemove(int index);
 
     /**
-	 * Increases the capacity of this <tt>GapList</tt> instance, if
+	 * Increases the capacity of this <tt>IDoubleList</tt> instance, if
 	 * necessary, to ensure that it can hold at least the number of elements
 	 * specified by the minimum capacity argument.
 	 *
 	 * @param   minCapacity   the desired minimum capacity
 	 */
-// Note: Provide this method to make transition from ArrayList as  
-//       smooth as possible  
+// Note: Provide this method to make transition from ArrayList as smooth as possible  
 public void ensureCapacity(int minCapacity) {
     doModify();
     doEnsureCapacity(minCapacity);

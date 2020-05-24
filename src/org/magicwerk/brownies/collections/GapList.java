@@ -370,22 +370,33 @@ public class GapList<E> extends IList<E> {
 
 	@Override
 	protected void doClone(IList<E> that) {
-		// Do not simply clone the array, but make sure its capacity
-		// is equal to the size (as in ArrayList)
+		// Do not simply clone the array, but make sure its capacity is equal to the size (as in ArrayList)
 		init(that.toArray(), that.size());
 	}
 
 	/**
-	 * Normalize data of GapList so the elements are found
-	 * from values[0] to values[size-1].
-	 * This method can help to speed up operations like sort or
-	 * binarySearch.
+	 * Normalize data of GapList so the elements are found from values[0] to values[size-1].
+	 * This method can help to speed up operations like sort or binarySearch.
 	 */
-	private void normalize() {
-		if (start == 0 && end == 0 && gapSize == 0 && gapStart == 0 && gapIndex == 0) {
+	void ensureNormalized(int minCapacity) {
+		int newCapacity = calculateNewCapacity(minCapacity);
+		boolean capacityFits = (newCapacity == -1);
+		boolean alreadyNormalized = isNormalized();
+
+		if (capacityFits && alreadyNormalized) {
 			return;
 		}
-		init(toArray(), size());
+
+		E[] newValues = (E[]) new Object[newCapacity];
+		doGetAll(newValues, 0, size);
+		init(newValues, size);
+	}
+
+	/**
+	 * Checks whether elements are stored normalized, i.e. start is at position 0 and there is no gap.
+	 */
+	boolean isNormalized() {
+		return start == 0 && gapSize == 0 && gapStart == 0 && gapIndex == 0;
 	}
 
 	/**
@@ -399,9 +410,11 @@ public class GapList<E> extends IList<E> {
 		this.values = (E[]) values;
 		this.size = size;
 
-		// start and end are both 0 because either size == 0 or size == values.length 
 		start = 0;
-		end = 0;
+		end = size;
+		if (end >= values.length) {
+			end -= values.length;
+		}
 		gapSize = 0;
 		gapStart = 0;
 		gapIndex = 0;
@@ -518,6 +531,65 @@ public class GapList<E> extends IList<E> {
 	@Override
 	public <R> GapList<R> mappedList(Function<E, R> mapper) {
 		return (GapList<R>) super.mappedList(mapper);
+	}
+
+	/**
+	 * Prepare direct access to an array buffer for fast adding elements to the list. 
+	 * The size of the list will be increased by len being index+len after the call.
+	 * The added elements will be initialized to their default value.
+	 * If not all elements prepared are used, call {@link #releaseAddBuffer} to release them.
+	 * <p>
+	 * Example:
+	 * <pre>
+	 * int index = list.size()
+	 * int len = 1000;
+	 * byte[] values = list.getAddBuffer(index, len) 
+	 * int read = inputstream.read(values, index, len)
+	 * list.releaseAddBuffer(index, read)
+	 * <pre>
+	 * 
+	 * @param index	index of first buffer position (must be equal to the size of the list)
+	 * @param len	number of elements which the buffer can held
+	 * @return		array holding the elements of the list 
+	 */
+	E[] prepareAddBuffer(int index, int len) {
+		assert (index == size);
+		assert (len >= 0);
+
+		if (len > 0) {
+			ensureNormalized(index + len);
+			size += len;
+			end += len;
+		}
+
+		if (DEBUG_DUMP)
+			debugDump();
+		if (DEBUG_CHECK)
+			debugCheck();
+
+		return values;
+	}
+
+	/**
+	 * Releases the buffer retrieved by {@link #prepareAddBuffer}.
+	 * The size of the list will be index+len after the call.
+	 * 
+	 * @param index	index of first buffer position as passed to {@link #prepareAddBuffer}
+	 * @param len	number of elements used in the buffer
+	 */
+	void releaseAddBuffer(int index, int len) {
+		assert (isNormalized());
+		assert (index + len <= size);
+
+		if (index + len < size) {
+			size = index + len;
+			end = size;
+		}
+
+		if (DEBUG_DUMP)
+			debugDump();
+		if (DEBUG_CHECK)
+			debugCheck();
 	}
 
 	@Override
@@ -961,21 +1033,16 @@ public class GapList<E> extends IList<E> {
 	@SuppressWarnings("unchecked")
 	@Override
 	protected void doEnsureCapacity(int minCapacity) {
-		// Note: Same behavior as in ArrayList.ensureCapacity()
-		int oldCapacity = values.length;
-		if (minCapacity <= oldCapacity) {
-			return; // do not shrink
-		}
-		minCapacity = Math.max(DEFAULT_CAPACITY, minCapacity);
-		int newCapacity = (oldCapacity * 3) / 2 + 1;
-		if (newCapacity < minCapacity) {
-			newCapacity = minCapacity;
+		int newCapacity = calculateNewCapacity(minCapacity);
+		if (newCapacity == values.length) {
+			return;
 		}
 
 		E[] newValues = (E[]) new Object[newCapacity];
 		if (size == 0) {
 			;
 		} else if (start == 0) {
+			// Copy all elements from values to newValues
 			System.arraycopy(values, 0, newValues, 0, values.length);
 
 		} else if (start > 0) {
@@ -1001,6 +1068,29 @@ public class GapList<E> extends IList<E> {
 			debugDump();
 		if (DEBUG_CHECK)
 			debugCheck();
+	}
+
+	/**
+	 * Calculate new capacity.
+	 * The capacity will not shrink, so the returned capacity can be equal to values.length.
+	 * 
+	 * @param minCapacity the desired minimum capacity
+	 * @return	the new capacity to use
+	 */
+	int calculateNewCapacity(int minCapacity) {
+		// Note: Same behavior as in ArrayList.ensureCapacity()
+		int oldCapacity = values.length;
+		if (minCapacity <= oldCapacity) {
+			return values.length; // do not shrink
+		}
+
+		minCapacity = Math.max(DEFAULT_CAPACITY, minCapacity);
+		int newCapacity = (oldCapacity * 3) / 2 + 1;
+		if (newCapacity < minCapacity) {
+			newCapacity = minCapacity;
+		}
+
+		return newCapacity;
 	}
 
 	/**
@@ -1093,7 +1183,7 @@ public class GapList<E> extends IList<E> {
 	public void sort(int index, int len, Comparator<? super E> comparator) {
 		checkRange(index, len);
 
-		normalize();
+		ensureNormalized(size);
 		Arrays.sort(values, index, index + len, comparator);
 	}
 
@@ -1102,7 +1192,7 @@ public class GapList<E> extends IList<E> {
 	public <K> int binarySearch(int index, int len, K key, Comparator<? super K> comparator) {
 		checkRange(index, len);
 
-		normalize();
+		ensureNormalized(size);
 		return Arrays.binarySearch((Object[]) values, index, index + len, key, (Comparator<Object>) comparator);
 	}
 
