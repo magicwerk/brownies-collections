@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id$
+ * $Id: BooleanObjGapList.java 2200 2014-03-21 10:46:29Z origo $
  */
 package org.magicwerk.brownies.collections.primitive;
 
@@ -40,7 +40,7 @@ import java.util.Iterator;
  * </p>
  *
  * @author Thomas Mauch
- * @version $Id$
+ * @version $Id: BooleanObjGapList.java 2200 2014-03-21 10:46:29Z origo $
  *
  * @see	    org.magicwerk.brownies.collections.GapList
  * @see	    org.magicwerk.brownies.collections.primitive.BooleanGapList

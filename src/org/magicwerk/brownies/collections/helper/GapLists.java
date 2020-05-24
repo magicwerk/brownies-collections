@@ -17,6 +17,9 @@
  */
 package org.magicwerk.brownies.collections.helper;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
@@ -30,10 +33,13 @@ import java.util.stream.Collector;
 import org.magicwerk.brownies.collections.GapList;
 import org.magicwerk.brownies.collections.IList;
 import org.magicwerk.brownies.collections.primitive.BooleanObjGapList;
+import org.magicwerk.brownies.collections.primitive.ByteGapList;
 import org.magicwerk.brownies.collections.primitive.ByteObjGapList;
+import org.magicwerk.brownies.collections.primitive.CharGapList;
 import org.magicwerk.brownies.collections.primitive.CharObjGapList;
 import org.magicwerk.brownies.collections.primitive.DoubleObjGapList;
 import org.magicwerk.brownies.collections.primitive.FloatObjGapList;
+import org.magicwerk.brownies.collections.primitive.GapListPrimitives;
 import org.magicwerk.brownies.collections.primitive.IntObjGapList;
 import org.magicwerk.brownies.collections.primitive.LongObjGapList;
 import org.magicwerk.brownies.collections.primitive.ShortObjGapList;
@@ -44,7 +50,7 @@ import org.magicwerk.brownies.collections.primitive.ShortObjGapList;
  * @author Thomas Mauch
  * @version $Id$
  */
-public class GapLists {
+public class GapLists extends GapListPrimitives {
 
 	/**
 	 * Create a GapList wrapping a primitive GapList, e.g. an IntObjGapList wrapping an IntGapList.
@@ -176,6 +182,30 @@ public class GapLists {
 		private static <I, R> Function<I, R> castingIdentity() {
 			return i -> (R) i;
 		}
+	}
+
+	/**
+	 * Read specified number of bytes into ByteGapList.
+	 * 
+	 * @param istream	input stream (source)
+	 * @param list		list (target)
+	 * @param len		maximum number of bytes to read
+	 * @return			number of bytes read into the buffer, -1 if end of stream has been reached
+	 */
+	public static int read(InputStream istream, ByteGapList list, int len) throws IOException {
+		return GapListPrimitives.read(istream, list, len);
+	}
+
+	/**
+	 * Read specified number of chars into CharGapList.
+	 * 
+	 * @param reader	reader (source)
+	 * @param list		list (target)
+	 * @param len		maximum number of bytes to read
+	 * @return			number of bytes read into the buffer, -1 if end of stream has been reached
+	 */
+	public static int read(Reader reader, CharGapList list, int len) throws IOException {
+		return GapListPrimitives.read(reader, list, len);
 	}
 
 }

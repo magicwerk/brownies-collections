@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * $Id: FloatBigList.java 3408 2016-12-06 00:20:45Z origo $
+ * $Id$
  */
 package org.magicwerk.brownies.collections.primitive;
 import org.magicwerk.brownies.collections.helper.ArraysHelper;
@@ -44,7 +44,7 @@ import org.magicwerk.brownies.collections.helper.primitive.FloatMergeSort;
  * Note that the iterators provided are not fail-fast.<p>
  *
  * @author Thomas Mauch
- * @version $Id: FloatBigList.java 3408 2016-12-06 00:20:45Z origo $
+ * @version $Id$
  */
 public class FloatBigList extends IFloatList {
 	public static IFloatList of(float[] values) {

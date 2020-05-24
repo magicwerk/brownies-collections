@@ -279,14 +279,13 @@ public abstract class IList<E>
 	abstract protected E doRemove(int index);
 
 	/**
-	 * Increases the capacity of this <tt>GapList</tt> instance, if
+	 * Increases the capacity of this <tt>IList</tt> instance, if
 	 * necessary, to ensure that it can hold at least the number of elements
 	 * specified by the minimum capacity argument.
 	 *
 	 * @param   minCapacity   the desired minimum capacity
 	 */
-	// Note: Provide this method to make transition from ArrayList as
-	//       smooth as possible
+	// Note: Provide this method to make transition from ArrayList as smooth as possible
 	public void ensureCapacity(int minCapacity) {
 		doModify();
 		doEnsureCapacity(minCapacity);

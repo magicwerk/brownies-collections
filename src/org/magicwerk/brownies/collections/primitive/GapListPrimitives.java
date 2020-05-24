@@ -1,0 +1,75 @@
+/*
+ * Copyright 2014 by Thomas Mauch
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * $Id$
+ */
+package org.magicwerk.brownies.collections.primitive;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
+
+import org.magicwerk.brownies.collections.helper.GapLists;
+
+/**
+ * This class implements helper for primitives.
+ * Public access is granted through {@link GapLists}.
+ *
+ * @author Thomas Mauch
+ * @version $Id$
+ */
+public class GapListPrimitives {
+
+	/**
+	 * Read specified number of bytes into ByteGapList.
+	 * 
+	 * @param istream	input stream (source)
+	 * @param list		list (target)
+	 * @param len		maximum number of bytes to read
+	 * @return			number of bytes read into the buffer, -1 if end of stream has been reached
+	 */
+	protected static int read(InputStream istream, ByteGapList list, int len) throws IOException {
+		int index = list.size();
+		byte[] buf = list.prepareAddBuffer(index, len);
+
+		int read = istream.read(buf, index, len);
+		if (read == -1) {
+			read = 0;
+		}
+		list.releaseAddBuffer(index, (read >= -0) ? read : 0);
+		return read;
+	}
+
+	/**
+	 * Read specified number of chars into CharGapList.
+	 * 
+	 * @param reader	reader (source)
+	 * @param list		list (target)
+	 * @param len		maximum number of bytes to read
+	 * @return			number of bytes read into the buffer, -1 if end of stream has been reached
+	 */
+	protected static int read(Reader reader, CharGapList list, int len) throws IOException {
+		int index = list.size();
+		char[] buf = list.prepareAddBuffer(index, len);
+
+		int read = reader.read(buf, index, len);
+		if (read == -1) {
+			read = 0;
+		}
+		list.releaseAddBuffer(index, (read >= -0) ? read : 0);
+		return read;
+	}
+
+}
