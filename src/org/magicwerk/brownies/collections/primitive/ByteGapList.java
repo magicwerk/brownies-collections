@@ -377,8 +377,9 @@ protected void doClone(IByteList that) {
 	 * This method can help to speed up operations like sort or binarySearch.
 	 */
 void ensureNormalized(int minCapacity) {
+    int oldCapacity = values.length;
     int newCapacity = calculateNewCapacity(minCapacity);
-    boolean capacityFits = (newCapacity == -1);
+    boolean capacityFits = (newCapacity <= oldCapacity);
     boolean alreadyNormalized = isNormalized();
     if (capacityFits && alreadyNormalized) {
         return;
