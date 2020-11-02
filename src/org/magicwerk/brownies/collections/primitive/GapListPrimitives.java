@@ -33,7 +33,7 @@ import org.magicwerk.brownies.collections.helper.GapLists;
 public class GapListPrimitives {
 
 	/**
-	 * Read specified number of bytes into ByteGapList.
+	 * Read specified number of bytes from InputStream into ByteGapList.
 	 * 
 	 * @param istream	input stream (source)
 	 * @param list		list (target)
@@ -53,7 +53,7 @@ public class GapListPrimitives {
 	}
 
 	/**
-	 * Read specified number of chars into CharGapList.
+	 * Read specified number of chars from Reader into CharGapList.
 	 * 
 	 * @param reader	reader (source)
 	 * @param list		list (target)
@@ -70,6 +70,23 @@ public class GapListPrimitives {
 		}
 		list.releaseAddBuffer(index, (read >= -0) ? read : 0);
 		return read;
+	}
+
+	/**
+	 * Add specified number of chars from CharSequence into CharGapList.
+	 * 
+	 * @param str		CharSequence (source)
+	 * @param list		list (target)
+	 * @param start		start position of characters to add in CharSequence
+	 * @param end		end position of characters to add in CharSequence
+	 */
+	protected static void add(CharSequence str, CharGapList list, int start, int end) {
+		int index = list.size();
+		int len = end - start;
+		char[] buf = list.prepareAddBuffer(index, len);
+		for (int i = 0; i < len; i++) {
+			buf[index + i] = str.charAt(start + i);
+		}
 	}
 
 }

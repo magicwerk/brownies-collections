@@ -185,7 +185,7 @@ public class GapLists extends GapListPrimitives {
 	}
 
 	/**
-	 * Read specified number of bytes into ByteGapList.
+	 * Read specified number of bytes from InputStream into ByteGapList.
 	 * 
 	 * @param istream	input stream (source)
 	 * @param list		list (target)
@@ -197,7 +197,7 @@ public class GapLists extends GapListPrimitives {
 	}
 
 	/**
-	 * Read specified number of chars into CharGapList.
+	 * Read specified number of chars from Reader into CharGapList.
 	 * 
 	 * @param reader	reader (source)
 	 * @param list		list (target)
@@ -206,6 +206,18 @@ public class GapLists extends GapListPrimitives {
 	 */
 	public static int read(Reader reader, CharGapList list, int len) throws IOException {
 		return GapListPrimitives.read(reader, list, len);
+	}
+
+	/**
+	 * Add specified number of chars from CharSequence into CharGapList.
+	 * 
+	 * @param str		CharSequence (source)
+	 * @param list		list (target)
+	 * @param start		start position of characters to add in CharSequence
+	 * @param end		end position of characters to add in CharSequence
+	 */
+	public static void add(CharSequence str, CharGapList list, int start, int end) {
+		GapListPrimitives.add(str, list, start, end);
 	}
 
 }
