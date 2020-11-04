@@ -305,7 +305,7 @@ public abstract void trimToSize();
 
     
 public boolean equals(Object obj) {
-    if (obj == null) {
+    if (obj == this) {
         return true;
     }
     if (obj instanceof CharObjGapList) {
@@ -2120,8 +2120,20 @@ public abstract void sort(int index, int len);
 	    }
 	*/
 /**
-	 * Searches the specified range for an object using the binary
-	 * search algorithm.
+	 * Searches the specified range for an object using the binary* search algorithm.
+	 * <p>
+	 * Note that the method is defined to work with an arbitrary type <K>.
+	 * This allows to search directly for a key field in the object without the need to construct an object containing the key:
+	 * <pre>
+	 * persons.binarySearch("john", new SearchByName());
+	 * 
+	 * class SearchByName implements Comparator<Object> {
+	 *	 public int compare(Object o1, Object o2) {
+	 *	   String s1 = (o1 instanceof String) ? (String) o1 : ((Name) o1).getName();
+	 *	   String s2 = (o2 instanceof String) ? (String) o2 : ((Name) o2).getName();
+	 *	   return s1.compareTo(s2);
+	 *	 }
+	 * }
 	 *
 	 * @param key           the value to be searched for
 	 * @param comparator    the comparator by which the list is ordered.
@@ -2143,9 +2155,22 @@ public int binarySearch(char key) {
 }
 
     /**
-	 * Searches the specified range for an object using the binary
-	 * search algorithm.
-	 *
+	 * Searches the specified range for an object using the binary search algorithm.
+	 * <p>
+	 * Note that the method is defined to work with an arbitrary type <K>.
+	 * This allows to search directly for a key field in the object without the need to construct an object containing the key:
+	 * <pre>
+	 * persons.binarySearch("john", new SearchByName());
+	 * 
+	 * class SearchByName implements Comparator<Object> {
+	 *	 public int compare(Object o1, Object o2) {
+	 *	   String s1 = (o1 instanceof String) ? (String) o1 : ((Name) o1).getName();
+	 *	   String s2 = (o2 instanceof String) ? (String) o2 : ((Name) o2).getName();
+	 *	   return s1.compareTo(s2);
+	 *	 }
+	 * }
+	 * 
+	 * <pre>
 	 * @param index         index of first element to search
 	 * @param len           number of elements to search
 	 * @param key           the value to be searched for
