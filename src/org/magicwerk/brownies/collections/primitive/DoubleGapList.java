@@ -1103,14 +1103,61 @@ public DoubleGapList doCreate(int capacity) {
 
     @Override
 protected void doRemoveAll(int index, int len) {
-    if (len == size()) {
+    if (len > 0 && len == size()) {
         doModify();
         doClear();
     } else {
-        for (int i = 0; i < len; i++) {
-            doRemove(index);
+        if (!doRemoveAllFast(index, len)) {
+            for (int i = 0; i < len; i++) {
+                doRemove(index);
+            }
         }
     }
+}
+
+    /**
+	 * Remove specified range of elements from list as specialized fast operation.
+	*
+	 * @param index index of first element to remove
+	 * @param len number of elements to remove
+	 * @return	true if removal could be done, false otherwise
+	 */
+protected boolean doRemoveAllFast(int index, int len) {
+    // TODO add fast remove for more cases   
+    if (gapSize > 0) {
+        return false;
+    }
+    if (index != 0 && index + len != size) {
+        return false;
+    }
+    assert (gapSize == 0);
+    int[] physIdx = physIndex(index, index + len);
+    for (int i = 0; i < physIdx.length; i += 2) {
+        for (int j = physIdx[i]; j < physIdx[i + 1]; j++) {
+            values[j] = 0;
+        }
+    }
+    if (index + len == size) {
+        // Remove at last position   
+        end -= len;
+        if (end < 0) {
+            end += values.length;
+        }
+    } else if (index == 0) {
+        // Remove at first position   
+        start += len;
+        if (start >= values.length) {
+            start -= values.length;
+        }
+    } else {
+        assert (false);
+    }
+    size -= len;
+    if (DEBUG_DUMP)
+        debugDump();
+    if (DEBUG_CHECK)
+        debugCheck();
+    return true;
 }
 
     @Override
