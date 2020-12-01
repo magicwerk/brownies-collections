@@ -20,8 +20,7 @@ package org.magicwerk.brownies.collections.helper;
 import java.util.Arrays;
 
 /**
- * The class ArraysHelper adds method for handling boolean arrays
- * which are missing in java.util.Arrays, e.g. sort() and binarySearch().
+ * The class ArraysHelper adds method for handling boolean arrays which are missing in java.util.Arrays, e.g. sort() and binarySearch().
  *
  * @author Thomas Mauch
  * @version $Id$
@@ -65,13 +64,12 @@ public class ArraysHelper {
 	}
 
 	public static int compare(boolean val1, boolean val2) {
-		return (val1==val2) ? 0 : ((val1) ? 1 : -1);
+		return (val1 == val2) ? 0 : ((val1) ? 1 : -1);
 	}
 
 	// --- Sort
 
-	// We have to provide these delegate functions, as there is no method
-	// Array.sort(boolean[])
+	// We have to provide these delegate functions, as there is no method Array.sort(boolean[])
 
 	public static void sort(int[] values, int fromIndex, int toIndex) {
 		Arrays.sort(values, fromIndex, toIndex);
@@ -125,11 +123,9 @@ public class ArraysHelper {
 		Arrays.sort(values, fromIndex, toIndex);
 	}
 
-
 	// --- Binary search
 
-	// We have to provide these delegate functions, as there is no method
-	// Array.binarySearch(boolean[], boolean)
+	// We have to provide these delegate functions, as there is no method Array.binarySearch(boolean[], boolean)
 
 	public static int binarySearch(int[] values, int fromIndex, int toIndex, int key) {
 		return Arrays.binarySearch(values, fromIndex, toIndex, key);
