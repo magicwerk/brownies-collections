@@ -2097,7 +2097,11 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 
 	@Override
 	public Iterator<E> iterator() {
-		return keyMaps[orderByKey].iteratorValues(this);
+		if (orderByKey >= 0) {
+			return keyMaps[orderByKey].iteratorValues(this);
+		} else {
+			return keyList.iterator();
+		}
 	}
 
 	@Override
