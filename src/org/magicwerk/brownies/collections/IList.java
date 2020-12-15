@@ -465,7 +465,8 @@ public abstract class IList<E>
 	 * @param predicate	predicate
 	 * @return			all elements in the list which match the predicate
 	 */
-	public IList<E> getIf(Predicate<E> predicate) {
+	// FIXE getIf vs filteredList
+	public IList<E> getIf(Predicate<? super E> predicate) {
 		IList<E> list = doCreate(-1);
 		int size = size();
 		for (int i = 0; i < size; i++) {
@@ -475,6 +476,17 @@ public abstract class IList<E>
 			}
 		}
 		return list;
+	}
+
+	public E getIf2(Predicate<? super E> predicate) {
+		int size = size();
+		for (int i = 0; i < size; i++) {
+			E e = doGet(i);
+			if (predicate.test(e)) {
+				return e;
+			}
+		}
+		return null;
 	}
 
 	/**
