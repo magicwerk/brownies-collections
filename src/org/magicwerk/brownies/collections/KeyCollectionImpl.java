@@ -110,6 +110,10 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 		int capacity;
 		int maxSize;
 		Boolean movingWindow;
+		/**
+		 * True to specify that the collection behaves like a {@link Set} on adding elements, i.e.
+		 * if an element cannot be added due to duplicate or other constraints, no exception is thrown.
+		 */
 		boolean setBehavior;
 		/** True to count only number of occurrences of equal elements */
 		boolean count;
@@ -261,10 +265,10 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 		//-- Element key
 
 		/**
-		 * Specifies that the collection only counts the number of occurrences
-		 * of equal elements, but does not store the elements themselves.
+		 * Specifies that the collection behaves like a {@link Set} on adding elements, i.e.
+		 * if an element cannot be added due to duplicate or other constraints, no exception is thrown.
 		 *
-		 * @param count	true to count only number of occurrences (default is false)
+		 * @param count	true to define set behavior (default is false)
 		 * @return		this (fluent interface)
 		 */
 		protected BuilderImpl<E> withSetBehavior(boolean setBehavior) {
