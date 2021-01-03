@@ -1,0 +1,55 @@
+h1 { font-family: arial,helvetica,clean,sans-serif; font-size: 18px; font-weight: bold; }
+h2 { font-family: arial,helvetica,clean,sans-serif; font-size: 16px; font-weight: bold; }
+h3 { font-family: arial,helvetica,clean,sans-serif; font-size: 14px; font-weight: bold; }
+body { font-family: arial,helvetica,clean,sans-serif; font-size: 13px; }
+table { margin: 4px; border: 0px solid #000; border-collapse: collapse; }
+th { background-color: #ddd; padding: 4px; border: 1px solid #000; vertical-align: top; }
+td { padding: 2px 4px; border: 1px solid #000; vertical-align: top; }
+td.noborder { border: 0px solid #000; font-size: 16px; }
+p { margin-top: 0px; margin-bottom: 0px; }
+p.title { margin-top: 2px; margin-bottom: 2px; font-size: 14px; font-weight:bold; }
+pre { margin-top: 0px; margin-bottom: 0px; }
+table.block { margin: 0px; border: 0px; border-collapse: collapse; }
+table.block td { padding: 1px 2px; border: 0px; vertical-align: top; }
+table.block table td { margin: 1px; border: 1px solid #000; border-collapse: separate; }
+.resultOk { background-color: #ccffcc; padding: 4px; border: 1px solid #000; }
+.resultError { background-color: #ffcccc; padding: 4px; border: 1px solid #000; }
+.resultException { background-color: #ffaaaa; padding: 4px; border: 1px solid #000; }
+.resultMissing { background-color: #ffeeee; padding: 4px; border: 1px solid #000; }
+.step { background-color: #ffffff; }
+.stepRef { background-color: #ccffcc; }
+.stepAct { background-color: #ffcccc; }
+.stepException { background-color: #ffaaaa; }
+.stepMissing { background-color: #ffeeee; }
+.diffRem { background-color: #ccffcc; text-decoration: line-through; }
+.diffAdd { background-color: #ffcccc; }
+.diffDiff { background-color: #ffffcc; }
+.imgLink { text-decoration: none; vertical-align: top; }
+.imgNoBorder { border: 0px; }
+.button { border: 1px solid darkgrey; padding: 1px; vertical-align: top; }
+.buttonLink { font-size: 75%; text-decoration: none; outline: 0; }
+
+/* Choice */
+.choice-head {
+}
+.choice-chooser {
+	margin: 4px;
+	float: right;
+	background-color: #eee;
+}
+.choice {
+	font-size: small;
+	cursor: pointer;
+	padding: 2px;
+	background-color: #eee;
+	border: solid 1px #aaa;
+}
+.choice-selected {
+	font-weight: bold;
+	background-color: #ddd;
+	border: solid 1px #000;
+}
+.choice-chooser a {
+	text-decoration: none;
+	color: black;
+}

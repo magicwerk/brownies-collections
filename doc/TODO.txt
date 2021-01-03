@@ -1,0 +1,120 @@
+Check FIXME
+
+Check TODO in BigList.
+
+Check behavior of finalizer.
+
+withNull / withElemNull
+
+Invalidate:
+- Invalidate can not always works.
+- It will work, if the key has been replaced with another key and the old key element still has the same hash code as on insert
+- It the key element is not immutable and its hash code has changed, there is no way to remove it from a HashMap.
+  Even if iterating over the HashMap, element removal is done by calculating the hash code newly from the key element.
+  As the hash code has been changed, the element will not be found and can therefore not be removed.
+  The only solution is to clear the HashMap and add all elements again.
+
+TODO
+- addIf which ignores constraint exceptions (or builder mode?)
+- beforeInsert, afterInsert, beforeDelete, afterDelete trigger?
+- make IIntList protected, can it be put inside IntList as nested class?
+
+Like Trove, FastUtil is a library that can potentially be used to more efficiently (in terms of memory and performance)
+work with Java collections. While Trove seems to have formerly been the most popular of the many choices available,
+FastUtil is perhaps the most popular currently for reasons that include those cited by TheAlchemist:
+"still in active development, has more features, supports large sizes (> 2^32), and has better documentation."
+Similar libraries besides Trove and FastUtil include High Performance Primitive Collections for Java (HPPC),
+Koloboke, Goldman Sachs Collections, Mahout collections, and Javolution.
+
+
+TList:
+http://www.planetsourcecode.com/vb/scripts/ShowCode.asp?txtCodeId=6403&lngWId=2
+
+FastTable:
+Javolution
+http://javolution.org/
+
+Trove
+http://trove.starlight-systems.com/
+
+
+Maven
+
+> mvn test
+> sonar
+> mvn sonar:sonar
+> http://localhost:9000
+
+
+Related
+
+Commons Collections 3.2.1
+PredicatedList
+
+boolean 	Predicate.evaluate(java.lang.Object object)
+
+Run with java C:\Java\JDK\jdk1.8.0_25\bin\java.exe [-Xms1024m, -Xmx1024m, -XX:+UseG1GC]
+Run with -Xms1024m -Xmx1024m -XX:+UseG1GC -XX:OnError=
+Get random
+ArrayList                     :  0.000263s, factor     1.000, min/avg/max  0.000235s/ 0.000263s/ 0.001264s (elapsed  0.536505s, run  0.500058s, 1904 runs )
+LinkedList                    :  6.280263s, factor 23912.453, min/avg/max  6.143340s/ 6.280263s/ 6.417186s (elapsed 12.786827s, run 12.560526s, 2 runs )
+GapList                       :  0.000305s, factor     1.161, min/avg/max  0.000273s/ 0.000305s/ 0.001110s (elapsed  0.557994s, run  0.500287s, 1641 runs )
+BigList 1000                  :  0.002299s, factor     8.752, min/avg/max  0.002091s/ 0.002299s/ 0.003324s (elapsed  0.534783s, run  0.501086s, 218 runs )
+FastTable                     :  0.000652s, factor     2.483, min/avg/max  0.000560s/ 0.000652s/ 0.001551s (elapsed  0.536744s, run  0.500141s, 767 runs )
+TreeList                      :  0.005627s, factor    21.425, min/avg/max  0.005111s/ 0.005627s/ 0.006143s (elapsed  1.050073s, run  0.011254s, 2 runs )
+Add random
+ArrayList                     :  1.197619s, factor  1066.596, min/avg/max  1.114238s/ 1.197619s/ 1.280999s (elapsed  2.466223s, run  2.395237s, 2 runs )
+LinkedList                    :  0.610412s, factor   543.631, min/avg/max  0.604565s/ 0.610412s/ 0.614724s (elapsed  3.010551s, run  2.441648s, 4 runs )
+GapList                       :  0.452384s, factor   402.892, min/avg/max  0.438523s/ 0.452384s/ 0.470645s (elapsed  2.537340s, run  2.261918s, 5 runs )
+BigList 1000                  :  0.001123s, factor     1.000, min/avg/max  0.000782s/ 0.001123s/ 0.010839s (elapsed  5.020122s, run  0.079722s, 71 runs )
+FastTable                     :  0.004595s, factor     4.093, min/avg/max  0.004249s/ 0.004595s/ 0.006145s (elapsed  5.003119s, run  0.565234s, 123 runs )
+TreeList                      :  0.001916s, factor     1.707, min/avg/max  0.001614s/ 0.001916s/ 0.002102s (elapsed  5.390705s, run  0.015331s, 8 runs )
+Remove random
+ArrayList                     :  0.157723s, factor   300.537, min/avg/max  0.152684s/ 0.157723s/ 0.161770s (elapsed  0.740591s, run  0.630892s, 4 runs )
+LinkedList                    :  0.617278s, factor  1176.205, min/avg/max  0.617240s/ 0.617278s/ 0.617316s (elapsed  1.270084s, run  1.234556s, 2 runs )
+GapList                       :  0.135288s, factor   257.788, min/avg/max  0.112622s/ 0.135288s/ 0.189168s (elapsed  1.376443s, run  0.541152s, 4 runs )
+BigList 1000                  :  0.000525s, factor     1.000, min/avg/max  0.000478s/ 0.000525s/ 0.000618s (elapsed  1.013123s, run  0.007347s, 14 runs )
+FastTable                     :  0.007955s, factor    15.158, min/avg/max  0.006901s/ 0.007955s/ 0.013924s (elapsed  1.026644s, run  0.167057s, 21 runs )
+TreeList                      :  0.002252s, factor     4.292, min/avg/max  0.002026s/ 0.002252s/ 0.002479s (elapsed  1.472771s, run  0.004505s, 2 runs )
+Get iter
+ArrayList                     :  0.000216s, factor     1.000, min/avg/max  0.000197s/ 0.000216s/ 0.000586s (elapsed  0.528163s, run  0.500118s, 2320 runs )
+LinkedList                    :  0.077099s, factor   357.653, min/avg/max  0.076190s/ 0.077099s/ 0.078836s (elapsed  0.557811s, run  0.539691s, 7 runs )
+GapList                       :  0.000276s, factor     1.278, min/avg/max  0.000249s/ 0.000276s/ 0.000616s (elapsed  0.548172s, run  0.500165s, 1815 runs )
+BigList 1000                  :  0.000407s, factor     1.887, min/avg/max  0.000366s/ 0.000407s/ 0.000720s (elapsed  0.964756s, run  0.500427s, 1230 runs )
+FastTable                     :  0.000408s, factor     1.892, min/avg/max  0.000371s/ 0.000408s/ 0.000816s (elapsed  0.536942s, run  0.500067s, 1226 runs )
+TreeList                      :  0.001400s, factor     6.495, min/avg/max  0.001327s/ 0.001400s/ 0.001533s (elapsed  1.000209s, run  0.019600s, 14 runs )
+Add near
+ArrayList                     :  1.610841s, factor  1256.539, min/avg/max  1.608600s/ 1.610841s/ 1.613082s (elapsed  3.274763s, run  3.221682s, 2 runs )
+LinkedList                    : 12.027409s, factor  9382.002, min/avg/max 11.958695s/12.027409s/12.096124s (elapsed 24.525190s, run 24.054819s, 2 runs )
+GapList                       :  0.021155s, factor    16.502, min/avg/max  0.005508s/ 0.021155s/ 0.047386s (elapsed  1.667784s, run  0.084620s, 4 runs )
+BigList 1000                  :  0.001282s, factor     1.000, min/avg/max  0.001203s/ 0.001282s/ 0.001450s (elapsed  1.025973s, run  0.021793s, 17 runs )
+FastTable                     :  0.040082s, factor    31.266, min/avg/max  0.038148s/ 0.040082s/ 0.042325s (elapsed  1.061891s, run  0.521072s, 13 runs )
+TreeList                      :  0.007941s, factor     6.194, min/avg/max  0.007793s/ 0.007941s/ 0.008089s (elapsed  1.643347s, run  0.015882s, 2 runs )
+Remove near
+ArrayList                     :  1.178119s, factor  2945.029, min/avg/max  1.167210s/ 1.178119s/ 1.189028s (elapsed  2.408493s, run  2.356238s, 2 runs )
+LinkedList                    : 11.783187s, factor 29455.279, min/avg/max 11.764062s/11.783187s/11.802311s (elapsed 23.633674s, run 23.566374s, 2 runs )
+GapList                       :  0.000553s, factor     1.382, min/avg/max  0.000237s/ 0.000553s/ 0.002149s (elapsed  2.991234s, run  0.011060s, 20 runs )
+BigList 1000                  :  0.000400s, factor     1.000, min/avg/max  0.000364s/ 0.000400s/ 0.000475s (elapsed  1.017074s, run  0.006401s, 16 runs )
+FastTable                     :  0.036812s, factor    92.022, min/avg/max  0.036002s/ 0.036812s/ 0.037856s (elapsed  1.051379s, run  0.515369s, 14 runs )
+TreeList                      :  0.006087s, factor    15.217, min/avg/max  0.005993s/ 0.006087s/ 0.006182s (elapsed  1.637659s, run  0.012175s, 2 runs )
+Add mult
+ArrayList                     :  0.463162s, factor    61.845, min/avg/max  0.002741s/ 0.463162s/ 0.923583s (elapsed  1.003880s, run  0.926323s, 2 runs )
+LinkedList                    :  0.050913s, factor     6.798, min/avg/max  0.003029s/ 0.050913s/ 0.288769s (elapsed  1.061976s, run  0.305481s, 6 runs )
+GapList                       :  0.024927s, factor     3.328, min/avg/max  0.019239s/ 0.024927s/ 0.029730s (elapsed  1.043197s, run  0.373898s, 15 runs )
+BigList 1000                  :  0.007489s, factor     1.000, min/avg/max  0.005831s/ 0.007489s/ 0.015084s (elapsed  2.087877s, run  0.044934s, 6 runs )
+FastTable                     :  0.595655s, factor    79.537, min/avg/max  0.595078s/ 0.595655s/ 0.596231s (elapsed  1.266293s, run  1.191309s, 2 runs )
+TreeList                      :  0.077325s, factor    10.325, min/avg/max  0.076801s/ 0.077325s/ 0.077849s (elapsed  1.797197s, run  0.154651s, 2 runs )
+Remove mult
+ArrayList                     :  0.000411s, factor     4.771, min/avg/max  0.000353s/ 0.000411s/ 0.000560s (elapsed  1.024459s, run  0.014397s, 35 runs )
+LinkedList                    :  0.005144s, factor    59.668, min/avg/max  0.003805s/ 0.005144s/ 0.006676s (elapsed  1.032806s, run  0.020576s, 4 runs )
+GapList                       :  0.001897s, factor    21.999, min/avg/max  0.001271s/ 0.001897s/ 0.002108s (elapsed  2.225449s, run  0.022759s, 12 runs )
+BigList 1000                  :  0.000086s, factor     1.000, min/avg/max  0.000059s/ 0.000086s/ 0.000202s (elapsed  1.011614s, run  0.001724s, 20 runs )
+FastTable                     :  0.611891s, factor  7097.572, min/avg/max  0.611486s/ 0.611891s/ 0.612296s (elapsed  1.293710s, run  1.223782s, 2 runs )
+TreeList                      :  0.068306s, factor   792.313, min/avg/max  0.066297s/ 0.068306s/ 0.070316s (elapsed  1.738677s, run  0.136613s, 2 runs )
+Copy 1000000
+ArrayList                     :  0.001737s, factor     3.099, min/avg/max  0.001086s/ 0.001737s/ 0.009459s (elapsed  1.022039s, run  0.046909s, 27 runs )
+LinkedList                    :  0.239325s, factor   426.834, min/avg/max  0.186534s/ 0.239325s/ 0.272213s (elapsed  0.803741s, run  0.717975s, 3 runs )
+GapList                       :  0.001367s, factor     2.439, min/avg/max  0.001168s/ 0.001367s/ 0.001918s (elapsed  1.026438s, run  0.024611s, 18 runs )
+BigList 1000                  :  0.000561s, factor     1.000, min/avg/max  0.000501s/ 0.000561s/ 0.000695s (elapsed  1.025538s, run  0.010653s, 19 runs )
+FastTable                     :  0.054402s, factor    97.025, min/avg/max  0.045419s/ 0.054402s/ 0.117300s (elapsed  0.898849s, run  0.544016s, 10 runs )
+TreeList                      :  0.160614s, factor   286.454, min/avg/max  0.156170s/ 0.160614s/ 0.165059s (elapsed  1.710463s, run  0.321229s, 2 runs )

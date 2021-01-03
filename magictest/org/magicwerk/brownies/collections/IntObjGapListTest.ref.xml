@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<testClass xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="org.magicwerk.brownies.collections.IntObjGapListTest" xsi:noNamespaceSchemaLocation="testclass-v10.xsd">
+  <traceTest name="testAdd">
+    <runDate>2013-10-16T00:57:44.045+02:00</runDate>
+    <runDuration>0.023504481</runDuration>
+    <exception />
+    <traceClass>org.magicwerk.brownies.collections.primitive.IntObjGapList</traceClass>
+    <traceMethod>add</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"add"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"1"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"true"</paramText>
+      </result>
+      <error />
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"add"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"null"</paramText>
+      </parameters>
+      <result />
+      <error>
+        <paramText outputType="VALUE" param="Error">"java.lang.NullPointerException"</paramText>
+      </error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testCreate">
+    <runDate>2014-10-14T01:30:58.795+02:00</runDate>
+    <runDuration>0.014184242</runDuration>
+    <exception />
+    <traceClass>org.magicwerk.brownies.collections.primitive.IntObjGapList</traceClass>
+    <traceMethod>create</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"create"</paramText>
+      </description>
+      <parameters />
+      <result>
+        <paramText outputType="VALUE" param="Result">"{ }"</paramText>
+      </result>
+      <error />
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"create"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"[ 5 ]"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"{ 5 }"</paramText>
+      </result>
+      <error />
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"create"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"[ 1, 2 ]"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"{ 1, 2 }"</paramText>
+      </result>
+      <error />
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"create"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"{ 1, 2, 3 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"{ 1, 2, 3 }"</paramText>
+      </result>
+      <error />
+    </traceStep>
+  </traceTest>
+  <traceTest name="testEquals">
+    <runDate>2013-10-16T00:57:44.503+02:00</runDate>
+    <runDuration>0.001567403</runDuration>
+    <exception />
+    <traceClass>org.magicwerk.brownies.collections.primitive.IntObjGapList</traceClass>
+    <traceMethod>equals</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"equals"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 1, 2, 3 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"{ 1, 2, 3 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"true"</paramText>
+      </result>
+      <error />
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"equals"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 1, 2, 3 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"{ 0, 2, 3 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"false"</paramText>
+      </result>
+      <error />
+    </traceStep>
+  </traceTest>
+</testClass>
+

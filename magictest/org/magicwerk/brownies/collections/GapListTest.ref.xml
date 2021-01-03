@@ -1,0 +1,3635 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testClass xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="org.magicwerk.brownies.collections.GapListTest" xsi:noNamespaceSchemaLocation="testclass-v10.xsd">
+  <traceTest name="testAdd">
+    <runDate>2013-02-21T23:52:54.732+01:00</runDate>
+    <runDuration>0.01404509</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.GapList</traceClass>
+    <traceMethod>add</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"add"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"0"</paramText>
+        <paramText outputType="VALUE" param="#2">"9"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 9, 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"add"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"1"</paramText>
+        <paramText outputType="VALUE" param="#2">"9"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, 9, 1, 2, 3, 4, 5, 6 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"add"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"7"</paramText>
+        <paramText outputType="VALUE" param="#2">"9"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6, 9 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"add"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"-1"</paramText>
+        <paramText outputType="VALUE" param="#2">"9"</paramText>
+      </parameters>
+      <result></result>
+      <error>
+        <paramText outputType="VALUE" param="Error">"java.lang.IndexOutOfBoundsException: Invalid index: -1 (size: 7)"</paramText>
+      </error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"add"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"8"</paramText>
+        <paramText outputType="VALUE" param="#2">"9"</paramText>
+      </parameters>
+      <result></result>
+      <error>
+        <paramText outputType="VALUE" param="Error">"java.lang.IndexOutOfBoundsException: Invalid index: 8 (size: 7)"</paramText>
+      </error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testAddAll">
+    <runDate>2015-03-01T17:55:10.566+01:00</runDate>
+    <runDuration>0.006978612</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.GapList</traceClass>
+    <traceMethod>/addAll|addArray|addMult/</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"addAll"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"1"</paramText>
+        <paramText outputType="VALUE" param="#2">"{ -1, -2, -3 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, -1, -2, -3, 1, 2, 3, 4, 5, 6 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"addAll"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"1"</paramText>
+        <paramText outputType="VALUE" param="#2">"{ -1, -2, -3 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, -1, -2, -3, 1, 2, 3, 4, 5, 6 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"addArray"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"1"</paramText>
+        <paramText outputType="VALUE" param="#2">"[ -1, -2, -3 ]"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, -1, -2, -3, 1, 2, 3, 4, 5, 6 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"addMult"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"1"</paramText>
+        <paramText outputType="VALUE" param="#2">"2"</paramText>
+        <paramText outputType="VALUE" param="#3">"9"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, 9, 9, 1, 2, 3, 4, 5, 6 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"addAll"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"-1"</paramText>
+        <paramText outputType="VALUE" param="#2">"{ -1, -2, -3 }"</paramText>
+      </parameters>
+      <result></result>
+      <error>
+        <paramText outputType="VALUE" param="Error">"java.lang.IndexOutOfBoundsException: Invalid index: -1 (size: 7)"</paramText>
+      </error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"addAll"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"8"</paramText>
+        <paramText outputType="VALUE" param="#2">"{ -1, -2, -3 }"</paramText>
+      </parameters>
+      <result></result>
+      <error>
+        <paramText outputType="VALUE" param="Error">"java.lang.IndexOutOfBoundsException: Invalid index: 8 (size: 7)"</paramText>
+      </error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"addAll"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"-1"</paramText>
+        <paramText outputType="VALUE" param="#2">"{ }"</paramText>
+      </parameters>
+      <result></result>
+      <error>
+        <paramText outputType="VALUE" param="Error">"java.lang.IndexOutOfBoundsException: Invalid index: -1 (size: 7)"</paramText>
+      </error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"addAll"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"1"</paramText>
+        <paramText outputType="VALUE" param="#2">"null"</paramText>
+      </parameters>
+      <result></result>
+      <error>
+        <paramText outputType="VALUE" param="Error">"java.lang.NullPointerException"</paramText>
+      </error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testAddIfAbsent">
+    <runDate>2015-03-01T17:40:28.59+01:00</runDate>
+    <runDuration>0.021792616</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.GapList</traceClass>
+    <traceMethod>addIfAbsent</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"addIfAbsent"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"2"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"addIfAbsent"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"9"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 9 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+  </traceTest>
+  <captureTest name="testBinarySearch">
+    <runDate>2014-02-17T22:36:20.978+01:00</runDate>
+    <runDuration>0.003492381</runDuration>
+    <exception></exception>
+    <captureStep>
+      <text outputType="TEXT">"[a, b, c]\r\nb\r\nnull\r\n"</text>
+    </captureStep>
+  </captureTest>
+  <captureTest name="testBuffer">
+    <runDate>2020-05-24T16:31:39.026+02:00</runDate>
+    <runDuration>0.0136243</runDuration>
+    <exception></exception>
+    <captureStep>
+      <text outputType="TEXT">"[a, b] (size=2, capacity=2, normalized=true)\r\n[a, b, null, null] (size=4, capacity=10, normalized=true)\r\n[a, b, x] (size=3, capacity=10, normalized=true)\r\n\r\n[a, b] (size=2, capacity=12, normalized=true)\r\n[a, b, null, null] (size=4, capacity=12, normalized=true)\r\n[a, b, x] (size=3, capacity=12, normalized=true)\r\n\r\n[b, c] (size=2, capacity=3, normalized=false)\r\n[b, c, null, null] (size=4, capacity=10, normalized=true)\r\n[b, c, x] (size=3, capacity=10, normalized=true)\r\n\r\n[b, c] (size=2, capacity=12, normalized=false)\r\n[b, c, null, null] (size=4, capacity=12, normalized=true)\r\n[b, c, x] (size=3, capacity=12, normalized=true)\r\n\r\n"</text>
+    </captureStep>
+  </captureTest>
+  <traceTest name="testClear">
+    <runDate>2014-08-28T23:24:58.569+02:00</runDate>
+    <runDuration>6.22363E-4</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.GapList</traceClass>
+    <traceMethod>clear</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"clear"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"clear"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testClone">
+    <runDate>2013-12-24T00:20:26.252+01:00</runDate>
+    <runDuration>0.011259194</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.GapList</traceClass>
+    <traceMethod>clone</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"clone"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"Size: 7, Capacity: 20, Content: [0, 1, 2, 3, 4, 5, 6]"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"Size: 7, Capacity: 20, Content: [0, 1, 2, 3, 4, 5, 6]"</paramText>
+        <paramText outputType="VALUE" param="Result">"Size: 7, Capacity: 7, Content: [0, 1, 2, 3, 4, 5, 6]"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"clone"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"Size: 8, Capacity: 11, Content: [0, 1, 2, 3, 4, 5, 6, 99]"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"Size: 8, Capacity: 11, Content: [0, 1, 2, 3, 4, 5, 6, 99]"</paramText>
+        <paramText outputType="VALUE" param="Result">"Size: 8, Capacity: 8, Content: [0, 1, 2, 3, 4, 5, 6, 99]"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testContains">
+    <runDate>2013-02-21T23:52:55.337+01:00</runDate>
+    <runDuration>0.001655672</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.GapList</traceClass>
+    <traceMethod>contains</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"contains"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"1"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"true"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"contains"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"8"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"false"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"contains"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"null"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"false"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"contains"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"\"abc\""</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"false"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"contains"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6, null }"</paramText>
+        <paramText outputType="VALUE" param="#1">"null"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"true"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testContainsAll">
+    <runDate>2013-02-21T23:52:55.669+01:00</runDate>
+    <runDuration>0.001438501</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.GapList</traceClass>
+    <traceMethod>containsAll</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"containsAll"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"{ 1, 2 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"true"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"containsAll"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"{ 1, 8 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"false"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"containsAll"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"{ 8, 1 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"false"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"containsAll"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"{ 8, 8 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"false"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testContainsAny">
+    <runDate>2013-02-21T23:52:56.122+01:00</runDate>
+    <runDuration>0.001011138</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.GapList</traceClass>
+    <traceMethod>containsAny</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"containsAny"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"{ 1, 2 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"true"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"containsAny"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"{ 1, 8 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"true"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"containsAny"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"{ 8, 1 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"true"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"containsAny"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"{ 8, 8 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"false"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testContainsIf">
+    <runDate>2018-02-12T21:16:35.115+01:00</runDate>
+    <runDuration>0.044345778</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.GapList</traceClass>
+    <traceMethod>containsIf</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"containsIf"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"{ \r\n}"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"true"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"containsIf"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"{ \r\n}"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"false"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testCopy">
+    <runDate>2013-02-21T23:52:56.424+01:00</runDate>
+    <runDuration>0.001533334</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.GapList</traceClass>
+    <traceMethod>copy</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"copy"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"0"</paramText>
+        <paramText outputType="VALUE" param="#2">"4"</paramText>
+        <paramText outputType="VALUE" param="#3">"3"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 0, 1, 2 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"copy"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"0"</paramText>
+        <paramText outputType="VALUE" param="#2">"3"</paramText>
+        <paramText outputType="VALUE" param="#3">"4"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 0, 1, 2, 3 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"copy"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"3"</paramText>
+        <paramText outputType="VALUE" param="#2">"0"</paramText>
+        <paramText outputType="VALUE" param="#3">"4"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 3, 4, 5, 6, 4, 5, 6 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testCreate">
+    <runDate>2014-10-11T02:16:29.345+02:00</runDate>
+    <runDuration>0.001023453</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.GapList</traceClass>
+    <traceMethod>create</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"create"</paramText>
+      </description>
+      <parameters></parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"Size: 0, Capacity: 0, Content: []"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"create"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"[ \"a\", \"b\" ]"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"Size: 2, Capacity: 2, Content: [a, b]"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"create"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"{ \"a\", \"b\", \"c\" }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"Size: 3, Capacity: 3, Content: [a, b, c]"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+  </traceTest>
+  <captureTest name="testDescendingIterator">
+    <runDate>2013-02-21T23:52:57.126+01:00</runDate>
+    <runDuration>0.016017282</runDuration>
+    <exception></exception>
+    <captureStep>
+      <text outputType="TEXT">"{ 0, 1, 2, 3, 4, 5, 6 } ({ 6, 5, 4, 3, 2, 1, 0 })\r\n{ 1, 3, 5 }\r\n{ }\r\n"</text>
+    </captureStep>
+  </captureTest>
+  <traceTest name="testDrag">
+    <runDate>2014-08-06T10:22:43.746+02:00</runDate>
+    <runDuration>0.034347805</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.GapList</traceClass>
+    <traceMethod>drag</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"drag"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6, 7 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"3"</paramText>
+        <paramText outputType="VALUE" param="#2">"0"</paramText>
+        <paramText outputType="VALUE" param="#3">"2"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 3, 4, 0, 1, 2, 5, 6, 7 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"drag"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6, 7 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"3"</paramText>
+        <paramText outputType="VALUE" param="#2">"1"</paramText>
+        <paramText outputType="VALUE" param="#3">"2"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, 3, 4, 1, 2, 5, 6, 7 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"drag"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6, 7 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"3"</paramText>
+        <paramText outputType="VALUE" param="#2">"2"</paramText>
+        <paramText outputType="VALUE" param="#3">"2"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 3, 4, 2, 5, 6, 7 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"drag"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6, 7 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"3"</paramText>
+        <paramText outputType="VALUE" param="#2">"3"</paramText>
+        <paramText outputType="VALUE" param="#3">"2"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6, 7 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"drag"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6, 7 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"3"</paramText>
+        <paramText outputType="VALUE" param="#2">"4"</paramText>
+        <paramText outputType="VALUE" param="#3">"2"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 5, 3, 4, 6, 7 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"drag"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6, 7 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"3"</paramText>
+        <paramText outputType="VALUE" param="#2">"5"</paramText>
+        <paramText outputType="VALUE" param="#3">"2"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 5, 6, 3, 4, 7 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"drag"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6, 7 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"3"</paramText>
+        <paramText outputType="VALUE" param="#2">"6"</paramText>
+        <paramText outputType="VALUE" param="#3">"2"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 5, 6, 7, 3, 4 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"drag"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6, 7 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"3"</paramText>
+        <paramText outputType="VALUE" param="#2">"7"</paramText>
+        <paramText outputType="VALUE" param="#3">"2"</paramText>
+      </parameters>
+      <result></result>
+      <error>
+        <paramText outputType="VALUE" param="Error">"java.lang.IndexOutOfBoundsException: Invalid range: 7/2 (size: 8)"</paramText>
+      </error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testExtract">
+    <runDate>2015-03-01T17:47:15.568+01:00</runDate>
+    <runDuration>0.024385528</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.GapList</traceClass>
+    <traceMethod>extract</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"extract"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"1"</paramText>
+        <paramText outputType="VALUE" param="#2">"3"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, 4 }"</paramText>
+        <paramText outputType="VALUE" param="Result">"{ 1, 2, 3 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testExtractIf">
+    <runDate>2018-02-13T13:11:56.9+01:00</runDate>
+    <runDuration>8.65777E-4</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.GapList</traceClass>
+    <traceMethod>extractIf</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"extractIf"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"i -&gt; i%2==0"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 1, 3 }"</paramText>
+        <paramText outputType="VALUE" param="Result">"{ 0, 2 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testFill">
+    <runDate>2015-01-10T00:37:52.526+01:00</runDate>
+    <runDuration>0.019059255</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.GapList</traceClass>
+    <traceMethod>fill</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"fill"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"9"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 9, 9, 9, 9, 9, 9, 9 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+  </traceTest>
+  <captureTest name="testFilter">
+    <runDate>2014-03-24T23:20:56.862+01:00</runDate>
+    <runDuration>0.002264896</runDuration>
+    <exception></exception>
+    <captureStep>
+      <text outputType="TEXT">"[0, 2, 4, 6]\r\n"</text>
+    </captureStep>
+  </captureTest>
+  <captureTest name="testFilteredList">
+    <runDate>2019-01-31T11:30:48.386+01:00</runDate>
+    <runDuration>0.0012473</runDuration>
+    <exception></exception>
+    <captureStep>
+      <text outputType="TEXT">"[0, 2, 4, 6]\r\n"</text>
+    </captureStep>
+  </captureTest>
+  <traceTest name="testGet">
+    <runDate>2013-09-27T09:37:08.128+02:00</runDate>
+    <runDuration>0.009075585</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.GapList</traceClass>
+    <traceMethod>get</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"get"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"1"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"1"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"get"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"-1"</paramText>
+      </parameters>
+      <result></result>
+      <error>
+        <paramText outputType="VALUE" param="Error">"java.lang.IndexOutOfBoundsException: Invalid index: -1 (size: 7)"</paramText>
+      </error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"get"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"7"</paramText>
+      </parameters>
+      <result></result>
+      <error>
+        <paramText outputType="VALUE" param="Error">"java.lang.IndexOutOfBoundsException: Invalid index: 7 (size: 7)"</paramText>
+      </error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testGetAll">
+    <runDate>2013-10-16T00:41:00.553+02:00</runDate>
+    <runDuration>8.6621E-5</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.GapList</traceClass>
+    <traceMethod>get</traceMethod>
+  </traceTest>
+  <traceTest name="testGetCount">
+    <runDate>2014-03-24T23:25:43.889+01:00</runDate>
+    <runDuration>0.016983234</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.GapList</traceClass>
+    <traceMethod>getCount</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"getCount"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6, 0, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"0"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"2"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"getCount"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6, 0, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"1"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"1"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"getCount"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6, 0, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"9"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"0"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testGetDistinct">
+    <runDate>2014-03-24T23:24:01.513+01:00</runDate>
+    <runDuration>0.017666767</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.GapList</traceClass>
+    <traceMethod>getDistinct</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"getDistinct"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6, 0, 6 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testGetIf">
+    <runDate>2018-02-13T13:15:09.243+01:00</runDate>
+    <runDuration>7.48889E-4</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.GapList</traceClass>
+    <traceMethod>getIf</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"getIf"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"i -&gt; i%2==0"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"{ 0, 2 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testHashCode">
+    <runDate>2013-02-21T23:52:58.796+01:00</runDate>
+    <runDuration>9.93074E-4</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.GapList</traceClass>
+    <traceMethod>hashCode</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"hashCode"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"1773379906"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"hashCode"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, null, 4, 5, 6 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"1773290533"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testIndexOf">
+    <runDate>2014-11-18T13:08:02.845+01:00</runDate>
+    <runDuration>0.025443246</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.GapList</traceClass>
+    <traceMethod>indexOf</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"indexOf"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"1"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"1"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"indexOf"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"8"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"-1"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"indexOf"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"null"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"-1"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"indexOf"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"\"abc\""</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"-1"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"indexOf"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6, null }"</paramText>
+        <paramText outputType="VALUE" param="#1">"null"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"7"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"indexOf"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"2"</paramText>
+        <paramText outputType="VALUE" param="#2">"-1"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"2"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"indexOf"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"2"</paramText>
+        <paramText outputType="VALUE" param="#2">"2"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"2"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"indexOf"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"2"</paramText>
+        <paramText outputType="VALUE" param="#2">"10"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"-1"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testInitAll">
+    <runDate>2015-03-01T17:55:26.421+01:00</runDate>
+    <runDuration>0.002791199</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.GapList</traceClass>
+    <traceMethod>/initAll|initArray|initMult/</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"initAll"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"{ }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"initAll"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"{ 1 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 1 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"initAll"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"{ 1, 2 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 1, 2 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"initArray"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"[ ]"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"initArray"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"[ 1 ]"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 1 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"initArray"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"[ 1, 2 ]"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 1, 2 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"initMult"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"4"</paramText>
+        <paramText outputType="VALUE" param="#2">"9"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 9, 9, 9, 9 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"initMult"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"5"</paramText>
+        <paramText outputType="VALUE" param="#2">"9"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 9, 9, 9, 9, 9 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"initMult"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"6"</paramText>
+        <paramText outputType="VALUE" param="#2">"9"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 9, 9, 9, 9, 9, 9 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"initMult"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"0"</paramText>
+        <paramText outputType="VALUE" param="#2">"9"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"initAll"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"null"</paramText>
+      </parameters>
+      <result></result>
+      <error>
+        <paramText outputType="VALUE" param="Error">"java.lang.NullPointerException: Argument may not be null"</paramText>
+      </error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"initMult"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"-1"</paramText>
+        <paramText outputType="VALUE" param="#2">"9"</paramText>
+      </parameters>
+      <result></result>
+      <error>
+        <paramText outputType="VALUE" param="Error">"java.lang.IndexOutOfBoundsException: Invalid length: -1"</paramText>
+      </error>
+    </traceStep>
+  </traceTest>
+  <captureTest name="testIterator">
+    <runDate>2013-02-21T23:52:59.968+01:00</runDate>
+    <runDuration>7.93146E-4</runDuration>
+    <exception></exception>
+    <captureStep>
+      <text outputType="TEXT">"{ 0, 1, 2, 3, 4, 5, 6 } ({ 0, 1, 2, 3, 4, 5, 6 })\r\n{ 1, 3, 5 }\r\n{ }\r\n"</text>
+    </captureStep>
+  </captureTest>
+  <traceTest name="testLastIndexOf">
+    <runDate>2014-11-18T13:11:25.992+01:00</runDate>
+    <runDuration>0.022807303</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.GapList</traceClass>
+    <traceMethod>lastIndexOf</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"lastIndexOf"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"1"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"1"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"lastIndexOf"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"8"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"-1"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"lastIndexOf"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"null"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"-1"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"lastIndexOf"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"\"abc\""</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"-1"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"lastIndexOf"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"2"</paramText>
+        <paramText outputType="VALUE" param="#2">"-1"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"-1"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"lastIndexOf"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"2"</paramText>
+        <paramText outputType="VALUE" param="#2">"2"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"2"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"lastIndexOf"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"2"</paramText>
+        <paramText outputType="VALUE" param="#2">"10"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"2"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+  </traceTest>
+  <captureTest name="testListIterator">
+    <runDate>2013-02-21T23:53:00.317+01:00</runDate>
+    <runDuration>0.002031718</runDuration>
+    <exception></exception>
+    <captureStep>
+      <text outputType="TEXT">"{ 0, 1, 2, 3, 4, 5, 6 } ({ 0, 1, 2, 3, 4, 5, 6 })\r\n{ 1, 3, 5 }\r\n{ }\r\n{ 0, 1, 2, 3, 4, 5, 6 } ({ 2, 3, 4, 5, 6, 6, 5, 4, 3, 2, 1, 0 })\r\n"</text>
+    </captureStep>
+  </captureTest>
+  <captureTest name="testMappedList">
+    <runDate>2014-03-24T23:18:41.793+01:00</runDate>
+    <runDuration>0.00324319</runDuration>
+    <exception></exception>
+    <captureStep>
+      <text outputType="TEXT">"[(0), (1), (2), (3), (4), (5), (6)]\r\n"</text>
+    </captureStep>
+  </captureTest>
+  <traceTest name="testMove">
+    <runDate>2013-02-21T23:53:00.708+01:00</runDate>
+    <runDuration>0.001332584</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.GapList</traceClass>
+    <traceMethod>move</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"move"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"0"</paramText>
+        <paramText outputType="VALUE" param="#2">"4"</paramText>
+        <paramText outputType="VALUE" param="#3">"3"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ null, null, null, 3, 0, 1, 2 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"move"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"0"</paramText>
+        <paramText outputType="VALUE" param="#2">"3"</paramText>
+        <paramText outputType="VALUE" param="#3">"4"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ null, null, null, 0, 1, 2, 3 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"move"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"3"</paramText>
+        <paramText outputType="VALUE" param="#2">"0"</paramText>
+        <paramText outputType="VALUE" param="#3">"4"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 3, 4, 5, 6, null, null, null }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testNew">
+    <runDate>2014-10-12T12:11:47.636+02:00</runDate>
+    <runDuration>0.016644142</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.GapList</traceClass>
+    <traceMethod>GapList</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"GapList"</paramText>
+      </description>
+      <parameters></parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"Size: 0, Capacity: 0, Content: []"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"GapList"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"5"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"Size: 0, Capacity: 5, Content: []"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"GapList"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"{ \"a\", \"b\", \"c\" }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"Size: 3, Capacity: 3, Content: [a, b, c]"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testPeekPoll">
+    <runDate>2015-03-01T17:44:46.392+01:00</runDate>
+    <runDuration>0.028714575</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.GapList</traceClass>
+    <traceMethod>/.*/</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"peek"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"peekFirst"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"peekLast"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"poll"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"pollFirst"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"pollLast"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"getFirst"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ }"</paramText>
+      </parameters>
+      <result></result>
+      <error>
+        <paramText outputType="VALUE" param="Error">"java.util.NoSuchElementException"</paramText>
+      </error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"getLast"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ }"</paramText>
+      </parameters>
+      <result></result>
+      <error>
+        <paramText outputType="VALUE" param="Error">"java.util.NoSuchElementException"</paramText>
+      </error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"removeFirst"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ }"</paramText>
+      </parameters>
+      <result></result>
+      <error>
+        <paramText outputType="VALUE" param="Error">"java.util.NoSuchElementException"</paramText>
+      </error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"removeLast"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ }"</paramText>
+      </parameters>
+      <result></result>
+      <error>
+        <paramText outputType="VALUE" param="Error">"java.util.NoSuchElementException"</paramText>
+      </error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"element"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ }"</paramText>
+      </parameters>
+      <result></result>
+      <error>
+        <paramText outputType="VALUE" param="Error">"java.util.NoSuchElementException"</paramText>
+      </error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"pop"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ }"</paramText>
+      </parameters>
+      <result></result>
+      <error>
+        <paramText outputType="VALUE" param="Error">"java.util.NoSuchElementException"</paramText>
+      </error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"push"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ }"</paramText>
+        <paramText outputType="VALUE" param="#1">"1"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 1 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"peek"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"peekFirst"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"peekLast"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"poll"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 1, 2, 3, 4 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"pollFirst"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 1, 2, 3, 4 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 2, 3, 4 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"pollLast"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 2, 3, 4 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 2, 3 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"getFirst"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 2, 3 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 2, 3 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"getLast"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 2, 3 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 2, 3 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"removeFirst"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 2, 3 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 3 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"removeLast"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 3 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"element"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ }"</paramText>
+      </parameters>
+      <result></result>
+      <error>
+        <paramText outputType="VALUE" param="Error">"java.util.NoSuchElementException"</paramText>
+      </error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"pop"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ }"</paramText>
+      </parameters>
+      <result></result>
+      <error>
+        <paramText outputType="VALUE" param="Error">"java.util.NoSuchElementException"</paramText>
+      </error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"push"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ }"</paramText>
+        <paramText outputType="VALUE" param="#1">"1"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 1 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testPut">
+    <runDate>2015-03-01T01:54:10.148+01:00</runDate>
+    <runDuration>0.021065155</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.GapList</traceClass>
+    <traceMethod>put</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"put"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"4"</paramText>
+        <paramText outputType="VALUE" param="#2">"8"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 8 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"put"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"5"</paramText>
+        <paramText outputType="VALUE" param="#2">"9"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 9 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"put"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"-1"</paramText>
+        <paramText outputType="VALUE" param="#2">"9"</paramText>
+      </parameters>
+      <result></result>
+      <error>
+        <paramText outputType="VALUE" param="Error">"java.lang.IndexOutOfBoundsException: Invalid index: -1 (size: 5)"</paramText>
+      </error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"put"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"7"</paramText>
+        <paramText outputType="VALUE" param="#2">"9"</paramText>
+      </parameters>
+      <result></result>
+      <error>
+        <paramText outputType="VALUE" param="Error">"java.lang.IndexOutOfBoundsException: Invalid index: 7 (size: 5)"</paramText>
+      </error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testPutAll">
+    <runDate>2015-03-01T17:55:33.877+01:00</runDate>
+    <runDuration>0.003425879</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.GapList</traceClass>
+    <traceMethod>/putAll|putArray|putMult/</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"putAll"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"0"</paramText>
+        <paramText outputType="VALUE" param="#2">"{ 8, 9 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 8, 9, 2, 3 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"putAll"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"1"</paramText>
+        <paramText outputType="VALUE" param="#2">"{ 8, 9 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, 8, 9, 3 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"putAll"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"2"</paramText>
+        <paramText outputType="VALUE" param="#2">"{ 8, 9 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 8, 9 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"putAll"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"3"</paramText>
+        <paramText outputType="VALUE" param="#2">"{ 8, 9 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 8, 9 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"putAll"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"4"</paramText>
+        <paramText outputType="VALUE" param="#2">"{ 8, 9 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 8, 9 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"putArray"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"2"</paramText>
+        <paramText outputType="VALUE" param="#2">"[ 6, 7, 8, 9 ]"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 6, 7, 8, 9 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"putMult"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"2"</paramText>
+        <paramText outputType="VALUE" param="#2">"4"</paramText>
+        <paramText outputType="VALUE" param="#3">"9"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 9, 9, 9, 9 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"putAll"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"5"</paramText>
+        <paramText outputType="VALUE" param="#2">"{ 8, 9 }"</paramText>
+      </parameters>
+      <result></result>
+      <error>
+        <paramText outputType="VALUE" param="Error">"java.lang.IndexOutOfBoundsException: Invalid index: 5 (size: 4)"</paramText>
+      </error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"putAll"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"0"</paramText>
+        <paramText outputType="VALUE" param="#2">"null"</paramText>
+      </parameters>
+      <result></result>
+      <error>
+        <paramText outputType="VALUE" param="Error">"java.lang.NullPointerException: Argument may not be null"</paramText>
+      </error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testRemove">
+    <runDate>2016-01-04T23:26:00.771+01:00</runDate>
+    <runDuration>0.031220313</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.GapList</traceClass>
+    <traceMethod>remove</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"remove"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"1"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, 2, 3, 4, 5, 6 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"remove"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"1"</paramText>
+        <paramText outputType="VALUE" param="#2">"3"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, 4, 5, 6 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"remove"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"-1"</paramText>
+      </parameters>
+      <result></result>
+      <error>
+        <paramText outputType="VALUE" param="Error">"java.lang.IndexOutOfBoundsException: Invalid index: -1 (size: 7)"</paramText>
+      </error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"remove"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"7"</paramText>
+      </parameters>
+      <result></result>
+      <error>
+        <paramText outputType="VALUE" param="Error">"java.lang.IndexOutOfBoundsException: Invalid index: 7 (size: 7)"</paramText>
+      </error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"remove"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"5"</paramText>
+        <paramText outputType="VALUE" param="#2">"3"</paramText>
+      </parameters>
+      <result></result>
+      <error>
+        <paramText outputType="VALUE" param="Error">"java.lang.IndexOutOfBoundsException: Invalid range: 5/3 (size: 7)"</paramText>
+      </error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testRemoveAll">
+    <runDate>2015-10-26T22:59:22.363+01:00</runDate>
+    <runDuration>0.00183137</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.GapList</traceClass>
+    <traceMethod>removeAll</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"removeAll"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"{ 0, 2, 4, 6, 8 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 1, 3, 5 }"</paramText>
+        <paramText outputType="VALUE" param="Result">"true"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"removeAll"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"{ 8 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="Result">"false"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"removeAll"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ }"</paramText>
+        <paramText outputType="VALUE" param="#1">"null"</paramText>
+      </parameters>
+      <result></result>
+      <error>
+        <paramText outputType="VALUE" param="Error">"java.lang.NullPointerException: Argument may not be null"</paramText>
+      </error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"removeAll"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"null"</paramText>
+      </parameters>
+      <result></result>
+      <error>
+        <paramText outputType="VALUE" param="Error">"java.lang.NullPointerException: Argument may not be null"</paramText>
+      </error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testRemoveIf">
+    <runDate>2018-02-13T13:12:08.101+01:00</runDate>
+    <runDuration>8.01778E-4</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.GapList</traceClass>
+    <traceMethod>removeIf</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"removeIf"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"i -&gt; i%2==0"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 1, 3 }"</paramText>
+        <paramText outputType="VALUE" param="Result">"true"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testRemoveRange">
+    <runDate>2013-02-21T23:53:02.285+01:00</runDate>
+    <runDuration>4.02321E-4</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.GapList</traceClass>
+    <traceMethod>remove</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"remove"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"1"</paramText>
+        <paramText outputType="VALUE" param="#2">"5"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, 6 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testReplaceAll">
+    <runDate>2015-03-01T17:55:37.545+01:00</runDate>
+    <runDuration>0.002803104</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.GapList</traceClass>
+    <traceMethod>/replaceAll|replaceArray|replaceMult/</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"replaceAll"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"1"</paramText>
+        <paramText outputType="VALUE" param="#2">"1"</paramText>
+        <paramText outputType="VALUE" param="#3">"{ 8, 9 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, 8, 9, 2, 3 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"replaceAll"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"1"</paramText>
+        <paramText outputType="VALUE" param="#2">"2"</paramText>
+        <paramText outputType="VALUE" param="#3">"{ 8, 9 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, 8, 9, 3 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"replaceAll"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"1"</paramText>
+        <paramText outputType="VALUE" param="#2">"3"</paramText>
+        <paramText outputType="VALUE" param="#3">"{ 8, 9 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, 8, 9 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"replaceArray"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"1"</paramText>
+        <paramText outputType="VALUE" param="#2">"1"</paramText>
+        <paramText outputType="VALUE" param="#3">"[ 8, 9 ]"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, 8, 9, 2, 3 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"replaceArray"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"1"</paramText>
+        <paramText outputType="VALUE" param="#2">"2"</paramText>
+        <paramText outputType="VALUE" param="#3">"[ 8, 9 ]"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, 8, 9, 3 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"replaceArray"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"1"</paramText>
+        <paramText outputType="VALUE" param="#2">"3"</paramText>
+        <paramText outputType="VALUE" param="#3">"[ 8, 9 ]"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, 8, 9 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"replaceMult"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"1"</paramText>
+        <paramText outputType="VALUE" param="#2">"1"</paramText>
+        <paramText outputType="VALUE" param="#3">"2"</paramText>
+        <paramText outputType="VALUE" param="#4">"9"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, 9, 9, 2, 3 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"replaceMult"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"1"</paramText>
+        <paramText outputType="VALUE" param="#2">"2"</paramText>
+        <paramText outputType="VALUE" param="#3">"2"</paramText>
+        <paramText outputType="VALUE" param="#4">"9"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, 9, 9, 3 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"replaceMult"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"1"</paramText>
+        <paramText outputType="VALUE" param="#2">"3"</paramText>
+        <paramText outputType="VALUE" param="#3">"2"</paramText>
+        <paramText outputType="VALUE" param="#4">"9"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, 9, 9 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testResize">
+    <runDate>2013-02-21T23:53:02.655+01:00</runDate>
+    <runDuration>0.001246783</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.GapList</traceClass>
+    <traceMethod>resize</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"resize"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"4"</paramText>
+        <paramText outputType="VALUE" param="#2">"9"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"resize"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"5"</paramText>
+        <paramText outputType="VALUE" param="#2">"9"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"resize"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"6"</paramText>
+        <paramText outputType="VALUE" param="#2">"9"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 9 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"resize"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"0"</paramText>
+        <paramText outputType="VALUE" param="#2">"9"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"resize"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"-1"</paramText>
+        <paramText outputType="VALUE" param="#2">"9"</paramText>
+      </parameters>
+      <result></result>
+      <error>
+        <paramText outputType="VALUE" param="Error">"java.lang.IndexOutOfBoundsException: Invalid length: -1"</paramText>
+      </error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testRetainAll">
+    <runDate>2015-10-26T22:59:25.764+01:00</runDate>
+    <runDuration>0.001025912</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.GapList</traceClass>
+    <traceMethod>retainAll</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"retainAll"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"{ 0, 2, 4, 6, 8 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, 2, 4, 6 }"</paramText>
+        <paramText outputType="VALUE" param="Result">"true"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"retainAll"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"{ 0, 1, 2, 3, 4, 5, 6, 7, 8 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="Result">"false"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"retainAll"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ }"</paramText>
+        <paramText outputType="VALUE" param="#1">"null"</paramText>
+      </parameters>
+      <result></result>
+      <error>
+        <paramText outputType="VALUE" param="Error">"java.lang.NullPointerException: Argument may not be null"</paramText>
+      </error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"retainAll"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"null"</paramText>
+      </parameters>
+      <result></result>
+      <error>
+        <paramText outputType="VALUE" param="Error">"java.lang.NullPointerException: Argument may not be null"</paramText>
+      </error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testRetainIf">
+    <runDate>2018-02-13T13:12:10.552+01:00</runDate>
+    <runDuration>8.18222E-4</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.GapList</traceClass>
+    <traceMethod>retainIf</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"retainIf"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"i -&gt; i%2==0"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, 2 }"</paramText>
+        <paramText outputType="VALUE" param="Result">"true"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testReverse">
+    <runDate>2013-02-21T23:53:03.39+01:00</runDate>
+    <runDuration>0.001493512</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.GapList</traceClass>
+    <traceMethod>reverse</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"reverse"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 6, 5, 4, 3, 2, 1, 0 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"reverse"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"1"</paramText>
+        <paramText outputType="VALUE" param="#2">"5"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, 5, 4, 3, 2, 1, 6 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"reverse"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"4"</paramText>
+        <paramText outputType="VALUE" param="#2">"0"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"reverse"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"-1"</paramText>
+        <paramText outputType="VALUE" param="#2">"2"</paramText>
+      </parameters>
+      <result></result>
+      <error>
+        <paramText outputType="VALUE" param="Error">"java.lang.IndexOutOfBoundsException: Invalid range: -1/2 (size: 7)"</paramText>
+      </error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"reverse"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"1"</paramText>
+        <paramText outputType="VALUE" param="#2">"-1"</paramText>
+      </parameters>
+      <result></result>
+      <error>
+        <paramText outputType="VALUE" param="Error">"java.lang.IndexOutOfBoundsException: Invalid range: 1/-1 (size: 7)"</paramText>
+      </error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"reverse"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"1"</paramText>
+        <paramText outputType="VALUE" param="#2">"7"</paramText>
+      </parameters>
+      <result></result>
+      <error>
+        <paramText outputType="VALUE" param="Error">"java.lang.IndexOutOfBoundsException: Invalid range: 1/7 (size: 7)"</paramText>
+      </error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testRotate">
+    <runDate>2015-03-01T02:13:05.455+01:00</runDate>
+    <runDuration>0.023947081</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.GapList</traceClass>
+    <traceMethod>rotate</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"rotate"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"1"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 3, 0, 1, 2 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"rotate"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"0"</paramText>
+        <paramText outputType="VALUE" param="#2">"4"</paramText>
+        <paramText outputType="VALUE" param="#3">"0"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"rotate"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"0"</paramText>
+        <paramText outputType="VALUE" param="#2">"4"</paramText>
+        <paramText outputType="VALUE" param="#3">"1"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 3, 0, 1, 2 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"rotate"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"0"</paramText>
+        <paramText outputType="VALUE" param="#2">"4"</paramText>
+        <paramText outputType="VALUE" param="#3">"2"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 2, 3, 0, 1 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"rotate"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"0"</paramText>
+        <paramText outputType="VALUE" param="#2">"4"</paramText>
+        <paramText outputType="VALUE" param="#3">"3"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 1, 2, 3, 0 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"rotate"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"0"</paramText>
+        <paramText outputType="VALUE" param="#2">"4"</paramText>
+        <paramText outputType="VALUE" param="#3">"4"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"rotate"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"0"</paramText>
+        <paramText outputType="VALUE" param="#2">"4"</paramText>
+        <paramText outputType="VALUE" param="#3">"-1"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 1, 2, 3, 0 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"rotate"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"0"</paramText>
+        <paramText outputType="VALUE" param="#2">"4"</paramText>
+        <paramText outputType="VALUE" param="#3">"-2"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 2, 3, 0, 1 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"rotate"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"0"</paramText>
+        <paramText outputType="VALUE" param="#2">"4"</paramText>
+        <paramText outputType="VALUE" param="#3">"-3"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 3, 0, 1, 2 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"rotate"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"0"</paramText>
+        <paramText outputType="VALUE" param="#2">"4"</paramText>
+        <paramText outputType="VALUE" param="#3">"-4"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"rotate"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"0"</paramText>
+        <paramText outputType="VALUE" param="#2">"5"</paramText>
+        <paramText outputType="VALUE" param="#3">"3"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 2, 3, 4, 0, 1, 5, 6 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+  </traceTest>
+  <captureTest name="testSerialization">
+    <runDate>2013-02-21T23:53:04.095+01:00</runDate>
+    <runDuration>0.006231041</runDuration>
+    <exception></exception>
+    <captureStep>
+      <text outputType="TEXT">"[0, 1, 2, 3, 4, 5, 6]\r\n"</text>
+    </captureStep>
+  </captureTest>
+  <traceTest name="testSet">
+    <runDate>2014-02-12T20:02:18.473+01:00</runDate>
+    <runDuration>6.08816E-4</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.GapList</traceClass>
+    <traceMethod>set</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"set"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"1"</paramText>
+        <paramText outputType="VALUE" param="#2">"9"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, 9, 2, 3, 4, 5, 6 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"set"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"-1"</paramText>
+        <paramText outputType="VALUE" param="#2">"9"</paramText>
+      </parameters>
+      <result></result>
+      <error>
+        <paramText outputType="VALUE" param="Error">"java.lang.IndexOutOfBoundsException: Invalid index: -1 (size: 7)"</paramText>
+      </error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"set"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"7"</paramText>
+        <paramText outputType="VALUE" param="#2">"9"</paramText>
+      </parameters>
+      <result></result>
+      <error>
+        <paramText outputType="VALUE" param="Error">"java.lang.IndexOutOfBoundsException: Invalid index: 7 (size: 7)"</paramText>
+      </error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testSetAll">
+    <runDate>2015-03-01T17:55:42.828+01:00</runDate>
+    <runDuration>0.002337562</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.GapList</traceClass>
+    <traceMethod>/setAll|setArray|setMult/</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"setAll"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"1"</paramText>
+        <paramText outputType="VALUE" param="#2">"{ -1, -2, -3 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, -1, -2, -3, 4, 5, 6 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"setAll"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"1"</paramText>
+        <paramText outputType="VALUE" param="#2">"{ -1, -2, -3 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, -1, -2, -3, 4, 5, 6 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"setArray"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"1"</paramText>
+        <paramText outputType="VALUE" param="#2">"[ -1, -2, -3 ]"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, -1, -2, -3, 4, 5, 6 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"setArray"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"1"</paramText>
+        <paramText outputType="VALUE" param="#2">"[ -1, -2, -3 ]"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, -1, -2, -3, 4, 5, 6 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"setMult"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"1"</paramText>
+        <paramText outputType="VALUE" param="#2">"5"</paramText>
+        <paramText outputType="VALUE" param="#3">"9"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, 9, 9, 9, 9, 9, 6 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"setArray"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"5"</paramText>
+        <paramText outputType="VALUE" param="#2">"[ -1, -2, -3 ]"</paramText>
+      </parameters>
+      <result></result>
+      <error>
+        <paramText outputType="VALUE" param="Error">"java.lang.IndexOutOfBoundsException: Invalid range: 5/3 (size: 7)"</paramText>
+      </error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"setAll"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"1"</paramText>
+        <paramText outputType="VALUE" param="#2">"null"</paramText>
+      </parameters>
+      <result></result>
+      <error>
+        <paramText outputType="VALUE" param="Error">"java.lang.NullPointerException"</paramText>
+      </error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testSort">
+    <runDate>2013-02-21T23:53:05.407+01:00</runDate>
+    <runDuration>0.002169247</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.GapList</traceClass>
+    <traceMethod>sort</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"sort"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 1, 0, 3, 2, 5, 4, 7 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"null"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 7 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"sort"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 1, 0, 3, 2, 5, 4, 7 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"ReverseComparator"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 7, 5, 4, 3, 2, 1, 0 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"sort"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 1, 0, 3, 2, 5, 4, 7 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"1"</paramText>
+        <paramText outputType="VALUE" param="#2">"5"</paramText>
+        <paramText outputType="VALUE" param="#3">"null"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 1, 0, 2, 3, 4, 5, 7 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"sort"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 1, 0, 3, 2, 5, 4, 7 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"1"</paramText>
+        <paramText outputType="VALUE" param="#2">"5"</paramText>
+        <paramText outputType="VALUE" param="#3">"ReverseComparator"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 1, 5, 4, 3, 2, 0, 7 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testSwap">
+    <runDate>2014-08-06T10:28:25.202+02:00</runDate>
+    <runDuration>0.001161237</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.GapList</traceClass>
+    <traceMethod>swap</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"swap"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"0"</paramText>
+        <paramText outputType="VALUE" param="#2">"4"</paramText>
+        <paramText outputType="VALUE" param="#3">"3"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 4, 5, 6, 3, 0, 1, 2 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"swap"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"4"</paramText>
+        <paramText outputType="VALUE" param="#2">"0"</paramText>
+        <paramText outputType="VALUE" param="#3">"3"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 4, 5, 6, 3, 0, 1, 2 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"swap"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"0"</paramText>
+        <paramText outputType="VALUE" param="#2">"4"</paramText>
+        <paramText outputType="VALUE" param="#3">"4"</paramText>
+      </parameters>
+      <result></result>
+      <error>
+        <paramText outputType="VALUE" param="Error">"java.lang.IndexOutOfBoundsException: Invalid range: 4/4 (size: 7)"</paramText>
+      </error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"swap"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"4"</paramText>
+        <paramText outputType="VALUE" param="#2">"0"</paramText>
+        <paramText outputType="VALUE" param="#3">"4"</paramText>
+      </parameters>
+      <result></result>
+      <error>
+        <paramText outputType="VALUE" param="Error">"java.lang.IndexOutOfBoundsException: Invalid range: 4/4 (size: 7)"</paramText>
+      </error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"swap"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"0"</paramText>
+        <paramText outputType="VALUE" param="#2">"2"</paramText>
+        <paramText outputType="VALUE" param="#3">"3"</paramText>
+      </parameters>
+      <result></result>
+      <error>
+        <paramText outputType="VALUE" param="Error">"java.lang.IndexOutOfBoundsException: Swap ranges overlap"</paramText>
+      </error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testToArray">
+    <runDate>2013-02-21T23:53:06.653+01:00</runDate>
+    <runDuration>0.001092013</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.GapList</traceClass>
+    <traceMethod>toArray</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"toArray"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"[ 0, 1, 2, 3, 4, 5, 6 ]"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"toArray"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"0"</paramText>
+        <paramText outputType="VALUE" param="#2">"7"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"[ 0, 1, 2, 3, 4, 5, 6 ]"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"toArray"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"0"</paramText>
+        <paramText outputType="VALUE" param="#2">"2"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"[ 0, 1 ]"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"toArray"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"5"</paramText>
+        <paramText outputType="VALUE" param="#2">"2"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"[ 5, 6 ]"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"toArray"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"2"</paramText>
+        <paramText outputType="VALUE" param="#2">"3"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"[ 2, 3, 4 ]"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"toArray"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"[ ]"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"[ 0, 1, 2, 3, 4, 5, 6 ]"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testTransferCopy">
+    <runDate>2015-03-01T14:56:33.611+01:00</runDate>
+    <runDuration>0.029108274</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.GapList</traceClass>
+    <traceMethod>transferCopy</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"transferCopy"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#2">"0"</paramText>
+        <paramText outputType="VALUE" param="#3">"3"</paramText>
+        <paramText outputType="VALUE" param="#4">"{ 10, 11, 12, 13, 14, 15, 16 }"</paramText>
+        <paramText outputType="VALUE" param="#5">"0"</paramText>
+        <paramText outputType="VALUE" param="#6">"3"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="#1">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#4">"{ 0, 1, 2, 13, 14, 15, 16 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"transferCopy"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#2">"0"</paramText>
+        <paramText outputType="VALUE" param="#3">"3"</paramText>
+        <paramText outputType="VALUE" param="#4">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#5">"3"</paramText>
+        <paramText outputType="VALUE" param="#6">"3"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="#1">"{ 0, 1, 2, 0, 1, 2, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#4">"{ 0, 1, 2, 0, 1, 2, 6 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"transferCopy"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"{ 0, 1, 2, 0, 1, 2, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#2">"0"</paramText>
+        <paramText outputType="VALUE" param="#3">"3"</paramText>
+        <paramText outputType="VALUE" param="#4">"{ 0, 1, 2, 0, 1, 2, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#5">"3"</paramText>
+        <paramText outputType="VALUE" param="#6">"2"</paramText>
+      </parameters>
+      <result></result>
+      <error>
+        <paramText outputType="VALUE" param="Error">"java.lang.IndexOutOfBoundsException: Invalid lengths: 3, 2"</paramText>
+      </error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testTransferMove">
+    <runDate>2015-03-01T14:57:56.492+01:00</runDate>
+    <runDuration>0.021925628</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.GapList</traceClass>
+    <traceMethod>transferMove</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"transferMove"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#2">"0"</paramText>
+        <paramText outputType="VALUE" param="#3">"3"</paramText>
+        <paramText outputType="VALUE" param="#4">"{ 10, 11, 12, 13, 14, 15, 16 }"</paramText>
+        <paramText outputType="VALUE" param="#5">"0"</paramText>
+        <paramText outputType="VALUE" param="#6">"3"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="#1">"{ null, null, null, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#4">"{ 0, 1, 2, 13, 14, 15, 16 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"transferMove"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#2">"0"</paramText>
+        <paramText outputType="VALUE" param="#3">"3"</paramText>
+        <paramText outputType="VALUE" param="#4">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#5">"3"</paramText>
+        <paramText outputType="VALUE" param="#6">"3"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="#1">"{ null, null, null, 0, 1, 2, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#4">"{ null, null, null, 0, 1, 2, 6 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"transferMove"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"{ null, null, null, 0, 1, 2, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#2">"0"</paramText>
+        <paramText outputType="VALUE" param="#3">"3"</paramText>
+        <paramText outputType="VALUE" param="#4">"{ null, null, null, 0, 1, 2, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#5">"3"</paramText>
+        <paramText outputType="VALUE" param="#6">"2"</paramText>
+      </parameters>
+      <result></result>
+      <error>
+        <paramText outputType="VALUE" param="Error">"java.lang.IndexOutOfBoundsException: Invalid lengths: 3, 2"</paramText>
+      </error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testTransferRemove">
+    <runDate>2015-03-01T14:58:13.36+01:00</runDate>
+    <runDuration>0.023436791</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.GapList</traceClass>
+    <traceMethod>transferRemove</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"transferRemove"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#2">"0"</paramText>
+        <paramText outputType="VALUE" param="#3">"3"</paramText>
+        <paramText outputType="VALUE" param="#4">"{ 10, 11, 12, 13, 14, 15, 16 }"</paramText>
+        <paramText outputType="VALUE" param="#5">"0"</paramText>
+        <paramText outputType="VALUE" param="#6">"3"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="#1">"{ 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#4">"{ 0, 1, 2, 13, 14, 15, 16 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"transferRemove"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#2">"0"</paramText>
+        <paramText outputType="VALUE" param="#3">"3"</paramText>
+        <paramText outputType="VALUE" param="#4">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#5">"3"</paramText>
+        <paramText outputType="VALUE" param="#6">"3"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="#1">"{ 3, 4, 5, 0, 1, 2, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#4">"{ 3, 4, 5, 0, 1, 2, 6 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"transferRemove"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"{ 3, 4, 5, 0, 1, 2, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#2">"0"</paramText>
+        <paramText outputType="VALUE" param="#3">"3"</paramText>
+        <paramText outputType="VALUE" param="#4">"{ 3, 4, 5, 0, 1, 2, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#5">"3"</paramText>
+        <paramText outputType="VALUE" param="#6">"2"</paramText>
+      </parameters>
+      <result></result>
+      <error>
+        <paramText outputType="VALUE" param="Error">"java.lang.IndexOutOfBoundsException: Invalid lengths: 3, 2"</paramText>
+      </error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testTransferSwap">
+    <runDate>2015-03-01T15:00:15.594+01:00</runDate>
+    <runDuration>0.02164195</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.GapList</traceClass>
+    <traceMethod>transferSwap</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"transferSwap"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#2">"0"</paramText>
+        <paramText outputType="VALUE" param="#3">"{ 10, 11, 12, 13, 14, 15, 16 }"</paramText>
+        <paramText outputType="VALUE" param="#4">"0"</paramText>
+        <paramText outputType="VALUE" param="#5">"3"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="#1">"{ 10, 11, 12, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#3">"{ 0, 1, 2, 13, 14, 15, 16 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"transferSwap"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#2">"0"</paramText>
+        <paramText outputType="VALUE" param="#3">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#4">"3"</paramText>
+        <paramText outputType="VALUE" param="#5">"3"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="#1">"{ 3, 4, 5, 0, 1, 2, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#3">"{ 3, 4, 5, 0, 1, 2, 6 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testTrimToSize">
+    <runDate>2014-09-20T17:39:10.499+02:00</runDate>
+    <runDuration>0.001068201</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.GapList</traceClass>
+    <traceMethod>/.*/</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"capacity"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ }"</paramText>
+        <paramText outputType="VALUE" param="Result">"0"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"trimToSize"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"capacity"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ }"</paramText>
+        <paramText outputType="VALUE" param="Result">"0"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"add"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ }"</paramText>
+        <paramText outputType="VALUE" param="#1">"1"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 1 }"</paramText>
+        <paramText outputType="VALUE" param="Result">"true"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"capacity"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 1 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 1 }"</paramText>
+        <paramText outputType="VALUE" param="Result">"10"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"add"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 1 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"1"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 1, 1 }"</paramText>
+        <paramText outputType="VALUE" param="Result">"true"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"capacity"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 1, 1 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 1, 1 }"</paramText>
+        <paramText outputType="VALUE" param="Result">"10"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"add"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 1, 1 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"1"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 1, 1, 1 }"</paramText>
+        <paramText outputType="VALUE" param="Result">"true"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"capacity"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 1, 1, 1 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 1, 1, 1 }"</paramText>
+        <paramText outputType="VALUE" param="Result">"10"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"trimToSize"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 1, 1, 1 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 1, 1, 1 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"capacity"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 1, 1, 1 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 1, 1, 1 }"</paramText>
+        <paramText outputType="VALUE" param="Result">"3"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testUnmodifiableList">
+    <runDate>2013-09-27T09:46:33.985+02:00</runDate>
+    <runDuration>0.001330118</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.GapList</traceClass>
+    <traceMethod>/.+/</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"unmodifiableList"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"get"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"0"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"0"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"set"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"0"</paramText>
+        <paramText outputType="VALUE" param="#2">"9"</paramText>
+      </parameters>
+      <result></result>
+      <error>
+        <paramText outputType="VALUE" param="Error">"java.lang.UnsupportedOperationException: list is immutable"</paramText>
+      </error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"add"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"9"</paramText>
+      </parameters>
+      <result></result>
+      <error>
+        <paramText outputType="VALUE" param="Error">"java.lang.UnsupportedOperationException: list is immutable"</paramText>
+      </error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"remove"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"0"</paramText>
+      </parameters>
+      <result></result>
+      <error>
+        <paramText outputType="VALUE" param="Error">"java.lang.UnsupportedOperationException: list is immutable"</paramText>
+      </error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"ensureCapacity"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"10"</paramText>
+      </parameters>
+      <result></result>
+      <error>
+        <paramText outputType="VALUE" param="Error">"java.lang.UnsupportedOperationException: list is immutable"</paramText>
+      </error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"clear"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+      </parameters>
+      <result></result>
+      <error>
+        <paramText outputType="VALUE" param="Error">"java.lang.UnsupportedOperationException: list is immutable"</paramText>
+      </error>
+    </traceStep>
+  </traceTest>
+</testClass>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<testClass xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="org.magicwerk.brownies.collections.TableListImplTest" xsi:noNamespaceSchemaLocation="testclass-v10.xsd">
+  <captureTest name="testAsSet">
+    <runDate>2013-09-26T01:20:49.149+02:00</runDate>
+    <runDuration>0.02953927</runDuration>
+    <exception />
+    <captureStep>
+      <text outputType="TEXT">"[Ticket [id=id2, extId=extId2, text=text2], Ticket [id=id3, extId=extId3, text=text3], Ticket [id=id1, extId=extId1, text=text1]]\r\n[Ticket [id=id3, extId=extId3, text=text3], Ticket [id=id1, extId=extId1, text=text1]]\r\n[Ticket [id=id1, extId=extId1, text=text1]]\r\n[1, 2, 3]\r\n[1, 3]\r\n[3]\r\n"</text>
+    </captureStep>
+  </captureTest>
+  <captureTest name="testTableListImpl">
+    <runDate>2013-09-24T23:04:44.590+02:00</runDate>
+    <runDuration>0.141494887</runDuration>
+    <exception />
+    <captureStep>
+      <text outputType="TEXT">"null\r\nclass java.util.HashMap\r\n[Ticket [id=id1, extId=extId1, text=text1], Ticket [id=id2, extId=extId2, text=text2], Ticket [id=id3, extId=extId3, text=text3]]\r\nclass org.magicwerk.brownies.collections.GapList\r\n[1, 2, 3]\r\nclass org.magicwerk.brownies.collections.primitive.IntObjGapList\r\n[Ticket [id=id2, extId=extId2, text=text2], Ticket [id=id3, extId=extId3, text=text3], Ticket [id=id1, extId=extId1, text=text1], null]\r\n[Ticket [id=id1, extId=extId1, text=text1], Ticket [id=id2, extId=extId2, text=text2], Ticket [id=id3, extId=extId3, text=text3], null]\r\n[Ticket [id=id3, extId=extId3, text=text3], Ticket [id=id2, extId=extId2, text=text2], Ticket [id=id1, extId=extId1, text=text1]]\r\n"</text>
+    </captureStep>
+  </captureTest>
+</testClass>
+

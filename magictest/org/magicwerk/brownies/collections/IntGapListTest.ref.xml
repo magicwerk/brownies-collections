@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testClass xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="org.magicwerk.brownies.collections.IntGapListTest" xsi:noNamespaceSchemaLocation="testclass-v10.xsd">
+  <traceTest name="testCreate">
+    <runDate>2014-10-12T12:11:10.763+02:00</runDate>
+    <runDuration>0.01227856</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.primitive.IntGapList</traceClass>
+    <traceMethod>create</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"create"</paramText>
+      </description>
+      <parameters></parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"[]"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"create"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"[ 5 ]"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"[5]"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"create"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"[ 1, 2 ]"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"[1, 2]"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"create"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"{ 1, 2, 3 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"[1, 2, 3]"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testEquals">
+    <runDate>2012-11-22T21:35:07.915+01:00</runDate>
+    <runDuration>0.0285124</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.primitive.IntGapList</traceClass>
+    <traceMethod>equals</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"equals"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"[1, 2, 3]"</paramText>
+        <paramText outputType="VALUE" param="#1">"[1, 2, 3]"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"true"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"equals"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"[1, 2, 3]"</paramText>
+        <paramText outputType="VALUE" param="#1">"[0, 2, 3]"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"false"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testToArray">
+    <runDate>2018-07-20T02:27:23.788+02:00</runDate>
+    <runDuration>4.63111E-4</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.primitive.IntGapList</traceClass>
+    <traceMethod>toArray</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"toArray"</paramText>
+      </description>
+      <parameters></parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"[ ]"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"toArray"</paramText>
+      </description>
+      <parameters></parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"[ ]"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"toArray"</paramText>
+      </description>
+      <parameters></parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"[ 1, 2, 3 ]"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+  </traceTest>
+</testClass>

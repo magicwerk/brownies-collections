@@ -1,0 +1,3 @@
+magicTestDir=magictest
+outputDir=test-output
+useProjectJar=false

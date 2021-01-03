@@ -1,0 +1,622 @@
+Java,Release,Run,Type,Time,VmArgs
+1.6.0,0.9.0-pub,Get last,GapList,0.458,
+1.6.0,0.9.0-pub,Get last,ArrayList,0.564,
+1.6.0,0.9.0-pub,Get last,LinkedList,0.157,
+1.6.0,0.9.0-pub,Get first,GapList,0.44,
+1.6.0,0.9.0-pub,Get first,ArrayList,0.443,
+1.6.0,0.9.0-pub,Get first,LinkedList,0.153,
+1.6.0,0.9.0-pub,Get random,GapList,3.575,
+1.6.0,0.9.0-pub,Get random,ArrayList,4.036,
+1.6.0,0.9.0-pub,Get random,LinkedList,7680.0,
+1.6.0,0.9.0-pub,Add last,GapList,2.1,
+1.6.0,0.9.0-pub,Add last,ArrayList,1.5,
+1.6.0,0.9.0-pub,Add last,LinkedList,1.3,
+1.6.0,0.9.0-pub,Add first,GapList,2.5,
+1.6.0,0.9.0-pub,Add first,ArrayList,6259.0,
+1.6.0,0.9.0-pub,Add first,LinkedList,1.3,
+1.6.0,0.9.0-pub,Add random,GapList,5.2,
+1.6.0,0.9.0-pub,Add random,ArrayList,3.0,
+1.6.0,0.9.0-pub,Add random,LinkedList,25.4,
+1.6.0,0.9.0-pub,Add near 0.1,GapList,396.0,
+1.6.0,0.9.0-pub,Add near 0.1,ArrayList,2743.0,
+1.6.0,0.9.0-pub,Add near 0.1,LinkedList,13711.0,
+1.6.0,0.9.0-pub,Add near 0.01,GapList,55.0,
+1.6.0,0.9.0-pub,Add near 0.01,ArrayList,4624.0,
+1.6.0,0.9.0-pub,Add near 0.01,LinkedList,11437.0,
+1.6.0,0.9.0-pub,Add iter 2.0,GapList,11.0,
+1.6.0,0.9.0-pub,Add iter 2.0,ArrayList,2169.0,
+1.6.0,0.9.0-pub,Add iter 2.0,LinkedList,6.0,
+1.6.0_45,0.9.0,Get last,GapList,0.234,
+1.6.0_45,0.9.0,Get last,ArrayList,0.221,
+1.6.0_45,0.9.0,Get last,LinkedList,0.076,
+1.6.0_45,0.9.0,Get first,GapList,0.237,
+1.6.0_45,0.9.0,Get first,ArrayList,0.206,
+1.6.0_45,0.9.0,Get first,LinkedList,0.076,
+1.6.0_45,0.9.0,Get random,GapList,1.641,
+1.6.0_45,0.9.0,Get random,ArrayList,2.102,
+1.6.0_45,0.9.0,Get random,LinkedList,2147.591,
+1.6.0_45,0.9.0,Add last,GapList,0.124,
+1.6.0_45,0.9.0,Add last,ArrayList,0.113,
+1.6.0_45,0.9.0,Add last,LinkedList,0.13,
+1.6.0_45,0.9.0,Add first,GapList,0.159,
+1.6.0_45,0.9.0,Add first,ArrayList,103.793,
+1.6.0_45,0.9.0,Add first,LinkedList,0.137,
+1.6.0_45,0.9.0,Add random,GapList,79.958,
+1.6.0_45,0.9.0,Add random,ArrayList,52.943,
+1.6.0_45,0.9.0,Add random,LinkedList,106.815,
+1.6.0_45,0.9.0,Add near 0.1,GapList,7.988,
+1.6.0_45,0.9.0,Add near 0.1,ArrayList,50.553,
+1.6.0_45,0.9.0,Add near 0.1,LinkedList,82.171,
+1.6.0_45,0.9.0,Add near 0.01,GapList,2.207,
+1.6.0_45,0.9.0,Add near 0.01,ArrayList,85.157,
+1.6.0_45,0.9.0,Add near 0.01,LinkedList,62.789,
+1.6.0_45,0.9.0,Add iter 2.0,GapList,0.933,
+1.6.0_45,0.9.0,Add iter 2.0,ArrayList,35.041,
+1.6.0_45,0.9.0,Add iter 2.0,LinkedList,0.406,
+1.7.0_40,0.9.0,Get last,GapList,0.258,
+1.7.0_40,0.9.0,Get last,ArrayList,0.074,
+1.7.0_40,0.9.0,Get last,LinkedList,0.046,
+1.7.0_40,0.9.0,Get first,GapList,0.235,
+1.7.0_40,0.9.0,Get first,ArrayList,0.068,
+1.7.0_40,0.9.0,Get first,LinkedList,0.045,
+1.7.0_40,0.9.0,Get random,GapList,1.329,
+1.7.0_40,0.9.0,Get random,ArrayList,1.649,
+1.7.0_40,0.9.0,Get random,LinkedList,2143.11,
+1.7.0_40,0.9.0,Add last,GapList,0.121,
+1.7.0_40,0.9.0,Add last,ArrayList,0.063,
+1.7.0_40,0.9.0,Add last,LinkedList,0.126,
+1.7.0_40,0.9.0,Add first,GapList,0.158,
+1.7.0_40,0.9.0,Add first,ArrayList,34.336,
+1.7.0_40,0.9.0,Add first,LinkedList,0.118,
+1.7.0_40,0.9.0,Add random,GapList,50.464,
+1.7.0_40,0.9.0,Add random,ArrayList,18.777,
+1.7.0_40,0.9.0,Add random,LinkedList,111.431,
+1.7.0_40,0.9.0,Add near 0.1,GapList,5.957,
+1.7.0_40,0.9.0,Add near 0.1,ArrayList,16.258,
+1.7.0_40,0.9.0,Add near 0.1,LinkedList,80.75,
+1.7.0_40,0.9.0,Add near 0.01,GapList,1.611,
+1.7.0_40,0.9.0,Add near 0.01,ArrayList,26.991,
+1.7.0_40,0.9.0,Add near 0.01,LinkedList,60.61,
+1.7.0_40,0.9.0,Add iter 2.0,GapList,0.671,
+1.7.0_40,0.9.0,Add iter 2.0,ArrayList,12.855,
+1.7.0_40,0.9.0,Add iter 2.0,LinkedList,0.399,
+1.6.0_45,0.9.5,Get last,GapList,0.4708631459510357,
+1.6.0_45,0.9.5,Get last,ArrayList,0.7281264905385741,
+1.6.0_45,0.9.5,Get last,LinkedList,0.5203524245577522,
+1.6.0_45,0.9.5,Get first,GapList,0.32520988361508474,
+1.6.0_45,0.9.5,Get first,ArrayList,0.3404240503744048,
+1.6.0_45,0.9.5,Get first,LinkedList,0.7054739492242598,
+1.6.0_45,0.9.5,Get random,GapList,1.8228977163636366,
+1.6.0_45,0.9.5,Get random,ArrayList,2.5143885477386934,
+1.6.0_45,0.9.5,Get random,LinkedList,2104.309086,
+1.6.0_45,0.9.5,Add last,GapList,0.18376199889746406,
+1.6.0_45,0.9.5,Add last,ArrayList,0.12794280140502592,
+1.6.0_45,0.9.5,Add last,LinkedList,0.19379909573643422,
+1.6.0_45,0.9.5,Add first,GapList,0.17807699821937234,
+1.6.0_45,0.9.5,Add first,ArrayList,120.13345499999998,
+1.6.0_45,0.9.5,Add first,LinkedList,0.24725267226890765,
+1.6.0_45,0.9.5,Add random,GapList,76.75203014285714,
+1.6.0_45,0.9.5,Add random,ArrayList,56.430623,
+1.6.0_45,0.9.5,Add random,LinkedList,107.78545380000001,
+1.6.0_45,0.9.5,Add near 0.1,GapList,8.367092516666666,
+1.6.0_45,0.9.5,Add near 0.1,ArrayList,54.425553699999995,
+1.6.0_45,0.9.5,Add near 0.1,LinkedList,87.43042166666666,
+1.6.0_45,0.9.5,Add near 0.01,GapList,2.5587346122448973,
+1.6.0_45,0.9.5,Add near 0.01,ArrayList,91.13394933333333,
+1.6.0_45,0.9.5,Add near 0.01,LinkedList,63.88605162499999,
+1.6.0_45,0.9.5,Add iter 2.0,GapList,1.0909318431372543,
+1.6.0_45,0.9.5,Add iter 2.0,ArrayList,37.17395428571429,
+1.6.0_45,0.9.5,Add iter 2.0,LinkedList,126.2224555,
+1.7.0_40,0.9.5,Get last,GapList,0.34664801178101295,
+1.7.0_40,0.9.5,Get last,ArrayList,0.3959470110759516,
+1.7.0_40,0.9.5,Get last,LinkedList,0.41966525755033546,
+1.7.0_40,0.9.5,Get first,GapList,0.3247739435064939,
+1.7.0_40,0.9.5,Get first,ArrayList,0.1894899852216756,
+1.7.0_40,0.9.5,Get first,LinkedList,0.40096593344025705,
+1.7.0_40,0.9.5,Get random,GapList,1.6405032032786888,
+1.7.0_40,0.9.5,Get random,ArrayList,1.918288356321839,
+1.7.0_40,0.9.5,Get random,LinkedList,2221.0247980000004,
+1.7.0_40,0.9.5,Add last,GapList,0.17494965360391776,
+1.7.0_40,0.9.5,Add last,ArrayList,0.10321383152645275,
+1.7.0_40,0.9.5,Add last,LinkedList,0.1746586370939568,
+1.7.0_40,0.9.5,Add first,GapList,0.1545017954896504,
+1.7.0_40,0.9.5,Add first,ArrayList,40.97720284615384,
+1.7.0_40,0.9.5,Add first,LinkedList,0.19971117531948857,
+1.7.0_40,0.9.5,Add random,GapList,50.528475199999995,
+1.7.0_40,0.9.5,Add random,ArrayList,19.390354807692315,
+1.7.0_40,0.9.5,Add random,LinkedList,117.33643239999999,
+1.7.0_40,0.9.5,Add near 0.1,GapList,6.1640468414634135,
+1.7.0_40,0.9.5,Add near 0.1,ArrayList,17.90211057142857,
+1.7.0_40,0.9.5,Add near 0.1,LinkedList,86.73621616666667,
+1.7.0_40,0.9.5,Add near 0.01,GapList,1.8534528962962973,
+1.7.0_40,0.9.5,Add near 0.01,ArrayList,31.923576875,
+1.7.0_40,0.9.5,Add near 0.01,LinkedList,61.93665055555556,
+1.7.0_40,0.9.5,Add iter 2.0,GapList,0.7234634869942203,
+1.7.0_40,0.9.5,Add iter 2.0,ArrayList,11.902541999999999,
+1.7.0_40,0.9.5,Add iter 2.0,LinkedList,122.0929146,
+1.6.0_45,0.9.6,Get last,GapList,0.6042343454106277,
+1.6.0_45,0.9.6,Get last,ArrayList,1.0401748731808738,
+1.6.0_45,0.9.6,Get last,LinkedList,1.016897213414634,
+1.6.0_45,0.9.6,Get first,GapList,0.3029664827377336,
+1.6.0_45,0.9.6,Get first,ArrayList,0.4584612823098092,
+1.6.0_45,0.9.6,Get first,LinkedList,0.4865240603112826,
+1.6.0_45,0.9.6,Get random,GapList,1.5529180745341615,
+1.6.0_45,0.9.6,Get random,ArrayList,2.0979410418410036,
+1.6.0_45,0.9.6,Get random,LinkedList,2169.255129,
+1.6.0_45,0.9.6,Add last,GapList,0.2011366545148623,
+1.6.0_45,0.9.6,Add last,ArrayList,0.14570768618881197,
+1.6.0_45,0.9.6,Add last,LinkedList,0.17040509335604814,
+1.6.0_45,0.9.6,Add first,GapList,0.22032824537444967,
+1.6.0_45,0.9.6,Add first,ArrayList,104.8639236,
+1.6.0_45,0.9.6,Add first,LinkedList,0.2557890327365729,
+1.6.0_45,0.9.6,Add random,GapList,66.675274125,
+1.6.0_45,0.9.6,Add random,ArrayList,65.78816925,
+1.6.0_45,0.9.6,Add random,LinkedList,135.127529,
+1.6.0_45,0.9.6,Add near 0.1,GapList,0.9494634250474391,
+1.6.0_45,0.9.6,Add near 0.1,ArrayList,107.83246899999999,
+1.6.0_45,0.9.6,Add near 0.1,LinkedList,0.6789326811397559,
+1.6.0_45,0.9.6,Add near 0.01,GapList,1.0217331693877552,
+1.6.0_45,0.9.6,Add near 0.01,ArrayList,106.078437,
+1.6.0_45,0.9.6,Add near 0.01,LinkedList,3.1521714528301907,
+1.6.0_45,0.9.6,Add iter 2.0,GapList,1.0854237722342739,
+1.6.0_45,0.9.6,Add iter 2.0,ArrayList,36.9143395,
+1.6.0_45,0.9.6,Add iter 2.0,LinkedList,128.08375075,
+1.7.0_40,0.9.6,Get last,GapList,0.46047867771639056,
+1.7.0_40,0.9.6,Get last,ArrayList,0.6742719245283016,
+1.7.0_40,0.9.6,Get last,LinkedList,1.3940370666666664,
+1.7.0_40,0.9.6,Get first,GapList,0.3337420800533683,
+1.7.0_40,0.9.6,Get first,ArrayList,0.3950376216429696,
+1.7.0_40,0.9.6,Get first,LinkedList,0.5025779698492461,
+1.7.0_40,0.9.6,Get random,GapList,3.036688618181817,
+1.7.0_40,0.9.6,Get random,ArrayList,1.7705495759717305,
+1.7.0_40,0.9.6,Get random,LinkedList,4015.3353650000004,
+1.7.0_40,0.9.6,Add last,GapList,0.1844338231166907,
+1.7.0_40,0.9.6,Add last,ArrayList,0.14376970040253045,
+1.7.0_40,0.9.6,Add last,LinkedList,0.2026930267531411,
+1.7.0_40,0.9.6,Add first,GapList,0.28052998429613063,
+1.7.0_40,0.9.6,Add first,ArrayList,46.07319609090909,
+1.7.0_40,0.9.6,Add first,LinkedList,0.26237999999999917,
+1.7.0_40,0.9.6,Add random,GapList,54.53350800000001,
+1.7.0_40,0.9.6,Add random,ArrayList,22.297014391304348,
+1.7.0_40,0.9.6,Add random,LinkedList,119.29735240000001,
+1.7.0_40,0.9.6,Add near 0.1,GapList,0.6568169055118117,
+1.7.0_40,0.9.6,Add near 0.1,ArrayList,36.00469185714285,
+1.7.0_40,0.9.6,Add near 0.1,LinkedList,0.5669067214043034,
+1.7.0_40,0.9.6,Add near 0.01,GapList,0.7142286932952934,
+1.7.0_40,0.9.6,Add near 0.01,ArrayList,35.693596,
+1.7.0_40,0.9.6,Add near 0.01,LinkedList,2.976682797619046,
+1.7.0_40,0.9.6,Add iter 2.0,GapList,0.7700231246153844,
+1.7.0_40,0.9.6,Add iter 2.0,ArrayList,12.369181926829269,
+1.7.0_40,0.9.6,Add iter 2.0,LinkedList,124.5141268,
+1.8.0,0.9.6,Get last,GapList,0.45136820487364654,
+1.8.0,0.9.6,Get last,ArrayList,0.6944438363384188,
+1.8.0,0.9.6,Get last,LinkedList,0.7965388582802547,
+1.8.0,0.9.6,Get first,GapList,0.33432270387700386,
+1.8.0,0.9.6,Get first,ArrayList,0.3493201215083798,
+1.8.0,0.9.6,Get first,LinkedList,0.48985208227228244,
+1.8.0,0.9.6,Get random,GapList,1.469662841642229,
+1.8.0,0.9.6,Get random,ArrayList,1.683814760942761,
+1.8.0,0.9.6,Get random,LinkedList,2214.6524059999997,
+1.8.0,0.9.6,Add last,GapList,0.15224018143074575,
+1.8.0,0.9.6,Add last,ArrayList,0.12085696955050818,
+1.8.0,0.9.6,Add last,LinkedList,0.1643172714426549,
+1.8.0,0.9.6,Add first,GapList,0.21224667020373553,
+1.8.0,0.9.6,Add first,ArrayList,38.94209599999999,
+1.8.0,0.9.6,Add first,LinkedList,0.2712539810195232,
+1.8.0,0.9.6,Add random,GapList,42.07529816666666,
+1.8.0,0.9.6,Add random,ArrayList,21.898960652173916,
+1.8.0,0.9.6,Add random,LinkedList,109.26957200000001,
+1.8.0,0.9.6,Add near 0.1,GapList,0.6353503481575599,
+1.8.0,0.9.6,Add near 0.1,ArrayList,36.48724135714286,
+1.8.0,0.9.6,Add near 0.1,LinkedList,0.5690890602957905,
+1.8.0,0.9.6,Add near 0.01,GapList,0.7372878659793812,
+1.8.0,0.9.6,Add near 0.01,ArrayList,35.93924192857142,
+1.8.0,0.9.6,Add near 0.01,LinkedList,3.6246148260869564,
+1.8.0,0.9.6,Add iter 2.0,GapList,0.8495595942275043,
+1.8.0,0.9.6,Add iter 2.0,ArrayList,13.630964108108108,
+1.8.0,0.9.6,Add iter 2.0,LinkedList,126.26705075,
+1.6.0_45,0.9.7,Get last,GapList,0.7670849309815947,
+1.6.0_45,0.9.7,Get last,ArrayList,1.051318413865546,
+1.6.0_45,0.9.7,Get last,LinkedList,1.0197492382892064,
+1.6.0_45,0.9.7,Get first,GapList,0.3283380886408393,
+1.6.0_45,0.9.7,Get first,ArrayList,0.50716249087221,
+1.6.0_45,0.9.7,Get first,LinkedList,0.4886519101562493,
+1.6.0_45,0.9.7,Get random,GapList,2.2732917409090905,
+1.6.0_45,0.9.7,Get random,ArrayList,2.627581780104712,
+1.6.0_45,0.9.7,Get random,LinkedList,2108.791386,
+1.6.0_45,0.9.7,Add last,GapList,0.17017520397286817,
+1.6.0_45,0.9.7,Add last,ArrayList,0.1472039902855456,
+1.6.0_45,0.9.7,Add last,LinkedList,0.17703991610619502,
+1.6.0_45,0.9.7,Add first,GapList,0.23366107897196386,
+1.6.0_45,0.9.7,Add first,ArrayList,103.8328354,
+1.6.0_45,0.9.7,Add first,LinkedList,0.21004071314573738,
+1.6.0_45,0.9.7,Add random,GapList,69.67584112500002,
+1.6.0_45,0.9.7,Add random,ArrayList,56.326189666666664,
+1.6.0_45,0.9.7,Add random,LinkedList,107.24155179999998,
+1.6.0_45,0.9.7,Add near 0.1,GapList,0.9354584560747665,
+1.6.0_45,0.9.7,Add near 0.1,ArrayList,109.4664624,
+1.6.0_45,0.9.7,Add near 0.1,LinkedList,0.6102484926829276,
+1.6.0_45,0.9.7,Add near 0.01,GapList,0.976297376218323,
+1.6.0_45,0.9.7,Add near 0.01,ArrayList,102.913247,
+1.6.0_45,0.9.7,Add near 0.01,LinkedList,2.988202142857144,
+1.6.0_45,0.9.7,Add iter 2.0,GapList,1.0549731455696212,
+1.6.0_45,0.9.7,Add iter 2.0,ArrayList,35.618468666666665,
+1.6.0_45,0.9.7,Add iter 2.0,LinkedList,122.854763,
+1.7.0_40,0.9.7,Get last,GapList,0.49967952347652367,
+1.7.0_40,0.9.7,Get last,ArrayList,0.6076927970838375,
+1.7.0_40,0.9.7,Get last,LinkedList,0.7567696883509832,
+1.7.0_40,0.9.7,Get first,GapList,0.2962380793838854,
+1.7.0_40,0.9.7,Get first,ArrayList,0.3984245195219112,
+1.7.0_40,0.9.7,Get first,LinkedList,0.5832268927738927,
+1.7.0_40,0.9.7,Get random,GapList,1.454269441860465,
+1.7.0_40,0.9.7,Get random,ArrayList,1.8386390257352938,
+1.7.0_40,0.9.7,Get random,LinkedList,2132.836564,
+1.7.0_40,0.9.7,Add last,GapList,0.1909382319466245,
+1.7.0_40,0.9.7,Add last,ArrayList,0.12794945496417715,
+1.7.0_40,0.9.7,Add last,LinkedList,0.16536556944444425,
+1.7.0_40,0.9.7,Add first,GapList,0.2113613968723598,
+1.7.0_40,0.9.7,Add first,ArrayList,34.583330133333334,
+1.7.0_40,0.9.7,Add first,LinkedList,0.2122742139219015,
+1.7.0_40,0.9.7,Add random,GapList,43.40350108333333,
+1.7.0_40,0.9.7,Add random,ArrayList,19.36825746153846,
+1.7.0_40,0.9.7,Add random,LinkedList,111.2257494,
+1.7.0_40,0.9.7,Add near 0.1,GapList,0.6530906984334197,
+1.7.0_40,0.9.7,Add near 0.1,ArrayList,37.613854142857136,
+1.7.0_40,0.9.7,Add near 0.1,LinkedList,0.5911939066193854,
+1.7.0_40,0.9.7,Add near 0.01,GapList,0.7527171338345862,
+1.7.0_40,0.9.7,Add near 0.01,ArrayList,35.82206471428572,
+1.7.0_40,0.9.7,Add near 0.01,LinkedList,2.933451198830408,
+1.7.0_40,0.9.7,Add iter 2.0,GapList,0.8351409081803,
+1.7.0_40,0.9.7,Add iter 2.0,ArrayList,12.413869585365854,
+1.7.0_40,0.9.7,Add iter 2.0,LinkedList,121.82318220000002,
+1.8.0_05,0.9.7,Get last,GapList,0.4570858619744066,
+1.8.0_05,0.9.7,Get last,ArrayList,0.6246054019975039,
+1.8.0_05,0.9.7,Get last,LinkedList,0.8109825980551065,
+1.8.0_05,0.9.7,Get first,GapList,0.30130312891566263,
+1.8.0_05,0.9.7,Get first,ArrayList,0.3818939175572519,
+1.8.0_05,0.9.7,Get first,LinkedList,0.4804211575408258,
+1.8.0_05,0.9.7,Get random,GapList,1.3979031284916206,
+1.8.0_05,0.9.7,Get random,ArrayList,1.7370740138888894,
+1.8.0_05,0.9.7,Get random,LinkedList,2110.573088,
+1.8.0_05,0.9.7,Add last,GapList,0.14950143451838285,
+1.8.0_05,0.9.7,Add last,ArrayList,0.12904566425806505,
+1.8.0_05,0.9.7,Add last,LinkedList,0.16286906188925077,
+1.8.0_05,0.9.7,Add first,GapList,0.2152526134309096,
+1.8.0_05,0.9.7,Add first,ArrayList,36.81226371428572,
+1.8.0_05,0.9.7,Add first,LinkedList,0.19989188768984817,
+1.8.0_05,0.9.7,Add random,GapList,39.264362000000006,
+1.8.0_05,0.9.7,Add random,ArrayList,19.041176999999998,
+1.8.0_05,0.9.7,Add random,LinkedList,106.4150718,
+1.8.0_05,0.9.7,Add near 0.1,GapList,0.7087400835694049,
+1.8.0_05,0.9.7,Add near 0.1,ArrayList,35.73940121428572,
+1.8.0_05,0.9.7,Add near 0.1,LinkedList,0.5509748006607927,
+1.8.0_05,0.9.7,Add near 0.01,GapList,0.7817769468750002,
+1.8.0_05,0.9.7,Add near 0.01,ArrayList,36.305347000000005,
+1.8.0_05,0.9.7,Add near 0.01,LinkedList,2.998049700598801,
+1.8.0_05,0.9.7,Add iter 2.0,GapList,0.8247374497528842,
+1.8.0_05,0.9.7,Add iter 2.0,ArrayList,12.366107878048782,
+1.8.0_05,0.9.7,Add iter 2.0,LinkedList,126.59691249999999,
+1.6.0_45,0.9.8,Get last,GapList,0.7555319531722055,
+1.6.0_45,0.9.8,Get last,ArrayList,1.248744,
+1.6.0_45,0.9.8,Get last,LinkedList,1.2824136163682858,
+1.6.0_45,0.9.8,Get first,GapList,0.3757036814425237,
+1.6.0_45,0.9.8,Get first,ArrayList,0.5549982042175368,
+1.6.0_45,0.9.8,Get first,LinkedList,0.5952947833333326,
+1.6.0_45,0.9.8,Get random,GapList,1.705088588435375,
+1.6.0_45,0.9.8,Get random,ArrayList,1.8919930188679248,
+1.6.0_45,0.9.8,Get random,LinkedList,2650.852344,
+1.6.0_45,0.9.8,Add last,GapList,0.5166349452479341,
+1.6.0_45,0.9.8,Add last,ArrayList,0.5710391735159814,
+1.6.0_45,0.9.8,Add last,LinkedList,0.6316510795454545,
+1.6.0_45,0.9.8,Add first,GapList,0.27422182785087773,
+1.6.0_45,0.9.8,Add first,ArrayList,121.6236318,
+1.6.0_45,0.9.8,Add first,LinkedList,0.247793039147671,
+1.6.0_45,0.9.8,Add random,GapList,77.74640285714287,
+1.6.0_45,0.9.8,Add random,ArrayList,63.40768299999999,
+1.6.0_45,0.9.8,Add random,LinkedList,129.02155799999997,
+1.6.0_45,0.9.8,Add near 0.1,GapList,1.1888381282660334,
+1.6.0_45,0.9.8,Add near 0.1,ArrayList,122.998417,
+1.6.0_45,0.9.8,Add near 0.1,LinkedList,0.720382118571429,
+1.6.0_45,0.9.8,Add near 0.01,GapList,1.2702305721519,
+1.6.0_45,0.9.8,Add near 0.01,ArrayList,121.06908720000001,
+1.6.0_45,0.9.8,Add near 0.01,LinkedList,3.528814133802818,
+1.6.0_45,0.9.8,Add iter 2.0,GapList,1.2345689283950607,
+1.6.0_45,0.9.8,Add iter 2.0,ArrayList,40.778004846153856,
+1.6.0_45,0.9.8,Add iter 2.0,LinkedList,135.07236849999998,
+1.7.0_40,0.9.8,Get last,GapList,0.5192824402907563,
+1.7.0_40,0.9.8,Get last,ArrayList,0.7736699953632155,
+1.7.0_40,0.9.8,Get last,LinkedList,0.9512469904942971,
+1.7.0_40,0.9.8,Get first,GapList,0.36417025855790147,
+1.7.0_40,0.9.8,Get first,ArrayList,0.45090033183047923,
+1.7.0_40,0.9.8,Get first,LinkedList,0.5748107896551718,
+1.7.0_40,0.9.8,Get random,GapList,1.5695550125391864,
+1.7.0_40,0.9.8,Get random,ArrayList,1.5540635931677016,
+1.7.0_40,0.9.8,Get random,LinkedList,2567.4945155,
+1.7.0_40,0.9.8,Add last,GapList,0.475982303520457,
+1.7.0_40,0.9.8,Add last,ArrayList,0.45023249193548354,
+1.7.0_40,0.9.8,Add last,LinkedList,0.5083962672764232,
+1.7.0_40,0.9.8,Add first,GapList,0.26196560157068044,
+1.7.0_40,0.9.8,Add first,ArrayList,41.249199230769236,
+1.7.0_40,0.9.8,Add first,LinkedList,0.22950318081688825,
+1.7.0_40,0.9.8,Add random,GapList,47.74034254545455,
+1.7.0_40,0.9.8,Add random,ArrayList,20.933759291666668,
+1.7.0_40,0.9.8,Add random,LinkedList,119.91984780000001,
+1.7.0_40,0.9.8,Add near 0.1,GapList,0.7705615038520813,
+1.7.0_40,0.9.8,Add near 0.1,ArrayList,42.01154666666667,
+1.7.0_40,0.9.8,Add near 0.1,LinkedList,0.6398492161125324,
+1.7.0_40,0.9.8,Add near 0.01,GapList,0.8470545194585445,
+1.7.0_40,0.9.8,Add near 0.01,ArrayList,40.17108261538461,
+1.7.0_40,0.9.8,Add near 0.01,LinkedList,3.3522588399999997,
+1.7.0_40,0.9.8,Add iter 2.0,GapList,0.9088193811252278,
+1.7.0_40,0.9.8,Add iter 2.0,ArrayList,13.774222513513514,
+1.7.0_40,0.9.8,Add iter 2.0,LinkedList,137.15529775,
+1.8.0_05,0.9.8,Get last,GapList,0.5126105450819675,
+1.8.0_05,0.9.8,Get last,ArrayList,0.7294907303207007,
+1.8.0_05,0.9.8,Get last,LinkedList,0.9088998656987297,
+1.8.0_05,0.9.8,Get first,GapList,0.3598776251798563,
+1.8.0_05,0.9.8,Get first,ArrayList,0.4142104163907275,
+1.8.0_05,0.9.8,Get first,LinkedList,0.5607272522421521,
+1.8.0_05,0.9.8,Get random,GapList,1.5399836461538459,
+1.8.0_05,0.9.8,Get random,ArrayList,1.537309920245398,
+1.8.0_05,0.9.8,Get random,LinkedList,2470.59123,
+1.8.0_05,0.9.8,Add last,GapList,0.44081545903083674,
+1.8.0_05,0.9.8,Add last,ArrayList,0.44781694454382837,
+1.8.0_05,0.9.8,Add last,LinkedList,0.490147415279138,
+1.8.0_05,0.9.8,Add first,GapList,0.24671027366863948,
+1.8.0_05,0.9.8,Add first,ArrayList,40.368768846153856,
+1.8.0_05,0.9.8,Add first,LinkedList,0.22745486584811295,
+1.8.0_05,0.9.8,Add random,GapList,40.06248146153846,
+1.8.0_05,0.9.8,Add random,ArrayList,21.171798666666668,
+1.8.0_05,0.9.8,Add random,LinkedList,123.9543786,
+1.8.0_05,0.9.8,Add near 0.1,GapList,0.7467288464977647,
+1.8.0_05,0.9.8,Add near 0.1,ArrayList,41.68561966666667,
+1.8.0_05,0.9.8,Add near 0.1,LinkedList,0.6449166262886602,
+1.8.0_05,0.9.8,Add near 0.01,GapList,0.8440003946037106,
+1.8.0_05,0.9.8,Add near 0.01,ArrayList,41.075007846153845,
+1.8.0_05,0.9.8,Add near 0.01,LinkedList,3.292871368421051,
+1.8.0_05,0.9.8,Add iter 2.0,GapList,0.8882292735346358,
+1.8.0_05,0.9.8,Add iter 2.0,ArrayList,14.297549371428572,
+1.8.0_05,0.9.8,Add iter 2.0,LinkedList,133.73229375,
+1.8.0_05_x64,0.9.8,Get last,GapList,1.9018785099589784E-5,
+1.8.0_05_x64,0.9.8,Get last,ArrayList,2.279192230504976E-5,
+1.8.0_05_x64,0.9.8,Get last,LinkedList,0.3928716402199525,
+1.8.0_05_x64,0.9.8,Get first,GapList,2.396026458292085E-5,
+1.8.0_05_x64,0.9.8,Get first,ArrayList,2.4102813271938035E-5,
+1.8.0_05_x64,0.9.8,Get first,LinkedList,0.2810736216975826,
+1.8.0_05_x64,0.9.8,Get random,GapList,0.761246837138508,
+1.8.0_05_x64,0.9.8,Get random,ArrayList,0.744781327380953,
+1.8.0_05_x64,0.9.8,Get random,LinkedList,2384.0975635,
+1.8.0_05_x64,0.9.8,Add last,GapList,0.235676684260132,
+1.8.0_05_x64,0.9.8,Add last,ArrayList,0.21182597035154627,
+1.8.0_05_x64,0.9.8,Add last,LinkedList,0.2404603980769229,
+1.8.0_05_x64,0.9.8,Add first,GapList,0.12078007826086978,
+1.8.0_05_x64,0.9.8,Add first,ArrayList,27.236069526315788,
+1.8.0_05_x64,0.9.8,Add first,LinkedList,0.15701127503924633,
+1.8.0_05_x64,0.9.8,Add random,GapList,26.242450349999995,
+1.8.0_05_x64,0.9.8,Add random,ArrayList,15.184792939393938,
+1.8.0_05_x64,0.9.8,Add random,LinkedList,128.25889425,
+1.8.0_05_x64,0.9.8,Add near 0.1,GapList,0.4903667303921569,
+1.8.0_05_x64,0.9.8,Add near 0.1,ArrayList,26.99418047368421,
+1.8.0_05_x64,0.9.8,Add near 0.1,LinkedList,0.42229764442567475,
+1.8.0_05_x64,0.9.8,Add near 0.01,GapList,0.6410343162612026,
+1.8.0_05_x64,0.9.8,Add near 0.01,ArrayList,26.647022631578945,
+1.8.0_05_x64,0.9.8,Add near 0.01,LinkedList,2.9665743550295876,
+1.8.0_05_x64,0.9.8,Add iter 2.0,GapList,0.7250517884057962,
+1.8.0_05_x64,0.9.8,Add iter 2.0,ArrayList,8.213438704918035,
+1.8.0_05_x64,0.9.8,Add iter 2.0,LinkedList,110.2644966,
+1.8.0_05,0.9.9,Get last,GapList,0.4462330463871542,-Xms512m -Xmx512m -XX:OnError=
+1.8.0_05,0.9.9,Get last,ArrayList,0.6152346482164819,-Xms512m -Xmx512m -XX:OnError=
+1.8.0_05,0.9.9,Get last,LinkedList,0.7470164985074624,-Xms512m -Xmx512m -XX:OnError=
+1.8.0_05,0.9.9,Get first,GapList,0.32084810904425953,-Xms512m -Xmx512m -XX:OnError=
+1.8.0_05,0.9.9,Get first,ArrayList,0.35765681844174435,-Xms512m -Xmx512m -XX:OnError=
+1.8.0_05,0.9.9,Get first,LinkedList,0.4802398358925156,-Xms512m -Xmx512m -XX:OnError=
+1.8.0_05,0.9.9,Get random,GapList,1.3243852962962972,-Xms512m -Xmx512m -XX:OnError=
+1.8.0_05,0.9.9,Get random,ArrayList,1.3078920600522188,-Xms512m -Xmx512m -XX:OnError=
+1.8.0_05,0.9.9,Get random,LinkedList,2144.7389865,-Xms512m -Xmx512m -XX:OnError=
+1.8.0_05,0.9.9,Add last,GapList,0.38092128941355646,-Xms512m -Xmx512m -XX:OnError=
+1.8.0_05,0.9.9,Add last,ArrayList,0.38045495285171066,-Xms512m -Xmx512m -XX:OnError=
+1.8.0_05,0.9.9,Add last,LinkedList,0.42343590685859445,-Xms512m -Xmx512m -XX:OnError=
+1.8.0_05,0.9.9,Add first,GapList,0.21613131979256717,-Xms512m -Xmx512m -XX:OnError=
+1.8.0_05,0.9.9,Add first,ArrayList,35.980324357142855,-Xms512m -Xmx512m -XX:OnError=
+1.8.0_05,0.9.9,Add first,LinkedList,0.2012758881287728,-Xms512m -Xmx512m -XX:OnError=
+1.8.0_05,0.9.9,Add random,GapList,34.83561593333333,-Xms512m -Xmx512m -XX:OnError=
+1.8.0_05,0.9.9,Add random,ArrayList,18.26191896428572,-Xms512m -Xmx512m -XX:OnError=
+1.8.0_05,0.9.9,Add random,LinkedList,109.85819839999999,-Xms512m -Xmx512m -XX:OnError=
+1.8.0_05,0.9.9,Add near 0.1,GapList,0.646546733850129,-Xms512m -Xmx512m -XX:OnError=
+1.8.0_05,0.9.9,Add near 0.1,ArrayList,35.508421199999994,-Xms512m -Xmx512m -XX:OnError=
+1.8.0_05,0.9.9,Add near 0.1,LinkedList,0.550326651265126,-Xms512m -Xmx512m -XX:OnError=
+1.8.0_05,0.9.9,Add near 0.01,GapList,0.7138257503566336,-Xms512m -Xmx512m -XX:OnError=
+1.8.0_05,0.9.9,Add near 0.01,ArrayList,35.63215506666666,-Xms512m -Xmx512m -XX:OnError=
+1.8.0_05,0.9.9,Add near 0.01,LinkedList,2.9667188402366853,-Xms512m -Xmx512m -XX:OnError=
+1.8.0_05,0.9.9,Add iter 2.0,GapList,0.796987949044586,-Xms512m -Xmx512m -XX:OnError=
+1.8.0_05,0.9.9,Add iter 2.0,ArrayList,12.413859780487808,-Xms512m -Xmx512m -XX:OnError=
+1.8.0_05,0.9.9,Add iter 2.0,LinkedList,124.0708562,-Xms512m -Xmx512m -XX:OnError=
+1.8.0_05_x64,0.9.9,Get last,GapList,1.603812669706063E-5,-Xms512m -Xmx512m -XX:OnError=
+1.8.0_05_x64,0.9.9,Get last,ArrayList,2.614218676524707E-5,-Xms512m -Xmx512m -XX:OnError=
+1.8.0_05_x64,0.9.9,Get last,LinkedList,0.34581935753803594,-Xms512m -Xmx512m -XX:OnError=
+1.8.0_05_x64,0.9.9,Get first,GapList,2.8274521367646766E-5,-Xms512m -Xmx512m -XX:OnError=
+1.8.0_05_x64,0.9.9,Get first,ArrayList,2.7935834268650195E-5,-Xms512m -Xmx512m -XX:OnError=
+1.8.0_05_x64,0.9.9,Get first,LinkedList,0.24868024005964098,-Xms512m -Xmx512m -XX:OnError=
+1.8.0_05_x64,0.9.9,Get random,GapList,0.6784580651289014,-Xms512m -Xmx512m -XX:OnError=
+1.8.0_05_x64,0.9.9,Get random,ArrayList,0.6846254911080718,-Xms512m -Xmx512m -XX:OnError=
+1.8.0_05_x64,0.9.9,Get random,LinkedList,2079.3845405,-Xms512m -Xmx512m -XX:OnError=
+1.8.0_05_x64,0.9.9,Add last,GapList,0.21465825493562246,-Xms512m -Xmx512m -XX:OnError=
+1.8.0_05_x64,0.9.9,Add last,ArrayList,0.18620595830230854,-Xms512m -Xmx512m -XX:OnError=
+1.8.0_05_x64,0.9.9,Add last,LinkedList,0.21966984409310458,-Xms512m -Xmx512m -XX:OnError=
+1.8.0_05_x64,0.9.9,Add first,GapList,0.10611049140674719,-Xms512m -Xmx512m -XX:OnError=
+1.8.0_05_x64,0.9.9,Add first,ArrayList,23.73220545454546,-Xms512m -Xmx512m -XX:OnError=
+1.8.0_05_x64,0.9.9,Add first,LinkedList,0.13169972241243014,-Xms512m -Xmx512m -XX:OnError=
+1.8.0_05_x64,0.9.9,Add random,GapList,21.580080208333335,-Xms512m -Xmx512m -XX:OnError=
+1.8.0_05_x64,0.9.9,Add random,ArrayList,11.783149674418604,-Xms512m -Xmx512m -XX:OnError=
+1.8.0_05_x64,0.9.9,Add random,LinkedList,113.32077960000001,-Xms512m -Xmx512m -XX:OnError=
+1.8.0_05_x64,0.9.9,Add near 0.1,GapList,0.4532717192028978,-Xms512m -Xmx512m -XX:OnError=
+1.8.0_05_x64,0.9.9,Add near 0.1,ArrayList,24.52022080952381,-Xms512m -Xmx512m -XX:OnError=
+1.8.0_05_x64,0.9.9,Add near 0.1,LinkedList,0.3770132735493592,-Xms512m -Xmx512m -XX:OnError=
+1.8.0_05_x64,0.9.9,Add near 0.01,GapList,0.5526882685082877,-Xms512m -Xmx512m -XX:OnError=
+1.8.0_05_x64,0.9.9,Add near 0.01,ArrayList,25.0064554,-Xms512m -Xmx512m -XX:OnError=
+1.8.0_05_x64,0.9.9,Add near 0.01,LinkedList,2.782545638888889,-Xms512m -Xmx512m -XX:OnError=
+1.8.0_05_x64,0.9.9,Add iter 2.0,GapList,0.6132715710784324,-Xms512m -Xmx512m -XX:OnError=
+1.8.0_05_x64,0.9.9,Add iter 2.0,ArrayList,7.579219090909091,-Xms512m -Xmx512m -XX:OnError=
+1.8.0_05_x64,0.9.9,Add iter 2.0,LinkedList,103.04732879999997,-Xms512m -Xmx512m -XX:OnError=
+1.8.0_25,0.9.11,Get last,GapList,1.4362354154727794,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.11,Get last,ArrayList,1.6336436449511405,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.11,Get last,LinkedList,1.7110642013651884,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.11,Get first,GapList,1.27346958778626,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.11,Get first,ArrayList,1.308979505235602,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.11,Get first,LinkedList,1.5202765714285715,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.11,Get random,GapList,1.3380931577540112,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.11,Get random,ArrayList,1.3633805258855587,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.11,Get random,LinkedList,2401.8518145,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.11,Add last,GapList,0.46045145672191623,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.11,Add last,ArrayList,0.5043937479838712,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.11,Add last,LinkedList,0.6334224582278478,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.11,Add first,GapList,0.34734524930555605,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.11,Add first,ArrayList,51.156397899999995,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.11,Add first,LinkedList,0.3062552149418254,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.11,Add random,GapList,61.45925566666667,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.11,Add random,ArrayList,28.385942055555557,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.11,Add random,LinkedList,122.634708,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.11,Add near 0.1,GapList,6.590488092105262,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.11,Add near 0.1,ArrayList,22.418725043478258,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.11,Add near 0.1,LinkedList,97.3219295,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.11,Add near 0.01,GapList,2.635274293193718,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.11,Add near 0.01,ArrayList,36.0264195,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.11,Add near 0.01,LinkedList,66.08856,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.11,Add iter 2.0,GapList,1.0315258762886603,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.11,Add iter 2.0,ArrayList,14.918856294117647,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.11,Add iter 2.0,LinkedList,129.7885615,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.11,Get last,GapList,0.6870931387362641,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.11,Get last,ArrayList,0.6919044979253114,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.11,Get last,LinkedList,0.7623024375,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.11,Get first,GapList,0.7152267142857144,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.11,Get first,ArrayList,0.707060408192091,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.11,Get first,LinkedList,0.723589569364162,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.11,Get random,GapList,0.7233706112716758,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.11,Get random,ArrayList,0.7001220405594404,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.11,Get random,LinkedList,2401.8228715000005,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.11,Add last,GapList,0.23334844309701455,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.11,Add last,ArrayList,0.20945373408710208,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.11,Add last,LinkedList,0.22417905064993218,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.11,Add first,GapList,0.12693497208121876,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.11,Add first,ArrayList,26.383386263157888,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.11,Add first,LinkedList,0.16039007665169983,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.11,Add random,GapList,24.49990614285714,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.11,Add random,ArrayList,12.892044897435898,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.11,Add random,LinkedList,118.51833580000002,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.11,Add near 0.1,GapList,3.5502351205673786,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.11,Add near 0.1,ArrayList,11.534607545454543,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.11,Add near 0.1,LinkedList,93.70818183333333,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.11,Add near 0.01,GapList,1.3655091961852863,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.11,Add near 0.01,ArrayList,20.61412636,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.11,Add near 0.01,LinkedList,62.14223822222223,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.11,Add iter 2.0,GapList,0.6684620788770059,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.11,Add iter 2.0,ArrayList,8.604786915254238,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.11,Add iter 2.0,LinkedList,107.33044240000001,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.13,Get last,GapList,1.4295262285714299,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.13,Get last,ArrayList,1.5882099619047625,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.13,Get last,LinkedList,1.698181427118644,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.13,Get first,GapList,1.3075282140992168,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.13,Get first,ArrayList,1.3000448623376633,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.13,Get first,LinkedList,1.4301924457142858,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.13,Get random,GapList,1.2916646984536082,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.13,Get random,ArrayList,1.3297894095744685,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.13,Get random,LinkedList,2156.9548525,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.13,Add last,GapList,0.2311328955637718,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.13,Add last,ArrayList,0.2768566651909253,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.13,Add last,LinkedList,0.26066811516414845,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.13,Add first,GapList,0.2627458508403361,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.13,Add first,ArrayList,42.284033666666666,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.13,Add first,LinkedList,0.2805372254627031,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.13,Add random,GapList,0.2897470712630349,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.13,Add random,ArrayList,0.32200192401802946,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.13,Add random,LinkedList,0.27481415164835066,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.13,Add near 0.1,GapList,0.44468454666666674,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.13,Add near 0.1,ArrayList,0.4349093504347833,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.13,Add near 0.1,LinkedList,0.6649662911227159,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.13,Add near 0.01,GapList,0.4836777108317217,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.13,Add near 0.01,ArrayList,0.42633516368286245,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.13,Add near 0.01,LinkedList,0.39558845965189915,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.13,Add iter 2.0,GapList,0.8463213108108099,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.13,Add iter 2.0,ArrayList,12.698798625000004,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.13,Add iter 2.0,LinkedList,126.06675924999999,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.13,Get last,GapList,0.7080212786421494,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.13,Get last,ArrayList,0.7064361920903952,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.13,Get last,LinkedList,0.7397336316568042,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.13,Get first,GapList,0.7330213177159587,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.13,Get first,ArrayList,0.7522831441441449,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.13,Get first,LinkedList,0.7706760046224955,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.13,Get random,GapList,0.7243257105643987,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.13,Get random,ArrayList,0.9059313519855591,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.13,Get random,LinkedList,2032.4389690000003,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.13,Add last,GapList,0.13625119700272356,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.13,Add last,ArrayList,0.15719269003458014,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.13,Add last,LinkedList,0.15176849650986188,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.13,Add first,GapList,0.11773143032015077,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.13,Add first,ArrayList,23.535063181818185,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.13,Add first,LinkedList,0.1332450167865709,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.13,Add random,GapList,0.13968877625698334,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.13,Add random,ArrayList,0.13865973433167247,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.13,Add random,LinkedList,0.14062012682789507,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.13,Add near 0.1,GapList,0.14214989710062398,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.13,Add near 0.1,ArrayList,0.1456722295368473,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.13,Add near 0.1,LinkedList,0.17062427908563746,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.13,Add near 0.01,GapList,0.18206545431379673,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.13,Add near 0.01,ArrayList,0.17995746095718027,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.13,Add near 0.01,LinkedList,0.20022504083266526,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.13,Add iter 2.0,GapList,0.5810800836236935,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.13,Add iter 2.0,ArrayList,7.439472235294119,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.13,Add iter 2.0,LinkedList,106.20383079999999,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.14,Get last,GapList,1.7133622568493152,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.14,Get last,ArrayList,1.7684805759717326,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.14,Get last,LinkedList,1.9107548893129755,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.14,Get first,GapList,1.532683636085627,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.14,Get first,ArrayList,1.471900652941178,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.14,Get first,LinkedList,1.6865124915824898,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.14,Get random,GapList,1.6802520704697972,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.14,Get random,ArrayList,1.6308316742671005,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.14,Get random,LinkedList,3293.8670725,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.14,Add last,GapList,0.2908209360465104,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.14,Add last,ArrayList,0.3046858727162042,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.14,Add last,LinkedList,0.3033062492419691,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.14,Add first,GapList,0.25149521669180863,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.14,Add first,ArrayList,49.00545127272727,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.14,Add first,LinkedList,0.21929901228069906,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.14,Add random,GapList,0.29037939779326294,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.14,Add random,ArrayList,0.33032202774108643,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.14,Add random,LinkedList,0.30782934276923374,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.14,Add near 0.1,GapList,0.39387716299212316,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.14,Add near 0.1,ArrayList,0.41298247811725813,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.14,Add near 0.1,LinkedList,0.412390955482275,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.14,Add near 0.01,GapList,0.4808636586538449,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.14,Add near 0.01,ArrayList,0.40457353964401027,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.14,Add near 0.01,LinkedList,0.40481520226536943,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.14,Add iter 2.0,GapList,0.9178634513761488,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.14,Add iter 2.0,ArrayList,15.53485493939394,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25,0.9.14,Add iter 2.0,LinkedList,168.62503566666666,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.14,Get last,GapList,0.8204873518821623,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.14,Get last,ArrayList,0.8192187626841261,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.14,Get last,LinkedList,0.8951063524150301,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.14,Get first,GapList,0.8452732854729745,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.14,Get first,ArrayList,0.8258159059405956,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.14,Get first,LinkedList,0.840747687394959,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.14,Get random,GapList,0.9098060563636396,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.14,Get random,ArrayList,0.9168888809523812,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.14,Get random,LinkedList,3028.994197,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.14,Add last,GapList,0.17751445189918535,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.14,Add last,ArrayList,0.17487117447552578,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.14,Add last,LinkedList,0.19246308275596719,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.14,Add first,GapList,0.1435435614236524,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.14,Add first,ArrayList,47.553129272727276,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.14,Add first,LinkedList,0.1801016204537287,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.14,Add random,GapList,0.1798371488673143,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.14,Add random,ArrayList,0.18263873630387267,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.14,Add random,LinkedList,0.20908676379599042,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.14,Add near 0.1,GapList,0.19627698901099228,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.14,Add near 0.1,ArrayList,0.23175243558851275,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.14,Add near 0.1,LinkedList,0.24851952783300044,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.14,Add near 0.01,GapList,0.22775976320582497,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.14,Add near 0.01,ArrayList,0.22616091044775738,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.14,Add near 0.01,LinkedList,0.22532393558558186,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.14,Add iter 2.0,GapList,0.6393347343550432,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.14,Add iter 2.0,ArrayList,14.13471591666667,-Xms1024m -Xmx1024m -XX:OnError=
+1.8.0_25_x64,0.9.14,Add iter 2.0,LinkedList,142.32331775,-Xms1024m -Xmx1024m -XX:OnError=

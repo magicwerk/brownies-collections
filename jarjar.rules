@@ -1,0 +1,10 @@
+rule ch.** org.magictest.ext.ch.@1
+rule de.** org.magictest.ext.de.@1
+rule javassist.** org.magictest.ext.javassist.@1
+rule org.apache.** org.magictest.ext.org.apache.@1
+rule org.jaxen.** org.magictest.ext.org.jaxen.@1
+rule org.jdom.** org.magictest.ext.org.jdom.@1
+rule org.joda.** org.magictest.ext.org.joda.@1
+rule org.magicwerk.** org.magictest.ext.org.magicwerk.@1
+rule org.slf4j.** org.magictest.ext.org.slf4j.@1
+rule JDOM* org.magictest.ext.JDOM@1
