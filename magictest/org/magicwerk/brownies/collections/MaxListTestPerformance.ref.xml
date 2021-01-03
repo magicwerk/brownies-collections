@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<test-class name="org.magicwerk.brownies.collections.MaxListTestPerformance">
+  <test name="org.magicwerk.brownies.collections.MaxListTestPerformance.testPerformance">
+    <columns>
+      <column name="description" report="true" diff="true" />
+      <column name="parameters" report="true" diff="true" />
+      <column name="result" report="true" diff="true" />
+      <column name="error" report="true" diff="true" />
+    </columns>
+    <step id="1">
+      <output name="description">
+        MaxList 1000/1000000/100
+        <br />
+        GapList                         :     1.000  ( 0.288602/ 0.218401/ 0.374402 s, 4 runs)
+        <br />
+        ArrayList                       :     3.838  ( 1.107607/ 1.107607/ 1.107607 s, 1 runs)
+        <br />
+        LinkedList                      :    14.486  ( 4.180827/ 4.180827/ 4.180827 s, 1 runs)
+        <br />
+        MaxList 10000/1000000/1000
+        <br />
+        GapList                         :     1.000  ( 0.209041/ 0.187201/ 0.218401 s, 5 runs)
+        <br />
+        ArrayList                       :    41.567  ( 8.689256/ 8.689256/ 8.689256 s, 1 runs)
+        <br />
+        LinkedList                      :   441.194  (92.227791/92.227791/92.227791 s, 1 runs)
+        <br />
+      </output>
+    </step>
+  </test>
+</test-class>
+

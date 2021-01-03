@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testClass xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="org.magicwerk.brownies.collections.GapListsTest" xsi:noNamespaceSchemaLocation="testclass-v10.xsd">
+  <captureTest name="testInputStream">
+    <runDate>2020-05-24T23:49:24.861+02:00</runDate>
+    <runDuration>0.0351105</runDuration>
+    <exception></exception>
+    <captureStep>
+      <text outputType="TEXT">"[0, 1, 2, 3]\r\n"</text>
+    </captureStep>
+  </captureTest>
+  <captureTest name="testReader">
+    <runDate>2020-05-24T23:49:25.533+02:00</runDate>
+    <runDuration>0.0073378</runDuration>
+    <exception></exception>
+    <captureStep>
+      <text outputType="TEXT">"abde\r\n"</text>
+    </captureStep>
+  </captureTest>
+</testClass>

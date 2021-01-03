@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testClass xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="org.magicwerk.brownies.collections.KeyCollectionImplTest" xsi:noNamespaceSchemaLocation="testclass-v10.xsd">
+  <captureTest name="testAsSet">
+    <runDate>2020-12-16T09:45:50.522+01:00</runDate>
+    <runDuration>0.0178112</runDuration>
+    <exception></exception>
+    <captureStep>
+      <text outputType="TEXT">"[Ticket [id=1, extId=extId1, text=text1], Ticket [id=2, extId=extId2, text=text2], Ticket [id=3, extId=extId3, text=text3]]\r\n[Ticket [id=1, extId=extId1, text=text1], Ticket [id=3, extId=extId3, text=text3]]\r\n[Ticket [id=3, extId=extId3, text=text3]]\r\n[abc, abc]\r\n[abc]\r\n[abc]\r\n[ab]\r\n[abc, def]\r\n"</text>
+    </captureStep>
+  </captureTest>
+  <captureTest name="testKeyCollectionImpl">
+    <runDate>2015-08-26T01:19:03.263+02:00</runDate>
+    <runDuration>0.003000965</runDuration>
+    <exception></exception>
+    <captureStep>
+      <text outputType="TEXT">"java.lang.IllegalArgumentException: Sort already set\r\njava.lang.IllegalArgumentException: Only one order by key allowed\r\njava.lang.IllegalArgumentException: No mapper for key 1 defined\r\n"</text>
+    </captureStep>
+  </captureTest>
+</testClass>

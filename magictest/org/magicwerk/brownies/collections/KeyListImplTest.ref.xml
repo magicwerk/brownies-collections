@@ -1,0 +1,365 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testClass xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="org.magicwerk.brownies.collections.KeyListImplTest" xsi:noNamespaceSchemaLocation="testclass-v10.xsd">
+  <traceTest name="testAddAllWindowSize">
+    <runDate>2015-01-10T18:10:13.125+01:00[Europe/Berlin]</runDate>
+    <runDuration>0.026217662</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.KeyList</traceClass>
+    <traceMethod>/addAll|addArray/</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"addArray"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 1, 3, 5, 7 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"4"</paramText>
+        <paramText outputType="VALUE" param="#2">"[ 10, 11 ]"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 5, 7, 10, 11 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"addArray"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 1, 3, 5, 7 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"3"</paramText>
+        <paramText outputType="VALUE" param="#2">"[ 10, 11 ]"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 5, 10, 11, 7 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"addArray"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 1, 3, 5, 7 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"2"</paramText>
+        <paramText outputType="VALUE" param="#2">"[ 10, 11 ]"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 10, 11, 5, 7 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"addArray"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 1, 3, 5, 7 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"1"</paramText>
+        <paramText outputType="VALUE" param="#2">"[ 10, 11 ]"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 11, 3, 5, 7 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"addArray"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 1, 3, 5, 7 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"0"</paramText>
+        <paramText outputType="VALUE" param="#2">"[ 10, 11 ]"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 1, 3, 5, 7 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"addAll"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 1, 3, 5, 7 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"0"</paramText>
+        <paramText outputType="VALUE" param="#2">"{ 10, 11 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 1, 3, 5, 7 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testAddMaxSize">
+    <runDate>2015-02-18T22:43:52.117+01:00[Europe/Berlin]</runDate>
+    <runDuration>0.00268897</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.KeyList</traceClass>
+    <traceMethod>/.*/</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"add"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ }"</paramText>
+        <paramText outputType="VALUE" param="#1">"1"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 1 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"add"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 1 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"3"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 1, 3 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"add"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 1, 3 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"5"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 1, 3, 5 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"add"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 1, 3, 5 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"7"</paramText>
+      </parameters>
+      <result></result>
+      <error>
+        <paramText outputType="VALUE" param="Error">"org.magicwerk.brownies.collections.exceptions.KeyException: Constraint violation: maximum size reached"</paramText>
+      </error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"clear"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 1, 3, 5 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"addArray"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ }"</paramText>
+        <paramText outputType="VALUE" param="#1">"[ 1, 3 ]"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 1, 3 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"addArray"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 1, 3 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"[ 5, 7 ]"</paramText>
+      </parameters>
+      <result></result>
+      <error>
+        <paramText outputType="VALUE" param="Error">"org.magicwerk.brownies.collections.exceptions.KeyException: Constraint violation: maximum size reached"</paramText>
+      </error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"add"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 1, 3, 5 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"9"</paramText>
+      </parameters>
+      <result></result>
+      <error>
+        <paramText outputType="VALUE" param="Error">"org.magicwerk.brownies.collections.exceptions.KeyException: Constraint violation: maximum size reached"</paramText>
+      </error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testAddWindowSize">
+    <runDate>2013-10-09T00:57:06.308+02:00[Europe/Berlin]</runDate>
+    <runDuration>0.014987627</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.KeyList</traceClass>
+    <traceMethod>add</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"add"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 1, 3, 5, 7 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"4"</paramText>
+        <paramText outputType="VALUE" param="#2">"10"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 3, 5, 7, 10 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"add"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 1, 3, 5, 7 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"3"</paramText>
+        <paramText outputType="VALUE" param="#2">"10"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 3, 5, 10, 7 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"add"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 1, 3, 5, 7 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"2"</paramText>
+        <paramText outputType="VALUE" param="#2">"10"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 3, 10, 5, 7 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"add"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 1, 3, 5, 7 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"1"</paramText>
+        <paramText outputType="VALUE" param="#2">"10"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 10, 3, 5, 7 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"add"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 1, 3, 5, 7 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"0"</paramText>
+        <paramText outputType="VALUE" param="#2">"10"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 1, 3, 5, 7 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+  </traceTest>
+  <captureTest name="testAsSet">
+    <runDate>2019-06-23T17:06:14.11+02:00[Europe/Berlin]</runDate>
+    <runDuration>0.031605333</runDuration>
+    <exception></exception>
+    <captureStep>
+      <text outputType="TEXT">"[Ticket [id=2, extId=extId2, text=text2], Ticket [id=3, extId=extId3, text=text3], Ticket [id=1, extId=extId1, text=text1]]\r\n[Ticket [id=3, extId=extId3, text=text3], Ticket [id=1, extId=extId1, text=text1]]\r\n[Ticket [id=1, extId=extId1, text=text1]]\r\n[1, 2, 3]\r\n[1, 3]\r\n[3]\r\norg.magicwerk.brownies.collections.exceptions.DuplicateKeyException: Constraint violation: duplicate key not allowed: 1\r\n[1]\r\n[1]\r\n"</text>
+    </captureStep>
+  </captureTest>
+  <captureTest name="testSort">
+    <runDate>2015-11-02T23:21:02.271+01:00[Europe/Berlin]</runDate>
+    <runDuration>0.039507396</runDuration>
+    <exception></exception>
+    <captureStep>
+      <text outputType="TEXT">"sort ok\r\nsort fails: Different comparator specified for sorted list\r\nsort ok\r\nsort ok\r\nsort ok\r\nsort fails: Different comparator specified for sorted list\r\n"</text>
+    </captureStep>
+  </captureTest>
+  <captureTest name="testTriggers">
+    <runDate>2020-03-23T13:43:26.721+01:00[Europe/Berlin]</runDate>
+    <runDuration>0.0035793</runDuration>
+    <exception></exception>
+    <captureStep>
+      <text outputType="TEXT">"insert: a1 (0)\r\ninsert: b2 (0)\r\ninsert: c3 (0)\r\ndelete: a1 (0)\r\ndelete: b2 (0)\r\ninsert: c3 (0)\r\ndelete: c3 (0)\r\ninsert: a1 (0)\r\ninsert: b2 (0)\r\ninsert: c3 (0)\r\ncancel delete: a1 (0)\r\ncancel delete: b2 (0)\r\ncancel insert: c3 (0)\r\n[a1 (0), b2 (0), c3 (0)]\r\ndelete: a1 (0)\r\ndelete: b2 (0)\r\ndelete: c3 (0)\r\ninsert: c3 (0)\r\ninsert: b2 (0)\r\n"</text>
+    </captureStep>
+  </captureTest>
+  <traceTest name="testWindowSize">
+    <runDate>2014-02-11T22:25:11.758+01:00[Europe/Berlin]</runDate>
+    <runDuration>0.001243496</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.KeyList</traceClass>
+    <traceMethod>add</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"add"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ }"</paramText>
+        <paramText outputType="VALUE" param="#1">"\"a\""</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ \"a\" }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"add"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ \"a\" }"</paramText>
+        <paramText outputType="VALUE" param="#1">"\"ab\""</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ \"a\", \"ab\" }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"add"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ \"a\", \"ab\" }"</paramText>
+        <paramText outputType="VALUE" param="#1">"2"</paramText>
+        <paramText outputType="VALUE" param="#2">"\"abc\""</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ \"ab\", \"abc\" }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"add"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ \"ab\", \"abc\" }"</paramText>
+        <paramText outputType="VALUE" param="#1">"\"abcd\""</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ \"abc\", \"abcd\" }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+  </traceTest>
+</testClass>

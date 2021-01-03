@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+  <head>
+    <title>Test-Report of MaxListTestPerformance (package org.magicwerk.brownies.collections)</title>
+    <style type="text/css">h1 { font-family: arial,helvetica,clean,sans-serif; font-size: 18px; font-weight: bold; } 
+h2 { font-family: arial,helvetica,clean,sans-serif; font-size: 16px; font-weight: bold; } 
+h3 { font-family: arial,helvetica,clean,sans-serif; font-size: 14px; font-weight: bold; } 
+body { font-family: arial,helvetica,clean,sans-serif; font-size: 13px; } 
+table { margin: 4px; border: 1px solid #000; border-collapse: collapse; } 
+th { background-color: #ddd; padding: 4px; border: 1px solid #000; vertical-align: top; } 
+td { padding: 2px 4px; border: 1px solid #000; vertical-align: top; } 
+p { margin-top: 0px; margin-bottom: 6px; } 
+.resultOk { background-color: #ccffcc; padding: 4px; border: 1px solid #000; } 
+.resultErr { background-color: #ffcccc; padding: 4px; border: 1px solid #000; } 
+.resultLink { font-size: 75%; } 
+.step { background-color: #ffffff; } 
+.stepOk { background-color: #ccffcc; } 
+.stepErr { background-color: #ffcccc; } .imgLink { text-decoration: none; } 
+.imgNoBorder { border: 0px; }</style>
+  </head>
+  <body>
+    <h1>
+      <a name="top" />
+      Test-Report of MaxListTestPerformance (package org.magicwerk.brownies.collections)
+    </h1>
+    <table>
+      <tr>
+        <th>Test</th>
+        <th>Status</th>
+      </tr>
+      <tr>
+        <td>
+          <a href="#testPerformance">testPerformance</a>
+        </td>
+        <td />
+      </tr>
+    </table>
+    <h2>
+      <a name="testPerformance" />
+      <a href="#top" class="imgLink">
+        <img src="../../../../arrow-top.png" alt="Top" class="imgNoBorder" />
+      </a>
+      Method testPerformance
+    </h2>
+    <table>
+      <tr>
+        <th>No.</th>
+        <th>Description</th>
+        <th>Parameters</th>
+        <th>Result</th>
+        <th>Error</th>
+        <th>Success</th>
+      </tr>
+      <tr>
+        <td class="step">1</td>
+        <td class="step">
+          MaxList 1000/1000000/100
+          <br />
+          GapList                         :     1.000  ( 0.288602/ 0.218401/ 0.374402 s, 4 runs)
+          <br />
+          ArrayList                       :     3.838  ( 1.107607/ 1.107607/ 1.107607 s, 1 runs)
+          <br />
+          LinkedList                      :    14.486  ( 4.180827/ 4.180827/ 4.180827 s, 1 runs)
+          <br />
+          MaxList 10000/1000000/1000
+          <br />
+          GapList                         :     1.000  ( 0.209041/ 0.187201/ 0.218401 s, 5 runs)
+          <br />
+          ArrayList                       :    41.567  ( 8.689256/ 8.689256/ 8.689256 s, 1 runs)
+          <br />
+          LinkedList                      :   441.194  (92.227791/92.227791/92.227791 s, 1 runs)
+          <br />
+        </td>
+        <td class="step" />
+        <td class="step" />
+        <td class="step" />
+        <td class="step">OK</td>
+      </tr>
+    </table>
+  </body>
+</html>
+

@@ -1,0 +1,9 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+
+<suite name="Brownies-Collections-Test">
+	<test name="Brownies-Collections-Test" >
+  		<packages>
+ 			<package name="org.magicwerk.brownies.collections" />
+   		</packages>
+	</test>
+</suite>

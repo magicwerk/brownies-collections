@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<testClass xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="org.magicwerk.brownies.collections.BinarySearchTest" xsi:noNamespaceSchemaLocation="testclass-v10.xsd">
+  <traceTest name="testBinarySearch">
+    <runDate>2015-12-30T23:39:55.637+01:00</runDate>
+    <runDuration>0.085824261</runDuration>
+    <exception />
+    <traceClass>org.magicwerk.brownies.collections.helper.primitive.IntBinarySearch</traceClass>
+    <traceMethod>binarySearch</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"binarySearch"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"[1, 3, 5, 5, 5, 5, 5, 7, 9]"</paramText>
+        <paramText outputType="VALUE" param="#2">"3"</paramText>
+        <paramText outputType="VALUE" param="#3">"0"</paramText>
+        <paramText outputType="VALUE" param="#4">"9"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"1"</paramText>
+      </result>
+      <error />
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"binarySearch"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"[1, 3, 5, 5, 5, 5, 5, 7, 9]"</paramText>
+        <paramText outputType="VALUE" param="#2">"5"</paramText>
+        <paramText outputType="VALUE" param="#3">"0"</paramText>
+        <paramText outputType="VALUE" param="#4">"9"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"2"</paramText>
+      </result>
+      <error />
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"binarySearch"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"[1, 3, 5, 5, 5, 5, 5, 7, 9]"</paramText>
+        <paramText outputType="VALUE" param="#2">"0"</paramText>
+        <paramText outputType="VALUE" param="#3">"0"</paramText>
+        <paramText outputType="VALUE" param="#4">"9"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"-1"</paramText>
+      </result>
+      <error />
+    </traceStep>
+  </traceTest>
+</testClass>

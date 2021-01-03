@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<testClass xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="org.magicwerk.brownies.collections.DoubleGapListTest" xsi:noNamespaceSchemaLocation="testclass-v10.xsd">
+  <traceTest name="testEquals">
+    <runDate>2012-11-26T09:51:59.013+01:00</runDate>
+    <runDuration>0.010096144</runDuration>
+    <exception />
+    <traceClass>org.magicwerk.brownies.collections.primitive.DoubleGapList</traceClass>
+    <traceMethod>equals</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"equals"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"[1.0, NaN, 3.0]"</paramText>
+        <paramText outputType="VALUE" param="#1">"[1.0, NaN, 3.0]"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"true"</paramText>
+      </result>
+      <error />
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"equals"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"[1.0, NaN, 3.0]"</paramText>
+        <paramText outputType="VALUE" param="#1">"[0.0, NaN, 3.0]"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"false"</paramText>
+      </result>
+      <error />
+    </traceStep>
+  </traceTest>
+  <traceTest name="testSort">
+    <runDate>2012-11-26T09:53:18.275+01:00</runDate>
+    <runDuration>2.73558E-4</runDuration>
+    <exception />
+    <traceClass>org.magicwerk.brownies.collections.primitive.DoubleGapList</traceClass>
+    <traceMethod>sort</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"sort"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"[1.0, NaN, 3.0]"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"[1.0, 3.0, NaN]"</paramText>
+      </result>
+      <error />
+    </traceStep>
+  </traceTest>
+</testClass>
+

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<testClass xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="org.magicwerk.brownies.collections.TableCollectionImplTest" xsi:noNamespaceSchemaLocation="testclass-v10.xsd">
+  <captureTest name="testAsSet">
+    <runDate>2013-09-26T00:50:28.791+02:00</runDate>
+    <runDuration>0.010640115</runDuration>
+    <exception />
+    <captureStep>
+      <text outputType="TEXT">"[Ticket [id=id3, extId=extId3, text=text3], Ticket [id=id2, extId=extId2, text=text2], Ticket [id=id1, extId=extId1, text=text1]]\r\n[Ticket [id=id3, extId=extId3, text=text3], Ticket [id=id1, extId=extId1, text=text1]]\r\n[Ticket [id=id1, extId=extId1, text=text1]]\r\n"</text>
+    </captureStep>
+  </captureTest>
+  <captureTest name="testTableCollectionImpl">
+    <runDate>2013-09-27T09:47:35.758+02:00</runDate>
+    <runDuration>0.060544132</runDuration>
+    <exception />
+    <captureStep>
+      <text outputType="TEXT">"class java.util.HashMap\r\nclass java.util.TreeMap\r\nnull\r\nclass java.util.TreeMap\r\n[Ticket [id=id1, extId=extId1, text=text1], Ticket [id=id2, extId=extId2, text=text2], Ticket [id=id3, extId=extId3, text=text3]]\r\nclass java.util.HashMap\r\nclass java.util.TreeMap\r\n[Ticket [id=id3, extId=extId3, text=text3], Ticket [id=id2, extId=extId2, text=text2], Ticket [id=id1, extId=extId1, text=text1]]\r\nclass java.util.HashMap\r\nclass java.util.TreeMap\r\n[Ticket [id=id1, extId=extId1, text=text1], Ticket [id=id2, extId=extId2, text=text2], Ticket [id=id3, extId=extId3, text=text3]]\r\njava.lang.IllegalArgumentException: Sort already set\r\njava.lang.IllegalArgumentException: Only one order by key allowed\r\njava.lang.IllegalArgumentException: No mapper for key 1 defined\r\n"</text>
+    </captureStep>
+  </captureTest>
+</testClass>
+

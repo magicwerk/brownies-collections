@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<testClass xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="org.magicwerk.brownies.collections.MaxListTest" xsi:noNamespaceSchemaLocation="testclass-v10.xsd">
+  <traceTest name="testAdd">
+    <runDate>2012-09-24T00:52:12.893+02:00</runDate>
+    <runDuration>0.0030</runDuration>
+    <exception />
+    <traceClass>org.magicwerk.brownies.collections.MaxList</traceClass>
+    <traceMethod>add</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"add"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"4"</paramText>
+        <paramText outputType="VALUE" param="#2">"10"</paramText>
+        <paramText outputType="VALUE" param="This">"{ 1, 3, 5, 7 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 3, 5, 7, 10 }"</paramText>
+      </result>
+      <error />
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"add"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"3"</paramText>
+        <paramText outputType="VALUE" param="#2">"10"</paramText>
+        <paramText outputType="VALUE" param="This">"{ 1, 3, 5, 7 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 3, 5, 10, 7 }"</paramText>
+      </result>
+      <error />
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"add"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"2"</paramText>
+        <paramText outputType="VALUE" param="#2">"10"</paramText>
+        <paramText outputType="VALUE" param="This">"{ 1, 3, 5, 7 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 3, 10, 5, 7 }"</paramText>
+      </result>
+      <error />
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"add"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"1"</paramText>
+        <paramText outputType="VALUE" param="#2">"10"</paramText>
+        <paramText outputType="VALUE" param="This">"{ 1, 3, 5, 7 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 10, 3, 5, 7 }"</paramText>
+      </result>
+      <error />
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"add"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"0"</paramText>
+        <paramText outputType="VALUE" param="#2">"10"</paramText>
+        <paramText outputType="VALUE" param="This">"{ 1, 3, 5, 7 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 1, 3, 5, 7 }"</paramText>
+      </result>
+      <error />
+    </traceStep>
+  </traceTest>
+  <traceTest name="testAddAll">
+    <runDate>2012-09-24T00:52:13.238+02:00</runDate>
+    <runDuration>0.0040</runDuration>
+    <exception />
+    <traceClass>org.magicwerk.brownies.collections.MaxList</traceClass>
+    <traceMethod>addAll</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"addAll"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"4"</paramText>
+        <paramText outputType="VALUE" param="#2">"[ 10, 11 ]"</paramText>
+        <paramText outputType="VALUE" param="This">"{ 1, 3, 5, 7 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 5, 7, 10, 11 }"</paramText>
+      </result>
+      <error />
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"addAll"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"3"</paramText>
+        <paramText outputType="VALUE" param="#2">"[ 10, 11 ]"</paramText>
+        <paramText outputType="VALUE" param="This">"{ 1, 3, 5, 7 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 5, 10, 11, 7 }"</paramText>
+      </result>
+      <error />
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"addAll"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"2"</paramText>
+        <paramText outputType="VALUE" param="#2">"[ 10, 11 ]"</paramText>
+        <paramText outputType="VALUE" param="This">"{ 1, 3, 5, 7 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 10, 11, 5, 7 }"</paramText>
+      </result>
+      <error />
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"addAll"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"1"</paramText>
+        <paramText outputType="VALUE" param="#2">"[ 10, 11 ]"</paramText>
+        <paramText outputType="VALUE" param="This">"{ 1, 3, 5, 7 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 11, 3, 5, 7 }"</paramText>
+      </result>
+      <error />
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"addAll"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"0"</paramText>
+        <paramText outputType="VALUE" param="#2">"[ 10, 11 ]"</paramText>
+        <paramText outputType="VALUE" param="This">"{ 1, 3, 5, 7 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 1, 3, 5, 7 }"</paramText>
+      </result>
+      <error />
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"addAll"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"0"</paramText>
+        <paramText outputType="VALUE" param="#2">"{ 10, 11 }"</paramText>
+        <paramText outputType="VALUE" param="This">"{ 1, 3, 5, 7 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 1, 3, 5, 7 }"</paramText>
+      </result>
+      <error />
+    </traceStep>
+  </traceTest>
+</testClass>
+

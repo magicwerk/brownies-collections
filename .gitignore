@@ -1,4 +1,9 @@
+/.gradle/
 /bin/
 /build/
 /lib/
+/magictest/**/*.act.html
+/magictest/**/*.act.xml
+/output/
 /target/
+/test-output/

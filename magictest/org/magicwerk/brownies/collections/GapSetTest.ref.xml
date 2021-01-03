@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<testClass xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="org.magicwerk.brownies.collections.GapSetTest" xsi:noNamespaceSchemaLocation="testclass-v10.xsd">
+  <traceTest name="testClear">
+    <runDate>2013-08-17T18:59:42.713+02:00</runDate>
+    <runDuration>0.021639443</runDuration>
+    <exception />
+    <traceClass>java.util.Set</traceClass>
+    <traceMethod>clear</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"clear"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 2, 4 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ }"</paramText>
+      </result>
+      <error />
+    </traceStep>
+  </traceTest>
+  <traceTest name="testContains">
+    <runDate>2013-08-17T19:03:07.993+02:00</runDate>
+    <runDuration>0.022201459</runDuration>
+    <exception />
+    <traceClass>org.magicwerk.brownies.collections.GapSet</traceClass>
+    <traceMethod>contains</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"contains"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"2"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"true"</paramText>
+      </result>
+      <error />
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"contains"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"9"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"false"</paramText>
+      </result>
+      <error />
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"contains"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"null"</paramText>
+      </parameters>
+      <result />
+      <error>
+        <paramText outputType="VALUE" param="Error">"java.lang.NullPointerException"</paramText>
+      </error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testIsEmpty">
+    <runDate>2013-08-17T18:59:54.429+02:00</runDate>
+    <runDuration>0.026867542</runDuration>
+    <exception />
+    <traceClass>java.util.Set</traceClass>
+    <traceMethod>isEmpty</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"isEmpty"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 2, 4 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"false"</paramText>
+      </result>
+      <error />
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"isEmpty"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"true"</paramText>
+      </result>
+      <error />
+    </traceStep>
+  </traceTest>
+  <traceTest name="testSubSet">
+    <runDate>2013-08-20T00:56:52.919+02:00</runDate>
+    <runDuration>0.027978846</runDuration>
+    <exception />
+    <traceClass>org.magicwerk.brownies.collections.GapSet</traceClass>
+    <traceMethod>subSet</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"subSet"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"2"</paramText>
+        <paramText outputType="VALUE" param="#2">"true"</paramText>
+        <paramText outputType="VALUE" param="#3">"6"</paramText>
+        <paramText outputType="VALUE" param="#4">"true"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"{ 2, 4, 6 }"</paramText>
+      </result>
+      <error />
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"subSet"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"1"</paramText>
+        <paramText outputType="VALUE" param="#2">"true"</paramText>
+        <paramText outputType="VALUE" param="#3">"6"</paramText>
+        <paramText outputType="VALUE" param="#4">"true"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"{ 2, 4, 6 }"</paramText>
+      </result>
+      <error />
+    </traceStep>
+  </traceTest>
+</testClass>
+

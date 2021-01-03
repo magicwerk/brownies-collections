@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+  <head>
+    <title>Test-Report of DoubleGapListTest</title>
+    <link rel="stylesheet" type="text/css" href="../../../../resources/style.css" />
+  </head>
+  <body>
+    <h1 title="Test-Report of org.magicwerk.brownies.collections.DoubleGapListTest">
+      <a name="top" />
+      Test-Report of DoubleGapListTest
+    </h1>
+    <table>
+      <tr>
+        <th>Test</th>
+        <th>Status</th>
+      </tr>
+      <tr>
+        <td>
+          <a href="#testEquals">testEquals</a>
+        </td>
+        <td />
+      </tr>
+      <tr>
+        <td>
+          <a href="#testSort">testSort</a>
+        </td>
+        <td />
+      </tr>
+    </table>
+    <h2>
+      <a name="testEquals" />
+      <a href="#top" class="imgLink">
+        <img src="../../../../resources/arrow-top-16.png" alt="Top" title="Top" class="imgNoBorder" />
+      </a>
+      <a href="#testSort" class="imgLink">
+        <img src="../../../../resources/arrow-next-16.png" alt="Next (testSort)" title="Next (testSort)" class="imgNoBorder" />
+      </a>
+      Method testEquals
+    </h2>
+    <p>Trace class: org.magicwerk.brownies.collections.primitive.DoubleGapList</p>
+    <p>Trace method: equals</p>
+    <p>Run at: 26.11.2012 09:51:59, Duration: 0.000s</p>
+    <table>
+      <tr>
+        <th>Step</th>
+        <th>Description</th>
+        <th>Parameters</th>
+        <th>Result</th>
+        <th>Error</th>
+        <th>Status</th>
+      </tr>
+      <tr>
+        <td class="step" onclick="location.href='#testEquals'" title="Goto testEquals">1</td>
+        <td class="step">
+          <p>equals</p>
+        </td>
+        <td class="step">
+          <table class="block">
+            <tr>
+              <td>This:</td>
+              <td>[1.0, NaN, 3.0]</td>
+            </tr>
+            <tr>
+              <td>Params:</td>
+              <td>[1.0, NaN, 3.0]</td>
+            </tr>
+          </table>
+        </td>
+        <td class="step">true</td>
+        <td class="step" />
+        <td class="step">OK</td>
+      </tr>
+      <tr>
+        <td class="step" onclick="location.href='#testEquals'" title="Goto testEquals">2</td>
+        <td class="step">
+          <p>equals</p>
+        </td>
+        <td class="step">
+          <table class="block">
+            <tr>
+              <td>This:</td>
+              <td>[1.0, NaN, 3.0]</td>
+            </tr>
+            <tr>
+              <td>Params:</td>
+              <td>[0.0, NaN, 3.0]</td>
+            </tr>
+          </table>
+        </td>
+        <td class="step">false</td>
+        <td class="step" />
+        <td class="step">OK</td>
+      </tr>
+    </table>
+    <h2>
+      <a name="testSort" />
+      <a href="#top" class="imgLink">
+        <img src="../../../../resources/arrow-top-16.png" alt="Top" title="Top" class="imgNoBorder" />
+      </a>
+      <a href="#testEquals" class="imgLink">
+        <img src="../../../../resources/arrow-prev-16.png" alt="Prev (testEquals)" title="Prev (testEquals)" class="imgNoBorder" />
+      </a>
+      Method testSort
+    </h2>
+    <p>Trace class: org.magicwerk.brownies.collections.primitive.DoubleGapList</p>
+    <p>Trace method: sort</p>
+    <p>Run at: 26.11.2012 09:53:18, Duration: 0.000s</p>
+    <table>
+      <tr>
+        <th>Step</th>
+        <th>Description</th>
+        <th>Parameters</th>
+        <th>Result</th>
+        <th>Error</th>
+        <th>Status</th>
+      </tr>
+      <tr>
+        <td class="step" onclick="location.href='#testSort'" title="Goto testSort">1</td>
+        <td class="step">
+          <p>sort</p>
+        </td>
+        <td class="step">
+          <table class="block">
+            <tr>
+              <td>This:</td>
+              <td>[1.0, NaN, 3.0]</td>
+            </tr>
+          </table>
+        </td>
+        <td class="step">
+          <table class="block">
+            <tr>
+              <td>This:</td>
+              <td>[1.0, 3.0, NaN]</td>
+            </tr>
+          </table>
+        </td>
+        <td class="step" />
+        <td class="step">OK</td>
+      </tr>
+    </table>
+  </body>
+</html>
+
