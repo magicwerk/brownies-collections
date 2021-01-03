@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<testClass xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="org.magicwerk.brownies.collections.MapCollectionTest" xsi:noNamespaceSchemaLocation="testclass-v10.xsd">
+  <traceTest name="testMapCollection">
+    <runDate>2013-09-12T23:52:29.063+02:00</runDate>
+    <runDuration>0.043858144</runDuration>
+    <exception />
+    <traceClass>org.magicwerk.brownies.collections.MapCollection</traceClass>
+    <traceMethod>/.*/</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"add"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ }"</paramText>
+        <paramText outputType="VALUE" param="#1">"Ticket [id=id1, extId=null, text=text1]"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=id1, extId=null, text=text1] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="Result">"true"</paramText>
+      </result>
+      <error />
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"add"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=id1, extId=null, text=text1] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="#1">"Ticket [id=id2, extId=null, text=text2]"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=id2, extId=null, text=text2], \r\n   Ticket [id=id1, extId=null, text=text1] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="Result">"true"</paramText>
+      </result>
+      <error />
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"add"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=id2, extId=null, text=text2], \r\n   Ticket [id=id1, extId=null, text=text1] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="#1">"null"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ \r\n   null, \r\n   Ticket [id=id2, extId=null, text=text2], \r\n   Ticket [id=id1, extId=null, text=text1] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="Result">"true"</paramText>
+      </result>
+      <error />
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"getByKey"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ \r\n   null, \r\n   Ticket [id=id2, extId=null, text=text2], \r\n   Ticket [id=id1, extId=null, text=text1] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="#1">"\"id1\""</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ \r\n   null, \r\n   Ticket [id=id2, extId=null, text=text2], \r\n   Ticket [id=id1, extId=null, text=text1] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="Result">"Ticket [id=id1, extId=null, text=text1]"</paramText>
+      </result>
+      <error />
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"getByKey"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ \r\n   null, \r\n   Ticket [id=id2, extId=null, text=text2], \r\n   Ticket [id=id1, extId=null, text=text1] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="#1">"null"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ \r\n   null, \r\n   Ticket [id=id2, extId=null, text=text2], \r\n   Ticket [id=id1, extId=null, text=text1] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="Result">"null"</paramText>
+      </result>
+      <error />
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"getByKey"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ \r\n   null, \r\n   Ticket [id=id2, extId=null, text=text2], \r\n   Ticket [id=id1, extId=null, text=text1] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="#1">"\"x\""</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ \r\n   null, \r\n   Ticket [id=id2, extId=null, text=text2], \r\n   Ticket [id=id1, extId=null, text=text1] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="Result">"null"</paramText>
+      </result>
+      <error />
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"contains"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ \r\n   null, \r\n   Ticket [id=id2, extId=null, text=text2], \r\n   Ticket [id=id1, extId=null, text=text1] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="#1">"Ticket [id=id1, extId=null, text=text1]"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ \r\n   null, \r\n   Ticket [id=id2, extId=null, text=text2], \r\n   Ticket [id=id1, extId=null, text=text1] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="Result">"true"</paramText>
+      </result>
+      <error />
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"contains"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ \r\n   null, \r\n   Ticket [id=id2, extId=null, text=text2], \r\n   Ticket [id=id1, extId=null, text=text1] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="#1">"\"x\""</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ \r\n   null, \r\n   Ticket [id=id2, extId=null, text=text2], \r\n   Ticket [id=id1, extId=null, text=text1] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="Result">"false"</paramText>
+      </result>
+      <error />
+    </traceStep>
+  </traceTest>
+</testClass>
+

@@ -1,0 +1,617 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testClass xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="org.magicwerk.brownies.collections.Key2ListTest" xsi:noNamespaceSchemaLocation="testclass-v10.xsd">
+  <captureTest name="testCloneCopyCrop">
+    <runDate>2015-08-18T01:56:07.104+02:00</runDate>
+    <runDuration>0.033965674</runDuration>
+    <exception></exception>
+    <captureStep>
+      <text outputType="TEXT">"Orig: [ 1, 2, 3, 4 ]\r\n-\nClone: [ 1, 2, 3, 4 ]\r\nOrig (changed): [ 1, 2, 3, 4, 5 ]\r\nClone (unchanged): [ 1, 2, 3, 4 ]\r\nOrig (unchanged): [ 1, 2, 3, 4 ]\r\nClone (changed): [ 1, 2, 3, 4, 5 ]\r\n-\nCopy: [ 1, 2, 3, 4 ]\r\nOrig (changed): [ 1, 2, 3, 4, 5 ]\r\nCopy (unchanged): [ 1, 2, 3, 4 ]\r\nOrig (unchanged): [ 1, 2, 3, 4 ]\r\nCopy (changed): [ 1, 2, 3, 4, 5 ]\r\n-\nCrop: [  ]\r\nOrig (changed): [ 1, 2, 3, 4, 5 ]\r\nCrop (unchanged): [  ]\r\nOrig (unchanged): [ 1, 2, 3, 4 ]\r\nCrop (changed): [ 5 ]\r\nOrig: [ 1, 2, 3, 4 ]\r\n-\nClone: [ 1, 2, 3, 4 ]\r\nOrig (changed): [ 1, 2, 3, 4, 5 ]\r\nClone (unchanged): [ 1, 2, 3, 4 ]\r\nOrig (unchanged): [ 1, 2, 3, 4 ]\r\nClone (changed): [ 1, 2, 3, 4, 5 ]\r\n-\nCopy: [ 1, 2, 3, 4 ]\r\nOrig (changed): [ 1, 2, 3, 4, 5 ]\r\nCopy (unchanged): [ 1, 2, 3, 4 ]\r\nOrig (unchanged): [ 1, 2, 3, 4 ]\r\nCopy (changed): [ 1, 2, 3, 4, 5 ]\r\n-\nCrop: [  ]\r\nOrig (changed): [ 1, 2, 3, 4, 5 ]\r\nCrop (unchanged): [  ]\r\nOrig (unchanged): [ 1, 2, 3, 4 ]\r\nCrop (changed): [ 5 ]\r\n"</text>
+    </captureStep>
+  </captureTest>
+  <traceTest name="testExtends">
+    <runDate>2017-12-07T00:45:14.597+01:00</runDate>
+    <runDuration>0.029167163</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.Key2ListTest$TicketList</traceClass>
+    <traceMethod>/.*/</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"Key2ListTest$TicketList"</paramText>
+      </description>
+      <parameters></parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"{ }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"add"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ }"</paramText>
+        <paramText outputType="VALUE" param="#1">"Ticket [id=1, extId=extId1, text=text1]"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=1, extId=extId1, text=text1] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="Result">"true"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"clone"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=1, extId=extId1, text=text1] \r\n}"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=1, extId=extId1, text=text1] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="Result">"{ \r\n   Ticket [id=1, extId=extId1, text=text1] \r\n}"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"copy"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=1, extId=extId1, text=text1] \r\n}"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=1, extId=extId1, text=text1] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="Result">"{ \r\n   Ticket [id=1, extId=extId1, text=text1] \r\n}"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"crop"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=1, extId=extId1, text=text1] \r\n}"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=1, extId=extId1, text=text1] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="Result">"{ }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testInvalidate">
+    <runDate>2015-08-18T01:56:07.323+02:00</runDate>
+    <runDuration>0.076394029</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.Key2List</traceClass>
+    <traceMethod>/.*/</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"add"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ }"</paramText>
+        <paramText outputType="VALUE" param="#1">"Ticket [id=1, extId=extId1, text=text1]"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=1, extId=extId1, text=text1] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="Result">"true"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"add"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=1, extId=extId1, text=text1] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="#1">"Ticket [id=3, extId=extId3x, text=text3]"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=1, extId=extId1, text=text1], \r\n   Ticket [id=3, extId=extId3x, text=text3] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="Result">"true"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"add"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=1, extId=extId1, text=text1], \r\n   Ticket [id=3, extId=extId3x, text=text3] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="#1">"Ticket [id=2, extId=extId2, text=text2]"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=1, extId=extId1, text=text1], \r\n   Ticket [id=3, extId=extId3x, text=text3], \r\n   Ticket [id=2, extId=extId2, text=text2] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="Result">"true"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"add"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=1, extId=extId1, text=text1], \r\n   Ticket [id=3, extId=extId3x, text=text3], \r\n   Ticket [id=2, extId=extId2, text=text2] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="#1">"Ticket [id=4, extId=extId3x, text=text4]"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=1, extId=extId1, text=text1], \r\n   Ticket [id=3, extId=extId3x, text=text3], \r\n   Ticket [id=2, extId=extId2, text=text2], \r\n   Ticket [id=4, extId=extId3x, text=text4] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="Result">"true"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"getByKey1"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=11, extId=extId1, text=text1], \r\n   Ticket [id=3, extId=extId3x, text=text3], \r\n   Ticket [id=2, extId=extId2, text=text2], \r\n   Ticket [id=4, extId=extId3x, text=text4] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="#1">"11"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=11, extId=extId1, text=text1], \r\n   Ticket [id=3, extId=extId3x, text=text3], \r\n   Ticket [id=2, extId=extId2, text=text2], \r\n   Ticket [id=4, extId=extId3x, text=text4] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="Result">"null"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"invalidate"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=11, extId=extId1, text=text1], \r\n   Ticket [id=3, extId=extId3x, text=text3], \r\n   Ticket [id=2, extId=extId2, text=text2], \r\n   Ticket [id=4, extId=extId3x, text=text4] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="#1">"Ticket [id=11, extId=extId1, text=text1]"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=11, extId=extId1, text=text1], \r\n   Ticket [id=3, extId=extId3x, text=text3], \r\n   Ticket [id=2, extId=extId2, text=text2], \r\n   Ticket [id=4, extId=extId3x, text=text4] \r\n}"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"getByKey1"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=11, extId=extId1, text=text1], \r\n   Ticket [id=3, extId=extId3x, text=text3], \r\n   Ticket [id=2, extId=extId2, text=text2], \r\n   Ticket [id=4, extId=extId3x, text=text4] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="#1">"11"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=11, extId=extId1, text=text1], \r\n   Ticket [id=3, extId=extId3x, text=text3], \r\n   Ticket [id=2, extId=extId2, text=text2], \r\n   Ticket [id=4, extId=extId3x, text=text4] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="Result">"Ticket [id=11, extId=extId1, text=text1]"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"getByKey1"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=11, extId=extId1, text=text1], \r\n   Ticket [id=3, extId=extId3x, text=text3], \r\n   Ticket [id=22, extId=extId2, text=text2], \r\n   Ticket [id=4, extId=extId3x, text=text4] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="#1">"22"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=11, extId=extId1, text=text1], \r\n   Ticket [id=3, extId=extId3x, text=text3], \r\n   Ticket [id=22, extId=extId2, text=text2], \r\n   Ticket [id=4, extId=extId3x, text=text4] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="Result">"null"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"invalidateKey1"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=11, extId=extId1, text=text1], \r\n   Ticket [id=3, extId=extId3x, text=text3], \r\n   Ticket [id=22, extId=extId2, text=text2], \r\n   Ticket [id=4, extId=extId3x, text=text4] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="#1">"2"</paramText>
+        <paramText outputType="VALUE" param="#2">"22"</paramText>
+        <paramText outputType="VALUE" param="#3">"null"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=11, extId=extId1, text=text1], \r\n   Ticket [id=3, extId=extId3x, text=text3], \r\n   Ticket [id=22, extId=extId2, text=text2], \r\n   Ticket [id=4, extId=extId3x, text=text4] \r\n}"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"getByKey1"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=11, extId=extId1, text=text1], \r\n   Ticket [id=3, extId=extId3x, text=text3], \r\n   Ticket [id=22, extId=extId2, text=text2], \r\n   Ticket [id=4, extId=extId3x, text=text4] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="#1">"22"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=11, extId=extId1, text=text1], \r\n   Ticket [id=3, extId=extId3x, text=text3], \r\n   Ticket [id=22, extId=extId2, text=text2], \r\n   Ticket [id=4, extId=extId3x, text=text4] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="Result">"Ticket [id=22, extId=extId2, text=text2]"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"getByKey2"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=11, extId=extId1, text=text1], \r\n   Ticket [id=3, extId=extId3a, text=text3], \r\n   Ticket [id=22, extId=extId2, text=text2], \r\n   Ticket [id=4, extId=extId3x, text=text4] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="#1">"\"extId3a\""</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=11, extId=extId1, text=text1], \r\n   Ticket [id=3, extId=extId3a, text=text3], \r\n   Ticket [id=22, extId=extId2, text=text2], \r\n   Ticket [id=4, extId=extId3x, text=text4] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="Result">"null"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"invalidateKey2"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=11, extId=extId1, text=text1], \r\n   Ticket [id=3, extId=extId3a, text=text3], \r\n   Ticket [id=22, extId=extId2, text=text2], \r\n   Ticket [id=4, extId=extId3x, text=text4] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="#1">"\"extId3x\""</paramText>
+        <paramText outputType="VALUE" param="#2">"\"extId3a\""</paramText>
+        <paramText outputType="VALUE" param="#3">"Ticket [id=3, extId=extId3a, text=text3]"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=11, extId=extId1, text=text1], \r\n   Ticket [id=3, extId=extId3a, text=text3], \r\n   Ticket [id=22, extId=extId2, text=text2], \r\n   Ticket [id=4, extId=extId3x, text=text4] \r\n}"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"getByKey2"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=11, extId=extId1, text=text1], \r\n   Ticket [id=3, extId=extId3a, text=text3], \r\n   Ticket [id=22, extId=extId2, text=text2], \r\n   Ticket [id=4, extId=extId3x, text=text4] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="#1">"\"extId3a\""</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=11, extId=extId1, text=text1], \r\n   Ticket [id=3, extId=extId3a, text=text3], \r\n   Ticket [id=22, extId=extId2, text=text2], \r\n   Ticket [id=4, extId=extId3x, text=text4] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="Result">"Ticket [id=3, extId=extId3a, text=text3]"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"add"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ }"</paramText>
+        <paramText outputType="VALUE" param="#1">"Ticket [id=1, extId=extId1, text=text1]"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=1, extId=extId1, text=text1] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="Result">"true"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"add"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=1, extId=extId1, text=text1] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="#1">"Ticket [id=3, extId=extId3x, text=text3]"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=1, extId=extId1, text=text1], \r\n   Ticket [id=3, extId=extId3x, text=text3] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="Result">"true"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"add"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=1, extId=extId1, text=text1], \r\n   Ticket [id=3, extId=extId3x, text=text3] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="#1">"Ticket [id=2, extId=extId2, text=text2]"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=1, extId=extId1, text=text1], \r\n   Ticket [id=2, extId=extId2, text=text2], \r\n   Ticket [id=3, extId=extId3x, text=text3] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="Result">"true"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"add"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=1, extId=extId1, text=text1], \r\n   Ticket [id=2, extId=extId2, text=text2], \r\n   Ticket [id=3, extId=extId3x, text=text3] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="#1">"Ticket [id=4, extId=extId3x, text=text4]"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=1, extId=extId1, text=text1], \r\n   Ticket [id=2, extId=extId2, text=text2], \r\n   Ticket [id=3, extId=extId3x, text=text3], \r\n   Ticket [id=4, extId=extId3x, text=text4] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="Result">"true"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"getByKey1"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=11, extId=extId1, text=text1], \r\n   Ticket [id=2, extId=extId2, text=text2], \r\n   Ticket [id=3, extId=extId3x, text=text3], \r\n   Ticket [id=4, extId=extId3x, text=text4] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="#1">"11"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=11, extId=extId1, text=text1], \r\n   Ticket [id=2, extId=extId2, text=text2], \r\n   Ticket [id=3, extId=extId3x, text=text3], \r\n   Ticket [id=4, extId=extId3x, text=text4] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="Result">"null"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"invalidate"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=11, extId=extId1, text=text1], \r\n   Ticket [id=2, extId=extId2, text=text2], \r\n   Ticket [id=3, extId=extId3x, text=text3], \r\n   Ticket [id=4, extId=extId3x, text=text4] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="#1">"Ticket [id=11, extId=extId1, text=text1]"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=2, extId=extId2, text=text2], \r\n   Ticket [id=3, extId=extId3x, text=text3], \r\n   Ticket [id=11, extId=extId1, text=text1], \r\n   Ticket [id=4, extId=extId3x, text=text4] \r\n}"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"getByKey1"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=2, extId=extId2, text=text2], \r\n   Ticket [id=3, extId=extId3x, text=text3], \r\n   Ticket [id=11, extId=extId1, text=text1], \r\n   Ticket [id=4, extId=extId3x, text=text4] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="#1">"11"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=2, extId=extId2, text=text2], \r\n   Ticket [id=3, extId=extId3x, text=text3], \r\n   Ticket [id=11, extId=extId1, text=text1], \r\n   Ticket [id=4, extId=extId3x, text=text4] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="Result">"Ticket [id=4, extId=extId3x, text=text4]"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"getByKey1"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=22, extId=extId2, text=text2], \r\n   Ticket [id=3, extId=extId3x, text=text3], \r\n   Ticket [id=11, extId=extId1, text=text1], \r\n   Ticket [id=4, extId=extId3x, text=text4] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="#1">"22"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=22, extId=extId2, text=text2], \r\n   Ticket [id=3, extId=extId3x, text=text3], \r\n   Ticket [id=11, extId=extId1, text=text1], \r\n   Ticket [id=4, extId=extId3x, text=text4] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="Result">"null"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"invalidateKey1"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=22, extId=extId2, text=text2], \r\n   Ticket [id=3, extId=extId3x, text=text3], \r\n   Ticket [id=11, extId=extId1, text=text1], \r\n   Ticket [id=4, extId=extId3x, text=text4] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="#1">"2"</paramText>
+        <paramText outputType="VALUE" param="#2">"22"</paramText>
+        <paramText outputType="VALUE" param="#3">"null"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=3, extId=extId3x, text=text3], \r\n   Ticket [id=11, extId=extId1, text=text1], \r\n   Ticket [id=4, extId=extId3x, text=text4], \r\n   Ticket [id=22, extId=extId2, text=text2] \r\n}"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"getByKey1"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=3, extId=extId3x, text=text3], \r\n   Ticket [id=11, extId=extId1, text=text1], \r\n   Ticket [id=4, extId=extId3x, text=text4], \r\n   Ticket [id=22, extId=extId2, text=text2] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="#1">"22"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=3, extId=extId3x, text=text3], \r\n   Ticket [id=11, extId=extId1, text=text1], \r\n   Ticket [id=4, extId=extId3x, text=text4], \r\n   Ticket [id=22, extId=extId2, text=text2] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="Result">"Ticket [id=22, extId=extId2, text=text2]"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"getByKey2"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=3, extId=extId3a, text=text3], \r\n   Ticket [id=11, extId=extId1, text=text1], \r\n   Ticket [id=4, extId=extId3x, text=text4], \r\n   Ticket [id=22, extId=extId2, text=text2] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="#1">"\"extId3a\""</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=3, extId=extId3a, text=text3], \r\n   Ticket [id=11, extId=extId1, text=text1], \r\n   Ticket [id=4, extId=extId3x, text=text4], \r\n   Ticket [id=22, extId=extId2, text=text2] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="Result">"null"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"invalidateKey2"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=3, extId=extId3a, text=text3], \r\n   Ticket [id=11, extId=extId1, text=text1], \r\n   Ticket [id=4, extId=extId3x, text=text4], \r\n   Ticket [id=22, extId=extId2, text=text2] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="#1">"\"extId3x\""</paramText>
+        <paramText outputType="VALUE" param="#2">"\"extId3a\""</paramText>
+        <paramText outputType="VALUE" param="#3">"Ticket [id=3, extId=extId3a, text=text3]"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=3, extId=extId3a, text=text3], \r\n   Ticket [id=11, extId=extId1, text=text1], \r\n   Ticket [id=4, extId=extId3x, text=text4], \r\n   Ticket [id=22, extId=extId2, text=text2] \r\n}"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"getByKey2"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=3, extId=extId3a, text=text3], \r\n   Ticket [id=11, extId=extId1, text=text1], \r\n   Ticket [id=4, extId=extId3x, text=text4], \r\n   Ticket [id=22, extId=extId2, text=text2] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="#1">"\"extId3a\""</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=3, extId=extId3a, text=text3], \r\n   Ticket [id=11, extId=extId1, text=text1], \r\n   Ticket [id=4, extId=extId3x, text=text4], \r\n   Ticket [id=22, extId=extId2, text=text2] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="Result">"Ticket [id=3, extId=extId3a, text=text3]"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testKey2List">
+    <runDate>2015-08-18T01:56:07.704+02:00</runDate>
+    <runDuration>0.02192768</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.Key2List</traceClass>
+    <traceMethod>/.+/</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"add"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ }"</paramText>
+        <paramText outputType="VALUE" param="#1">"Ticket [id=1, extId=ExtId1, text=Ticket1]"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"true"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"add"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=1, extId=ExtId1, text=Ticket1] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="#1">"Ticket [id=2, extId=null, text=Ticket2]"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"true"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"add"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=1, extId=ExtId1, text=Ticket1], \r\n   Ticket [id=2, extId=null, text=Ticket2] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="#1">"Ticket [id=3, extId=ExtId3, text=Ticket3]"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"true"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"add"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=1, extId=ExtId1, text=Ticket1], \r\n   Ticket [id=2, extId=null, text=Ticket2], \r\n   Ticket [id=3, extId=ExtId3, text=Ticket3] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="#1">"Ticket [id=4, extId=null, text=Ticket4]"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"true"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"getByKey1"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=1, extId=ExtId1, text=Ticket1], \r\n   Ticket [id=2, extId=null, text=Ticket2], \r\n   Ticket [id=3, extId=ExtId3, text=Ticket3], \r\n   Ticket [id=4, extId=null, text=Ticket4] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="#1">"1"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"Ticket [id=1, extId=ExtId1, text=Ticket1]"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"getByKey2"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=1, extId=ExtId1, text=Ticket1], \r\n   Ticket [id=2, extId=null, text=Ticket2], \r\n   Ticket [id=3, extId=ExtId3, text=Ticket3], \r\n   Ticket [id=4, extId=null, text=Ticket4] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="#1">"\"ExtId3\""</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"Ticket [id=3, extId=ExtId3, text=Ticket3]"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"add"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=1, extId=ExtId1, text=Ticket1], \r\n   Ticket [id=2, extId=null, text=Ticket2], \r\n   Ticket [id=3, extId=ExtId3, text=Ticket3], \r\n   Ticket [id=4, extId=null, text=Ticket4] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="#1">"Ticket [id=1, extId=ExtId, text=ERROR]"</paramText>
+      </parameters>
+      <result></result>
+      <error>
+        <paramText outputType="VALUE" param="Error">"org.magicwerk.brownies.collections.exceptions.DuplicateKeyException: Constraint violation: duplicate key not allowed: 1"</paramText>
+      </error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"add"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=1, extId=ExtId1, text=Ticket1], \r\n   Ticket [id=2, extId=null, text=Ticket2], \r\n   Ticket [id=3, extId=ExtId3, text=Ticket3], \r\n   Ticket [id=4, extId=null, text=Ticket4] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="#1">"Ticket [id=5, extId=ExtId3, text=ERROR]"</paramText>
+      </parameters>
+      <result></result>
+      <error>
+        <paramText outputType="VALUE" param="Error">"org.magicwerk.brownies.collections.exceptions.DuplicateKeyException: Constraint violation: duplicate key not allowed: ExtId3"</paramText>
+      </error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"add"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=1, extId=ExtId1, text=Ticket1], \r\n   Ticket [id=2, extId=null, text=Ticket2], \r\n   Ticket [id=3, extId=ExtId3, text=Ticket3], \r\n   Ticket [id=4, extId=null, text=Ticket4] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="#1">"Ticket [id=null, extId=ExtId, text=ERROR]"</paramText>
+      </parameters>
+      <result></result>
+      <error>
+        <paramText outputType="VALUE" param="Error">"org.magicwerk.brownies.collections.exceptions.KeyException: Constraint violation: null key not allowed"</paramText>
+      </error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"add"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=1, extId=ExtId1, text=Ticket1], \r\n   Ticket [id=2, extId=null, text=Ticket2], \r\n   Ticket [id=3, extId=ExtId3, text=Ticket3], \r\n   Ticket [id=4, extId=null, text=Ticket4] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="#1">"null"</paramText>
+      </parameters>
+      <result></result>
+      <error>
+        <paramText outputType="VALUE" param="Error">"org.magicwerk.brownies.collections.exceptions.KeyException: Constraint violation: null element not allowed"</paramText>
+      </error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"add"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=1, extId=ExtId1, text=Ticket1], \r\n   Ticket [id=2, extId=null, text=Ticket2], \r\n   Ticket [id=3, extId=ExtId3, text=Ticket3], \r\n   Ticket [id=4, extId=null, text=Ticket4] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="#1">"Ticket [id=6, extId=EXT, text=ERROR]"</paramText>
+      </parameters>
+      <result></result>
+      <error>
+        <paramText outputType="VALUE" param="Error">"org.magicwerk.brownies.collections.exceptions.KeyException: Constraint violation: element not allowed"</paramText>
+      </error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"removeByKey1"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ \r\n   Ticket [id=1, extId=ExtId1, text=Ticket1], \r\n   Ticket [id=2, extId=null, text=Ticket2], \r\n   Ticket [id=3, extId=ExtId3, text=Ticket3], \r\n   Ticket [id=4, extId=null, text=Ticket4] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="#1">"1"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"Ticket [id=1, extId=ExtId1, text=Ticket1]"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+  </traceTest>
+</testClass>

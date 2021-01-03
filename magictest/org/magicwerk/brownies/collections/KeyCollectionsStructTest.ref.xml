@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<testClass xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="org.magicwerk.brownies.collections.KeyCollectionsStructTest" xsi:noNamespaceSchemaLocation="testclass-v10.xsd">
+  <captureTest name="testKeyCollectionImpl">
+    <runDate>2015-08-19T23:35:12.038+02:00</runDate>
+    <runDuration>0.021786457</runDuration>
+    <exception />
+    <captureStep>
+      <text outputType="TEXT">"-- not sorted\r\nKeyCollection\r\n- Elem Set: HashMap: Ticket -&gt; Ticket\r\n\r\n-- sorted\r\nKeyCollection\r\n- Elem Set: TreeMap: Ticket -&gt; Ticket\r\n\r\n-- with duplicates \r\nKeyCollection\r\n- Elem Set: HashMap: Ticket -&gt; KeyMapList\r\n\r\n-- sorted with duplicates\r\nKeyCollection\r\n- Elem Set: TreeMap: Ticket -&gt; KeyMapList\r\n\r\n-- with elem count\r\nKeyCollection\r\n- Elem Set: HashMap: Ticket -&gt; Integer\r\n\r\nKey1Collection\r\n- Elem Set: null\n- Key Map 1: TreeMap: Integer -&gt; Ticket\r\n\r\nKey1Collection\r\n- Elem Set: HashMap: Ticket -&gt; Ticket\n- Key Map 1: TreeMap: Integer -&gt; Ticket\r\n\r\nKey1Collection\r\n- Elem Set: HashMap: Ticket -&gt; Ticket\n- Key Map 1: TreeMap: Integer -&gt; Ticket\r\n\r\n"</text>
+    </captureStep>
+  </captureTest>
+  <captureTest name="testKeyListImpl">
+    <runDate>2015-08-28T23:24:37.375+02:00</runDate>
+    <runDuration>0.880527513</runDuration>
+    <exception />
+    <captureStep>
+      <text outputType="TEXT">"-- KeyList: list only\r\nKeyList\r\n- IList: GapList: Ticket\r\n- no ElemSet / KeyMaps\r\n\r\nKeyList\r\n- IList: BigList: Ticket\r\n- no ElemSet / KeyMaps\r\n\r\nKeyList\r\n- IList: IntObjGapList: Integer\r\n- no ElemSet / KeyMaps\r\n\r\nKeyList\r\n- IList: IntObjBigList: Integer\r\n- no ElemSet / KeyMaps\r\n\r\n-- KeyList: sorted list only\r\nKeyList\r\n- IList: GapList: Ticket\r\n- Elem Set: GapList: Ticket\r\n\r\nKeyList\r\n- IList: BigList: Ticket\r\n- Elem Set: BigList: Ticket\r\n\r\nKeyList\r\n- IList: IntObjGapList: Integer\r\n- Elem Set: IntObjGapList: Integer\r\n\r\nKeyList\r\n- IList: IntObjBigList: Integer\r\n- Elem Set: IntObjBigList: Integer\r\n\r\n-- KeyList: list + elem set\r\nKeyList\r\n- IList: GapList: Ticket\r\n- Elem Set: HashMap: Ticket -&gt; Ticket\r\n\r\nKeyList\r\n- IList: BigList: Ticket\r\n- Elem Set: HashMap: Ticket -&gt; Ticket\r\n\r\nKeyList\r\n- IList: IntObjGapList: Integer\r\n- Elem Set: HashMap: Integer -&gt; Integer\r\n\r\nKeyList\r\n- IList: IntObjBigList: Integer\r\n- Elem Set: HashMap: Integer -&gt; Integer\r\n\r\n-- KeyList: sorted list + elem set\r\nKeyList\r\n- IList: GapList: Ticket\r\n- Elem Set: GapList: Ticket\r\n\r\nKeyList\r\n- IList: BigList: Ticket\r\n- Elem Set: BigList: Ticket\r\n\r\nKeyList\r\n- IList: IntObjGapList: Integer\r\n- Elem Set: IntObjGapList: Integer\r\n\r\nKeyList\r\n- IList: IntObjBigList: Integer\r\n- Elem Set: IntObjBigList: Integer\r\n\r\n-- Key1List\r\nKey1List\r\n- IList: GapList: Ticket\r\n- Elem Set: null\n- Key Map 1: HashMap: Integer -&gt; Ticket\r\n\r\nKey1List\r\n- IList: GapList: Ticket\r\n- Elem Set: null\n- Key Map 1: TreeMap: Integer -&gt; Ticket\r\n\r\nKey1List\r\n- IList: GapList: Ticket\r\n- Elem Set: null\n- Key Map 1: GapList: Integer\r\n\r\nKey1List\r\n- IList: GapList: Ticket\r\n- Elem Set: HashMap: Ticket -&gt; Ticket\n- Key Map 1: HashMap: Integer -&gt; Ticket\r\n\r\n-- Key2List\r\nKey2List\r\n- IList: GapList: Ticket\r\n- Elem Set: HashMap: Ticket -&gt; Ticket\n- Key Map 1: HashMap: Integer -&gt; Ticket\n- Key Map 2: HashMap: String -&gt; Ticket\r\n\r\nKey2List\r\n- IList: GapList: Ticket\r\n- Elem Set: HashMap: Ticket -&gt; Ticket\n- Key Map 1: IntObjGapList: Integer\n- Key Map 2: TreeMap: String -&gt; Ticket\r\n\r\n"</text>
+    </captureStep>
+  </captureTest>
+</testClass>
+
