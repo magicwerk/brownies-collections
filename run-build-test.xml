@@ -2,6 +2,11 @@
 	<property environment="env"/>
 	<import file="${env.BROWNIES_DEV}/build-lib.xml" />
 
+	<property name="release.url" value="svn://localhost/magicwerk.origo/trunk/Java/Brownies" />
+	<property name="release.dir" value="C:/dev/Java/Releases" />
+
+	<!-- Install -->
+
 	<target name="mvn-install">
 		<property name="lib.dir" value="${project.basedir}/../Brownies-Jar/lib" />
 
@@ -9,9 +14,6 @@
 			<arg line="/c mvn install:install-file -DgroupId=com.melloware -DartifactId=jintellitype -Dversion=1.3.9-dll-x64 -Dpackaging=jar -Dfile=${lib.dir}/jintellitype-1.3.9-dll-x64.jar -DgeneratePom=true"/>
 		</exec>
 	</target>
-
-	<property name="release.url" value="svn://localhost/magicwerk.origo/trunk/Java/Brownies" />
-	<property name="release.dir" value="C:/dev/Java/Releases" />
 
 	<!-- JMH -->
 
