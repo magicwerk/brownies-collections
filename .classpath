@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
+	<classpathentry kind="output" path="bin/default"/>
 	<classpathentry output="bin/main" kind="src" path="src/main/java">
 		<attributes>
 			<attribute name="gradle_scope" value="main"/>
@@ -13,49 +14,63 @@
 			<attribute name="test" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="output" path="bin/default"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8/"/>
-	<classpathentry kind="src" path="/Brownies-Test">
+	<classpathentry kind="src" path="/Brownies-Test" exported="true">
 		<attributes>
 			<attribute name="without_test_code" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="src" path="/Brownies-Swt">
+	<classpathentry kind="src" path="/Brownies-Swt" exported="true">
 		<attributes>
 			<attribute name="without_test_code" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="src" path="/Brownies-Html">
+	<classpathentry kind="src" path="/MagicTest-NG" exported="true">
 		<attributes>
 			<attribute name="without_test_code" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="src" path="/Brownies-Jdom">
+	<classpathentry kind="src" path="/MagicTest" exported="true">
 		<attributes>
 			<attribute name="without_test_code" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="src" path="/Brownies-Sql">
+	<classpathentry kind="src" path="/Brownies-Html" exported="true">
 		<attributes>
 			<attribute name="without_test_code" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="src" path="/Brownies-XStream">
+	<classpathentry kind="src" path="/Brownies-Jdom" exported="true">
 		<attributes>
 			<attribute name="without_test_code" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="src" path="/Brownies-Svn">
+	<classpathentry kind="src" path="/Brownies-Sql" exported="true">
 		<attributes>
 			<attribute name="without_test_code" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="src" path="/Brownies-Core">
+	<classpathentry kind="src" path="/Brownies-XStream" exported="true">
 		<attributes>
 			<attribute name="without_test_code" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="src" path="/Brownies-Castor">
+	<classpathentry kind="src" path="/Brownies-Svn" exported="true">
+		<attributes>
+			<attribute name="without_test_code" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" path="/Brownies-Javassist" exported="true">
+		<attributes>
+			<attribute name="without_test_code" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" path="/Brownies-Core" exported="true">
+		<attributes>
+			<attribute name="without_test_code" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" path="/Brownies-Castor" exported="true">
 		<attributes>
 			<attribute name="without_test_code" value="true"/>
 		</attributes>
@@ -74,7 +89,7 @@
 	</classpathentry>
 	<classpathentry sourcepath="C:/dev/Java/Maven-Repository/junit/junit/4.8.2/junit-4.8.2-sources.jar" kind="lib" path="C:/dev/Java/Maven-Repository/junit/junit/4.8.2/junit-4.8.2.jar" exported="true">
 		<attributes>
-			<attribute name="gradle_used_by_scope" value="test"/>
+			<attribute name="gradle_used_by_scope" value=""/>
 			<attribute name="test" value="true"/>
 		</attributes>
 	</classpathentry>
@@ -96,13 +111,13 @@
 			<attribute name="test" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry sourcepath="C:/Users/b7mauct/.gradle/caches/modules-2/files-2.1/org.apache.commons/commons-collections4/4.0/f8262a0e305c01bb4e8cb4053374315a8bc08e21/commons-collections4-4.0-sources.jar" kind="lib" path="C:/Users/b7mauct/.gradle/caches/modules-2/files-2.1/org.apache.commons/commons-collections4/4.0/da217367fd25e88df52ba79e47658d4cf928b0d1/commons-collections4-4.0.jar" exported="true">
+	<classpathentry sourcepath="C:/Users/thoma/.gradle/caches/modules-2/files-2.1/org.apache.commons/commons-collections4/4.0/f8262a0e305c01bb4e8cb4053374315a8bc08e21/commons-collections4-4.0-sources.jar" kind="lib" path="C:/Users/thoma/.gradle/caches/modules-2/files-2.1/org.apache.commons/commons-collections4/4.0/da217367fd25e88df52ba79e47658d4cf928b0d1/commons-collections4-4.0.jar" exported="true">
 		<attributes>
 			<attribute name="gradle_used_by_scope" value="test"/>
 			<attribute name="test" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry sourcepath="C:/Users/b7mauct/.gradle/caches/modules-2/files-2.1/org.javolution/javolution-core-java/6.0.0/8003fe1cbb7467746343502453d1a289da04926a/javolution-core-java-6.0.0-sources.jar" kind="lib" path="C:/Users/b7mauct/.gradle/caches/modules-2/files-2.1/org.javolution/javolution-core-java/6.0.0/197af0235e5e5f0fd111f99ed48bf0651622e642/javolution-core-java-6.0.0.jar" exported="true">
+	<classpathentry sourcepath="C:/Users/thoma/.gradle/caches/modules-2/files-2.1/org.javolution/javolution-core-java/6.0.0/8003fe1cbb7467746343502453d1a289da04926a/javolution-core-java-6.0.0-sources.jar" kind="lib" path="C:/Users/thoma/.gradle/caches/modules-2/files-2.1/org.javolution/javolution-core-java/6.0.0/197af0235e5e5f0fd111f99ed48bf0651622e642/javolution-core-java-6.0.0.jar" exported="true">
 		<attributes>
 			<attribute name="gradle_used_by_scope" value="test"/>
 			<attribute name="test" value="true"/>
@@ -180,13 +195,13 @@
 			<attribute name="test" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry sourcepath="C:/Users/b7mauct/.gradle/caches/modules-2/files-2.1/com.miglayout/miglayout/3.7.3.1/720babbf1f1a5d97b5e45379708aca16e9fe5ad1/miglayout-3.7.3.1-sources.jar" kind="lib" path="C:/Users/b7mauct/.gradle/caches/modules-2/files-2.1/com.miglayout/miglayout/3.7.3.1/644fc8f608f84b0c1f140600c6a1371c9a05cd7b/miglayout-3.7.3.1-swt.jar" exported="true">
+	<classpathentry sourcepath="C:/dev/Java/Maven-Repository/com/miglayout/miglayout/3.7.3.1/miglayout-3.7.3.1-sources.jar" kind="lib" path="C:/dev/Java/Maven-Repository/com/miglayout/miglayout/3.7.3.1/miglayout-3.7.3.1-swt.jar" exported="true">
 		<attributes>
 			<attribute name="gradle_used_by_scope" value="test"/>
 			<attribute name="test" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry sourcepath="C:/Users/b7mauct/.gradle/caches/modules-2/files-2.1/com.miglayout/miglayout/3.7.3.1/720babbf1f1a5d97b5e45379708aca16e9fe5ad1/miglayout-3.7.3.1-sources.jar" kind="lib" path="C:/Users/b7mauct/.gradle/caches/modules-2/files-2.1/com.miglayout/miglayout/3.7.3.1/caa1e7748021a34aeb6c80ebd54d6c4e7f078b49/miglayout-3.7.3.1-swing.jar" exported="true">
+	<classpathentry sourcepath="C:/dev/Java/Maven-Repository/com/miglayout/miglayout/3.7.3.1/miglayout-3.7.3.1-sources.jar" kind="lib" path="C:/dev/Java/Maven-Repository/com/miglayout/miglayout/3.7.3.1/miglayout-3.7.3.1-swing.jar" exported="true">
 		<attributes>
 			<attribute name="gradle_used_by_scope" value="test"/>
 			<attribute name="test" value="true"/>
@@ -198,7 +213,7 @@
 			<attribute name="test" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry sourcepath="C:/Users/b7mauct/.gradle/caches/modules-2/files-2.1/org.osgi/org.osgi.compendium/4.3.1/440a398db88743872794269326ff290e872c0a26/org.osgi.compendium-4.3.1-sources.jar" kind="lib" path="C:/Users/b7mauct/.gradle/caches/modules-2/files-2.1/org.osgi/org.osgi.compendium/4.3.1/d1c9d7819de47d938a96ac2a3813bfd914684cf4/org.osgi.compendium-4.3.1.jar" exported="true">
+	<classpathentry sourcepath="C:/Users/thoma/.gradle/caches/modules-2/files-2.1/org.osgi/org.osgi.compendium/4.3.1/440a398db88743872794269326ff290e872c0a26/org.osgi.compendium-4.3.1-sources.jar" kind="lib" path="C:/Users/thoma/.gradle/caches/modules-2/files-2.1/org.osgi/org.osgi.compendium/4.3.1/d1c9d7819de47d938a96ac2a3813bfd914684cf4/org.osgi.compendium-4.3.1.jar" exported="true">
 		<attributes>
 			<attribute name="gradle_used_by_scope" value="test"/>
 			<attribute name="test" value="true"/>
@@ -240,6 +255,18 @@
 			<attribute name="test" value="true"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry sourcepath="C:/dev/Java/Maven-Repository/org/javassist/javassist/3.26.0-GA/javassist-3.26.0-GA-sources.jar" kind="lib" path="C:/dev/Java/Maven-Repository/org/javassist/javassist/3.26.0-GA/javassist-3.26.0-GA.jar" exported="true">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="test"/>
+			<attribute name="test" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/dev/Java/Maven-Repository/junit/junit/4.11/junit-4.11-sources.jar" kind="lib" path="C:/dev/Java/Maven-Repository/junit/junit/4.11/junit-4.11.jar" exported="true">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="test"/>
+			<attribute name="test" value="true"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry sourcepath="C:/dev/Java/Maven-Repository/org/java-websocket/Java-WebSocket/1.5.1/Java-WebSocket-1.5.1-sources.jar" kind="lib" path="C:/dev/Java/Maven-Repository/org/java-websocket/Java-WebSocket/1.5.1/Java-WebSocket-1.5.1.jar" exported="true">
 		<attributes>
 			<attribute name="gradle_used_by_scope" value="test"/>
@@ -252,7 +279,31 @@
 			<attribute name="test" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry sourcepath="C:/dev/Java/Maven-Repository/de/schlichtherle/truezip/truezip-driver-file/7.7.10/truezip-driver-file-7.7.10-sources.jar" kind="lib" path="C:/dev/Java/Maven-Repository/de/schlichtherle/truezip/truezip-driver-file/7.7.10/truezip-driver-file-7.7.10.jar" exported="true">
+	<classpathentry sourcepath="C:/Users/thoma/.gradle/caches/modules-2/files-2.1/ant/ant/1.6.5/9e0a847494563f35f9b02846a1c1eb4aa2ee5a9a/ant-1.6.5-sources.jar" kind="lib" path="C:/Users/thoma/.gradle/caches/modules-2/files-2.1/ant/ant/1.6.5/7d18faf23df1a5c3a43613952e0e8a182664564b/ant-1.6.5.jar">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="test"/>
+			<attribute name="test" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/dev/Java/Maven-Repository/org/beanshell/bsh/2.0b4/bsh-2.0b4.jar" exported="true">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="test"/>
+			<attribute name="test" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/Users/thoma/.gradle/caches/modules-2/files-2.1/com.google.inject/guice/2.0/a4c67006178262122e93121e94fff306fcf0cda1/guice-2.0.jar" exported="true">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="test"/>
+			<attribute name="test" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/dev/Java/Maven-Repository/org/yaml/snakeyaml/1.6/snakeyaml-1.6-sources.jar" kind="lib" path="C:/dev/Java/Maven-Repository/org/yaml/snakeyaml/1.6/snakeyaml-1.6.jar" exported="true">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="test"/>
+			<attribute name="test" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/Users/thoma/.gradle/caches/modules-2/files-2.1/com.beust/jcommander/1.13/2ad6519985e797170ebaeea7c7affbd183300b6a/jcommander-1.13-sources.jar" kind="lib" path="C:/Users/thoma/.gradle/caches/modules-2/files-2.1/com.beust/jcommander/1.13/2a1020d1b4f09142a0f4a191fad64d4bf8856ee1/jcommander-1.13.jar" exported="true">
 		<attributes>
 			<attribute name="gradle_used_by_scope" value="test"/>
 			<attribute name="test" value="true"/>
@@ -265,6 +316,12 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry sourcepath="C:/dev/Java/Maven-Repository/xml-apis/xml-apis/1.4.01/xml-apis-1.4.01-sources.jar" kind="lib" path="C:/dev/Java/Maven-Repository/xml-apis/xml-apis/1.4.01/xml-apis-1.4.01.jar" exported="true">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="test"/>
+			<attribute name="test" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/dev/Java/Maven-Repository/de/schlichtherle/truezip/truezip-driver-file/7.7.10/truezip-driver-file-7.7.10-sources.jar" kind="lib" path="C:/dev/Java/Maven-Repository/de/schlichtherle/truezip/truezip-driver-file/7.7.10/truezip-driver-file-7.7.10.jar" exported="true">
 		<attributes>
 			<attribute name="gradle_used_by_scope" value="test"/>
 			<attribute name="test" value="true"/>
@@ -294,31 +351,31 @@
 			<attribute name="test" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry sourcepath="C:/Users/b7mauct/.gradle/caches/modules-2/files-2.1/com.oracle.database.jdbc/ojdbc8/18.3.0.0/bc15f00ebacbeb0669f0ed925917c177912db7af/ojdbc8-18.3.0.0-sources.jar" kind="lib" path="C:/Users/b7mauct/.gradle/caches/modules-2/files-2.1/com.oracle.database.jdbc/ojdbc8/18.3.0.0/4acaa9ab2b7470fa80f0a8ec416d7ea86608ac8c/ojdbc8-18.3.0.0.jar" exported="true">
+	<classpathentry sourcepath="C:/dev/Java/Maven-Repository/com/oracle/database/jdbc/ojdbc8/18.3.0.0/ojdbc8-18.3.0.0-sources.jar" kind="lib" path="C:/dev/Java/Maven-Repository/com/oracle/database/jdbc/ojdbc8/18.3.0.0/ojdbc8-18.3.0.0.jar" exported="true">
 		<attributes>
 			<attribute name="gradle_used_by_scope" value="test"/>
 			<attribute name="test" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="C:/dev/Java/Maven-Repository/com/microsoft/sqlserver/mssql-jdbc/8.4.1.jre8/mssql-jdbc-8.4.1.jre8.jar" exported="true">
+	<classpathentry sourcepath="C:/dev/Java/Maven-Repository/com/microsoft/sqlserver/mssql-jdbc/8.4.1.jre8/mssql-jdbc-8.4.1.jre8-sources.jar" kind="lib" path="C:/dev/Java/Maven-Repository/com/microsoft/sqlserver/mssql-jdbc/8.4.1.jre8/mssql-jdbc-8.4.1.jre8.jar" exported="true">
 		<attributes>
 			<attribute name="gradle_used_by_scope" value="test"/>
 			<attribute name="test" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry sourcepath="C:/Users/b7mauct/.gradle/caches/modules-2/files-2.1/org.postgresql/postgresql/9.4-1206-jdbc42/c7d0ab562dda913eca855c2f312ac1d0d55802f0/postgresql-9.4-1206-jdbc42-sources.jar" kind="lib" path="C:/Users/b7mauct/.gradle/caches/modules-2/files-2.1/org.postgresql/postgresql/9.4-1206-jdbc42/e91af69cfb3390a73449d1157753ca4e7b97765c/postgresql-9.4-1206-jdbc42.jar" exported="true">
+	<classpathentry sourcepath="C:/Users/thoma/.gradle/caches/modules-2/files-2.1/org.postgresql/postgresql/9.4-1206-jdbc42/c7d0ab562dda913eca855c2f312ac1d0d55802f0/postgresql-9.4-1206-jdbc42-sources.jar" kind="lib" path="C:/Users/thoma/.gradle/caches/modules-2/files-2.1/org.postgresql/postgresql/9.4-1206-jdbc42/e91af69cfb3390a73449d1157753ca4e7b97765c/postgresql-9.4-1206-jdbc42.jar" exported="true">
 		<attributes>
 			<attribute name="gradle_used_by_scope" value="test"/>
 			<attribute name="test" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry sourcepath="C:/Users/b7mauct/.gradle/caches/modules-2/files-2.1/com.h2database/h2/1.3.160/2a2c8c9bbee083b01ed0ee6fa289259d565183ee/h2-1.3.160-sources.jar" kind="lib" path="C:/Users/b7mauct/.gradle/caches/modules-2/files-2.1/com.h2database/h2/1.3.160/e5df74e741da2260b825511ce08de5d7730c684a/h2-1.3.160.jar" exported="true">
+	<classpathentry sourcepath="C:/Users/thoma/.gradle/caches/modules-2/files-2.1/com.h2database/h2/1.3.160/2a2c8c9bbee083b01ed0ee6fa289259d565183ee/h2-1.3.160-sources.jar" kind="lib" path="C:/Users/thoma/.gradle/caches/modules-2/files-2.1/com.h2database/h2/1.3.160/e5df74e741da2260b825511ce08de5d7730c684a/h2-1.3.160.jar" exported="true">
 		<attributes>
 			<attribute name="gradle_used_by_scope" value="test"/>
 			<attribute name="test" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry sourcepath="C:/Users/b7mauct/.gradle/caches/modules-2/files-2.1/org.hsqldb/hsqldb/2.2.9/d268e3976cbb335252eebe5bf15016e70c7e9cb2/hsqldb-2.2.9-sources.jar" kind="lib" path="C:/Users/b7mauct/.gradle/caches/modules-2/files-2.1/org.hsqldb/hsqldb/2.2.9/23365fb055315725a8e69777e3d2e1e8a5d4878f/hsqldb-2.2.9.jar" exported="true">
+	<classpathentry sourcepath="C:/Users/thoma/.gradle/caches/modules-2/files-2.1/org.hsqldb/hsqldb/2.2.9/d268e3976cbb335252eebe5bf15016e70c7e9cb2/hsqldb-2.2.9-sources.jar" kind="lib" path="C:/Users/thoma/.gradle/caches/modules-2/files-2.1/org.hsqldb/hsqldb/2.2.9/23365fb055315725a8e69777e3d2e1e8a5d4878f/hsqldb-2.2.9.jar" exported="true">
 		<attributes>
 			<attribute name="gradle_used_by_scope" value="test"/>
 			<attribute name="test" value="true"/>
@@ -331,6 +388,18 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry sourcepath="C:/dev/Java/Maven-Repository/org/tmatesoft/svnkit/svnkit/1.8.11/svnkit-1.8.11-sources.jar" kind="lib" path="C:/dev/Java/Maven-Repository/org/tmatesoft/svnkit/svnkit/1.8.11/svnkit-1.8.11.jar" exported="true">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="test"/>
+			<attribute name="test" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/dev/Java/Maven-Repository/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3-sources.jar" kind="lib" path="C:/dev/Java/Maven-Repository/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar" exported="true">
+		<attributes>
+			<attribute name="gradle_used_by_scope" value="test"/>
+			<attribute name="test" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry sourcepath="C:/dev/Java/Maven-Repository/aopalliance/aopalliance/1.0/aopalliance-1.0-sources.jar" kind="lib" path="C:/dev/Java/Maven-Repository/aopalliance/aopalliance/1.0/aopalliance-1.0.jar" exported="true">
 		<attributes>
 			<attribute name="gradle_used_by_scope" value="test"/>
 			<attribute name="test" value="true"/>
@@ -366,37 +435,37 @@
 			<attribute name="test" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry sourcepath="C:/Users/b7mauct/.gradle/caches/modules-2/files-2.1/com.oracle.database.jdbc/ucp/18.3.0.0/bc15f00ebacbeb0669f0ed925917c177912db7af/ucp-18.3.0.0-sources.jar" kind="lib" path="C:/Users/b7mauct/.gradle/caches/modules-2/files-2.1/com.oracle.database.jdbc/ucp/18.3.0.0/b844d15da29d5c4f23a230318f9fd808087a9962/ucp-18.3.0.0.jar" exported="true">
+	<classpathentry sourcepath="C:/dev/Java/Maven-Repository/com/oracle/database/jdbc/ucp/18.3.0.0/ucp-18.3.0.0-sources.jar" kind="lib" path="C:/dev/Java/Maven-Repository/com/oracle/database/jdbc/ucp/18.3.0.0/ucp-18.3.0.0.jar" exported="true">
 		<attributes>
 			<attribute name="gradle_used_by_scope" value="test"/>
 			<attribute name="test" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry sourcepath="C:/Users/b7mauct/.gradle/caches/modules-2/files-2.1/com.oracle.database.security/oraclepki/18.3.0.0/bc15f00ebacbeb0669f0ed925917c177912db7af/oraclepki-18.3.0.0-sources.jar" kind="lib" path="C:/Users/b7mauct/.gradle/caches/modules-2/files-2.1/com.oracle.database.security/oraclepki/18.3.0.0/347500d8238a67e8b10b55a2d986b9c92ba495b3/oraclepki-18.3.0.0.jar" exported="true">
+	<classpathentry sourcepath="C:/dev/Java/Maven-Repository/com/oracle/database/security/oraclepki/18.3.0.0/oraclepki-18.3.0.0-sources.jar" kind="lib" path="C:/dev/Java/Maven-Repository/com/oracle/database/security/oraclepki/18.3.0.0/oraclepki-18.3.0.0.jar" exported="true">
 		<attributes>
 			<attribute name="gradle_used_by_scope" value="test"/>
 			<attribute name="test" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry sourcepath="C:/Users/b7mauct/.gradle/caches/modules-2/files-2.1/com.oracle.database.security/osdt_cert/18.3.0.0/bc15f00ebacbeb0669f0ed925917c177912db7af/osdt_cert-18.3.0.0-sources.jar" kind="lib" path="C:/Users/b7mauct/.gradle/caches/modules-2/files-2.1/com.oracle.database.security/osdt_cert/18.3.0.0/50c0e74c61e169adff5b83cb6a4fe1d7f4b53e8e/osdt_cert-18.3.0.0.jar" exported="true">
+	<classpathentry sourcepath="C:/dev/Java/Maven-Repository/com/oracle/database/security/osdt_cert/18.3.0.0/osdt_cert-18.3.0.0-sources.jar" kind="lib" path="C:/dev/Java/Maven-Repository/com/oracle/database/security/osdt_cert/18.3.0.0/osdt_cert-18.3.0.0.jar" exported="true">
 		<attributes>
 			<attribute name="gradle_used_by_scope" value="test"/>
 			<attribute name="test" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry sourcepath="C:/Users/b7mauct/.gradle/caches/modules-2/files-2.1/com.oracle.database.security/osdt_core/18.3.0.0/bc15f00ebacbeb0669f0ed925917c177912db7af/osdt_core-18.3.0.0-sources.jar" kind="lib" path="C:/Users/b7mauct/.gradle/caches/modules-2/files-2.1/com.oracle.database.security/osdt_core/18.3.0.0/1e057b50515c973e3f4f0323473806b7c737771e/osdt_core-18.3.0.0.jar" exported="true">
+	<classpathentry sourcepath="C:/dev/Java/Maven-Repository/com/oracle/database/security/osdt_core/18.3.0.0/osdt_core-18.3.0.0-sources.jar" kind="lib" path="C:/dev/Java/Maven-Repository/com/oracle/database/security/osdt_core/18.3.0.0/osdt_core-18.3.0.0.jar" exported="true">
 		<attributes>
 			<attribute name="gradle_used_by_scope" value="test"/>
 			<attribute name="test" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry sourcepath="C:/Users/b7mauct/.gradle/caches/modules-2/files-2.1/com.oracle.database.ha/simplefan/18.3.0.0/bc15f00ebacbeb0669f0ed925917c177912db7af/simplefan-18.3.0.0-sources.jar" kind="lib" path="C:/Users/b7mauct/.gradle/caches/modules-2/files-2.1/com.oracle.database.ha/simplefan/18.3.0.0/8559b89d1a504aee09f51ca07b668d85c371531a/simplefan-18.3.0.0.jar" exported="true">
+	<classpathentry sourcepath="C:/dev/Java/Maven-Repository/com/oracle/database/ha/simplefan/18.3.0.0/simplefan-18.3.0.0-sources.jar" kind="lib" path="C:/dev/Java/Maven-Repository/com/oracle/database/ha/simplefan/18.3.0.0/simplefan-18.3.0.0.jar" exported="true">
 		<attributes>
 			<attribute name="gradle_used_by_scope" value="test"/>
 			<attribute name="test" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry sourcepath="C:/Users/b7mauct/.gradle/caches/modules-2/files-2.1/com.oracle.database.ha/ons/18.3.0.0/bc15f00ebacbeb0669f0ed925917c177912db7af/ons-18.3.0.0-sources.jar" kind="lib" path="C:/Users/b7mauct/.gradle/caches/modules-2/files-2.1/com.oracle.database.ha/ons/18.3.0.0/54775efa851d4f27bfd5019572ab22b83c4f21d4/ons-18.3.0.0.jar" exported="true">
+	<classpathentry sourcepath="C:/dev/Java/Maven-Repository/com/oracle/database/ha/ons/18.3.0.0/ons-18.3.0.0-sources.jar" kind="lib" path="C:/dev/Java/Maven-Repository/com/oracle/database/ha/ons/18.3.0.0/ons-18.3.0.0.jar" exported="true">
 		<attributes>
 			<attribute name="gradle_used_by_scope" value="test"/>
 			<attribute name="test" value="true"/>
@@ -462,5 +531,4 @@
 			<attribute name="test" value="true"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="src" path="/MagicTest-NG" exported="true"/>
 </classpath>
