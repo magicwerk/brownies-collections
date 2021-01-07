@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testClass xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="org.magicwerk.brownies.collections.dev.MethodSourceTest" xsi:noNamespaceSchemaLocation="testclass-v10.xsd">
   <captureTest name="test">
-    <runDate>2021-01-07T17:27:35.624+01:00</runDate>
-    <runDuration>0.1757535</runDuration>
+    <runDate>2021-01-07T22:45:35.475+01:00</runDate>
+    <runDuration>0.1983616</runDuration>
     <exception></exception>
     <captureStep>
-      <text outputType="TEXT">"doc: \r\nheader: public static void main(String[] args)\r\nbody:  {\n    test();\n}\r\nsource: public static void main(String[] args) {\n    test();\n}\r\nsourceDoc: public static void main(String[] args) {\n    test();\n}\r\n---\r\ndoc: /** Method */\n\r\nheader: public static void main(String[] args)\r\nbody:  {\n    test();\n}\r\nsource: public static void main(String[] args) {\n    test();\n}\r\nsourceDoc: /** Method */\npublic static void main(String[] args) {\n    test();\n}\r\n---\r\ndoc: /** Constructor */\n\r\nheader: Name(String str)\r\nbody: {\n    test();\n}\r\nsource: Name(String str){\n    test();\n}\r\nsourceDoc: /** Constructor */\nName(String str){\n    test();\n}\r\n---\r\n"</text>
+      <text outputType="TEXT">"doc: \r\nheader: public static void main(String[] args)\r\nbody:  {\n    test();\n}\r\nsource: public static void main(String[] args) {\n    test();\n}\r\nsourceDoc: public static void main(String[] args) {\n    test();\n}\r\n---\r\ndoc: /** Method */\n\r\nheader: public static void main(String[] args)\r\nbody:  {\n    test();\n}\r\nsource: public static void main(String[] args) {\n    test();\n}\r\nsourceDoc: /** Method */\npublic static void main(String[] args) {\n    test();\n}\r\n---\r\ndoc: /** Constructor */\n\r\nheader: Name(String str)\r\nbody: {\n    test();\n}\r\nsource: Name(String str){\n    test();\n}\r\nsourceDoc: /** Constructor */\nName(String str){\n    test();\n}\r\n---\r\ndoc: /** Method */\n\r\nheader: public abstract void main(String[] args)\r\nbody: ;\r\nsource: public abstract void main(String[] args);\r\nsourceDoc: /** Method */\npublic abstract void main(String[] args);\r\n---\r\n"</text>
     </captureStep>
   </captureTest>
 </testClass>
