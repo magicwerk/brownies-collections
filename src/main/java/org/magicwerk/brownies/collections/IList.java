@@ -460,25 +460,12 @@ public abstract class IList<E>
 	}
 
 	/**
-	 * Returns all elements in the list which match the predicate.
+	 * Get first element in the list which matches the predicate.
 	 *
-	 * @param predicate	predicate
-	 * @return			all elements in the list which match the predicate
+	 * @param predicate a predicate which returns {@code true} for elements to be selected
+	 * @return 			first element matching the predicate, null otherwise
 	 */
-	// FIXE getIf vs filteredList
-	public IList<E> getIf(Predicate<? super E> predicate) {
-		IList<E> list = doCreate(-1);
-		int size = size();
-		for (int i = 0; i < size; i++) {
-			E e = doGet(i);
-			if (predicate.test(e)) {
-				list.add(e);
-			}
-		}
-		return list;
-	}
-
-	public E getIf2(Predicate<? super E> predicate) {
+	public E getIf(Predicate<? super E> predicate) {
 		int size = size();
 		for (int i = 0; i < size; i++) {
 			E e = doGet(i);

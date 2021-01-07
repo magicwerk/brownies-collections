@@ -178,18 +178,13 @@ public class TestRuns {
 		PerformanceReport report = new PerformanceReport();
 		report.load();
 		List<RunResult> results = runner.getResults();
-		for (RunResult result: results) {
+		for (RunResult result : results) {
 			String javaVersion = SystemTools.getJavaVersion();
 			if (SystemTools.Is64bit) {
 				javaVersion += "_x64";
 			}
-			RunInfo runInfo = new RunInfo().
-					setJava(javaVersion).
-					setVmArgs(SystemTools.getJvmArgsString()).
-					setRelease(GapListTest.RELEASE).
-					setRun(runner.getName()).
-					setType(result.getName()).
-					setTime(result.getAvgTime());
+			RunInfo runInfo = new RunInfo().setJava(javaVersion).setVmArgs(SystemTools.getJvmArgsString()).setRelease(GapListTest.RELEASE)
+					.setRun(runner.getName()).setType(result.getName()).setTime(result.getAvgTime());
 			report.addRun(runInfo);
 		}
 		report.save();
@@ -321,9 +316,9 @@ public class TestRuns {
 		@Override
 		public void run() {
 			List<Object> copy = (List<Object>) factory.copy(list);
-			int pos = (size-localOps)/2;
-			for (int i=0; i<localOps; i++) {
-				copy.set(pos+i, null);
+			int pos = (size - localOps) / 2;
+			for (int i = 0; i < localOps; i++) {
+				copy.set(pos + i, null);
 			}
 		}
 	}
@@ -333,6 +328,7 @@ public class TestRuns {
 	static abstract class GetLastRun extends FactoryRun {
 		List<Object> list;
 
+		@Override
 		public void beforeAll() {
 			list = (List<Object>) factory.createSize(size);
 		}
@@ -377,12 +373,14 @@ public class TestRuns {
 	static abstract class GetFirstRun extends FactoryRun {
 		List<Object> list;
 
+		@Override
 		public void beforeAll() {
 			list = (List<Object>) factory.createSize(size);
 		}
 	}
 
 	static class GetFirstRunList extends GetFirstRun {
+		@Override
 		public void run() {
 			// Use random so values can be compared with GetRandomRun
 			Random r = new Random(0);
@@ -523,7 +521,7 @@ public class TestRuns {
 				int pos = r.nextInt(size);
 				//pos = RemoveNearRun.getPos(r, size, pos, near);
 				//System.out.println(pos);
-				for (int j=0; j<localOps; j++) {
+				for (int j = 0; j < localOps; j++) {
 					list.get(pos);
 				}
 			}
@@ -588,7 +586,7 @@ public class TestRuns {
 		@Override
 		public void run() {
 			Random r = new Random();
-			int pos = size/2;
+			int pos = size / 2;
 			Object o = new Object();
 			for (int i = 0; i < numOps; i++) {
 				r.nextInt(1);
@@ -610,7 +608,7 @@ public class TestRuns {
 
 		@Override
 		public void run() {
-			int pos = size/2;
+			int pos = size / 2;
 			list.addAll(pos, add);
 		}
 	}
@@ -649,7 +647,7 @@ public class TestRuns {
 				if (all) {
 					list.addAll(elems);
 				} else {
-					for (int j=0; j<localOps; j++) {
+					for (int j = 0; j < localOps; j++) {
 						list.add(elem);
 					}
 				}
@@ -743,7 +741,7 @@ public class TestRuns {
 				if (all) {
 					list.addAll(pos, elems);
 				} else {
-					for (int j=0; j<localOps; j++) {
+					for (int j = 0; j < localOps; j++) {
 						list.add(pos, elem);
 					}
 				}
@@ -765,7 +763,7 @@ public class TestRuns {
 			Random r = getRandom();
 			for (int i = 0; i < numOps; i++) {
 				int pos = (i == 0) ? 0 : r.nextInt(list.size());
-				list.add(pos, 1000+i);
+				list.add(pos, 1000 + i);
 			}
 		}
 	}
@@ -784,7 +782,7 @@ public class TestRuns {
 			Random r = getRandom();
 			for (int i = 0; i < numOps; i++) {
 				int pos = (i == 0) ? 0 : r.nextInt(list.size());
-				list.add(pos, 1000+i);
+				list.add(pos, 1000 + i);
 			}
 		}
 	}
@@ -890,7 +888,7 @@ public class TestRuns {
 				if (localOps == 1) {
 					list.remove(pos);
 				} else {
-					pos = Math.min(pos, size-localOps);
+					pos = Math.min(pos, size - localOps);
 					int ops = localOps;
 					if (pos < 0) {
 						ops += pos;
@@ -899,7 +897,7 @@ public class TestRuns {
 					if (ilist != null) {
 						ilist.remove(pos, ops);
 					} else {
-						for (int j=0; j<ops; j++) {
+						for (int j = 0; j < ops; j++) {
 							list.remove(pos);
 						}
 					}
@@ -956,7 +954,7 @@ public class TestRuns {
 
 		@Override
 		public void run() {
-			int pos = (size-numOps)/2;
+			int pos = (size - numOps) / 2;
 			for (int i = 0; i < numOps; i++) {
 				list.remove(pos);
 			}
@@ -977,11 +975,11 @@ public class TestRuns {
 
 		@Override
 		public void run() {
-			int pos = (size-numOps)/2;
+			int pos = (size - numOps) / 2;
 			if (ilist != null) {
 				ilist.remove(pos, numOps);
 			} else {
-				list.subList(pos,  pos+numOps).clear();
+				list.subList(pos, pos + numOps).clear();
 				//
 				//for (int i = 0; i < numOps; i++) {
 				//	list.remove(pos);
@@ -1007,8 +1005,8 @@ public class TestRuns {
 			int pos = list.size() / 2;
 			for (int i = 0; i < numOps; i++) {
 				pos = getPos(r, pos, list.size(), near);
-				for (int n=0; n<localOps; n++) {
-					list.add(pos+n, elem);
+				for (int n = 0; n < localOps; n++) {
+					list.add(pos + n, elem);
 				}
 			}
 		}
@@ -1054,8 +1052,8 @@ public class TestRuns {
 			Random r = getRandom();
 			int pos = list.size() / 2;
 			for (int i = 0; i < numOps; i++) {
-				pos = getPos(r, pos, list.size()-localOps, near);
-				for (int j=0; j<localOps; j++) {
+				pos = getPos(r, pos, list.size() - localOps, near);
+				for (int j = 0; j < localOps; j++) {
 					list.remove(pos);
 				}
 			}
@@ -1096,8 +1094,8 @@ public class TestRuns {
 
 		@Override
 		public void beforeAll() {
-			remove = (List<Integer>) factory.createSize(size/step);
-			for (int i=0; i<size; i++) {
+			remove = (List<Integer>) factory.createSize(size / step);
+			for (int i = 0; i < size; i++) {
 				if (i % step == 0) {
 					remove.add(i);
 				}
@@ -1107,7 +1105,7 @@ public class TestRuns {
 		@Override
 		public void beforeRun() {
 			list = (List<Integer>) factory.createSize(size);
-			for (int i=0; i<size; i++) {
+			for (int i = 0; i < size; i++) {
 				list.add(i);
 			}
 		}
@@ -1125,8 +1123,8 @@ public class TestRuns {
 
 		@Override
 		public void beforeAll() {
-			remove = (List<Integer>) factory.createSize(size/step);
-			for (int i=0; i<size; i++) {
+			remove = (List<Integer>) factory.createSize(size / step);
+			for (int i = 0; i < size; i++) {
 				if (i % step == 0) {
 					remove.add(i);
 				}
@@ -1136,7 +1134,7 @@ public class TestRuns {
 		@Override
 		public void beforeRun() {
 			list = (List<Integer>) factory.createSize(size);
-			for (int i=0; i<size; i++) {
+			for (int i = 0; i < size; i++) {
 				list.add(i);
 			}
 		}
@@ -1155,16 +1153,16 @@ public class TestRuns {
 		@Override
 		public void beforeRun() {
 			list = (List<Integer>) factory.createSize(size);
-			for (int i=0; i<size; i++) {
+			for (int i = 0; i < size; i++) {
 				list.add(i);
 			}
 		}
 
 		@Override
 		public void run() {
-			int len = size/2;
-			int index = len/2;
-			list.subList(index, index+len).clear();
+			int len = size / 2;
+			int index = len / 2;
+			list.subList(index, index + len).clear();
 		}
 	}
 
@@ -1174,15 +1172,15 @@ public class TestRuns {
 		@Override
 		public void beforeRun() {
 			list = (IList<Integer>) factory.createSize(size);
-			for (int i=0; i<size; i++) {
+			for (int i = 0; i < size; i++) {
 				list.add(i);
 			}
 		}
 
 		@Override
 		public void run() {
-			int len = size/2;
-			int index = len/2;
+			int len = size / 2;
+			int index = len / 2;
 			list.remove(index, len);
 		}
 	}
@@ -1192,6 +1190,7 @@ public class TestRuns {
 	public static class FilterLambdaRun extends FactoryRun {
 		List<Integer> list;
 
+		@Override
 		public void beforeAll() {
 			list = (List<Integer>) factory.createSize(size);
 		}
@@ -1205,16 +1204,15 @@ public class TestRuns {
 	public static class FilterIListRun extends FactoryRun {
 		IList<Integer> list;
 
+		@Override
 		public void beforeAll() {
 			list = (IList<Integer>) factory.createSize(size);
 		}
 
 		@Override
 		public void run() {
-			List<Integer> result = list.getIf((i) -> i % 2 == 0);
+			List<Integer> result = list.filteredList((i) -> i % 2 == 0);
 		}
 	}
-
-
 
 }

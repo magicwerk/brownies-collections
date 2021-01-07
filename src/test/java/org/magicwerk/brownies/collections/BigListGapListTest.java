@@ -372,6 +372,11 @@ public class BigListGapListTest {
 		getSortedBigList(4).getIf(i -> i % 2 == 0);
 	}
 
+	@Trace(parameters = Trace.THIS | Trace.ALL_PARAMS, result = Trace.RESULT, formats = { @Format(apply = Trace.PARAM0, printFormat = "i -> i%%2==0") })
+	public static void testFilteredList() {
+		getSortedBigList(4).filteredList(i -> i % 2 == 0);
+	}
+
 	@Trace(parameters = Trace.THIS | Trace.ALL_PARAMS, result = Trace.THIS | Trace.RESULT, formats = {
 			@Format(apply = Trace.PARAM0, printFormat = "i -> i%%2==0") })
 	public static void testRetainIf() {
@@ -489,18 +494,6 @@ public class BigListGapListTest {
 		System.out.println(l1);
 	}
 
-	@Capture
-	public static void testFilteredList() {
-		IList<Integer> l1 = getSortedBigList(7);
-		IList<Integer> l2 = l1.filteredList(new Predicate<Integer>() {
-			@Override
-			public boolean test(Integer elem) {
-				return elem % 2 == 0;
-			}
-		});
-		System.out.println(l2);
-	}
-
 	@Trace(parameters = Trace.THIS | Trace.ALL_PARAMS, result = Trace.PARAM0 | Trace.PARAM3)
 	public static void testTransferMove() {
 		IList<Integer> l1 = getSortedBigList(7);
@@ -592,7 +585,7 @@ public class BigListGapListTest {
 		getSortedBigList(7).remove(1, 5);
 	}
 
-	@Trace(traceMethod = "get", parameters = Trace.THIS | Trace.ALL_PARAMS)
+	@Trace(parameters = Trace.THIS | Trace.ALL_PARAMS)
 	public static void testGetAll() {
 		getSortedBigList(7).getAll(1, 5);
 	}

@@ -447,21 +447,20 @@ public IByteList getAll(byte elem) {
 }
 
     /**
-	 * Returns all elements in the list which match the predicate.
+	 * Get first element in the list which matches the predicate.
 	 *
-	 * @param predicate	predicate
-	 * @return			all elements in the list which match the predicate
+	 * @param predicate a predicate which returns {@code true} for elements to be selected
+	 * @return 			first element matching the predicate, null otherwise
 	 */
-public IByteList getIf(Predicate predicate) {
-    IByteList list = doCreate(-1);
+public byte getIf(Predicate<Byte> predicate) {
     int size = size();
     for (int i = 0; i < size; i++) {
         byte e = doGet(i);
         if (predicate.test(e)) {
-            list.add(e);
+            return e;
         }
     }
-    return list;
+    return (byte) 0;
 }
 
     /**
