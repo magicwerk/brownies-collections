@@ -448,21 +448,20 @@ public IFloatList getAll(float elem) {
 }
 
     /**
-	 * Returns all elements in the list which match the predicate.
+	 * Get first element in the list which matches the predicate.
 	 *
-	 * @param predicate	predicate
-	 * @return			all elements in the list which match the predicate
+	 * @param predicate a predicate which returns {@code true} for elements to be selected
+	 * @return 			first element matching the predicate, null otherwise
 	 */
-public IFloatList getIf(Predicate predicate) {
-    IFloatList list = doCreate(-1);
+public float getIf(Predicate<Float> predicate) {
     int size = size();
     for (int i = 0; i < size; i++) {
         float e = doGet(i);
         if (predicate.test(e)) {
-            list.add(e);
+            return e;
         }
     }
-    return list;
+    return 0;
 }
 
     /**

@@ -824,14 +824,26 @@
       <text outputType="TEXT">"[0, 2, 4, 6]\r\n"</text>
     </captureStep>
   </captureTest>
-  <captureTest name="testFilteredList">
-    <runDate>2019-01-31T11:30:48.386+01:00</runDate>
-    <runDuration>0.0012473</runDuration>
+  <traceTest name="testFilteredList">
+    <runDate>2021-01-07T16:06:43.497+01:00</runDate>
+    <runDuration>0.0314265</runDuration>
     <exception></exception>
-    <captureStep>
-      <text outputType="TEXT">"[0, 2, 4, 6]\r\n"</text>
-    </captureStep>
-  </captureTest>
+    <traceClass>org.magicwerk.brownies.collections.BigList</traceClass>
+    <traceMethod>filteredList</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"filteredList"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"i -&gt; i%2==0"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"{ 0, 2 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+  </traceTest>
   <traceTest name="testGet">
     <runDate>2013-09-27T09:37:08.128+02:00</runDate>
     <runDuration>0.009075585</runDuration>
@@ -879,11 +891,25 @@
     </traceStep>
   </traceTest>
   <traceTest name="testGetAll">
-    <runDate>2013-10-16T00:41:00.553+02:00</runDate>
-    <runDuration>8.6621E-5</runDuration>
+    <runDate>2021-01-07T16:13:52.688+01:00</runDate>
+    <runDuration>0.0303877</runDuration>
     <exception></exception>
     <traceClass>org.magicwerk.brownies.collections.BigList</traceClass>
-    <traceMethod>get</traceMethod>
+    <traceMethod>getAll</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"getAll"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"1"</paramText>
+        <paramText outputType="VALUE" param="#2">"5"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"{ 1, 2, 3, 4, 5 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
   </traceTest>
   <traceTest name="testGetCount">
     <runDate>2014-03-24T23:25:43.889+01:00</runDate>
@@ -951,8 +977,8 @@
     </traceStep>
   </traceTest>
   <traceTest name="testGetIf">
-    <runDate>2018-02-13T13:15:09.243+01:00</runDate>
-    <runDuration>7.48889E-4</runDuration>
+    <runDate>2021-01-07T16:05:30.983+01:00</runDate>
+    <runDuration>0.0013263</runDuration>
     <exception></exception>
     <traceClass>org.magicwerk.brownies.collections.BigList</traceClass>
     <traceMethod>getIf</traceMethod>
@@ -965,7 +991,7 @@
         <paramText outputType="VALUE" param="#1">"i -&gt; i%2==0"</paramText>
       </parameters>
       <result>
-        <paramText outputType="VALUE" param="Result">"{ 0, 2 }"</paramText>
+        <paramText outputType="VALUE" param="Result">"0"</paramText>
       </result>
       <error></error>
     </traceStep>
