@@ -25,6 +25,8 @@ public class MethodSourceTest {
 				"Name(String str) { \n" +
 				"		test(); \n" +
 				"	}";
+		String src4 = "	/** Method */ \n" +
+				"	public abstract void main(String[] args);";
 		MethodSource ms = new MethodSource(null, "name", "doc", "header", "body");
 
 		ms.setSourceDoc(src1);
@@ -34,6 +36,9 @@ public class MethodSourceTest {
 		print(ms);
 
 		ms.setSourceDoc(src3);
+		print(ms);
+
+		ms.setSourceDoc(src4);
 		print(ms);
 	}
 
