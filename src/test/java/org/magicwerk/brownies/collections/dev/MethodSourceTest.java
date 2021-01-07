@@ -1,52 +1,48 @@
 package org.magicwerk.brownies.collections.dev;
-import japa.parser.JavaParser;
-import japa.parser.ParseException;
-import japa.parser.ast.CompilationUnit;
-import japa.parser.ast.body.BodyDeclaration;
-import japa.parser.ast.body.ClassOrInterfaceDeclaration;
-import japa.parser.ast.body.FieldDeclaration;
-import japa.parser.ast.body.MethodDeclaration;
-import japa.parser.ast.body.TypeDeclaration;
-import japa.parser.ast.body.VariableDeclarator;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Reader;
-import java.util.ArrayList;
-import java.util.List;
+import org.magictest.client.Capture;
+import org.magicwerk.brownies.core.logback.LogbackTools;
+import org.slf4j.Logger;
 
-import org.magicwerk.brownies.collections.GapList;
-import org.magicwerk.brownies.core.CheckTools;
-import org.magicwerk.brownies.core.StreamTools;
-
-// http://code.google.com/p/javaparser/
-// http://qdox.codehaus.org/
-
-/**
- *
- *
- * @author Thomas Mauch
- * @version $Id$
- */
 public class MethodSourceTest {
 
+	static final Logger LOG = LogbackTools.getConsoleLogger();
+
 	public static void main(String[] args) {
-		test();
+		new MethodSourceTest().test();
 	}
 
-	static void test() {
-		String src1 =
-				"	/** Method */ \n" +
+	@Capture
+	public void test() {
+		String src1 = "	public static void main(String[] args) { \n" +
+				"		test(); \n" +
+				"	}";
+		String src2 = "	/** Method */ \n" +
 				"	public static void main(String[] args) { \n" +
 				"		test(); \n" +
 				"	}";
-		String src2 =
-				"	public static void main(String[] args) { \n" +
+		String src3 = "	/** Constructor */ \n" +
+				"Name(String str) { \n" +
 				"		test(); \n" +
 				"	}";
-		MethodSource m = new MethodSource(null, "name", "doc", "header", "body");
-		m.setSource(src2);
-		System.out.println(m.getSource());
+		MethodSource ms = new MethodSource(null, "name", "doc", "header", "body");
+
+		ms.setSourceDoc(src1);
+		print(ms);
+
+		ms.setSourceDoc(src2);
+		print(ms);
+
+		ms.setSourceDoc(src3);
+		print(ms);
+	}
+
+	void print(MethodSource ms) {
+		LOG.info("doc: {}", ms.getDoc());
+		LOG.info("header: {}", ms.getHeader());
+		LOG.info("body: {}", ms.getBody());
+		LOG.info("source: {}", ms.getSource());
+		LOG.info("sourceDoc: {}", ms.getSourceDoc());
+		LOG.info("---");
 	}
 }
