@@ -41,8 +41,8 @@ public class BuildSource {
 		String fileContent;
 
 		public FileBuilder() {
-			this.srcDir = PathTools.getAbsolutePath("..\\Brownies-Collections\\src");
-			this.testDir = PathTools.getAbsolutePath("..\\Brownies-Collections-Test\\test");
+			this.srcDir = PathTools.getAbsolutePath("src/main/java");
+			this.testDir = PathTools.getAbsolutePath("src/test/java");
 		}
 
 		public FileBuilder(Builder builder) {

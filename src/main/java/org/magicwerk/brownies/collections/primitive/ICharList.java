@@ -436,21 +436,20 @@ public ICharList getAll(char elem) {
 }
 
     /**
-	 * Returns all elements in the list which match the predicate.
+	 * Get first element in the list which matches the predicate.
 	 *
-	 * @param predicate	predicate
-	 * @return			all elements in the list which match the predicate
+	 * @param predicate a predicate which returns {@code true} for elements to be selected
+	 * @return 			first element matching the predicate, null otherwise
 	 */
-public ICharList getIf(Predicate predicate) {
-    ICharList list = doCreate(-1);
+public char getIf(Predicate<Character> predicate) {
     int size = size();
     for (int i = 0; i < size; i++) {
         char e = doGet(i);
         if (predicate.test(e)) {
-            list.add(e);
+            return e;
         }
     }
-    return list;
+    return (char) 0;
 }
 
     /**
