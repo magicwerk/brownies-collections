@@ -49,7 +49,6 @@ import java.util.function.UnaryOperator;
  */
 @SuppressWarnings("serial")
 public abstract class IList<E>
-		// AbstractList provides method subList()
 		extends AbstractList<E> implements
 		// All interfaces of ArrayList
 		List<E>, RandomAccess, Cloneable, Serializable,
