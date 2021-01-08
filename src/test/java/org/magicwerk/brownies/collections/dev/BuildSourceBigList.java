@@ -8,8 +8,9 @@ import org.magicwerk.brownies.core.files.FileTools;
 import org.magicwerk.brownies.core.files.PathTools;
 import org.magicwerk.brownies.core.reflect.ClassTools;
 import org.magicwerk.brownies.core.regex.RegexTools;
+import org.magicwerk.brownies.dev.sources.JavaParserTools;
 
-import japa.parser.ast.CompilationUnit;
+import com.github.javaparser.ast.CompilationUnit;
 
 /**
  * Create source files IntBigList, etc. out of file BigList
