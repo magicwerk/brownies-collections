@@ -2,29 +2,44 @@ package org.magicwerk.brownies.collections.dev;
 
 import org.magicwerk.brownies.core.CheckTools;
 import org.magicwerk.brownies.core.StringTools;
+import org.magicwerk.brownies.core.objects.Single;
+import org.magicwerk.brownies.dev.sources.JavaParserTools;
 
-import japa.parser.ast.body.BodyDeclaration;
-import japa.parser.ast.body.ConstructorDeclaration;
-import japa.parser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.body.BodyDeclaration;
+import com.github.javaparser.ast.body.ConstructorDeclaration;
+import com.github.javaparser.ast.body.MethodDeclaration;
 
 public class MethodSource {
 
 	public static MethodSource parseMethod(String src) {
-		final MethodSource[] method = new MethodSource[1];
-		BodyDeclaration md = JavaParserTools.getBodyDeclaration(src);
+		Single<MethodSource> method = new Single<>();
+		Single<Boolean> visiting = new Single<>(false);
+		BodyDeclaration<?> md = JavaParserTools.getBodyDeclaration(src);
 		RefactorVisitor visitor = new RefactorVisitor() {
 			@Override
-			public void visit(final MethodDeclaration md, final Object arg) {
-				method[0] = getMethod(md);
+			public void visit(final MethodDeclaration md, final Void arg) {
+				if (!visiting.get()) {
+					visiting.set(true);
+					method.set(getMethod(md));
+					visiting.set(false);
+				} else {
+					super.visit(md, arg);
+				}
 			}
 
 			@Override
-			public void visit(final ConstructorDeclaration cd, final Object arg) {
-				method[0] = getMethod(cd);
+			public void visit(final ConstructorDeclaration cd, final Void arg) {
+				if (!visiting.get()) {
+					visiting.set(true);
+					method.set(getMethod(cd));
+					visiting.set(false);
+				} else {
+					super.visit(cd, arg);
+				}
 			}
 		};
 		md.accept(visitor, null);
-		return method[0];
+		return method.get();
 	}
 
 	final BodyDeclaration bodyDecl;
