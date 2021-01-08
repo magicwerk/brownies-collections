@@ -56,92 +56,113 @@ public class ByteGapList extends IByteList {
 	 * will be able to detect unused branches and will not execute the
 	 * code (the same approach is used for the assert statement).
 	 */
-    /** If true the invariants the ByteGapList are checked for debugging */
+    /**
+     * If true the invariants the ByteGapList are checked for debugging
+     */
     private static final boolean DEBUG_CHECK = false;
 
-    /** If true the calls to some methods are traced out for debugging */
+    /**
+     * If true the calls to some methods are traced out for debugging
+     */
     private static final boolean DEBUG_TRACE = false;
 
-    /** If true the internal state of the ByteGapList is traced out for debugging */
+    /**
+     * If true the internal state of the ByteGapList is traced out for debugging
+     */
     private static final boolean DEBUG_DUMP = false;
 
-    /** Empty array used for default initialization */
+    /**
+     * Empty array used for default initialization
+     */
     private static byte[] EMPTY_VALUES = new byte[0];
 
-    // -- EMPTY --  
-    // Cannot make a static reference to the non-static type E:  
-    // public static ByteGapList EMPTY = ByteGapList.create().unmodifiableList();  
-    // Syntax error:  
-    // public static  ByteGapList EMPTY = ByteGapList.create().unmodifiableList();  
-    /** Unmodifiable empty instance */
+    // -- EMPTY --
+    // Cannot make a static reference to the non-static type E:
+    // public static ByteGapList EMPTY = ByteGapList.create().unmodifiableList();
+    // Syntax error:
+    // public static  ByteGapList EMPTY = ByteGapList.create().unmodifiableList();
+    /**
+     * Unmodifiable empty instance
+     */
     
     private static final ByteGapList EMPTY = ByteGapList.create().unmodifiableList();
 
     /**
-	 * @return unmodifiable empty instance
-	 */
+ * @return unmodifiable empty instance
+ */
 
 public static  ByteGapList EMPTY() {
     return EMPTY;
 }
 
-    /** UID for serialization */
+    /**
+     * UID for serialization
+     */
     private static final long serialVersionUID = -4477005565661968383L;
 
-    /** Default capacity for list */
+    /**
+     * Default capacity for list
+     */
     public static final int DEFAULT_CAPACITY = 10;
 
-    /** Array holding raw data */
+    /**
+     * Array holding raw data
+     */
     private byte[] values;
 
-    /** Number of elements stored in this ByteGapList */
+    /**
+     * Number of elements stored in this ByteGapList
+     */
     private int size;
 
-    /** Physical position of first element */
+    /**
+     * Physical position of first element
+     */
     private int start;
 
-    /** Physical position after last element */
+    /**
+     * Physical position after last element
+     */
     private int end;
 
-    /** Size of gap (0 if there is no gap) */
+    /**
+     * Size of gap (0 if there is no gap)
+     */
     private int gapSize;
 
-    /** Logical index of first element after gap (ignored if gapSize=0) */
+    /**
+     * Logical index of first element after gap (ignored if gapSize=0)
+     */
     private int gapIndex;
 
-    /** Physical position of first slot in gap (ignored if gapSize=0) */
+    /**
+     * Physical position of first slot in gap (ignored if gapSize=0)
+     */
     private int gapStart;
 
-    // --- Static methods ---  
-/**
-	 * Create new list.
-	 *
-	 * @return          created list
-	 * @param        type of elements stored in the list
-	 */
-// This separate method is needed as the varargs variant creates the list with specific size  
+    // This separate method is needed as the varargs variant creates the list with specific size
 public static ByteGapList create() {
     return new ByteGapList();
 }
 
     /**
-	 * Create new list with specified elements.
-	 *
-	 * @param coll      collection with element
-	 * @return          created list
-	 * @param        type of elements stored in the list
-	 */
+ * Create new list with specified elements.
+ *
+ * @param coll      collection with element
+ * @return          created list
+ * @param        type of elements stored in the list
+ */
 public static ByteGapList create(Collection<Byte> coll) {
     return new ByteGapList(((coll != null)) ? coll : Collections.emptyList());
 }
 
     /**
-	 * Create new list with specified elements.
-	 *
-	 * @param elems 	array with elements
-	 * @return 			created list
-	 * @param  		type of elements stored in the list
-	 */
+ * Create new list with specified elements.
+ *
+ * @param elems 	array with elements
+ * @return 			created list
+ * @param  		type of elements stored in the list
+ */
 public static ByteGapList create(byte... elems) {
     ByteGapList list = new ByteGapList();
     if (elems != null) {
@@ -153,11 +174,11 @@ public static ByteGapList create(byte... elems) {
 }
 
     /**
-	 * Calculate index for physical access to an element.
-	 *
-	 * @param idx	logical index of element
-	 * @return		physical index to access element in values[]
-	 */
+ * Calculate index for physical access to an element.
+ *
+ * @param idx	logical index of element
+ * @return		physical index to access element in values[]
+ */
 private final int physIndex(int idx) {
     int physIdx = idx + start;
     if (idx >= gapIndex) {
@@ -170,20 +191,20 @@ private final int physIndex(int idx) {
 }
 
     /**
-	 * Calculate indexes for physical access to a range of elements.
-	 * The method returns between one and three ranges of physical indexes.
-	 *
-	 * @param idx0  start index
-	 * @param idx1	end index
-	 * @return		array with physical start and end indexes (may contain 0, 2, 4, or 6 elements)
-	 */
+ * Calculate indexes for physical access to a range of elements.
+ * The method returns between one and three ranges of physical indexes.
+ *
+ * @param idx0  start index
+ * @param idx1	end index
+ * @return		array with physical start and end indexes (may contain 0, 2, 4, or 6 elements)
+ */
 private int[] physIndex(int idx0, int idx1) {
     assert (idx0 >= 0 && idx1 <= size && idx0 <= idx1);
     if (idx0 == idx1) {
         return new int[0];
     }
-    // Decrement idx1 to make sure we get the physical index of an existing position.    
-    // We will increment the physical index again before returning.   
+    // Decrement idx1 to make sure we get the physical index of an existing position.
+    // We will increment the physical index again before returning.
     idx1--;
     int pidx0 = physIndex(idx0);
     if (idx1 == idx0) {
@@ -248,69 +269,69 @@ protected void doAssign(IByteList that) {
 }
 
     /**
-	 * Constructor used internally, e.g. for ImmutableByteGapList.
-	 *
-	 * @param copy true to copy all instance values from source,
-	 *             if false nothing is done
-	 * @param that list to copy
-	 */
-protected ByteGapList(boolean copy, ByteGapList that){
+ * Constructor used internally, e.g. for ImmutableByteGapList.
+ *
+ * @param copy true to copy all instance values from source,
+ *             if false nothing is done
+ * @param that list to copy
+ */
+protected ByteGapList(boolean copy, ByteGapList that) {
     if (copy) {
         doAssign(that);
     }
 }
 
     /**
-	 * Construct a list with the default initial capacity.
-	 */
-public ByteGapList(){
+ * Construct a list with the default initial capacity.
+ */
+public ByteGapList() {
     init();
 }
 
     /**
-	 * Construct a list with specified initial capacity.
-	 *
-	 * @param capacity	capacity
-	 */
-public ByteGapList(int capacity){
+ * Construct a list with specified initial capacity.
+ *
+ * @param capacity	capacity
+ */
+public ByteGapList(int capacity) {
     init(new byte[capacity], 0);
 }
 
     /**
-	 * Construct a list to contain the specified elements.
-	 * The list will have an initial capacity to hold these elements.
-	 *
-	 * @param coll	collection with elements
-	 */
-public ByteGapList(Collection<Byte> coll){
+ * Construct a list to contain the specified elements.
+ * The list will have an initial capacity to hold these elements.
+ *
+ * @param coll	collection with elements
+ */
+public ByteGapList(Collection<Byte> coll) {
     init(coll);
 }
 
     /**
-	 * Initialize the list to be empty.
-	 * The list will have the default initial capacity.
-	 */
+ * Initialize the list to be empty.
+ * The list will have the default initial capacity.
+ */
 void init() {
     init(EMPTY_VALUES, 0);
 }
 
     /**
-	 * Initialize the list to contain the specified elements only.
-	 * The list will have an initial capacity to hold these elements.
-	 *
-	 * @param coll collection with elements
-	 */
+ * Initialize the list to contain the specified elements only.
+ * The list will have an initial capacity to hold these elements.
+ *
+ * @param coll collection with elements
+ */
 void init(Collection<Byte> coll) {
     byte[] array = toArray(coll);
     init(array, array.length);
 }
 
     /**
-	 * Initialize the list to contain the specified elements only.
-	 * The list will have an initial capacity to hold these elements.
-	 *
-	 * @param elems array with elements
-	 */
+ * Initialize the list to contain the specified elements only.
+ * The list will have an initial capacity to hold these elements.
+ *
+ * @param elems array with elements
+ */
 void init(byte... elems) {
     byte[] array = elems.clone();
     init(array, array.length);
@@ -322,39 +343,24 @@ public byte getDefaultElem() {
 }
 
     /**
-	 * Returns a shallow copy of this <tt>ByteGapList</tt> instance.
-	 * (the new list will contain the same elements as the source list, i.e. the elements themselves are not copied).
-	 * This method is identical to clone() except that the result is casted to ByteGapList.
-	 *
-	 * @return a copy of this <tt>ByteGapList</tt> instance
-	 */
+ * Returns a shallow copy of this <tt>ByteGapList</tt> instance.
+ * (the new list will contain the same elements as the source list, i.e. the elements themselves are not copied).
+ * This method is identical to clone() except that the result is casted to ByteGapList.
+ *
+ * @return a copy of this <tt>ByteGapList</tt> instance
+ */
 @Override
 public ByteGapList copy() {
     return (ByteGapList) super.copy();
 }
 
-    /**
-	 * Increases the capacity of this <tt>ByteGapList</tt> instance, if
-	 * necessary, to ensure that it can hold at least the number of elements
-	 * specified by the minimum capacity argument.
-	 *
-	 * @param   minCapacity   the desired minimum capacity
-	 */
-// Only overridden to change Javadoc  
+    // Only overridden to change Javadoc
 @Override
 public void ensureCapacity(int minCapacity) {
     super.ensureCapacity(minCapacity);
 }
 
-    /**
-	 * Returns a shallow copy of this <tt>ByteGapList</tt> instance
-	 * (The elements themselves are not copied).
-	 * The capacity of the list will be set to the number of elements,
-	 * so after calling clone(), size and capacity are equal.
-	 *
-	 * @return a copy of this <tt>ByteGapList</tt> instance
-	 */
-// Only overridden to change Javadoc  
+    // Only overridden to change Javadoc
 @Override
 public Object clone() {
     return super.clone();
@@ -362,20 +368,20 @@ public Object clone() {
 
     @Override
 public ByteGapList unmodifiableList() {
-    // Naming as in java.util.Collections#unmodifiableList   
+    // Naming as in java.util.Collections#unmodifiableList
     return new ImmutableByteGapList(this);
 }
 
     @Override
 protected void doClone(IByteList that) {
-    // Do not simply clone the array, but make sure its capacity is equal to the size (as in ArrayList)   
+    // Do not simply clone the array, but make sure its capacity is equal to the size (as in ArrayList)
     init(that.toArray(), that.size());
 }
 
     /**
-	 * Normalize data of ByteGapList so the elements are found from values[0] to values[size-1].
-	 * This method can help to speed up operations like sort or binarySearch.
-	 */
+ * Normalize data of ByteGapList so the elements are found from values[0] to values[size-1].
+ * This method can help to speed up operations like sort or binarySearch.
+ */
 void ensureNormalized(int minCapacity) {
     int oldCapacity = values.length;
     int newCapacity = calculateNewCapacity(minCapacity);
@@ -390,18 +396,18 @@ void ensureNormalized(int minCapacity) {
 }
 
     /**
-	 * Checks whether elements are stored normalized, i.e. start is at position 0 and there is no gap.
-	 */
+ * Checks whether elements are stored normalized, i.e. start is at position 0 and there is no gap.
+ */
 boolean isNormalized() {
     return start == 0 && gapSize == 0 && gapStart == 0 && gapIndex == 0;
 }
 
     /**
-	 * Initialize all instance fields.
-	 *
-	 * @param values	new values array
-	 * @param size		new size
-	 */
+ * Initialize all instance fields.
+ *
+ * @param values	new values array
+ * @param size		new size
+ */
 
 void init(byte[] values, int size) {
     this.values = (byte[]) values;
@@ -438,13 +444,13 @@ public int capacity() {
 
     @Override
 public byte get(int index) {
-    // A note about the inlining capabilities of the Java HotSpot Performance Engine   
-    // (http://java.sun.com/developer/technicalArticles/Networking/HotSpot/inlining.html)   
-    // The JVM seems not able to inline the methods called within   
-    // this method, irrespective whether they are "private final" or not.   
-    // Also -XX:+AggressiveOpts seems not to help.   
-    // We therefore do inlining manually.   
-    // INLINE: checkIndex(index);   
+    // A note about the inlining capabilities of the Java HotSpot Performance Engine
+    // (http://java.sun.com/developer/technicalArticles/Networking/HotSpot/inlining.html)
+    // The JVM seems not able to inline the methods called within
+    // this method, irrespective whether they are "private final" or not.
+    // Also -XX:+AggressiveOpts seems not to help.
+    // We therefore do inlining manually.
+    // INLINE: checkIndex(index);
     if (index < 0 || index >= size()) {
         throw new IndexOutOfBoundsException("Invalid index: " + index + " (size: " + size() + ")");
     }
@@ -454,7 +460,7 @@ public byte get(int index) {
     @Override
 protected byte doGet(int index) {
     assert (index >= 0 && index < size);
-    // INLINE: return values[physIndex(index)];   
+    // INLINE: return values[physIndex(index)];
     int physIdx = index + start;
     if (index >= gapIndex) {
         physIdx += gapSize;
@@ -524,24 +530,24 @@ public <R> GapList<R> mappedList(Function<Byte, R> mapper) {
 }
 
     /**
-	 * Prepare direct access to an array buffer for fast adding elements to the list. 
-	 * The size of the list will be increased by len being index+len after the call.
-	 * The added elements will be initialized to their default value.
-	 * If not all elements prepared are used, call {@link #releaseAddBuffer} to release them.
-	 * <p>
-	 * Example:
-	 * <pre>
-	 * int index = list.size()
-	 * int len = 1000;
-	 * byte[] values = list.getAddBuffer(index, len) 
-	 * int read = inputstream.read(values, index, len)
-	 * list.releaseAddBuffer(index, read)
-	 * <pre>
-	 * 
-	 * @param index	index of first buffer position (must be equal to the size of the list)
-	 * @param len	number of elements which the buffer can held
-	 * @return		array holding the elements of the list 
-	 */
+ * Prepare direct access to an array buffer for fast adding elements to the list.
+ * The size of the list will be increased by len being index+len after the call.
+ * The added elements will be initialized to their default value.
+ * If not all elements prepared are used, call {@link #releaseAddBuffer} to release them.
+ * <p>
+ * Example:
+ * <pre>
+ * int index = list.size()
+ * int len = 1000;
+ * byte[] values = list.getAddBuffer(index, len)
+ * int read = inputstream.read(values, index, len)
+ * list.releaseAddBuffer(index, read)
+ * <pre>
+ *
+ * @param index	index of first buffer position (must be equal to the size of the list)
+ * @param len	number of elements which the buffer can held
+ * @return		array holding the elements of the list
+ */
 byte[] prepareAddBuffer(int index, int len) {
     assert (index == size);
     assert (len >= 0);
@@ -558,12 +564,12 @@ byte[] prepareAddBuffer(int index, int len) {
 }
 
     /**
-	 * Releases the buffer retrieved by {@link #prepareAddBuffer}.
-	 * The size of the list will be index+len after the call.
-	 * 
-	 * @param index	index of first buffer position as passed to {@link #prepareAddBuffer}
-	 * @param len	number of elements used in the buffer
-	 */
+ * Releases the buffer retrieved by {@link #prepareAddBuffer}.
+ * The size of the list will be index+len after the call.
+ *
+ * @param index	index of first buffer position as passed to {@link #prepareAddBuffer}
+ * @param len	number of elements used in the buffer
+ */
 void releaseAddBuffer(int index, int len) {
     assert (isNormalized());
     assert (index + len <= size);
@@ -585,7 +591,7 @@ protected boolean doAdd(int index, byte elem) {
     }
     assert (index >= 0 && index <= size);
     int physIdx;
-    // Add at last position   
+    // Add at last position
     if (index == size && (end != start || size == 0)) {
         if (DEBUG_TRACE)
             debugLog("Case A0");
@@ -594,6 +600,7 @@ protected boolean doAdd(int index, byte elem) {
         if (end >= values.length) {
             end -= values.length;
         }
+        // Add at first position
     } else if (index == 0 && (end != start || size == 0)) {
         if (DEBUG_TRACE)
             debugLog("Case A1");
@@ -605,6 +612,7 @@ protected boolean doAdd(int index, byte elem) {
         if (gapSize > 0) {
             gapIndex++;
         }
+        // Shrink gap
     } else if (gapSize > 0 && index == gapIndex) {
         if (DEBUG_TRACE)
             debugLog("Case A2");
@@ -613,12 +621,13 @@ protected boolean doAdd(int index, byte elem) {
             physIdx -= values.length;
         }
         gapSize--;
+        // Add at other positions
     } else {
         physIdx = physIndex(index);
         if (gapSize == 0) {
-            // Create new gap   
+            // Create new gap
             if (start < end && start > 0) {
-                // S4: Space is at head and tail   
+                // S4: Space is at head and tail
                 assert (debugState() == 4);
                 int len1 = physIdx - start;
                 int len2 = end - physIdx;
@@ -667,12 +676,12 @@ protected boolean doAdd(int index, byte elem) {
                 physIdx--;
             }
         } else {
-            // Move existing gap   
+            // Move existing gap
             boolean moveLeft;
             int gapEnd = (gapStart + gapSize - 1) % values.length + 1;
             if (gapEnd < gapStart) {
                 assert (debugState() == 9 || debugState() == 12);
-                // Gap is at head and tail   
+                // Gap is at head and tail
                 int len1 = physIdx - gapEnd;
                 int len2 = gapStart - physIdx - 1;
                 if (len1 <= len2) {
@@ -745,14 +754,14 @@ protected boolean doAdd(int index, byte elem) {
 }
 
     /**
-	 * Move a range of elements in the values array and adjust the gap.
-	 * The elements are first copied and the source range is then
-	 * filled with null.
-	 *
-	 * @param src	start index of source range
-	 * @param dst	start index of destination range
-	 * @param len	number of elements to move
-	 */
+ * Move a range of elements in the values array and adjust the gap.
+ * The elements are first copied and the source range is then
+ * filled with null.
+ *
+ * @param src	start index of source range
+ * @param dst	start index of destination range
+ * @param len	number of elements to move
+ */
 private void moveDataWithGap(int src, int dst, int len) {
     if (DEBUG_TRACE) {
         debugLog("moveGap: " + src + "-" + src + len + " -> " + dst + "-" + dst + len);
@@ -780,8 +789,8 @@ private void moveDataWithGap(int src, int dst, int len) {
     if (dst + len <= values.length) {
         moveData(src, dst, len);
     } else {
-        // Destination range overlaps end of range so do the   
-        // move in two calls   
+        // Destination range overlaps end of range so do the
+        // move in two calls
         int len2 = dst + len - values.length;
         int len1 = len - len2;
         if (!(src <= len2 && len2 < dst)) {
@@ -795,14 +804,14 @@ private void moveDataWithGap(int src, int dst, int len) {
 }
 
     /**
-	 * Move a range of elements in the values array.
-	 * The elements are first copied and the source range is then
-	 * filled with null.
-	 *
-	 * @param src	start index of source range
-	 * @param dst	start index of destination range
-	 * @param len	number of elements to move
-	 */
+ * Move a range of elements in the values array.
+ * The elements are first copied and the source range is then
+ * filled with null.
+ *
+ * @param src	start index of source range
+ * @param dst	start index of destination range
+ * @param len	number of elements to move
+ */
 private void moveData(int src, int dst, int len) {
     if (DEBUG_TRACE) {
         debugLog("moveData: " + src + "-" + src + len + " -> " + dst + "-" + dst + len);
@@ -811,8 +820,8 @@ private void moveData(int src, int dst, int len) {
         }
     }
     System.arraycopy(values, src, values, dst, len);
-    // Write (byte) 0 into array slots which are not used anymore   
-    // This is necessary to allow GC to reclaim non used objects.   
+    // Write (byte) 0 into array slots which are not used anymore
+    // This is necessary to allow GC to reclaim non used objects.
     int start;
     int end;
     if (src <= dst) {
@@ -822,7 +831,7 @@ private void moveData(int src, int dst, int len) {
         start = (src > dst + len) ? src : dst + len;
         end = src + len;
     }
-    // Inline of Arrays.fill   
+    // Inline of Arrays.fill
     assert (end - start <= len);
     for (int i = start; i < end; i++) {
         values[i] = (byte) 0;
@@ -848,7 +857,7 @@ public byte remove(int index) {
     @Override
 protected byte doRemove(int index) {
     int physIdx;
-    // Remove at last position   
+    // Remove at last position
     if (index == size - 1) {
         if (DEBUG_TRACE)
             debugLog("Case R0");
@@ -857,29 +866,30 @@ protected byte doRemove(int index) {
             end += values.length;
         }
         physIdx = end;
-        // Remove gap if it is followed by only one element   
+        // Remove gap if it is followed by only one element
         if (gapSize > 0) {
             if (gapIndex == index) {
-                // R0-1   
+                // R0-1
                 end = gapStart;
                 gapSize = 0;
             }
         }
+        // Remove at first position
     } else if (index == 0) {
         if (DEBUG_TRACE)
             debugLog("Case R1");
         physIdx = start;
         start++;
         if (start >= values.length) {
-            // R1-1   
+            // R1-1
             start -= values.length;
         }
-        // Remove gap if if it is preceded by only one element   
+        // Remove gap if if it is preceded by only one element
         if (gapSize > 0) {
             if (gapIndex == 1) {
                 start += gapSize;
                 if (start >= values.length) {
-                    // R1-2   
+                    // R1-2
                     start -= values.length;
                 }
                 gapSize = 0;
@@ -888,19 +898,21 @@ protected byte doRemove(int index) {
             }
         }
     } else {
-        // Remove in middle of list   
+        // Remove in middle of list
         physIdx = physIndex(index);
-        // Create gap   
+        // Create gap
         if (gapSize == 0) {
             if (DEBUG_TRACE)
                 debugLog("Case R2");
             gapIndex = index;
             gapStart = physIdx;
             gapSize = 1;
+            // Extend existing gap at tail
         } else if (index == gapIndex) {
             if (DEBUG_TRACE)
                 debugLog("Case R3");
             gapSize++;
+            // Extend existing gap at head
         } else if (index == gapIndex - 1) {
             if (DEBUG_TRACE)
                 debugLog("Case R4");
@@ -911,13 +923,13 @@ protected byte doRemove(int index) {
             gapSize++;
             gapIndex--;
         } else {
-            // Move existing gap   
+            // Move existing gap
             assert (gapSize > 0);
             boolean moveLeft;
             int gapEnd = (gapStart + gapSize - 1) % values.length + 1;
             if (gapEnd < gapStart) {
-                // Gap is at head and tail: check where fewer   
-                // elements must be moved   
+                // Gap is at head and tail: check where fewer
+                // elements must be moved
                 int len1 = physIdx - gapEnd;
                 int len2 = gapStart - physIdx - 1;
                 if (len1 <= len2) {
@@ -931,12 +943,12 @@ protected byte doRemove(int index) {
                 }
             } else {
                 if (physIdx > gapStart) {
-                    // Existing gap is left of insertion point   
+                    // Existing gap is left of insertion point
                     if (DEBUG_TRACE)
                         debugLog("Case R5b");
                     moveLeft = true;
                 } else {
-                    // Existing gap is right of insertion point   
+                    // Existing gap is right of insertion point
                     if (DEBUG_TRACE)
                         debugLog("Case R6b");
                     moveLeft = false;
@@ -984,7 +996,7 @@ protected void doEnsureCapacity(int minCapacity) {
     if (size == 0) {
         ;
     } else if (start == 0) {
-        // Copy all elements from values to newValues   
+        // Copy all elements from values to newValues
         System.arraycopy(values, 0, newValues, 0, values.length);
     } else if (start > 0) {
         int grow = newCapacity - values.length;
@@ -1000,7 +1012,7 @@ protected void doEnsureCapacity(int minCapacity) {
         start += grow;
     }
     if (end == 0 && start == 0 && size != 0) {
-        // S1, S6   
+        // S1, S6
         end = values.length;
     }
     values = newValues;
@@ -1011,16 +1023,17 @@ protected void doEnsureCapacity(int minCapacity) {
 }
 
     /**
-	 * Calculate new capacity.
-	 * The capacity will not shrink, so the returned capacity can be equal to values.length.
-	 * 
-	 * @param minCapacity the desired minimum capacity
-	 * @return	the new capacity to use
-	 */
+ * Calculate new capacity.
+ * The capacity will not shrink, so the returned capacity can be equal to values.length.
+ *
+ * @param minCapacity the desired minimum capacity
+ * @return	the new capacity to use
+ */
 int calculateNewCapacity(int minCapacity) {
-    // Note: Same behavior as in ArrayList.ensureCapacity()   
+    // Note: Same behavior as in ArrayList.ensureCapacity()
     int oldCapacity = values.length;
     if (minCapacity <= oldCapacity) {
+        // do not shrink
         return values.length;
     }
     minCapacity = Math.max(DEFAULT_CAPACITY, minCapacity);
@@ -1032,9 +1045,9 @@ int calculateNewCapacity(int minCapacity) {
 }
 
     /**
-	 * Trims the capacity of this ByteGapList instance to be the list's current size.
-	 * An application can use this operation to minimize the storage of an instance.
-	 */
+ * Trims the capacity of this ByteGapList instance to be the list's current size.
+ * An application can use this operation to minimize the storage of an instance.
+ */
 @Override
 public void trimToSize() {
     doModify();
@@ -1055,39 +1068,38 @@ protected void doGetAll(byte[] array, int index, int len) {
     assert (pos == len);
 }
 
-    // --- Serialization ---  
-/**
-	 * Serialize a ByteGapList object.
-	 *
-	 * @serialData The length of the array backing the <tt>ByteGapList</tt>
-	 *             instance is emitted (int), followed by all of its elements
-	 *             (each an <tt>Object</tt>) in the proper order.
-	 * @param oos  output stream for serialization
-	 * @throws 	   IOException if serialization fails
-	 */
+    /**
+ * Serialize a ByteGapList object.
+ *
+ * @serialData The length of the array backing the <tt>ByteGapList</tt>
+ *             instance is emitted (int), followed by all of its elements
+ *             (each an <tt>Object</tt>) in the proper order.
+ * @param oos  output stream for serialization
+ * @throws 	   IOException if serialization fails
+ */
 private void writeObject(ObjectOutputStream oos) throws IOException {
-    // Write out array length   
+    // Write out array length
     int size = size();
     oos.writeInt(size);
-    // Write out all elements in the proper order.   
+    // Write out all elements in the proper order.
     for (int i = 0; i < size; i++) {
         oos.writeByte(doGet(i));
     }
 }
 
     /**
-	 * Deserialize a ByteGapList object.
-	 *
-	 * @param ois  input stream for serialization
-	 * @throws 	   IOException if serialization fails
-	 * @throws 	   ClassNotFoundException if serialization fails
-	 */
+ * Deserialize a ByteGapList object.
+ *
+ * @param ois  input stream for serialization
+ * @throws 	   IOException if serialization fails
+ * @throws 	   ClassNotFoundException if serialization fails
+ */
 
 private void readObject(ObjectInputStream ois) throws IOException, ClassNotFoundException {
-    // Read in array length and allocate array   
+    // Read in array length and allocate array
     size = ois.readInt();
     values = (byte[]) new byte[size];
-    // Read in all elements in the proper order.   
+    // Read in all elements in the proper order.
     for (int i = 0; i < size; i++) {
         values[i] = ois.readByte();
     }
@@ -1116,14 +1128,14 @@ protected void doRemoveAll(int index, int len) {
 }
 
     /**
-	 * Remove specified range of elements from list as specialized fast operation.
-	*
-	 * @param index index of first element to remove
-	 * @param len number of elements to remove
-	 * @return	true if removal could be done, false otherwise
-	 */
+ * Remove specified range of elements from list as specialized fast operation.
+ *
+ * @param index index of first element to remove
+ * @param len number of elements to remove
+ * @return	true if removal could be done, false otherwise
+ */
 protected boolean doRemoveAllFast(int index, int len) {
-    // TODO add fast remove for more cases   
+    // TODO add fast remove for more cases
     if (gapSize > 0) {
         return false;
     }
@@ -1138,13 +1150,13 @@ protected boolean doRemoveAllFast(int index, int len) {
         }
     }
     if (index + len == size) {
-        // Remove at last position   
+        // Remove at last position
         end -= len;
         if (end < 0) {
             end += values.length;
         }
     } else if (index == 0) {
-        // Remove at first position   
+        // Remove at first position
         start += len;
         if (start >= values.length) {
             start -= values.length;
@@ -1175,13 +1187,12 @@ public int binarySearch(int index, int len, byte key) {
     return ArraysHelper.binarySearch((byte[]) values, index, index + len, key);
 }
 
-    // --- Helper methods for debugging ---  
-/**
-	 * Private method to check invariant of ByteGapList.
-	 * It is only used for debugging.
-	 */
+    /**
+ * Private method to check invariant of ByteGapList.
+ * It is only used for debugging.
+ */
 private void debugCheck() {
-    // If the ByteGapList is not used for storing content in KeyListImpl, values may be (byte) 0   
+    // If the ByteGapList is not used for storing content in KeyListImpl, values may be (byte) 0
     if (values == null) {
         assert (size == 0 && start == 0 && end == 0);
         assert (gapSize == 0 && gapStart == 0 && gapIndex == 0);
@@ -1191,25 +1202,25 @@ private void debugCheck() {
     assert (start >= 0 && (start < values.length || values.length == 0));
     assert (end >= 0 && (end < values.length || values.length == 0));
     assert (values.length == 0 || (start + size + gapSize) % values.length == end);
-    // Check that logical gap index is correct   
+    // Check that logical gap index is correct
     assert (gapSize >= 0);
     if (gapSize > 0) {
         assert (gapStart >= 0 && gapStart < values.length);
-        // gap may not be at start or end   
+        // gap may not be at start or end
         assert (gapIndex > 0 && gapIndex < size);
-        // gap start may not be the same as start or end   
+        // gap start may not be the same as start or end
         assert (gapStart != start && gapStart != end);
-        // check that logical and phyiscal gap index are correct   
+        // check that logical and phyiscal gap index are correct
         assert (physIndex(gapIndex) == (gapStart + gapSize) % values.length);
     }
-    // Check that gap positions contain (byte) 0 values   
+    // Check that gap positions contain (byte) 0 values
     if (gapSize > 0) {
         for (int i = gapStart; i < gapStart + gapSize; i++) {
             int pos = (i % values.length);
             assert (values[pos] == (byte) 0);
         }
     }
-    // Check that all end positions contain (byte) 0 values   
+    // Check that all end positions contain (byte) 0 values
     if (start < end) {
         for (int i = 0; i < start; i++) {
             assert (values[i] == (byte) 0);
@@ -1225,11 +1236,11 @@ private void debugCheck() {
 }
 
     /**
-	 * Private method to determine state of ByteGapList.
-	 * It is only used for debugging.
-	 *
-	 * @return	state in which ByteGapList is
-	 */
+ * Private method to determine state of ByteGapList.
+ * It is only used for debugging.
+ *
+ * @return	state in which ByteGapList is
+ */
 private int debugState() {
     if (size == 0) {
         return 0;
@@ -1263,6 +1274,7 @@ private int debugState() {
             if (start == 0) {
                 return 10;
             } else if (gapStart < start) {
+                // 
                 return 14;
             } else if (gapStart > start) {
                 int gapEnd = (gapStart + gapSize) % values.length;
@@ -1285,9 +1297,9 @@ private int debugState() {
 }
 
     /**
-	 * Private method to dump fields of ByteGapList.
-	 * It is only called if the code is run in development mode.
-	 */
+ * Private method to dump fields of ByteGapList.
+ * It is only called if the code is run in development mode.
+ */
 private void debugDump() {
     debugLog("values: size= " + values.length + ", data= " + debugPrint(values));
     debugLog("size=" + size + ", start=" + start + ", end=" + end + ", gapStart=" + gapStart + ", gapSize=" + gapSize + ", gapIndex=" + gapIndex);
@@ -1295,11 +1307,11 @@ private void debugDump() {
 }
 
     /**
-	 * Print array values into string.
-	 *
-	 * @param values	array with values
-	 * @return			string representing array values
-	 */
+ * Print array values into string.
+ *
+ * @param values	array with values
+ * @return			string representing array values
+ */
 private String debugPrint(byte[] values) {
     StringBuilder buf = new StringBuilder();
     buf.append("[ ");
@@ -1314,31 +1326,33 @@ private String debugPrint(byte[] values) {
 }
 
     /**
-	 * Private method write logging output.
-	 * It is only used for debugging.
-	 *
-	 * @param msg message to write out
-	 */
+ * Private method write logging output.
+ * It is only used for debugging.
+ *
+ * @param msg message to write out
+ */
 private void debugLog(String msg) {
 }
 
-    // --- ImmutableByteGapList ---  
+    // --- ImmutableByteGapList ---
     /**
-	 * An immutable version of a ByteGapList.
-	 * Note that the client cannot change the list,
-	 * but the content may change if the underlying list is changed.
-	 */
+     * An immutable version of a ByteGapList.
+     * Note that the client cannot change the list,
+     * but the content may change if the underlying list is changed.
+     */
     protected static class ImmutableByteGapList extends ByteGapList {
 
-        /** UID for serialization */
+        /**
+         * UID for serialization
+         */
         private static final long serialVersionUID = -1352274047348922584L;
 
         /**
-		 * Private constructor used internally.
-		 *
-		 * @param that  list to create an immutable view of
-		 */
-protected ImmutableByteGapList(ByteGapList that){
+ * Private constructor used internally.
+ *
+ * @param that  list to create an immutable view of
+ */
+protected ImmutableByteGapList(ByteGapList that) {
     super(true, that);
 }
 
@@ -1382,8 +1396,8 @@ protected void doModify() {
 }
 
         /**
-		 * Throw exception if an attempt is made to change an immutable list.
-		 */
+ * Throw exception if an attempt is made to change an immutable list.
+ */
 private void error() {
     throw new UnsupportedOperationException("list is immutable");
 }

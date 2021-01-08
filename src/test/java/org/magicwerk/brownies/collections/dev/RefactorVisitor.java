@@ -1,23 +1,27 @@
 package org.magicwerk.brownies.collections.dev;
 
-import java.util.Iterator;
+import java.util.Optional;
 
 import org.magicwerk.brownies.collections.GapList;
 import org.magicwerk.brownies.core.regex.RegexTools;
 
-import japa.parser.ast.body.ClassOrInterfaceDeclaration;
-import japa.parser.ast.body.ConstructorDeclaration;
-import japa.parser.ast.body.MethodDeclaration;
-import japa.parser.ast.body.Parameter;
-import japa.parser.ast.expr.NameExpr;
-import japa.parser.ast.visitor.DumpVisitor;
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.body.ConstructorDeclaration;
+import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.comments.Comment;
+import com.github.javaparser.ast.stmt.BlockStmt;
+import com.github.javaparser.printer.PrettyPrintVisitor;
+import com.github.javaparser.printer.PrettyPrinterConfiguration;
 
-public class RefactorVisitor extends DumpVisitor {
+public class RefactorVisitor extends PrettyPrintVisitor {
+
+	public RefactorVisitor() {
+		super(new PrettyPrinterConfiguration());
+	}
 
 	public static class RefactorMethod {
 
 		/**
-		 * @param method
 		 * @return			true if refactoring should be done
 		 */
 		public boolean match(MethodSource method) {
@@ -25,7 +29,6 @@ public class RefactorVisitor extends DumpVisitor {
 		}
 
 		/**
-		 * @param md
 		 * @return		true if processing should continue, false to stop
 		 */
 		public boolean refactor(MethodSource method) {
@@ -53,22 +56,16 @@ public class RefactorVisitor extends DumpVisitor {
 	}
 
 	@Override
-	public void visit(final ClassOrInterfaceDeclaration n, final Object arg) {
-		if (removeTypes.contains(n.getName())) {
+	public void visit(final ClassOrInterfaceDeclaration n, final Void arg) {
+		if (removeTypes.contains(n.getName().getId())) {
 			return;
 		}
-		//SourcePrinter oldPrinter = printer;
-		//printer = new SourcePrinter();
 		super.visit(n, arg);
-		//String src = printer.getSource();
-		//System.out.println("TYPE: " + src);
-		//oldPrinter.print(src);
-		//printer = oldPrinter;
 	}
 
 	@Override
-	public void visit(final ConstructorDeclaration n, final Object arg) {
-		if (removeMethods.contains(n.getName())) {
+	public void visit(final ConstructorDeclaration n, final Void arg) {
+		if (removeMethods.contains(n.getName().getId())) {
 			return;
 		}
 
@@ -81,14 +78,13 @@ public class RefactorVisitor extends DumpVisitor {
 			}
 		}
 		if (!method.isDelete()) {
-			oldPrinter.print(method.getSourceDoc());
+			printer.print(method.getSourceDoc());
 		}
-		printer = oldPrinter;
 	}
 
 	@Override
-	public void visit(final MethodDeclaration n, final Object arg) {
-		if (removeMethods.contains(n.getName())) {
+	public void visit(final MethodDeclaration n, final Void arg) {
+		if (removeMethods.contains(n.getName().getId())) {
 			return;
 		}
 
@@ -101,56 +97,105 @@ public class RefactorVisitor extends DumpVisitor {
 			}
 		}
 		if (!method.isDelete()) {
-			oldPrinter.print(method.getSourceDoc());
+			printer.print(method.getSourceDoc());
 		}
-		printer = oldPrinter;
 	}
 
 	MethodSource getMethod(ConstructorDeclaration n) {
-		beginPrint();
-		printDoc(n, null);
-		String doc = endPrint();
+		PrettyPrintVisitor visitor = new RefactorPrintVisitor(true, false);
+		printDoc(visitor, n.getComment());
+		String doc = visitor.toString();
 
-		beginPrint();
-		printHeader(n, null);
-		String header = endPrint();
+		visitor = new RefactorPrintVisitor(false, false);
+		printHeader(visitor, n);
+		String header = visitor.toString();
 
-		beginPrint();
-		printBody(n, null);
-		String body = endPrint();
+		visitor = new RefactorPrintVisitor(false, true);
+		printBody(visitor, n);
+		String body = visitor.toString();
 
-		MethodSource method = new MethodSource(n, n.getName(), doc, header, body);
+		MethodSource method = new MethodSource(n, n.getName().getId(), doc, header, body);
 		return method;
+	}
+
+	static class RefactorPrintVisitor extends PrettyPrintVisitor {
+
+		boolean printJavadoc;
+		boolean printBody;
+
+		RefactorPrintVisitor(boolean printJavadoc, boolean printBody) {
+			super(new PrettyPrinterConfiguration());
+			this.printJavadoc = printJavadoc;
+			this.printBody = printBody;
+		}
+
+		void print(String str) {
+			printer.print(str);
+		}
+
+		@Override
+		public void visit(final BlockStmt n, final Void arg) {
+			if (printBody) {
+				super.visit(n, arg);
+			}
+		}
+
+		@Override
+		protected void printComment(final Optional<Comment> comment, final Void arg) {
+			if (!printJavadoc) {
+				printJavadoc = true;
+			} else {
+				super.printComment(comment, arg);
+			}
+		}
+
 	}
 
 	MethodSource getMethod(MethodDeclaration n) {
-		beginPrint();
-		printDoc(n, null);
-		String doc = endPrint();
+		RefactorPrintVisitor visitor = new RefactorPrintVisitor(true, false);
+		printDoc(visitor, n.getComment());
+		String doc = visitor.toString();
 
-		beginPrint();
-		printHeader(n, null);
-		String header = endPrint();
+		visitor = new RefactorPrintVisitor(false, false);
+		printHeader(visitor, n);
+		String header = visitor.toString();
 
-		beginPrint();
-		printBody(n, null);
-		String body = endPrint();
+		visitor = new RefactorPrintVisitor(false, true);
+		printBody(visitor, n);
+		String body = visitor.toString();
 
-		MethodSource method = new MethodSource(n, n.getName(), doc, header, body);
+		MethodSource method = new MethodSource(n, n.getName().getId(), doc, header, body);
 		return method;
 	}
 
-	SourcePrinter oldPrinter;
-
-	void beginPrint() {
-		oldPrinter = printer;
-		printer = new SourcePrinter();
+	void printDoc(PrettyPrintVisitor visitor, Optional<Comment> n) {
+		n.ifPresent(nn -> nn.accept(visitor, null));
 	}
 
-	String endPrint() {
-		String src = printer.getSource();
-		printer = oldPrinter;
-		return src;
+	void printHeader(PrettyPrintVisitor visitor, MethodDeclaration n) {
+		Optional<BlockStmt> body = n.getBody();
+		n.setBody(new BlockStmt());
+		n.accept(visitor, null);
+		n.setBody(body.orElse(null));
+	}
+
+	void printBody(RefactorPrintVisitor visitor, MethodDeclaration n) {
+		if (n.getBody().isPresent()) {
+			n.getBody().get().accept(visitor, null);
+		} else {
+			visitor.print(";");
+		}
+	}
+
+	void printHeader(PrettyPrintVisitor visitor, ConstructorDeclaration n) {
+		BlockStmt body = n.getBody();
+		n.setBody(new BlockStmt());
+		n.accept(visitor, null);
+		n.setBody(body);
+	}
+
+	void printBody(PrettyPrintVisitor visitor, ConstructorDeclaration n) {
+		n.getBody().accept(visitor, null);
 	}
 
 	protected String changeMethodSrc(String name, String src) {
@@ -160,110 +205,6 @@ public class RefactorVisitor extends DumpVisitor {
 	public static String replaceBody(String src, String body) {
 		String header = RegexTools.get("(?s)^(.*?)\\{.*\\}", src);
 		return header + " {\n" + body + "}\n";
-	}
-
-	// Source for these methods has been taken from
-	// public void visit(final MethodDeclaration n, final Object arg)
-
-	void printDoc(final MethodDeclaration n, final Object arg) {
-		printJavaComment(n.getComment(), arg);
-		printJavadoc(n.getJavaDoc(), arg);
-	}
-
-	void printHeader(final MethodDeclaration n, final Object arg) {
-		printMemberAnnotations(n.getAnnotations(), arg);
-		printModifiers(n.getModifiers());
-
-		printTypeParameters(n.getTypeParameters(), arg);
-		if (n.getTypeParameters() != null) {
-			printer.print(" ");
-		}
-
-		n.getType().accept(this, arg);
-		printer.print(" ");
-		printer.print(n.getName());
-
-		printer.print("(");
-		if (n.getParameters() != null) {
-			for (final Iterator<Parameter> i = n.getParameters().iterator(); i.hasNext();) {
-				final Parameter p = i.next();
-				p.accept(this, arg);
-				if (i.hasNext()) {
-					printer.print(", ");
-				}
-			}
-		}
-		printer.print(")");
-
-		for (int i = 0; i < n.getArrayCount(); i++) {
-			printer.print("[]");
-		}
-
-		if (n.getThrows() != null) {
-			printer.print(" throws ");
-			for (final Iterator<NameExpr> i = n.getThrows().iterator(); i.hasNext();) {
-				final NameExpr name = i.next();
-				name.accept(this, arg);
-				if (i.hasNext()) {
-					printer.print(", ");
-				}
-			}
-		}
-	}
-
-	void printBody(final MethodDeclaration n, final Object arg) {
-		if (n.getBody() == null) {
-			printer.print(";");
-		} else {
-			printer.print(" ");
-			n.getBody().accept(this, arg);
-		}
-	}
-
-	// Source for these methods has been taken from
-	// public void visit(final ConstructorDeclaration n, final Object arg)
-
-	void printDoc(final ConstructorDeclaration n, final Object arg) {
-		printJavaComment(n.getComment(), arg);
-		printJavadoc(n.getJavaDoc(), arg);
-	}
-
-	void printHeader(final ConstructorDeclaration n, final Object arg) {
-		printMemberAnnotations(n.getAnnotations(), arg);
-		printModifiers(n.getModifiers());
-
-		printTypeParameters(n.getTypeParameters(), arg);
-		if (n.getTypeParameters() != null) {
-			printer.print(" ");
-		}
-		printer.print(n.getName());
-
-		printer.print("(");
-		if (n.getParameters() != null) {
-			for (final Iterator<Parameter> i = n.getParameters().iterator(); i.hasNext();) {
-				final Parameter p = i.next();
-				p.accept(this, arg);
-				if (i.hasNext()) {
-					printer.print(", ");
-				}
-			}
-		}
-		printer.print(")");
-
-		if (n.getThrows() != null) {
-			printer.print(" throws ");
-			for (final Iterator<NameExpr> i = n.getThrows().iterator(); i.hasNext();) {
-				final NameExpr name = i.next();
-				name.accept(this, arg);
-				if (i.hasNext()) {
-					printer.print(", ");
-				}
-			}
-		}
-	}
-
-	void printBody(final ConstructorDeclaration n, final Object arg) {
-		n.getBlock().accept(this, arg);
 	}
 
 }

@@ -6,8 +6,9 @@ import org.magicwerk.brownies.collections.dev.RefactorVisitor.RefactorMethod;
 import org.magicwerk.brownies.core.files.PathTools;
 import org.magicwerk.brownies.core.reflect.ClassTools;
 import org.magicwerk.brownies.core.regex.RegexTools;
+import org.magicwerk.brownies.dev.sources.JavaParserTools;
 
-import japa.parser.ast.CompilationUnit;
+import com.github.javaparser.ast.CompilationUnit;
 
 /**
  * Create source files IntGapList, etc. out of file GapList

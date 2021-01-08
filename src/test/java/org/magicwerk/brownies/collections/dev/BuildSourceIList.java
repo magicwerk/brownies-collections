@@ -3,16 +3,16 @@ package org.magicwerk.brownies.collections.dev;
 import java.text.MessageFormat;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang3.StringUtils;
 import org.magicwerk.brownies.collections.dev.BuildSource.Builder;
 import org.magicwerk.brownies.collections.dev.BuildSource.FileBuilder;
 import org.magicwerk.brownies.collections.dev.RefactorVisitor.RefactorMethod;
 import org.magicwerk.brownies.core.files.PathTools;
 import org.magicwerk.brownies.core.reflect.ClassTools;
 import org.magicwerk.brownies.core.regex.RegexReplacer;
+import org.magicwerk.brownies.dev.sources.JavaParserTools;
 
-import japa.parser.ast.CompilationUnit;
-import japa.parser.ast.body.ModifierSet;
+import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.Modifier;
 
 /**
  * Create source files IIntList, etc. out of file IList
@@ -47,7 +47,7 @@ public class BuildSourceIList extends FileBuilder {
 		visitor.addRefactorMethods(new RefactorMethod() {
 			@Override
 			public boolean match(MethodSource method) {
-				return (method.getName().equals("toArray") && method.getMethodDecl().getModifiers() == ModifierSet.STATIC);
+				return (method.getName().equals("toArray") && method.getMethodDecl().getModifiers().contains(Modifier.staticModifier()));
 			}
 
 			@Override
@@ -169,14 +169,10 @@ public class BuildSourceIList extends FileBuilder {
 		// - change code
 		// - change comment + code
 
-		System.out.println(StringUtils.countMatches(src, "return null"));
 		cu.accept(visitor, null);
-		src = visitor.getSource();
-		System.out.println(StringUtils.countMatches(src, "return null"));
+		src = visitor.toString();
 		src = processClass(src);
-		System.out.println(StringUtils.countMatches(src, "return null"));
 		src = applyTemplate(src);
-		System.out.println(StringUtils.countMatches(src, "return null"));
 		String javaFile = applyTemplate("I{NAME}List.java");
 
 		String dstFile = PathTools.getPath(srcDir, ClassTools.getPathFromClass(ClassTools.getPackageName(srcClass)), "primitive", javaFile);
