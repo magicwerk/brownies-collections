@@ -29,10 +29,10 @@ import org.magicwerk.brownies.core.strings.matcher.RegexStringMatcher;
 import org.slf4j.Logger;
 
 /**
- * Create Java examples source for Java 8 by <br/>
- * - removing lines annotated with @java7:begin / @java7:end <br/>
- * - uncommenting lines annotated with @java8:begin / @java8:end <br/>
- * Reads: test/org/magicwerk/brownies/collections/KeyCollectionsExamples.java <br/>
+ * Create Java examples source for Java 8 by <br>
+ * - removing lines annotated with @java7:begin / @java7:end <br>
+ * - uncommenting lines annotated with @java8:begin / @java8:end <br>
+ * Reads: test/org/magicwerk/brownies/collections/KeyCollectionsExamples.java <br>
  * Writes: test-jdk8/org/magicwerk/brownies/collections/KeyCollectionsExamples.java
  *
  * @author Thomas Mauch

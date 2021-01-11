@@ -19,9 +19,6 @@ import com.github.javaparser.ast.CompilationUnit;
  */
 public class BuildSourceGapList extends FileBuilder {
 
-	/**
-	 * @param see BuildSourceGapList
-	 */
 	public BuildSourceGapList(Builder builder) {
 		super(builder);
 	}
@@ -84,7 +81,7 @@ public class BuildSourceGapList extends FileBuilder {
 		});
 
 		cu.accept(visitor, null);
-		src = visitor.getSource();
+		src = visitor.toString();
 		src = processClass(src);
 		src = applyTemplate(src);
 		String javaFile = applyTemplate("{NAME}GapList.java");

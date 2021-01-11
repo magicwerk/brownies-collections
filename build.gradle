@@ -22,6 +22,14 @@ javadoc {
 	exclude "org/magicwerk/brownies/collections/primitive"
 }
 
+testJavadoc {
+	// Exclude external files
+	exclude "org/magicwerk/brownies/collections/ext"
+	
+	// Prevent "error: cannot find symbol" for classes in excluded packages
+	classpath = sourceSets.test.compileClasspath + sourceSets.test.output
+}
+
 publishing {
   publications {
     jintellitype (MavenPublication) {
