@@ -17,6 +17,11 @@ dependencies {
     testImplementation 'com.google.guava:guava-testlib:14.0.1'
 }
 
+javadoc {
+	// Exclude generated files
+	exclude "org/magicwerk/brownies/collections/primitive"
+}
+
 publishing {
   publications {
     jintellitype (MavenPublication) {

@@ -23,7 +23,7 @@
  * Blocks are split or merged as needed and maintained in a tree for fast access.
  * Copying a BigList is very efficient as it is implemented using a copy-on-write approach.
  * </p>
- * <p>
+ * </li>
  *
  * <li>
  * <p>
@@ -62,4 +62,3 @@
  *
  */
 package org.magicwerk.brownies.collections;
-
