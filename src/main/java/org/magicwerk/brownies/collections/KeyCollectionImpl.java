@@ -268,8 +268,8 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 		 * Specifies that the collection behaves like a {@link Set} on adding elements, i.e.
 		 * if an element cannot be added due to duplicate or other constraints, no exception is thrown.
 		 *
-		 * @param count	true to define set behavior (default is false)
-		 * @return		this (fluent interface)
+		 * @param setBehavior	true to define set behavior (default is false)
+		 * @return				this (fluent interface)
 		 */
 		protected BuilderImpl<E> withSetBehavior(boolean setBehavior) {
 			this.setBehavior = setBehavior;
@@ -1570,7 +1570,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	int size;
 	/** Maximum absolute or windows size, 0 if this list has no size restriction */
 	int maxSize;
-	/** If maxSize is >0, this boolean indicates whether the size is for window (true) or absolute (false) */
+	/** If maxSize is greater than 0, this boolean indicates whether the size is for window (true) or absolute (false) */
 	boolean movingWindow;
 	/**
 	 * Maps for element and all defined keys.
@@ -2125,7 +2125,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	 * @return all elements contained in this collection as list
 	 */
 	public GapList<E> toList() {
-		GapList<E> list = new GapList(size());
+		GapList<E> list = new GapList<>(size());
 		for (E e : this) {
 			list.add(e);
 		}
@@ -2134,7 +2134,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 
 	@Override
 	public Object[] toArray() {
-		GapList<Object> list = new GapList(size());
+		GapList<Object> list = new GapList<>(size());
 		for (E e : this) {
 			list.add(e);
 		}
@@ -2143,7 +2143,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 
 	@Override
 	public <T> T[] toArray(T[] a) {
-		GapList<Object> list = new GapList(size());
+		GapList<Object> list = new GapList<>(size());
 		for (E e : this) {
 			list.add(e);
 		}
