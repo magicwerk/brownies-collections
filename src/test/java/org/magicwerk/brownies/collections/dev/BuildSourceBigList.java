@@ -21,9 +21,6 @@ import com.github.javaparser.ast.CompilationUnit;
  */
 public class BuildSourceBigList extends FileBuilder {
 
-	/**
-	 * @param see BuildSourceBigList
-	 */
 	public BuildSourceBigList(Builder builder) {
 		super(builder);
 	}
@@ -86,7 +83,7 @@ public class BuildSourceBigList extends FileBuilder {
 		});
 
 		cu.accept(visitor, null);
-		src = visitor.getSource();
+		src = visitor.toString();
 		src = processClass(src);
 		src = insertTemplate(src);
 		src = applyTemplate(src);
