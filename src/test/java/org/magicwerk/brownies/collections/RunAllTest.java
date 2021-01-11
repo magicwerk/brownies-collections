@@ -17,11 +17,11 @@ import org.magicwerk.brownies.core.ThreadTools;
 import org.magicwerk.brownies.core.reflect.ClassTools;
 
 /**
- * Run all tests for Brownies-Collections. <p/>
- *
- * Execute this test class with JUnit to run <br/>
- * - All MagicTests in org.magicwerk.brownies.collections </br>
- * - All Guava JUnit tests in org.magicwerk.brownies.collections.guava </br>
+ * Run all tests for Brownies-Collections.
+ * <p>
+ * Execute this test class with JUnit to run <br>
+ * - All MagicTests in org.magicwerk.brownies.collections <br>
+ * - All Guava JUnit tests in org.magicwerk.brownies.collections.guava <br>
  * - Test done by GapListTestCorrectness.testRelease
  *
  * @author Thomas Mauch

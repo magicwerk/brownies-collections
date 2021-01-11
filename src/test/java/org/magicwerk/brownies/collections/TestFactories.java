@@ -6,10 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
-import javolution.util.FastTable;
-
 import org.apache.commons.collections4.list.TreeList;
-import org.magicwerk.brownies.collections.TestRuns.GetNearRun;
 import org.magicwerk.brownies.collections.ext.CircularArrayList;
 import org.magicwerk.brownies.collections.ext.DualArrayDeque;
 import org.magicwerk.brownies.collections.ext.DualRootishArrayDeque;
@@ -17,6 +14,8 @@ import org.magicwerk.brownies.collections.ext.RootishArrayStack;
 import org.magicwerk.brownies.collections.ext.TList;
 import org.magicwerk.brownies.collections.primitive.IntBigList;
 import org.magicwerk.brownies.collections.primitive.IntGapList;
+
+import javolution.util.FastTable;
 
 /**
  *
@@ -47,24 +46,17 @@ public class TestFactories {
 		/**
 		 * Create collection with specified number of elements.
 		 * The collection will grow as needed.
-		 *
-		 * @param size
-		 * @return
 		 */
 		abstract Object create(int size);
+
 		/**
 		 * Create collection with specified number of elements.
 		 * The collection's capacity will be set accordingly before the elements are added.
-		 *
-		 * @param size
-		 * @return
 		 */
 		abstract Object createSize(int size);
+
 		/**
 		 * Create collection with specified content.
-		 *
-		 * @param that	collection to copy
-		 * @return
 		 */
 		abstract Object copy(Object that);
 	}
@@ -81,42 +73,42 @@ public class TestFactories {
 		 */
 		abstract void fill(Collection<Object> coll, int size);
 	}
-	
-	static Random random = new Random(0); 
-	
+
+	static Random random = new Random(0);
+
 	public static class SingletonContentFactory extends ContentFactory {
 		@Override
 		void fill(Collection<Object> coll, int size) {
 			Integer obj = 0;
-			for (int i=0; i<size; i++) {
+			for (int i = 0; i < size; i++) {
 				coll.add(obj);
 			}
-		}		
+		}
 	}
-	
+
 	public static class DistinctContentFactory extends ContentFactory {
 		@Override
 		void fill(Collection<Object> coll, int size) {
-			for (int i=0; i<size; i++) {
+			for (int i = 0; i < size; i++) {
 				Object obj = i;
 				coll.add(obj);
 			}
-		}		
+		}
 	}
-	
+
 	/**
 	 * Fills collection with random values by adding the elements at the end.
 	 */
 	public static class RandomContentFactory extends ContentFactory {
 		@Override
 		void fill(Collection<Object> coll, int size) {
-			for (int i=0; i<size; i++) {
+			for (int i = 0; i < size; i++) {
 				Object obj = random.nextInt(size);
 				coll.add(obj);
 			}
-		}		
+		}
 	}
-	
+
 	/**
 	 * Fills collection with random values by adding the elements at random locations.
 	 */
@@ -124,14 +116,14 @@ public class TestFactories {
 		@Override
 		void fill(Collection<Object> coll, int size) {
 			List<Object> list = (List<Object>) coll;
-			for (int i=0; i<size; i++) {
+			for (int i = 0; i < size; i++) {
 				int index = (i == 0) ? 0 : random.nextInt(i);
 				Object obj = random.nextInt(size);
 				list.add(index, obj);
 			}
-		}		
+		}
 	}
-	
+
 	/**
 	 * Interface to create lists.
 	 *
@@ -139,16 +131,16 @@ public class TestFactories {
 	 * @version $Id$
 	 */
 	public static abstract class CollectionFactory extends Factory {
-		ContentFactory contentFactory = new  SingletonContentFactory();
-		
+		ContentFactory contentFactory = new SingletonContentFactory();
+
 		public ContentFactory getContentFactory() {
 			return contentFactory;
 		}
-		
+
 		public void setContenFactory(ContentFactory contentFactory) {
 			this.contentFactory = contentFactory;
 		}
-		
+
 		Collection<?> create(int size, boolean preSize, ContentFactory contentFactory) {
 			Collection<Object> coll;
 			if (preSize) {
@@ -159,32 +151,27 @@ public class TestFactories {
 			contentFactory.fill(coll, size);
 			return coll;
 		}
-		
+
 		/**
 		 * @return type of collection class
 		 */
+		@Override
 		abstract Class<?> getType();
+
 		/**
 		 * Create collection with specified number of elements.
 		 * The collection will grow as needed.
-		 *
-		 * @param size
-		 * @return
 		 */
 		abstract Collection<?> create(int size);
+
 		/**
 		 * Create collection with specified number of elements.
 		 * The collection's capacity will be set accordingly before the elements are added.
-		 *
-		 * @param size
-		 * @return
 		 */
 		abstract Collection<?> createSize(int size);
+
 		/**
 		 * Create collection with specified content.
-		 *
-		 * @param that	collection to copy
-		 * @return
 		 */
 		abstract Collection<?> copy(Collection<?> that);
 	}
@@ -194,10 +181,12 @@ public class TestFactories {
 		public Class<?> getType() {
 			return GapList.class;
 		}
+
 		@Override
 		public List create(int size) {
 			return allocGapList(size);
 		}
+
 		@Override
 		public List createSize(int size) {
 			return allocGapListSize(size);
@@ -226,14 +215,17 @@ public class TestFactories {
 		public String getName() {
 			return "IntGapList";
 		}
+
 		@Override
 		public Class<?> getType() {
 			return int.class;
 		}
+
 		@Override
 		public IntGapList create(int size) {
 			return allocGapList(size);
 		}
+
 		@Override
 		public IntGapList createSize(int size) {
 			return allocGapListSize(size);
@@ -248,7 +240,7 @@ public class TestFactories {
 		public static IntGapList allocGapList(int size) {
 			Integer obj = new Integer(0);
 			IntGapList l = new IntGapList();
-			for (int i=0; i<size; i++) {
+			for (int i = 0; i < size; i++) {
 				l.add(i, obj);
 			}
 			return l;
@@ -257,7 +249,7 @@ public class TestFactories {
 		public static IntGapList allocGapListSize(int size) {
 			Integer obj = new Integer(0);
 			IntGapList l = new IntGapList(size);
-			for (int i=0; i<size; i++) {
+			for (int i = 0; i < size; i++) {
 				l.add(i, obj);
 			}
 			return l;
@@ -310,7 +302,7 @@ public class TestFactories {
 		public static IntBigList allocBigList(int size, int blockSize) {
 			int val = 0;
 			IntBigList l = new IntBigList(blockSize);
-			for (int i=0; i<size; i++) {
+			for (int i = 0; i < size; i++) {
 				l.add(i, val);
 			}
 			return l;
@@ -322,10 +314,12 @@ public class TestFactories {
 		public Class<?> getType() {
 			return TreeList.class;
 		}
+
 		@Override
 		public Collection<?> create(int size) {
 			return allocTreeList(size);
 		}
+
 		@Override
 		public Collection<?> createSize(int size) {
 			return allocTreeList(size);
@@ -339,7 +333,7 @@ public class TestFactories {
 		public static TreeList<Object> allocTreeList(int size) {
 			Integer obj = new Integer(0);
 			TreeList<Object> l = new TreeList<Object>();
-			for (int i=0; i<size; i++) {
+			for (int i = 0; i < size; i++) {
 				l.add(i, obj);
 			}
 			return l;
@@ -392,7 +386,7 @@ public class TestFactories {
 		public static BigList<Object> allocBigList(int size, int blockSize) {
 			Integer obj = new Integer(0);
 			BigList<Object> l = new BigList<Object>(blockSize);
-			for (int i=0; i<size; i++) {
+			for (int i = 0; i < size; i++) {
 				l.add(i, obj);
 			}
 			return l;
@@ -423,7 +417,7 @@ public class TestFactories {
 		public static ArrayList<Object> allocArrayList(int size) {
 			Integer obj = new Integer(0);
 			ArrayList<Object> l = new ArrayList<Object>();
-			for (int i=0; i<size; i++) {
+			for (int i = 0; i < size; i++) {
 				l.add(i, obj);
 			}
 			return l;
@@ -432,7 +426,7 @@ public class TestFactories {
 		public static ArrayList<Object> allocArrayListSize(int size) {
 			Integer obj = new Integer(0);
 			ArrayList<Object> l = new ArrayList<Object>(size);
-			for (int i=0; i<size; i++) {
+			for (int i = 0; i < size; i++) {
 				l.add(i, obj);
 			}
 			return l;
@@ -508,10 +502,12 @@ public class TestFactories {
 		public Class<?> getType() {
 			return CircularArrayList.class;
 		}
+
 		@Override
 		public List create(int size) {
 			return allocCircularArrayList(size);
 		}
+
 		@Override
 		public List createSize(int size) {
 			return allocCircularArrayListSize(size);
@@ -522,23 +518,23 @@ public class TestFactories {
 			return new CircularArrayList(that);
 		}
 
-	    static CircularArrayList allocCircularArrayList(int size) {
-	        Integer obj = new Integer(0);
-	        CircularArrayList l = new CircularArrayList();
-	        for (int i=0; i<size; i++) {
-	            l.add(i, obj);
-	        }
-	        return l;
-	    }
+		static CircularArrayList allocCircularArrayList(int size) {
+			Integer obj = new Integer(0);
+			CircularArrayList l = new CircularArrayList();
+			for (int i = 0; i < size; i++) {
+				l.add(i, obj);
+			}
+			return l;
+		}
 
-	    static CircularArrayList allocCircularArrayListSize(int size) {
-	        Integer obj = new Integer(0);
-	        CircularArrayList l = new CircularArrayList(size);
-	        for (int i=0; i<size; i++) {
-	            l.add(i, obj);
-	        }
-	        return l;
-	    }
+		static CircularArrayList allocCircularArrayListSize(int size) {
+			Integer obj = new Integer(0);
+			CircularArrayList l = new CircularArrayList(size);
+			for (int i = 0; i < size; i++) {
+				l.add(i, obj);
+			}
+			return l;
+		}
 	}
 
 	static class LinkedListFactory extends CollectionFactory {
@@ -565,7 +561,7 @@ public class TestFactories {
 		public static LinkedList<Object> allocLinkedList(int size) {
 			Integer obj = new Integer(0);
 			LinkedList<Object> l = new LinkedList<Object>();
-			for (int i=0; i<size; i++) {
+			for (int i = 0; i < size; i++) {
 				l.add(i, obj);
 			}
 			return l;
@@ -577,11 +573,12 @@ public class TestFactories {
 		public Class<?> getType() {
 			return FastTable.class;
 		}
+
 		@Override
 		public List create(int size) {
 			Integer obj = new Integer(0);
 			FastTable<Object> l = new FastTable<Object>();
-			for (int i=0; i<size; i++) {
+			for (int i = 0; i < size; i++) {
 				l.add(i, obj);
 			}
 			return l;
@@ -602,7 +599,7 @@ public class TestFactories {
 		public static FastTable<Object> allocFastTable(int size) {
 			Integer obj = new Integer(0);
 			FastTable<Object> l = new FastTable<Object>();
-			for (int i=0; i<size; i++) {
+			for (int i = 0; i < size; i++) {
 				l.add(i, obj);
 			}
 			return l;
@@ -619,7 +616,7 @@ public class TestFactories {
 		public List create(int size) {
 			Integer obj = new Integer(0);
 			List l = new DualRootishArrayDeque<Object>(Object.class);
-			for (int i=0; i<size; i++) {
+			for (int i = 0; i < size; i++) {
 				l.add(i, obj);
 			}
 			return l;
@@ -647,7 +644,7 @@ public class TestFactories {
 		public List create(int size) {
 			Integer obj = new Integer(0);
 			List l = new DualArrayDeque<Object>(Object.class);
-			for (int i=0; i<size; i++) {
+			for (int i = 0; i < size; i++) {
 				l.add(i, obj);
 			}
 			return l;
@@ -663,6 +660,5 @@ public class TestFactories {
 			throw new UnsupportedOperationException();
 		}
 	}
-
 
 }
