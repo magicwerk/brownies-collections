@@ -74,29 +74,29 @@ public class KeyListImplTest {
 		}
 
 		KeyList<Integer> list1 = new KeyList.Builder<Integer>().withOrderByElem(int.class).build();
-		testSort(list1, null);
+		doTestSort(list1, null);
 
 		// This list allows null values and the created comparator will therefore also support null values
 		// which is not equivalent with the natural comparator
 		KeyList<String> list2 = new KeyList.Builder<String>().withOrderByElem(true).build();
-		testSort(list2, null);
+		doTestSort(list2, null);
 
 		// This list prohibits null values and the created comparator will therefore be equivalent with the natural comparator
 		KeyList<String> list2b = new KeyList.Builder<String>().withOrderByElem(true).withElemNull(false).build();
-		testSort(list2b, null);
+		doTestSort(list2b, null);
 
 		KeyList<Name> list3 = new KeyList.Builder<Name>().withElemSort(Name.Comparator).withOrderByElem(true).build();
-		testSort(list3, Name.Comparator);
+		doTestSort(list3, Name.Comparator);
 
 		KeyList<ComparableName> list4 = new KeyList.Builder<ComparableName>().withOrderByElem(true).withElemNull(false).build();
-		testSort(list4, null);
+		doTestSort(list4, null);
 
 		// If a list is not sorte by element but by a key, sort() will always fail
 		Key1List<Name, String> list5 = new Key1List.Builder<Name, String>().withPrimaryKey1Map(Name.Mapper).withKey1Sort(true).withOrderByKey1(true).build();
-		testSort(list5, null);
+		doTestSort(list5, null);
 	}
 
-	static void testSort(IList list, Comparator comp) {
+	static void doTestSort(IList list, Comparator comp) {
 		try {
 			list.sort(comp);
 			System.out.println("sort ok");
