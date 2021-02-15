@@ -26,8 +26,8 @@ import org.magicwerk.brownies.core.TypeTools;
 import org.magicwerk.brownies.core.logback.LogbackTools;
 import org.magicwerk.brownies.core.reflect.ReflectTools;
 import org.magicwerk.brownies.core.strings.StringFormatter;
-import org.magicwerk.brownies.test.runner.JvmRunner;
-import org.magicwerk.brownies.test.runner.MemoryTester;
+import org.magicwerk.brownies.runner.JvmRunner;
+import org.magicwerk.brownies.runner.MemoryTester;
 import org.slf4j.Logger;
 
 import javolution.util.FastTable;

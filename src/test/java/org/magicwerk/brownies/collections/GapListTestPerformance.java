@@ -18,8 +18,8 @@ import org.magicwerk.brownies.core.SystemTools;
 import org.magicwerk.brownies.core.Timer;
 import org.magicwerk.brownies.core.logback.LogbackTools;
 import org.magicwerk.brownies.core.stat.NumberStat;
-import org.magicwerk.brownies.test.runner.JvmRunner;
-import org.magicwerk.brownies.test.runner.Runner;
+import org.magicwerk.brownies.runner.JvmRunner;
+import org.magicwerk.brownies.runner.Runner;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
