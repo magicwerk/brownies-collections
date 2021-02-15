@@ -26,8 +26,8 @@ import java.util.TreeSet;
 import org.magictest.client.Trace;
 import org.magicwerk.brownies.collections.GapList;
 import org.magicwerk.brownies.core.logback.LogbackTools;
-import org.magicwerk.brownies.test.runner.Run;
-import org.magicwerk.brownies.test.runner.Runner;
+import org.magicwerk.brownies.runner.Run;
+import org.magicwerk.brownies.runner.Runner;
 import org.slf4j.Logger;
 
 import ch.qos.logback.classic.Level;

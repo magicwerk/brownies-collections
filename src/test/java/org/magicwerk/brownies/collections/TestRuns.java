@@ -26,9 +26,9 @@ import org.magicwerk.brownies.core.StringTools;
 import org.magicwerk.brownies.core.SystemTools;
 import org.magicwerk.brownies.core.reflect.ReflectTools;
 import org.magicwerk.brownies.core.strings.StringFormatter;
-import org.magicwerk.brownies.test.runner.Run;
-import org.magicwerk.brownies.test.runner.Runner;
-import org.magicwerk.brownies.test.runner.Runner.RunResult;
+import org.magicwerk.brownies.runner.Run;
+import org.magicwerk.brownies.runner.Runner;
+import org.magicwerk.brownies.runner.Runner.RunResult;
 
 public class TestRuns {
 
