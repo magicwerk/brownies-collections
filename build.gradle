@@ -41,7 +41,7 @@ publishing {
   }
 }
 
-task publishLibs() {
+publishLibs() {
     dependsOn('publishJintellitypePublicationToMavenLocal')
     description('Publishes libraries')
 }
