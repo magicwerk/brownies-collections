@@ -22,10 +22,10 @@ import java.util.List;
 import org.magicwerk.brownies.core.StringTools;
 import org.magicwerk.brownies.core.files.FileTools;
 import org.magicwerk.brownies.core.logback.LogbackTools;
-import org.magicwerk.brownies.core.strings.StringParser;
-import org.magicwerk.brownies.core.strings.StringParser.Part;
 import org.magicwerk.brownies.core.strings.matcher.IStringMatcher;
 import org.magicwerk.brownies.core.strings.matcher.RegexStringMatcher;
+import org.magicwerk.brownies.core.strings.parser.StringParser;
+import org.magicwerk.brownies.core.strings.parser.StringParser.Part;
 import org.slf4j.Logger;
 
 /**
