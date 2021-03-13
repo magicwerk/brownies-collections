@@ -6,6 +6,7 @@ import org.magicwerk.brownies.core.files.FileTools;
 import org.magicwerk.brownies.core.files.PathTools;
 import org.magicwerk.brownies.core.logback.LogbackTools;
 import org.magicwerk.brownies.core.reflect.ReflectTools;
+import org.magicwerk.brownies.core.reflect.ReflectTypes;
 import org.magicwerk.brownies.core.regex.RegexReplacer;
 import org.magicwerk.brownies.core.regex.RegexReplacer.RegexReplacer2;
 import org.magicwerk.brownies.core.regex.RegexTools;
@@ -234,9 +235,9 @@ public class BuildSource {
 	 */
 	static void run() {
 		// Generate source files
-		for (String primitiveType : ReflectTools.PRIMITIVE_TYPES) {
+		for (String primitiveType : ReflectTypes.VALUE_TYPES) {
 			Class<?> primitiveClass = ReflectTools.getPrimitiveClass(primitiveType);
-			String wrapperType = ReflectTools.getWrapperFromPrimitive(primitiveClass).getSimpleName();
+			String wrapperType = ReflectTypes.getWrapperFromPrimitive(primitiveClass).getSimpleName();
 			String defaultValue = ReflectTools.getPrimitiveDefaultValue(primitiveClass);
 			Builder builder = new Builder(primitiveType, wrapperType, defaultValue);
 			builder.build();
