@@ -17,8 +17,11 @@
  */
 package org.magicwerk.brownies.collections.helper;
 
+import java.util.Optional;
+
 /**
- * The Option class allows to distinguish between a null value and no value.
+ * Class {@link Option} stores a single value which may also be null.
+ * This is different from {@link Optional} which does not support null values.
  *
  * @param <T>	element type
  *
@@ -26,20 +29,19 @@ package org.magicwerk.brownies.collections.helper;
  * @version $Id$
  */
 public class Option<T> {
-    @SuppressWarnings("rawtypes")
+	@SuppressWarnings("rawtypes")
 	private static final Option EMPTY = new Option();
 
-    /**
-     * @return unmodifiable empty instance
-     */
-    @SuppressWarnings("unchecked")
-    public static <EE> Option<EE> EMPTY() {
-        return EMPTY;
-    }
+	/**
+	 * @return unmodifiable empty instance
+	 */
+	@SuppressWarnings("unchecked")
+	public static <EE> Option<EE> EMPTY() {
+		return EMPTY;
+	}
 
 	private boolean hasValue;
 	private T value;
-
 
 	/**
 	 * Prevent construction (use EMPTY)
@@ -47,15 +49,27 @@ public class Option<T> {
 	private Option() {
 	}
 
+	/**
+	 * Construct option with specified value.
+	 *
+	 * @param value		value
+	 */
 	public Option(T value) {
 		this.hasValue = true;
 		this.value = value;
 	}
 
+	/**
+	 * Returns true if a value is stored, false otherwise
+	 */
 	public boolean hasValue() {
 		return hasValue;
 	}
 
+	/**
+	 * Returns stored value of null if no value is stored.
+	 * It is therefore not possible to distinguish between a null value stored or no value stored.
+	 */
 	public T getValueOrNull() {
 		return value;
 	}
@@ -72,6 +86,35 @@ public class Option<T> {
 			throw new IllegalArgumentException("No value stored");
 		}
 		return value;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		@SuppressWarnings("rawtypes")
+		Option other = (Option) obj;
+		if (hasValue != other.hasValue)
+			return false;
+		if (value == null) {
+			if (other.value != null)
+				return false;
+		} else if (!value.equals(other.value))
+			return false;
+		return true;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (hasValue ? 1231 : 1237);
+		result = prime * result + ((value == null) ? 0 : value.hashCode());
+		return result;
 	}
 
 	@Override
