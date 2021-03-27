@@ -30,29 +30,17 @@ public class DuplicateKeyException extends KeyException {
 
 	/** Key which is not allowed due to a duplicate */
 	Object key;
-	/** If false, the exception will not contain a stack trace which makes raising the exception faster */
-	boolean needsStackTrace;
 
 	//
 
-	public DuplicateKeyException(Object key, boolean needsStackTrace) {
+	public DuplicateKeyException(Object key) {
 		super(MESSAGE + ": " + key);
 
 		this.key = key;
-		this.needsStackTrace = needsStackTrace;
 	}
 
 	public Object getKey() {
 		return key;
-	}
-
-	@Override
-	public Throwable fillInStackTrace() {
-		if (needsStackTrace) {
-			return super.fillInStackTrace();
-		} else {
-			return this;
-		}
 	}
 
 }
