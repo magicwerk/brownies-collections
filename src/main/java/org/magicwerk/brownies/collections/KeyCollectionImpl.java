@@ -1338,7 +1338,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 					if (!(allowDuplicates || (key == null && allowDuplicatesNull))) {
 						// Revert change and raise error
 						keysMap.put(key, oldElem);
-						errorDuplicateKey(key, false);
+						errorDuplicateKey(key);
 					}
 
 					if (count) {
@@ -1384,7 +1384,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 					}
 				}
 				if (!add) {
-					errorDuplicateKey(key, false);
+					errorDuplicateKey(key);
 				}
 				keysList.doAdd(addIndex, key);
 			}
@@ -1776,11 +1776,11 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 			if (cmp == 0) {
 				if (elem != null) {
 					if (!keyMap.allowDuplicates) {
-						errorDuplicateKey(key, false);
+						errorDuplicateKey(key);
 					}
 				} else {
 					if (!keyMap.allowDuplicatesNull) {
-						errorDuplicateKey(key, false);
+						errorDuplicateKey(key);
 					}
 				}
 			}
@@ -1916,8 +1916,8 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 		throw new KeyException("Constraint violation: maximum size reached");
 	}
 
-	static void errorDuplicateKey(Object key, boolean needsStackTrace) {
-		throw new DuplicateKeyException(key, needsStackTrace);
+	static void errorDuplicateKey(Object key) {
+		throw new DuplicateKeyException(key);
 	}
 
 	static void errorInvalidData() {
@@ -2000,7 +2000,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 			if (setBehavior) {
 				return false;
 			}
-			errorDuplicateKey(ex.getKey(), true);
+			errorDuplicateKey(ex.getKey());
 		}
 
 		if (DEBUG_CHECK)
@@ -2359,11 +2359,9 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 					keyMaps[i].remove(key, true, elem, this);
 				}
 			}
-			if (error != null) {
-				if (DEBUG_CHECK)
-					debugCheck();
-				throw error;
-			}
+			if (DEBUG_CHECK)
+				debugCheck();
+			throw error;
 		}
 		return true;
 	}
