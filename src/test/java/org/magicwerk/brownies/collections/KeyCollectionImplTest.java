@@ -27,8 +27,6 @@ import org.magicwerk.brownies.collections.TestHelper.Ticket;
 import org.magicwerk.brownies.core.logback.LogbackTools;
 import org.slf4j.Logger;
 
-import ch.qos.logback.classic.Level;
-
 /**
  * Test of KeyCollectionImpl.
  *
@@ -37,7 +35,7 @@ import ch.qos.logback.classic.Level;
  */
 public class KeyCollectionImplTest {
 
-	static final Logger LOG = LogbackTools.getConsoleLogger(Level.DEBUG);
+	static final Logger LOG = LogbackTools.getConsoleLogger();
 
 	public static void main(String[] args) {
 		test();

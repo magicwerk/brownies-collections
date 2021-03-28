@@ -31,8 +31,6 @@ import org.magicwerk.brownies.collections.helper.IdentMapper;
 import org.magicwerk.brownies.core.logback.LogbackTools;
 import org.slf4j.Logger;
 
-import ch.qos.logback.classic.Level;
-
 /**
  * Test of Key1Collection.
  *
@@ -42,7 +40,7 @@ import ch.qos.logback.classic.Level;
 public class Key1CollectionTest {
 
 	@SuppressWarnings("unused")
-	private static final Logger LOG = LogbackTools.getConsoleLogger(Level.DEBUG);
+	private static final Logger LOG = LogbackTools.getConsoleLogger();
 
 	public static void main(String[] args) {
 		test();
