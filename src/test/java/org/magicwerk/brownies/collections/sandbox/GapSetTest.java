@@ -30,8 +30,6 @@ import org.magicwerk.brownies.runner.Run;
 import org.magicwerk.brownies.runner.Runner;
 import org.slf4j.Logger;
 
-import ch.qos.logback.classic.Level;
-
 /**
  * Test of GapSet.
  *
@@ -40,7 +38,7 @@ import ch.qos.logback.classic.Level;
  */
 public class GapSetTest {
 
-	static final Logger LOG = LogbackTools.getConsoleLogger(Level.DEBUG);
+	static final Logger LOG = LogbackTools.getConsoleLogger();
 
 	public static void main(String[] args) {
 		//testPerformance2();

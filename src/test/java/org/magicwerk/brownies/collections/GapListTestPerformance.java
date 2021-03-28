@@ -32,7 +32,7 @@ import ch.qos.logback.classic.Logger;
  */
 public class GapListTestPerformance {
 	/** Logger */
-	private static final Logger LOG = LogbackTools.getConsoleLogger(Level.DEBUG);
+	private static final Logger LOG = LogbackTools.getConsoleLogger();
 
 	public static void main(String[] args) {
 		run(args);

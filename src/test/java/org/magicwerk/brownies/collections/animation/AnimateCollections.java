@@ -6,6 +6,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
+import org.magicwerk.brownies.collections.BigList;
+import org.magicwerk.brownies.collections.GapList;
+import org.magicwerk.brownies.core.CheckTools;
+import org.magicwerk.brownies.core.StringTools;
+import org.magicwerk.brownies.core.logback.LogbackTools;
+import org.magicwerk.brownies.core.reflect.ReflectTools;
+import org.magicwerk.brownies.fx.FxTools;
+
+import com.melloware.jintellitype.HotkeyListener;
+import com.melloware.jintellitype.IntellitypeListener;
+import com.melloware.jintellitype.JIntellitype;
+
+import ch.qos.logback.classic.Logger;
 import javafx.animation.Animation;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -36,21 +49,6 @@ import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
-import org.magicwerk.brownies.collections.BigList;
-import org.magicwerk.brownies.collections.GapList;
-import org.magicwerk.brownies.core.CheckTools;
-import org.magicwerk.brownies.core.StringTools;
-import org.magicwerk.brownies.core.logback.LogbackTools;
-import org.magicwerk.brownies.core.reflect.ReflectTools;
-import org.magicwerk.brownies.fx.FxTools;
-
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
-
-import com.melloware.jintellitype.HotkeyListener;
-import com.melloware.jintellitype.IntellitypeListener;
-import com.melloware.jintellitype.JIntellitype;
-
 /**
  * Animate ArrayList, GapList, BigList.
  * The animation can be controlled using keys available on the eLive mouse pointer.
@@ -73,7 +71,7 @@ import com.melloware.jintellitype.JIntellitype;
  */
 public class AnimateCollections extends Application {
 
-	static final Logger LOG = LogbackTools.getConsoleLogger(Level.DEBUG);
+	static final Logger LOG = LogbackTools.getConsoleLogger();
 
 	// JIntellitype
 
@@ -106,7 +104,7 @@ public class AnimateCollections extends Application {
 			JIntellitype.getInstance().unregisterHotKey(HOT_KEY_1);
 			JIntellitype.getInstance().unregisterHotKey(HOT_KEY_2);
 			JIntellitype.getInstance().unregisterHotKey(HOT_KEY_3);
-            JIntellitype.getInstance().cleanUp();
+			JIntellitype.getInstance().cleanUp();
 		}
 
 		@Override
@@ -122,14 +120,14 @@ public class AnimateCollections extends Application {
 				onKeyShowHide();
 			}
 		}
-		
+
 		void onKeyShowHide() {
 			Platform.runLater(new Runnable() {
-	            @Override
-	            public void run() {
-	            	AnimateCollections.this.onKeyShowHide();
-	            }
-	        });			
+				@Override
+				public void run() {
+					AnimateCollections.this.onKeyShowHide();
+				}
+			});
 		}
 
 	}
@@ -252,7 +250,7 @@ public class AnimateCollections extends Application {
 				if (list.isEmpty()) {
 					return null;
 				}
-				list.remove(list.size()/2);
+				list.remove(list.size() / 2);
 			}
 			return list;
 		}
@@ -426,9 +424,9 @@ public class AnimateCollections extends Application {
 	}
 
 	@Override
-	public void stop(){
-	    System.out.println("Stage is closing");
-	    hotKeys.shutdown();
+	public void stop() {
+		System.out.println("Stage is closing");
+		hotKeys.shutdown();
 	}
 
 	GapList<Class<?>> listAnimations = GapList.create(
@@ -436,8 +434,7 @@ public class AnimateCollections extends Application {
 			ListAddHeadAnimation.class, //ListRemoveHeadAnimation.class,
 			ListAddMiddleAnimation.class, //ListRemoveMiddleAnimation.class,
 			ListAddRemoveIterAnimation.class, ListAddRemoveRandomAnimation.class,
-			ListAnalyticalEngineAnimation.class
-			);
+			ListAnalyticalEngineAnimation.class);
 
 	HBox createButtons(Mode mode) {
 		GapList<Button> buttons = GapList.create();
@@ -521,7 +518,7 @@ public class AnimateCollections extends Application {
 		VBox radioBox = new VBox();
 		radioGroup = new ToggleGroup();
 		List<Screen> screens = Screen.getScreens();
-		for (int i=0; i<screens.size(); i++) {
+		for (int i = 0; i < screens.size(); i++) {
 			Screen screen = screens.get(i);
 			String str = screen.getBounds().toString();
 			boolean primary = FxTools.isPrimaryScreen(screen);
@@ -538,6 +535,7 @@ public class AnimateCollections extends Application {
 
 		Scene scene = new Scene(box);
 		scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
+			@Override
 			public void handle(KeyEvent ke) {
 				System.out.println("Key Pressed: " + ke.getCode());
 				if (ke.getCode() == KeyCode.ESCAPE) {
@@ -583,7 +581,7 @@ public class AnimateCollections extends Application {
 	 */
 	void onKeyShowHide() {
 		LOG.debug("onKeyShowHide");
-		
+
 		if (animStage != null) {
 			animStage.close();
 			animStage = null;
@@ -633,6 +631,7 @@ public class AnimateCollections extends Application {
 		Stage stage = new Stage();
 
 		scene.setOnKeyPressed(new EventHandler<KeyEvent>() {
+			@Override
 			public void handle(KeyEvent ke) {
 				if (ke.getCode() == KeyCode.ESCAPE || ke.getCode() == KeyCode.HOME) {
 					// Close fullscreen if user presses Escape
@@ -715,7 +714,7 @@ public class AnimateCollections extends Application {
 					} else {
 						if (num == 15) {
 							// Copy BigList: all blocks are shared (refCount becomes 2)
-							BigList<Integer> bl = (BigList<Integer>) list;
+							BigList<Integer> bl = list;
 							BigList<Integer> copy = bl.copy();
 							shape.setCopy(copy);
 						} else if (num == 16) {
@@ -723,7 +722,7 @@ public class AnimateCollections extends Application {
 							shape.getCopy().set(1, 99);
 						} else if (num == 17) {
 							// manually reset refCount
-							BigListModel.setBlockRefCount((BigList<?>) list, 1, 1);
+							BigListModel.setBlockRefCount(list, 1, 1);
 							shape.setCopy(null);
 						} else if (num < 30) {
 							if (num == 18 || num % 3 == 2) {
