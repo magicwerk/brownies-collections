@@ -1902,7 +1902,7 @@ public abstract class IList<E>
 
 		// Add elements
 		for (int i = 0; i < srcLen; i++) {
-			if (!doAdd(index + i, list.doGet(i))) {
+			if (!doAdd(-1, list.doGet(i))) {
 				index--;
 			}
 		}
