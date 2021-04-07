@@ -147,8 +147,8 @@
     </traceStep>
   </traceTest>
   <traceTest name="testInitAll">
-    <runDate>2020-12-26T10:23:48.379+01:00</runDate>
-    <runDuration>7.841E-4</runDuration>
+    <runDate>2021-04-08T01:33:50.667+02:00</runDate>
+    <runDuration>0.0335302</runDuration>
     <exception></exception>
     <traceClass>org.magicwerk.brownies.collections.Key1List</traceClass>
     <traceMethod>initAll</traceMethod>
@@ -160,10 +160,10 @@
         <paramText outputType="VALUE" param="This">"{ \r\n   a (1), \r\n   b (2) \r\n}"</paramText>
         <paramText outputType="VALUE" param="#1">"{ \r\n   b (2), \r\n   a (1) \r\n}"</paramText>
       </parameters>
-      <result></result>
-      <error>
-        <paramText outputType="VALUE" param="Error">"java.lang.IllegalStateException: Invalid index for sorted list"</paramText>
-      </error>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ \r\n   a (1), \r\n   b (2) \r\n}"</paramText>
+      </result>
+      <error></error>
     </traceStep>
   </traceTest>
   <traceTest name="testKey1List">
