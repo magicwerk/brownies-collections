@@ -174,8 +174,7 @@ public class Key1ListTest {
 				.build();
 		// addAll() works if elements to add are not sorted
 		list.addAll(add);
-		// FIXME
-		// initAll() fails if elements to add are not sorted: java.lang.IllegalStateException: Invalid index for sorted list
+		// initAll() works if elements to add are not sorted
 		list.initAll(add);
 	}
 
