@@ -983,8 +983,7 @@ public abstract class IList<E>
 	 * Helper method for adding multiple elements to the list.
 	 * This default implementation calls doAdd() for adding each element.
 	 *
-	 * @param index index where element should be added
-	 *              (-1 is valid for adding at the end)
+	 * @param index index where element should be added (-1 is valid for adding at the end)
 	 * @param list	list with elements to add
 	 * @return      true if elements have been added, false otherwise
 	 */
@@ -1734,7 +1733,8 @@ public abstract class IList<E>
 	 */
 	public void initAll(IList<? extends E> list) {
 		checkNonNull(list);
-		doReplaceAll(0, size(), list);
+		doClear();
+		doAddAll(-1, list);
 	}
 
 	/**
@@ -1902,7 +1902,7 @@ public abstract class IList<E>
 
 		// Add elements
 		for (int i = 0; i < srcLen; i++) {
-			if (!doAdd(-1, list.doGet(i))) {
+			if (!doAdd(index + i, list.doGet(i))) {
 				index--;
 			}
 		}

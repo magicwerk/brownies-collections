@@ -147,8 +147,8 @@
     </traceStep>
   </traceTest>
   <traceTest name="testInitAll">
-    <runDate>2021-04-08T01:33:50.667+02:00</runDate>
-    <runDuration>0.0335302</runDuration>
+    <runDate>2021-04-08T15:25:20.726+02:00</runDate>
+    <runDuration>0.1035489</runDuration>
     <exception></exception>
     <traceClass>org.magicwerk.brownies.collections.Key1List</traceClass>
     <traceMethod>initAll</traceMethod>
