@@ -958,8 +958,7 @@ protected void doGetAll(int[] array, int index, int len) {
  * Helper method for adding multiple elements to the list.
  * This default implementation calls doAdd() for adding each element.
  *
- * @param index index where element should be added
- *              (-1 is valid for adding at the end)
+ * @param index index where element should be added (-1 is valid for adding at the end)
  * @param list	list with elements to add
  * @return      true if elements have been added, false otherwise
  */
@@ -1657,7 +1656,8 @@ public void putMult(int index, int len, int elem) {
  */
 public void initAll(IIntList list) {
     checkNonNull(list);
-    doReplaceAll(0, size(), list);
+    doClear();
+    doAddAll(-1, list);
 }
 
     /**
@@ -1705,12 +1705,12 @@ public void initMult(int len, int elem) {
     /**
  * Replaces the specified range with new elements.
  * This method is very powerful as it offers the functionality of many other methods
- * which are therefore only offered for convenience: <br/>
- * - addAll(index, list) -> replaceAll(index, 0, list) <br/>
- * - setAll(index, list) -> replaceAll(index, list.size(), list) <br/>
- * - putAll(index, list) -> replaceAll(index, -1, list) <br/>
- * - initAll(list)       -> replaceAll(0, this.size(), list) <br/>
- * - remove(index, list) -> replaceAll(index, list.size(), null) <br/>
+ * which are therefore only offered for convenience: <br>
+ * - addAll(index, list): replaceAll(index, 0, list) <br>
+ * - setAll(index, list): replaceAll(index, list.size(), list) <br>
+ * - putAll(index, list): replaceAll(index, -1, list) <br>
+ * - initAll(list)      : replaceAll(0, this.size(), list) <br>
+ * - remove(index, list): replaceAll(index, list.size(), null) <br>
  *
  * @param index index of first element to replace, use -1 for the position after the last element (this.size())
  * @param len	number of elements to replace, use -1 for getting behavior of putAll()
@@ -1730,12 +1730,12 @@ public void replaceAll(int index, int len, Collection<Integer> coll) {
     /**
  * Replaces the specified range with new elements.
  * This method is very powerful as it offers the functionality of many other methods
- * which are therefore only offered for convenience: <br/>
- * - addAll(index, list) -> replaceAll(index, 0, list) <br/>
- * - setAll(index, list) -> replaceAll(index, list.size(), list) <br/>
- * - putAll(index, list) -> replaceAll(index, -1, list) <br/>
- * - initAll(list)       -> replaceAll(0, this.size(), list) <br/>
- * - remove(index, list) -> replaceAll(index, list.size(), null) <br/>
+ * which are therefore only offered for convenience: <br>
+ * - addAll(index, list): replaceAll(index, 0, list) <br>
+ * - setAll(index, list): replaceAll(index, list.size(), list) <br>
+ * - putAll(index, list): replaceAll(index, -1, list) <br>
+ * - initAll(list)      : replaceAll(0, this.size(), list) <br>
+ * - remove(index, list): replaceAll(index, list.size(), null) <br>
  *
  * @param index index of first element to replace, use -1 for the position after the last element (this.size())
  * @param len	number of elements to replace, use -1 for getting behavior of putAll()
@@ -1749,12 +1749,12 @@ public void replaceArray(int index, int len, int... elems) {
     /**
  * Replaces the specified range with new elements.
  * This method is very powerful as it offers the functionality of many other methods
- * which are therefore only offered for convenience: <br/>
- * - addAll(index, list) -> replaceAll(index, 0, list) <br/>
- * - setAll(index, list) -> replaceAll(index, list.size(), list) <br/>
- * - putAll(index, list) -> replaceAll(index, -1, list) <br/>
- * - initAll(list)       -> replaceAll(0, this.size(), list) <br/>
- * - remove(index, list) -> replaceAll(index, list.size(), null) <br/>
+ * which are therefore only offered for convenience: <br>
+ * - addAll(index, list): replaceAll(index, 0, list) <br>
+ * - setAll(index, list): replaceAll(index, list.size(), list) <br>
+ * - putAll(index, list): replaceAll(index, -1, list) <br>
+ * - initAll(list)      : replaceAll(0, this.size(), list) <br>
+ * - remove(index, list): replaceAll(index, list.size(), null) <br>
  *
  * @param index 	index of first element to replace, use -1 for the position after the last element (this.size())
  * @param len		number of elements to replace, use -1 for getting behavior of putAll()
@@ -1769,12 +1769,12 @@ public void replaceMult(int index, int len, int numElems, int elem) {
     /**
  * Replaces the specified range with new elements.
  * This method is very powerful as it offers the functionality of many other methods
- * which are therefore only offered for convenience: <br/>
- * - addAll(index, list) -> replaceAll(index, 0, list) <br/>
- * - setAll(index, list) -> replaceAll(index, list.size(), list) <br/>
- * - putAll(index, list) -> replaceAll(index, -1, list) <br/>
- * - initAll(list)       -> replaceAll(0, this.size(), list) <br/>
- * - remove(index, list) -> replaceAll(index, list.size(), null) <br/>
+ * which are therefore only offered for convenience: <br>
+ * - addAll(index, list): replaceAll(index, 0, list) <br>
+ * - setAll(index, list): replaceAll(index, list.size(), list) <br>
+ * - putAll(index, list): replaceAll(index, -1, list) <br>
+ * - initAll(list)      : replaceAll(0, this.size(), list) <br>
+ * - remove(index, list): replaceAll(index, list.size(), null) <br>
  *
  * @param index index of first element to replace, use -1 for the position after the last element (this.size())
  * @param len	number of elements to replace, use -1 for getting behavior of putAll()
@@ -2051,9 +2051,9 @@ abstract public void sort(int index, int len) ;
     /**
  *  Searches the specified range for an object using the binary* search algorithm.
  *  <p>
- *  Note that the method is defined to work with an arbitrary type <K>.
+ *  Note that the method is defined to work with an arbitrary type {@literal <K>}.
  *  This allows to search directly for a key field in the object without the need to construct an object containing the key:
- *  <pre>
+ *  <pre>{@code
  *  persons.binarySearch("john", new SearchByName());
  *
  *  class SearchByName implements Comparator<Object> {
@@ -2063,6 +2063,7 @@ abstract public void sort(int index, int len) ;
  * 	   return s1.compareTo(s2);
  * 	 }
  *  }
+ *  }</pre>
  *
  *  @param key           the value to be searched for
  *  @param comparator    the comparator by which the list is ordered.
@@ -2086,9 +2087,9 @@ public int binarySearch(int key) {
     /**
  *  Searches the specified range for an object using the binary search algorithm.
  *  <p>
- *  Note that the method is defined to work with an arbitrary type <K>.
+ *  Note that the method is defined to work with an arbitrary type {@literal <K>}.
  *  This allows to search directly for a key field in the object without the need to construct an object containing the key:
- *  <pre>
+ *  <pre>{@code
  *  persons.binarySearch("john", new SearchByName());
  *
  *  class SearchByName implements Comparator<Object> {
@@ -2098,8 +2099,8 @@ public int binarySearch(int key) {
  * 	   return s1.compareTo(s2);
  * 	 }
  *  }
+ *  }/</pre>
  *
- *  <pre>
  *  @param index         index of first element to search
  *  @param len           number of elements to search
  *  @param key           the value to be searched for
@@ -2158,7 +2159,7 @@ protected void checkRange(int index, int len) {
 }
 
     /**
- * Check that specified length is valid (>= 0).
+ * Check that specified length is valid {@literal (>= 0)}.
  *
  * @param len length to check
  * @throws IndexOutOfBoundsException if length is invalid
@@ -2170,7 +2171,7 @@ protected void checkLength(int len) {
 }
 
     /**
- * Check that both specified lengths are valid (>= 0) and equal.
+ * Check that both specified lengths are valid {@literal (>= 0)} and equal.
  *
  * @param len1 length to check
  * @param len2 length to check
@@ -2182,9 +2183,6 @@ protected void checkLengths(int len1, int len2) {
     }
     if (len1 < 0) {
         throw new IndexOutOfBoundsException("Invalid length: " + len1);
-    }
-    if (len2 < 0) {
-        throw new IndexOutOfBoundsException("Invalid length: " + len2);
     }
 }
 
