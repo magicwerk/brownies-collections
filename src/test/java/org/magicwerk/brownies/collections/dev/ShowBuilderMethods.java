@@ -52,7 +52,7 @@ public class ShowBuilderMethods {
 		List<String> allMethods = GapList.create();
 		List<List<String>> allClassMethods = GapList.create();
 		for (Class<?> clazz : classes) {
-			List<String> methods = ReflectTools.getAllMethods(clazz).stream().filter(m -> Modifier.isPublic(m.getModifiers())).map(Method::getName)
+			List<String> methods = ReflectTools.getAllDeclaredMethods(clazz).stream().filter(m -> Modifier.isPublic(m.getModifiers())).map(Method::getName)
 					.filter(s -> s.startsWith("with")).collect(Collectors.toList());
 			allClassMethods.add(methods);
 			allMethods = CollectionTools.union(allMethods, methods);
