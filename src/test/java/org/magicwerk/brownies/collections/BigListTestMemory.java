@@ -1,6 +1,6 @@
 package org.magicwerk.brownies.collections;
 
-import java.lang.reflect.Method;
+import java.lang.reflect.Executable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -206,7 +206,7 @@ public class BigListTestMemory {
 		LOG.info("--- {} ---", methodName);
 
 		Consumer<Integer> func = new Consumer<Integer>() {
-			Method method = ReflectTools.getAnyMethod(className, methodName);
+			Executable method = ReflectTools.getAnyMethod(className, methodName);
 
 			@Override
 			public void accept(Integer size) {
