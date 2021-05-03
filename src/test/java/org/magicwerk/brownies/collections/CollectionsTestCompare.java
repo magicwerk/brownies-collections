@@ -25,7 +25,6 @@ import org.magicwerk.brownies.core.CollectionTools;
 import org.magicwerk.brownies.core.ObjectTools;
 import org.magicwerk.brownies.core.logback.LogbackTools;
 import org.magicwerk.brownies.core.objects.Result;
-import org.magicwerk.brownies.core.reflect.ReflectHelper.MethodSignature;
 import org.magicwerk.brownies.core.reflect.ReflectTools;
 import org.magicwerk.brownies.core.regex.RegexTools;
 import org.magicwerk.brownies.core.strings.StringFormatter;
@@ -405,8 +404,9 @@ public class CollectionsTestCompare {
 		static List<String> getMethodSignatures(List<Method> methods) {
 			List<String> signatures = new ArrayList<String>(methods.size());
 			for (Method method : methods) {
-				String signature = method.getName() + ReflectTools.getJavaSignature(method, new MethodSignature());
-				signatures.add(signature);
+				CheckTools.error();
+				//String signature = method.getName() + ReflectTools.getJavaSignature(method, new MethodSignature());
+				//signatures.add(signature);
 			}
 			return signatures;
 		}
