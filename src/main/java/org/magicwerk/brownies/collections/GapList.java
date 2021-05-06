@@ -365,7 +365,11 @@ public class GapList<E> extends IList<E> {
 	@Override
 	public GapList<E> unmodifiableList() {
 		// Naming as in java.util.Collections#unmodifiableList
-		return new ImmutableGapList<E>(this);
+		if (this instanceof ImmutableGapList) {
+			return this;
+		} else {
+			return new ImmutableGapList<E>(this);
+		}
 	}
 
 	@Override
