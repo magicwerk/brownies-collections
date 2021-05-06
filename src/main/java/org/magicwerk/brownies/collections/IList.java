@@ -114,8 +114,7 @@ public abstract class IList<E>
 	}
 
 	/**
-	 * Initialize this object after the bitwise copy has been made
-	 * by Object.clone().
+	 * Initialize this object after the bitwise copy has been made by Object.clone().
 	 *
 	 * @param that	source object
 	 */
