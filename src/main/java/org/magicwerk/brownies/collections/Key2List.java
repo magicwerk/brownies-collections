@@ -389,13 +389,32 @@ public class Key2List<E, K1, K2> extends KeyListImpl<E> {
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public Key2List<E, K1, K2> copy() {
-		return (Key2List<E, K1, K2>) super.copy();
+		return (Key2List<E, K1, K2>) clone();
 	}
 
 	@Override
+	public Object clone() {
+		if (this instanceof ImmutableKey2List) {
+			Key2List<E, K1, K2> list = new Key2List<>(false, null);
+			list.initCopy(this);
+			return list;
+		} else {
+			return super.clone();
+		}
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
 	public Key2List<E, K1, K2> crop() {
-		return (Key2List<E, K1, K2>) super.crop();
+		if (this instanceof ImmutableKey2List) {
+			Key2List<E, K1, K2> list = new Key2List<>(false, null);
+			list.initCrop(this);
+			return list;
+		} else {
+			return (Key2List<E, K1, K2>) super.crop();
+		}
 	}
 
 	//-- Element methods
@@ -737,7 +756,11 @@ public class Key2List<E, K1, K2> extends KeyListImpl<E> {
 
 	@Override
 	public Key2List<E, K1, K2> unmodifiableList() {
-		return new ImmutableKey2List<E, K1, K2>(this);
+		if (this instanceof ImmutableKey2List) {
+			return this;
+		} else {
+			return new ImmutableKey2List<E, K1, K2>(this);
+		}
 	}
 
 	protected Key2List(boolean copy, Key2List<E, K1, K2> that) {
@@ -748,8 +771,7 @@ public class Key2List<E, K1, K2> extends KeyListImpl<E> {
 
 	/**
 	 * An immutable version of a Key1List.
-	 * Note that the client cannot change the list,
-	 * but the content may change if the underlying list is changed.
+	 * Note that the client cannot change the list, but the content may change if the underlying list is changed.
 	 */
 	protected static class ImmutableKey2List<E, K1, K2> extends Key2List<E, K1, K2> {
 

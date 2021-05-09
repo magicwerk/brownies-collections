@@ -70,12 +70,13 @@ static int[] toArray(Collection<Integer> coll) {
 }
 
     /**
- * Returns a shallow copy of this list instance.
- * (the new list will contain the same elements as the source list, i.e. the elements themselves are not copied).
- * This method is identical to clone() except that the result is casted to an IIntList.
+ * Returns a shallow copy of this list.
+ * The new list will contain the same elements as the source list, i.e. the elements themselves are not copied.
+ * The capacity of the list will be set to the number of elements, i.e. size and capacity are equal.
+ * This returned list will be modifiable, i.e. an unmodifiable list will become modifiable again.
+ * This method is identical to clone() except that it returns an object with the exact type.
  *
- * @return a clone of this instance
- * @see #clone
+ * @return a modifiable copy of this list
  */
 @SuppressWarnings("unchecked")
 public IIntList copy() {
@@ -83,21 +84,13 @@ public IIntList copy() {
 }
 
     /**
- * Returns an unmodifiable view of this list. This method allows
- * modules to provide users with "read-only" access to internal lists.
- * Query operations on the returned list "read through" to the specified
- * list, and attempts to modify the returned list, whether direct or
- * via its iterator, result in an UnsupportedOperationException.
+ * Returns a shallow copy of this list.
+ * The new list will contain the same elements as the source list, i.e. the elements themselves are not copied.
+ * The capacity of the list will be set to the number of elements, i.e. size and capacity are equal.
+ * This returned list will be modifiable, i.e. an unmodifiable list will become modifiable again.
+ * It is advised to use copy() which is identical except that it returns an object with the exact type.
  *
- * @return an unmodifiable view of the specified list
- */
-abstract public IIntList unmodifiableList() ;
-
-    /**
- * Returns a shallow copy of this list instance.
- * (The elements themselves are not copied).
- *
- * @return a clone of this list instance
+ * @return a modifiable copy of this list
  */
 @SuppressWarnings("unchecked")
 
@@ -112,9 +105,11 @@ public Object clone() {
     }
 }
 
+    // Naming as in java.util.Collections#unmodifiableList
+abstract public IIntList unmodifiableList() ;
+
     /**
- * Initialize this object after the bitwise copy has been made
- * by Object.clone().
+ * Initialize this object after the bitwise copy has been made by Object.clone().
  *
  * @param that	source object
  */

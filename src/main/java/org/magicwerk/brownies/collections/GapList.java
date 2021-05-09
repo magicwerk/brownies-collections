@@ -135,6 +135,7 @@ public class GapList<E> extends IList<E> {
 	 * @return 			created list
 	 * @param <E> 		type of elements stored in the list
 	 */
+	@SafeVarargs
 	public static <E> GapList<E> create(E... elems) {
 		GapList<E> list = new GapList<E>();
 		if (elems != null) {
@@ -252,8 +253,7 @@ public class GapList<E> extends IList<E> {
 	/**
 	 * Constructor used internally, e.g. for ImmutableGapList.
 	 *
-	 * @param copy true to copy all instance values from source,
-	 *             if false nothing is done
+	 * @param copy true to copy all instance values from source, if false nothing is done
 	 * @param that list to copy
 	 */
 	protected GapList(boolean copy, GapList<E> that) {
@@ -313,6 +313,7 @@ public class GapList<E> extends IList<E> {
 	 *
 	 * @param elems array with elements
 	 */
+	@SuppressWarnings("unchecked")
 	void init(E... elems) {
 		Object[] array = elems.clone();
 		init(array, array.length);
@@ -323,21 +324,25 @@ public class GapList<E> extends IList<E> {
 		return null;
 	}
 
-	/**
-	 * Returns a shallow copy of this <tt>GapList</tt> instance.
-	 * (the new list will contain the same elements as the source list, i.e. the elements themselves are not copied).
-	 * This method is identical to clone() except that the result is casted to GapList.
-	 *
-	 * @return a copy of this <tt>GapList</tt> instance
-	 */
 	@Override
+	@SuppressWarnings("unchecked")
 	public GapList<E> copy() {
-		return (GapList<E>) super.copy();
+		return (GapList<E>) clone();
+	}
+
+	@Override
+	public Object clone() {
+		if (this instanceof ImmutableGapList) {
+			GapList<E> list = new GapList<>(false, null);
+			list.doClone(this);
+			return list;
+		} else {
+			return super.clone();
+		}
 	}
 
 	/**
-	 * Increases the capacity of this <tt>GapList</tt> instance, if
-	 * necessary, to ensure that it can hold at least the number of elements
+	 * Increases the capacity of this <tt>GapList</tt> instance, if necessary, to ensure that it can hold at least the number of elements
 	 * specified by the minimum capacity argument.
 	 *
 	 * @param   minCapacity   the desired minimum capacity
@@ -348,23 +353,8 @@ public class GapList<E> extends IList<E> {
 		super.ensureCapacity(minCapacity);
 	}
 
-	/**
-	 * Returns a shallow copy of this <tt>GapList</tt> instance
-	 * (The elements themselves are not copied).
-	 * The capacity of the list will be set to the number of elements,
-	 * so after calling clone(), size and capacity are equal.
-	 *
-	 * @return a copy of this <tt>GapList</tt> instance
-	 */
-	// Only overridden to change Javadoc
-	@Override
-	public Object clone() {
-		return super.clone();
-	}
-
 	@Override
 	public GapList<E> unmodifiableList() {
-		// Naming as in java.util.Collections#unmodifiableList
 		if (this instanceof ImmutableGapList) {
 			return this;
 		} else {
@@ -391,6 +381,7 @@ public class GapList<E> extends IList<E> {
 			return;
 		}
 
+		@SuppressWarnings("unchecked")
 		E[] newValues = (E[]) new Object[newCapacity];
 		doGetAll(newValues, 0, size);
 		init(newValues, size);
@@ -1410,8 +1401,7 @@ public class GapList<E> extends IList<E> {
 
 	/**
 	 * An immutable version of a GapList.
-	 * Note that the client cannot change the list,
-	 * but the content may change if the underlying list is changed.
+	 * Note that the client cannot change the list, but the content may change if the underlying list is changed.
 	 */
 	protected static class ImmutableGapList<E> extends GapList<E> {
 

@@ -161,6 +161,10 @@ public class BuildSourceGapList extends FileBuilder {
 		src = substitute("if \\(elems != \\({PRIMITIVE}\\) 0\\)", src, "if (elems != null)");
 		src = substitute("(coll != {DEFAULT})", src, "(coll != null)");
 		src = substitute("(coll != \\({PRIMITIVE}\\) 0)", src, "(coll != null)");
+		// return new BooleanGapList<>(false, false);
+		src = substitute("\\<\\>\\(false, {DEFAULT}\\)", src, "(false, null)");
+		// return new ByteGapList<>(false, (byte) 0);
+		src = substitute("\\<\\>\\(false, \\({PRIMITIVE}\\) 0\\)", src, "(false, null)");
 		return src;
 	}
 

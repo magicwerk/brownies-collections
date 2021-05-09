@@ -163,6 +163,7 @@ public static IntGapList create(Collection<Integer> coll) {
  * @return 			created list
  * @param  		type of elements stored in the list
  */
+@SafeVarargs
 public static IntGapList create(int... elems) {
     IntGapList list = new IntGapList();
     if (elems != null) {
@@ -271,8 +272,7 @@ protected void doAssign(IIntList that) {
     /**
  * Constructor used internally, e.g. for ImmutableIntGapList.
  *
- * @param copy true to copy all instance values from source,
- *             if false nothing is done
+ * @param copy true to copy all instance values from source, if false nothing is done
  * @param that list to copy
  */
 protected IntGapList(boolean copy, IntGapList that) {
@@ -332,6 +332,7 @@ void init(Collection<Integer> coll) {
  *
  * @param elems array with elements
  */
+
 void init(int... elems) {
     int[] array = elems.clone();
     init(array, array.length);
@@ -342,16 +343,21 @@ public int getDefaultElem() {
     return 0;
 }
 
-    /**
- * Returns a shallow copy of this <tt>IntGapList</tt> instance.
- * (the new list will contain the same elements as the source list, i.e. the elements themselves are not copied).
- * This method is identical to clone() except that the result is casted to IntGapList.
- *
- * @return a copy of this <tt>IntGapList</tt> instance
- */
-@Override
+    @Override
+
 public IntGapList copy() {
-    return (IntGapList) super.copy();
+    return (IntGapList) clone();
+}
+
+    @Override
+public Object clone() {
+    if (this instanceof ImmutableIntGapList) {
+        IntGapList list = new IntGapList(false, null);
+        list.doClone(this);
+        return list;
+    } else {
+        return super.clone();
+    }
 }
 
     // Only overridden to change Javadoc
@@ -360,16 +366,13 @@ public void ensureCapacity(int minCapacity) {
     super.ensureCapacity(minCapacity);
 }
 
-    // Only overridden to change Javadoc
-@Override
-public Object clone() {
-    return super.clone();
-}
-
     @Override
 public IntGapList unmodifiableList() {
-    // Naming as in java.util.Collections#unmodifiableList
-    return new ImmutableIntGapList(this);
+    if (this instanceof ImmutableIntGapList) {
+        return this;
+    } else {
+        return new ImmutableIntGapList(this);
+    }
 }
 
     @Override
@@ -390,6 +393,7 @@ void ensureNormalized(int minCapacity) {
     if (capacityFits && alreadyNormalized) {
         return;
     }
+    
     int[] newValues = (int[]) new int[newCapacity];
     doGetAll(newValues, 0, size);
     init(newValues, size);
@@ -1337,8 +1341,7 @@ private void debugLog(String msg) {
     // --- ImmutableIntGapList ---
     /**
      * An immutable version of a IntGapList.
-     * Note that the client cannot change the list,
-     * but the content may change if the underlying list is changed.
+     * Note that the client cannot change the list, but the content may change if the underlying list is changed.
      */
     protected static class ImmutableIntGapList extends IntGapList {
 

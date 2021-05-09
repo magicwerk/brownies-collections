@@ -163,6 +163,7 @@ public static BooleanGapList create(Collection<Boolean> coll) {
  * @return 			created list
  * @param  		type of elements stored in the list
  */
+@SafeVarargs
 public static BooleanGapList create(boolean... elems) {
     BooleanGapList list = new BooleanGapList();
     if (elems != null) {
@@ -271,8 +272,7 @@ protected void doAssign(IBooleanList that) {
     /**
  * Constructor used internally, e.g. for ImmutableBooleanGapList.
  *
- * @param copy true to copy all instance values from source,
- *             if false nothing is done
+ * @param copy true to copy all instance values from source, if false nothing is done
  * @param that list to copy
  */
 protected BooleanGapList(boolean copy, BooleanGapList that) {
@@ -332,6 +332,7 @@ void init(Collection<Boolean> coll) {
  *
  * @param elems array with elements
  */
+
 void init(boolean... elems) {
     boolean[] array = elems.clone();
     init(array, array.length);
@@ -342,16 +343,21 @@ public boolean getDefaultElem() {
     return false;
 }
 
-    /**
- * Returns a shallow copy of this <tt>BooleanGapList</tt> instance.
- * (the new list will contain the same elements as the source list, i.e. the elements themselves are not copied).
- * This method is identical to clone() except that the result is casted to BooleanGapList.
- *
- * @return a copy of this <tt>BooleanGapList</tt> instance
- */
-@Override
+    @Override
+
 public BooleanGapList copy() {
-    return (BooleanGapList) super.copy();
+    return (BooleanGapList) clone();
+}
+
+    @Override
+public Object clone() {
+    if (this instanceof ImmutableBooleanGapList) {
+        BooleanGapList list = new BooleanGapList(false, null);
+        list.doClone(this);
+        return list;
+    } else {
+        return super.clone();
+    }
 }
 
     // Only overridden to change Javadoc
@@ -360,16 +366,13 @@ public void ensureCapacity(int minCapacity) {
     super.ensureCapacity(minCapacity);
 }
 
-    // Only overridden to change Javadoc
-@Override
-public Object clone() {
-    return super.clone();
-}
-
     @Override
 public BooleanGapList unmodifiableList() {
-    // Naming as in java.util.Collections#unmodifiableList
-    return new ImmutableBooleanGapList(this);
+    if (this instanceof ImmutableBooleanGapList) {
+        return this;
+    } else {
+        return new ImmutableBooleanGapList(this);
+    }
 }
 
     @Override
@@ -390,6 +393,7 @@ void ensureNormalized(int minCapacity) {
     if (capacityFits && alreadyNormalized) {
         return;
     }
+    
     boolean[] newValues = (boolean[]) new boolean[newCapacity];
     doGetAll(newValues, 0, size);
     init(newValues, size);
@@ -1337,8 +1341,7 @@ private void debugLog(String msg) {
     // --- ImmutableBooleanGapList ---
     /**
      * An immutable version of a BooleanGapList.
-     * Note that the client cannot change the list,
-     * but the content may change if the underlying list is changed.
+     * Note that the client cannot change the list, but the content may change if the underlying list is changed.
      */
     protected static class ImmutableBooleanGapList extends BooleanGapList {
 

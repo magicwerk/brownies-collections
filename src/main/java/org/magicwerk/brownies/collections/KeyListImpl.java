@@ -79,15 +79,29 @@ public abstract class KeyListImpl<E> extends IList<E> {
 	}
 
 	@Override
-	public Object clone() {
-		return copy();
+	@SuppressWarnings("unchecked")
+	public KeyListImpl<E> copy() {
+		return (KeyListImpl<E>) clone();
 	}
 
 	@Override
-	public KeyListImpl<E> copy() {
-		@SuppressWarnings("unchecked")
+	@SuppressWarnings("unchecked")
+	public Object clone() {
 		KeyListImpl<E> copy = (KeyListImpl<E>) super.clone();
 		copy.initCopy(this);
+		return copy;
+	}
+
+	/**
+	 * Returns a copy this list but without elements.
+	 * The new list will use the same comparator, ordering, etc.
+	 *
+	 * @return  an empty copy of this list
+	 */
+	@SuppressWarnings("unchecked")
+	public KeyListImpl<E> crop() {
+		KeyListImpl<E> copy = (KeyListImpl<E>) super.clone();
+		copy.initCrop(this);
 		return copy;
 	}
 
@@ -101,19 +115,6 @@ public abstract class KeyListImpl<E> extends IList<E> {
 		IList<E> l = list;
 		this.initCrop(this);
 		return l;
-	}
-
-	/**
-	 * Returns a copy this list but without elements.
-	 * The new list will use the same comparator, ordering, etc.
-	 *
-	 * @return  an empty copy of this list
-	 */
-	public KeyListImpl<E> crop() {
-		@SuppressWarnings("unchecked")
-		KeyListImpl<E> crop = (KeyListImpl<E>) super.clone();
-		crop.initCrop(this);
-		return crop;
 	}
 
 	/**
@@ -169,6 +170,7 @@ public abstract class KeyListImpl<E> extends IList<E> {
 
 	@Override
 	protected void doClone(IList<E> that) {
+		// overridden as not used, initCopy() and initCrop() are used instead
 	}
 
 	/**
