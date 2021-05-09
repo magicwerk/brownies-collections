@@ -1,3 +1,9 @@
+Enhancements
+
+Add unmodifiable support KeyCollection
+Add withBeforeChangeTrigger, withAfterChangeTrigger (Consumer, boolean insert)
+
+
 Check FIXME
 
 Check TODO in BigList.
@@ -27,6 +33,8 @@ Similar libraries besides Trove and FastUtil include High Performance Primitive 
 Koloboke, Goldman Sachs Collections, Mahout collections, and Javolution.
 
 
+Related
+
 TList:
 http://www.planetsourcecode.com/vb/scripts/ShowCode.asp?txtCodeId=6403&lngWId=2
 
@@ -37,16 +45,6 @@ http://javolution.org/
 Trove
 http://trove.starlight-systems.com/
 
-
-Maven
-
-> mvn test
-> sonar
-> mvn sonar:sonar
-> http://localhost:9000
-
-
-Related
 
 Commons Collections 3.2.1
 PredicatedList

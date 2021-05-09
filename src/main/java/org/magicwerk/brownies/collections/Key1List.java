@@ -301,13 +301,32 @@ public class Key1List<E, K> extends KeyListImpl<E> {
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public Key1List<E, K> copy() {
-		return (Key1List<E, K>) super.copy();
+		return (Key1List<E, K>) clone();
 	}
 
 	@Override
+	public Object clone() {
+		if (this instanceof ImmutableKey1List) {
+			Key1List<E, K> list = new Key1List<>(false, null);
+			list.initCopy(this);
+			return list;
+		} else {
+			return super.clone();
+		}
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
 	public Key1List<E, K> crop() {
-		return (Key1List<E, K>) super.crop();
+		if (this instanceof ImmutableKey1List) {
+			Key1List<E, K> list = new Key1List<>(false, null);
+			list.initCrop(this);
+			return list;
+		} else {
+			return (Key1List<E, K>) super.crop();
+		}
 	}
 
 	//-- Element methods
@@ -497,7 +516,11 @@ public class Key1List<E, K> extends KeyListImpl<E> {
 
 	@Override
 	public Key1List<E, K> unmodifiableList() {
-		return new ImmutableKey1List<E, K>(this);
+		if (this instanceof ImmutableKey1List) {
+			return this;
+		} else {
+			return new ImmutableKey1List<E, K>(this);
+		}
 	}
 
 	protected Key1List(boolean copy, Key1List<E, K> that) {
@@ -508,8 +531,7 @@ public class Key1List<E, K> extends KeyListImpl<E> {
 
 	/**
 	 * An immutable version of a Key1List.
-	 * Note that the client cannot change the list,
-	 * but the content may change if the underlying list is changed.
+	 * Note that the client cannot change the list, but the content may change if the underlying list is changed.
 	 */
 	protected static class ImmutableKey1List<E, K> extends Key1List<E, K> {
 

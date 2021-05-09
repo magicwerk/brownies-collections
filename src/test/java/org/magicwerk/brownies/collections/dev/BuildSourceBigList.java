@@ -197,6 +197,8 @@ public class BuildSourceBigList extends FileBuilder {
 		src = substitute("Arrays\\.bin", src, "ArraysHelper.bin");
 		src = substitute("if \\(elems != {DEFAULT}\\)", src, "if (elems != null)");
 		src = substitute("if \\(elems != \\({PRIMITIVE}\\) 0\\)", src, "if (elems != null)");
+		// return new BooleanBigList<>(false, null);
+		src = substitute("\\<\\>\\(false, null\\)", src, "(false, null)");
 		return src;
 	}
 

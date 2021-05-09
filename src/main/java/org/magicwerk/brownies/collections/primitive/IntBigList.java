@@ -260,21 +260,38 @@ private void doInit(int blockSize, int firstIntBlockSize) {
 }
 
     /**
- * Returns a copy of this <tt>IntBigList</tt> instance.
+ * Returns a shallow copy of this list.
+ * The new list will contain the same elements as the source list, i.e. the elements themselves are not copied.
  * The copy is realized by a copy-on-write approach so also really large lists can efficiently be copied.
- * This method is identical to clone() except that the result is casted to IntBigList.
+ * This returned list will be modifiable, i.e. an unmodifiable list will become modifiable again.
+ * This method is identical to clone() except that it returns an object with the exact type.
  *
- * @return a copy of this <tt>IntBigList</tt> instance
+ * @return a modifiable copy of this list
  */
 @Override
+
 public IntBigList copy() {
-    return (IntBigList) super.copy();
+    return (IntBigList) clone();
 }
 
-    // Only overridden to change Javadoc
+    /**
+ * Returns a shallow copy of this list.
+ * The new list will contain the same elements as the source list, i.e. the elements themselves are not copied.
+ * The copy is realized by a copy-on-write approach so also really large lists can efficiently be copied.
+ * This returned list will be modifiable, i.e. an unmodifiable list will become modifiable again.
+ * It is advised to use copy() which is identical except that it returns an object with the exact type.
+ *
+ * @return a modifiable copy of this list
+ */
 @Override
 public Object clone() {
-    return super.clone();
+    if (this instanceof ImmutableIntBigList) {
+        IntBigList list = new IntBigList(false, null);
+        list.doClone(this);
+        return list;
+    } else {
+        return super.clone();
+    }
 }
 
     @Override
@@ -1023,7 +1040,8 @@ private void merge(IntBlockNode node) {
     }
 }
 
-    protected int doRemove(int index) {
+    @Override
+protected int doRemove(int index) {
     int pos = getIntBlockIndex(index, true, -1);
     int oldElem = currNode.block.doRemove(pos);
     currIntBlockEnd--;
@@ -1050,7 +1068,11 @@ private void merge(IntBlockNode node) {
     @Override
 public IntBigList unmodifiableList() {
     // Naming as in java.util.Collections#unmodifiableList
-    return new ImmutableIntBigList(this);
+    if (this instanceof ImmutableIntBigList) {
+        return this;
+    } else {
+        return new ImmutableIntBigList(this);
+    }
 }
 
     @Override

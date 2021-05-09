@@ -163,6 +163,7 @@ public static CharGapList create(Collection<Character> coll) {
  * @return 			created list
  * @param  		type of elements stored in the list
  */
+@SafeVarargs
 public static CharGapList create(char... elems) {
     CharGapList list = new CharGapList();
     if (elems != null) {
@@ -271,8 +272,7 @@ protected void doAssign(ICharList that) {
     /**
  * Constructor used internally, e.g. for ImmutableCharGapList.
  *
- * @param copy true to copy all instance values from source,
- *             if false nothing is done
+ * @param copy true to copy all instance values from source, if false nothing is done
  * @param that list to copy
  */
 protected CharGapList(boolean copy, CharGapList that) {
@@ -332,6 +332,7 @@ void init(Collection<Character> coll) {
  *
  * @param elems array with elements
  */
+
 void init(char... elems) {
     char[] array = elems.clone();
     init(array, array.length);
@@ -342,16 +343,21 @@ public char getDefaultElem() {
     return (char) 0;
 }
 
-    /**
- * Returns a shallow copy of this <tt>CharGapList</tt> instance.
- * (the new list will contain the same elements as the source list, i.e. the elements themselves are not copied).
- * This method is identical to clone() except that the result is casted to CharGapList.
- *
- * @return a copy of this <tt>CharGapList</tt> instance
- */
-@Override
+    @Override
+
 public CharGapList copy() {
-    return (CharGapList) super.copy();
+    return (CharGapList) clone();
+}
+
+    @Override
+public Object clone() {
+    if (this instanceof ImmutableCharGapList) {
+        CharGapList list = new CharGapList(false, null);
+        list.doClone(this);
+        return list;
+    } else {
+        return super.clone();
+    }
 }
 
     // Only overridden to change Javadoc
@@ -360,16 +366,13 @@ public void ensureCapacity(int minCapacity) {
     super.ensureCapacity(minCapacity);
 }
 
-    // Only overridden to change Javadoc
-@Override
-public Object clone() {
-    return super.clone();
-}
-
     @Override
 public CharGapList unmodifiableList() {
-    // Naming as in java.util.Collections#unmodifiableList
-    return new ImmutableCharGapList(this);
+    if (this instanceof ImmutableCharGapList) {
+        return this;
+    } else {
+        return new ImmutableCharGapList(this);
+    }
 }
 
     @Override
@@ -390,6 +393,7 @@ void ensureNormalized(int minCapacity) {
     if (capacityFits && alreadyNormalized) {
         return;
     }
+    
     char[] newValues = (char[]) new char[newCapacity];
     doGetAll(newValues, 0, size);
     init(newValues, size);
@@ -1337,8 +1341,7 @@ private void debugLog(String msg) {
     // --- ImmutableCharGapList ---
     /**
      * An immutable version of a CharGapList.
-     * Note that the client cannot change the list,
-     * but the content may change if the underlying list is changed.
+     * Note that the client cannot change the list, but the content may change if the underlying list is changed.
      */
     protected static class ImmutableCharGapList extends CharGapList {
 
