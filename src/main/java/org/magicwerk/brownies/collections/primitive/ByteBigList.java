@@ -260,21 +260,38 @@ private void doInit(int blockSize, int firstByteBlockSize) {
 }
 
     /**
- * Returns a copy of this <tt>ByteBigList</tt> instance.
+ * Returns a shallow copy of this list.
+ * The new list will contain the same elements as the source list, i.e. the elements themselves are not copied.
  * The copy is realized by a copy-on-write approach so also really large lists can efficiently be copied.
- * This method is identical to clone() except that the result is casted to ByteBigList.
+ * This returned list will be modifiable, i.e. an unmodifiable list will become modifiable again.
+ * This method is identical to clone() except that it returns an object with the exact type.
  *
- * @return a copy of this <tt>ByteBigList</tt> instance
+ * @return a modifiable copy of this list
  */
 @Override
+
 public ByteBigList copy() {
-    return (ByteBigList) super.copy();
+    return (ByteBigList) clone();
 }
 
-    // Only overridden to change Javadoc
+    /**
+ * Returns a shallow copy of this list.
+ * The new list will contain the same elements as the source list, i.e. the elements themselves are not copied.
+ * The copy is realized by a copy-on-write approach so also really large lists can efficiently be copied.
+ * This returned list will be modifiable, i.e. an unmodifiable list will become modifiable again.
+ * It is advised to use copy() which is identical except that it returns an object with the exact type.
+ *
+ * @return a modifiable copy of this list
+ */
 @Override
 public Object clone() {
-    return super.clone();
+    if (this instanceof ImmutableByteBigList) {
+        ByteBigList list = new ByteBigList(false, null);
+        list.doClone(this);
+        return list;
+    } else {
+        return super.clone();
+    }
 }
 
     @Override
@@ -1023,7 +1040,8 @@ private void merge(ByteBlockNode node) {
     }
 }
 
-    protected byte doRemove(int index) {
+    @Override
+protected byte doRemove(int index) {
     int pos = getByteBlockIndex(index, true, -1);
     byte oldElem = currNode.block.doRemove(pos);
     currByteBlockEnd--;
@@ -1050,7 +1068,11 @@ private void merge(ByteBlockNode node) {
     @Override
 public ByteBigList unmodifiableList() {
     // Naming as in java.util.Collections#unmodifiableList
-    return new ImmutableByteBigList(this);
+    if (this instanceof ImmutableByteBigList) {
+        return this;
+    } else {
+        return new ImmutableByteBigList(this);
+    }
 }
 
     @Override

@@ -163,6 +163,7 @@ public static ByteGapList create(Collection<Byte> coll) {
  * @return 			created list
  * @param  		type of elements stored in the list
  */
+@SafeVarargs
 public static ByteGapList create(byte... elems) {
     ByteGapList list = new ByteGapList();
     if (elems != null) {
@@ -271,8 +272,7 @@ protected void doAssign(IByteList that) {
     /**
  * Constructor used internally, e.g. for ImmutableByteGapList.
  *
- * @param copy true to copy all instance values from source,
- *             if false nothing is done
+ * @param copy true to copy all instance values from source, if false nothing is done
  * @param that list to copy
  */
 protected ByteGapList(boolean copy, ByteGapList that) {
@@ -332,6 +332,7 @@ void init(Collection<Byte> coll) {
  *
  * @param elems array with elements
  */
+
 void init(byte... elems) {
     byte[] array = elems.clone();
     init(array, array.length);
@@ -342,16 +343,21 @@ public byte getDefaultElem() {
     return (byte) 0;
 }
 
-    /**
- * Returns a shallow copy of this <tt>ByteGapList</tt> instance.
- * (the new list will contain the same elements as the source list, i.e. the elements themselves are not copied).
- * This method is identical to clone() except that the result is casted to ByteGapList.
- *
- * @return a copy of this <tt>ByteGapList</tt> instance
- */
-@Override
+    @Override
+
 public ByteGapList copy() {
-    return (ByteGapList) super.copy();
+    return (ByteGapList) clone();
+}
+
+    @Override
+public Object clone() {
+    if (this instanceof ImmutableByteGapList) {
+        ByteGapList list = new ByteGapList(false, null);
+        list.doClone(this);
+        return list;
+    } else {
+        return super.clone();
+    }
 }
 
     // Only overridden to change Javadoc
@@ -360,16 +366,13 @@ public void ensureCapacity(int minCapacity) {
     super.ensureCapacity(minCapacity);
 }
 
-    // Only overridden to change Javadoc
-@Override
-public Object clone() {
-    return super.clone();
-}
-
     @Override
 public ByteGapList unmodifiableList() {
-    // Naming as in java.util.Collections#unmodifiableList
-    return new ImmutableByteGapList(this);
+    if (this instanceof ImmutableByteGapList) {
+        return this;
+    } else {
+        return new ImmutableByteGapList(this);
+    }
 }
 
     @Override
@@ -390,6 +393,7 @@ void ensureNormalized(int minCapacity) {
     if (capacityFits && alreadyNormalized) {
         return;
     }
+    
     byte[] newValues = (byte[]) new byte[newCapacity];
     doGetAll(newValues, 0, size);
     init(newValues, size);
@@ -1337,8 +1341,7 @@ private void debugLog(String msg) {
     // --- ImmutableByteGapList ---
     /**
      * An immutable version of a ByteGapList.
-     * Note that the client cannot change the list,
-     * but the content may change if the underlying list is changed.
+     * Note that the client cannot change the list, but the content may change if the underlying list is changed.
      */
     protected static class ImmutableByteGapList extends ByteGapList {
 

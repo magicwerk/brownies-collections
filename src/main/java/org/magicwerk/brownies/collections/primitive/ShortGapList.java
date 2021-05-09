@@ -163,6 +163,7 @@ public static ShortGapList create(Collection<Short> coll) {
  * @return 			created list
  * @param  		type of elements stored in the list
  */
+@SafeVarargs
 public static ShortGapList create(short... elems) {
     ShortGapList list = new ShortGapList();
     if (elems != null) {
@@ -271,8 +272,7 @@ protected void doAssign(IShortList that) {
     /**
  * Constructor used internally, e.g. for ImmutableShortGapList.
  *
- * @param copy true to copy all instance values from source,
- *             if false nothing is done
+ * @param copy true to copy all instance values from source, if false nothing is done
  * @param that list to copy
  */
 protected ShortGapList(boolean copy, ShortGapList that) {
@@ -332,6 +332,7 @@ void init(Collection<Short> coll) {
  *
  * @param elems array with elements
  */
+
 void init(short... elems) {
     short[] array = elems.clone();
     init(array, array.length);
@@ -342,16 +343,21 @@ public short getDefaultElem() {
     return (short) 0;
 }
 
-    /**
- * Returns a shallow copy of this <tt>ShortGapList</tt> instance.
- * (the new list will contain the same elements as the source list, i.e. the elements themselves are not copied).
- * This method is identical to clone() except that the result is casted to ShortGapList.
- *
- * @return a copy of this <tt>ShortGapList</tt> instance
- */
-@Override
+    @Override
+
 public ShortGapList copy() {
-    return (ShortGapList) super.copy();
+    return (ShortGapList) clone();
+}
+
+    @Override
+public Object clone() {
+    if (this instanceof ImmutableShortGapList) {
+        ShortGapList list = new ShortGapList(false, null);
+        list.doClone(this);
+        return list;
+    } else {
+        return super.clone();
+    }
 }
 
     // Only overridden to change Javadoc
@@ -360,16 +366,13 @@ public void ensureCapacity(int minCapacity) {
     super.ensureCapacity(minCapacity);
 }
 
-    // Only overridden to change Javadoc
-@Override
-public Object clone() {
-    return super.clone();
-}
-
     @Override
 public ShortGapList unmodifiableList() {
-    // Naming as in java.util.Collections#unmodifiableList
-    return new ImmutableShortGapList(this);
+    if (this instanceof ImmutableShortGapList) {
+        return this;
+    } else {
+        return new ImmutableShortGapList(this);
+    }
 }
 
     @Override
@@ -390,6 +393,7 @@ void ensureNormalized(int minCapacity) {
     if (capacityFits && alreadyNormalized) {
         return;
     }
+    
     short[] newValues = (short[]) new short[newCapacity];
     doGetAll(newValues, 0, size);
     init(newValues, size);
@@ -1337,8 +1341,7 @@ private void debugLog(String msg) {
     // --- ImmutableShortGapList ---
     /**
      * An immutable version of a ShortGapList.
-     * Note that the client cannot change the list,
-     * but the content may change if the underlying list is changed.
+     * Note that the client cannot change the list, but the content may change if the underlying list is changed.
      */
     protected static class ImmutableShortGapList extends ShortGapList {
 
