@@ -1159,7 +1159,9 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 		Iterator<E> iteratorValues(KeyCollectionImpl<E> keyColl) {
 			assert (keysMap != null);
 			if (count) {
-				return new KeyMapCountIter<E, K>(keyColl, this, keysMap);
+				@SuppressWarnings({ "unchecked", "rawtypes" })
+				Map<E, Integer> keysMapCount = (Map) keysMap;
+				return new KeyMapCountIter<E, K>(keyColl, this, keysMapCount);
 			} else {
 				return new KeyMapIter<E, K>(keyColl, this, keysMap);
 			}
@@ -1174,8 +1176,8 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 			boolean hasElem;
 			E elem;
 
-			public KeyMapIter(KeyCollectionImpl<E> tableColl, KeyMap<E, K> keyMap, Map<K, Object> map) {
-				this.keyColl = tableColl;
+			public KeyMapIter(KeyCollectionImpl<E> keyColl, KeyMap<E, K> keyMap, Map<K, Object> map) {
+				this.keyColl = keyColl;
 				this.keyMap = keyMap;
 				this.mapIter = map.values().iterator();
 			}
@@ -1194,18 +1196,14 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 
 			@Override
 			public E next() {
-				// Reset hasElem so it is false if a call to Iterator.next()
-				// fails with NoSuchElementException
-				hasElem = false;
-
 				boolean hasNext = false;
-				elem = null;
 				if (listIter != null) {
 					if (listIter.hasNext()) {
 						hasNext = true;
 						elem = listIter.next();
 					} else {
 						listIter = null;
+						elem = null;
 					}
 				}
 				if (!hasNext) {
@@ -1242,13 +1240,13 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 
 			KeyCollectionImpl<E> keyColl;
 			KeyMap<E, K> keyMap;
-			Map<K, Object> map;
-			Iterator<Entry<K, Object>> mapIter;
+			Map<E, Integer> map;
+			Iterator<Entry<E, Integer>> mapIter;
 			E elem;
 			int count;
 			boolean hasElem;
 
-			public KeyMapCountIter(KeyCollectionImpl<E> keyColl, KeyMap<E, K> keyMap, Map<K, Object> map) {
+			public KeyMapCountIter(KeyCollectionImpl<E> keyColl, KeyMap<E, K> keyMap, Map<E, Integer> map) {
 				this.keyColl = keyColl;
 				this.keyMap = keyMap;
 				this.map = map;
@@ -1269,17 +1267,13 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 
 			@Override
 			public E next() {
-				// Reset hasElem so it is false if a call to Iterator.next()
-				// fails with NoSuchElementException
-				hasElem = false;
-
 				if (count > 0) {
 					count--;
 				} else {
 					// This call can fail with NoSuchElementException
-					Entry<K, Object> o = mapIter.next();
-					elem = (E) o.getKey();
-					count = (Integer) o.getValue();
+					Entry<E, Integer> o = mapIter.next();
+					elem = o.getKey();
+					count = o.getValue();
 					count--;
 				}
 
@@ -1294,12 +1288,13 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 				}
 				hasElem = false;
 
-				Integer val = (Integer) map.get(elem);
+				Integer val = map.get(elem);
 				if (val == 1) {
 					mapIter.remove();
 				} else {
-					map.put((K) elem, val - 1);
+					map.put(elem, val - 1);
 				}
+				keyColl.size--;
 			}
 		}
 
