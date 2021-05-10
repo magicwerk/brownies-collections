@@ -3562,8 +3562,8 @@
     </traceStep>
   </traceTest>
   <traceTest name="testUnmodifiableList">
-    <runDate>2021-05-07T10:50:20.445+02:00</runDate>
-    <runDuration>0.035277</runDuration>
+    <runDate>2021-05-10T22:42:48.815+02:00</runDate>
+    <runDuration>6.929E-4</runDuration>
     <exception></exception>
     <traceClass>org.magicwerk.brownies.collections.GapList</traceClass>
     <traceMethod>/.+/</traceMethod>
@@ -3666,31 +3666,6 @@
       </parameters>
       <result>
         <paramText outputType="VALUE" param="Result">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
-      </result>
-      <error></error>
-    </traceStep>
-    <traceStep>
-      <description>
-        <paramText outputType="TEXT" param="Description">"copy"</paramText>
-      </description>
-      <parameters>
-        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
-      </parameters>
-      <result>
-        <paramText outputType="VALUE" param="Result">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
-      </result>
-      <error></error>
-    </traceStep>
-    <traceStep>
-      <description>
-        <paramText outputType="TEXT" param="Description">"add"</paramText>
-      </description>
-      <parameters>
-        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
-        <paramText outputType="VALUE" param="#1">"1"</paramText>
-      </parameters>
-      <result>
-        <paramText outputType="VALUE" param="Result">"true"</paramText>
       </result>
       <error></error>
     </traceStep>
