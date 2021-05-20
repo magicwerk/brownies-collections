@@ -15,7 +15,6 @@ import org.magicwerk.brownies.core.collections.Grid;
 import org.magicwerk.brownies.core.collections.GridCreator;
 import org.magicwerk.brownies.core.files.FileTools;
 import org.magicwerk.brownies.core.logback.LogbackTools;
-import org.magicwerk.brownies.core.strings.escape.CsvStringsEscaper;
 import org.magicwerk.brownies.core.types.Type;
 import org.magicwerk.brownies.core.values.Record;
 import org.magicwerk.brownies.core.values.Table;
@@ -209,7 +208,6 @@ public class PerformanceReport {
 		try {
 			FieldDelimTableReader tr = new FieldDelimTableReader();
 			tr.setInputFile(file);
-			tr.setStringsEscaper(new CsvStringsEscaper());
 			table = tr.readTable();
 			int col = table.indexOfCol("Time");
 			table = TableTools.convertCol(table, col, Type.DOUBLE_TYPE);
