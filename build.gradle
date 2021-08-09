@@ -27,19 +27,3 @@ testJavadoc {
 	// Prevent "error: cannot find symbol" for classes in excluded packages
 	classpath = sourceSets.test.compileClasspath + sourceSets.test.output
 }
-
-publishing {
-  publications {
-    jintellitype (MavenPublication) {
-		artifact source: "$JarDir/jintellitype-1.3.9-dll-x64.jar", classifier: "dll-x64"
-		groupId "com.melloware" 
-		artifactId "jintellitype"
-		version "1.3.9"
-    }
-  }
-}
-
-publishLibs() {
-    dependsOn('publishJintellitypePublicationToMavenLocal')
-    description('Publishes libraries')
-}
