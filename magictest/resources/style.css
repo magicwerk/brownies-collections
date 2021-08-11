@@ -29,6 +29,16 @@ table.block table td { margin: 1px; border: 1px solid #000; border-collapse: sep
 .button { border: 1px solid darkgrey; padding: 1px; vertical-align: top; }
 .buttonLink { font-size: 75%; text-decoration: none; outline: 0; }
 
+.stepIgnoreDiff { background-color: #eee; }
+.stepIgnoreDiff::after {
+	margin: 4px;
+	padding: 2px;
+	float: right;
+	background-color: #ccc;
+	border: solid 1px #000;
+	content: "Ignore Diff"
+}
+
 /* Choice */
 .choice-head {
 }
