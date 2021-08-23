@@ -9,7 +9,7 @@ import org.magicwerk.brownies.collections.dev.RefactorVisitor.RefactorMethod;
 import org.magicwerk.brownies.core.files.PathTools;
 import org.magicwerk.brownies.core.reflect.ClassTools;
 import org.magicwerk.brownies.core.regex.RegexReplacer;
-import org.magicwerk.brownies.dev.java.JavaParserTools;
+import org.magicwerk.brownies.tools.dev.java.JavaParserTools;
 
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Modifier;
