@@ -7,8 +7,8 @@ import java.util.function.Consumer;
 import org.magictest.client.Trace;
 import org.magicwerk.brownies.collections.primitive.DoubleGapList;
 import org.magicwerk.brownies.collections.primitive.IntGapList;
-import org.magicwerk.brownies.runner.JvmRunner;
-import org.magicwerk.brownies.runner.MemoryTester;
+import org.magicwerk.brownies.tools.runner.JvmRunner;
+import org.magicwerk.brownies.tools.runner.MemoryTester;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

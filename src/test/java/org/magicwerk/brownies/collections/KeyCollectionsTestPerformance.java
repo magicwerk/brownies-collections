@@ -10,8 +10,8 @@ import org.magicwerk.brownies.collections.TestFactories.GapListFactory;
 import org.magicwerk.brownies.collections.TestRuns.AddLastRunList;
 import org.magicwerk.brownies.core.Timer;
 import org.magicwerk.brownies.core.logback.LogbackTools;
-import org.magicwerk.brownies.runner.Run;
-import org.magicwerk.brownies.runner.Runner;
+import org.magicwerk.brownies.tools.runner.Run;
+import org.magicwerk.brownies.tools.runner.Runner;
 
 import ch.qos.logback.classic.Logger;
 
