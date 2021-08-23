@@ -8,7 +8,7 @@ import org.magicwerk.brownies.core.files.FileTools;
 import org.magicwerk.brownies.core.files.PathTools;
 import org.magicwerk.brownies.core.reflect.ClassTools;
 import org.magicwerk.brownies.core.regex.RegexTools;
-import org.magicwerk.brownies.dev.java.JavaParserTools;
+import org.magicwerk.brownies.tools.dev.java.JavaParserTools;
 
 import com.github.javaparser.ast.CompilationUnit;
 

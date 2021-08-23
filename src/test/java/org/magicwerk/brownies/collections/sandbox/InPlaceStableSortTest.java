@@ -2,7 +2,7 @@ package org.magicwerk.brownies.collections.sandbox;
 
 import java.util.Random;
 
-import org.magicwerk.brownies.runner.Runner;
+import org.magicwerk.brownies.tools.runner.Runner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

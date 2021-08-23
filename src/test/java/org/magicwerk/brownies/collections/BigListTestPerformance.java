@@ -58,10 +58,10 @@ import org.magicwerk.brownies.core.exceptions.FileException.Access;
 import org.magicwerk.brownies.core.files.LineReader;
 import org.magicwerk.brownies.core.logback.LogbackTools;
 import org.magicwerk.brownies.core.reflect.ReflectTools;
-import org.magicwerk.brownies.runner.JvmRunner;
-import org.magicwerk.brownies.runner.Run;
-import org.magicwerk.brownies.runner.Runner;
-import org.magicwerk.brownies.runner.Runner.RunIterations;
+import org.magicwerk.brownies.tools.runner.JvmRunner;
+import org.magicwerk.brownies.tools.runner.Run;
+import org.magicwerk.brownies.tools.runner.Runner;
+import org.magicwerk.brownies.tools.runner.Runner.RunIterations;
 import org.slf4j.Logger;
 
 import javolution.util.FastTable;
