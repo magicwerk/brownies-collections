@@ -141,7 +141,7 @@ public class BuildSourceBigList extends FileBuilder {
 		src = substitute("add\\(0, null\\)", src, "add(0, {DEFAULT})");
 		src = substitute("BlockLen, null", src, "BlockLen, {DEFAULT}");
 
-		src = substituteNested("(?s)doRemoveSelf.*?\\}", "return (.*?);", src, "return null;");
+		src = substituteNested("(?s)doRemoveSelf.*?\\}", "return .*?;", src, "return null;");
 
 		src = substitute("package org.magicwerk.brownies.collections;", src,
 				"package org.magicwerk.brownies.collections.primitive;\n" +
