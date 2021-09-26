@@ -7,9 +7,10 @@ import org.magicwerk.brownies.core.files.PathTools;
 import org.magicwerk.brownies.core.logback.LogbackTools;
 import org.magicwerk.brownies.core.reflect.ReflectTypes;
 import org.magicwerk.brownies.core.regex.RegexReplacer;
-import org.magicwerk.brownies.core.regex.RegexReplacer.RegexReplacer2;
 import org.magicwerk.brownies.core.regex.RegexTools;
 import org.magicwerk.brownies.core.strings.StringFormatter;
+import org.magicwerk.brownies.core.strings.matcher.NestedStringMatcher;
+import org.magicwerk.brownies.core.strings.matcher.RegexStringMatcher;
 import org.slf4j.Logger;
 
 /**
@@ -118,6 +119,7 @@ public class BuildSource {
 			regex = applyTemplate(regex);
 			//message = RegexTools.getLiteralMessageFormat(message);
 			message = applyFormat(message);
+
 			String src = new RegexReplacer().setPattern(regex).setFormat(message).replace(input);
 			src = applyTemplate(src);
 			return src;
@@ -128,7 +130,11 @@ public class BuildSource {
 			regex2 = applyTemplate(regex2);
 			//message = RegexTools.getLiteralMessageFormat(message);
 			message = applyFormat(message);
-			String src = RegexReplacer2.substituteNested(regex1, regex2, input, message);
+
+			RegexStringMatcher m1 = new RegexStringMatcher().setPattern(regex1);
+			RegexStringMatcher m2 = new RegexStringMatcher().setPattern(regex2);
+			NestedStringMatcher nsm = new NestedStringMatcher(m1, m2);
+			String src = new RegexReplacer().setMatcher(nsm).setFormat(message).replace(input);
 			src = applyTemplate(src);
 			return src;
 		}
