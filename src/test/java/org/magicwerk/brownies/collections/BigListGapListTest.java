@@ -872,6 +872,14 @@ public class BigListGapListTest {
 		list.remove(0);
 		list.ensureCapacity(10);
 		list.clear();
+
+		// A unmodifiable list is returned unchanged by unmodifiableList()
+		IList<Integer> list2 = list.unmodifiableList();
+		Assert.assertTrue(list2 == list);
+
+		// If an unmodifiable list is copied, it can be changed
+		IList<Integer> list3 = list.copy();
+		list3.add(1);
 	}
 
 	@Capture
