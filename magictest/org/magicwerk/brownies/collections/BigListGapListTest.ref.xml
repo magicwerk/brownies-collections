@@ -3554,8 +3554,8 @@
     </traceStep>
   </traceTest>
   <traceTest name="testUnmodifiableList">
-    <runDate>2013-09-27T09:46:33.985+02:00</runDate>
-    <runDuration>0.001330118</runDuration>
+    <runDate>2021-09-26T23:51:06.005+02:00</runDate>
+    <runDuration>0.001214</runDuration>
     <exception></exception>
     <traceClass>org.magicwerk.brownies.collections.BigList</traceClass>
     <traceMethod>/.+/</traceMethod>
@@ -3648,6 +3648,43 @@
       <error>
         <paramText outputType="VALUE" param="Error">"java.lang.UnsupportedOperationException: list is immutable"</paramText>
       </error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"unmodifiableList"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"copy"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"{ }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"add"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ }"</paramText>
+        <paramText outputType="VALUE" param="#1">"1"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"true"</paramText>
+      </result>
+      <error></error>
     </traceStep>
   </traceTest>
 </testClass>
