@@ -1,10 +1,67 @@
 <project default="build">
-	<property name="release" value="0.9.14"/>
+	
+	<property name="release" value="0.9.15"/>
+
+		<target name="create-maven">
+		<property name="lib.name" value="brownies-collections" />
+		<property name="release.dir" value="C:\dev\Java\Releases\Maven" />
+		<property name="libs.dir" value="build/libs" />
+		<property name="maven.dir" value="build/maven" />
+		<property name="pom.dir" value="src/main/pom" />
+		
+		<delete dir="${maven.dir}" />
+		<copy todir="${maven.dir}">
+		    <fileset file="${libs.dir}/${lib.name}-${release}.jar" />
+		 	<fileset file="${libs.dir}/${lib.name}-${release}-javadoc.jar" />
+			<fileset file="${libs.dir}/${lib.name}-${release}-sources.jar" />
+		    <fileset file="${pom.dir}/${lib.name}-${release}.pom" />
+		</copy>
+
+		<!-- Delete signatures -->
+		<delete>
+		    <fileset dir="${maven.dir}" includes="*.asc"/>
+		</delete>
+
+		<!-- Create signatures -->
+		<exec dir="${maven.dir}" executable="cmd">
+			<arg line="/c gpg -ab ${lib.name}-${release}.jar"/>
+		</exec>
+		<exec dir="${maven.dir}" executable="cmd">
+			<arg line="/c gpg -ab ${lib.name}-${release}-sources.jar"/>
+		</exec>
+		<exec dir="${maven.dir}" executable="cmd">
+			<arg line="/c gpg -ab ${lib.name}-${release}-javadoc.jar"/>
+		</exec>
+		<exec dir="${maven.dir}" executable="cmd">
+			<arg line="/c gpg -ab ${lib.name}-${release}.pom"/>
+		</exec>
+
+		<!-- Verify signatures -->
+		<exec dir="${maven.dir}" executable="cmd">
+			<arg line="/c gpg --verify ${lib.name}-${release}.jar.asc"/>
+		</exec>
+		<exec dir="${maven.dir}" executable="cmd">
+			<arg line="/c gpg --verify ${lib.name}-${release}-sources.jar.asc"/>
+		</exec>
+		<exec dir="${maven.dir}" executable="cmd">
+			<arg line="/c gpg --verify ${lib.name}-${release}-javadoc.jar.asc"/>
+		</exec>
+		<exec dir="${maven.dir}" executable="cmd">
+			<arg line="/c gpg --verify ${lib.name}-${release}.pom.asc"/>
+		</exec>
+
+		<!-- Create ZIP file for upload to Nexus -->
+		<delete file="${maven.dir}/${lib.name}-${release}.zip" />
+		<zip destfile="${maven.dir}/${lib.name}-${release}.zip" basedir="${maven.dir}" />
+
+		<copy todir="${release.dir}" file="${maven.dir}/${lib.name}-${release}.zip" />
+	</target>
+
 	<property name="release-overwrite" value="false"/>
 
 	<property environment="env"/>
-	<import file="${env.BROWNIES_DEV}/build-lib.xml" />
-
+	<import file="${env.BROWNIES_HOME}/Brownies-Dev/build-lib.xml" />
+	
     <property name="Brownies-Release.prj" value="Brownies-Collections" />
 
     <target name="do-build-release" depends="build" />
