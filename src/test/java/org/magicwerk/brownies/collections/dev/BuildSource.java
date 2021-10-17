@@ -3,7 +3,6 @@ package org.magicwerk.brownies.collections.dev;
 import org.apache.commons.lang3.StringUtils;
 import org.magicwerk.brownies.collections.dev.RefactorVisitor.RefactorMethod;
 import org.magicwerk.brownies.core.files.FileTools;
-import org.magicwerk.brownies.core.files.PathTools;
 import org.magicwerk.brownies.core.logback.LogbackTools;
 import org.magicwerk.brownies.core.reflect.ReflectTypes;
 import org.magicwerk.brownies.core.regex.RegexReplacer;
@@ -42,8 +41,8 @@ public class BuildSource {
 		String fileContent;
 
 		public FileBuilder() {
-			this.srcDir = PathTools.getAbsolutePath("src/main/java");
-			this.testDir = PathTools.getAbsolutePath("src/test/java");
+			this.srcDir = FileTools.getAbsolutePath("src/main/java");
+			this.testDir = FileTools.getAbsolutePath("src/test/java");
 		}
 
 		public FileBuilder(Builder builder) {
