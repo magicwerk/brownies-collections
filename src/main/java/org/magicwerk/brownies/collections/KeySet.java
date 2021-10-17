@@ -167,7 +167,7 @@ public class KeySet<E> extends KeyCollection<E> implements Set<E> {
 		/**
 		 * {@inheritDoc}
 		 * <p>
-		 * Note that a {@link KeyCollection} always has an element set, so this call is not necessary.
+		 * Note that a {@link KeySet} always has an element set, so this call is not necessary.
 		 */
 		@Override
 		public Builder<E> withElemSet() {
