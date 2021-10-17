@@ -30,6 +30,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
 
+import org.magicwerk.brownies.collections.BigList;
 import org.magicwerk.brownies.collections.GapList;
 import org.magicwerk.brownies.collections.IList;
 import org.magicwerk.brownies.collections.primitive.BooleanObjGapList;
@@ -45,7 +46,9 @@ import org.magicwerk.brownies.collections.primitive.LongObjGapList;
 import org.magicwerk.brownies.collections.primitive.ShortObjGapList;
 
 /**
- * Helper class to create wrapper list objects wrapping primitive GapLists.
+ * Helper class offering various functionality: <br>
+ * - create wrapper list objects wrapping primitive GapLists <br>
+ * - methods interacting with CharSequence, Reader, InputStream <br>
  *
  * @author Thomas Mauch
  * @version $Id$
@@ -112,12 +115,26 @@ public class GapLists extends GapListPrimitives {
 	}
 
 	/**
-	 * Return collector which collects the elements into a GapList.
+	 * Return collector which collects the elements into a {@link GapList}.
 	 *
 	 * @return collector
 	 */
 	public static <T> Collector<T, ?, IList<T>> toGapList() {
 		return new CollectorImpl<>((Supplier<List<T>>) GapList::new, List::add,
+				(left, right) -> {
+					left.addAll(right);
+					return left;
+				},
+				CollectorImpl.CH_ID);
+	}
+
+	/**
+	 * Return collector which collects the elements into a {@link BigList}.
+	 *
+	 * @return collector
+	 */
+	public static <T> Collector<T, ?, IList<T>> toBigList() {
+		return new CollectorImpl<>((Supplier<List<T>>) BigList::new, List::add,
 				(left, right) -> {
 					left.addAll(right);
 					return left;
