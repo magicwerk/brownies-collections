@@ -1,5 +1,26 @@
 version = '0.9.16'
 
+publishing {
+	publications {
+		mavenJava(MavenPublication) {
+			pom {
+                description = ''' 
+Brownies Collections complements the Java Collections Framework. 
+GapList combines the strengths of both ArrayList and LinkedList. 
+BigList is a list optimized for storing large number of elements. 
+There are specialized List implementations for all primitive data types. 
+The key collection classes offer support for keys and constraints for lists and collections.
+'''
+                url = 'http://www.magicwerk.org/collections'
+           		scm {
+                	connection = 'http://www.magicwerk.org/collections'
+                    url = 'http://www.magicwerk.org/collections'
+            	}
+            }
+		}
+	}
+}
+
 dependencies {
     testImplementation project(':Brownies-Core')
     testImplementation project(':Brownies-Html')
