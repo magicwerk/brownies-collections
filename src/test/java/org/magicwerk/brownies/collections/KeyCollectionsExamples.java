@@ -21,9 +21,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Predicate;
 
 import org.magicwerk.brownies.collections.helper.NaturalComparator;
 import org.magicwerk.brownies.collections.primitive.IntGapList;
@@ -120,16 +118,7 @@ public class KeyCollectionsExamples {
 
 	static void testKeyListWithConstraint() {
 		// A list with a user defined constraint
-		Predicate<String> uppercasePredicate = new Predicate<String>() {
-			@Override
-			public boolean test(String elem) {
-				return elem.equals(elem.toUpperCase());
-			}
-		};
-		KeyList<String> list = new KeyList.Builder<String>().withConstraint(uppercasePredicate).build();
-
-		// Java 8
-		list = new KeyList.Builder<String>().withConstraint(s -> s.equals(s.toUpperCase())).build();
+		KeyList<String> list = new KeyList.Builder<String>().withConstraint(s -> s.equals(s.toUpperCase())).build();
 	}
 
 	static void testKeyListWithMaxSize() {
@@ -171,20 +160,7 @@ public class KeyCollectionsExamples {
 	}
 
 	static void testKeyListWithTrigger() {
-		KeyList<String> list = new KeyList.Builder<String>().withBeforeInsertTrigger(new Consumer<String>() {
-			@Override
-			public void accept(String elem) {
-				System.out.println("insert: " + elem);
-			}
-		}).withBeforeDeleteTrigger(new Consumer<String>() {
-			@Override
-			public void accept(String elem) {
-				System.out.println("delete: " + elem);
-			}
-		}).build();
-
-		// Java 8
-		list = new KeyList.Builder<String>().withBeforeInsertTrigger(e -> System.out.println("before insert: " + e))
+		KeyList<String> list = new KeyList.Builder<String>().withBeforeInsertTrigger(e -> System.out.println("before insert: " + e))
 				.withAfterDeleteTrigger(e -> System.out.println("after delete: " + e)).build();
 	}
 
@@ -221,15 +197,6 @@ public class KeyCollectionsExamples {
 		KeyList<String> list = new KeyList.Builder<String>().withElemSort(true).build();
 
 		// Sort set by user defined comparator, null values are sorted last.
-		Comparator<String> cmp = new Comparator<String>() {
-			@Override
-			public int compare(String s1, String s2) {
-				return s1.toLowerCase().compareTo(s2.toLowerCase());
-			}
-		};
-		list = new KeyList.Builder<String>().withElemSort(cmp, false).build();
-
-		// Java 8
 		list = new KeyList.Builder<String>().withElemSort((s1, s2) -> (s1.toLowerCase().compareTo(s2.toLowerCase())), false).build();
 	}
 
@@ -237,6 +204,7 @@ public class KeyCollectionsExamples {
 		// List with set for fast access to elements.
 		// The element set and the list are sorted by the natural comparator.
 		KeyList<String> list = new KeyList.Builder<String>().withOrderByElem(true).build();
+
 		// Sort element set and list by specified comparator, nulls last
 		Comparator<String> comparator = NaturalComparator.INSTANCE(String.class).reversed();
 		list = new KeyList.Builder<String>().withElemSort(comparator, false).withOrderByElem(true).build();
@@ -253,16 +221,7 @@ public class KeyCollectionsExamples {
 	static void testKey1List() {
 		// Use Key1List to implement a list of column names with a defined
 		// order and unique names which can be accessed fast
-		Function<Column, String> nameMapper = new Function<Column, String>() {
-			@Override
-			public String apply(Column column) {
-				return column.getName();
-			}
-		};
-		Key1List<Column, String> list = new Key1List.Builder<Column, String>().withPrimaryKey1Map(nameMapper).build();
-
-		// Java 8
-		list = new Key1List.Builder<Column, String>().withPrimaryKey1Map(Column::getName).build();
+		Key1List<Column, String> list = new Key1List.Builder<Column, String>().withPrimaryKey1Map(Column::getName).build();
 	}
 
 	// Key2List
@@ -270,29 +229,8 @@ public class KeyCollectionsExamples {
 	static void testKey2List() {
 		// Use Key2List to maintain a list of tickets.
 		// Each ticket has unique ID (primary key) and optional but also unique external ID.
-		Predicate<Ticket> ticketConstraint = new Predicate<Ticket>() {
-			@Override
-			public boolean test(Ticket ticket) {
-				return ticket.getText() != null;
-			}
-		};
-		Function<Ticket, String> idMapper = new Function<Ticket, String>() {
-			@Override
-			public String apply(Ticket ticket) {
-				return ticket.getId();
-			}
-		};
-		Function<Ticket, String> extIdMapper = new Function<Ticket, String>() {
-			@Override
-			public String apply(Ticket ticket) {
-				return ticket.getExtId();
-			}
-		};
-		Key2List<Ticket, String, String> list = new Key2List.Builder<Ticket, String, String>().withConstraint(ticketConstraint).withPrimaryKey1Map(idMapper)
-				.withUniqueKey2Map(extIdMapper).build();
-
-		// Java 8
-		list = new Key2List.Builder<Ticket, String, String>().withConstraint(t -> t.getText() != null).withPrimaryKey1Map(Ticket::getId)
+		Key2List<Ticket, String, String> list = new Key2List.Builder<Ticket, String, String>().withConstraint(t -> t.getText() != null)
+				.withPrimaryKey1Map(Ticket::getId)
 				.withUniqueKey2Map(Ticket::getExtId).build();
 	}
 
@@ -315,16 +253,7 @@ public class KeyCollectionsExamples {
 
 	static void testKey1Collection() {
 		// Use a Key1Collection store tag elements with a name as primary key.
-		Function<Tag, String> nameMapper = new Function<Tag, String>() {
-			@Override
-			public String apply(Tag tag) {
-				return tag.getName();
-			}
-		};
-		Key1Collection<Tag, String> coll = new Key1Collection.Builder<Tag, String>().withPrimaryKey1Map(nameMapper).build();
-
-		// Java 8
-		coll = new Key1Collection.Builder<Tag, String>().withPrimaryKey1Map(Tag::getName).build();
+		Key1Collection<Tag, String> coll = new Key1Collection.Builder<Tag, String>().withPrimaryKey1Map(Tag::getName).build();
 	}
 
 	// Key2Collection
@@ -332,24 +261,8 @@ public class KeyCollectionsExamples {
 	static void testKey2Collection() {
 		// Use a Key2Collection to construct a bidirectional map
 		// where both key sets are sorted.
-
-		Function<ZipCity, Integer> mapper1 = new Function<ZipCity, Integer>() {
-			@Override
-			public Integer apply(ZipCity entry) {
-				return entry.getZip();
-			}
-		};
-
-		Key2Collection<ZipCity, Integer, String> zipCities = new Key2Collection.Builder<ZipCity, Integer, String>().withPrimaryKey1Map(mapper1)
-				.withKey1Sort(true).withKey2Map(new Function<ZipCity, String>() {
-					@Override
-					public String apply(ZipCity entry) {
-						return entry.getCity();
-					}
-				}).withKey2Null(false).withKey2Sort(true).build();
-
-		// Java 8
-		zipCities = new Key2Collection.Builder<ZipCity, Integer, String>().withPrimaryKey1Map(ZipCity::getZip).withKey1Sort(true).withKey2Map(ZipCity::getCity)
+		Key2Collection<ZipCity, Integer, String> zipCities = new Key2Collection.Builder<ZipCity, Integer, String>().withPrimaryKey1Map(ZipCity::getZip)
+				.withKey1Sort(true).withKey2Map(ZipCity::getCity)
 				.withKey2Null(false).withKey2Sort(true).build();
 		zipCities.add(new ZipCity(4000, "Basel"));
 		zipCities.add(new ZipCity(5000, "Aarau"));
@@ -389,16 +302,7 @@ public class KeyCollectionsExamples {
 	}
 
 	static void testAsMap() {
-		Function<Tag, String> nameMapper = new Function<Tag, String>() {
-			@Override
-			public String apply(Tag tag) {
-				return tag.getName();
-			}
-		};
-		Key1Collection<Tag, String> coll = new Key1Collection.Builder<Tag, String>().withKey1Map(nameMapper).build();
-
-		// Java 8
-		coll = new Key1Collection.Builder<Tag, String>().withKey1Map(Tag::getName).build();
+		Key1Collection<Tag, String> coll = new Key1Collection.Builder<Tag, String>().withKey1Map(Tag::getName).build();
 		// Returns a modifiable map view of the collection.
 		Map<String, Tag> map = coll.asMap1();
 	}
