@@ -176,9 +176,9 @@ public class KeyCollectionAsMap<K, E> implements Map<K, E>, Serializable {
 	@Override
 	public Set<K> keySet() {
 		if (coll != null) {
-			return new CollectionAsSet(coll.getDistinctKeys(keyIndex), true);
+			return new CollectionAsSet(coll.getDistinctKeys(keyIndex), true, false);
 		} else {
-			return new CollectionAsSet(list.getDistinctKeys(keyIndex), true);
+			return new CollectionAsSet(list.getDistinctKeys(keyIndex), true, false);
 		}
 	}
 
@@ -198,7 +198,7 @@ public class KeyCollectionAsMap<K, E> implements Map<K, E>, Serializable {
 				E elem = coll.getByKey(keyIndex, key);
 				entries.add(new ImmutableMapEntry<K, E>(key, elem));
 			}
-			return new CollectionAsSet(entries, true);
+			return new CollectionAsSet(entries, true, false);
 		} else {
 			Set<K> keys = (Set<K>) list.getDistinctKeys(keyIndex);
 			List<Entry<K, E>> entries = new GapList(keys.size());
@@ -206,7 +206,7 @@ public class KeyCollectionAsMap<K, E> implements Map<K, E>, Serializable {
 				E elem = list.getByKey(keyIndex, key);
 				entries.add(new ImmutableMapEntry<K, E>(key, elem));
 			}
-			return new CollectionAsSet(entries, true);
+			return new CollectionAsSet(entries, true, false);
 		}
 	}
 

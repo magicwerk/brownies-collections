@@ -31,7 +31,7 @@ import org.magicwerk.brownies.collections.exceptions.DuplicateKeyException;
 public class KeyCollectionAsSet<E> extends CollectionAsSet<E> implements Serializable {
 
 	public KeyCollectionAsSet(KeyCollectionImpl<E> coll, boolean immutable) {
-		super(coll, immutable);
+		super(coll, immutable, false);
 
 		coll.checkAsSet();
 	}
