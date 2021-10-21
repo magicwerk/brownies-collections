@@ -180,7 +180,7 @@ public abstract class KeyListImpl<E> extends IList<E> {
 	 * @throws IllegalArgumentException if the element set cannot be viewed as Set
 	 */
 	public Set<E> asSet() {
-		return new CollectionAsSet<E>(this, false);
+		return new CollectionAsSet<E>(this, false, true);
 	}
 
 	//-- Read

@@ -1,9 +1,11 @@
 package org.magicwerk.brownies.collections.guava;
 
-import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 
-import org.magicwerk.brownies.collections.KeyCollection;
+import org.magicwerk.brownies.collections.CollectionAsSet;
+import org.magicwerk.brownies.collections.GapList;
 
 import com.google.common.collect.testing.SetTestSuiteBuilder;
 import com.google.common.collect.testing.TestStringSetGenerator;
@@ -15,41 +17,39 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 /**
- * Test KeyCollection as set with the test suite provided by Guava.
+ * Test {@CollectionAsSet} with the test suite provided by Guava.
  * Run this test by executing the whole test class using JUnit.
- * This test is defined as JUnit3 test but can also be run with JUnit4.
  *
  * @author Thomas Mauch
- * @version $Id$
  */
-public class KeyCollectionTestGuavaSet extends TestCase {
+public class CollectionAsSetTestGuava extends TestCase {
 
 	// this method must be named suite()
 	public static Test suite() {
-		return new KeyCollectionTestGuavaSet().allTests();
+		return new CollectionAsSetTestGuava().allTests();
 	}
 
 	public Test allTests() {
-		TestSuite suite = new TestSuite("KeyCollection as Set");
+		TestSuite suite = new TestSuite("CollectionAsSet");
 		suite.addTest(testSet());
 		return suite;
 	}
 
 	public Test testSet() {
 		return SetTestSuiteBuilder.using(
-				// This class is responsible for creating the collection
-				// And providing data, which can be put into the collection
-				// Here we use a abstract generator which will create strings
-				// which will be put into the collection
+				// This class is responsible for creating the collection and providing data, which can be put into the collection.
+				// Here we use a abstract generator which will create strings which will be put into the collection
 				new TestStringSetGenerator() {
 					@Override
 					protected Set<String> create(String[] elements) {
-						// Note that you should not add elements with withElements(elements)
-						// as duplicated could be added
-						KeyCollection<String> coll = new KeyCollection.Builder<String>().withNull(true).withElemDuplicates(false).build();
-						Set<String> set = coll.asSet();
-						set.addAll(Arrays.asList(elements));
-						return set;
+						// There are 2 tests in SetCreationTester which test that duplicate are removed during creation.
+						// As CollectionAsSet can only reject invalid collections, this behavior is simulated here
+						Set<String> set = new HashSet<>();
+						for (String e : elements) {
+							set.add(e);
+						}
+						Collection<String> list = GapList.create(set);
+						return new CollectionAsSet<>(list, false, false);
 					}
 				})
 				// The name of the test suite

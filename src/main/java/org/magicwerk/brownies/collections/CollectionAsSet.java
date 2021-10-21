@@ -19,6 +19,7 @@ package org.magicwerk.brownies.collections;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -33,9 +34,15 @@ public class CollectionAsSet<K> implements Set<K> {
 	Collection<K> coll;
 	boolean immutable;
 
-	public CollectionAsSet(Collection<K> coll, boolean immutable) {
+	public CollectionAsSet(Collection<K> coll, boolean immutable, boolean check) {
 		if (coll == null) {
 			throw new IllegalArgumentException("Collection may not be null");
+		}
+		if (check) {
+			Set<K> set = new HashSet<>(coll);
+			if (set.size() != coll.size()) {
+				throw new IllegalArgumentException("Collection is not a set");
+			}
 		}
 		this.coll = coll;
 		this.immutable = immutable;
@@ -43,16 +50,38 @@ public class CollectionAsSet<K> implements Set<K> {
 
 	@Override
 	public boolean equals(Object obj) {
-		// as in AbstractSet.java:
+		// like in AbstractSet.java
+		if (obj == this) {
+			return true;
+		}
 		if (!(obj instanceof Set)) {
 			return false;
 		}
-		return coll.equals(obj);
+		Collection<?> c = (Collection<?>) obj;
+		if (c.size() != size()) {
+			return false;
+		}
+		try {
+			return containsAll(c);
+		} catch (ClassCastException unused) {
+			return false;
+		} catch (NullPointerException unused) {
+			return false;
+		}
 	}
 
 	@Override
 	public int hashCode() {
-		return coll.hashCode();
+		// like in AbstractSet.java
+		int h = 0;
+		Iterator<K> i = iterator();
+		while (i.hasNext()) {
+			K obj = i.next();
+			if (obj != null) {
+				h += obj.hashCode();
+			}
+		}
+		return h;
 	}
 
 	@Override
