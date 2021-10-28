@@ -19,13 +19,13 @@ package org.magicwerk.brownies.collections.dev;
 
 import java.util.List;
 
-import org.magicwerk.brownies.core.StringTools;
 import org.magicwerk.brownies.core.files.FileTools;
 import org.magicwerk.brownies.core.logback.LogbackTools;
 import org.magicwerk.brownies.core.strings.matcher.IStringMatcher;
 import org.magicwerk.brownies.core.strings.matcher.RegexStringMatcher;
 import org.magicwerk.brownies.core.strings.parser.StringParser;
 import org.magicwerk.brownies.core.strings.parser.StringParser.Part;
+import org.magicwerk.brownies.core.strings.text.TextTools;
 import org.slf4j.Logger;
 
 /**
@@ -89,7 +89,7 @@ public class CreateJdk8Examples {
 				continue; // skip
 			} else if (type.equals(Parser.java8Parser.getType())) {
 				buf.append("\r\n        // Java 8\r\n");
-				List<String> lines = StringTools.splitLines(part.getString(), true);
+				List<String> lines = TextTools.splitLines(part.getString(), true);
 				// Skip begin and end line
 				for (int i = 2; i < lines.size() - 2; i++) {
 					String line = lines.get(i);
