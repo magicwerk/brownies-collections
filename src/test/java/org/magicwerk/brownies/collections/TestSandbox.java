@@ -7,8 +7,8 @@ import java.util.function.Function;
 
 import org.magicwerk.brownies.core.CheckTools;
 import org.magicwerk.brownies.core.ExceptionTools;
-import org.magicwerk.brownies.core.SerializeTools;
 import org.magicwerk.brownies.core.logback.LogbackTools;
+import org.magicwerk.brownies.core.serialize.SerializeTools;
 
 import ch.qos.logback.classic.Logger;
 
