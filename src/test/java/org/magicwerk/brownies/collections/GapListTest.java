@@ -18,7 +18,7 @@ import org.magictest.client.Formatter;
 import org.magictest.client.Test;
 import org.magictest.client.Trace;
 import org.magicwerk.brownies.core.PrintTools;
-import org.magicwerk.brownies.core.SerializeTools;
+import org.magicwerk.brownies.core.serialize.SerializeTools;
 import org.magicwerk.brownies.core.strings.StringFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
