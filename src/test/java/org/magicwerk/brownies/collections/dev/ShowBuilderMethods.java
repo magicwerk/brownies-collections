@@ -1,6 +1,6 @@
 package org.magicwerk.brownies.collections.dev;
 
-import java.lang.reflect.Method;
+import java.lang.reflect.Executable;
 import java.lang.reflect.Modifier;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -52,7 +52,7 @@ public class ShowBuilderMethods {
 		List<String> allMethods = GapList.create();
 		List<List<String>> allClassMethods = GapList.create();
 		for (Class<?> clazz : classes) {
-			List<String> methods = ReflectTools.getAllDeclaredMethods(clazz).stream().filter(m -> Modifier.isPublic(m.getModifiers())).map(Method::getName)
+			List<String> methods = ReflectTools.getAllMethods(clazz).stream().filter(m -> Modifier.isPublic(m.getModifiers())).map(Executable::getName)
 					.filter(s -> s.startsWith("with")).collect(Collectors.toList());
 			allClassMethods.add(methods);
 			allMethods = CollectionTools.union(allMethods, methods);
