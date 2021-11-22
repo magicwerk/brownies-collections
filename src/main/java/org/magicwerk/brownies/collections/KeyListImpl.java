@@ -108,6 +108,8 @@ public abstract class KeyListImpl<E> extends IList<E> {
 	/**
 	 * Returns the elements stored in the KeyList as simple IList without constraints etc.
 	 * The KeyList itself becomes empty, it is equal to a list created by calling crop().
+	 * This method is useful if you need performance or safety of a KeyList just while building the result,
+	 * but you then want to return a simple IList without constraints and the KeyList is not needed any longer. 
 	 *
 	 * @return IList with elements
 	 */
