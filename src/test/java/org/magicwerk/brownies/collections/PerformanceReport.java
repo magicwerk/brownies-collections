@@ -258,8 +258,8 @@ public class PerformanceReport {
 		body.addElem(tab);
 
 		// Align all cells right (except the two first columns)
-		int rows = HtmlTools.getNumTableRows(tab.getElement());
-		int cols = HtmlTools.getNumTableCols(tab.getElement(), 0);
+		int rows = HtmlTools.getTableNumRows(tab.getElement());
+		int cols = HtmlTools.getTableNumCols(tab.getElement(), 0);
 		for (int r = 0; r < rows; r++) {
 			for (int c = 2; c < cols; c++) {
 				Element cell = HtmlTools.getTableCell(tab.getElement(), r, c);
