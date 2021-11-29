@@ -464,6 +464,20 @@ public class Key1ListTest {
 		System.out.println(list.getAllByKey1(null));
 	}
 
+	@Trace(traceMethod = "removeByKey1", parameters = Trace.THIS | Trace.ALL_PARAMS, result = Trace.THIS | Trace.RESULT)
+	public static void testImmutableList() {
+		Key1List<Name, String> list = new Key1List.Builder<Name, String>().withKey1Map(Name.Mapper).build();
+		list.add(new Name("a"));
+		list.add(new Name("b"));
+		list.add(new Name("c"));
+
+		Key1List<Name, String> list2 = list.copy().unmodifiableList();
+
+		list.removeByKey1("b");
+
+		list2.removeByKey1("b");
+	}
+
 	static class TicketList extends Key1List<Ticket, Integer> {
 		public TicketList() {
 			getBuilder().withPrimaryKey1Map(Ticket.IdMapper).build();
