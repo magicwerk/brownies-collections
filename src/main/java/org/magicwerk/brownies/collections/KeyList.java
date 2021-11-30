@@ -352,6 +352,29 @@ public class KeyList<E> extends KeyListImpl<E> {
 			error();
 		}
 
+		@Override
+		protected E removeByKey(int keyIndex, Object key) {
+			error();
+			return null;
+		}
+
+		@Override
+		protected IList<E> removeAllByKey(int keyIndex, Object key) {
+			error();
+			return null;
+		}
+
+		@Override
+		protected E putByKey(int keyIndex, E elem, boolean replace) {
+			error();
+			return null;
+		}
+
+		@Override
+		protected void invalidateKey(int keyIndex, Object oldKey, Object newKey, E elem) {
+			error();
+		}
+
 		/**
 		 * Throw exception if an attempt is made to change an immutable list.
 		 */
