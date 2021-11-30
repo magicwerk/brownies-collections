@@ -30,6 +30,7 @@ import org.magictest.client.Trace;
 import org.magicwerk.brownies.collections.TestHelper.ComparableName;
 import org.magicwerk.brownies.collections.TestHelper.Name;
 import org.magicwerk.brownies.collections.TestHelper.Ticket;
+import org.magicwerk.brownies.core.CheckTools;
 import org.magicwerk.brownies.core.TypeTools;
 import org.magicwerk.brownies.core.logback.LogbackTools;
 import org.magicwerk.brownies.core.reflect.ReflectTools;
@@ -51,7 +52,8 @@ public class Key1ListTest {
 	}
 
 	static void test() {
-		testInitAll();
+		testImmutableList();
+		//testInitAll();
 		//testContains();
 		//testRemoveAllByKey1();
 		//testMemorySize();
@@ -464,18 +466,31 @@ public class Key1ListTest {
 		System.out.println(list.getAllByKey1(null));
 	}
 
-	@Trace(traceMethod = "removeByKey1", parameters = Trace.THIS | Trace.ALL_PARAMS, result = Trace.THIS | Trace.RESULT)
+	@Capture
 	public static void testImmutableList() {
 		Key1List<Name, String> list = new Key1List.Builder<Name, String>().withKey1Map(Name.Mapper).build();
 		list.add(new Name("a"));
 		list.add(new Name("b"));
 		list.add(new Name("c"));
+		Key1List<Name, String> list2 = list.unmodifiableList();
 
-		Key1List<Name, String> list2 = list.copy().unmodifiableList();
+		checkThrow(() -> list2.remove(0));
+		checkThrow(() -> list2.removeByKey1("b"));
+		checkThrow(() -> list2.removeAllByKey1("b"));
+		checkThrow(() -> list2.putByKey1(new Name("d")));
+		checkThrow(() -> list2.putIfAbsentByKey1(new Name("e")));
+		checkThrow(() -> list2.invalidateKey1("a", "a", null));
+	}
 
-		list.removeByKey1("b");
-
-		list2.removeByKey1("b");
+	static void checkThrow(Runnable runnable) {
+		String err = null;
+		try {
+			runnable.run();
+			assert (false);
+		} catch (UnsupportedOperationException e) {
+			err = e.getMessage();
+		}
+		CheckTools.check("list is immutable".equals(err));
 	}
 
 	static class TicketList extends Key1List<Ticket, Integer> {

@@ -146,6 +146,14 @@
       <error></error>
     </traceStep>
   </traceTest>
+  <captureTest name="testImmutableList">
+    <runDate>2021-11-29T22:54:56.138+01:00</runDate>
+    <runDuration>0.0275685</runDuration>
+    <exception></exception>
+    <captureStep>
+      <text outputType="TEXT">""</text>
+    </captureStep>
+  </captureTest>
   <traceTest name="testInitAll">
     <runDate>2021-04-08T15:25:20.726+02:00</runDate>
     <runDuration>0.1035489</runDuration>
