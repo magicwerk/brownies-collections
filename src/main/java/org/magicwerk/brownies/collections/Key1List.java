@@ -364,7 +364,7 @@ public class Key1List<E, K> extends KeyListImpl<E> {
 	 * @return mapper for key map
 	 */
 	public Function<E, K> getKey1Mapper() {
-		return (Function<E, K>) super.getKeyMapper(1);
+		return (Function<E, K>) getKeyMapper(1);
 	}
 
 	/**
@@ -386,7 +386,7 @@ public class Key1List<E, K> extends KeyListImpl<E> {
 	 * @return		index of first element, -1 if no such element exists
 	 */
 	public int indexOfKey1(K key) {
-		return super.indexOfKey(1, key);
+		return indexOfKey(1, key);
 	}
 
 	/**
@@ -396,7 +396,7 @@ public class Key1List<E, K> extends KeyListImpl<E> {
 	 * @return		true if element with specified key exists, otherwise false
 	 */
 	public boolean containsKey1(K key) {
-		return super.containsKey(1, key);
+		return containsKey(1, key);
 	}
 
 	/**
@@ -407,7 +407,7 @@ public class Key1List<E, K> extends KeyListImpl<E> {
 	 * @return		element with specified key or null
 	 */
 	public E getByKey1(K key) {
-		return super.getByKey(1, key);
+		return getByKey(1, key);
 	}
 
 	/**
@@ -418,7 +418,7 @@ public class Key1List<E, K> extends KeyListImpl<E> {
 	 */
 	@SuppressWarnings("unchecked")
 	public Key1List<E, K> getAllByKey1(K key) {
-		return (Key1List<E, K>) super.getAllByKey(1, key);
+		return (Key1List<E, K>) getAllByKey(1, key);
 	}
 
 	/**
@@ -428,7 +428,7 @@ public class Key1List<E, K> extends KeyListImpl<E> {
 	 * @return		number of elements with specified key
 	 */
 	public int getCountByKey1(K key) {
-		return super.getCountByKey(1, key);
+		return getCountByKey(1, key);
 	}
 
 	/**
@@ -439,7 +439,7 @@ public class Key1List<E, K> extends KeyListImpl<E> {
 	 * @return		element with specified key or null
 	 */
 	public E removeByKey1(K key) {
-		return super.removeByKey(1, key);
+		return removeByKey(1, key);
 	}
 
 	/**
@@ -449,7 +449,7 @@ public class Key1List<E, K> extends KeyListImpl<E> {
 	 * @return		removed elements with specified key (never null)
 	 */
 	public Key1List<E, K> removeAllByKey1(K key) {
-		return (Key1List<E, K>) super.removeAllByKey(1, key);
+		return (Key1List<E, K>) removeAllByKey(1, key);
 	}
 
 	/**
@@ -459,7 +459,7 @@ public class Key1List<E, K> extends KeyListImpl<E> {
 	 */
 	@SuppressWarnings("unchecked")
 	public IList<K> getAllKeys1() {
-		return (GapList<K>) super.getAllKeys(1);
+		return (GapList<K>) getAllKeys(1);
 	}
 
 	/**
@@ -469,7 +469,7 @@ public class Key1List<E, K> extends KeyListImpl<E> {
 	 */
 	@SuppressWarnings("unchecked")
 	public Set<K> getDistinctKeys1() {
-		return (Set<K>) super.getDistinctKeys(1);
+		return (Set<K>) getDistinctKeys(1);
 	}
 
 	/**
@@ -493,11 +493,11 @@ public class Key1List<E, K> extends KeyListImpl<E> {
 	 * @return		element which has been replaced or null otherwise
 	 */
 	public E putByKey1(E elem) {
-		return super.putByKey(1, elem, true);
+		return putByKey(1, elem, true);
 	}
 
 	public E putIfAbsentByKey1(E elem) {
-		return super.putByKey(1, elem, false);
+		return putByKey(1, elem, false);
 	}
 
 	/**
@@ -509,7 +509,7 @@ public class Key1List<E, K> extends KeyListImpl<E> {
 	 * @param elem		element to invalidate (can be null if there are no duplicates with this key)
 	 */
 	public void invalidateKey1(K oldKey, K newKey, E elem) {
-		super.invalidateKey(1, oldKey, newKey, elem);
+		invalidateKey(1, oldKey, newKey, elem);
 	}
 
 	// --- ImmutableKey1List ---
@@ -588,6 +588,29 @@ public class Key1List<E, K> extends KeyListImpl<E> {
 
 		@Override
 		protected void doModify() {
+			error();
+		}
+
+		@Override
+		protected E removeByKey(int keyIndex, Object key) {
+			error();
+			return null;
+		}
+
+		@Override
+		protected IList<E> removeAllByKey(int keyIndex, Object key) {
+			error();
+			return null;
+		}
+
+		@Override
+		protected E putByKey(int keyIndex, E elem, boolean replace) {
+			error();
+			return null;
+		}
+
+		@Override
+		protected void invalidateKey(int keyIndex, Object oldKey, Object newKey, E elem) {
 			error();
 		}
 

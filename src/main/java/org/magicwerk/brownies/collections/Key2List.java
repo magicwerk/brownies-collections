@@ -452,7 +452,7 @@ public class Key2List<E, K1, K2> extends KeyListImpl<E> {
 	 * @return mapper for key map
 	 */
 	public Function<E, K1> getKey1Mapper() {
-		return (Function<E, K1>) super.getKeyMapper(1);
+		return (Function<E, K1>) getKeyMapper(1);
 	}
 
 	/**
@@ -474,7 +474,7 @@ public class Key2List<E, K1, K2> extends KeyListImpl<E> {
 	 * @return		index of first element, -1 if no such element exists
 	 */
 	public int indexOfKey1(K1 key) {
-		return super.indexOfKey(1, key);
+		return indexOfKey(1, key);
 	}
 
 	/**
@@ -484,7 +484,7 @@ public class Key2List<E, K1, K2> extends KeyListImpl<E> {
 	 * @return		true if element with specified key exists, otherwise false
 	 */
 	public boolean containsKey1(K1 key) {
-		return super.containsKey(1, key);
+		return containsKey(1, key);
 	}
 
 	/**
@@ -495,7 +495,7 @@ public class Key2List<E, K1, K2> extends KeyListImpl<E> {
 	 * @return		element with specified key or null
 	 */
 	public E getByKey1(K1 key) {
-		return super.getByKey(1, key);
+		return getByKey(1, key);
 	}
 
 	/**
@@ -506,7 +506,7 @@ public class Key2List<E, K1, K2> extends KeyListImpl<E> {
 	 */
 	@SuppressWarnings("unchecked")
 	public Key2List<E, K1, K2> getAllByKey1(K1 key) {
-		return (Key2List<E, K1, K2>) super.getAllByKey(1, key);
+		return (Key2List<E, K1, K2>) getAllByKey(1, key);
 	}
 
 	/**
@@ -516,7 +516,7 @@ public class Key2List<E, K1, K2> extends KeyListImpl<E> {
 	 * @return		number of elements with specified key
 	 */
 	public int getCountByKey1(K1 key) {
-		return super.getCountByKey(1, key);
+		return getCountByKey(1, key);
 	}
 
 	/**
@@ -527,7 +527,7 @@ public class Key2List<E, K1, K2> extends KeyListImpl<E> {
 	 * @return		element with specified key or null
 	 */
 	public E removeByKey1(K1 key) {
-		return super.removeByKey(1, key);
+		return removeByKey(1, key);
 	}
 
 	/**
@@ -537,7 +537,7 @@ public class Key2List<E, K1, K2> extends KeyListImpl<E> {
 	 * @return		removed elements with specified key (never null)
 	 */
 	public Key2List<E, K1, K2> removeAllByKey1(K1 key) {
-		return (Key2List<E, K1, K2>) super.removeAllByKey(1, key);
+		return (Key2List<E, K1, K2>) removeAllByKey(1, key);
 	}
 
 	/**
@@ -547,7 +547,7 @@ public class Key2List<E, K1, K2> extends KeyListImpl<E> {
 	 */
 	@SuppressWarnings("unchecked")
 	public IList<K1> getAllKeys1() {
-		return (IList<K1>) super.getAllKeys(1);
+		return (IList<K1>) getAllKeys(1);
 	}
 
 	/**
@@ -557,7 +557,7 @@ public class Key2List<E, K1, K2> extends KeyListImpl<E> {
 	 */
 	@SuppressWarnings("unchecked")
 	public Set<K1> getDistinctKeys1() {
-		return (Set<K1>) super.getDistinctKeys(1);
+		return (Set<K1>) getDistinctKeys(1);
 	}
 
 	/**
@@ -579,11 +579,11 @@ public class Key2List<E, K1, K2> extends KeyListImpl<E> {
 	 * @return		element which has been replaced or null otherwise
 	 */
 	public E putByKey1(E elem) {
-		return super.putByKey(1, elem, true);
+		return putByKey(1, elem, true);
 	}
 
 	public E putIfAbsentByKey1(E elem) {
-		return super.putByKey(1, elem, false);
+		return putByKey(1, elem, false);
 	}
 
 	/**
@@ -595,7 +595,7 @@ public class Key2List<E, K1, K2> extends KeyListImpl<E> {
 	 * @param elem		element to invalidate (can be null if there are no duplicates with this key)
 	 */
 	public void invalidateKey1(K1 oldKey, K1 newKey, E elem) {
-		super.invalidateKey(1, oldKey, newKey, elem);
+		invalidateKey(1, oldKey, newKey, elem);
 	}
 
 	//-- Key2 methods
@@ -606,7 +606,7 @@ public class Key2List<E, K1, K2> extends KeyListImpl<E> {
 	 * @return mapper for key map
 	 */
 	public Function<E, K2> getKey2Mapper() {
-		return (Function<E, K2>) super.getKeyMapper(2);
+		return (Function<E, K2>) getKeyMapper(2);
 	}
 
 	/**
@@ -628,7 +628,7 @@ public class Key2List<E, K1, K2> extends KeyListImpl<E> {
 	 * @return		index of first element, -1 if no such element exists
 	 */
 	public int indexOfKey2(K2 key) {
-		return super.indexOfKey(2, key);
+		return indexOfKey(2, key);
 	}
 
 	/**
@@ -638,7 +638,7 @@ public class Key2List<E, K1, K2> extends KeyListImpl<E> {
 	 * @return		true if element with specified key exists, otherwise false
 	 */
 	public boolean containsKey2(K2 key) {
-		return super.containsKey(2, key);
+		return containsKey(2, key);
 	}
 
 	/**
@@ -649,7 +649,7 @@ public class Key2List<E, K1, K2> extends KeyListImpl<E> {
 	 * @return		element with specified key or null
 	 */
 	public E getByKey2(K2 key) {
-		return super.getByKey(2, key);
+		return getByKey(2, key);
 	}
 
 	/**
@@ -660,7 +660,7 @@ public class Key2List<E, K1, K2> extends KeyListImpl<E> {
 	 */
 	@SuppressWarnings("unchecked")
 	public Key2List<E, K1, K2> getAllByKey2(K2 key) {
-		return (Key2List<E, K1, K2>) super.getAllByKey(2, key);
+		return (Key2List<E, K1, K2>) getAllByKey(2, key);
 	}
 
 	/**
@@ -670,7 +670,7 @@ public class Key2List<E, K1, K2> extends KeyListImpl<E> {
 	 * @return		number of elements with specified key
 	 */
 	public int getCountByKey2(K2 key) {
-		return super.getCountByKey(2, key);
+		return getCountByKey(2, key);
 	}
 
 	/**
@@ -681,7 +681,7 @@ public class Key2List<E, K1, K2> extends KeyListImpl<E> {
 	 * @return		element with specified key or null
 	 */
 	public E removeByKey2(K2 key) {
-		return super.removeByKey(2, key);
+		return removeByKey(2, key);
 	}
 
 	/**
@@ -691,7 +691,7 @@ public class Key2List<E, K1, K2> extends KeyListImpl<E> {
 	 * @return		removed elements with specified key (never null)
 	 */
 	public Key2List<E, K1, K2> removeAllByKey2(K2 key) {
-		return (Key2List<E, K1, K2>) super.removeAllByKey(2, key);
+		return (Key2List<E, K1, K2>) removeAllByKey(2, key);
 	}
 
 	/**
@@ -701,7 +701,7 @@ public class Key2List<E, K1, K2> extends KeyListImpl<E> {
 	 */
 	@SuppressWarnings("unchecked")
 	public IList<K2> getAllKeys2() {
-		return (IList<K2>) super.getAllKeys(2);
+		return (IList<K2>) getAllKeys(2);
 	}
 
 	/**
@@ -711,7 +711,7 @@ public class Key2List<E, K1, K2> extends KeyListImpl<E> {
 	 */
 	@SuppressWarnings("unchecked")
 	public Set<K2> getDistinctKeys2() {
-		return (Set<K2>) super.getDistinctKeys(2);
+		return (Set<K2>) getDistinctKeys(2);
 	}
 
 	/**
@@ -733,11 +733,11 @@ public class Key2List<E, K1, K2> extends KeyListImpl<E> {
 	 * @return		element which has been replaced or null otherwise
 	 */
 	public E putByKey2(E elem) {
-		return super.putByKey(2, elem, true);
+		return putByKey(2, elem, true);
 	}
 
 	public E putIfAbsentByKey2(E elem) {
-		return super.putByKey(2, elem, false);
+		return putByKey(2, elem, false);
 	}
 
 	/**
@@ -749,7 +749,7 @@ public class Key2List<E, K1, K2> extends KeyListImpl<E> {
 	 * @param elem		element to invalidate (can be null if there are no duplicates with this key)
 	 */
 	public void invalidateKey2(K2 oldKey, K2 newKey, E elem) {
-		super.invalidateKey(2, oldKey, newKey, elem);
+		invalidateKey(2, oldKey, newKey, elem);
 	}
 
 	// --- ImmutableKey2List ---
@@ -828,6 +828,29 @@ public class Key2List<E, K1, K2> extends KeyListImpl<E> {
 
 		@Override
 		protected void doModify() {
+			error();
+		}
+
+		@Override
+		protected E removeByKey(int keyIndex, Object key) {
+			error();
+			return null;
+		}
+
+		@Override
+		protected IList<E> removeAllByKey(int keyIndex, Object key) {
+			error();
+			return null;
+		}
+
+		@Override
+		protected E putByKey(int keyIndex, E elem, boolean replace) {
+			error();
+			return null;
+		}
+
+		@Override
+		protected void invalidateKey(int keyIndex, Object oldKey, Object newKey, E elem) {
 			error();
 		}
 
