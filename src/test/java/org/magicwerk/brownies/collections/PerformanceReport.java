@@ -309,14 +309,14 @@ public class PerformanceReport {
 		// Cells
 		for (int x = startX; x < grid.getNumCols(); x++) {
 			for (int y = startY; y < grid.getNumRows(); y++) {
-				Object val = grid.getElem(x, y);
+				Object val = grid.getElem(y, x);
 				String str;
 				if (val instanceof Double) {
 					str = String.format("%.6f", val);
 				} else {
 					str = PrintTools.toString(val);
 				}
-				grid.set(x, y, str);
+				grid.set(y, x, str);
 			}
 		}
 
@@ -330,7 +330,7 @@ public class PerformanceReport {
 
 	static void addCmpGapArrayListColumns(Grid<Object> grid) {
 		for (int c = 0; c < grid.getNumCols(); c++) {
-			if (!StringUtils.isEmpty((String) grid.getElem(c, 0))) {
+			if (!StringUtils.isEmpty((String) grid.getElem(0, c))) {
 				addCmpGapArrayListColumn(grid, c);
 			}
 		}
@@ -339,30 +339,30 @@ public class PerformanceReport {
 	static void addCmpGapArrayListColumn(Grid<Object> grid, int col) {
 		grid.addColumn(col + 1);
 		for (int r = 2; r < grid.getNumRows(); r += 3) {
-			double timeGapList = TypeTools.parseDouble((String) grid.getElem(col, r));
-			double timeArrayList = TypeTools.parseDouble((String) grid.getElem(col, r + 1));
+			double timeGapList = TypeTools.parseDouble((String) grid.getElem(r, col));
+			double timeArrayList = TypeTools.parseDouble((String) grid.getElem(r + 1, col));
 			double v = MathTools.round(timeGapList / timeArrayList * 100, 2);
 			HtmlDiv div = new HtmlDiv();
 			div.addText("" + v);
 			int i = getRange(percs, v);
 			CssColor c = colors.get(i);
 			div.setStyle("background-color: " + c.toHexRgb());
-			grid.set(col + 1, r, div.getElement());
+			grid.set(r, col + 1, div.getElement());
 		}
 	}
 
 	static void addPercentageColumn(Grid<Object> grid, int rows, int src1, int src2, int col) {
 		grid.addColumn(col);
 		for (int r = rows; r < grid.getNumRows(); r++) {
-			double v1 = TypeTools.parseDouble((String) grid.getElem(src1, r));
-			double v2 = TypeTools.parseDouble((String) grid.getElem(src2, r));
+			double v1 = TypeTools.parseDouble((String) grid.getElem(r, src1));
+			double v2 = TypeTools.parseDouble((String) grid.getElem(r, src2));
 			double v = MathTools.round(v2 / v1 * 100, 2);
 			HtmlDiv div = new HtmlDiv();
 			div.addText("" + v);
 			int i = getRange(percs, v);
 			CssColor c = colors.get(i);
 			div.setStyle("background-color: " + c.toHexRgb());
-			grid.set(col, r, div.getElement());
+			grid.set(r, col, div.getElement());
 		}
 	}
 
@@ -372,15 +372,15 @@ public class PerformanceReport {
 		List<String> rowValues = CollectionTools.getDistinct(table.getCol(rowKey, String.class));
 		List<String> colValues = CollectionTools.getDistinct(table.getCol(colKey, String.class));
 
-		Grid<Object> grid = new Grid<Object>(colValues.size() + 2, rowValues.size() + 1);
+		Grid<Object> grid = new Grid<Object>(rowValues.size() + 1, colValues.size() + 2);
 
 		// Column header
 		for (int r = 0; r < rowValues.size(); r++) {
-			grid.add(0, r + 1, rowValues.get(r));
+			grid.add(r + 1, 0, rowValues.get(r));
 		}
 		// Row header
 		for (int c = 0; c < colValues.size(); c++) {
-			grid.add(c + 1, 0, colValues.get(c));
+			grid.add(0, c + 1, colValues.get(c));
 		}
 		// Cells
 		for (int r = 0; r < rowValues.size(); r++) {
@@ -389,17 +389,17 @@ public class PerformanceReport {
 				assert (tab.getNumRows() == 1);
 				Record rec = tab.getRow(0);
 				Object val = rec.getValue(cellKey);
-				grid.set(c + 1, r + 1, val);
+				grid.set(r + 1, c + 1, val);
 			}
 		}
 
 		// Add percentage column
 		for (int r = 1; r < grid.getNumRows(); r++) {
-			Double v1 = (Double) grid.getElem(1, r);
+			Double v1 = (Double) grid.getElem(r, 1);
 			//Double v2 = (Double) grid.get(2, r);// TODO
 			Double v2 = 0.5;
 			double v = MathTools.round(v2 / v1 * 100, 2);
-			grid.add(colorColumn, r, v);
+			grid.add(r, colorColumn, v);
 		}
 
 		return grid;
