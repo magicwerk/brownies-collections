@@ -62,13 +62,13 @@ public class ShowBuilderMethods {
 
 		Grid<String> grid = new Grid<>();
 		for (int r = 0; r < sortedMethods.size(); r++) {
-			grid.add(0, r + 1, sortedMethods.get(r));
+			grid.add(r + 1, 0, sortedMethods.get(r));
 		}
 		for (int c = 0; c < classes.size(); c++) {
 			String className = classes.get(c).getName();
 			className = StringTools.removeTail(className, "$Builder");
 			className = StringTools.removeHead(className, "org.magicwerk.brownies.collections.");
-			grid.add(c + 1, 0, className);
+			grid.add(0, c + 1, className);
 
 			List<String> classMethdods = allClassMethods.get(c);
 			for (int r = 0; r < sortedMethods.size(); r++) {
@@ -77,7 +77,7 @@ public class ShowBuilderMethods {
 				if (classMethdods.contains(method)) {
 					str = "X";
 				}
-				grid.add(c + 1, r + 1, str);
+				grid.add(r + 1, c + 1, str);
 			}
 		}
 
