@@ -301,7 +301,7 @@ public class PerformanceReport {
 	 * @return
 	 */
 	static Grid<Object> createGrid(Table table, List<String> rowKeys, List<String> colKeys, String cellKey) {
-		Grid<Object> grid = new GridCreator().setTable(table).setRowKeys(rowKeys).setColKeys(colKeys).setCellKey(cellKey).createGrid();
+		Grid<Object> grid = new GridCreator().setTable(table).setRowKeys(rowKeys).setColKeys(colKeys).setCellKeys(GapList.create(cellKey)).createGrid();
 
 		final int startX = rowKeys.size();
 		final int startY = colKeys.size();
