@@ -12,7 +12,8 @@ import org.magicwerk.brownies.core.PrintTools;
 import org.magicwerk.brownies.core.TypeTools;
 import org.magicwerk.brownies.core.collections.CrossList;
 import org.magicwerk.brownies.core.collections.Grid;
-import org.magicwerk.brownies.core.collections.GridCreator;
+import org.magicwerk.brownies.core.collections.PivotTable;
+import org.magicwerk.brownies.core.collections.PivotTableCreator;
 import org.magicwerk.brownies.core.files.FileTools;
 import org.magicwerk.brownies.core.logback.LogbackTools;
 import org.magicwerk.brownies.core.types.Type;
@@ -164,7 +165,7 @@ public class PerformanceReport {
 	static String JAVA_170_40 = "1.7.0_40";
 
 	public void deleteRelease(String release) {
-		GridCreator.deleteRecords(table, Record.create(RELEASE, release));
+		PivotTableCreator.deleteRecords(table, Record.create(RELEASE, release));
 	}
 
 	public void init() {
@@ -301,7 +302,8 @@ public class PerformanceReport {
 	 * @return
 	 */
 	static Grid<Object> createGrid(Table table, List<String> rowKeys, List<String> colKeys, String cellKey) {
-		Grid<Object> grid = new GridCreator().setTable(table).setRowKeys(rowKeys).setColKeys(colKeys).setCellKeys(GapList.create(cellKey)).createGrid();
+		PivotTable<Object> pt = new PivotTableCreator().setTable(table).setRowKeys(rowKeys).setColKeys(colKeys).setCellKeys(GapList.create(cellKey)).create();
+		Grid<Object> grid = (Grid<Object>) pt.getGrid();
 
 		final int startX = rowKeys.size();
 		final int startY = colKeys.size();
@@ -337,7 +339,7 @@ public class PerformanceReport {
 	}
 
 	static void addCmpGapArrayListColumn(Grid<Object> grid, int col) {
-		grid.addColumn(col + 1);
+		grid.addCol(col + 1);
 		for (int r = 2; r < grid.getNumRows(); r += 3) {
 			double timeGapList = TypeTools.parseDouble((String) grid.getElem(r, col));
 			double timeArrayList = TypeTools.parseDouble((String) grid.getElem(r + 1, col));
@@ -352,7 +354,7 @@ public class PerformanceReport {
 	}
 
 	static void addPercentageColumn(Grid<Object> grid, int rows, int src1, int src2, int col) {
-		grid.addColumn(col);
+		grid.addCol(col);
 		for (int r = rows; r < grid.getNumRows(); r++) {
 			double v1 = TypeTools.parseDouble((String) grid.getElem(r, src1));
 			double v2 = TypeTools.parseDouble((String) grid.getElem(r, src2));
@@ -385,7 +387,7 @@ public class PerformanceReport {
 		// Cells
 		for (int r = 0; r < rowValues.size(); r++) {
 			for (int c = 0; c < colValues.size(); c++) {
-				Table tab = GridCreator.getTable(table, rowKey, rowValues.get(r), colKey, colValues.get(c));
+				Table tab = PivotTableCreator.getTable(table, rowKey, rowValues.get(r), colKey, colValues.get(c));
 				assert (tab.getNumRows() == 1);
 				Record rec = tab.getRow(0);
 				Object val = rec.getValue(cellKey);
