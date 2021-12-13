@@ -160,7 +160,69 @@ public class KeyListImplTest {
 		System.out.println(list);
 
 		list.initArray(n3, n2);
+
+		testTriggerBeforeInsert();
 	}
+
+	//
+
+	static void testTriggerBeforeInsert() {
+		KeyNameList list = new KeyNameList();
+		list.add(new KeyName("a"));
+		list.add(new KeyName(null));
+		list.add(new KeyName("b"));
+		list.add(new KeyName(null));
+		list.add(new KeyName("c"));
+		System.out.println(list);
+	}
+
+	static class KeyName {
+		String name;
+		String key;
+
+		KeyName(String name) {
+			this.name = name;
+			this.key = name;
+		}
+
+		/** Getter for {@link #key} */
+		public String getKey() {
+			return key;
+		}
+
+		@Override
+		public String toString() {
+			return key + " (" + name + ")";
+		}
+	}
+
+	static class KeyNameList extends Key1List<KeyName, String> {
+		public KeyNameList() {
+			getBuilder().withPrimaryKey1Map(KeyName::getKey).withBeforeInsertTrigger(new Consumer<KeyName>() {
+				@Override
+				public void accept(KeyName elem) {
+					if (elem.getKey() == null) {
+						elem.key = getUniqueKey();
+					}
+				}
+			}).build();
+		}
+
+		/** Determine unique key */
+		String getUniqueKey() {
+			String key = null;
+			int i = 0;
+			while (true) {
+				key = "#" + i;
+				if (!containsKey1(key)) {
+					return key;
+				}
+				i++;
+			}
+		}
+	}
+
+	//
 
 	static void testPerformanceWindowSize() {
 		int num = 1000 * 1000;

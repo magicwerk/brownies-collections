@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testClass xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="org.magicwerk.brownies.collections.KeyListImplTest" xsi:noNamespaceSchemaLocation="testclass-v10.xsd">
   <traceTest name="testAddAllWindowSize">
-    <runDate>2015-01-10T18:10:13.125+01:00[Europe/Berlin]</runDate>
+    <runDate>2015-01-10T18:10:13.125+01:00</runDate>
     <runDuration>0.026217662</runDuration>
     <exception></exception>
     <traceClass>org.magicwerk.brownies.collections.KeyList</traceClass>
@@ -92,7 +92,7 @@
     </traceStep>
   </traceTest>
   <traceTest name="testAddMaxSize">
-    <runDate>2015-02-18T22:43:52.117+01:00[Europe/Berlin]</runDate>
+    <runDate>2015-02-18T22:43:52.117+01:00</runDate>
     <runDuration>0.00268897</runDuration>
     <exception></exception>
     <traceClass>org.magicwerk.brownies.collections.KeyList</traceClass>
@@ -202,7 +202,7 @@
     </traceStep>
   </traceTest>
   <traceTest name="testAddWindowSize">
-    <runDate>2013-10-09T00:57:06.308+02:00[Europe/Berlin]</runDate>
+    <runDate>2013-10-09T00:57:06.308+02:00</runDate>
     <runDuration>0.014987627</runDuration>
     <exception></exception>
     <traceClass>org.magicwerk.brownies.collections.KeyList</traceClass>
@@ -279,7 +279,7 @@
     </traceStep>
   </traceTest>
   <captureTest name="testAsSet">
-    <runDate>2019-06-23T17:06:14.11+02:00[Europe/Berlin]</runDate>
+    <runDate>2019-06-23T17:06:14.11+02:00</runDate>
     <runDuration>0.031605333</runDuration>
     <exception></exception>
     <captureStep>
@@ -287,7 +287,7 @@
     </captureStep>
   </captureTest>
   <captureTest name="testSort">
-    <runDate>2015-11-02T23:21:02.271+01:00[Europe/Berlin]</runDate>
+    <runDate>2015-11-02T23:21:02.271+01:00</runDate>
     <runDuration>0.039507396</runDuration>
     <exception></exception>
     <captureStep>
@@ -295,15 +295,15 @@
     </captureStep>
   </captureTest>
   <captureTest name="testTriggers">
-    <runDate>2020-03-23T13:43:26.721+01:00[Europe/Berlin]</runDate>
-    <runDuration>0.0035793</runDuration>
+    <runDate>2021-12-13T12:03:43.294+01:00</runDate>
+    <runDuration>0.0038139</runDuration>
     <exception></exception>
     <captureStep>
-      <text outputType="TEXT">"insert: a1 (0)\r\ninsert: b2 (0)\r\ninsert: c3 (0)\r\ndelete: a1 (0)\r\ndelete: b2 (0)\r\ninsert: c3 (0)\r\ndelete: c3 (0)\r\ninsert: a1 (0)\r\ninsert: b2 (0)\r\ninsert: c3 (0)\r\ncancel delete: a1 (0)\r\ncancel delete: b2 (0)\r\ncancel insert: c3 (0)\r\n[a1 (0), b2 (0), c3 (0)]\r\ndelete: a1 (0)\r\ndelete: b2 (0)\r\ndelete: c3 (0)\r\ninsert: c3 (0)\r\ninsert: b2 (0)\r\n"</text>
+      <text outputType="TEXT">"insert: a1 (0)\r\ninsert: b2 (0)\r\ninsert: c3 (0)\r\ndelete: a1 (0)\r\ndelete: b2 (0)\r\ninsert: c3 (0)\r\ndelete: c3 (0)\r\ninsert: a1 (0)\r\ninsert: b2 (0)\r\ninsert: c3 (0)\r\ncancel delete: a1 (0)\r\ncancel delete: b2 (0)\r\ncancel insert: c3 (0)\r\n[a1 (0), b2 (0), c3 (0)]\r\ndelete: a1 (0)\r\ndelete: b2 (0)\r\ndelete: c3 (0)\r\ninsert: c3 (0)\r\ninsert: b2 (0)\r\n[a (a), #0 (null), b (b), #1 (null), c (c)]\r\n"</text>
     </captureStep>
   </captureTest>
   <traceTest name="testWindowSize">
-    <runDate>2014-02-11T22:25:11.758+01:00[Europe/Berlin]</runDate>
+    <runDate>2014-02-11T22:25:11.758+01:00</runDate>
     <runDuration>0.001243496</runDuration>
     <exception></exception>
     <traceClass>org.magicwerk.brownies.collections.KeyList</traceClass>
