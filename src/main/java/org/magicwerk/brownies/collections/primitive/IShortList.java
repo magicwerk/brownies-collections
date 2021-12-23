@@ -387,6 +387,24 @@ public int getCount(short elem) {
 }
 
     /**
+ * Counts how many elements in the list match the predicate.
+ *
+ * @param predicate a predicate which returns {@code true} for elements to be counted
+ * @return		count how many elements in the list match the predicate
+ */
+public int getCountIf(Predicate<Short> predicate) {
+    int count = 0;
+    int size = size();
+    for (int i = 0; i < size; i++) {
+        short e = doGet(i);
+        if (predicate.test(e)) {
+            count++;
+        }
+    }
+    return count;
+}
+
+    /**
  * Returns the only element stored in the list.
  * If the list's size is not 1, a <code>NoSuchElementException</code> is thrown.
  *
