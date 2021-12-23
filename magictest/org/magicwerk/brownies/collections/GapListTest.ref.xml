@@ -965,6 +965,39 @@
       <error></error>
     </traceStep>
   </traceTest>
+  <traceTest name="testGetCountIf">
+    <runDate>2021-12-23T16:44:05.857+01:00</runDate>
+    <runDuration>0.0214835</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.GapList</traceClass>
+    <traceMethod>getCountIf</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"getCountIf"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"{ \r\n}"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"1"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"getCountIf"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"{ \r\n}"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"4"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+  </traceTest>
   <traceTest name="testGetDistinct">
     <runDate>2014-03-24T23:24:01.513+01:00</runDate>
     <runDuration>0.017666767</runDuration>

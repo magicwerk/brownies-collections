@@ -515,6 +515,13 @@ public class GapListTest {
 		l1.getCount(9);
 	}
 
+	@Trace(parameters = Trace.THIS | Trace.ALL_PARAMS)
+	public static void testGetCountIf() {
+		IList<Integer> l1 = getSortedGapList(7);
+		l1.getCountIf(i -> i == 1);
+		l1.getCountIf(i -> i % 2 == 0);
+	}
+
 	@Capture
 	public static void testFilter() {
 		IList<Integer> l1 = getSortedGapList(7);
