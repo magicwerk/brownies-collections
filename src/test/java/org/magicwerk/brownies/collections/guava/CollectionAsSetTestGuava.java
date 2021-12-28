@@ -17,7 +17,7 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 /**
- * Test {@CollectionAsSet} with the test suite provided by Guava.
+ * Test {@link CollectionAsSet} with the test suite provided by Guava.
  * Run this test by executing the whole test class using JUnit.
  *
  * @author Thomas Mauch
