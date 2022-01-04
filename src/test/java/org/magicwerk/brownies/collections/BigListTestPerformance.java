@@ -55,9 +55,9 @@ import org.magicwerk.brownies.core.ThreadTools;
 import org.magicwerk.brownies.core.Timer;
 import org.magicwerk.brownies.core.exceptions.FileException;
 import org.magicwerk.brownies.core.exceptions.FileException.Access;
-import org.magicwerk.brownies.core.files.LineReader;
 import org.magicwerk.brownies.core.logback.LogbackTools;
 import org.magicwerk.brownies.core.reflect.ReflectTools;
+import org.magicwerk.brownies.core.strings.StringStreamer;
 import org.magicwerk.brownies.tools.runner.JvmRunner;
 import org.magicwerk.brownies.tools.runner.Run;
 import org.magicwerk.brownies.tools.runner.Runner;
@@ -881,9 +881,9 @@ public class BigListTestPerformance {
 		//ArrayList<String> list = new ArrayList<String>();
 		//LinkedList<String> list = new LinkedList<String>();
 		BigList<String> list = new BigList<String>();
-		LineReader reader = new LineReader("rec_5_000_000.txt");
+		StringStreamer reader = new StringStreamer().addSourceFile("rec_5_000_000.txt");
 		while (true) {
-			String line = reader.readLine();
+			String line = reader.readLine(false);
 			if (line == null) {
 				break;
 			}
@@ -928,9 +928,9 @@ public class BigListTestPerformance {
 		ArrayList<String> list = new ArrayList<String>();
 		//LinkedList<String> list = new LinkedList<String>();
 		//BigList<String> list = new BigList<String>();
-		LineReader reader = new LineReader(file);
+		StringStreamer reader = new StringStreamer().addSourceFile(file);
 		while (true) {
-			String line = reader.readLine();
+			String line = reader.readLine(false);
 			if (line == null) {
 				break;
 			}
@@ -955,12 +955,12 @@ public class BigListTestPerformance {
 		t.printElapsed("prepared " + list.size());
 		t.start();
 
-		LineReader[] readers = new LineReader[chunk];
+		StringStreamer[] readers = new StringStreamer[chunk];
 		String[] values = new String[chunk];
 		for (int i = 0; i < chunk; i++) {
 			String path = file + "." + i;
-			readers[i] = new LineReader(path);
-			values[i] = readers[i].readLine();
+			readers[i] = new StringStreamer().addSourceFile(path);
+			values[i] = readers[i].readLine(false);
 		}
 
 		list = new ArrayList<String>(totalSize);
@@ -983,7 +983,7 @@ public class BigListTestPerformance {
 				break;
 			}
 			list.add(minStr);
-			values[minIdx] = readers[minIdx].readLine();
+			values[minIdx] = readers[minIdx].readLine(false);
 		}
 		t.printElapsed("done " + list.size());
 	}
@@ -1011,9 +1011,9 @@ public class BigListTestPerformance {
 		ArrayList<String> list = new ArrayList<String>();
 		//LinkedList<String> list = new LinkedList<String>();
 		//BigList<String> list = new BigList<String>();
-		LineReader reader = new LineReader(file);
+		StringStreamer reader = new StringStreamer().addSourceFile(file);
 		while (true) {
-			String line = reader.readLine();
+			String line = reader.readLine(false);
 			if (line == null) {
 				break;
 			}
