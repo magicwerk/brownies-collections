@@ -221,6 +221,12 @@ public abstract class KeyListImpl<E> extends IList<E> {
 		list.doGetAll(array, index, len);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * If the list defines maps for the keys, they are used to speed up the lookup operation.
+	 * So if the list defines a primary key, performance will be similar to a lookup in a set.
+	 */
 	@Override
 	public boolean contains(Object elem) {
 		if (keyColl.keyMaps != null) {
@@ -228,6 +234,17 @@ public abstract class KeyListImpl<E> extends IList<E> {
 		} else {
 			return super.contains(elem);
 		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * If the list is sorted, this is used to speed up the remove operation.
+	 * If the list defines unsorted map, this does not improve performance.
+	 */
+	@Override
+	public boolean remove(Object elem) {
+		return super.remove(elem);
 	}
 
 	//--
@@ -408,6 +425,12 @@ public abstract class KeyListImpl<E> extends IList<E> {
 		return list.doReSet(index, elem);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * If the list is sorted, this is used to speed up the lookup operation.
+	 * If the list defines unsorted map, this does not improve performance.
+	 */
 	@Override
 	@SuppressWarnings("unchecked")
 	public int indexOf(Object elem) {
