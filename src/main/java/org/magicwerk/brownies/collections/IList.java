@@ -763,7 +763,7 @@ public abstract class IList<E>
 	}
 
 	/**
-	 * Add elements if it is not already contained in the list.
+	 * Add elements to the end if it is not already contained in the list.
 	 *
 	 * @param elem	element to add
 	 * @return		true if element has been added, false if not
