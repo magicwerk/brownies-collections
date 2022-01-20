@@ -28,12 +28,13 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.magictest.client.Assert;
+import org.magictest.client.Capture;
 import org.magictest.client.Format;
 import org.magictest.client.Report;
 import org.magictest.client.Trace;
 import org.magicwerk.brownies.collections.TestHelper.ComparableName;
 import org.magicwerk.brownies.collections.TestHelper.Name;
-import org.magicwerk.brownies.core.collections.CountedEntries;
+import org.magicwerk.brownies.core.collections.count.CountedEntries;
 import org.magicwerk.brownies.core.logback.LogbackTools;
 import org.slf4j.Logger;
 
@@ -52,20 +53,28 @@ public class KeyCollectionTest {
 	}
 
 	static void test() {
-		testIterator();
+		//testIterator();
 		//testPut();
-		//testElemCount();
+		testElemCount();
 	}
 
+	@Capture
 	public static void testElemCount() {
 		KeyCollection<ComparableName> coll;
+
+		coll = new KeyCollection.Builder<ComparableName>().withElemCount(false).withElemSort(true).build();
+		coll.add(new ComparableName("d", 0));
+		coll.add(new ComparableName("d", 1));
+		coll.add(new ComparableName("b", 2));
+		coll.add(new ComparableName("aa", 3));
+		LOG.info("withElemCount(false): {}", coll);
 
 		coll = new KeyCollection.Builder<ComparableName>().withElemCount(true).withElemSort(false).build();
 		coll.add(new ComparableName("d", 0));
 		coll.add(new ComparableName("d", 1));
 		coll.add(new ComparableName("b", 2));
 		coll.add(new ComparableName("aa", 3));
-		LOG.info("withElemCount(false): {}", coll);
+		LOG.info("withElemCount(true): {}", coll);
 
 		Set<ComparableName> elems = coll.getDistinct();
 		Map<ComparableName, Integer> countedElems = new TreeMap<>();
@@ -79,26 +88,15 @@ public class KeyCollectionTest {
 		LOG.info("countedEntries: {}", countedEntries);
 		LOG.info("countedEntries sorted: {}", countedEntries.sortByCount());
 
-		coll = new KeyCollection.Builder<ComparableName>().withElemCount(false).withElemSort(true).build();
-		coll.add(new ComparableName("d", 0));
-		coll.add(new ComparableName("d", 1));
-		coll.add(new ComparableName("b", 2));
-		coll.add(new ComparableName("aa", 3));
-		LOG.info("withElemCount(false): {}", coll);
-
-		coll = new KeyCollection.Builder<ComparableName>().withElemCount(true).withElemSort(true).build();
-		coll.add(new ComparableName("d", 0));
-		coll.add(new ComparableName("d", 1));
-		coll.add(new ComparableName("b", 2));
-		coll.add(new ComparableName("aa", 3));
 		// Error: invalidate not supported
 		//coll.invalidate(null);
-		LOG.info("withElemCount(true): {}", coll);
 
-		coll.remove(new ComparableName("d", 0));
 		coll.remove(new ComparableName("d", 1));
-		coll.remove(new ComparableName("b", 0));
-		coll.remove(new ComparableName("a", 0));
+		LOG.info("removed(d): {}", coll);
+		coll.remove(new ComparableName("d", 1));
+		LOG.info("removed(d): {}", coll);
+		coll.remove(new ComparableName("d", 1));
+		LOG.info("removed(d): {}", coll);
 	}
 
 	//	static void testPerformanceSortedList() {
