@@ -683,7 +683,7 @@
     </traceStep>
   </traceTest>
   <traceTest name="testAsUniqueKey">
-    <runDate>2015-01-10T11:30:24.770+01:00</runDate>
+    <runDate>2015-01-10T11:30:24.77+01:00</runDate>
     <runDuration>0.002408578</runDuration>
     <exception></exception>
     <traceClass>org.magicwerk.brownies.collections.KeyCollection</traceClass>
@@ -860,6 +860,14 @@
       <error></error>
     </traceStep>
   </traceTest>
+  <captureTest name="testElemCount">
+    <runDate>2022-01-20T17:54:45.014+01:00</runDate>
+    <runDuration>0.038773</runDuration>
+    <exception></exception>
+    <captureStep>
+      <text outputType="TEXT">"withElemCount(false): [aa (3), b (2), d (0), d (1)]\r\nwithElemCount(true): [b (2), d (0), d (0), aa (3)]\r\ncountedElems: {aa (3)=1, b (2)=1, d (0)=2}\r\ncountedEntries: [b (2) (1), d (0) (2), aa (3) (1)]\r\ncountedEntries sorted: [b (2) (1), aa (3) (1), d (0) (2)]\r\nremoved(d): [b (2), d (0), aa (3)]\r\nremoved(d): [b (2), aa (3)]\r\nremoved(d): [b (2), aa (3)]\r\n"</text>
+    </captureStep>
+  </captureTest>
   <traceTest name="testIterator">
     <runDate>2019-01-05T14:21:22.519+01:00</runDate>
     <runDuration>0.028603556</runDuration>
