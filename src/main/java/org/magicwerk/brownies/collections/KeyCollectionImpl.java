@@ -39,6 +39,7 @@ import org.magicwerk.brownies.collections.exceptions.KeyException;
 import org.magicwerk.brownies.collections.helper.BigLists;
 import org.magicwerk.brownies.collections.helper.GapLists;
 import org.magicwerk.brownies.collections.helper.IdentMapper;
+import org.magicwerk.brownies.collections.helper.MutableInt;
 import org.magicwerk.brownies.collections.helper.NaturalComparator;
 import org.magicwerk.brownies.collections.helper.NullComparator;
 import org.magicwerk.brownies.collections.helper.Option;
@@ -1160,7 +1161,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 			assert (keysMap != null);
 			if (count) {
 				@SuppressWarnings({ "unchecked", "rawtypes" })
-				Map<E, Integer> keysMapCount = (Map) keysMap;
+				Map<E, MutableInt> keysMapCount = (Map) keysMap;
 				return new KeyMapCountIter<E, K>(keyColl, this, keysMapCount);
 			} else {
 				return new KeyMapIter<E, K>(keyColl, this, keysMap);
@@ -1240,13 +1241,13 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 
 			KeyCollectionImpl<E> keyColl;
 			KeyMap<E, K> keyMap;
-			Map<E, Integer> map;
-			Iterator<Entry<E, Integer>> mapIter;
+			Map<E, MutableInt> map;
+			Iterator<Entry<E, MutableInt>> mapIter;
 			E elem;
 			int count;
 			boolean hasElem;
 
-			public KeyMapCountIter(KeyCollectionImpl<E> keyColl, KeyMap<E, K> keyMap, Map<E, Integer> map) {
+			public KeyMapCountIter(KeyCollectionImpl<E> keyColl, KeyMap<E, K> keyMap, Map<E, MutableInt> map) {
 				this.keyColl = keyColl;
 				this.keyMap = keyMap;
 				this.map = map;
@@ -1271,9 +1272,9 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 					count--;
 				} else {
 					// This call can fail with NoSuchElementException
-					Entry<E, Integer> o = mapIter.next();
+					Entry<E, MutableInt> o = mapIter.next();
 					elem = o.getKey();
-					count = o.getValue();
+					count = o.getValue().intValue();
 					count--;
 				}
 
@@ -1288,11 +1289,9 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 				}
 				hasElem = false;
 
-				Integer val = map.get(elem);
-				if (val == 1) {
+				MutableInt val = map.get(elem);
+				if (val.decrementAndGet() == 0) {
 					mapIter.remove();
-				} else {
-					map.put(elem, val - 1);
 				}
 				keyColl.size--;
 			}
@@ -1312,9 +1311,13 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 			}
 			if (keysMap != null) {
 				// Keys not sorted
-				Object newElem = (count ? 1 : elem);
 				int oldSize = keysMap.size();
-				Object oldElem = keysMap.put(key, newElem);
+				Object oldElem;
+				if (count) {
+					oldElem = keysMap.computeIfAbsent(key, k -> new MutableInt());
+				} else {
+					oldElem = keysMap.put(key, elem);
+				}
 				boolean hasOldElem;
 				if (oldElem != null) {
 					hasOldElem = true;
@@ -1337,10 +1340,8 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 					}
 
 					if (count) {
-						if (oldElem != null) {
-							Integer val = (Integer) oldElem;
-							keysMap.put(key, val + 1);
-						}
+						MutableInt val = (MutableInt) oldElem;
+						val.increment();
 					} else {
 						GapList<E> list;
 						if (oldElem instanceof KeyMapList) {
@@ -1409,11 +1410,9 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 				}
 				if (count) {
 					assert (!matchValue || key == value);
-					Integer val = (Integer) keysMap.get(key);
-					if (val == 1) {
+					MutableInt val = (MutableInt) keysMap.get(key);
+					if (val.decrementAndGet() == 0) {
 						keysMap.remove(key);
-					} else {
-						keysMap.put((K) key, val - 1);
 					}
 					return new Option(key);
 				} else {
@@ -1688,7 +1687,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 			int count = 0;
 			if (keyMap.count) {
 				for (Object val : keyMap.keysMap.values()) {
-					count += ((Integer) val);
+					count += ((MutableInt) val).intValue();
 				}
 			} else {
 				for (Object obj : keyMap.keysMap.values()) {
@@ -2581,11 +2580,11 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 		if (keyMap.keysMap != null) {
 			// not sorted
 			if (keyMap.count) {
-				Integer val = (Integer) keyMap.keysMap.get(key);
+				MutableInt val = (MutableInt) keyMap.keysMap.get(key);
 				if (val == null) {
 					return 0;
 				} else {
-					return val;
+					return val.intValue();
 				}
 			} else {
 				Object obj = keyMap.keysMap.get(key);
@@ -2897,7 +2896,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	 * @param elem	element
 	 * @return		all equal elements (never null)
 	 */
-	protected Collection<E> getAll(E elem) {
+	public Collection<E> getAll(E elem) {
 		return getAllByKey(0, elem);
 	}
 
@@ -2907,7 +2906,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	 * @param elem	element
 	 * @return		number of equal elements
 	 */
-	protected int getCount(E elem) {
+	public int getCount(E elem) {
 		return getCountByKey(0, elem);
 	}
 
@@ -2917,16 +2916,16 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	 * @param elem	element
 	 * @return		removed equal elements (never null)
 	 */
-	protected Collection<E> removeAll(E elem) {
+	public Collection<E> removeAll(E elem) {
 		return removeAllByKey(0, elem);
 	}
 
 	/**
 	 * Returns all distinct elements in the same order as in the collection.
 	 *
-	 * @return		distinct elements
+	 * @return		set with distinct elements
 	 */
-	protected Set<E> getDistinct() {
+	public Set<E> getDistinct() {
 		return (Set<E>) getDistinctKeys(0);
 	}
 

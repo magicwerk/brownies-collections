@@ -305,18 +305,8 @@ public class Key1Collection<E, K> extends KeyCollectionImpl<E> {
 	}
 
 	@Override
-	public int getCount(E elem) {
-		return super.getCount(elem);
-	}
-
-	@Override
 	public Key1Collection<E, K> removeAll(E elem) {
 		return (Key1Collection<E, K>) super.removeAll(elem);
-	}
-
-	@Override
-	public Set<E> getDistinct() {
-		return super.getDistinct();
 	}
 
 	@Override
