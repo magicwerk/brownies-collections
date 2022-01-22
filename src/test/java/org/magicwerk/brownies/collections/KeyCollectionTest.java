@@ -34,7 +34,6 @@ import org.magictest.client.Report;
 import org.magictest.client.Trace;
 import org.magicwerk.brownies.collections.TestHelper.ComparableName;
 import org.magicwerk.brownies.collections.TestHelper.Name;
-import org.magicwerk.brownies.core.collections.count.CountedEntries;
 import org.magicwerk.brownies.core.logback.LogbackTools;
 import org.slf4j.Logger;
 
@@ -83,10 +82,6 @@ public class KeyCollectionTest {
 			countedElems.put(elem, count);
 		}
 		LOG.info("countedElems: {}", countedElems);
-
-		CountedEntries<ComparableName> countedEntries = new CountedEntries<>(coll);
-		LOG.info("countedEntries: {}", countedEntries);
-		LOG.info("countedEntries sorted: {}", countedEntries.sortByCount());
 
 		// Error: invalidate not supported
 		//coll.invalidate(null);

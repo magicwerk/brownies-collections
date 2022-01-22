@@ -19,7 +19,6 @@ package org.magicwerk.brownies.collections;
 
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -228,18 +227,8 @@ public class KeyCollection<E> extends KeyCollectionImpl<E> {
 	}
 
 	@Override
-	public int getCount(E elem) {
-		return super.getCount(elem);
-	}
-
-	@Override
 	public KeyCollection<E> removeAll(E elem) {
 		return (KeyCollection<E>) super.removeAll(elem);
-	}
-
-	@Override
-	public Set<E> getDistinct() {
-		return super.getDistinct();
 	}
 
 	@Override
