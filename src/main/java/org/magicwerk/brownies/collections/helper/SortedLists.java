@@ -1,7 +1,6 @@
 //
 // This file has been copied from com.google.common.collect.SortedLists.
-// Reason for copying is that the class SortedLists is package private
-// and therefore not publicly usable.
+// Reason for copying is that the class SortedLists is package private and therefore not publicly usable.
 //
 
 /*
@@ -24,7 +23,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-
 /**
  * Static methods pertaining to sorted {@link List} instances.
  *
@@ -36,204 +34,205 @@ import java.util.List;
  * @author Louis Wasserman
  */
 public class SortedLists {
-  private SortedLists() {}
+	private SortedLists() {
+	}
 
-  /**
-   * A specification for which index to return if the list contains at least one element that
-   * compares as equal to the key.
-   */
-  public enum KeyPresentBehavior {
-    /**
-     * Return the index of any list element that compares as equal to the key. No guarantees are
-     * made as to which index is returned, if more than one element compares as equal to the key.
-     */
-    ANY_PRESENT {
-      @Override
-      public <E> int resultIndex(
-          Comparator<? super E> comparator, E key, List<? extends E> list, int foundIndex) {
-        return foundIndex;
-      }
-    },
-    /**
-     * Return the index of the last list element that compares as equal to the key.
-     */
-    LAST_PRESENT {
-      @Override
-      public <E> int resultIndex(
-          Comparator<? super E> comparator, E key, List<? extends E> list, int foundIndex) {
-        // Of course, we have to use binary search to find the precise
-        // breakpoint...
-        int lower = foundIndex;
-        int upper = list.size() - 1;
-        // Everything between lower and upper inclusive compares at >= 0.
-        while (lower < upper) {
-          int middle = (lower + upper + 1) >>> 1;
-          int c = comparator.compare(list.get(middle), key);
-          if (c > 0) {
-            upper = middle - 1;
-          } else { // c == 0
-            lower = middle;
-          }
-        }
-        return lower;
-      }
-    },
-    /**
-     * Return the index of the first list element that compares as equal to the key.
-     */
-    FIRST_PRESENT {
-      @Override
-      public <E> int resultIndex(
-          Comparator<? super E> comparator, E key, List<? extends E> list, int foundIndex) {
-        // Of course, we have to use binary search to find the precise
-        // breakpoint...
-        int lower = 0;
-        int upper = foundIndex;
-        // Of course, we have to use binary search to find the precise breakpoint...
-        // Everything between lower and upper inclusive compares at <= 0.
-        while (lower < upper) {
-          int middle = (lower + upper) >>> 1;
-          int c = comparator.compare(list.get(middle), key);
-          if (c < 0) {
-            lower = middle + 1;
-          } else { // c == 0
-            upper = middle;
-          }
-        }
-        return lower;
-      }
-    },
-    /**
-     * Return the index of the first list element that compares as greater than the key, or {@code
-     * list.size()} if there is no such element.
-     */
-    FIRST_AFTER {
-      @Override
-      public <E> int resultIndex(
-          Comparator<? super E> comparator, E key, List<? extends E> list, int foundIndex) {
-        return LAST_PRESENT.resultIndex(comparator, key, list, foundIndex) + 1;
-      }
-    },
-    /**
-     * Return the index of the last list element that compares as less than the key, or {@code -1}
-     * if there is no such element.
-     */
-    LAST_BEFORE {
-      @Override
-      public <E> int resultIndex(
-          Comparator<? super E> comparator, E key, List<? extends E> list, int foundIndex) {
-        return FIRST_PRESENT.resultIndex(comparator, key, list, foundIndex) - 1;
-      }
-    };
-    public abstract <E> int resultIndex(
-        Comparator<? super E> comparator, E key, List<? extends E> list, int foundIndex);
-  }
+	/**
+	 * A specification for which index to return if the list contains at least one element that
+	 * compares as equal to the key.
+	 */
+	public enum KeyPresentBehavior {
+		/**
+		 * Return the index of any list element that compares as equal to the key. No guarantees are
+		 * made as to which index is returned, if more than one element compares as equal to the key.
+		 */
+		ANY_PRESENT {
+			@Override
+			public <E> int resultIndex(
+					Comparator<? super E> comparator, E key, List<? extends E> list, int foundIndex) {
+				return foundIndex;
+			}
+		},
+		/**
+		 * Return the index of the last list element that compares as equal to the key.
+		 */
+		LAST_PRESENT {
+			@Override
+			public <E> int resultIndex(
+					Comparator<? super E> comparator, E key, List<? extends E> list, int foundIndex) {
+				// Of course, we have to use binary search to find the precise
+				// breakpoint...
+				int lower = foundIndex;
+				int upper = list.size() - 1;
+				// Everything between lower and upper inclusive compares at >= 0.
+				while (lower < upper) {
+					int middle = (lower + upper + 1) >>> 1;
+					int c = comparator.compare(list.get(middle), key);
+					if (c > 0) {
+						upper = middle - 1;
+					} else { // c == 0
+						lower = middle;
+					}
+				}
+				return lower;
+			}
+		},
+		/**
+		 * Return the index of the first list element that compares as equal to the key.
+		 */
+		FIRST_PRESENT {
+			@Override
+			public <E> int resultIndex(
+					Comparator<? super E> comparator, E key, List<? extends E> list, int foundIndex) {
+				// Of course, we have to use binary search to find the precise
+				// breakpoint...
+				int lower = 0;
+				int upper = foundIndex;
+				// Of course, we have to use binary search to find the precise breakpoint...
+				// Everything between lower and upper inclusive compares at <= 0.
+				while (lower < upper) {
+					int middle = (lower + upper) >>> 1;
+					int c = comparator.compare(list.get(middle), key);
+					if (c < 0) {
+						lower = middle + 1;
+					} else { // c == 0
+						upper = middle;
+					}
+				}
+				return lower;
+			}
+		},
+		/**
+		 * Return the index of the first list element that compares as greater than the key, or {@code
+		 * list.size()} if there is no such element.
+		 */
+		FIRST_AFTER {
+			@Override
+			public <E> int resultIndex(
+					Comparator<? super E> comparator, E key, List<? extends E> list, int foundIndex) {
+				return LAST_PRESENT.resultIndex(comparator, key, list, foundIndex) + 1;
+			}
+		},
+		/**
+		 * Return the index of the last list element that compares as less than the key, or {@code -1}
+		 * if there is no such element.
+		 */
+		LAST_BEFORE {
+			@Override
+			public <E> int resultIndex(
+					Comparator<? super E> comparator, E key, List<? extends E> list, int foundIndex) {
+				return FIRST_PRESENT.resultIndex(comparator, key, list, foundIndex) - 1;
+			}
+		};
 
-  /**
-   * A specification for which index to return if the list contains no elements that compare as
-   * equal to the key.
-   */
-  public enum KeyAbsentBehavior {
-    /**
-     * Return the index of the next lower element in the list, or {@code -1} if there is no such
-     * element.
-     */
-    NEXT_LOWER {
-      @Override
-      public int resultIndex(int higherIndex) {
-        return higherIndex - 1;
-      }
-    },
-    /**
-     * Return the index of the next higher element in the list, or {@code list.size()} if there is
-     * no such element.
-     */
-    NEXT_HIGHER {
-      @Override
-      public int resultIndex(int higherIndex) {
-        return higherIndex;
-      }
-    },
-    /**
-     * Return {@code ~insertionIndex}, where {@code insertionIndex} is defined as the point at
-     * which the key would be inserted into the list: the index of the next higher element in the
-     * list, or {@code list.size()} if there is no such element.
-     *
-     * <p>Note that the return value will be {@code >= 0} if and only if there is an element of the
-     * list that compares as equal to the key.
-     *
-     * <p>This is equivalent to the behavior of
-     * {@link java.util.Collections#binarySearch(List, Object)} when the key isn't present, since
-     * {@code ~insertionIndex} is equal to {@code -1 - insertionIndex}.
-     */
-    INVERTED_INSERTION_INDEX {
-      @Override
-      public int resultIndex(int higherIndex) {
-        return ~higherIndex;
-      }
-    };
+		public abstract <E> int resultIndex(
+				Comparator<? super E> comparator, E key, List<? extends E> list, int foundIndex);
+	}
 
-    public abstract int resultIndex(int higherIndex);
-  }
+	/**
+	 * A specification for which index to return if the list contains no elements that compare as
+	 * equal to the key.
+	 */
+	public enum KeyAbsentBehavior {
+		/**
+		 * Return the index of the next lower element in the list, or {@code -1} if there is no such
+		 * element.
+		 */
+		NEXT_LOWER {
+			@Override
+			public int resultIndex(int higherIndex) {
+				return higherIndex - 1;
+			}
+		},
+		/**
+		 * Return the index of the next higher element in the list, or {@code list.size()} if there is
+		 * no such element.
+		 */
+		NEXT_HIGHER {
+			@Override
+			public int resultIndex(int higherIndex) {
+				return higherIndex;
+			}
+		},
+		/**
+		 * Return {@code ~insertionIndex}, where {@code insertionIndex} is defined as the point at
+		 * which the key would be inserted into the list: the index of the next higher element in the
+		 * list, or {@code list.size()} if there is no such element.
+		 *
+		 * <p>Note that the return value will be {@code >= 0} if and only if there is an element of the
+		 * list that compares as equal to the key.
+		 *
+		 * <p>This is equivalent to the behavior of
+		 * {@link java.util.Collections#binarySearch(List, Object)} when the key isn't present, since
+		 * {@code ~insertionIndex} is equal to {@code -1 - insertionIndex}.
+		 */
+		INVERTED_INSERTION_INDEX {
+			@Override
+			public int resultIndex(int higherIndex) {
+				return ~higherIndex;
+			}
+		};
 
+		public abstract int resultIndex(int higherIndex);
+	}
 
-  /**
-   * Searches the specified list for the specified object using the binary search algorithm. The
-   * list must be sorted into ascending order according to the specified comparator (as by the
-   * {@link Collections#sort(List, Comparator) Collections.sort(List, Comparator)} method), prior
-   * to making this call. If it is not sorted, the results are undefined.
-   *
-   * <p>If there are elements in the list which compare as equal to the key, the choice of
-   * {@link KeyPresentBehavior} decides which index is returned. If no elements compare as equal to
-   * the key, the choice of {@link KeyAbsentBehavior} decides which index is returned.
-   *
-   * <p>This method runs in log(n) time on random-access lists, which offer near-constant-time
-   * access to each list element.
-   *
-   * @param list the list to be searched.
-   * @param key the value to be searched for.
-   * @param comparator the comparator by which the list is ordered.
-   * @param presentBehavior the specification for what to do if at least one element of the list
-   *        compares as equal to the key.
-   * @param absentBehavior the specification for what to do if no elements of the list compare as
-   *        equal to the key.
-   * @return the index determined by the {@code KeyPresentBehavior}, if the key is in the list;
-   *         otherwise the index determined by the {@code KeyAbsentBehavior}.
-   */
-  public static <E> int binarySearch(List<? extends E> list, E key,
-      Comparator<? super E> comparator, KeyPresentBehavior presentBehavior,
-      KeyAbsentBehavior absentBehavior) {
-    int lower = 0;
-    int upper = list.size() - 1;
+	/**
+	 * Searches the specified list for the specified object using the binary search algorithm. The
+	 * list must be sorted into ascending order according to the specified comparator (as by the
+	 * {@link Collections#sort(List, Comparator) Collections.sort(List, Comparator)} method), prior
+	 * to making this call. If it is not sorted, the results are undefined.
+	 *
+	 * <p>If there are elements in the list which compare as equal to the key, the choice of
+	 * {@link KeyPresentBehavior} decides which index is returned. If no elements compare as equal to
+	 * the key, the choice of {@link KeyAbsentBehavior} decides which index is returned.
+	 *
+	 * <p>This method runs in log(n) time on random-access lists, which offer near-constant-time
+	 * access to each list element.
+	 *
+	 * @param list the list to be searched.
+	 * @param key the value to be searched for.
+	 * @param comparator the comparator by which the list is ordered.
+	 * @param presentBehavior the specification for what to do if at least one element of the list
+	 *        compares as equal to the key.
+	 * @param absentBehavior the specification for what to do if no elements of the list compare as
+	 *        equal to the key.
+	 * @return the index determined by the {@code KeyPresentBehavior}, if the key is in the list;
+	 *         otherwise the index determined by the {@code KeyAbsentBehavior}.
+	 */
+	public static <E> int binarySearch(List<? extends E> list, E key,
+			Comparator<? super E> comparator, KeyPresentBehavior presentBehavior,
+			KeyAbsentBehavior absentBehavior) {
+		int lower = 0;
+		int upper = list.size() - 1;
 
-    while (lower <= upper) {
-      int middle = (lower + upper) >>> 1;
-      int c = comparator.compare(key, list.get(middle));
-      if (c < 0) {
-        upper = middle - 1;
-      } else if (c > 0) {
-        lower = middle + 1;
-      } else {
-        return lower + presentBehavior.resultIndex(
-            comparator, key, list.subList(lower, upper + 1), middle - lower);
-      }
-    }
-    return absentBehavior.resultIndex(lower);
-  }
+		while (lower <= upper) {
+			int middle = (lower + upper) >>> 1;
+			int c = comparator.compare(key, list.get(middle));
+			if (c < 0) {
+				upper = middle - 1;
+			} else if (c > 0) {
+				lower = middle + 1;
+			} else {
+				return lower + presentBehavior.resultIndex(
+						comparator, key, list.subList(lower, upper + 1), middle - lower);
+			}
+		}
+		return absentBehavior.resultIndex(lower);
+	}
 
-  /**
-   *
-   * Return the index of the first list element that compares as greater than the key, or {@code
-   * list.size()} if there is no such element.
-   */
-public static <E> int binarySearchAdd(List<? extends E> list, E key, Comparator<? super E> comparator) {
-      return binarySearch(list, key, comparator, KeyPresentBehavior.FIRST_AFTER, KeyAbsentBehavior.INVERTED_INSERTION_INDEX);
-  }
+	/**
+	 *
+	 * Return the index of the first list element that compares as greater than the key, or {@code
+	 * list.size()} if there is no such element.
+	 */
+	public static <E> int binarySearchAdd(List<? extends E> list, E key, Comparator<? super E> comparator) {
+		return binarySearch(list, key, comparator, KeyPresentBehavior.FIRST_AFTER, KeyAbsentBehavior.INVERTED_INSERTION_INDEX);
+	}
 
-  /**
-   * Return the index of the first list element that compares as equal to the key.
-   */
-public static <E> int binarySearchGet(List<? extends E> list, E key, Comparator<? super E> comparator) {
-      return binarySearch(list, key, comparator, KeyPresentBehavior.FIRST_PRESENT, KeyAbsentBehavior.INVERTED_INSERTION_INDEX);
-  }
+	/**
+	 * Return the index of the first list element that compares as equal to the key.
+	 */
+	public static <E> int binarySearchGet(List<? extends E> list, E key, Comparator<? super E> comparator) {
+		return binarySearch(list, key, comparator, KeyPresentBehavior.FIRST_PRESENT, KeyAbsentBehavior.INVERTED_INSERTION_INDEX);
+	}
 }
