@@ -10,12 +10,12 @@ import org.magicwerk.brownies.core.CollectionTools;
 import org.magicwerk.brownies.core.MathTools;
 import org.magicwerk.brownies.core.PrintTools;
 import org.magicwerk.brownies.core.TypeTools;
-import org.magicwerk.brownies.core.collections.CrossList;
 import org.magicwerk.brownies.core.collections.Grid;
 import org.magicwerk.brownies.core.collections.PivotTable;
 import org.magicwerk.brownies.core.collections.PivotTableCreator;
 import org.magicwerk.brownies.core.files.FileTools;
 import org.magicwerk.brownies.core.logback.LogbackTools;
+import org.magicwerk.brownies.core.stat.MultiplyGenerator;
 import org.magicwerk.brownies.core.types.Type;
 import org.magicwerk.brownies.core.values.Record;
 import org.magicwerk.brownies.core.values.Table;
@@ -187,13 +187,12 @@ public class PerformanceReport {
 		GapList<String> runs = GapList.create("Get last", "Get first", "Get random", "Add last", "Add first", "Add random", "Add near 0.1", "Add near 0.01",
 				"Add iter 2.0");
 		GapList<String> types = GapList.create("GapList", "ArrayList", "LinkedList");
-		CrossList<String> cl = new CrossList<String>();
-		cl.add(runs);
-		cl.add(types);
-		assert (cl.size() == vals.size());
 
-		for (int i = 0; i < cl.size(); i++) {
-			List<String> l = cl.get(i);
+		IList<IList<String>> result = MultiplyGenerator.list(runs, types);
+		assert (result.size() == vals.size());
+
+		for (int i = 0; i < result.size(); i++) {
+			List<String> l = result.get(i);
 			Record rec = Record.create(JAVA, java, RELEASE, release, RUN, l.get(0), TYPE, l.get(1), TIME, vals.get(i));
 			TableTools.addRecord(table, rec, true);
 		}
