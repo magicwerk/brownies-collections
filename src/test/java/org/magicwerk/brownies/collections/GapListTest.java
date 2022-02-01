@@ -24,10 +24,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Test of org.magicwerk.brownies.collections.GapList.
+ * Test of class {@link GapList}.
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 @Trace(traceClass = "GapList")
 public class GapListTest {
@@ -41,6 +40,7 @@ public class GapListTest {
 	}
 
 	static void test() {
+		testRetain();
 		//testGetAll();
 		//testSplit();
 		//testRemove();
@@ -623,6 +623,11 @@ public class GapListTest {
 	@Trace(traceMethod = "remove", parameters = Trace.THIS | Trace.ALL_PARAMS, result = Trace.THIS)
 	public static void testRemoveRange() {
 		getSortedGapList(7).remove(1, 5);
+	}
+
+	@Trace(parameters = Trace.THIS | Trace.ALL_PARAMS, result = Trace.THIS)
+	public static void testRetain() {
+		getSortedGapList(7).retain(1, 3);
 	}
 
 	@Trace(parameters = Trace.THIS | Trace.ALL_PARAMS)
