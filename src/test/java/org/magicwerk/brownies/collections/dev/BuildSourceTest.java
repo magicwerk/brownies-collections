@@ -38,7 +38,8 @@ public class BuildSourceTest extends FileBuilder {
 	}
 
 	String processClass(String src) {
-		src = substitute("GapList", src, testClass);
+		// Replace GapList, but not calls to class GapLists
+		src = substitute("GapList(?!s)", src, testClass);
 		src = substitute(testClass + "Test", src, testName);
 
 		String regex = "(?s)Begin test buffer.*End test buffer";

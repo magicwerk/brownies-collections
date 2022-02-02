@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import org.magictest.client.Assert;
 import org.magictest.client.Capture;
@@ -22,6 +23,8 @@ import org.magictest.client.Format;
 import org.magictest.client.Formatter;
 import org.magictest.client.Test;
 import org.magictest.client.Trace;
+import org.magicwerk.brownies.collections.helper.GapLists;
+import org.magicwerk.brownies.core.CheckTools;
 import org.magicwerk.brownies.core.PrintTools;
 import org.magicwerk.brownies.core.serialize.SerializeTools;
 import org.magicwerk.brownies.core.strings.StringFormatter;
@@ -29,23 +32,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Test of org.magicwerk.brownies.collections.BigList.
+ * Test of class {@link BigList}.
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 @Trace(traceClass = "BigList")
 public class BigListGapListTest {
 
 	static final Logger LOG = LoggerFactory.getLogger(BigListGapListTest.class);
 
-	public static final String RELEASE = "0.9.14";
-
 	public static void main(String[] args) {
 		test();
 	}
 
 	static void test() {
+		testStream();
+		testParallelStream();
+		//testRetain();
 		//testGetAll();
 		//testSplit();
 		//testRemove();
@@ -482,6 +485,13 @@ public class BigListGapListTest {
 		l1.getCount(9);
 	}
 
+	@Trace(parameters = Trace.THIS | Trace.ALL_PARAMS)
+	public static void testGetCountIf() {
+		IList<Integer> l1 = getSortedBigList(7);
+		l1.getCountIf(i -> i == 1);
+		l1.getCountIf(i -> i % 2 == 0);
+	}
+
 	@Capture
 	public static void testFilter() {
 		IList<Integer> l1 = getSortedBigList(7);
@@ -583,6 +593,11 @@ public class BigListGapListTest {
 	@Trace(traceMethod = "remove", parameters = Trace.THIS | Trace.ALL_PARAMS, result = Trace.THIS)
 	public static void testRemoveRange() {
 		getSortedBigList(7).remove(1, 5);
+	}
+
+	@Trace(parameters = Trace.THIS | Trace.ALL_PARAMS, result = Trace.THIS)
+	public static void testRetain() {
+		getSortedBigList(7).retain(1, 3);
 	}
 
 	@Trace(parameters = Trace.THIS | Trace.ALL_PARAMS)
@@ -882,6 +897,8 @@ public class BigListGapListTest {
 		list3.add(1);
 	}
 
+	// Iterator
+
 	@Capture
 	public static void testIterator() {
 		{
@@ -1022,6 +1039,30 @@ public class BigListGapListTest {
 			}
 			System.out.println(PrintTools.print(gapList) + " (" + PrintTools.print(list) + ")");
 		}
+	}
+
+	// Stream
+
+	@Capture
+	public static void testStream() {
+		IList<Integer> l = getSortedBigList(10_000);
+
+		List<Integer> list = l.stream().collect(Collectors.toList());
+		BigList<Integer> list2 = l.stream().collect(GapLists.toBigList());
+
+		CheckTools.check(list.equals(l));
+		CheckTools.check(list2.equals(l));
+	}
+
+	@Capture
+	public static void testParallelStream() {
+		IList<Integer> l = getSortedBigList(10_000);
+
+		List<Integer> list = l.parallelStream().collect(Collectors.toList());
+		BigList<Integer> list2 = l.parallelStream().collect(GapLists.toBigList());
+
+		CheckTools.check(list.equals(l));
+		CheckTools.check(list2.equals(l));
 	}
 
 }
