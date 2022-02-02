@@ -1119,13 +1119,15 @@ public LongGapList doCreate(int capacity) {
 
     @Override
 protected void doRemoveAll(int index, int len) {
-    if (len > 0 && len == size()) {
-        doModify();
-        doClear();
-    } else {
-        if (!doRemoveAllFast(index, len)) {
-            for (int i = 0; i < len; i++) {
-                doRemove(index);
+    if (len > 0) {
+        if (len == size()) {
+            doModify();
+            doClear();
+        } else {
+            if (!doRemoveAllFast(index, len)) {
+                for (int i = 0; i < len; i++) {
+                    doRemove(index);
+                }
             }
         }
     }

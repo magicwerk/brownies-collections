@@ -119,7 +119,7 @@ public class GapLists extends GapListPrimitives {
 	 *
 	 * @return collector
 	 */
-	public static <T> Collector<T, ?, IList<T>> toGapList() {
+	public static <T> Collector<T, ?, GapList<T>> toGapList() {
 		return new CollectorImpl<>((Supplier<List<T>>) GapList::new, List::add,
 				(left, right) -> {
 					left.addAll(right);
@@ -133,7 +133,7 @@ public class GapLists extends GapListPrimitives {
 	 *
 	 * @return collector
 	 */
-	public static <T> Collector<T, ?, IList<T>> toBigList() {
+	public static <T> Collector<T, ?, BigList<T>> toBigList() {
 		return new CollectorImpl<>((Supplier<List<T>>) BigList::new, List::add,
 				(left, right) -> {
 					left.addAll(right);

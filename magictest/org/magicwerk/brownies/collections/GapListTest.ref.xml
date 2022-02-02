@@ -1568,6 +1568,14 @@
       <error></error>
     </traceStep>
   </traceTest>
+  <captureTest name="testParallelStream">
+    <runDate>2022-02-02T13:46:01.887+01:00</runDate>
+    <runDuration>0.040588</runDuration>
+    <exception></exception>
+    <captureStep>
+      <text outputType="TEXT">""</text>
+    </captureStep>
+  </captureTest>
   <traceTest name="testPeekPoll">
     <runDate>2015-03-01T17:44:46.392+01:00</runDate>
     <runDuration>0.028714575</runDuration>
@@ -3073,6 +3081,14 @@
       <error></error>
     </traceStep>
   </traceTest>
+  <captureTest name="testStream">
+    <runDate>2022-02-02T13:54:53.164+01:00</runDate>
+    <runDuration>0.0030065</runDuration>
+    <exception></exception>
+    <captureStep>
+      <text outputType="TEXT">""</text>
+    </captureStep>
+  </captureTest>
   <traceTest name="testSwap">
     <runDate>2014-08-06T10:28:25.202+02:00</runDate>
     <runDuration>0.001161237</runDuration>

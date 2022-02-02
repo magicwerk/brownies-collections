@@ -125,11 +125,10 @@ public void clear() {
 }
 
     /**
- * Resizes the list so it will afterwards have a size of
- * <code>len</code>. If the list must grow, the specified
- * element <code>elem</code> will be used for filling.
+ * Resizes the list so it will afterwards have a size of <code>len</code>.
+ * If the list must grow, the specified element <code>elem</code> will be used for filling.
  *
- * @param len  	length of list
+ * @param len  	new size of list
  * @param elem 	element which will be used for extending the list
  * @throws 	 	IndexOutOfBoundsException if the range is invalid
  */
@@ -139,8 +138,9 @@ public void resize(int len, int elem) {
     if (len < size) {
         remove(len, size - len);
     } else {
+        doEnsureCapacity(len);
         for (int i = size; i < len; i++) {
-            add(elem);
+            doAdd(i, elem);
         }
     }
     assert (size() == len);
@@ -199,6 +199,7 @@ public int set(int index, int elem) {
  * @param index	index where element will be placed
  * @param elem	element to put
  * @return		old element if an element was replaced, null if the element was added
+ * @throws IndexOutOfBoundsException if the index is out of range (<tt>index &lt; 0 || index &gt; size()</tt>)
  */
 public int put(int index, int elem) {
     checkIndexAdd(index);
@@ -235,7 +236,15 @@ public boolean add(int elem) {
     return doAdd(-1, elem);
 }
 
-    
+    /**
+ * Inserts the specified element at the specified position in this list.
+ * Shifts the element currently at that position (if any) and any subsequent elements to the right (adds one to their indices).
+ *
+ * @param index index at which the specified element is to be inserted
+ * @param elem element to be inserted
+ * @throws IndexOutOfBoundsException {@inheritDoc}
+ */
+
 public void add(int index, int elem) {
     checkIndexAdd(index);
     doAdd(index, elem);
@@ -1381,6 +1390,19 @@ public IIntList extract(int index, int len) {
     }
     remove(index, len);
     return list;
+}
+
+    /**
+ * Retain specified range of elements from list, the other elements are removed.
+ *
+ * @param index	index of first element to retain
+ * @param len	number of elements to retain
+ * @throws 		IndexOutOfBoundsException if the range is invalid
+ */
+public void retain(int index, int len) {
+    checkRange(index, len);
+    doRemoveAll(index + len, size() - index - len);
+    doRemoveAll(0, index);
 }
 
     /**
