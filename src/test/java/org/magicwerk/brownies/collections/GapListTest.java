@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import org.magictest.client.Assert;
 import org.magictest.client.Capture;
@@ -17,6 +18,8 @@ import org.magictest.client.Format;
 import org.magictest.client.Formatter;
 import org.magictest.client.Test;
 import org.magictest.client.Trace;
+import org.magicwerk.brownies.collections.helper.GapLists;
+import org.magicwerk.brownies.core.CheckTools;
 import org.magicwerk.brownies.core.PrintTools;
 import org.magicwerk.brownies.core.serialize.SerializeTools;
 import org.magicwerk.brownies.core.strings.StringFormatter;
@@ -33,14 +36,14 @@ public class GapListTest {
 
 	static final Logger LOG = LoggerFactory.getLogger(GapListTest.class);
 
-	public static final String RELEASE = "0.9.14";
-
 	public static void main(String[] args) {
 		test();
 	}
 
 	static void test() {
-		testRetain();
+		testStream();
+		testParallelStream();
+		//testRetain();
 		//testGetAll();
 		//testSplit();
 		//testRemove();
@@ -927,6 +930,8 @@ public class GapListTest {
 		list3.add(1);
 	}
 
+	// Iterator
+
 	@Capture
 	public static void testIterator() {
 		{
@@ -1067,6 +1072,30 @@ public class GapListTest {
 			}
 			System.out.println(PrintTools.print(gapList) + " (" + PrintTools.print(list) + ")");
 		}
+	}
+
+	// Stream
+
+	@Capture
+	public static void testStream() {
+		IList<Integer> l = getSortedGapList(10_000);
+
+		List<Integer> list = l.stream().collect(Collectors.toList());
+		GapList<Integer> list2 = l.stream().collect(GapLists.toGapList());
+
+		CheckTools.check(list.equals(l));
+		CheckTools.check(list2.equals(l));
+	}
+
+	@Capture
+	public static void testParallelStream() {
+		IList<Integer> l = getSortedGapList(10_000);
+
+		List<Integer> list = l.parallelStream().collect(Collectors.toList());
+		GapList<Integer> list2 = l.parallelStream().collect(GapLists.toGapList());
+
+		CheckTools.check(list.equals(l));
+		CheckTools.check(list2.equals(l));
 	}
 
 }

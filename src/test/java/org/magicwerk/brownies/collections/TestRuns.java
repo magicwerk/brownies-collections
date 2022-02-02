@@ -174,6 +174,8 @@ public class TestRuns {
 		runner.run();
 		runner.printResults();
 
+		String RELEASE = "0.9.16"; // FIXME retrieve automatically
+
 		// Add result to report
 		PerformanceReport report = new PerformanceReport();
 		report.load();
@@ -183,7 +185,7 @@ public class TestRuns {
 			if (SystemTools.Is64bit) {
 				javaVersion += "_x64";
 			}
-			RunInfo runInfo = new RunInfo().setJava(javaVersion).setVmArgs(SystemTools.getJvmArgsString()).setRelease(GapListTest.RELEASE)
+			RunInfo runInfo = new RunInfo().setJava(javaVersion).setVmArgs(SystemTools.getJvmArgsString()).setRelease(RELEASE)
 					.setRun(runner.getName()).setType(result.getName()).setTime(result.getAvgTime());
 			report.addRun(runInfo);
 		}

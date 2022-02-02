@@ -196,12 +196,14 @@ public class GapListTestPerformance {
 	}
 
 	static void runJava(String[] args) {
+		String RELEASE = "0.9.16"; // FIXME retrieve automatically
+
 		JvmRunner runner = new JvmRunner();
 		runner.setRunnable((a) -> doRun());
 		runner.setStart(() -> {
 			PerformanceReport report = new PerformanceReport();
 			report.load();
-			report.deleteRelease(GapListTest.RELEASE);
+			report.deleteRelease(RELEASE);
 			report.save();
 		});
 
