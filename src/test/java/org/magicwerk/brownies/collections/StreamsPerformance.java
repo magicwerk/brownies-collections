@@ -40,19 +40,6 @@ public class StreamsPerformance {
 		//testFlatMap();
 	}
 
-	//	void runJhm() {
-	//		int secs = 5;
-	//		Options opt = new OptionsBuilder().//
-	//				include("StreamsBenchmark.testList")
-	//				//include("StreamsBenchmark.testError")
-	//				//include("StreamsBenchmark.testCollection")
-	//				//.mode(Mode.AverageTime)
-	//				.forks(1).warmupIterations(2).warmupTime(TimeValue.seconds(secs)).//
-	//				measurementIterations(2).measurementTime(TimeValue.seconds(secs)).//
-	//				build();
-	//		//new Runner(opt).run();
-	//	}
-
 	//
 
 	static void testFlatMap() {
