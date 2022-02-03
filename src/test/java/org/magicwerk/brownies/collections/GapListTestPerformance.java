@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Deque;
 import java.util.List;
 import java.util.RandomAccess;
+import java.util.stream.Collectors;
 
 import org.magicwerk.brownies.collections.TestFactories.ArrayListFactory;
 import org.magicwerk.brownies.collections.TestFactories.GapListFactory;
@@ -18,8 +19,13 @@ import org.magicwerk.brownies.core.SystemTools;
 import org.magicwerk.brownies.core.Timer;
 import org.magicwerk.brownies.core.logback.LogbackTools;
 import org.magicwerk.brownies.core.stat.NumberStat;
+import org.magicwerk.brownies.test.JmhRunner;
+import org.magicwerk.brownies.test.JmhRunner.Options;
 import org.magicwerk.brownies.tools.runner.JvmRunner;
 import org.magicwerk.brownies.tools.runner.Runner;
+import org.openjdk.jmh.annotations.Benchmark;
+import org.openjdk.jmh.annotations.Scope;
+import org.openjdk.jmh.annotations.State;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -35,8 +41,9 @@ public class GapListTestPerformance {
 	private static final Logger LOG = LogbackTools.getConsoleLogger();
 
 	public static void main(String[] args) {
-		run(args);
+		//run(args);
 
+		testPerformanceFilterJmh();
 		//testPerfFilter();
 		//testPerfRemoveRangeAll();
 		//testPerfRemoveRetainAll();
@@ -44,11 +51,60 @@ public class GapListTestPerformance {
 		//testPerfExtend();
 	}
 
+	//
+
+	static void testPerformanceFilterJmh() {
+		Options opts = new Options().includeClass(PerformanceFilterJmhTest.class);
+		new JmhRunner().runJmh(opts);
+	}
+
+	public static class PerformanceFilterJmhTest {
+
+		//static int LIST_SIZE = 10; // filter factor 3, map factor 2
+		static int LIST_SIZE = 1000; // factor 1.5
+		//static int LIST_SIZE = 1_000_000; // factor 1.05
+
+		@State(Scope.Thread)
+		public static class ListState {
+			IList<Integer> list;
+			{
+				int num = LIST_SIZE;
+				list = new GapList<>(num);
+				for (int i = 0; i < num; i++) {
+					list.add(i);
+				}
+			}
+		}
+
+		@Benchmark
+		public List<Integer> testFilteredList(ListState state) {
+			return state.list.filteredList((i) -> i % 2 == 0);
+		}
+
+		@Benchmark
+		public List<Integer> testFilteredStream(ListState state) {
+			return state.list.stream().filter((i) -> i % 2 == 0).collect(Collectors.toList());
+		}
+
+		@Benchmark
+		public List<Integer> testMappedList(ListState state) {
+			return state.list.mappedList(i -> i + 1);
+		}
+
+		@Benchmark
+		public List<Integer> testMappedStream(ListState state) {
+			return state.list.stream().map(i -> i + 1).collect(Collectors.toList());
+		}
+
+	}
+
+	//
+
 	static void testPerfFilter() {
 		Runner runner = new Runner();
 		//runner.setInclude(TestRuns.GAPLIST);
-		runner.add(new FilterLambdaRun().setSize(10).setNumOps(10).setFactory(new GapListFactory()).setName("Lambda"));
-		runner.add(new FilterIListRun().setSize(10).setNumOps(10).setFactory(new GapListFactory()).setName("IList"));
+		runner.add(new FilterLambdaRun().setSize(10).setNumOps(100).setFactory(new GapListFactory()).setName("Lambda"));
+		runner.add(new FilterIListRun().setSize(10).setNumOps(100).setFactory(new GapListFactory()).setName("IList"));
 		runner.run();
 		runner.printResults();
 	}

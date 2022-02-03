@@ -238,26 +238,31 @@ public class TestRuns {
 			return factory2.getName();
 		}
 
+		/** Setter for {@link #factory2} */
 		public FactoryRun2 setFactory(Factory factory) {
 			this.factory2 = factory;
 			return this;
 		}
 
+		/** Setter for {@link #size} */
 		public FactoryRun2 setSize(int size) {
 			this.size = size;
 			return this;
 		}
 
+		/** Setter for {@link #numOps} */
 		public FactoryRun2 setNumOps(int numOps) {
 			this.numOps = numOps;
 			return this;
 		}
 
+		/** Setter for {@link #near} */
 		public FactoryRun2 setNear(double near) {
 			this.near = near;
 			return this;
 		}
 
+		/** Setter for {@link #localOps} */
 		public FactoryRun2 setLocalOps(int localOps) {
 			this.localOps = localOps;
 			return this;

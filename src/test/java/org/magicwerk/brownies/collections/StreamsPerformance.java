@@ -11,13 +11,12 @@ import java.util.stream.IntStream;
 import org.magicwerk.brownies.collections.helper.GapLists;
 import org.magicwerk.brownies.core.Timer;
 import org.magicwerk.brownies.core.logback.LogbackTools;
+import org.magicwerk.brownies.test.JmhRunner;
+import org.magicwerk.brownies.test.JmhRunner.Options;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.runner.RunnerException;
-import org.openjdk.jmh.runner.options.Options;
-import org.openjdk.jmh.runner.options.OptionsBuilder;
-import org.openjdk.jmh.runner.options.TimeValue;
 import org.slf4j.Logger;
 
 /**
@@ -37,21 +36,22 @@ public class StreamsPerformance {
 	}
 
 	static void run() {
-		testFlatMap();
+		testPerformanceIterationJmh();
+		//testFlatMap();
 	}
 
-	void runJhm() {
-		int secs = 5;
-		Options opt = new OptionsBuilder().//
-				include("StreamsBenchmark.testList")
-				//include("StreamsBenchmark.testError")
-				//include("StreamsBenchmark.testCollection")
-				//.mode(Mode.AverageTime)
-				.forks(1).warmupIterations(2).warmupTime(TimeValue.seconds(secs)).//
-				measurementIterations(2).measurementTime(TimeValue.seconds(secs)).//
-				build();
-		//new Runner(opt).run();
-	}
+	//	void runJhm() {
+	//		int secs = 5;
+	//		Options opt = new OptionsBuilder().//
+	//				include("StreamsBenchmark.testList")
+	//				//include("StreamsBenchmark.testError")
+	//				//include("StreamsBenchmark.testCollection")
+	//				//.mode(Mode.AverageTime)
+	//				.forks(1).warmupIterations(2).warmupTime(TimeValue.seconds(secs)).//
+	//				measurementIterations(2).measurementTime(TimeValue.seconds(secs)).//
+	//				build();
+	//		//new Runner(opt).run();
+	//	}
 
 	//
 
@@ -108,141 +108,149 @@ public class StreamsPerformance {
 
 	//
 
-	// State is shared across all invocations of same benchmark
-	@State(Scope.Benchmark)
-	public static class ListState {
-		List<Integer> list = new ArrayList<>();
+	static void testPerformanceIterationJmh() {
+		Options opts = new Options().includeClass(PerformanceStreamJmhTest.class);
+		new JmhRunner().runJmh(opts);
+	}
 
-		public ListState() {
-			for (int i = 0; i < NUM_ELEMS; i++) {
-				list.add(i);
+	public static class PerformanceStreamJmhTest {
+
+		// State is shared across all invocations of same benchmark
+		@State(Scope.Benchmark)
+		public static class ListState {
+			List<Integer> list = new ArrayList<>();
+
+			public ListState() {
+				for (int i = 0; i < NUM_ELEMS; i++) {
+					list.add(i);
+				}
 			}
 		}
-	}
 
-	@State(Scope.Benchmark)
-	public static class CollectionState {
-		Collection<Integer> list = new HashSet<>();
+		@State(Scope.Benchmark)
+		public static class CollectionState {
+			Collection<Integer> list = new HashSet<>();
 
-		public CollectionState() {
-			for (int i = 0; i < NUM_ELEMS; i++) {
-				list.add(i);
+			public CollectionState() {
+				for (int i = 0; i < NUM_ELEMS; i++) {
+					list.add(i);
+				}
 			}
 		}
-	}
 
-	// -- Collection
+		// -- Collection
 
-	// Stream: base line
-	@Benchmark
-	public int testCollectionStream(CollectionState state) {
-		int count = (int) state.list.stream().filter(n -> n % 2 == 0).count();
-		return count;
-	}
-
-	@Benchmark
-	public int testCollectionStreamParallel(CollectionState state) {
-		int count = (int) state.list.parallelStream().filter(n -> n % 2 == 0).count();
-		return count;
-	}
-
-	// For-loop: faster than stream
-	@Benchmark
-	public int testCollectionIterate(CollectionState state) {
-		int count = 0;
-		for (int n : state.list) {
-			if (n % 2 == 0) {
-				count++;
-			}
+		// Stream: base line
+		@Benchmark
+		public int testCollectionStream(CollectionState state) {
+			int count = (int) state.list.stream().filter(n -> n % 2 == 0).count();
+			return count;
 		}
-		return count;
-	}
 
-	//
-
-	@Benchmark
-	public int testErrorCollectionStream(CollectionState state) {
-		int count = (int) state.list.stream().filter(n -> {
-			if (true) {
-				throw new IllegalArgumentException();
-			}
-			return true;
-		}).count();
-		return count;
-
-	}
-
-	@Benchmark
-	public int testErrorCollectionIterate(CollectionState state) {
-		int count = 0;
-		for (int n : state.list) {
-			if (true) {
-				throw new IllegalArgumentException();
-			}
+		@Benchmark
+		public int testCollectionStreamParallel(CollectionState state) {
+			int count = (int) state.list.parallelStream().filter(n -> n % 2 == 0).count();
+			return count;
 		}
-		return count;
-	}
 
-	// -- List
-
-	// For-loop: quite slow, as an iterator is involved
-	@Benchmark
-	public int testListIterate(ListState state) {
-		int count = 0;
-		for (int n : state.list) {
-			if (n % 2 == 0) {
-				count++;
+		// For-loop: faster than stream
+		@Benchmark
+		public int testCollectionIterate(CollectionState state) {
+			int count = 0;
+			for (int n : state.list) {
+				if (n % 2 == 0) {
+					count++;
+				}
 			}
+			return count;
 		}
-		return count;
-	}
 
-	// Stream: Faster than the for-loop, uses array index
-	@Benchmark
-	public int testListStream(ListState state) {
-		int count = (int) state.list.stream().filter(n -> n % 2 == 0).count();
-		return count;
-	}
+		//
 
-	// Faster than stream, no iterator, but size determined in each loop
-	@Benchmark
-	public int testListIndexed(ListState state) {
-		int count = 0;
-		for (int i = 0; i < state.list.size(); i++) {
-			int n = state.list.get(i);
-			if (n % 2 == 0) {
-				count++;
+		@Benchmark
+		public int testErrorCollectionStream(CollectionState state) {
+			int count = (int) state.list.stream().filter(n -> {
+				if (true) {
+					throw new IllegalArgumentException();
+				}
+				return true;
+			}).count();
+			return count;
+
+		}
+
+		@Benchmark
+		public int testErrorCollectionIterate(CollectionState state) {
+			int count = 0;
+			for (int n : state.list) {
+				if (true) {
+					throw new IllegalArgumentException();
+				}
 			}
+			return count;
 		}
-		return count;
-	}
 
-	// Fastest, size just determined once
-	@Benchmark
-	public int test2ListIndexedSized(ListState state) {
-		int count = 0;
-		int size = state.list.size();
-		for (int i = 0; i < size; i++) {
-			int n = state.list.get(i);
-			if (n % 2 == 0) {
-				count++;
+		// -- List
+
+		// For-loop: quite slow, as an iterator is involved
+		@Benchmark
+		public int testListIterate(ListState state) {
+			int count = 0;
+			for (int n : state.list) {
+				if (n % 2 == 0) {
+					count++;
+				}
 			}
+			return count;
 		}
-		return count;
+
+		// Stream: Faster than the for-loop, uses array index
+		@Benchmark
+		public int testListStream(ListState state) {
+			int count = (int) state.list.stream().filter(n -> n % 2 == 0).count();
+			return count;
+		}
+
+		// Faster than stream, no iterator, but size determined in each loop
+		@Benchmark
+		public int testListIndexed(ListState state) {
+			int count = 0;
+			for (int i = 0; i < state.list.size(); i++) {
+				int n = state.list.get(i);
+				if (n % 2 == 0) {
+					count++;
+				}
+			}
+			return count;
+		}
+
+		// Fastest, size just determined once
+		@Benchmark
+		public int test2ListIndexedSized(ListState state) {
+			int count = 0;
+			int size = state.list.size();
+			for (int i = 0; i < size; i++) {
+				int n = state.list.get(i);
+				if (n % 2 == 0) {
+					count++;
+				}
+			}
+			return count;
+		}
+
+		//
+
+		// Sequential search is faster until 1'000 elements
+
+		@Benchmark
+		public boolean testMatch(ListState state) {
+			return state.list.stream().anyMatch(n -> n == NUM_ELEMS - 1);
+		}
+
+		@Benchmark
+		public boolean testMatchParallel(ListState state) {
+			return state.list.parallelStream().anyMatch(n -> n == NUM_ELEMS - 1);
+		}
+
 	}
-
-	//
-
-	// Sequential search is faster until 1'000 elements
-
-	@Benchmark
-	public boolean testMatch(ListState state) {
-		return state.list.stream().anyMatch(n -> n == NUM_ELEMS - 1);
-	}
-
-	@Benchmark
-	public boolean testMatchParallel(ListState state) {
-		return state.list.parallelStream().anyMatch(n -> n == NUM_ELEMS - 1);
-	}
-
 }
