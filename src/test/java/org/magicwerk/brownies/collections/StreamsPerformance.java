@@ -4,16 +4,17 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.magicwerk.brownies.collections.helper.GapLists;
-import org.magicwerk.brownies.core.Timer;
 import org.magicwerk.brownies.core.logback.LogbackTools;
 import org.magicwerk.brownies.test.JmhRunner;
 import org.magicwerk.brownies.test.JmhRunner.Options;
 import org.openjdk.jmh.annotations.Benchmark;
+import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.runner.RunnerException;
@@ -23,7 +24,6 @@ import org.slf4j.Logger;
  * JMH benchmark for iterating/streaming List.
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 public class StreamsPerformance {
 
@@ -36,71 +36,110 @@ public class StreamsPerformance {
 	}
 
 	static void run() {
-		testPerformanceIterationJmh();
-		//testFlatMap();
+		testPerformanceFlatMapJmhTest();
+		//testPerformanceIterationJmh();
 	}
 
 	//
 
-	static void testFlatMap() {
-		for (int i = 0; i < 10; i++) {
-			testFlatMap1(10, 100_000);
-			testFlatMap2(10, 100_000);
-		}
+	static void testPerformanceFlatMapJmhTest() {
+		Options opts = new Options().includeClass(PerformanceFlatMapJmhTest.class);
+		//opts.useGcProfiler();
+		JmhRunner runner = new JmhRunner();
+		//runner.setBuildBrowniesTestAllJar(true);
+		runner.runJmh(opts);
 	}
 
-	static void testFlatMap1(int size, int num) {
-		IList<Integer> is = IntStream.range(1, size).boxed().collect(GapLists.toGapList());
-		IList<String> sss = GapList.create();
-		Timer t = new Timer();
-		for (int i = 0; i < num; i++) {
-			IList<String> ss = flatMap(is, e -> map(e));
-			sss.addAll(ss);
-		}
-		LOG.info("{}", t.elapsedString());
-		//LOG.info("{} -> {}", is, ss);
-	}
+	@State(Scope.Benchmark)
+	public static class PerformanceFlatMapJmhTest {
 
-	static void testFlatMap2(int size, int num) {
-		IList<Integer> is = IntStream.range(1, size).boxed().collect(GapLists.toGapList());
-		IList<String> sss = GapList.create();
-		Timer t = new Timer();
-		for (int i = 0; i < num; i++) {
-			List<String> ss = is.stream().flatMap(e -> map(e).stream()).collect(Collectors.toList());
-			sss.addAll(ss);
-		}
-		LOG.info("{}", t.elapsedString());
-		//LOG.info("{} -> {}", is, ss);
-	}
+		@Param({ "10", "100", "1000" })
+		//@Param({ "1", "5", "10", "100", "1000" })
+		public static int SIZE;
 
-	static IList<String> map(int n) {
-		IList<String> l = GapList.create();
-		for (int i = 0; i < n; i++) {
-			l.add("" + n + n);
+		@State(Scope.Benchmark)
+		public static class ListState {
+			IList<Integer> list = IntStream.range(1, SIZE).boxed().collect(GapLists.toGapList());
 		}
-		return l;
-	}
 
-	static <T, R> IList<R> flatMap(List<T> list, Function<T, Collection<R>> flatMap) {
-		IList<R> result = GapList.create();
-		for (T elem : list) {
-			result.addAll(flatMap.apply(elem));
+		//
+
+		@Benchmark
+		public Object testFlatMapStream(ListState state) {
+			List<Integer> r = state.list.stream().flatMap(e -> map(e).stream()).collect(Collectors.toList());
+			return r;
 		}
-		return result;
-	}
 
-	static IList<String> listFiles(String dir) {
-		return GapList.create(dir + "1", dir + "2");
+		@Benchmark
+		public Object testFlatMapGapList(ListState state) {
+			List<Integer> r = flatMap(state.list, e -> map(e));
+			return r;
+		}
+
+		//
+
+		@Benchmark
+		public Object testReduceStream(ListState state) {
+			Integer i = state.list.stream().reduce(0, Integer::sum);
+			return i;
+		}
+
+		@Benchmark
+		public Object testReduceGapList(ListState state) {
+			Integer i = reduce(state.list, 0, Integer::sum);
+			return i;
+		}
+
+		//
+
+		@Benchmark
+		public Object testFlatMapReduceStream(ListState state) {
+			Integer i = state.list.stream().flatMap(e -> map(e).stream()).reduce(0, Integer::sum);
+			return i;
+		}
+
+		@Benchmark
+		public Object testFlatMapReduceGapList(ListState state) {
+			Integer i = reduce(flatMap(state.list, e -> map(e)), 0, Integer::sum);
+			return i;
+		}
+
+		//
+
+		static IList<Integer> map(int n) {
+			IList<Integer> l = GapList.create();
+			for (int i = 0; i < n; i++) {
+				l.add(n * n);
+			}
+			return l;
+		}
+
+		static <T, R> IList<R> flatMap(List<T> list, Function<T, Collection<R>> flatMap) {
+			IList<R> result = GapList.create();
+			for (T elem : list) {
+				result.addAll(flatMap.apply(elem));
+			}
+			return result;
+		}
+
+		static <T> T reduce(List<T> list, T identity, BinaryOperator<T> accumulator) {
+			T result = identity;
+			for (T element : list) {
+				result = accumulator.apply(result, element);
+			}
+			return result;
+		}
+
 	}
 
 	//
 
 	static void testPerformanceIterationJmh() {
-		Options opts = new Options().includeClass(PerformanceStreamJmhTest.class);
+		Options opts = new Options().includeClass(PerformanceIterationJmhTest.class);
 		new JmhRunner().runJmh(opts);
 	}
 
-	public static class PerformanceStreamJmhTest {
+	public static class PerformanceIterationJmhTest {
 
 		// State is shared across all invocations of same benchmark
 		@State(Scope.Benchmark)
