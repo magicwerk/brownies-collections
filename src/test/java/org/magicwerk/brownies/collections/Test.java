@@ -1,7 +1,6 @@
 package org.magicwerk.brownies.collections;
 
-import org.magictest.MagicTest;
-import org.magictest.ng.MagicTestNG;
+import org.magicwerk.brownies.test.MagicTestRunner;
 
 /**
  * Test runner.
@@ -11,47 +10,52 @@ import org.magictest.ng.MagicTestNG;
  */
 public class Test {
 
-    public static void main(String[] args) {
-    	test();
-        //testNg();
-    	//testMagicTestNg();
-    }
+	public static void main(String[] args) {
+		new Test().run();
+	}
 
-    public static void test() {
-        new MagicTest().run(new String[] {
-              "-run",
-              //"-save",
-              "-loglevel", "trace",
-              //"-method", "org.magicwerk.brownies.collections.GapListTest.testInitMult",
-              "-class", "org.magicwerk.brownies.collections.IntGapListTest",
-              //"-package", "org.magicwerk.brownies.collections"
-        });
-    }
+	void run() {
+		runMagicTest();
+	}
 
-    @org.testng.annotations.Test
-    static void testNg() {
-        String[] args = new String[] {
-                //"C:\\Users\\Thomas\\AppData\\Local\\Temp\\testng-eclipse-490876144\\testng-customsuite.xml"
-                "-testclass", "org.magicwerk.brownies.collections.BigListTest"
-        };
-        org.magictest.ng.MagicTestNG.main(args);
-        //org.testng.TestNG.main(args);
-    }
+	void runMagicTest() {
+		MagicTestRunner mtr = new MagicTestRunner();
+		mtr.setShowActualReport(true);
+		mtr.setShowReferenceReport(false);
 
-    static void testSource() {
-        new MagicTest().run(new String[] {
-                "-source", "org.magicwerk.brownies.collections.GapSet"
-        });
-    }
+		String clazz = "org.magicwerk.brownies.collections.BigListGapListTest";
 
-    static void testMagicTestNg() {
-        String[] args = new String[] {
-                //"C:\\Users\\Thomas\\AppData\\Local\\Temp\\testng-eclipse-490876144\\testng-customsuite.xml"
-        		//"testng.xml"
-        		"-testclass",
-               		"org.magicwerk.brownies.collections.KeyListTest"
-        };
-        MagicTestNG.main(args);
-    }
+		// MagicTest
 
+		IList<String> magicTestArgs = GapList.create(
+				"-run",
+				//"-save",
+				"-loglevel", "trace",
+				//"-delete",
+				//"-missing", clazz
+				//"-method", "org.magicwerk.brownies.core.context.ContextTest.test0Ok",
+				"-class", clazz
+		//"-package", "org.magicwerk.brownies.core.values.io"
+		//"org.magicwerk.brownies.core.strings.*Test"
+		// Unknown class
+		//"org.magicwerk.brownies.core.**.*Test"
+		);
+
+		//mtr.runMagicTestEclipse(magicTestArgs);
+		//mtr.runMagicTestForkEclipse(magicTestArgs);
+		//mtr.runMagicTestForkJar(magicTestArgs);
+
+		// MagicTestNG
+
+		IList<String> magicTestNgArgs = GapList.create(
+				"-testclass", clazz,
+				"-verbose", "10"
+		//"testng.xml"
+		//"C:\\Windows\\TEMP\\testng-eclipse-839192392\\testng-customsuite.xml"
+		);
+
+		mtr.runMagicTestNgEclipse(magicTestNgArgs);
+		//mtr.runMagicTestNgForkEclipse(magicTestNgArgs);
+		//mtr.runMagicTestNgForkJar(magicTestNgArgs);
+	}
 }
