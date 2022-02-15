@@ -4,12 +4,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.ListIterator;
+import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.magicwerk.brownies.collections.helper.GapLists;
+import org.magicwerk.brownies.core.CheckTools;
 import org.magicwerk.brownies.core.logback.LogbackTools;
 import org.magicwerk.brownies.test.JmhRunner;
 import org.magicwerk.brownies.test.JmhRunner.Options;
@@ -36,8 +39,336 @@ public class StreamsPerformance {
 	}
 
 	static void run() {
-		testPerformanceFlatMapJmhTest();
+		//testListIterator();
+		//testPipe();
+		testPerformancePipeJmhTest();
+		//testPerformanceFlatMapJmhTest();
 		//testPerformanceIterationJmh();
+	}
+
+	static void testPerformancePipeJmhTest() {
+		Options opts = new Options().includeClass(PerformancePipeJmhTest.class);
+		//opts.useGcProfiler();
+		//opts.setWarmupIterations(1).setMeasurementIterations(1).setRunTimeSecs(2);
+		JmhRunner runner = new JmhRunner();
+		//runner.setBuildBrowniesTestAllJar(true);
+		runner.runJmh(opts);
+	}
+
+	public static class PerformancePipeJmhTest {
+
+		public static int SIZE;
+
+		@State(Scope.Benchmark)
+		public static class ListState {
+			IList<Integer> list = IntStream.range(0, SIZE).boxed().collect(GapLists.toGapList());
+		}
+
+		//
+
+		@Benchmark
+		public Object testListIterator(ListState state) {
+			ListIterator<Integer> li = state.list.listIterator();
+			while (li.hasNext()) {
+				Integer v = li.next();
+				li.set(v + 1);
+			}
+			return state.list;
+		}
+
+		@Benchmark
+		public Object testPipeWithAdd(ListState state) {
+			return pipeWithAdd(state.list, new PipeWithAdd<Integer>() {
+				@Override
+				public void handle(Integer elem) {
+					add(elem + 1);
+				}
+			});
+		}
+
+		@Benchmark
+		public Object testPipe(ListState state) {
+			return pipe(state.list, (l, e) -> l.add(e + 1));
+		}
+
+		@Benchmark
+		public Object testStream(ListState state) {
+			return state.list.stream().map(e -> e + 1).collect(Collectors.toList());
+		}
+
+		@Benchmark
+		public Object testPipe2(ListState state) {
+			return pipe(pipe(state.list, (l, e) -> l.add(e + 1)), (l, e) -> l.add(e + 1));
+		}
+
+		@Benchmark
+		public Object testStream2(ListState state) {
+			return state.list.stream().map(e -> e + 1).map(e -> e + 1).collect(Collectors.toList());
+		}
+
+		@Benchmark
+		public Object testPipe3(ListState state) {
+			return pipe(pipe(pipe(state.list, (l, e) -> l.add(e + 1)), (l, e) -> l.add(e + 1)), (l, e) -> l.add(e + 1));
+		}
+
+		@Benchmark
+		public Object testStream3(ListState state) {
+			return state.list.stream().map(e -> e + 1).map(e -> e + 1).map(e -> e + 1).collect(Collectors.toList());
+		}
+	}
+
+	static void testPipe() {
+		{
+			IList<Integer> list = GapList.create(0, 1, 2);
+			LOG.info("{}", list);
+			IList<Integer> r = pipeWithAdd(list, new PipeWithAdd<Integer>() {
+				@Override
+				public void handle(Integer elem) {
+					add(elem + 1);
+				}
+			});
+			LOG.info("{}", r);
+		}
+		{
+			IList<Integer> list = GapList.create(0, 1, 2);
+			LOG.info("{}", list);
+			IList<Integer> r = pipe(list, (l, e) -> l.add(e + 1));
+			LOG.info("{}", r);
+		}
+	}
+
+	static void testListIterator() {
+		{
+			IList<Integer> list = GapList.create();
+			ListIterator<Integer> li = list.listIterator();
+			li.add(0);
+			LOG.info("{}", list);
+		}
+		{
+			// Prepend and append
+			IList<Integer> list = GapList.create(1);
+			ListIterator<Integer> li = list.listIterator();
+			Integer i = li.next();
+			CheckTools.check(i == 1);
+			li.previous();
+			li.add(0);
+			li.next();
+			li.add(2);
+			LOG.info("{}", list);
+		}
+	}
+
+	static void testPipe2() {
+		{
+			IList<Integer> list = GapList.create(0, 1, 2);
+			LOG.info("{}", list);
+			pipe2(list, new PipeLikeIterator<Integer>() {
+				@Override
+				public void handle(Integer elem) {
+					set(elem + 1);
+				}
+			});
+			LOG.info("{}", list);
+		}
+		{
+			// Prepend and append
+			IList<Integer> list = GapList.create(1);
+			LOG.info("{}", list);
+			pipe2(list, new PipeLikeIterator<Integer>() {
+
+				@Override
+				public void handle(Integer elem) {
+					prepend(0);
+					append(2);
+				}
+			});
+			LOG.info("{}", list);
+		}
+		{
+
+			IList<Integer> list = GapList.create();
+			LOG.info("{}", list);
+
+			pipe2(list, new PipeLikeIterator<Integer>() {
+				@Override
+				public void handleEnd() {
+					if (getList().isEmpty()) {
+						append(0);
+					}
+				}
+
+				@Override
+				public void handle(Integer elem) {
+				}
+			});
+			LOG.info("{}", list);
+		}
+
+	}
+
+	static <T> IList<T> pipe(IList<T> list, BiConsumer<IList<T>, T> handler) {
+		IList<T> result = list.crop();
+		int size = list.size();
+		for (int i = 0; i < size; i++) {
+			T elem = list.get(i);
+			handler.accept(result, elem);
+		}
+		return result;
+	}
+
+	static <T> IList<T> pipeWithAdd(IList<T> list, PipeWithAdd<T> pipe) {
+		return pipe.pipe(list);
+	}
+
+	static class PipeWithAdd<T> {
+
+		IList<T> list;
+		IList<T> result;
+
+		public IList<T> getList() {
+			return list;
+		}
+
+		IList<T> pipe(IList<T> list) {
+			this.list = list;
+			this.result = list.crop();
+
+			handleStart();
+			int size = list.size();
+			for (int i = 0; i < size; i++) {
+				T elem = list.get(i);
+				handle(elem);
+			}
+			handleEnd();
+			return result;
+		}
+
+		/**
+		 * Method {@link #handle} is called for each element in the list.
+		 * 
+		 * @param elem element to handle
+		 */
+		public void handle(T elem) {
+		}
+
+		/**
+		 * Method {@link #handleStart} is called before iteration of the list starts, i.e. before the first call to {@link #handle}.
+		 * If an element should be added at the head, {@link #append} may be called (other methods will throw an exception).
+		 */
+		public void handleStart() {
+		}
+
+		/**
+		 * Method {@link #handleEnd} is called after iteration of the list has ended, i.e. after the last call to {@link #handle}.
+		 * If an element should be added at the tail, {@link #prepend} may be called (other methods will throw an exception).
+		 */
+		public void handleEnd() {
+		}
+
+		/**
+		 * Replace element which was passed as argument to the last call of {@link #handle}.
+		 * This method is typically called by the client implementation of the overridden {@link #handle} method.
+		 * 
+		 * @param elem element to set
+		 */
+		public void add(T elem) {
+			result.add(elem);
+		}
+
+	}
+
+	static <T> void pipe2(IList<T> list, PipeLikeIterator<T> pipe) {
+		pipe.pipe(list);
+	}
+
+	static class PipeLikeIterator<T> {
+
+		IList<T> list;
+		int index;
+
+		public IList<T> getList() {
+			return list;
+		}
+
+		void pipe(IList<T> list) {
+			this.list = list;
+			this.index = -1;
+
+			handleStart();
+			if (!list.isEmpty()) {
+				index = 0;
+				while (index < list.size()) {
+					T elem = list.get(index);
+					handle(elem);
+					index++;
+				}
+			}
+			handleEnd();
+		}
+
+		/**
+		 * Method {@link #handle} is called for each element in the list.
+		 * 
+		 * @param elem element to handle
+		 */
+		public void handle(T elem) {
+		}
+
+		/**
+		 * Method {@link #handleStart} is called before iteration of the list starts, i.e. before the first call to {@link #handle}.
+		 * If an element should be added at the head, {@link #append} may be called (other methods will throw an exception).
+		 */
+		public void handleStart() {
+		}
+
+		/**
+		 * Method {@link #handleEnd} is called after iteration of the list has ended, i.e. after the last call to {@link #handle}.
+		 * If an element should be added at the tail, {@link #prepend} may be called (other methods will throw an exception).
+		 */
+		public void handleEnd() {
+		}
+
+		/**
+		 * Replace element which was passed as argument to the last call of {@link #handle}.
+		 * This method is typically called by the client implementation of the overridden {@link #handle} method.
+		 * 
+		 * @param elem element to set
+		 */
+		public void set(T elem) {
+			list.set(index, elem);
+		}
+
+		/**
+		 * Remove element which was passed as argument to the last call of {@link #handle}.
+		 * This method is typically called by the client implementation of the overridden {@link #handle} method.
+		 */
+		public void remove() {
+			list.remove(index);
+			index--;
+		}
+
+		/**
+		 * Add element after the element which was passed as argument to the last call of {@link #handle}.
+		 * This method is typically called by the client implementation of the overridden {@link #handle} method.
+		 * 
+		 * @param elem element to append
+		 */
+		public void append(T elem) {
+			list.add(index + 1, elem);
+			index++;
+		}
+
+		/**
+		 * Add element before the element which was passed as argument to the last call of {@link #handle}.
+		 * This method is typically called by the client implementation of the overridden {@link #handle} method.
+		 * 
+		 * @param elem element to prepend
+		 */
+		public void prepend(T elem) {
+			list.add(index, elem);
+			index++;
+		}
+
 	}
 
 	//
@@ -114,8 +445,9 @@ public class StreamsPerformance {
 			return l;
 		}
 
-		static <T, R> IList<R> flatMap(List<T> list, Function<T, Collection<R>> flatMap) {
-			IList<R> result = GapList.create();
+		static <T, R> IList<R> flatMap(IList<T> list, Function<T, Collection<R>> flatMap) {
+			@SuppressWarnings({ "unchecked", "rawtypes" })
+			IList<R> result = (IList) list.crop();
 			for (T elem : list) {
 				result.addAll(flatMap.apply(elem));
 			}

@@ -105,6 +105,16 @@ public Object clone() {
     }
 }
 
+    /**
+ * Returns a copy this list but without elements.
+ * The new list will have the same type as this list.
+ *
+ * @return  an empty copy of this list
+ */
+public ICharList crop() {
+    return doCreate(0);
+}
+
     // Naming as in java.util.Collections#unmodifiableList
 abstract public ICharList unmodifiableList() ;
 

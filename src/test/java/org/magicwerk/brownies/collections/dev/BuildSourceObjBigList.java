@@ -7,7 +7,7 @@ import org.magicwerk.brownies.core.reflect.ClassTools;
 
 /**
  * Create source files IntObjBigList, etc.
- * in package org.magicwerk.brownies.colletions.primitive
+ * in package org.magicwerk.brownies.collections.primitive
  *
  * @author Thomas Mauch
  * @version $Id: BuildSourceObjGapList.java 2477 2014-10-08 23:47:35Z origo $
