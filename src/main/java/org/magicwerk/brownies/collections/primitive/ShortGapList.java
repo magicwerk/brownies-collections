@@ -350,6 +350,11 @@ public ShortGapList copy() {
 }
 
     @Override
+public ShortGapList crop() {
+    return (ShortGapList) super.crop();
+}
+
+    @Override
 public Object clone() {
     if (this instanceof ImmutableShortGapList) {
         ShortGapList list = new ShortGapList(false, null);

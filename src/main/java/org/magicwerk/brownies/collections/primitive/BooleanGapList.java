@@ -350,6 +350,11 @@ public BooleanGapList copy() {
 }
 
     @Override
+public BooleanGapList crop() {
+    return (BooleanGapList) super.crop();
+}
+
+    @Override
 public Object clone() {
     if (this instanceof ImmutableBooleanGapList) {
         BooleanGapList list = new BooleanGapList(false, null);

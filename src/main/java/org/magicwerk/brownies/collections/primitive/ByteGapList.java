@@ -350,6 +350,11 @@ public ByteGapList copy() {
 }
 
     @Override
+public ByteGapList crop() {
+    return (ByteGapList) super.crop();
+}
+
+    @Override
 public Object clone() {
     if (this instanceof ImmutableByteGapList) {
         ByteGapList list = new ByteGapList(false, null);

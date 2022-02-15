@@ -350,6 +350,11 @@ public LongGapList copy() {
 }
 
     @Override
+public LongGapList crop() {
+    return (LongGapList) super.crop();
+}
+
+    @Override
 public Object clone() {
     if (this instanceof ImmutableLongGapList) {
         LongGapList list = new LongGapList(false, null);

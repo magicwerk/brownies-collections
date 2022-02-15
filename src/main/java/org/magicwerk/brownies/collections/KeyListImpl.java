@@ -93,11 +93,12 @@ public abstract class KeyListImpl<E> extends IList<E> {
 	}
 
 	/**
-	 * Returns a copy this list but without elements.
-	 * The new list will use the same comparator, ordering, etc.
-	 *
+	 * Returns a copy this list but without elements.	 
+	 * The new list will have the same type as this list and use the same comparator, ordering, etc.
+	 * 
 	 * @return  an empty copy of this list
 	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	public KeyListImpl<E> crop() {
 		KeyListImpl<E> copy = (KeyListImpl<E>) super.clone();

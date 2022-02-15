@@ -107,6 +107,16 @@ public abstract class IList<E>
 	}
 
 	/**
+	 * Returns a copy this list but without elements.
+	 * The new list will have the same type as this list.
+	 *
+	 * @return  an empty copy of this list
+	 */
+	public IList<E> crop() {
+		return doCreate(0);
+	}
+
+	/**
 	 * Returns an unmodifiable view of this list. This method allows modules to provide users with "read-only" access to internal lists.
 	 * Query operations on the returned list "read through" to the specified list, and attempts to modify the returned list, whether direct or
 	 * via its iterator, result in an UnsupportedOperationException. If this list is already unmodifiable, it is returned unchanged.
