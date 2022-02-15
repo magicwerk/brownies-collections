@@ -7,7 +7,7 @@ import org.magicwerk.brownies.core.reflect.ClassTools;
 
 /**
  * Create source files IntObjGapList, etc.
- * in package org.magicwerk.brownies.colletions.primitive
+ * in package org.magicwerk.brownies.collections.primitive
  *
  * @author Thomas Mauch
  * @version $Id$

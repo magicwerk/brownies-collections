@@ -350,6 +350,11 @@ public IntGapList copy() {
 }
 
     @Override
+public IntGapList crop() {
+    return (IntGapList) super.crop();
+}
+
+    @Override
 public Object clone() {
     if (this instanceof ImmutableIntGapList) {
         IntGapList list = new IntGapList(false, null);

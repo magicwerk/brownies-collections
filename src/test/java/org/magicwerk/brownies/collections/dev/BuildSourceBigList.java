@@ -14,7 +14,7 @@ import com.github.javaparser.ast.CompilationUnit;
 
 /**
  * Create source files IntBigList, etc. out of file BigList
- * in package org.magicwerk.brownies.colletions.primitive
+ * in package org.magicwerk.brownies.collections.primitive
  *
  * @author Thomas Mauch
  * @version $Id$
@@ -81,6 +81,7 @@ public class BuildSourceBigList extends FileBuilder {
 				return true;
 			}
 		});
+		visitor.addRemoveMethods("spliterator");
 
 		cu.accept(visitor, null);
 		src = visitor.toString();

@@ -12,7 +12,7 @@ import com.github.javaparser.ast.CompilationUnit;
 
 /**
  * Create source files IntGapList, etc. out of file GapList
- * in package org.magicwerk.brownies.colletions.primitive
+ * in package org.magicwerk.brownies.collections.primitive
  *
  * @author Thomas Mauch
  * @version $Id$

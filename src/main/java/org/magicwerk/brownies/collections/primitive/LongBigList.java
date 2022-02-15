@@ -28,6 +28,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.magicwerk.brownies.collections.helper.primitive.LongMergeSort;
 
@@ -274,6 +276,11 @@ public LongBigList copy() {
     return (LongBigList) clone();
 }
 
+    @Override
+public LongBigList crop() {
+    return (LongBigList) super.crop();
+}
+
     /**
  * Returns a shallow copy of this list.
  * The new list will contain the same elements as the source list, i.e. the elements themselves are not copied.
@@ -345,14 +352,15 @@ public long getDefaultElem() {
     @Override
 protected void finalize() {
     // This list will be garbage collected, so unref all referenced blocks.
-    // As it is not reachable by any live objects, if is safe to access it from
-    // the GC thread without synchronization
+    // As it is not reachable by any live objects, if is safe to access it from the GC thread without synchronization
     LongBlockNode node = rootNode.min();
     while (node != null) {
         node.block.unref();
         node = node.next();
     }
 }
+
+
 
     @Override
 public int size() {

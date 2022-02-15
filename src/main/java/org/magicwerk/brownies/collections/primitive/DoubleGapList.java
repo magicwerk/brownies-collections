@@ -350,6 +350,11 @@ public DoubleGapList copy() {
 }
 
     @Override
+public DoubleGapList crop() {
+    return (DoubleGapList) super.crop();
+}
+
+    @Override
 public Object clone() {
     if (this instanceof ImmutableDoubleGapList) {
         DoubleGapList list = new DoubleGapList(false, null);

@@ -350,6 +350,11 @@ public CharGapList copy() {
 }
 
     @Override
+public CharGapList crop() {
+    return (CharGapList) super.crop();
+}
+
+    @Override
 public Object clone() {
     if (this instanceof ImmutableCharGapList) {
         CharGapList list = new CharGapList(false, null);

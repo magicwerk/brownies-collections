@@ -331,6 +331,11 @@ public class GapList<E> extends IList<E> {
 	}
 
 	@Override
+	public GapList<E> crop() {
+		return (GapList<E>) super.crop();
+	}
+
+	@Override
 	public Object clone() {
 		if (this instanceof ImmutableGapList) {
 			GapList<E> list = new GapList<>(false, null);

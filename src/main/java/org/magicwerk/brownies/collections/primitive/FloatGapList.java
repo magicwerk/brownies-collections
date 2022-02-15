@@ -350,6 +350,11 @@ public FloatGapList copy() {
 }
 
     @Override
+public FloatGapList crop() {
+    return (FloatGapList) super.crop();
+}
+
+    @Override
 public Object clone() {
     if (this instanceof ImmutableFloatGapList) {
         FloatGapList list = new FloatGapList(false, null);
