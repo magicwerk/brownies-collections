@@ -19,6 +19,7 @@ import org.magicwerk.brownies.core.SystemTools;
 import org.magicwerk.brownies.core.Timer;
 import org.magicwerk.brownies.core.logback.LogbackTools;
 import org.magicwerk.brownies.core.stat.NumberStat;
+import org.magicwerk.brownies.core.stat.StatValues.StoreValues;
 import org.magicwerk.brownies.test.JmhRunner;
 import org.magicwerk.brownies.test.JmhRunner.Options;
 import org.magicwerk.brownies.tools.runner.JvmRunner;
@@ -182,7 +183,7 @@ public class GapListTestPerformance {
 	static void doTestPerfExtend(boolean print) {
 		final int num = 10 * 1000 * 1000;
 		IntGapList capacities = IntGapList.create();
-		NumberStat<Long> times = new NumberStat<Long>(true);
+		NumberStat<Long> times = new NumberStat<>(StoreValues.ALL_VALUES);
 		GapList<Integer> list = GapList.create();
 		GapList<Integer> list2 = GapList.create();
 		Timer t = new Timer();
