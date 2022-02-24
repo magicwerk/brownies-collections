@@ -8,6 +8,7 @@ import java.util.ListIterator;
 import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -41,9 +42,9 @@ public class StreamsPerformance {
 	static void run() {
 		//testListIterator();
 		//testPipe();
-		testPerformancePipeJmhTest();
+		testPerformanceFilterMapJmhTest();
+		//testPerformancePipeJmhTest();
 		//testPerformanceFlatMapJmhTest();
-		//testPerformanceIterationJmh();
 	}
 
 	static void testPerformancePipeJmhTest() {
@@ -367,6 +368,85 @@ public class StreamsPerformance {
 		public void prepend(T elem) {
 			list.add(index, elem);
 			index++;
+		}
+
+	}
+
+	//
+
+	static void testPerformanceFilterMapJmhTest() {
+		Options opts = new Options().includeClass(PerformanceFilterMapJmhTest.class);
+		//opts.useGcProfiler();
+		JmhRunner runner = new JmhRunner();
+		//runner.setBuildBrowniesTestAllJar(true);
+		runner.runJmh(opts);
+	}
+
+	public static class PerformanceFilterMapJmhTest {
+
+		public static int SIZE = 1000;
+
+		@State(Scope.Benchmark)
+		public static class ListState {
+			IList<Integer> list = IntStream.range(1, SIZE).boxed().collect(GapLists.toGapList());
+		}
+
+		//
+
+		@Benchmark
+		public Object testFilterMapGapList(ListState state) {
+			List<Double> r = filterMap(state.list, i -> i % 2 == 0, i -> (double) i);
+			return r;
+		}
+
+		@Benchmark
+		public Object testFilterGapList(ListState state) {
+			List<Integer> r = state.list.filteredList(i -> i % 2 == 0);
+			return r;
+		}
+
+		@Benchmark
+		public Object testMapGapList(ListState state) {
+			List<Double> r = state.list.mappedList(i -> (double) i);
+			return r;
+		}
+
+		@Benchmark
+		public Object testFilterMapStream(ListState state) {
+			List<Double> r = state.list.stream().filter(i -> i % 2 == 0).map(i -> (double) i).collect(Collectors.toList());
+			return r;
+		}
+
+		@Benchmark
+		public Object testFilterStream(ListState state) {
+			List<Integer> r = state.list.stream().filter(i -> i % 2 == 0).collect(Collectors.toList());
+			return r;
+		}
+
+		@Benchmark
+		public Object testMapStream(ListState state) {
+			List<Double> r = state.list.stream().map(i -> (double) i).collect(Collectors.toList());
+			return r;
+		}
+
+		//
+
+		static IList<Integer> map(int n) {
+			IList<Integer> l = GapList.create();
+			for (int i = 0; i < n; i++) {
+				l.add(n * n);
+			}
+			return l;
+		}
+
+		static <T, R> IList<R> filterMap(IList<T> list, Predicate<T> filter, Function<T, R> mapper) {
+			IList<R> result = (IList) list.crop();
+			for (T elem : list) {
+				if (filter.test(elem)) {
+					result.add(mapper.apply(elem));
+				}
+			}
+			return result;
 		}
 
 	}
