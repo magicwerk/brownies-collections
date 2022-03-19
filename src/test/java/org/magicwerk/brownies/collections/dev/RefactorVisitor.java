@@ -10,13 +10,15 @@ import com.github.javaparser.ast.body.ConstructorDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.comments.Comment;
 import com.github.javaparser.ast.stmt.BlockStmt;
+import com.github.javaparser.printer.DefaultPrettyPrinterVisitor;
 import com.github.javaparser.printer.PrettyPrintVisitor;
-import com.github.javaparser.printer.PrettyPrinterConfiguration;
+import com.github.javaparser.printer.configuration.DefaultPrinterConfiguration;
+import com.github.javaparser.printer.configuration.PrettyPrinterConfiguration;
 
-public class RefactorVisitor extends PrettyPrintVisitor {
+public class RefactorVisitor extends DefaultPrettyPrinterVisitor {
 
 	public RefactorVisitor() {
-		super(new PrettyPrinterConfiguration());
+		super(new DefaultPrinterConfiguration());
 	}
 
 	public static class RefactorMethod {
