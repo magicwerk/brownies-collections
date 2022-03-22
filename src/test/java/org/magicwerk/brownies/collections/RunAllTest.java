@@ -4,6 +4,7 @@ import org.junit.runner.Computer;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.magictest.MagicTest;
+import org.magictest.client.Test;
 import org.magicwerk.brownies.collections.guava.BigListTestGuava;
 import org.magicwerk.brownies.collections.guava.GapListTestGuava;
 import org.magicwerk.brownies.collections.guava.IntObjBigListTestGuava;
@@ -29,29 +30,65 @@ import org.magicwerk.brownies.core.reflect.ClassTools;
  */
 public class RunAllTest {
 
+	static boolean runTestAll;
+
 	public static void main(String[] args) {
-		doTestAll();
+		testAll();
+	}
+
+	static void testAll() {
+		try {
+			runTestAll = true;
+			runTests(true);
+		} finally {
+			runTestAll = false;
+		}
 	}
 
 	/**
 	 * Run all tests in this package as JUnit test.
 	 */
-	@org.junit.Test
-	public void testAll() {
-		doTestAll();
+	@Test
+	public void testNonMagicTests() {
+		if (runTestAll) {
+			return;
+		}
+		runTests(false);
+	}
+
+	static void runTests(boolean includeMagicTests) {
+		boolean success = true;
+
+		if (includeMagicTests) {
+			boolean run = runMagicTests();
+			if (!run) {
+				success = false;
+			}
+		}
+
+		boolean run = runNonMagicTests();
+		if (!run) {
+			success = false;
+		}
+
+		if (success) {
+			System.out.println("Test successful");
+		} else {
+			System.out.println("Test failed - check output");
+			throw new IllegalArgumentException();
+		}
+
+	}
+
+	static boolean runMagicTests() {
+		return MagicTest.runPackage(ClassTools.getPackageName(ThreadTools.getCurrentClass()));
 	}
 
 	/**
 	 * Run all tests in this package.
 	 */
-	static void doTestAll() {
+	static boolean runNonMagicTests() {
 		boolean success = true;
-
-		// Run MagicTests
-		boolean run = MagicTest.runPackage(ClassTools.getPackageName(ThreadTools.getCurrentClass()));
-		if (!run) {
-			success = false;
-		}
 
 		// Run Guava tests in JUnit
 		Computer computer = new Computer();
@@ -81,11 +118,6 @@ public class RunAllTest {
 		// Run tests for coverage
 		GapListTestCorrectness.testRelease();
 
-		if (success) {
-			System.out.println("Test successful");
-		} else {
-			System.out.println("Test failed - check output");
-			throw new IllegalArgumentException();
-		}
+		return success;
 	}
 }
