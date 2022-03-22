@@ -1,6 +1,9 @@
 package org.magicwerk.brownies.collections;
 
+import org.magicwerk.brownies.core.logback.LogbackTools;
 import org.magicwerk.brownies.test.MagicTestRunner;
+
+import ch.qos.logback.classic.Level;
 
 /**
  * Test runner.
@@ -19,11 +22,13 @@ public class Test {
 	}
 
 	void runMagicTest() {
+		LogbackTools.setConsoleLevel(Level.DEBUG);
+
 		MagicTestRunner mtr = new MagicTestRunner();
 		mtr.setShowActualReport(true);
 		mtr.setShowReferenceReport(false);
 
-		String clazz = "org.magicwerk.brownies.collections.BigListGapListTest";
+		String clazz = "org.magicwerk.brownies.collections.RunAllTest";
 
 		// MagicTest
 
@@ -41,7 +46,7 @@ public class Test {
 		//"org.magicwerk.brownies.core.**.*Test"
 		);
 
-		//mtr.runMagicTestEclipse(magicTestArgs);
+		mtr.runMagicTestEclipse(magicTestArgs);
 		//mtr.runMagicTestForkEclipse(magicTestArgs);
 		//mtr.runMagicTestForkJar(magicTestArgs);
 
@@ -54,7 +59,7 @@ public class Test {
 		//"C:\\Windows\\TEMP\\testng-eclipse-839192392\\testng-customsuite.xml"
 		);
 
-		mtr.runMagicTestNgEclipse(magicTestNgArgs);
+		//mtr.runMagicTestNgEclipse(magicTestNgArgs);
 		//mtr.runMagicTestNgForkEclipse(magicTestNgArgs);
 		//mtr.runMagicTestNgForkJar(magicTestNgArgs);
 	}

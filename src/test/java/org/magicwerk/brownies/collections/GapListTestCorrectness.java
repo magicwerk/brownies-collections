@@ -45,15 +45,11 @@ public class GapListTestCorrectness {
 		//GapList.DEBUG_TRACE = false;
 		//GapList.DEBUG_DUMP = false;
 
-		//		testAllStatesEnsureCapacity();
-		//		testAllStatesAdd();
-		//		testAllStatesRemove();
-		//		testCorrectnes();
-		//
-		//		testCompareLinkedList();
-		//
-		//		CollectionsTestCompare.testCompareAddRemove();
-		CollectionsTestCompare.testCompareAllMethods();
+		testCorrectnes();
+
+		testAllStatesAdd();
+		testAllStatesRemove();
+		testAllStatesEnsureCapacity();
 	}
 
 	// Set GapList.DEFAULT_CAPACITY = 8 to get 100% test coverage of
