@@ -216,7 +216,7 @@ public class BigListGapListTest {
 		list.capacity();
 	}
 
-	// -- Test IBigList
+	// -- Test IList
 
 	@Capture
 	public static void testBinarySearch() {
@@ -343,6 +343,13 @@ public class BigListGapListTest {
 		list.element();
 		list.pop();
 		list.push(1);
+		list.addFirst(0);
+		list.addLast(2);
+		list.offerFirst(1);
+		list.offerLast(3);
+		list.offer(4);
+		list.removeFirstOccurrence(1);
+		list.removeLastOccurrence(2);
 
 		// Non empty list
 		list = getSortedBigList(5);
@@ -359,6 +366,13 @@ public class BigListGapListTest {
 		list.element();
 		list.pop();
 		list.push(1);
+		list.addFirst(0);
+		list.addLast(2);
+		list.offerFirst(1);
+		list.offerLast(3);
+		list.offer(4);
+		list.removeFirstOccurrence(1);
+		list.removeLastOccurrence(2);
 	}
 
 	@Trace(parameters = Trace.THIS | Trace.ALL_PARAMS, result = Trace.THIS)
