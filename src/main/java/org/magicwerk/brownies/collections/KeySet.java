@@ -75,6 +75,11 @@ public class KeySet<E> extends KeyCollection<E> implements Set<E> {
 
 		// Builder: Overriden
 
+		/**
+		 * {@inheritDoc}
+		 * <p>
+		 * Note that {@link KeySet} only supports set behavior, so an exception is thrown if the argument is false.
+		 */
 		@Override
 		public Builder<E> withSetBehavior(boolean setBehavior) {
 			if (!setBehavior) {
@@ -83,6 +88,11 @@ public class KeySet<E> extends KeyCollection<E> implements Set<E> {
 			return (Builder<E>) super.withSetBehavior(setBehavior);
 		}
 
+		/**
+		 * {@inheritDoc}
+		 * <p>
+		 * Note that {@link KeySet} does not support duplicates, so an exception is thrown if the argument is true.
+		 */
 		@Override
 		public Builder<E> withElemDuplicates(boolean allowDuplicates) {
 			if (allowDuplicates) {
@@ -91,6 +101,11 @@ public class KeySet<E> extends KeyCollection<E> implements Set<E> {
 			return (Builder<E>) super.withElemDuplicates(allowDuplicates);
 		}
 
+		/**
+		 * {@inheritDoc}
+		 * <p>
+		 * Note that {@link KeySet} does not support duplicates, so an exception is thrown if any argument is true.
+		 */
 		@Override
 		public Builder<E> withElemDuplicates(boolean allowDuplicates, boolean allowDuplicatesNull) {
 			if (allowDuplicates || allowDuplicatesNull) {

@@ -66,13 +66,6 @@
 
     <target name="do-build-release" depends="build" />
 
-	<!--
-	TODO
-	EvalJavaParser.BuildSource
-    <target name="pre-build" depends="build-src">
-	</target>
-	-->
-
 	<target name="post-build">
 		<!-- There are no dependencies, so remove these JARs -->
 		<delete file="${build.dir}/brownies-collections-only-deps.jar" />

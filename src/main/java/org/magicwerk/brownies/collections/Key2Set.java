@@ -77,6 +77,11 @@ public class Key2Set<E, K1, K2> extends Key2Collection<E, K1, K2> implements Set
 
 		// Builder: Overriden
 
+		/**
+		 * {@inheritDoc}
+		 * <p>
+		 * Note that {@link Key2Set} only supports set behavior, so an exception is thrown if the argument is false.
+		 */
 		@Override
 		public Builder<E, K1, K2> withSetBehavior(boolean setBehavior) {
 			if (!setBehavior) {
@@ -85,6 +90,11 @@ public class Key2Set<E, K1, K2> extends Key2Collection<E, K1, K2> implements Set
 			return (Builder<E, K1, K2>) super.withSetBehavior(setBehavior);
 		}
 
+		/**
+		 * {@inheritDoc}
+		 * <p>
+		 * Note that {@link Key2Set} does not support duplicates, so an exception is thrown if the argument is true.
+		 */
 		@Override
 		public Builder<E, K1, K2> withElemDuplicates(boolean allowDuplicates) {
 			if (allowDuplicates) {
@@ -93,6 +103,11 @@ public class Key2Set<E, K1, K2> extends Key2Collection<E, K1, K2> implements Set
 			return (Builder<E, K1, K2>) super.withElemDuplicates(allowDuplicates);
 		}
 
+		/**
+		 * {@inheritDoc}
+		 * <p>
+		 * Note that {@link Key2Set} does not support duplicates, so an exception is thrown if any argument is true.
+		 */
 		@Override
 		public Builder<E, K1, K2> withElemDuplicates(boolean allowDuplicates, boolean allowDuplicatesNull) {
 			if (allowDuplicates || allowDuplicatesNull) {
