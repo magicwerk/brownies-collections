@@ -6,6 +6,7 @@ import org.junit.runner.Result;
 import org.magictest.MagicTest;
 import org.magictest.client.Test;
 import org.magicwerk.brownies.collections.guava.BigListTestGuava;
+import org.magicwerk.brownies.collections.guava.CollectionAsSetTestGuava;
 import org.magicwerk.brownies.collections.guava.GapListTestGuava;
 import org.magicwerk.brownies.collections.guava.IntObjBigListTestGuava;
 import org.magicwerk.brownies.collections.guava.IntObjGapListTestGuava;
@@ -94,8 +95,9 @@ public class RunAllTest {
 		Computer computer = new Computer();
 		JUnitCore jUnitCore = new JUnitCore();
 		Class<?> guavaTests[] = new Class<?>[] {
-				GapListTestGuava.class,
 				BigListTestGuava.class,
+				CollectionAsSetTestGuava.class,
+				GapListTestGuava.class,
 				IntObjGapListTestGuava.class,
 				IntObjBigListTestGuava.class,
 				Key1CollectionTestGuavaMap.class,

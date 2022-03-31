@@ -2227,7 +2227,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 						}
 						first = false;
 					} else {
-						if (!obj.hasValue() || !obj.getValue().equals(removed.getValue())) {
+						if (!obj.hasValue() || !Objects.equals(obj.getValue(), removed.getValue())) {
 							errorInvalidData();
 						}
 					}
@@ -2388,10 +2388,10 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	 * @return 			list containing all keys
 	 */
 	protected IList<?> getAllKeys(int keyIndex) {
-		Function mapper = getKeyMap(keyIndex).mapper;
+		KeyMap<E, Object> keyMap = getKeyMap(keyIndex);
 		GapList<Object> list = GapList.create();
-		for (Object obj : this) {
-			list.add(mapper.apply(obj));
+		for (E obj : this) {
+			list.add(keyMap.getKey(obj));
 		}
 		return list;
 	}

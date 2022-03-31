@@ -38,7 +38,7 @@ import java.util.function.Predicate;
 public class Key1Set<E, K> extends Key1Collection<E, K> implements Set<E> {
 
 	/**
-	 * Builder to construct KeyCollection instances.
+	 * Builder to construct Key1Set instances.
 	 */
 	public static class Builder<E, K> extends Key1Collection.Builder<E, K> {
 		/**

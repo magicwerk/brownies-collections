@@ -626,7 +626,7 @@ public class KeyListTest {
 		Assert.assertTrue(list2.equals(list));
 	}
 
-	@Trace(parameters = Trace.THIS | Trace.ALL_PARAMS, result = Trace.THIS | Trace.RESULT)
+	@Trace(parameters = Trace.THIS | Trace.ALL_PARAMS, result = Trace.RESULT)
 	public static void testCopy() {
 		KeyList<ComparableName> list = new KeyList.Builder<ComparableName>().build();
 		list.add(new ComparableName("d", 0));
@@ -643,13 +643,16 @@ public class KeyListTest {
 		list.copy();
 	}
 
-	@Trace(parameters = Trace.THIS | Trace.ALL_PARAMS, result = Trace.THIS | Trace.RESULT)
+	@Trace(parameters = Trace.THIS | Trace.ALL_PARAMS, result = Trace.RESULT)
 	public static void testCrop() {
 		KeyList<ComparableName> list = new KeyList.Builder<ComparableName>().build();
 		list.add(new ComparableName("d", 0));
 		list.add(new ComparableName("d", 1));
 		list.add(new ComparableName("b", 2));
 		list.add(new ComparableName("a", 3));
+		list.crop();
+
+		list.unmodifiableList();
 		list.crop();
 
 		list = new KeyList.Builder<ComparableName>().withOrderByElem(true).build();
