@@ -28,6 +28,7 @@ import org.magicwerk.brownies.collections.TestHelper.ComparableName;
 import org.magicwerk.brownies.collections.TestHelper.Name;
 import org.magicwerk.brownies.collections.TestHelper.Ticket;
 import org.magicwerk.brownies.collections.helper.IdentMapper;
+import org.magicwerk.brownies.core.CheckTools;
 import org.magicwerk.brownies.core.logback.LogbackTools;
 import org.slf4j.Logger;
 
@@ -74,6 +75,15 @@ public class Key1CollectionTest {
 		coll.contains(t1);
 		coll.contains(t1b);
 		coll.contains("x");
+
+		coll.getAllKeys1();
+		coll.getDistinctKeys1();
+
+		GapList<Ticket> list = coll.toList();
+		Object[] arr0 = coll.toArray();
+		Ticket[] arr1 = coll.toArray(new Ticket[] {});
+		CheckTools.check(list.equals(GapList.create(arr0)));
+		CheckTools.check(list.equals(GapList.create(arr1)));
 	}
 
 	static Ticket t1 = new Ticket(1, "extId1", "text1");

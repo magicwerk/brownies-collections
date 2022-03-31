@@ -20,7 +20,7 @@ public class TestHelper {
 	/**
 	 * Comparable name.
 	 */
-	static class ComparableName extends Name implements Comparable<Name> {
+	public static class ComparableName extends Name implements Comparable<Name> {
 
 		public ComparableName(String name) {
 			super(name);
@@ -39,7 +39,7 @@ public class TestHelper {
 	/**
 	 * Name (non comparable).
 	 */
-	static class Name {
+	public static class Name {
 
 		static Function<Name, String> Mapper = new Function<Name, String>() {
 			@Override

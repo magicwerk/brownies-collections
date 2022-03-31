@@ -184,7 +184,7 @@
     </traceStep>
   </traceTest>
   <traceTest name="testAsPrimaryKey">
-    <runDate>2014-12-06T00:53:49.650+01:00</runDate>
+    <runDate>2014-12-06T00:53:49.65+01:00</runDate>
     <runDuration>0.018844176</runDuration>
     <exception></exception>
     <traceClass>org.magicwerk.brownies.collections.KeyList</traceClass>
@@ -1129,8 +1129,8 @@
     </traceStep>
   </traceTest>
   <traceTest name="testCopy">
-    <runDate>2013-10-16T00:49:37.298+02:00</runDate>
-    <runDuration>0.001749268</runDuration>
+    <runDate>2022-03-31T21:47:23.603+02:00</runDate>
+    <runDuration>9.307E-4</runDuration>
     <exception></exception>
     <traceClass>org.magicwerk.brownies.collections.KeyList</traceClass>
     <traceMethod>copy</traceMethod>
@@ -1142,7 +1142,6 @@
         <paramText outputType="VALUE" param="This">"{ \r\n   d (0), \r\n   d (1), \r\n   b (2), \r\n   a (3) \r\n}"</paramText>
       </parameters>
       <result>
-        <paramText outputType="VALUE" param="This">"{ \r\n   d (0), \r\n   d (1), \r\n   b (2), \r\n   a (3) \r\n}"</paramText>
         <paramText outputType="VALUE" param="Result">"{ \r\n   d (0), \r\n   d (1), \r\n   b (2), \r\n   a (3) \r\n}"</paramText>
       </result>
       <error></error>
@@ -1155,15 +1154,14 @@
         <paramText outputType="VALUE" param="This">"{ \r\n   a (3), \r\n   b (2), \r\n   d (0), \r\n   d (1) \r\n}"</paramText>
       </parameters>
       <result>
-        <paramText outputType="VALUE" param="This">"{ \r\n   a (3), \r\n   b (2), \r\n   d (0), \r\n   d (1) \r\n}"</paramText>
         <paramText outputType="VALUE" param="Result">"{ \r\n   a (3), \r\n   b (2), \r\n   d (0), \r\n   d (1) \r\n}"</paramText>
       </result>
       <error></error>
     </traceStep>
   </traceTest>
   <traceTest name="testCrop">
-    <runDate>2013-12-24T00:13:51.826+01:00</runDate>
-    <runDuration>0.060380332</runDuration>
+    <runDate>2022-03-31T21:47:23.761+02:00</runDate>
+    <runDuration>0.0012298</runDuration>
     <exception></exception>
     <traceClass>org.magicwerk.brownies.collections.KeyList</traceClass>
     <traceMethod>crop</traceMethod>
@@ -1175,7 +1173,18 @@
         <paramText outputType="VALUE" param="This">"{ \r\n   d (0), \r\n   d (1), \r\n   b (2), \r\n   a (3) \r\n}"</paramText>
       </parameters>
       <result>
+        <paramText outputType="VALUE" param="Result">"{ }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"crop"</paramText>
+      </description>
+      <parameters>
         <paramText outputType="VALUE" param="This">"{ \r\n   d (0), \r\n   d (1), \r\n   b (2), \r\n   a (3) \r\n}"</paramText>
+      </parameters>
+      <result>
         <paramText outputType="VALUE" param="Result">"{ }"</paramText>
       </result>
       <error></error>
@@ -1188,7 +1197,6 @@
         <paramText outputType="VALUE" param="This">"{ \r\n   a (3), \r\n   b (2), \r\n   d (0), \r\n   d (1) \r\n}"</paramText>
       </parameters>
       <result>
-        <paramText outputType="VALUE" param="This">"{ \r\n   a (3), \r\n   b (2), \r\n   d (0), \r\n   d (1) \r\n}"</paramText>
         <paramText outputType="VALUE" param="Result">"{ }"</paramText>
       </result>
       <error></error>
@@ -1300,7 +1308,7 @@
     </traceStep>
   </traceTest>
   <traceTest name="testElemSet">
-    <runDate>2014-02-11T01:35:46.490+01:00</runDate>
+    <runDate>2014-02-11T01:35:46.49+01:00</runDate>
     <runDuration>0.025895428</runDuration>
     <exception></exception>
     <traceClass>org.magicwerk.brownies.collections.KeyList</traceClass>
