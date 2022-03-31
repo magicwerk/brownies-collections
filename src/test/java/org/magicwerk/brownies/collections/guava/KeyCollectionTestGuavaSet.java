@@ -20,7 +20,6 @@ import junit.framework.TestSuite;
  * This test is defined as JUnit3 test but can also be run with JUnit4.
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 public class KeyCollectionTestGuavaSet extends TestCase {
 

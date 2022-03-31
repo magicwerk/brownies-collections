@@ -2,9 +2,6 @@ package org.magicwerk.brownies.collections.guava;
 
 import java.util.List;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-
 import org.magicwerk.brownies.collections.GapList;
 
 import com.google.common.collect.testing.ListTestSuiteBuilder;
@@ -13,13 +10,15 @@ import com.google.common.collect.testing.features.CollectionFeature;
 import com.google.common.collect.testing.features.CollectionSize;
 import com.google.common.collect.testing.features.ListFeature;
 
+import junit.framework.Test;
+import junit.framework.TestCase;
+
 /**
  * Test GapList with the test suite provided by Guava.
  * Run this test by executing the whole test class using JUnit.
  * This test is defined as JUnit3 test but can also be run with JUnit4.
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 public class GapListTestGuava extends TestCase {
 

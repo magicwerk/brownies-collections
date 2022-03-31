@@ -20,7 +20,6 @@ import junit.framework.TestSuite;
  * This test is defined as JUnit3 test but can also be run with JUnit4.
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 public class KeySetTestGuava extends TestCase {
 
@@ -57,7 +56,7 @@ public class KeySetTestGuava extends TestCase {
 				.withFeatures(
 						CollectionFeature.GENERAL_PURPOSE,
 						CollectionFeature.ALLOWS_NULL_VALUES,
-						//CollectionFeature.SERIALIZABLE,
+						CollectionFeature.SERIALIZABLE,
 						//CollectionFeature.FAILS_FAST_ON_CONCURRENT_MODIFICATION,
 						CollectionSize.ANY)
 				.createTestSuite();
