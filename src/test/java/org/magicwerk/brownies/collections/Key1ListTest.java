@@ -65,16 +65,6 @@ public class Key1ListTest {
 		//testMove();
 	}
 
-	static class MapListDesc {
-		String name;
-		Key1List<Name, String> list;
-
-		public MapListDesc(String name, Key1List<Name, String> list) {
-			this.name = name;
-			this.list = list;
-		}
-	}
-
 	@Trace(traceMethod = "/.*/", parameters = Trace.ALL_PARAMS | Trace.THIS, result = Trace.THIS | Trace.RESULT)
 	public static void testKey1List() {
 		Key1List<Ticket, Integer> list = new Key1List.Builder<Ticket, Integer>().withKey1Map(Ticket.IdMapper).build();

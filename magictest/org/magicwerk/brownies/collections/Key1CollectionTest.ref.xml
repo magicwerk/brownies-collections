@@ -184,8 +184,8 @@
     </traceStep>
   </traceTest>
   <traceTest name="testKey1Collection">
-    <runDate>2019-01-05T14:37:42.790+01:00</runDate>
-    <runDuration>0.008155556</runDuration>
+    <runDate>2022-04-01T01:09:36.46+02:00</runDate>
+    <runDuration>0.0643647</runDuration>
     <exception></exception>
     <traceClass>org.magicwerk.brownies.collections.Key1Collection</traceClass>
     <traceMethod>/.*/</traceMethod>
@@ -357,6 +357,72 @@
       </result>
       <error></error>
     </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"getAllKeys1"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ \r\n   null, \r\n   Ticket [id=1, extId=null, text=text1], \r\n   Ticket [id=1, extId=null, text=text1b], \r\n   Ticket [id=2, extId=null, text=text2] \r\n}"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ \r\n   null, \r\n   Ticket [id=1, extId=null, text=text1], \r\n   Ticket [id=1, extId=null, text=text1b], \r\n   Ticket [id=2, extId=null, text=text2] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="Result">"{ null, 1, 1, 2 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"getDistinctKeys1"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ \r\n   null, \r\n   Ticket [id=1, extId=null, text=text1], \r\n   Ticket [id=1, extId=null, text=text1b], \r\n   Ticket [id=2, extId=null, text=text2] \r\n}"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ \r\n   null, \r\n   Ticket [id=1, extId=null, text=text1], \r\n   Ticket [id=1, extId=null, text=text1b], \r\n   Ticket [id=2, extId=null, text=text2] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="Result">"{ null, 1, 2 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"toList"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ \r\n   null, \r\n   Ticket [id=1, extId=null, text=text1], \r\n   Ticket [id=1, extId=null, text=text1b], \r\n   Ticket [id=2, extId=null, text=text2] \r\n}"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ \r\n   null, \r\n   Ticket [id=1, extId=null, text=text1], \r\n   Ticket [id=1, extId=null, text=text1b], \r\n   Ticket [id=2, extId=null, text=text2] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="Result">"{ \r\n   null, \r\n   Ticket [id=1, extId=null, text=text1], \r\n   Ticket [id=1, extId=null, text=text1b], \r\n   Ticket [id=2, extId=null, text=text2] \r\n}"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"toArray"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ \r\n   null, \r\n   Ticket [id=1, extId=null, text=text1], \r\n   Ticket [id=1, extId=null, text=text1b], \r\n   Ticket [id=2, extId=null, text=text2] \r\n}"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ \r\n   null, \r\n   Ticket [id=1, extId=null, text=text1], \r\n   Ticket [id=1, extId=null, text=text1b], \r\n   Ticket [id=2, extId=null, text=text2] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="Result">"[ \r\n   null, \r\n   Ticket [id=1, extId=null, text=text1], \r\n   Ticket [id=1, extId=null, text=text1b], \r\n   Ticket [id=2, extId=null, text=text2] \r\n]"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"toArray"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ \r\n   null, \r\n   Ticket [id=1, extId=null, text=text1], \r\n   Ticket [id=1, extId=null, text=text1b], \r\n   Ticket [id=2, extId=null, text=text2] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="#1">"[ ]"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ \r\n   null, \r\n   Ticket [id=1, extId=null, text=text1], \r\n   Ticket [id=1, extId=null, text=text1b], \r\n   Ticket [id=2, extId=null, text=text2] \r\n}"</paramText>
+        <paramText outputType="VALUE" param="Result">"[ \r\n   null, \r\n   Ticket [id=1, extId=null, text=text1], \r\n   Ticket [id=1, extId=null, text=text1b], \r\n   Ticket [id=2, extId=null, text=text2] \r\n]"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
   </traceTest>
   <traceTest name="testPut">
     <runDate>2015-01-10T12:18:05.116+01:00</runDate>
@@ -450,7 +516,7 @@
     </traceStep>
   </traceTest>
   <traceTest name="testPutByKey1">
-    <runDate>2015-09-12T00:31:03.680+02:00</runDate>
+    <runDate>2015-09-12T00:31:03.68+02:00</runDate>
     <runDuration>0.063722787</runDuration>
     <exception></exception>
     <traceClass>org.magicwerk.brownies.collections.Key1Collection</traceClass>

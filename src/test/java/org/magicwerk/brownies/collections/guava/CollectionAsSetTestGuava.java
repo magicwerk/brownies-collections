@@ -26,16 +26,12 @@ public class CollectionAsSetTestGuava extends TestCase {
 
 	// this method must be named suite()
 	public static Test suite() {
-		return new CollectionAsSetTestGuava().allTests();
+		TestSuite test = new TestSuite("CollectionAsSet");
+		test.addTest(suiteCollectionAsSet());
+		return test;
 	}
 
-	public Test allTests() {
-		TestSuite suite = new TestSuite("CollectionAsSet");
-		suite.addTest(testSet());
-		return suite;
-	}
-
-	public Test testSet() {
+	public static Test suiteCollectionAsSet() {
 		return SetTestSuiteBuilder.using(
 				// This class is responsible for creating the collection and providing data, which can be put into the collection.
 				// Here we use a abstract generator which will create strings which will be put into the collection
