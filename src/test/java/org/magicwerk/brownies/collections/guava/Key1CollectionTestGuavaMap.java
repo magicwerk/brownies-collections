@@ -44,12 +44,8 @@ import junit.framework.TestSuite;
  * This test is defined as JUnit3 test but can also be run with JUnit4.
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 public class Key1CollectionTestGuavaMap extends TestCase {
-
-	public static void main(String[] args) {
-	}
 
 	// This method must be named suite() to be picked up by JUnit
 	// The name has been changed to ignore this test.
