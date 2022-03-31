@@ -907,8 +907,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 		/**
 		 * This method is called if a KeyCollection, Key1Collection, Key2Collection is initialized.
 		 *
-		 * @param keyColl
-		 * @param keyList
+		 * @param keyColl	KeyCollectionImpl which has already been initialized
 		 */
 		void init(KeyCollectionImpl keyColl) {
 			if (collection != null) {
@@ -975,7 +974,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	}
 
 	static class KeyMap<E, K> implements Serializable {
-		/** A mapper to extract keys out of element. For the element itself , this is always an IdentMapper. */
+		/** A mapper to extract keys out of element. For the element itself, this is always an IdentMapper. */
 		Function<E, K> mapper;
 		/** True to allow null keys */
 		boolean allowNull;
@@ -987,16 +986,12 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 		Comparator<K> comparator;
 		/**
 		 * Key storage if not sorted. The values are single elements or a list of elements.
-		 * Note that we cannot use TreeMap as K may not be comparable.
-		 * One of keysMap or keysList is used.
+		 * Note that we cannot use TreeMap as K may not be comparable. One of keysMap or keysList is used.
 		 */
 		Map<K, Object> keysMap;
 		/** Key storage if this is a KeyListImpl sorted by this key map, otherwise null */
 		IList<K> keysList;
-		/**
-		 * True to count only number of occurrences of equal elements
-		 * (can only be set on keyMap[0] storing the elements).
-		 */
+		/** True to count only number of occurrences of equal elements (can only be set on keyMap[0] storing the elements) */
 		boolean count;
 
 		KeyMap() {
