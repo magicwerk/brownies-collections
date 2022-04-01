@@ -231,8 +231,7 @@ public class Key2Set<E, K1, K2> extends Key2Collection<E, K1, K2> implements Set
 
 		/**
 		 * Specify this key to be a primary key.
-		 * This is identical to calling
-		 * withKey1Map(mapper), withKey1Null(false), and withKey1Duplicates(false).
+		 * This is identical to calling withKey1Map(mapper), withKey1Null(false), and withKey1Duplicates(false).
 		 *
 		 * @param mapper	mapper to use
 		 * @return			this (fluent interface)
@@ -244,8 +243,7 @@ public class Key2Set<E, K1, K2> extends Key2Collection<E, K1, K2> implements Set
 
 		/**
 		 * Specify this key to be a unique key.
-		 * This is identical to calling
-		 * withKey1Map(mapper), withKey1Null(true), and withKey1Duplicates(false, true).
+		 * This is identical to calling withKey1Map(mapper), withKey1Null(true), and withKey1Duplicates(false, true).
 		 *
 		 * @param mapper	mapper to use
 		 * @return			this (fluent interface)
@@ -320,8 +318,7 @@ public class Key2Set<E, K1, K2> extends Key2Collection<E, K1, K2> implements Set
 
 		/**
 		 * Specify this key to be a primary key.
-		 * This is identical to calling
-		 * withKey2Map(mapper), withKey2Null(false), and withKey2Duplicates(false).
+		 * This is identical to calling withKey2Map(mapper), withKey2Null(false), and withKey2Duplicates(false).
 		 *
 		 * @param mapper	mapper to use
 		 * @return			this (fluent interface)
@@ -333,8 +330,7 @@ public class Key2Set<E, K1, K2> extends Key2Collection<E, K1, K2> implements Set
 
 		/**
 		 * Specify this key to be a unique key.
-		 * This is identical to calling
-		 * withKey2Map(mapper), withKey2Null(true), and withKey2Duplicates(false, true).
+		 * This is identical to calling withKey2Map(mapper), withKey2Null(true), and withKey2Duplicates(false, true).
 		 *
 		 * @param mapper	mapper to use
 		 * @return			this (fluent interface)
