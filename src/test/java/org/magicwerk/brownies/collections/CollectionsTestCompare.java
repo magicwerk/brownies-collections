@@ -2,6 +2,7 @@ package org.magicwerk.brownies.collections;
 
 import static org.magicwerk.brownies.collections.TestHelper.*;
 
+import java.lang.reflect.Executable;
 import java.lang.reflect.Method;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -25,6 +26,8 @@ import org.magicwerk.brownies.core.CollectionTools;
 import org.magicwerk.brownies.core.ObjectTools;
 import org.magicwerk.brownies.core.logback.LogbackTools;
 import org.magicwerk.brownies.core.objects.Result;
+import org.magicwerk.brownies.core.reflect.Access;
+import org.magicwerk.brownies.core.reflect.ReflectImpl;
 import org.magicwerk.brownies.core.reflect.ReflectTools;
 import org.magicwerk.brownies.core.regex.RegexTools;
 import org.magicwerk.brownies.core.strings.StringFormatter;
@@ -40,10 +43,11 @@ import ch.qos.logback.classic.Logger;
  */
 public class CollectionsTestCompare {
 
-	/** Logger */
-	private static Logger LOG = LogbackTools.getConsoleLogger();
+	static final ReflectImpl REFLECT = new ReflectImpl();
 
-	static Random random = new Random(5);
+	static final Logger LOG = LogbackTools.getConsoleLogger();
+
+	static final Random random = new Random(5);
 
 	public static void main(String[] args) {
 		test();
@@ -209,8 +213,14 @@ public class CollectionsTestCompare {
 			}
 		}
 
+		static List<Method> getPublicMethods(Class<?> clazz) {
+			IList<Executable> ms = REFLECT.getAccessedMethods(clazz, Access.PUBLIC);
+			ms.filteredList(m -> m instanceof Method);
+			return (List) ms;
+		}
+
 		static List<Method> getMethods(Class<?> clazz) {
-			List<Method> methods = new ArrayList<Method>(ReflectTools.getPublicMethods(clazz));
+			List<Method> methods = new ArrayList<Method>(getPublicMethods(clazz));
 			for (int i = 0; i < methods.size(); i++) {
 				if (methods.get(i).getName().equals("wait") || methods.get(i).getName().equals("notify") || methods.get(i).getName().equals("notifyAll")
 						|| methods.get(i).getName().equals("getClass") || methods.get(i).getName().equals("iterator")
@@ -224,8 +234,8 @@ public class CollectionsTestCompare {
 
 		static void invokeMethod(GapList<Integer> list2) {
 			GapList<Integer> list = new GapList<Integer>(list2);
-			List<String> methods1 = getMethodSignatures(ReflectTools.getPublicMethods(ArrayList.class));
-			List<String> methods2 = getMethodSignatures(ReflectTools.getPublicMethods(LinkedList.class));
+			List<String> methods1 = getMethodSignatures(getPublicMethods(ArrayList.class));
+			List<String> methods2 = getMethodSignatures(getPublicMethods(LinkedList.class));
 			Set<String> ml = CollectionTools.union(new HashSet<String>(methods1), new HashSet<String>(methods2));
 			ml.remove("wait(long)");
 			ml.remove("wait(long,int)");
@@ -239,7 +249,7 @@ public class CollectionsTestCompare {
 			//System.out.println("s= " + PrintTools.print(s));
 
 			Method method = null;
-			List<Method> methods = ReflectTools.getPublicMethods(GapList.class);
+			List<Method> methods = getPublicMethods(GapList.class);
 			for (int i = 0; i < methods.size(); i++) {
 				if (methods.get(i).getName().equals(s.get(1))) {
 					method = methods.get(i);
@@ -412,7 +422,7 @@ public class CollectionsTestCompare {
 		}
 
 		static Result invokeMethod(Method method, List<Object> params, List<Object> list) {
-			List<Method> listMethods = ReflectTools.getPublicMethods(list.getClass());
+			List<Method> listMethods = getPublicMethods(list.getClass());
 			Method listMethod = null;
 			for (Method lm : listMethods) {
 				if (lm.getName().equals(method.getName()) && ObjectTools.equals(lm.getParameterTypes(), method.getParameterTypes())) {
