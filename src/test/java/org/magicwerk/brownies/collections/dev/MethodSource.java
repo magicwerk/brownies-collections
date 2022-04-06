@@ -1,8 +1,8 @@
 package org.magicwerk.brownies.collections.dev;
 
 import org.magicwerk.brownies.core.CheckTools;
-import org.magicwerk.brownies.core.StringTools;
 import org.magicwerk.brownies.core.objects.Single;
+import org.magicwerk.brownies.core.strings.StringPrinter;
 import org.magicwerk.brownies.tools.dev.java.JavaParserTools;
 
 import com.github.javaparser.ast.body.BodyDeclaration;
@@ -106,7 +106,7 @@ public class MethodSource {
 	}
 
 	public String getSourceDoc() {
-		return StringTools.add(doc, header, body);
+		return new StringPrinter().addArrayIf(doc, header, body).toString();
 	}
 
 	public void setSourceDoc(String source) {
@@ -118,7 +118,7 @@ public class MethodSource {
 	}
 
 	public String getSource() {
-		return StringTools.add(header, body);
+		return new StringPrinter().addArrayIf(header, body).toString();
 	}
 
 	public void setSource(String source) {
