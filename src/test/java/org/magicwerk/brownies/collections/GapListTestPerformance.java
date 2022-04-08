@@ -35,7 +35,6 @@ import ch.qos.logback.classic.Logger;
  * Test performance of GapList.
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 public class GapListTestPerformance {
 	/** Logger */
@@ -56,7 +55,9 @@ public class GapListTestPerformance {
 
 	static void testPerformanceFilterJmh() {
 		Options opts = new Options().includeClass(PerformanceFilterJmhTest.class);
-		new JmhRunner().runJmh(opts);
+		JmhRunner runner = new JmhRunner();
+		//runner.setBuildBrowniesTestAllJar(true);
+		runner.runJmh(opts);
 	}
 
 	public static class PerformanceFilterJmhTest {
