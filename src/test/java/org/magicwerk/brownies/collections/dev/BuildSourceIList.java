@@ -1,6 +1,5 @@
 package org.magicwerk.brownies.collections.dev;
 
-import java.text.MessageFormat;
 import java.util.regex.Pattern;
 
 import org.magicwerk.brownies.collections.dev.BuildSource.Builder;
@@ -200,7 +199,7 @@ public class BuildSourceIList extends FileBuilder {
 			src = src.replace("implements Cloneable, Serializable", "implements Cloneable, Serializable, CharSequence");
 
 			Pattern p = Pattern.compile("(public String toString\\(\\) \\{)(.*)(public boolean isEmpty\\(\\))", Pattern.DOTALL);
-			src = new RegexReplacer().setPattern(p).setFormat(new MessageFormat("{1}\nreturn new String(toArray());\n}\n\n{3}")).replace(src);
+			src = new RegexReplacer().setPattern(p).setFormat("{1}\nreturn new String(toArray());\n}\n\n{3}").replace(src);
 
 			//@formatter:off
 			String add = ""
