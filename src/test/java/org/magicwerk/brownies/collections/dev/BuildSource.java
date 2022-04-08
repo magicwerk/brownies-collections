@@ -7,6 +7,8 @@ import org.magicwerk.brownies.core.logback.LogbackTools;
 import org.magicwerk.brownies.core.reflect.ReflectTypes;
 import org.magicwerk.brownies.core.regex.RegexReplacer;
 import org.magicwerk.brownies.core.regex.RegexTools;
+import org.magicwerk.brownies.core.strings.StringFormat;
+import org.magicwerk.brownies.core.strings.StringFormatParsers;
 import org.magicwerk.brownies.core.strings.StringFormatter;
 import org.magicwerk.brownies.core.strings.matcher.NestedStringMatcher;
 import org.magicwerk.brownies.core.strings.matcher.RegexStringMatcher;
@@ -106,20 +108,20 @@ public class BuildSource {
 			return str;
 		}
 
-		String applyFormat(String str) {
+		StringFormat applyFormat(String str) {
 			str = str.replace("{PRIMITIVE}", "'{PRIMITIVE}'");
 			str = str.replace("{WRAPPER}", "'{WRAPPER}'");
 			str = str.replace("{NAME}", "'{NAME}'");
 			str = str.replace("{DEFAULT}", "'{DEFAULT}'");
-			return str;
+			return new StringFormat(str, StringFormatParsers.MessageFormatParser);
 		}
 
 		String substitute(String regex, String input, String message) {
 			regex = applyTemplate(regex);
 			//message = RegexTools.getLiteralMessageFormat(message);
-			message = applyFormat(message);
+			StringFormat format = applyFormat(message);
 
-			String src = new RegexReplacer().setPattern(regex).setFormat(message).replace(input);
+			String src = new RegexReplacer().setPattern(regex).setFormat(format).replace(input);
 			src = applyTemplate(src);
 			return src;
 		}
@@ -128,12 +130,12 @@ public class BuildSource {
 			regex1 = applyTemplate(regex1);
 			regex2 = applyTemplate(regex2);
 			//message = RegexTools.getLiteralMessageFormat(message);
-			message = applyFormat(message);
+			StringFormat format = applyFormat(message);
 
 			RegexStringMatcher m1 = new RegexStringMatcher().setPattern(regex1);
 			RegexStringMatcher m2 = new RegexStringMatcher().setPattern(regex2);
 			NestedStringMatcher nsm = new NestedStringMatcher(m1, m2);
-			String src = new RegexReplacer().setMatcher(nsm).setFormat(message).replace(input);
+			String src = new RegexReplacer().setMatcher(nsm).setFormat(format).replace(input);
 			src = applyTemplate(src);
 			return src;
 		}
