@@ -56,7 +56,6 @@ public class GapListTestPerformance {
 	static void testPerformanceFilterJmh() {
 		Options opts = new Options().includeClass(PerformanceFilterJmhTest.class);
 		JmhRunner runner = new JmhRunner();
-		//runner.setBuildBrowniesTestAllJar(true);
 		runner.runJmh(opts);
 	}
 
