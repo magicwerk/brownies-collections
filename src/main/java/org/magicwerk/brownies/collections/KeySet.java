@@ -174,8 +174,16 @@ public class KeySet<E> extends KeyCollection<E> implements Set<E> {
 
 		//-- Element key
 
+		/**
+		 * {@inheritDoc}
+		 * <p>
+		 * Note that {@link KeySet} does not support duplicates, so an exception is thrown if the argument is true.
+		 */
 		@Override
 		public Builder<E> withElemCount(boolean count) {
+			if (count) {
+				KeyCollectionImpl.errorInvalidSetBehavior();
+			}
 			return (Builder<E>) super.withElemCount(count);
 		}
 
