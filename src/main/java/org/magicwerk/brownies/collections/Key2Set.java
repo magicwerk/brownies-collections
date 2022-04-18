@@ -176,6 +176,24 @@ public class Key2Set<E, K1, K2> extends Key2Collection<E, K1, K2> implements Set
 
 		//-- Element key
 
+		/**
+		 * {@inheritDoc}
+		 * <p>
+		 * Note that {@link Key2Set} does not support duplicates, so an exception is thrown if the argument is true.
+		 */
+		@Override
+		public Builder<E, K1, K2> withElemCount(boolean count) {
+			if (count) {
+				KeyCollectionImpl.errorInvalidSetBehavior();
+			}
+			return (Builder<E, K1, K2>) super.withElemCount(count);
+		}
+
+		/**
+		 * {@inheritDoc}
+		 * <p>
+		 * Note that a {@link Key2Set} always has an element set, so this call is not necessary.
+		 */
 		@Override
 		public Builder<E, K1, K2> withElemSet() {
 			return (Builder<E, K1, K2>) super.withElemSet();

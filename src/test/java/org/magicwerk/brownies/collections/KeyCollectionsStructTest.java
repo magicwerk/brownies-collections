@@ -45,8 +45,9 @@ public class KeyCollectionsStructTest {
 
 	static void test() {
 
-		testKeyCollectionImpl();
+		testKeyCollection();
 		testKeyListImpl();
+		testKeySet();
 
 		//		{
 		//			Key1List<Ticket, Integer> l = new Key1List.Builder<Ticket, Integer>().withKey1Map(Ticket.IdMapper).withOrderByKey1(true).build();
@@ -103,7 +104,7 @@ public class KeyCollectionsStructTest {
 	static List<Ticket> ts = GapList.create(t1, t2, t3);
 
 	@Capture
-	public static void testKeyCollectionImpl() {
+	public static void testKeyCollection() {
 
 		// -- KeyCollection
 		// HashMap
@@ -111,14 +112,14 @@ public class KeyCollectionsStructTest {
 			System.out.println("-- not sorted");
 			KeyCollection<Ticket> coll = new KeyCollection.Builder<Ticket>().build();
 			coll.add(t1);
-			printKeyCollection(coll);
+			printKeyCollectionImpl(coll);
 		}
 		// TreeMap
 		{
 			System.out.println("-- sorted");
 			KeyCollection<Ticket> coll = new KeyCollection.Builder<Ticket>().withElemSort(true).build();
 			coll.add(t1);
-			printKeyCollection(coll);
+			printKeyCollectionImpl(coll);
 		}
 		// HashMap
 		{
@@ -126,7 +127,9 @@ public class KeyCollectionsStructTest {
 			KeyCollection<Ticket> coll = new KeyCollection.Builder<Ticket>().build();
 			coll.add(t1);
 			coll.add(t1);
-			printKeyCollection(coll);
+			printKeyCollectionImpl(coll);
+
+			Assert.assertTrue(coll.size() == 2);
 		}
 		// TreeMap
 		{
@@ -134,14 +137,14 @@ public class KeyCollectionsStructTest {
 			KeyCollection<Ticket> coll = new KeyCollection.Builder<Ticket>().withElemSort(true).build();
 			coll.add(t1);
 			coll.add(t1);
-			printKeyCollection(coll);
+			printKeyCollectionImpl(coll);
 		}
 		// ElemCount
 		{
 			System.out.println("-- with elem count");
 			KeyCollection<Ticket> coll = new KeyCollection.Builder<Ticket>().withElemCount(true).build();
 			coll.add(t1);
-			printKeyCollection(coll);
+			printKeyCollectionImpl(coll);
 		}
 
 		// -- Key1Collection
@@ -149,7 +152,7 @@ public class KeyCollectionsStructTest {
 		{
 			Key1Collection<Ticket, Integer> coll = new Key1Collection.Builder<Ticket, Integer>().withKey1Map(Ticket.IdMapper).withKey1Sort(true).build();
 			coll.addAll(ts);
-			printKeyCollection(coll);
+			printKeyCollectionImpl(coll);
 
 			// As there is no element set, all methods work over the keys TreeMap.
 			// So contains() becomes TreeMap.containsValue()
@@ -161,7 +164,7 @@ public class KeyCollectionsStructTest {
 			Key1Collection<Ticket, Integer> coll = new Key1Collection.Builder<Ticket, Integer>().withElemSet().withKey1Map(Ticket.IdMapper).withKey1Sort(true)
 					.build();
 			coll.addAll(ts);
-			printKeyCollection(coll);
+			printKeyCollectionImpl(coll);
 			// Order of HashMap can change
 			//System.out.println(coll);
 		}
@@ -170,7 +173,67 @@ public class KeyCollectionsStructTest {
 			Key1Collection<Ticket, Integer> coll = new Key1Collection.Builder<Ticket, Integer>().withElemSet().withKey1Map(Ticket.IdMapper)
 					.withOrderByKey1(true).build();
 			coll.addAll(ts);
-			printKeyCollection(coll);
+			printKeyCollectionImpl(coll);
+			//System.out.println(coll);
+		}
+	}
+
+	@Capture
+	public static void testKeySet() {
+
+		// -- KeySet
+		// HashMap
+		{
+			System.out.println("-- not sorted");
+			KeySet<Ticket> coll = new KeySet.Builder<Ticket>().build();
+			coll.add(t1);
+			printKeyCollectionImpl(coll);
+		}
+		// TreeMap
+		{
+			System.out.println("-- sorted");
+			KeySet<Ticket> coll = new KeySet.Builder<Ticket>().withElemSort(true).build();
+			coll.add(t1);
+			printKeyCollectionImpl(coll);
+		}
+		// HashMap
+		{
+			System.out.println("-- no duplicates ");
+			KeySet<Ticket> coll = new KeySet.Builder<Ticket>().build();
+			coll.add(t1);
+			coll.add(t1);
+			printKeyCollectionImpl(coll);
+
+			Assert.assertTrue(coll.size() == 1);
+		}
+
+		// -- Key1Set
+		// Element: null, Key: TreeMap (order)
+		{
+			Key1Set<Ticket, Integer> coll = new Key1Set.Builder<Ticket, Integer>().withKey1Map(Ticket.IdMapper).withKey1Sort(true).build();
+			coll.addAll(ts);
+			printKeyCollectionImpl(coll);
+
+			// As there is no element set, all methods work over the keys TreeMap.
+			// So contains() becomes TreeMap.containsValue()
+			Assert.assertTrue(coll.contains(t1));
+			Assert.assertTrue(!coll.contains(null));
+		}
+		// Element: HashMap (order), Key: TreeMap
+		{
+			Key1Set<Ticket, Integer> coll = new Key1Set.Builder<Ticket, Integer>().withElemSet().withKey1Map(Ticket.IdMapper).withKey1Sort(true)
+					.build();
+			coll.addAll(ts);
+			printKeyCollectionImpl(coll);
+			// Order of HashMap can change
+			//System.out.println(coll);
+		}
+		// Element: HashMap, Key: TreeMap (order)
+		{
+			Key1Set<Ticket, Integer> coll = new Key1Set.Builder<Ticket, Integer>().withElemSet().withKey1Map(Ticket.IdMapper)
+					.withOrderByKey1(true).build();
+			coll.addAll(ts);
+			printKeyCollectionImpl(coll);
 			//System.out.println(coll);
 		}
 	}
@@ -393,7 +456,7 @@ public class KeyCollectionsStructTest {
 	 *
 	 * @param kci KeyCollectionImpl
 	 */
-	static void printKeyCollection(KeyCollectionImpl<?> kci) {
+	static void printKeyCollectionImpl(KeyCollectionImpl<?> kci) {
 		KeyMap<?, ?>[] keyMaps = kci.keyMaps;
 
 		System.out.println(formatClassName(kci));

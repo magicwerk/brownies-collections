@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testClass xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="org.magicwerk.brownies.collections.KeyCollectionsStructTest" xsi:noNamespaceSchemaLocation="testclass-v10.xsd">
-  <captureTest name="testKeyCollectionImpl">
-    <runDate>2022-01-22T01:12:03.346+01:00</runDate>
-    <runDuration>0.0342277</runDuration>
+  <captureTest name="testKeyCollection">
+    <runDate>2022-04-18T23:07:47.05+02:00</runDate>
+    <runDuration>0.042593499</runDuration>
     <exception></exception>
     <captureStep>
       <text outputType="TEXT">"-- not sorted\r\nKeyCollection\r\n- Elem Set: HashMap: Ticket -&gt; Ticket\r\n\r\n-- sorted\r\nKeyCollection\r\n- Elem Set: TreeMap: Ticket -&gt; Ticket\r\n\r\n-- with duplicates \r\nKeyCollection\r\n- Elem Set: HashMap: Ticket -&gt; KeyMapList\r\n\r\n-- sorted with duplicates\r\nKeyCollection\r\n- Elem Set: TreeMap: Ticket -&gt; KeyMapList\r\n\r\n-- with elem count\r\nKeyCollection\r\n- Elem Set: HashMap: Ticket -&gt; MutableInt\r\n\r\nKey1Collection\r\n- Elem Set: null\n- Key Map 1: TreeMap: Integer -&gt; Ticket\r\n\r\nKey1Collection\r\n- Elem Set: HashMap: Ticket -&gt; Ticket\n- Key Map 1: TreeMap: Integer -&gt; Ticket\r\n\r\nKey1Collection\r\n- Elem Set: HashMap: Ticket -&gt; Ticket\n- Key Map 1: TreeMap: Integer -&gt; Ticket\r\n\r\n"</text>
@@ -14,6 +14,14 @@
     <exception></exception>
     <captureStep>
       <text outputType="TEXT">"-- KeyList: list only\r\nKeyList\r\n- IList: GapList: Ticket\r\n- no ElemSet / KeyMaps\r\n\r\nKeyList\r\n- IList: BigList: Ticket\r\n- no ElemSet / KeyMaps\r\n\r\nKeyList\r\n- IList: IntObjGapList: Integer\r\n- no ElemSet / KeyMaps\r\n\r\nKeyList\r\n- IList: IntObjBigList: Integer\r\n- no ElemSet / KeyMaps\r\n\r\n-- KeyList: sorted list only\r\nKeyList\r\n- IList: GapList: Ticket\r\n- Elem Set: GapList: Ticket\r\n\r\nKeyList\r\n- IList: BigList: Ticket\r\n- Elem Set: BigList: Ticket\r\n\r\nKeyList\r\n- IList: IntObjGapList: Integer\r\n- Elem Set: IntObjGapList: Integer\r\n\r\nKeyList\r\n- IList: IntObjBigList: Integer\r\n- Elem Set: IntObjBigList: Integer\r\n\r\n-- KeyList: list + elem set\r\nKeyList\r\n- IList: GapList: Ticket\r\n- Elem Set: HashMap: Ticket -&gt; Ticket\r\n\r\nKeyList\r\n- IList: BigList: Ticket\r\n- Elem Set: HashMap: Ticket -&gt; Ticket\r\n\r\nKeyList\r\n- IList: IntObjGapList: Integer\r\n- Elem Set: HashMap: Integer -&gt; Integer\r\n\r\nKeyList\r\n- IList: IntObjBigList: Integer\r\n- Elem Set: HashMap: Integer -&gt; Integer\r\n\r\n-- KeyList: sorted list + elem set\r\nKeyList\r\n- IList: GapList: Ticket\r\n- Elem Set: GapList: Ticket\r\n\r\nKeyList\r\n- IList: BigList: Ticket\r\n- Elem Set: BigList: Ticket\r\n\r\nKeyList\r\n- IList: IntObjGapList: Integer\r\n- Elem Set: IntObjGapList: Integer\r\n\r\nKeyList\r\n- IList: IntObjBigList: Integer\r\n- Elem Set: IntObjBigList: Integer\r\n\r\n-- Key1List\r\nKey1List\r\n- IList: GapList: Ticket\r\n- Elem Set: null\n- Key Map 1: HashMap: Integer -&gt; Ticket\r\n\r\nKey1List\r\n- IList: GapList: Ticket\r\n- Elem Set: null\n- Key Map 1: TreeMap: Integer -&gt; Ticket\r\n\r\nKey1List\r\n- IList: GapList: Ticket\r\n- Elem Set: null\n- Key Map 1: GapList: Integer\r\n\r\nKey1List\r\n- IList: GapList: Ticket\r\n- Elem Set: HashMap: Ticket -&gt; Ticket\n- Key Map 1: HashMap: Integer -&gt; Ticket\r\n\r\n-- Key2List\r\nKey2List\r\n- IList: GapList: Ticket\r\n- Elem Set: HashMap: Ticket -&gt; Ticket\n- Key Map 1: HashMap: Integer -&gt; Ticket\n- Key Map 2: HashMap: String -&gt; Ticket\r\n\r\nKey2List\r\n- IList: GapList: Ticket\r\n- Elem Set: HashMap: Ticket -&gt; Ticket\n- Key Map 1: IntObjGapList: Integer\n- Key Map 2: TreeMap: String -&gt; Ticket\r\n\r\n"</text>
+    </captureStep>
+  </captureTest>
+  <captureTest name="testKeySet">
+    <runDate>2022-04-19T00:11:58.001+02:00</runDate>
+    <runDuration>0.0046881</runDuration>
+    <exception></exception>
+    <captureStep>
+      <text outputType="TEXT">"-- not sorted\r\nKeySet\r\n- Elem Set: HashMap: Ticket -&gt; Ticket\r\n\r\n-- sorted\r\nKeySet\r\n- Elem Set: TreeMap: Ticket -&gt; Ticket\r\n\r\n-- no duplicates \r\nKeySet\r\n- Elem Set: HashMap: Ticket -&gt; Ticket\r\n\r\nKey1Set\r\n- Elem Set: HashMap: Ticket -&gt; Ticket\n- Key Map 1: TreeMap: Integer -&gt; Ticket\r\n\r\nKey1Set\r\n- Elem Set: HashMap: Ticket -&gt; Ticket\n- Key Map 1: TreeMap: Integer -&gt; Ticket\r\n\r\nKey1Set\r\n- Elem Set: HashMap: Ticket -&gt; Ticket\n- Key Map 1: TreeMap: Integer -&gt; Ticket\r\n\r\n"</text>
     </captureStep>
   </captureTest>
 </testClass>
