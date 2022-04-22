@@ -9,8 +9,9 @@ publishing {
 Brownies Collections complements the Java Collections Framework. 
 GapList combines the strengths of both ArrayList and LinkedList. 
 BigList is a list optimized for storing large number of elements. 
-There are specialized List implementations for all primitive data types. 
-The key collection classes offer support for keys and constraints for lists and collections.
+There are specialized List implementations for all primitive data types (IntGapList, IntBigList, IntObjGapList, IntObjBigList). 
+The key collection classes offer support for keys and constraints for lists and collections
+(KeyList, KeyCollection, KeySet, Key1List, Key1Collection, Key1Set, Key2List, Key2Collection, Key2Set).
 '''
                 url = 'http://www.magicwerk.org/collections'
            		scm {
