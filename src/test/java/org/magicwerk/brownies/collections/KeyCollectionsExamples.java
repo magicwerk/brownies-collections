@@ -83,6 +83,10 @@ public class KeyCollectionsExamples {
 		testKey1Collection();
 		testKey2Collection();
 
+		testKeySet();
+		testKey1Set();
+		testKey2Set();
+
 		testAsSet();
 		testAsMap();
 	}
@@ -237,9 +241,9 @@ public class KeyCollectionsExamples {
 	// KeyCollection
 
 	static void testKeyCollection() {
-		// A KeyCollection will always have element set automatically added
+		// A KeyCollection implements java.util.Collection
 		KeyCollection<String> coll1 = new KeyCollection.Builder<String>().build();
-		// So these two declarations are equal
+		// A KeyCollection will always have element set automatically added, so these two declarations are equal
 		KeyCollection<String> coll2 = new KeyCollection.Builder<String>().withElemSet().build();
 	}
 
@@ -259,8 +263,7 @@ public class KeyCollectionsExamples {
 	// Key2Collection
 
 	static void testKey2Collection() {
-		// Use a Key2Collection to construct a bidirectional map
-		// where both key sets are sorted.
+		// Use a Key2Collection to construct a bidirectional map where both key sets are sorted.
 		Key2Collection<ZipCity, Integer, String> zipCities = new Key2Collection.Builder<ZipCity, Integer, String>().withPrimaryKey1Map(ZipCity::getZip)
 				.withKey1Sort(true).withKey2Map(ZipCity::getCity)
 				.withKey2Null(false).withKey2Sort(true).build();
@@ -273,21 +276,40 @@ public class KeyCollectionsExamples {
 		Set<String> allCities = zipCities.asMap2().keySet();
 
 		String city = zipCities.getByKey1(5000).getCity();
-		// TODO do we need mappedCollection?
 		List<Integer> zips = GapList.create(zipCities.getAllByKey2("Aarau")).mappedList(zipCities.getKey1Mapper());
 	}
 
 	// KeySet
 
 	static void testKeySet() {
-		KeySet<String> coll = new KeySet.Builder<String>().withPrimaryElem().build();
-		coll.add("abc");
-		coll.add("abc");
-		//coll3.add(null);
+		// A KeySet implements java.util.Set
+		KeySet<String> set = new KeySet.Builder<String>().build();
+	}
 
-		//coll3.asSet().add("abc");
-		//coll3.asSet().add("abc");
-		System.out.println(coll);
+	// Key1Set
+
+	static void testKey1Set() {
+		// Use a Key1Set store tag elements with a name as primary key.
+		Key1Set<Tag, String> coll = new Key1Set.Builder<Tag, String>().withPrimaryKey1Map(Tag::getName).build();
+	}
+
+	// Key2Set
+
+	static void testKey2Set() {
+		// Use a Key2Set to construct a bidirectional map where both key sets are sorted.
+		Key2Collection<ZipCity, Integer, String> zipCities = new Key2Set.Builder<ZipCity, Integer, String>().withPrimaryKey1Map(ZipCity::getZip)
+				.withKey1Sort(true).withKey2Map(ZipCity::getCity)
+				.withKey2Null(false).withKey2Sort(true).build();
+		zipCities.add(new ZipCity(4000, "Basel"));
+		zipCities.add(new ZipCity(5000, "Aarau"));
+		zipCities.add(new ZipCity(5001, "Aarau"));
+		zipCities.add(new ZipCity(6000, "Luzern"));
+
+		Set<Integer> allZips = zipCities.asMap1().keySet();
+		Set<String> allCities = zipCities.asMap2().keySet();
+
+		String city = zipCities.getByKey1(5000).getCity();
+		List<Integer> zips = GapList.create(zipCities.getAllByKey2("Aarau")).mappedList(zipCities.getKey1Mapper());
 	}
 
 	// AsSet / AsMap
