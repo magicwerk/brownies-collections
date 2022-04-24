@@ -54,8 +54,8 @@ public class KeyListImplTest {
 	static void test() {
 		//testAsSet();
 		//testAddAllWindowSize();
-		//testTriggers();
-		testSort();
+		testTriggers();
+		//testSort();
 	}
 
 	@Capture
@@ -106,27 +106,30 @@ public class KeyListImplTest {
 	@Capture
 	public static void testTriggers() {
 		final boolean[] cancel = new boolean[1];
-		Key1List<Name, String> list = new Key1List.Builder<Name, String>().withPrimaryKey1Map(Name.Mapper).withBeforeInsertTrigger(new Consumer<Name>() {
-			@Override
-			public void accept(Name elem) {
-				if (cancel[0]) {
-					System.out.println("cancel insert: " + elem);
-					cancel[0] = false;
-					throw new IllegalArgumentException("cancel insert");
-				}
-				System.out.println("insert: " + elem);
-			}
-		}).withBeforeDeleteTrigger(new Consumer<Name>() {
-			@Override
-			public void accept(Name elem) {
-				if (cancel[0]) {
-					System.out.println("cancel delete: " + elem);
-					cancel[0] = false;
-					throw new IllegalArgumentException("cancel delete");
-				}
-				System.out.println("delete: " + elem);
-			}
-		}).build();
+		Key1List<Name, String> list = new Key1List.Builder<Name, String>().withPrimaryKey1Map(Name.Mapper)
+				.withBeforeInsertTrigger(new Consumer<Name>() {
+					@Override
+					public void accept(Name elem) {
+						if (cancel[0]) {
+							System.out.println("cancel insert: " + elem);
+							cancel[0] = false;
+							throw new IllegalArgumentException("cancel insert");
+						}
+						System.out.println("insert: " + elem);
+					}
+				})
+				.withBeforeDeleteTrigger(new Consumer<Name>() {
+					@Override
+					public void accept(Name elem) {
+						if (cancel[0]) {
+							System.out.println("cancel delete: " + elem);
+							cancel[0] = false;
+							throw new IllegalArgumentException("cancel delete");
+						}
+						System.out.println("delete: " + elem);
+					}
+				})
+				.build();
 
 		Name n1 = new Name("a1");
 		Name n2 = new Name("b2");

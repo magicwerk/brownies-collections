@@ -416,9 +416,8 @@ public class Key1List<E, K> extends KeyListImpl<E> {
 	 * @param key	key
 	 * @return		all elements with specified key (never null)
 	 */
-	@SuppressWarnings("unchecked")
-	public Key1List<E, K> getAllByKey1(K key) {
-		return (Key1List<E, K>) getAllByKey(1, key);
+	public IList<E> getAllByKey1(K key) {
+		return getAllByKey(1, key);
 	}
 
 	/**
@@ -448,8 +447,8 @@ public class Key1List<E, K> extends KeyListImpl<E> {
 	 * @param key	key
 	 * @return		removed elements with specified key (never null)
 	 */
-	public Key1List<E, K> removeAllByKey1(K key) {
-		return (Key1List<E, K>) removeAllByKey(1, key);
+	public IList<E> removeAllByKey1(K key) {
+		return removeAllByKey(1, key);
 	}
 
 	/**

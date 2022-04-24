@@ -12,6 +12,7 @@ import org.magicwerk.brownies.core.strings.StringFormatParsers;
 import org.magicwerk.brownies.core.strings.StringFormatter;
 import org.magicwerk.brownies.core.strings.matcher.NestedStringMatcher;
 import org.magicwerk.brownies.core.strings.matcher.RegexStringMatcher;
+import org.magicwerk.brownies.tools.dev.java.JavaParserTools;
 import org.slf4j.Logger;
 
 /**
@@ -261,9 +262,10 @@ public class BuildSource {
 		writeFile(buildTest.getFile(), buildTest.getFileContent());
 	}
 
-	static void writeFile(String file, String text) {
+	static void writeFile(String file, String src) {
 		LOG.info("Write file {}", file);
-		FileTools.writeFile().setFile(file).setText(text).write();
+		src = JavaParserTools.printPretty(src);
+		FileTools.writeFile().setFile(file).setText(src).write();
 	}
 
 }

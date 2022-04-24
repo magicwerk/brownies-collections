@@ -52,7 +52,7 @@ public class Key1ListTest {
 	}
 
 	static void test() {
-		testImmutableList();
+		//testImmutableList();
 		//testInitAll();
 		//testContains();
 		//testRemoveAllByKey1();
@@ -61,7 +61,7 @@ public class Key1ListTest {
 		//testAsMap();
 		//testKeys();
 		//testKeys();
-		//testKeys();
+		testKeys();
 		//testMove();
 	}
 
@@ -131,7 +131,7 @@ public class Key1ListTest {
 		list.add(new ComparableName("c", 3));
 		list.add(new ComparableName("b", 4));
 
-		Key1List<Name, String> l = list.removeAllByKey1("b");
+		IList<Name> l = list.removeAllByKey1("b");
 		LOG.info("{}", l);
 	}
 

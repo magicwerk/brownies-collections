@@ -31,6 +31,7 @@ import org.magicwerk.brownies.collections.TestHelper.ComparableName;
 import org.magicwerk.brownies.collections.TestHelper.Name;
 import org.magicwerk.brownies.collections.TestHelper.Ticket;
 import org.magicwerk.brownies.core.CheckTools;
+import org.magicwerk.brownies.core.RunTools;
 import org.magicwerk.brownies.core.Timer;
 import org.magicwerk.brownies.core.logback.LogbackTools;
 import org.magicwerk.brownies.core.reflect.ReflectTools;
@@ -51,7 +52,9 @@ public class KeyListTest {
 	}
 
 	static void test() {
-		testClone();
+		testUnwrap();
+		//testCrop();
+		//testClone();
 		//testAdd();
 		//testRemove();
 		//testReorder();
@@ -661,6 +664,16 @@ public class KeyListTest {
 		list.add(new ComparableName("b", 2));
 		list.add(new ComparableName("a", 3));
 		list.crop();
+	}
+
+	@Capture
+	public static void testUnwrap() {
+		KeyList<Name> list = new KeyList.Builder<Name>().withElemNull(false).build();
+		list.add(new Name("a"));
+		RunTools.runThrowing(() -> list.add(null));
+
+		IList<Name> list2 = list.unwrap();
+		list2.add(null);
 	}
 
 	@Trace(traceMethod = "/.+/", parameters = Trace.THIS | Trace.ALL_PARAMS, result = Trace.THIS | Trace.RESULT)

@@ -560,6 +560,9 @@ public class GapList<E> extends IList<E> {
 			ensureNormalized(index + len);
 			size += len;
 			end += len;
+			if (end >= values.length) {
+				end -= values.length;
+			}
 		}
 
 		if (DEBUG_DUMP)

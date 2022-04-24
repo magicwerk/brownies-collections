@@ -25,7 +25,6 @@ import org.magicwerk.brownies.collections.primitive.IntBigList;
 import org.magicwerk.brownies.collections.BigList;
 import org.magicwerk.brownies.collections.IList;
 import org.magicwerk.brownies.collections.helper.NaturalComparator;
-
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -47,414 +46,414 @@ import java.util.Iterator;
  */
 public class IntObjBigList extends IList<Integer> {
 
-	IntBigList list;
+    IntBigList list;
 
-	static Integer[] toWrapper(int[] elems) {
-		Integer[] e = new Integer[elems.length];
-		for (int i = 0; i < e.length; i++) {
-			e[i] = elems[i];
-		}
-		return e;
-	}
+    static Integer[] toWrapper(int[] elems) {
+        Integer[] e = new Integer[elems.length];
+        for (int i = 0; i < e.length; i++) {
+            e[i] = elems[i];
+        }
+        return e;
+    }
 
-	static int[] toPrimitive(Integer[] elems) {
-		int[] e = new int[elems.length];
-		for (int i = 0; i < e.length; i++) {
-			e[i] = elems[i];
-		}
-		return e;
-	}
+    static int[] toPrimitive(Integer[] elems) {
+        int[] e = new int[elems.length];
+        for (int i = 0; i < e.length; i++) {
+            e[i] = elems[i];
+        }
+        return e;
+    }
 
-	static int[] toPrimitive(BigList<? extends Integer> list2) {
-		int[] e = new int[list2.size()];
-		for (int i = 0; i < e.length; i++) {
-			e[i] = list2.get(i);
-		}
-		return e;
-	}
+    static int[] toPrimitive(BigList<? extends Integer> list2) {
+        int[] e = new int[list2.size()];
+        for (int i = 0; i < e.length; i++) {
+            e[i] = list2.get(i);
+        }
+        return e;
+    }
 
-	static int[] toPrimitive(Collection<? extends Integer> list) {
-		int[] e = new int[list.size()];
-		Iterator<? extends Integer> iter = list.iterator();
-		for (int i = 0; i < e.length; i++) {
-			e[i] = iter.next();
-		}
-		return e;
-	}
+    static int[] toPrimitive(Collection<? extends Integer> list) {
+        int[] e = new int[list.size()];
+        Iterator<? extends Integer> iter = list.iterator();
+        for (int i = 0; i < e.length; i++) {
+            e[i] = iter.next();
+        }
+        return e;
+    }
 
-	public static IntObjBigList create() {
-		return new IntObjBigList();
-	}
+    public static IntObjBigList create() {
+        return new IntObjBigList();
+    }
 
-	public static IntObjBigList create(Integer... elems) {
-		IntObjBigList list = new IntObjBigList();
-		list.init(elems);
-		return list;
-	}
+    public static IntObjBigList create(Integer... elems) {
+        IntObjBigList list = new IntObjBigList();
+        list.init(elems);
+        return list;
+    }
 
-	public static IntObjBigList create(Collection<? extends Integer> elems) {
-		return new IntObjBigList(elems);
-	}
+    public static IntObjBigList create(Collection<? extends Integer> elems) {
+        return new IntObjBigList(elems);
+    }
 
-	public IntObjBigList() {
-		init();
-	}
+    public IntObjBigList() {
+        init();
+    }
 
-	public void init() {
-		list = new IntBigList();
-	}
+    public void init() {
+        list = new IntBigList();
+    }
 
-	public IntObjBigList(int capacity) {
-		list = new IntBigList(capacity);
-	}
+    public IntObjBigList(int capacity) {
+        list = new IntBigList(capacity);
+    }
 
-	public void init(Integer... elems) {
-		list = IntBigList.create(toPrimitive(elems));
-	}
+    public void init(Integer... elems) {
+        list = IntBigList.create(toPrimitive(elems));
+    }
 
-	public IntObjBigList(Collection<? extends Integer> elems) {
-		init(elems);
-	}
+    public IntObjBigList(Collection<? extends Integer> elems) {
+        init(elems);
+    }
 
-	public void init(Collection<? extends Integer> elems) {
-		list = IntBigList.create(toPrimitive(elems));
-	}
+    public void init(Collection<? extends Integer> elems) {
+        list = IntBigList.create(toPrimitive(elems));
+    }
 
-	@Override
-	protected void doClone(IList<Integer> that) {
-		list = (IntBigList) ((IntObjBigList)that).list.clone();
-	}
+    @Override
+    protected void doClone(IList<Integer> that) {
+        list = (IntBigList) ((IntObjBigList) that).list.clone();
+    }
 
-	@Override
-	protected void doAssign(IList<Integer> that) {
-		IntObjBigList list = (IntObjBigList) that;
+    @Override
+    protected void doAssign(IList<Integer> that) {
+        IntObjBigList list = (IntObjBigList) that;
         this.list = list.list;
-	}
+    }
 
-	@Override
-	public IntObjBigList copy() {
-		return (IntObjBigList) clone();
-	}
+    @Override
+    public IntObjBigList copy() {
+        return (IntObjBigList) clone();
+    }
 
-	@Override
-	public Integer getDefaultElem() {
-		return list.getDefaultElem();
-	}
+    @Override
+    public Integer getDefaultElem() {
+        return list.getDefaultElem();
+    }
 
     @Override
     public IList<Integer> doCreate(int capacity) {
-    	return new IntObjBigList();
+        return new IntObjBigList();
     }
 
-	@Override
-	public int size() {
-		return list.size();
-	}
+    @Override
+    public int size() {
+        return list.size();
+    }
 
-	/**
-	 * Returns capacity of this BigList.
-	 * Note that two BigLists are considered equal even if they have a distinct capacity.
-	 * Also the capacity can be changed by operations like clone() etc.
-	 *
-	 * @return capacity of this BigList
-	 */
-	public int capacity() {
-		return list.capacity();
-	}
+    /**
+     * Returns capacity of this BigList.
+     * Note that two BigLists are considered equal even if they have a distinct capacity.
+     * Also the capacity can be changed by operations like clone() etc.
+     *
+     * @return capacity of this BigList
+     */
+    public int capacity() {
+        return list.capacity();
+    }
 
-	@Override
-	public Integer get(int index) {
-		return list.get(index);
-	}
+    @Override
+    public Integer get(int index) {
+        return list.get(index);
+    }
 
-	@Override
-	protected Integer doGet(int index) {
-		return list.doGet(index);
-	}
+    @Override
+    protected Integer doGet(int index) {
+        return list.doGet(index);
+    }
 
-	@Override
-	protected void doGetAll(Object[] elems, int index, int len) {
-		for (int i=0; i<len; i++) {
-			elems[i] = list.doGet(index+i);
-		}
-	}
+    @Override
+    protected void doGetAll(Object[] elems, int index, int len) {
+        for (int i = 0; i < len; i++) {
+            elems[i] = list.doGet(index + i);
+        }
+    }
 
-	@Override
-	protected boolean doAdd(int index, Integer elem) {
-		return list.doAdd(index, elem);
-	}
+    @Override
+    protected boolean doAdd(int index, Integer elem) {
+        return list.doAdd(index, elem);
+    }
 
-	@Override
-	protected Integer doSet(int index, Integer elem) {
-		return list.doSet(index, elem);
-	}
+    @Override
+    protected Integer doSet(int index, Integer elem) {
+        return list.doSet(index, elem);
+    }
 
-	@Override
-	protected Integer doRemove(int index) {
-		return list.doRemove(index);
-	}
+    @Override
+    protected Integer doRemove(int index) {
+        return list.doRemove(index);
+    }
 
-	@Override
-	protected void doRemoveAll(int index, int len) {
-		list.doRemoveAll(index, len);
-	}
+    @Override
+    protected void doRemoveAll(int index, int len) {
+        list.doRemoveAll(index, len);
+    }
 
-	@Override
-	protected Integer doReSet(int index, Integer elem) {
-		return list.doReSet(index, elem);
-	}
+    @Override
+    protected Integer doReSet(int index, Integer elem) {
+        return list.doReSet(index, elem);
+    }
 
-	@Override
+    @Override
     public void move(int srcIndex, int dstIndex, int len) {
-    	// Use correct default value
-    	list.move(srcIndex, dstIndex, len);
+        // Use correct default value
+        list.move(srcIndex, dstIndex, len);
     }
 
-	@Override
-	protected void doEnsureCapacity(int minCapacity) {
-		list.doEnsureCapacity(minCapacity);
-	}
+    @Override
+    protected void doEnsureCapacity(int minCapacity) {
+        list.doEnsureCapacity(minCapacity);
+    }
 
-	@Override
-	public void trimToSize() {
-		list.trimToSize();
-	}
+    @Override
+    public void trimToSize() {
+        list.trimToSize();
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (obj != null && getClass() == obj.getClass()) {
-			return list.equals(obj);
-		} else {
-			return super.equals(obj);
-		}
-	}
+    @Override
+    public boolean equals(Object obj) {
+        if (obj != null && getClass() == obj.getClass()) {
+            return list.equals(obj);
+        } else {
+            return super.equals(obj);
+        }
+    }
 
-	@Override
-	public int hashCode() {
-		return list.hashCode();
-	}
+    @Override
+    public int hashCode() {
+        return list.hashCode();
+    }
 
-	@Override
-	public String toString() {
-		return list.toString();
-	}
+    @Override
+    public String toString() {
+        return list.toString();
+    }
 
-	@Override
-	public boolean isEmpty() {
-		return list.isEmpty();
-	}
+    @Override
+    public boolean isEmpty() {
+        return list.isEmpty();
+    }
 
-	@Override
-	public int indexOf(Object elem) {
-		if (elem == null || elem.getClass() != Integer.class) {
-			return -1;
-		}
-		return list.indexOf((Integer) elem);
-	}
+    @Override
+    public int indexOf(Object elem) {
+        if (elem == null || elem.getClass() != Integer.class) {
+            return -1;
+        }
+        return list.indexOf((Integer) elem);
+    }
 
-	@Override
-	public int lastIndexOf(Object elem) {
-		if (elem == null || elem.getClass() != Integer.class) {
-			return -1;
-		}
-		return list.lastIndexOf((Integer) elem);
-	}
+    @Override
+    public int lastIndexOf(Object elem) {
+        if (elem == null || elem.getClass() != Integer.class) {
+            return -1;
+        }
+        return list.lastIndexOf((Integer) elem);
+    }
 
-	@Override
-	public boolean remove(Object elem) {
-		if (elem == null || elem.getClass() != Integer.class) {
-			return false;
-		}
-		int index = list.indexOf((Integer) elem);
-		if (index == -1) {
-			return false;
-		}
-		list.remove(index);
-		return true;
-	}
+    @Override
+    public boolean remove(Object elem) {
+        if (elem == null || elem.getClass() != Integer.class) {
+            return false;
+        }
+        int index = list.indexOf((Integer) elem);
+        if (index == -1) {
+            return false;
+        }
+        list.remove(index);
+        return true;
+    }
 
-	@Override
-	public boolean contains(Object elem) {
-		if (elem == null || elem.getClass() != Integer.class) {
-			return false;
-		}
-		return list.contains((Integer) elem);
-	}
+    @Override
+    public boolean contains(Object elem) {
+        if (elem == null || elem.getClass() != Integer.class) {
+            return false;
+        }
+        return list.contains((Integer) elem);
+    }
 
-	@Override
-	public boolean containsAny(Collection<?> coll) {
-		return list.containsAny((Collection<Integer>) coll);
-	}
+    @Override
+    public boolean containsAny(Collection<?> coll) {
+        return list.containsAny((Collection<Integer>) coll);
+    }
 
-	@Override
-	public boolean containsAll(Collection<?> coll) {
-		return list.containsAll((Collection<Integer>) coll);
-	}
+    @Override
+    public boolean containsAll(Collection<?> coll) {
+        return list.containsAll((Collection<Integer>) coll);
+    }
 
-	@Override
-	public boolean removeAll(Collection<?> coll) {
-		return list.removeAll((Collection<Integer>) coll);
-	}
+    @Override
+    public boolean removeAll(Collection<?> coll) {
+        return list.removeAll((Collection<Integer>) coll);
+    }
 
-	@Override
-	public boolean removeAll(IList<?> coll) {
-		return list.removeAll((Collection<Integer>) coll);
-	}
+    @Override
+    public boolean removeAll(IList<?> coll) {
+        return list.removeAll((Collection<Integer>) coll);
+    }
 
-	@Override
-	public boolean retainAll(Collection<?> coll) {
-		return list.retainAll((Collection<Integer>) coll);
-	}
+    @Override
+    public boolean retainAll(Collection<?> coll) {
+        return list.retainAll((Collection<Integer>) coll);
+    }
 
-	@Override
-	public boolean retainAll(IList<?> coll) {
-		return list.retainAll((Collection<Integer>) coll);
-	}
+    @Override
+    public boolean retainAll(IList<?> coll) {
+        return list.retainAll((Collection<Integer>) coll);
+    }
 
-	/**
-	 * Returns an array containing the specified elements in this list.
-	 * @see List#toArray()
-	 *
-	 * @param index	index of first element to copy
-	 * @param len	number of elements to copy
-	 * @return		array containing the specified elements
-	 */
-	public Object[] toArray(int index, int len) {
-		Object[] array = new Object[len];
-		for (int i=0; i<len; i++) {
-			array[i] = list.get(i);
-		}
+    /**
+     * Returns an array containing the specified elements in this list.
+     * @see List#toArray()
+     *
+     * @param index	index of first element to copy
+     * @param len	number of elements to copy
+     * @return		array containing the specified elements
+     */
+    public Object[] toArray(int index, int len) {
+        Object[] array = new Object[len];
+        for (int i = 0; i < len; i++) {
+            array[i] = list.get(i);
+        }
         return array;
-	}
+    }
 
-	/**
-	 * Returns an array containing the specified elements in this list.
-	 * @see List#toArray(Object[])
-	 *
-	 * @param array	the array into which the elements of this list are to be stored, if it is big enough; otherwise, a new array of the same runtime type is allocated for this purpose
-	 * @param index	index of first element to copy
-	 * @param len	number of elements to copy
-	 * @return		array containing the specified elements
-	 */
-	@SuppressWarnings("unchecked")
-	public <T> T[] toArray(T[] array, int index, int len) {
+    /**
+     * Returns an array containing the specified elements in this list.
+     * @see List#toArray(Object[])
+     *
+     * @param array	the array into which the elements of this list are to be stored, if it is big enough; otherwise, a new array of the same runtime type is allocated for this purpose
+     * @param index	index of first element to copy
+     * @param len	number of elements to copy
+     * @return		array containing the specified elements
+     */
+    @SuppressWarnings("unchecked")
+    public <T> T[] toArray(T[] array, int index, int len) {
         if (array.length < len) {
-        	array = (T[]) doCreateArray(array.getClass().getComponentType(), len);
+            array = (T[]) doCreateArray(array.getClass().getComponentType(), len);
         }
-		for (int i=0; i<len; i++) {
-			array[i] = (T) (Integer) list.get(i);
-		}
+        for (int i = 0; i < len; i++) {
+            array[i] = (T) (Integer) list.get(i);
+        }
         if (array.length > len) {
-        	array[len] = null;
+            array[len] = null;
         }
         return array;
-	}
+    }
 
-	/**
-	 * Returns an array containing the specified elements in this list.
-	 *
-	 * @param clazz	class for array elements 
-	 * @param index	index of first element to copy
-	 * @param len	number of elements to copy
-	 * @return		array containing the specified elements
-	 */
-	public <T> T[] toArray(Class<T> clazz, int index, int len) {
-		T[] array = doCreateArray(clazz, len);
-		for (int i=0; i<len; i++) {
-			array[i] = (T) (Integer) list.get(i);
-		}
+    /**
+     * Returns an array containing the specified elements in this list.
+     *
+     * @param clazz	class for array elements
+     * @param index	index of first element to copy
+     * @param len	number of elements to copy
+     * @return		array containing the specified elements
+     */
+    public <T> T[] toArray(Class<T> clazz, int index, int len) {
+        T[] array = doCreateArray(clazz, len);
+        for (int i = 0; i < len; i++) {
+            array[i] = (T) (Integer) list.get(i);
+        }
         return array;
-	}
+    }
 
-	@Override
-	public boolean addAll(Collection<? extends Integer> coll) {
-		return list.addAll((Collection<Integer>) coll);
-	}
+    @Override
+    public boolean addAll(Collection<? extends Integer> coll) {
+        return list.addAll((Collection<Integer>) coll);
+    }
 
-	@Override
-	public boolean addAll(int index, Collection<? extends Integer> coll) {
-		return list.addAll(index, (Collection<Integer>) coll);
-	}
+    @Override
+    public boolean addAll(int index, Collection<? extends Integer> coll) {
+        return list.addAll(index, (Collection<Integer>) coll);
+    }
 
-	@Override
-	public boolean addArray(Integer... elems) {
-		int[] e = toPrimitive(elems);
-		return list.addArray(e);
-	}
+    @Override
+    public boolean addArray(Integer... elems) {
+        int[] e = toPrimitive(elems);
+        return list.addArray(e);
+    }
 
-	@Override
-	public boolean addArray(int index, Integer... elems) {
-		int[] e = toPrimitive(elems);
-		return list.addArray(index, e);
-	}
+    @Override
+    public boolean addArray(int index, Integer... elems) {
+        int[] e = toPrimitive(elems);
+        return list.addArray(index, e);
+    }
 
-	@Override
-	public boolean addAll(IList<? extends Integer> list2) {
-		int[] e = toPrimitive(list2);
-		return list.addArray(e);
-	}
+    @Override
+    public boolean addAll(IList<? extends Integer> list2) {
+        int[] e = toPrimitive(list2);
+        return list.addArray(e);
+    }
 
-	@Override
-	public boolean addAll(int index, IList<? extends Integer> list2) {
-		int[] e = toPrimitive(list2);
-		return list.addArray(index, e);
-	}
+    @Override
+    public boolean addAll(int index, IList<? extends Integer> list2) {
+        int[] e = toPrimitive(list2);
+        return list.addArray(index, e);
+    }
 
-	@Override
-	public boolean removeFirstOccurrence(Object elem) {
-		if (elem == null || elem.getClass() != Integer.class) {
-			return false;
-		}
-		return list.removeFirstOccurrence((Integer) elem);
-	}
+    @Override
+    public boolean removeFirstOccurrence(Object elem) {
+        if (elem == null || elem.getClass() != Integer.class) {
+            return false;
+        }
+        return list.removeFirstOccurrence((Integer) elem);
+    }
 
-	@Override
-	public boolean removeLastOccurrence(Object elem) {
-		if (elem == null || elem.getClass() != Integer.class) {
-			return false;
-		}
-		return list.removeLastOccurrence((Integer) elem);
-	}
+    @Override
+    public boolean removeLastOccurrence(Object elem) {
+        if (elem == null || elem.getClass() != Integer.class) {
+            return false;
+        }
+        return list.removeLastOccurrence((Integer) elem);
+    }
 
-	@Override
-	public BigList<Integer> getAll(int index, int len) {
-		int[] elems = list.toArray(int.class, index, len);
-		return BigList.create(toWrapper(elems));
-	}
+    @Override
+    public BigList<Integer> getAll(int index, int len) {
+        int[] elems = list.toArray(int.class, index, len);
+        return BigList.create(toWrapper(elems));
+    }
 
-	@Override
-	public void setAll(int index, IList<? extends Integer> list2) {
-		int[] e = toPrimitive(list2);
-		list.setArray(index, e);
-	}
+    @Override
+    public void setAll(int index, IList<? extends Integer> list2) {
+        int[] e = toPrimitive(list2);
+        list.setArray(index, e);
+    }
 
-	@Override
-	public void setAll(int index, Collection<? extends Integer> coll) {
-		int[] e = toPrimitive(coll);
-		list.setArray(index, e);
-	}
+    @Override
+    public void setAll(int index, Collection<? extends Integer> coll) {
+        int[] e = toPrimitive(coll);
+        list.setArray(index, e);
+    }
 
-	@Override
-	public void setArray(int index, Integer... elems) {
-		int[] e = toPrimitive(elems);
-		list.setArray(index, e);
-	}
+    @Override
+    public void setArray(int index, Integer... elems) {
+        int[] e = toPrimitive(elems);
+        list.setArray(index, e);
+    }
 
-	@Override
-	public void sort(int index, int len, Comparator comparator) {
-		if (comparator != null && comparator != NaturalComparator.INSTANCE()) {
-			throw new IllegalArgumentException("Only natural comparator (null) allowed");
-		}
-		list.sort(index, len);
-	}
+    @Override
+    public void sort(int index, int len, Comparator comparator) {
+        if (comparator != null && comparator != NaturalComparator.INSTANCE()) {
+            throw new IllegalArgumentException("Only natural comparator (null) allowed");
+        }
+        list.sort(index, len);
+    }
 
-	@Override
-	public <K> int binarySearch(int index, int len, K key, Comparator<? super K> comparator) {
-		if (comparator != null && comparator != NaturalComparator.INSTANCE()) {
-			throw new IllegalArgumentException("Only natural comparator (null) allowed");
-		}
-		return list.binarySearch(index, len, (Integer) key);
-	}
+    @Override
+    public <K> int binarySearch(int index, int len, K key, Comparator<? super K> comparator) {
+        if (comparator != null && comparator != NaturalComparator.INSTANCE()) {
+            throw new IllegalArgumentException("Only natural comparator (null) allowed");
+        }
+        return list.binarySearch(index, len, (Integer) key);
+    }
 
     public IntObjBigList unmodifiableList() {
         return new ImmutableIntObjBigList(this);
@@ -467,7 +466,9 @@ public class IntObjBigList extends IList<Integer> {
      */
     protected static class ImmutableIntObjBigList extends IntObjBigList {
 
-        /** UID for serialization */
+        /**
+         * UID for serialization
+         */
         private static final long serialVersionUID = -1352274047348922584L;
 
         /**
@@ -481,36 +482,36 @@ public class IntObjBigList extends IList<Integer> {
 
         @Override
         protected boolean doAdd(int index, Integer elem) {
-        	error();
-        	return false;
+            error();
+            return false;
         }
 
         @Override
         protected Integer doSet(int index, Integer elem) {
-        	error();
-        	return null;
+            error();
+            return null;
         }
 
         @Override
         protected Integer doReSet(int index, Integer elem) {
-        	error();
-        	return null;
+            error();
+            return null;
         }
 
         @Override
         protected Integer doRemove(int index) {
-        	error();
-        	return null;
+            error();
+            return null;
         }
 
         @Override
         protected void doRemoveAll(int index, int len) {
-        	error();
+            error();
         }
 
         @Override
         protected void doModify() {
-        	error();
+            error();
         }
 
         /**
@@ -520,5 +521,4 @@ public class IntObjBigList extends IList<Integer> {
             throw new UnsupportedOperationException("list is immutable");
         }
     }
-
 }
