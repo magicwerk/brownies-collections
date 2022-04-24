@@ -215,7 +215,7 @@ public class CollectionsTestCompare {
 
 		static List<Method> getPublicMethods(Class<?> clazz) {
 			IList<Executable> ms = REFLECT.getAccessedMethods(clazz, Access.PUBLIC);
-			ms.filteredList(m -> m instanceof Method);
+			ms = ms.filteredList(m -> m instanceof Method);
 			return (List) ms;
 		}
 

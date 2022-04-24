@@ -15,29 +15,51 @@ import org.magicwerk.brownies.collections.guava.KeyCollectionTestGuava;
 import org.magicwerk.brownies.collections.guava.KeyCollectionTestGuavaSet;
 import org.magicwerk.brownies.collections.guava.KeyListTestGuava;
 import org.magicwerk.brownies.collections.guava.KeySetTestGuava;
+import org.magicwerk.brownies.core.RunTools;
 import org.magicwerk.brownies.core.ThreadTools;
+import org.magicwerk.brownies.core.Timer;
+import org.magicwerk.brownies.core.files.FilePath;
+import org.magicwerk.brownies.core.logback.LogbackTools;
 import org.magicwerk.brownies.core.reflect.ClassTools;
+import org.slf4j.Logger;
 
 /**
  * Run all tests for Brownies-Collections.
  * <p>
- * Execute this test class with JUnit to run <br>
  * - All MagicTests in org.magicwerk.brownies.collections <br>
  * - All Guava JUnit tests in org.magicwerk.brownies.collections.guava <br>
  * - Test done by GapListTestCorrectness.testRelease
+ * <br>
+ * Depending on the execution environment, the number of tests differ:
+ * - If run as main application, all tests are executed, including the tests typically run by MagicTest
+ * - If run as MagicTest,  
+ * If run
+ * Execute this test class with JUnit to run <br>
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 public class RunAllTest {
+
+	static final Logger LOG = LogbackTools.getConsoleLogger();
 
 	static boolean runTestAll;
 
 	public static void main(String[] args) {
-		testAll();
+		new RunAllTest().run();
 	}
 
-	static void testAll() {
+	void run() {
+		// Note that a recompile must be triggered after calling enableDebugCheck()
+		//enableDebugCheck(true);
+
+		runAllTests();
+	}
+
+	void enableDebugCheck(boolean enabled) {
+		RunDebugTest.enableDebugCheck(FilePath.of("."), enabled);
+	}
+
+	void runAllTests() {
 		try {
 			runTestAll = true;
 			runTests(true);
@@ -47,7 +69,7 @@ public class RunAllTest {
 	}
 
 	/**
-	 * Run all tests in this package as JUnit test.
+	 * Run all tests in this package as MagicTest.
 	 */
 	@Test
 	public void testNonMagicTests() {
@@ -57,7 +79,8 @@ public class RunAllTest {
 		runTests(false);
 	}
 
-	static void runTests(boolean includeMagicTests) {
+	void runTests(boolean includeMagicTests) {
+		Timer t = new Timer();
 		boolean success = true;
 
 		if (includeMagicTests) {
@@ -72,13 +95,13 @@ public class RunAllTest {
 			success = false;
 		}
 
+		String time = t.elapsedString();
 		if (success) {
-			System.out.println("Test successful");
+			LOG.info("Test successful ({})", time);
 		} else {
-			System.out.println("Test failed - check output");
+			LOG.info("Test failed ({}) - check output", time);
 			throw new IllegalArgumentException();
 		}
-
 	}
 
 	static boolean runMagicTests() {
@@ -88,12 +111,23 @@ public class RunAllTest {
 	/**
 	 * Run all tests in this package.
 	 */
-	static boolean runNonMagicTests() {
+	boolean runNonMagicTests() {
 		boolean success = true;
+		success = runJUnitTests() && success;
+		success = runCompareTests() && success;
+		success = runCoverageTests() && success;
+		return success;
+	}
 
-		// Run Guava tests in JUnit
-		Computer computer = new Computer();
-		JUnitCore jUnitCore = new JUnitCore();
+	boolean runCompareTests() {
+		return RunTools.runBoolLog(() -> ListCompareTest.test());
+	}
+
+	boolean runCoverageTests() {
+		return RunTools.runBoolLog(() -> GapListTestCorrectness.testRelease());
+	}
+
+	boolean runJUnitTests() {
 		Class<?> guavaTests[] = new Class<?>[] {
 				BigListTestGuava.class,
 				CollectionAsSetTestGuava.class,
@@ -106,20 +140,17 @@ public class RunAllTest {
 				KeyListTestGuava.class,
 				KeySetTestGuava.class
 		};
+
+		boolean success = true;
+		Computer computer = new Computer();
+		JUnitCore jUnitCore = new JUnitCore();
 		for (Class<?> test : guavaTests) {
 			Result result = jUnitCore.run(computer, test);
-			System.out.printf("Tests %s: run %d, failures %d\n", test.getSimpleName(), result.getRunCount(), result.getFailureCount());
+			LOG.info("Tests {}: run {}, failures {}\n", test.getSimpleName(), result.getRunCount(), result.getFailureCount());
 			if (result.getFailureCount() > 0) {
 				success = false;
 			}
 		}
-
-		// Run compare tests
-		ListCompareTest.test();
-
-		// Run tests for coverage
-		GapListTestCorrectness.testRelease();
-
 		return success;
 	}
 }

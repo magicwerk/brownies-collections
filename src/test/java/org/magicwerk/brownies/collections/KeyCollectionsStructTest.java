@@ -249,6 +249,7 @@ public class KeyCollectionsStructTest {
 
 			new KeyList.Builder<Integer>().withOrderByElem(true).withElemSet().withListType(int.class).build(),
 			new KeyList.Builder<Integer>().withOrderByElem(true).withElemSet().withListType(int.class).withListBig(true).build());
+
 	static IList<KeyListImpl> KeyListImplsTicket = GapList.create(new KeyList.Builder<Ticket>().build(),
 			new KeyList.Builder<Ticket>().withListBig(true).build(),
 

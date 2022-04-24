@@ -50,6 +50,8 @@ public class GapListTestCorrectness {
 		testAllStatesAdd();
 		testAllStatesRemove();
 		testAllStatesEnsureCapacity();
+
+		//CollectionsTestCompare.testCompareAllMethods();
 	}
 
 	// Set GapList.DEFAULT_CAPACITY = 8 to get 100% test coverage of

@@ -49,7 +49,7 @@ public abstract class KeyListImpl<E> extends IList<E> {
 	private static final boolean DEBUG_CHECK = false;
 
 	/**
-	 * Private method to check invariant of GapList.
+	 * Private method to check invariant of KeyListImpl.
 	 * It is only used for debugging.
 	 */
 	private void debugCheck() {
@@ -130,9 +130,7 @@ public abstract class KeyListImpl<E> extends IList<E> {
 		// KeyCollectionImpl
 		keyColl = new KeyCollectionImpl<E>();
 		keyColl.initCrop(that.keyColl);
-		if (keyColl.keyList != null) {
-			keyColl.keyList = this;
-		}
+		keyColl.keyList = this;
 
 		// List
 		if (that.keyColl.keyMaps != null && that.keyColl.keyMaps[0] != null && that.list == that.keyColl.keyMaps[0].keysList) {
@@ -514,7 +512,7 @@ public abstract class KeyListImpl<E> extends IList<E> {
 	 * @return      	list with all elements
 	 */
 	public IList<E> getAllByKey(int keyIndex, Object key) {
-		IList<E> list = crop();
+		IList<E> list = doCreate(-1);
 		keyColl.getAllByKey(keyIndex, key, list);
 		return list;
 	}
@@ -590,7 +588,7 @@ public abstract class KeyListImpl<E> extends IList<E> {
 	 * @return      	true if elements have been removed, false otherwise
 	 */
 	protected IList<E> removeAllByKey(int keyIndex, Object key) {
-		IList<E> removeds = crop();
+		IList<E> removeds = doCreate(-1);
 		keyColl.removeAllByKey(keyIndex, key, removeds);
 		if (!removeds.isEmpty()) {
 			if (!keyColl.isSortedByElem()) {

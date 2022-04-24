@@ -295,11 +295,11 @@
     </captureStep>
   </captureTest>
   <captureTest name="testTriggers">
-    <runDate>2021-12-13T12:03:43.294+01:00</runDate>
-    <runDuration>0.0038139</runDuration>
+    <runDate>2022-04-24T23:21:28.079+02:00</runDate>
+    <runDuration>0.0238715</runDuration>
     <exception></exception>
     <captureStep>
-      <text outputType="TEXT">"insert: a1 (0)\r\ninsert: b2 (0)\r\ninsert: c3 (0)\r\ndelete: a1 (0)\r\ndelete: b2 (0)\r\ninsert: c3 (0)\r\ndelete: c3 (0)\r\ninsert: a1 (0)\r\ninsert: b2 (0)\r\ninsert: c3 (0)\r\ncancel delete: a1 (0)\r\ncancel delete: b2 (0)\r\ncancel insert: c3 (0)\r\n[a1 (0), b2 (0), c3 (0)]\r\ndelete: a1 (0)\r\ndelete: b2 (0)\r\ndelete: c3 (0)\r\ninsert: c3 (0)\r\ninsert: b2 (0)\r\n[a (a), #0 (null), b (b), #1 (null), c (c)]\r\n"</text>
+      <text outputType="TEXT">"insert: a1 (0)\r\ninsert: b2 (0)\r\ninsert: c3 (0)\r\ndelete: a1 (0)\r\ndelete: b2 (0)\r\ndelete: c3 (0)\r\ninsert: a1 (0)\r\ninsert: b2 (0)\r\ninsert: c3 (0)\r\ncancel delete: a1 (0)\r\ncancel delete: b2 (0)\r\ncancel delete: c3 (0)\r\n[a1 (0), b2 (0), c3 (0)]\r\ndelete: a1 (0)\r\ndelete: b2 (0)\r\ndelete: c3 (0)\r\ninsert: c3 (0)\r\ninsert: b2 (0)\r\n[a (a), #0 (null), b (b), #1 (null), c (c)]\r\n"</text>
     </captureStep>
   </captureTest>
   <traceTest name="testWindowSize">
