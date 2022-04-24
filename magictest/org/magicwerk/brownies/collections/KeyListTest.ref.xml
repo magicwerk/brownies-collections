@@ -2333,4 +2333,12 @@
       <error></error>
     </traceStep>
   </traceTest>
+  <captureTest name="testUnwrap">
+    <runDate>2022-04-24T18:16:42.568+02:00</runDate>
+    <runDuration>0.0335119</runDuration>
+    <exception></exception>
+    <captureStep>
+      <text outputType="TEXT">""</text>
+    </captureStep>
+  </captureTest>
 </testClass>

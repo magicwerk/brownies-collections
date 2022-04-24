@@ -504,9 +504,8 @@ public class Key2List<E, K1, K2> extends KeyListImpl<E> {
 	 * @param key	key
 	 * @return		all elements with specified key (never null)
 	 */
-	@SuppressWarnings("unchecked")
-	public Key2List<E, K1, K2> getAllByKey1(K1 key) {
-		return (Key2List<E, K1, K2>) getAllByKey(1, key);
+	public IList<E> getAllByKey1(K1 key) {
+		return getAllByKey(1, key);
 	}
 
 	/**
@@ -536,8 +535,8 @@ public class Key2List<E, K1, K2> extends KeyListImpl<E> {
 	 * @param key	key
 	 * @return		removed elements with specified key (never null)
 	 */
-	public Key2List<E, K1, K2> removeAllByKey1(K1 key) {
-		return (Key2List<E, K1, K2>) removeAllByKey(1, key);
+	public IList<E> removeAllByKey1(K1 key) {
+		return removeAllByKey(1, key);
 	}
 
 	/**
@@ -658,9 +657,8 @@ public class Key2List<E, K1, K2> extends KeyListImpl<E> {
 	 * @param key	key
 	 * @return		all elements with specified key (never null)
 	 */
-	@SuppressWarnings("unchecked")
-	public Key2List<E, K1, K2> getAllByKey2(K2 key) {
-		return (Key2List<E, K1, K2>) getAllByKey(2, key);
+	public IList<E> getAllByKey2(K2 key) {
+		return getAllByKey(2, key);
 	}
 
 	/**
@@ -690,8 +688,8 @@ public class Key2List<E, K1, K2> extends KeyListImpl<E> {
 	 * @param key	key
 	 * @return		removed elements with specified key (never null)
 	 */
-	public Key2List<E, K1, K2> removeAllByKey2(K2 key) {
-		return (Key2List<E, K1, K2>) removeAllByKey(2, key);
+	public IList<E> removeAllByKey2(K2 key) {
+		return removeAllByKey(2, key);
 	}
 
 	/**
