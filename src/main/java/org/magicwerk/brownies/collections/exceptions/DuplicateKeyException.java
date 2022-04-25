@@ -21,7 +21,6 @@ package org.magicwerk.brownies.collections.exceptions;
  * Exception thrown if an action is not allowed due to a duplicate key error.
  *  
  * @author Thomas Mauch
- * @version $Id$
  */
 @SuppressWarnings("serial")
 public class DuplicateKeyException extends KeyException {
