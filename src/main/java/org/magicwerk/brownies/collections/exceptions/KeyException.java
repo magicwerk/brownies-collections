@@ -18,11 +18,9 @@
 package org.magicwerk.brownies.collections.exceptions;
 
 /**
- * All exceptions thrown in KeyCollection/KeyList implementations
- * are of type KeyException.
+ * All exceptions thrown in KeyCollection/KeyList implementations are of type KeyException.
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 @SuppressWarnings("serial")
 public class KeyException extends RuntimeException {
