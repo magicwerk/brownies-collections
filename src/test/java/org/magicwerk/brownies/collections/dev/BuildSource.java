@@ -31,7 +31,6 @@ import org.slf4j.Logger;
  * collections\BigListGapListTest.java
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 public class BuildSource {
 

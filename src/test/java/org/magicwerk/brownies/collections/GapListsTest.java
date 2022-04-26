@@ -18,7 +18,6 @@ import org.slf4j.LoggerFactory;
  * Test of class org.magicwerk.brownies.collections.helper.GapLists.
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 public class GapListsTest {
 

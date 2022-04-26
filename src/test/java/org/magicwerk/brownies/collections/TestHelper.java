@@ -13,7 +13,6 @@ import org.magicwerk.brownies.core.ObjectTools;
  * Helper classes for tests.
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 public class TestHelper {
 

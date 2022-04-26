@@ -27,7 +27,6 @@ import org.magicwerk.brownies.html.content.HtmlTableFormatter;
  * Show methods of all builder classes for key collections.
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 public class ShowBuilderMethods {
 

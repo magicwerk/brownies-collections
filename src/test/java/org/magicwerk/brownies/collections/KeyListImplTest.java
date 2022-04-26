@@ -41,7 +41,6 @@ import org.slf4j.Logger;
  * Test of KeyListImpl.
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 public class KeyListImplTest {
 

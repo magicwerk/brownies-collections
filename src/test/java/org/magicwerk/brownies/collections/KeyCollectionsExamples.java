@@ -31,7 +31,6 @@ import org.magicwerk.brownies.collections.primitive.IntObjGapList;
  * Examples for the use of key collections.
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 public class KeyCollectionsExamples {
 

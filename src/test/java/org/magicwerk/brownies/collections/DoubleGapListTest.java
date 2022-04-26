@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
  * Test of DoubleGapList.
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 @Trace(traceClass = "org.magicwerk.brownies.collections.primitive.DoubleGapList")
 public class DoubleGapListTest {

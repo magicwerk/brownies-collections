@@ -33,7 +33,6 @@ import org.slf4j.Logger;
  * Show internal structure of key collections.
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 public class KeyCollectionsStructTest {
 

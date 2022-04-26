@@ -18,7 +18,6 @@ import ch.qos.logback.classic.Logger;
  * Test correctness of GapList.
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 public class GapListTestCorrectness {
 	/** Logger */
