@@ -32,7 +32,6 @@ import org.magicwerk.brownies.collections.primitive.IIntList;
  * Binary search for primitive type int.
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 public class IntBinarySearch {
 

@@ -27,7 +27,6 @@ import org.magicwerk.brownies.collections.helper.Option;
  * A KeyList add key handling features to GapList.
  *
  * @author Thomas Mauch
- * @version $Id$
  *
  * @see GapList
  * @param <E> type of elements stored in the list

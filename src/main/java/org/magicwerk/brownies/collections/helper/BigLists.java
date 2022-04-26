@@ -31,7 +31,6 @@ import org.magicwerk.brownies.collections.primitive.ShortObjBigList;
  * Helper class to create wrapper list objects wrapping primitive BigLists.
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 public class BigLists {
     /**

@@ -25,7 +25,6 @@ import java.util.Comparator;
  * @param <T>	element type
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 public class NullComparator<T> extends SingletonComparator<T> {
     private Comparator<T> comparator;

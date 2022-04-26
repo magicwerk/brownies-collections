@@ -46,7 +46,6 @@ import org.magicwerk.brownies.collections.helper.primitive.DoubleMergeSort;
  * Note that the iterators provided are not fail-fast.<p>
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 public class DoubleBigList extends IDoubleList {
 

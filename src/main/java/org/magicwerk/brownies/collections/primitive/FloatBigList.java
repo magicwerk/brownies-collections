@@ -46,7 +46,6 @@ import org.magicwerk.brownies.collections.helper.primitive.FloatMergeSort;
  * Note that the iterators provided are not fail-fast.<p>
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 public class FloatBigList extends IFloatList {
 

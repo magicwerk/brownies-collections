@@ -32,7 +32,6 @@ import org.magicwerk.brownies.collections.primitive.IByteList;
  * Binary search for primitive type byte.
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 public class ByteBinarySearch {
 

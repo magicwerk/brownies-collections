@@ -11,7 +11,6 @@ import java.util.List;
  * This class implements a stable in-place merge sort.
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 public class MergeSort<E> {
 	List<E> list;

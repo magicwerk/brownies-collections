@@ -39,7 +39,6 @@ import java.util.function.UnaryOperator;
  * It also offers additional methods which are then available in all implementations of GapList and BigList.
  *
  * @author Thomas Mauch
- * @version $Id$
  *
  * @param <E> type of elements stored in the list
  * @see	    java.util.List

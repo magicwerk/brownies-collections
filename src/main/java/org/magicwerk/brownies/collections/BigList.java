@@ -43,7 +43,6 @@ import org.magicwerk.brownies.collections.helper.MergeSort;
  * Note that the iterators provided are not fail-fast.<p>
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 public class BigList<E> extends IList<E> {
 

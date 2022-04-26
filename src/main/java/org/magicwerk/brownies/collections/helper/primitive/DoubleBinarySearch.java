@@ -32,7 +32,6 @@ import org.magicwerk.brownies.collections.primitive.IDoubleList;
  * Binary search for primitive type double.
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 public class DoubleBinarySearch {
 

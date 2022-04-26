@@ -23,7 +23,6 @@ import java.util.Map.Entry;
  * Read-only implementation of Map.Entry.
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 public class ImmutableMapEntry<K, E> implements Entry<K, E> {
 	private K key;
