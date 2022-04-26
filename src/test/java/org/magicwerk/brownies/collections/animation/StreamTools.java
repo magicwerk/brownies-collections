@@ -9,7 +9,6 @@ import java.util.stream.Stream;
  * Tools for java.util.stream.
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 public class StreamTools {
 

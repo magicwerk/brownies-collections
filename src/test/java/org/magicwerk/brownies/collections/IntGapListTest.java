@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
  * Test of IntGapList.
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 @Trace(traceClass="org.magicwerk.brownies.collections.primitive.IntGapList")
 public class IntGapListTest {

@@ -41,7 +41,6 @@ import org.slf4j.Logger;
  * Test class of KeyList.
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 public class KeyListTest {
 

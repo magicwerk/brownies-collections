@@ -67,7 +67,6 @@ import javafx.stage.StageStyle;
  * - press HOME or ESCAPE to show menu
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 public class AnimateCollections extends Application {
 

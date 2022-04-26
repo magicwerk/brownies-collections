@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
  *
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 public class InPlaceStableSortTest {
 	/** Logger */

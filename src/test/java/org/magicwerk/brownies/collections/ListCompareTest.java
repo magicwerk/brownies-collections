@@ -19,7 +19,6 @@ import ch.qos.logback.classic.Logger;
  * The following classes are tested: GapList, IntGapList, IntObjGapList, BigList, IntBigList, IntObjBigList.
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 public class ListCompareTest {
 

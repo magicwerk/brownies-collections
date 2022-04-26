@@ -9,7 +9,6 @@ import ch.qos.logback.classic.Level;
  * Test runner.
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 public class Test {
 

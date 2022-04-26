@@ -47,7 +47,6 @@ import com.google.common.collect.HashBiMap;
  * Test functionality of JDK collections.
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 public class JdkCollectionsTest {
 

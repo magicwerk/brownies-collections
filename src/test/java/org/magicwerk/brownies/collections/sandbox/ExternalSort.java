@@ -24,7 +24,6 @@ import ch.qos.logback.classic.Logger;
  *
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 public class ExternalSort<E> {
 	/** Logger */

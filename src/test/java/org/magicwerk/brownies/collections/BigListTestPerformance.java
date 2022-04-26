@@ -72,7 +72,6 @@ import javolution.util.FastTable;
  * http://java.dzone.com/articles/biglist-scalable-high
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 public class BigListTestPerformance {
 

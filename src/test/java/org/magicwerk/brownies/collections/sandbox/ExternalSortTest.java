@@ -14,7 +14,6 @@ import ch.qos.logback.classic.Logger;
  * Test of class ExternalSort.
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 public class ExternalSortTest<E> {
 	/** Logger */

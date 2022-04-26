@@ -32,7 +32,6 @@ import org.slf4j.Logger;
  * Test of Key2Collection.
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 public class Key2CollectionTest extends TestHelper {
 

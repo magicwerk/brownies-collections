@@ -31,7 +31,6 @@ import org.slf4j.Logger;
  * Test of KeySet.
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 public class KeySetTest {
 

@@ -22,7 +22,6 @@ import javafx.util.Duration;
  * - right mouse buttons causes the current animation to pause / resume
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 public class AnimationPlayer {
 	/**
