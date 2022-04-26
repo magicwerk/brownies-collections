@@ -26,7 +26,6 @@ import java.util.function.Function;
  * @param <E>	element type
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 @SuppressWarnings("serial")
 public class IdentMapper<E> implements Function<E, E>, Serializable {

@@ -28,7 +28,6 @@ import java.util.function.Predicate;
  * The elements allowed in the set can be constraint (null/duplicate values).
  *
  * @author Thomas Mauch
- * @version $Id$
  *
  * @see Key1Collection
  * @param <E> type of elements stored in the set

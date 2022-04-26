@@ -32,7 +32,6 @@ import org.magicwerk.brownies.collections.primitive.IBooleanList;
  * Binary search for primitive type boolean.
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 public class BooleanBinarySearch {
 

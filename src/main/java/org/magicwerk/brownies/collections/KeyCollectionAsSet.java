@@ -25,7 +25,6 @@ import org.magicwerk.brownies.collections.exceptions.DuplicateKeyException;
  * Implements a Set based on a Collection.
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 @SuppressWarnings("serial")
 public class KeyCollectionAsSet<E> extends CollectionAsSet<E> implements Serializable {

@@ -32,7 +32,6 @@ import org.magicwerk.brownies.collections.primitive.ICharList;
  * Binary search for primitive type char.
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 public class CharBinarySearch {
 

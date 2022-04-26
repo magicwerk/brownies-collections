@@ -23,7 +23,6 @@ import java.util.Arrays;
  * The class ArraysHelper adds method for handling boolean arrays which are missing in java.util.Arrays, e.g. sort() and binarySearch().
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 public class ArraysHelper {
 

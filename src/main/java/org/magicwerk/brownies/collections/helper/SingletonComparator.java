@@ -24,7 +24,6 @@ import java.util.Comparator;
  * Abstract base class for implementing a singleton comparator.
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 abstract class SingletonComparator<T> implements Comparator<T>, Serializable {
 

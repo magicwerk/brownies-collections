@@ -26,7 +26,6 @@ import java.util.Optional;
  * @param <T>	element type
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 public class Option<T> {
 	@SuppressWarnings("rawtypes")

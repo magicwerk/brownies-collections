@@ -32,7 +32,6 @@ import org.magicwerk.brownies.collections.primitive.IShortList;
  * Binary search for primitive type short.
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 public class ShortBinarySearch {
 
