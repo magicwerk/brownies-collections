@@ -29,7 +29,6 @@ import java.util.Set;
  * Implements a Map based on a key map in a KeyCollection or KeyList.
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 @SuppressWarnings("serial")
 public class KeyCollectionAsMap<K, E> implements Map<K, E>, Serializable {

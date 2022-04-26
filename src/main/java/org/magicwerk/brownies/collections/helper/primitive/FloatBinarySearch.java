@@ -32,7 +32,6 @@ import org.magicwerk.brownies.collections.primitive.IFloatList;
  * Binary search for primitive type float.
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 public class FloatBinarySearch {
 

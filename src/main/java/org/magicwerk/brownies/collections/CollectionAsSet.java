@@ -28,7 +28,6 @@ import java.util.Set;
  * It supports both mutable and immutable sets.
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 public class CollectionAsSet<K> implements Set<K> {
 	Collection<K> coll;

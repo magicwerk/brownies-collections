@@ -32,7 +32,6 @@ import org.magicwerk.brownies.collections.primitive.ILongList;
  * Binary search for primitive type long.
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 public class LongBinarySearch {
 

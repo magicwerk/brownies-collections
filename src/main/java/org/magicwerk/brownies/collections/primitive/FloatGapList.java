@@ -41,7 +41,6 @@ import java.util.function.Function;
  * Note that the iterators provided are not fail-fast.<p>
  *
  * @author Thomas Mauch
- * @version $Id$
  *
  * @param  type of elements stored in the list
  * @see	    java.util.List

@@ -28,7 +28,6 @@ import org.magicwerk.brownies.collections.helper.GapLists;
  * Public access is granted through {@link GapLists}.
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 public class GapListPrimitives {
 

@@ -23,7 +23,6 @@ package org.magicwerk.brownies.collections.helper;
  * @param <T>	element type
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 public class NaturalComparator<T> extends SingletonComparator<T> {
 

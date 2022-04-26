@@ -10,7 +10,6 @@ import org.magicwerk.brownies.collections.primitive.IFloatList;
  * This class implements a stable in-place merge sort.
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 public class FloatMergeSort {
 

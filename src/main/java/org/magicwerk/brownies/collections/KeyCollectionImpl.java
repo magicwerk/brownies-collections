@@ -55,7 +55,6 @@ import org.magicwerk.brownies.collections.helper.SortedLists;
  * - if an exception is thrown in the trigger, the change already made to the collection is not undone
  *
  * @author Thomas Mauch
- * @version $Id$
  *
  * @see GapList
  * @param <E> type of elements stored in the list

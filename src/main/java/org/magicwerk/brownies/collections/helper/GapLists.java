@@ -51,7 +51,6 @@ import org.magicwerk.brownies.collections.primitive.ShortObjGapList;
  * - methods interacting with CharSequence, Reader, InputStream <br>
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 public class GapLists extends GapListPrimitives {
 

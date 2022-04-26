@@ -34,7 +34,6 @@ import org.magicwerk.brownies.collections.KeyCollectionImpl.BuilderImpl;
  * The elements allowed in the list can be constraint (null/duplicate values).
  *
  * @author Thomas Mauch
- * @version $Id$
  *
  * @param <E> type of elements stored in the list
  * @param <K> type of key
