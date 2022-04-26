@@ -8,7 +8,6 @@ import org.magicwerk.brownies.core.reflect.ClassTools;
  * Create test sources.
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 public class BuildSourceTest extends FileBuilder {
 

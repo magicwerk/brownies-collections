@@ -36,7 +36,6 @@ import org.slf4j.Logger;
  * Test of Key1Collection.
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 public class Key1CollectionTest {
 

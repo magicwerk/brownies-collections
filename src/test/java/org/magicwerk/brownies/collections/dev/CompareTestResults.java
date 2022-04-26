@@ -8,7 +8,6 @@ import org.magicwerk.brownies.core.regex.RegexReplacer;
  * Compare test results.
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 public class CompareTestResults {
 

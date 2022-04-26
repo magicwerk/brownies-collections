@@ -47,7 +47,6 @@ import org.magicwerk.brownies.core.reflect.ReflectTools;
  * Examples for the use of key collections.
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 public class RunKeyCollectionsExamples {
 

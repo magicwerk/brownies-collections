@@ -36,7 +36,6 @@ import javolution.util.FastTable;
  * Test performance of BigList.
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 public class BigListTestMemory {
 	/** Logger */

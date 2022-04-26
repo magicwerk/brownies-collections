@@ -15,7 +15,6 @@ import com.github.javaparser.ast.CompilationUnit;
  * in package org.magicwerk.brownies.collections.primitive
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 public class BuildSourceGapList extends FileBuilder {
 

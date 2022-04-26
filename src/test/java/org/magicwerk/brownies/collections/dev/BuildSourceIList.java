@@ -18,7 +18,6 @@ import com.github.javaparser.ast.Modifier;
  * in package org.magicwerk.brownies.collections.primitive
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 public class BuildSourceIList extends FileBuilder {
 

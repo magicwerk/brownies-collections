@@ -39,7 +39,6 @@ import ch.qos.logback.classic.Logger;
  * Test Brownies collections by comparing them with JDK classes like ArrayList, LinkedList, etc.
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 public class CollectionsTestCompare {
 

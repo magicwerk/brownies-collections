@@ -21,7 +21,6 @@ import javolution.util.FastTable;
  *
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 public class TestFactories {
 
@@ -29,7 +28,6 @@ public class TestFactories {
 	 * Interface to create lists.
 	 *
 	 * @author Thomas Mauch
-	 * @version $Id$
 	 */
 	public static abstract class Factory {
 		/**
@@ -128,7 +126,6 @@ public class TestFactories {
 	 * Interface to create lists.
 	 *
 	 * @author Thomas Mauch
-	 * @version $Id$
 	 */
 	public static abstract class CollectionFactory extends Factory {
 		ContentFactory contentFactory = new SingletonContentFactory();

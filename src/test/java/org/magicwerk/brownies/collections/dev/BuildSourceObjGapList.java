@@ -10,7 +10,6 @@ import org.magicwerk.brownies.core.reflect.ClassTools;
  * in package org.magicwerk.brownies.collections.primitive
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 public class BuildSourceObjGapList extends FileBuilder {
 
