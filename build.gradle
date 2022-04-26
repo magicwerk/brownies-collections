@@ -1,5 +1,5 @@
-//version = '0.9.16'
-version = '0.9.17-SNAPSHOT'
+version = '0.9.17'
+//version = '0.9.18-SNAPSHOT'
 
 publishing {
 	publications {
