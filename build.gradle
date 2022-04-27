@@ -53,3 +53,16 @@ testJavadoc {
 	// Prevent "error: cannot find symbol" for classes in excluded packages
 	classpath = sourceSets.test.compileClasspath + sourceSets.test.output
 }
+
+jacocoTestReport {
+    dependsOn test // tests are required to run before generating the report
+    
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: [
+                "org/magicwerk/brownies/collections/primitive/*",
+                "org/magicwerk/brownies/collections/helper/primitive/*"
+            ])
+        }))
+    }
+}
