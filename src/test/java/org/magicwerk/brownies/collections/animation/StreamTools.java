@@ -41,5 +41,4 @@ public class StreamTools {
 		return (List<T>) getList(stream);
 	}
 
-
 }
