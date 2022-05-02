@@ -12,7 +12,6 @@ import org.magicwerk.brownies.core.serialize.SerializeTools;
 
 import ch.qos.logback.classic.Logger;
 
-
 public class TestSandbox {
 
 	static final Logger LOG = LogbackTools.getConsoleLogger();
@@ -38,35 +37,12 @@ public class TestSandbox {
 	}
 
 	static void testKey1ListSerializable() {
-		Name t1 = new Name("a");
-		Name t2 = new Name("b");
-
-		Key1List<Name,String> list;
-
-		// Java 8
-		list = new Key1List.Builder<Name,String>().withKey1Map(Name::getName).build();
+		Key1List<Name, String> list;
+		list = new Key1List.Builder<Name, String>().withKey1Map(Name::getName).build();
 		doSerializeFail(list);
-		list = new Key1List.Builder<Name,String>().withKey1Map((Function<Name,String> & Serializable) Name::getName).build();
+		list = new Key1List.Builder<Name, String>().withKey1Map((Function<Name, String> & Serializable) Name::getName).build();
 		doSerialize(list);
-
-		// before Java 8
-        list = new Key1List.Builder<Name,String>().
-			withKey1Map(new Function<Name,String>() {
-				@Override
-				public String apply(Name name) {
-					return name.toString();
-				}
-			}).build();
-        doSerializeFail(list);
-
-        class NameMapper implements Function<Name,String>, Serializable {
-    		public String apply(Name name) {
-    			return name.toString();
-    		}
-    	};
-        list = new Key1List.Builder<Name,String>().withKey1Map(new NameMapper()).build();
-        doSerialize(list);
- 	}
+	}
 
 	static void doSerializeFail(Object obj) {
 		try {
@@ -83,29 +59,27 @@ public class TestSandbox {
 	}
 
 	static void doSerialize(Object obj) {
-        byte[] data = SerializeTools.toBinary(obj);
-        Object obj2 = SerializeTools.fromBinary(data);
-        CheckTools.check(obj.equals(obj2));
+		byte[] data = SerializeTools.toBinary(obj);
+		Object obj2 = SerializeTools.fromBinary(data);
+		CheckTools.check(obj.equals(obj2));
 	}
 
 	static void testBug091() {
-	    LOG.info("Bug 0.9.1");
-	    GapList<Integer> list1 = GapList.create(1, 2);
-        GapList<Integer> list2 = GapList.create(1, 2, 3);
-        list1.addAll(list2);
+		LOG.info("Bug 0.9.1");
+		GapList<Integer> list1 = GapList.create(1, 2);
+		GapList<Integer> list2 = GapList.create(1, 2, 3);
+		list1.addAll(list2);
 	}
 
 	static void testBug09MikaelGrev() {
-        LOG.info("Bug 0.9 MikaelGrev");
-	    String[] objs = new String[129];
-	    Arrays.fill(objs, "Hello, world");
+		LOG.info("Bug 0.9 MikaelGrev");
+		String[] objs = new String[129];
+		Arrays.fill(objs, "Hello, world");
 
-	    GapList<Object> nonNullList = new GapList<Object>(128);
-	    nonNullList.addAll(Arrays.asList(objs));
+		GapList<Object> nonNullList = new GapList<Object>(128);
+		nonNullList.addAll(Arrays.asList(objs));
 
-	    System.out.println(nonNullList.get(0)); // Prints null, but shouldn't.
+		System.out.println(nonNullList.get(0)); // Prints null, but shouldn't.
 	}
 
-
 }
-
