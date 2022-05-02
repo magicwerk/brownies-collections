@@ -37,18 +37,191 @@ import ch.qos.logback.classic.Logger;
  * @author Thomas Mauch
  */
 public class GapListTestPerformance {
-	/** Logger */
-	private static final Logger LOG = LogbackTools.getConsoleLogger();
+
+	static final Logger LOG = LogbackTools.getConsoleLogger();
 
 	public static void main(String[] args) {
 		//run(args);
 
-		testPerformanceFilterJmh();
+		testPerformanceJmh();
+		//testPerformanceFilterJmh();
 		//testPerfFilter();
 		//testPerfRemoveRangeAll();
 		//testPerfRemoveRetainAll();
 		//testPerfCalls();
 		//testPerfExtend();
+	}
+
+	//
+
+	static void testPerformanceJmh() {
+		Options opts = new Options().includeClass(PerformanceJmhTest.class);
+		JmhRunner runner = new JmhRunner();
+		runner.runJmh(opts);
+	}
+
+	public static class PerformanceJmhTest {
+		/**
+		 * Run benchmark:
+		 * java -jar target\benchmarks.jar -wi 5 -i 5 -f 1
+		 *
+		 * Benchmark                 Mode  Cnt         Score         Error  Units
+		 * MyBenchmark.testMethod1  thrpt    5   4970699.315 �  122071.873  ops/s
+		 * MyBenchmark.testMethod2  thrpt    5  13985808.890 � 3974616.240  ops/s
+		 *
+		 * Benchmark                          Mode  Cnt     Score     Error  Units
+		 * MyBenchmark.testAddHeadArrayList  thrpt    5     0.947 �  0.054  ops/s
+		 * MyBenchmark.testAddHeadBigList    thrpt    5   110.173 �104.469  ops/s
+		 * MyBenchmark.testAddHeadGapList    thrpt    5   677.559 � 70.342  ops/s
+		 *
+		 * MyBenchmark.testAddTailArrayList  thrpt    5  1037.228 � 75.359  ops/s
+		 * MyBenchmark.testAddTailBigList    thrpt    5   108.340 �105.254  ops/s
+		 * MyBenchmark.testAddTailGapList    thrpt    5   557.762 � 55.324  ops/s
+		 *
+		 * MyBenchmark.testGetArrayList      thrpt    5  3283.230 �190.602  ops/s
+		 * MyBenchmark.testGetBigList        thrpt    5   864.140 � 34.903  ops/s
+		 * MyBenchmark.testGetGapList        thrpt    5  2272.831 �129.432  ops/s
+		 *
+		 * Size    1: Factor 4.0
+		 * Size   10: Factor 3.0
+		 * Size  100: Factor 2.0
+		 * Size 1000: Factor 1.5
+		 */
+
+		@State(Scope.Benchmark)
+		public static class BenchmarkState {
+			final int num = 1000;
+			volatile IList<Integer> list = GapList.create();
+
+			public BenchmarkState() {
+				for (int i = 0; i < num; i++) {
+					list.add(i);
+				}
+			}
+		}
+
+		static int size = 100 * 1000;
+
+		@State(Scope.Benchmark)
+		public static class ArrayListState {
+			volatile List<Integer> list = new ArrayList<>(size);
+
+			public ArrayListState() {
+				for (int i = 0; i < size; i++) {
+					list.add(i);
+				}
+			}
+		}
+
+		@State(Scope.Benchmark)
+		public static class GapListState {
+			volatile IList<Integer> list = GapList.create(size);
+
+			public GapListState() {
+				for (int i = 0; i < size; i++) {
+					list.add(i);
+				}
+			}
+		}
+
+		@State(Scope.Benchmark)
+		public static class BigListState {
+			volatile IList<Integer> list = BigList.create();
+
+			public BigListState() {
+				for (int i = 0; i < size; i++) {
+					list.add(i);
+				}
+			}
+		}
+
+		@Benchmark
+		public void testMethod1(BenchmarkState state) {
+			List<Integer> result = state.list.stream().filter((i) -> i % 2 == 0).collect(Collectors.toList());
+		}
+
+		@Benchmark
+		public void testMethod2(BenchmarkState state) {
+			List<Integer> result = state.list.filteredList((i) -> i % 2 == 0);
+		}
+
+		//
+
+		@Benchmark
+		public int testGetArrayList(ArrayListState state) {
+			int sum = 0;
+			for (int i = 0; i < size; i++) {
+				sum += state.list.get(i);
+			}
+			return sum;
+		}
+
+		@Benchmark
+		public int testGetGapList(GapListState state) {
+			int sum = 0;
+			for (int i = 0; i < size; i++) {
+				sum += state.list.get(i);
+			}
+			return sum;
+		}
+
+		@Benchmark
+		public int testGetBigList(BigListState state) {
+			int sum = 0;
+			for (int i = 0; i < size; i++) {
+				sum += state.list.get(i);
+			}
+			return sum;
+		}
+
+		@Benchmark
+		public void testAddTailArrayList(ArrayListState state) {
+			List<Integer> list = new ArrayList<>();
+			for (int i = 0; i < size; i++) {
+				list.add(i);
+			}
+		}
+
+		@Benchmark
+		public void testAddTailGapList() {
+			IList<Integer> list = GapList.create();
+			for (int i = 0; i < size; i++) {
+				list.add(i);
+			}
+		}
+
+		@Benchmark
+		public void testAddTailBigList() {
+			IList<Integer> list = BigList.create();
+			for (int i = 0; i < size; i++) {
+				list.add(i);
+			}
+		}
+
+		@Benchmark
+		public void testAddHeadArrayList(ArrayListState state) {
+			List<Integer> list = new ArrayList<>();
+			for (int i = 0; i < size; i++) {
+				list.add(0, i);
+			}
+		}
+
+		@Benchmark
+		public void testAddHeadGapList() {
+			IList<Integer> list = GapList.create();
+			for (int i = 0; i < size; i++) {
+				list.add(0, i);
+			}
+		}
+
+		@Benchmark
+		public void testAddHeadBigList() {
+			IList<Integer> list = BigList.create();
+			for (int i = 0; i < size; i++) {
+				list.add(0, i);
+			}
+		}
+
 	}
 
 	//
