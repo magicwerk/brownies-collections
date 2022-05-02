@@ -1,5 +1,4 @@
-//version = '0.9.17'
-version = '0.9.18-SNAPSHOT'
+version = VERSION_BROWNIES_COLLECTIONS
 
 publishing {
 	publications {
