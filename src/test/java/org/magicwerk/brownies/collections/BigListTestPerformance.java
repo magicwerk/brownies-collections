@@ -79,21 +79,21 @@ public class BigListTestPerformance {
 
 	public static void main(String[] args) {
 		// Run as separate process(es)
-		//runJava(args);
+		runJava(args);
 
 		// Run in this process for debugging
 		//doRun();
-		testSort();
+		//testSort();
+		//testStandard();
 	}
 
 	static void runJava(String[] args) {
 		JvmRunner runner = new JvmRunner();
 		runner.setRunnable((a) -> doRun());
 
-		String java6 = "C:\\Java\\JDK\\jdk1.6.0_45\\bin\\java.exe";
-		String java7 = "C:\\Java\\JDK\\jdk1.7.0_40\\bin\\java.exe";
-		String java8 = "C:\\Java\\JDK\\jdk1.8.0_25\\bin\\java.exe";
-		String java8_64 = "C:\\Java\\JDK\\jdk1.8.0_25-x64\\bin\\java.exe";
+		String java8 = "C:\\dev\\Java\\JDK\\jdk1.8.0_241\\bin\\java.exe";
+		String java11 = "C:\\dev\\Java\\JDK\\jdk-11.0.6\\bin\\java.exe";
+		String java17 = "C:\\dev\\Java\\JDK\\jdk-17.0.2\\bin\\java.exe";
 
 		String[] jvmArgs = new String[] { "-Xms1024m", "-Xmx1024m",
 				//		String[] jvmArgs = new String[] { "-Xms256m", "-Xmx256m",
@@ -106,6 +106,8 @@ public class BigListTestPerformance {
 		//tester.addJavaArgsRun(java6, jvmArgs);
 		//tester.addJavaArgsRun(java7, jvmArgs);
 		runner.addJavaArgsRun(java8, jvmArgs);
+		runner.addJavaArgsRun(java11, jvmArgs);
+		runner.addJavaArgsRun(java17, jvmArgs);
 		//tester.addJavaArgsRun(java8_64, jvmArgs);
 
 		//LogbackTools.setAllLevels(Level.INFO);
@@ -133,7 +135,8 @@ public class BigListTestPerformance {
 			new BigListFactory(BigListBlockSize), new FastTableFactory(), new TreeListFactory() };
 
 	static void doRun() {
-		doTestBigList();
+		testStandard();
+		//doTestBigList();
 	}
 
 	static void doTestBigList() {
@@ -269,7 +272,8 @@ public class BigListTestPerformance {
 		//		runner.setInclude(GAPLIST, CIRCULARARRAYLIST);
 		TestRuns runs = new TestRuns(runner);
 		//		runs.setFactories(new BigListFactory(10000));
-		runs.setFactories(new GapListFactory(), new BigListFactory(10000), new BigListFactory(50000), new FastTableFactory());
+		//runs.setFactories(new GapListFactory(), new BigListFactory(10000), new BigListFactory(50000), new FastTableFactory());
+		runs.setFactories(new GapListFactory(), new ArrayListFactory(), new LinkedListFactory());
 		return runs;
 	}
 
