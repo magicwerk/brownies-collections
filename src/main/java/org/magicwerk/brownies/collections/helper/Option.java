@@ -35,8 +35,12 @@ public class Option<T> {
 	 * @return unmodifiable empty instance
 	 */
 	@SuppressWarnings("unchecked")
-	public static <EE> Option<EE> EMPTY() {
+	public static <EE> Option<EE> empty() {
 		return EMPTY;
+	}
+
+	public static <T> Option<T> of(T value) {
+		return new Option<>(value);
 	}
 
 	private boolean hasValue;

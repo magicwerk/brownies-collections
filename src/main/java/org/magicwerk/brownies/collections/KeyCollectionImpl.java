@@ -1121,7 +1121,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 		Option<E> getContainedKey(Object key) {
 			if (key == null) {
 				if (!allowNull) {
-					return Option.EMPTY();
+					return Option.empty();
 				}
 			}
 			if (keysMap != null) {
@@ -1137,7 +1137,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 					return new Option(keysList.get(index));
 				}
 			}
-			return Option.EMPTY();
+			return Option.empty();
 		}
 
 		@SuppressWarnings("unchecked")
@@ -1148,7 +1148,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 					return new Option(entry.getValue());
 				}
 			}
-			return Option.EMPTY();
+			return Option.empty();
 		}
 
 		Iterator<E> iteratorValues(KeyCollectionImpl<E> keyColl) {
@@ -1393,14 +1393,14 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 			// If list cannot contain null, handle null explicitly to prevent NPE
 			if (key == null) {
 				if (!allowNull) {
-					return Option.EMPTY();
+					return Option.empty();
 				}
 			}
 
 			if (keysMap != null) {
 				// Collection or unsorted list
 				if (!keysMap.containsKey(key)) {
-					return Option.EMPTY();
+					return Option.empty();
 				}
 				if (count) {
 					assert (!matchValue || key == value);
@@ -1416,7 +1416,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 						GapList<E> list = (GapList<E>) obj;
 						if (matchValue) {
 							if (!list.remove(value)) {
-								return Option.EMPTY();
+								return Option.empty();
 							} else {
 								elem = (E) value;
 							}
@@ -1436,7 +1436,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 				int index = keysList.binarySearch(key, (Comparator<Object>) comparator);
 				E elem = null;
 				if (index < 0) {
-					return Option.EMPTY();
+					return Option.empty();
 				}
 				elem = (E) keyColl.keyList.doGet(index);
 				keysList.remove(index);
@@ -2206,7 +2206,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	 * @return			optional with element which has been removed
 	 */
 	Option<E> doRemove(Object elem, KeyMap ignore) {
-		Option<E> removed = Option.EMPTY();
+		Option<E> removed = Option.empty();
 		boolean first = true;
 		if (keyMaps != null) {
 			for (int i = 0; i < keyMaps.length; i++) {
@@ -2215,7 +2215,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 					Option<E> obj = keyMaps[i].remove(key, true, elem, this);
 					if (first) {
 						if (!obj.hasValue()) {
-							return Option.EMPTY();
+							return Option.empty();
 						} else {
 							removed = obj;
 						}
@@ -2684,7 +2684,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 				Map.Entry entry = iter.next();
 				if (GapList.equalsElem(elem, entry.getValue())) {
 					if (GapList.equalsElem(key, entry.getKey())) {
-						return Option.EMPTY();
+						return Option.empty();
 					}
 					iter.remove();
 					if (!allowDuplicates) {
@@ -2697,7 +2697,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 			for (int i = 0; i < keyMap.keysList.size(); i++) {
 				if (GapList.equalsElem(elem, keyList.doGet(i))) {
 					if (GapList.equalsElem(key, keyMap.keysList.get(i))) {
-						return Option.EMPTY();
+						return Option.empty();
 					}
 					keyMap.keysList.remove(i);
 					if (!allowDuplicates) {
