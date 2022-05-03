@@ -14,8 +14,9 @@ The key collection classes offer support for keys and constraints for lists and 
 '''
                 url = 'http://www.magicwerk.org/collections'
            		scm {
-                	connection = 'http://www.magicwerk.org/collections'
-                    url = 'http://www.magicwerk.org/collections'
+                	connection = 'scm:git:https://github.com/magicwerk/brownies-collections.git'
+                	developerConnection = 'scm:git:https://github.com/magicwerk/brownies-collections.git'
+                    url = 'scm:git:https://github.com/magicwerk/brownies-collections.git'
             	}
             }
 		}
