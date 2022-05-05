@@ -3,7 +3,9 @@ package org.magicwerk.brownies.collections.dev;
 import org.apache.commons.lang3.StringUtils;
 import org.magicwerk.brownies.collections.dev.RefactorVisitor.RefactorMethod;
 import org.magicwerk.brownies.core.files.FileTools;
+import org.magicwerk.brownies.core.files.PathTools;
 import org.magicwerk.brownies.core.logback.LogbackTools;
+import org.magicwerk.brownies.core.reflect.ClassTools;
 import org.magicwerk.brownies.core.reflect.ReflectTypes;
 import org.magicwerk.brownies.core.regex.RegexReplacer;
 import org.magicwerk.brownies.core.regex.RegexTools;
@@ -14,6 +16,9 @@ import org.magicwerk.brownies.core.strings.matcher.NestedStringMatcher;
 import org.magicwerk.brownies.core.strings.matcher.RegexStringMatcher;
 import org.magicwerk.brownies.tools.dev.java.JavaParserTools;
 import org.slf4j.Logger;
+
+import com.github.javaparser.JavaParser;
+import com.github.javaparser.ast.CompilationUnit;
 
 /**
  * Create Java source files for brownies-collections.
@@ -149,6 +154,18 @@ public class BuildSource {
 			}
 			newStr = applyTemplate(newStr);
 			return newStr;
+		}
+
+		String readJavaFile(String srcClass) {
+			String srcFile = PathTools.getPath(srcDir, ClassTools.getPathFromClass(srcClass)) + ".java";
+			String src = readFile(srcFile);
+			return src;
+		}
+
+		CompilationUnit parseJavaSource(String src) {
+			JavaParser javaParser = JavaParserTools.getParser();
+			CompilationUnit cu = JavaParserTools.getCompilationUnit(javaParser, src);
+			return cu;
 		}
 
 		String readFile(String file) {

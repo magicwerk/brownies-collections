@@ -6,7 +6,6 @@ import org.magicwerk.brownies.collections.dev.RefactorVisitor.RefactorMethod;
 import org.magicwerk.brownies.core.files.PathTools;
 import org.magicwerk.brownies.core.reflect.ClassTools;
 import org.magicwerk.brownies.core.regex.RegexTools;
-import org.magicwerk.brownies.tools.dev.java.JavaParserTools;
 
 import com.github.javaparser.ast.CompilationUnit;
 
@@ -25,11 +24,8 @@ public class BuildSourceGapList extends FileBuilder {
 	@Override
 	public void build() {
 		String srcClass = "org.magicwerk.brownies.collections.GapList";
-
-		String srcFile = PathTools.getPath(srcDir, ClassTools.getPathFromClass(srcClass)) + ".java";
-		String src = readFile(srcFile);
-
-		CompilationUnit cu = JavaParserTools.getCompilationUnit(src);
+		String src = readJavaFile(srcClass);
+		CompilationUnit cu = parseJavaSource(src);
 
 		visitor = new RefactorVisitor();
 		addRefactor("int binarySearch", ", Comparator\\<\\? super K\\> comparator", "");
