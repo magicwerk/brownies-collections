@@ -8,7 +8,6 @@ import org.magicwerk.brownies.core.files.FileTools;
 import org.magicwerk.brownies.core.files.PathTools;
 import org.magicwerk.brownies.core.reflect.ClassTools;
 import org.magicwerk.brownies.core.regex.RegexTools;
-import org.magicwerk.brownies.tools.dev.java.JavaParserTools;
 
 import com.github.javaparser.ast.CompilationUnit;
 
@@ -28,10 +27,8 @@ public class BuildSourceBigList extends FileBuilder {
 	public void build() {
 		String srcClass = "org.magicwerk.brownies.collections.BigList";
 
-		String srcFile = PathTools.getPath(srcDir, ClassTools.getPathFromClass(srcClass)) + ".java";
-		String src = readFile(srcFile);
-
-		CompilationUnit cu = JavaParserTools.getCompilationUnit(src);
+		String src = readJavaFile(srcClass);
+		CompilationUnit cu = parseJavaSource(src);
 
 		visitor = new RefactorVisitor();
 		addRefactor("int binarySearch", ", Comparator\\<\\? super K\\> comparator", "");

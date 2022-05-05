@@ -34,7 +34,6 @@ import org.magicwerk.brownies.collections.primitive.I{NAME}List;
  * Binary search for primitive type {PRIMITIVE}.
  *
  * @author Thomas Mauch
- * @version $Id$
  */
 public class {NAME}BinarySearch {
   /**
