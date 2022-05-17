@@ -22,6 +22,7 @@ import org.magicwerk.brownies.core.stat.NumberStat;
 import org.magicwerk.brownies.core.stat.StatValues.StoreValues;
 import org.magicwerk.brownies.test.JmhRunner;
 import org.magicwerk.brownies.test.JmhRunner.Options;
+import org.magicwerk.brownies.tools.dev.java.BuildHelper;
 import org.magicwerk.brownies.tools.runner.JvmRunner;
 import org.magicwerk.brownies.tools.runner.Runner;
 import org.openjdk.jmh.annotations.Benchmark;
@@ -41,9 +42,9 @@ public class GapListTestPerformance {
 	static final Logger LOG = LogbackTools.getConsoleLogger();
 
 	public static void main(String[] args) {
-		//run(args);
+		run(args);
 
-		testPerformanceJmh();
+		//testPerformanceJmh();
 		//testPerformanceFilterJmh();
 		//testPerfFilter();
 		//testPerfRemoveRangeAll();
@@ -396,10 +397,10 @@ public class GapListTestPerformance {
 
 	static void run(String[] args) {
 		// Run directly
-		//doRun();
+		doRun();
 
 		// Run as separate Java process
-		runJava(args);
+		//runJava(args);
 	}
 
 	static void test() {
@@ -437,18 +438,12 @@ public class GapListTestPerformance {
 			report.save();
 		});
 
-		String java6 = "C:\\Java\\JDK\\jdk1.6.0_45\\bin\\java.exe";
-		String java7 = "C:\\Java\\JDK\\jdk1.7.0_40\\bin\\java.exe";
-		String java8 = "C:\\dev\\Java\\JDK\\jdk1.8.0_25\\bin\\java.exe";
-		String java8_64 = "C:\\dev\\Java\\JDK\\jdk1.8.0_25-x64\\bin\\java.exe";
-
 		//String[] jvmArgs = new String[] { "-Xms512m", "-Xmx512m" };
 		String[] jvmArgs = new String[] { "-Xms1024m", "-Xmx1024m" };
 
-		//tester.addJavaArgsRun(java6, jvmArgs);
-		//tester.addJavaArgsRun(java7, jvmArgs);
-		runner.addJavaArgsRun(java8, jvmArgs);
-		runner.addJavaArgsRun(java8_64, jvmArgs);
+		BuildHelper bh = new BuildHelper();
+		runner.addJavaArgsRun(bh.getJava8Exe(), jvmArgs);
+		//runner.addJavaArgsRun(bh.getJava11Exe(), jvmArgs);
 
 		LogbackTools.setAllLevels(Level.INFO);
 		LogbackTools.setLogLevel("org.magicwerk.brownies.test.runner.JvmTester", Level.DEBUG);
@@ -628,9 +623,9 @@ public class GapListTestPerformance {
 
 	static TestRuns newRun() {
 		Runner runner = new Runner();
-		runner.setInclude(TestRuns.GAPLIST, TestRuns.ARRAYLIST, TestRuns.LINKEDLIST);
-		//		runner.setInclude(TREELIST);
-		//		runner.setInclude(LINKEDLIST);
+		runner.setInclude(TestRuns.GAPLIST, TestRuns.BIGLIST, TestRuns.ARRAYLIST, TestRuns.LINKEDLIST);
+		//runner.setInclude(TREELIST);
+		//runner.setInclude(TestRuns.GAPLIST, TestRuns.LINKEDLIST);
 		//		runner.setInclude(CIRCULARARRAYLIST, GAPLIST);
 		//		runner.setInclude(GAPLIST, "RootishArrayStack", "DualRootishArrayDeque", "DualArrayDeque");
 		//		runner.setInclude(GAPLIST, CIRCULARARRAYLIST, TREELIST);
