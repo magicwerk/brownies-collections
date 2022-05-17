@@ -227,7 +227,7 @@ public class TestRuns {
 		/** specify how near two subsequent operations will be in the collection */
 		double near;
 		/** number of operations which will executed locally on the same index */
-		int localOps = 0;
+		int localOps = 1;
 
 		@Override
 		public String getName() {
