@@ -14,7 +14,7 @@ import org.magicwerk.brownies.core.strings.StringFormatParsers;
 import org.magicwerk.brownies.core.strings.StringFormatter;
 import org.magicwerk.brownies.core.strings.matcher.NestedStringMatcher;
 import org.magicwerk.brownies.core.strings.matcher.RegexStringMatcher;
-import org.magicwerk.brownies.tools.dev.java.JavaParserTools;
+import org.magicwerk.brownies.javassist.analyzer.JavaParserTools;
 import org.slf4j.Logger;
 
 import com.github.javaparser.JavaParser;
