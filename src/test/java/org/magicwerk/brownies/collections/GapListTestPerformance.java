@@ -42,9 +42,9 @@ public class GapListTestPerformance {
 	static final Logger LOG = LogbackTools.getConsoleLogger();
 
 	public static void main(String[] args) {
-		run(args);
+		//run(args);
 
-		//testPerformanceJmh();
+		testPerformanceJmh();
 		//testPerformanceFilterJmh();
 		//testPerfFilter();
 		//testPerfRemoveRangeAll();
@@ -56,7 +56,8 @@ public class GapListTestPerformance {
 	//
 
 	static void testPerformanceJmh() {
-		Options opts = new Options().includeClass(PerformanceJmhTest.class);
+		//		Options opts = new Options().includeClass(PerformanceJmhTest.class);
+		Options opts = new Options().includeMethod(PerformanceJmhTest.class, "testMethod1").includeMethod(PerformanceJmhTest.class, "testMethod2");
 		JmhRunner runner = new JmhRunner();
 		runner.runJmh(opts);
 	}
@@ -95,6 +96,7 @@ public class GapListTestPerformance {
 			volatile IList<Integer> list = GapList.create();
 
 			public BenchmarkState() {
+				LOG.info("BenchmarkState: {}", Thread.currentThread());
 				for (int i = 0; i < num; i++) {
 					list.add(i);
 				}
@@ -138,6 +140,7 @@ public class GapListTestPerformance {
 
 		@Benchmark
 		public void testMethod1(BenchmarkState state) {
+			LOG.info("testMethod1: {}", Thread.currentThread());
 			List<Integer> result = state.list.stream().filter((i) -> i % 2 == 0).collect(Collectors.toList());
 		}
 
