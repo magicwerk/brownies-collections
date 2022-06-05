@@ -14,7 +14,7 @@ public class MethodSource {
 	public static MethodSource parseMethod(String src) {
 		Single<MethodSource> method = new Single<>();
 		Single<Boolean> visiting = new Single<>(false);
-		BodyDeclaration<?> md = JavaParserTools.getBodyDeclaration(src);
+		BodyDeclaration<?> md = JavaParserTools.parseBodyDeclaration(src);
 		RefactorVisitor visitor = new RefactorVisitor() {
 			@Override
 			public void visit(final MethodDeclaration md, final Void arg) {
