@@ -164,7 +164,7 @@ public class BuildSource {
 
 		CompilationUnit parseJavaSource(String src) {
 			JavaParser javaParser = JavaParserTools.getParser();
-			CompilationUnit cu = JavaParserTools.getCompilationUnit(javaParser, src);
+			CompilationUnit cu = JavaParserTools.parseCompilationUnit(javaParser, src);
 			return cu;
 		}
 
