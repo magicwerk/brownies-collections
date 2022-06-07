@@ -666,3 +666,11 @@ Java,Release,Run,Type,Time,VmArgs
 1.8.0_241_x64,0.9.16,Add iter 2.0,ArrayList,11.680295348837209,-ea -Dfile.encoding=UTF-8
 1.8.0_241_x64,0.9.16,Add iter 2.0,BigList,0.790645813586098,-ea -Dfile.encoding=UTF-8
 1.8.0_241_x64,0.9.16,Add iter 2.0,LinkedList,147.95897499999998,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get last,GapList,0.7574807042253519,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get last,ArrayList,0.7504053973013489,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get last,BigList,0.9992622754491012,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get last,LinkedList,0.9413624060150375,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get first,GapList,0.7404927514792901,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get first,ArrayList,0.8071359677419354,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get first,BigList,0.8722268292682938,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get first,LinkedList,0.7584152716593245,-ea -Dfile.encoding=UTF-8
