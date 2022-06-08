@@ -3,7 +3,7 @@ package org.magicwerk.brownies.collections.dev;
 import org.magicwerk.brownies.core.CheckTools;
 import org.magicwerk.brownies.core.objects.Single;
 import org.magicwerk.brownies.core.strings.StringPrinter;
-import org.magicwerk.brownies.javassist.analyzer.JavaParserTools;
+import org.magicwerk.brownies.javassist.sources.JavaParserTools;
 
 import com.github.javaparser.ast.body.BodyDeclaration;
 import com.github.javaparser.ast.body.ConstructorDeclaration;
