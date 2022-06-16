@@ -20,11 +20,19 @@ import org.magicwerk.brownies.core.Timer;
 import org.magicwerk.brownies.core.logback.LogbackTools;
 import org.magicwerk.brownies.core.stat.NumberStat;
 import org.magicwerk.brownies.core.stat.StatValues.StoreValues;
+import org.magicwerk.brownies.core.types.Type;
+import org.magicwerk.brownies.core.values.Table;
+import org.magicwerk.brownies.html.HtmlDoclet;
+import org.magicwerk.brownies.html.HtmlDocument;
+import org.magicwerk.brownies.html.HtmlReport;
+import org.magicwerk.brownies.html.content.HtmlChartCreator;
+import org.magicwerk.brownies.html.content.HtmlChartCreator.ChartType;
 import org.magicwerk.brownies.test.JmhRunner;
 import org.magicwerk.brownies.test.JmhRunner.Options;
 import org.magicwerk.brownies.tools.dev.java.BuildHelper;
 import org.magicwerk.brownies.tools.runner.JvmRunner;
 import org.magicwerk.brownies.tools.runner.Runner;
+import org.magicwerk.brownies.tools.runner.Runner.RunResult;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.State;
@@ -42,9 +50,9 @@ public class GapListTestPerformance {
 	static final Logger LOG = LogbackTools.getConsoleLogger();
 
 	public static void main(String[] args) {
-		//run(args);
+		run(args);
 
-		testPerformanceJmh();
+		//testPerformanceJmh();
 		//testPerformanceFilterJmh();
 		//testPerfFilter();
 		//testPerfRemoveRangeAll();
@@ -464,6 +472,60 @@ public class GapListTestPerformance {
 
 	//--- Memory ---
 
+	static void showChart(IList<TestRuns> trs) {
+		Table tab = getTable(trs);
+		LOG.info("{}", tab);
+		HtmlDocument doc = getDoc(tab);
+
+		HtmlReport report = new HtmlReport();
+		report.setDoc(doc);
+		report.showHtml();
+	}
+
+	static HtmlDocument getDoc(Table tab) {
+		HtmlDocument doc = new HtmlDocument();
+		doc.getBody().addH1("Charts");
+
+		HtmlChartCreator creator = new HtmlChartCreator();
+		creator.setTitle("Chart");
+		creator.setWidth("800px");
+		creator.setHeight("400px");
+
+		creator.setTable(tab);
+		creator.setChartType(ChartType.LINE);
+		HtmlDoclet chart = creator.getChart();
+		doc.addResources(chart.getResources());
+		doc.getBody().addElem(chart.getElement());
+		return doc;
+	}
+
+	static Table getTable(IList<TestRuns> trs) {
+		Table tab = new Table();
+
+		{
+			TestRuns tr = trs.getFirst();
+			tab.addCol("Test", Type.STRING_TYPE);
+
+			List<RunResult> rrs = tr.getRunner().getResults();
+			for (RunResult rr : rrs) {
+				tab.addCol(rr.getName(), Type.DOUBLE_TYPE); // e.g. "GapList"
+			}
+		}
+
+		for (TestRuns tr : trs) {
+			IList<Object> row = GapList.create();
+			String test = tr.getRunner().getName(); // e.g. "Get last"
+			row.add(test);
+
+			List<RunResult> rrs = tr.getRunner().getResults();
+			for (RunResult rr : rrs) {
+				row.add(rr.getAvgTime());
+			}
+			tab.addRowElems(row);
+		}
+		return tab;
+	}
+
 	static void doRun() {
 		//TimerTools.sleep(10*1000);
 
@@ -484,9 +546,15 @@ public class GapListTestPerformance {
 			int numOps = 50 * 1000;
 
 			// Chart 1: Get
-			newRun().testPerformanceGetLast(size, numOps);
-			newRun().testPerformanceGetFirst(size, numOps);
-			newRun().testPerformanceGetRandom(size, numOps);
+			TestRuns tr1 = newRun();
+			tr1.testPerformanceGetLast(size, numOps);
+			TestRuns tr2 = newRun();
+			tr2.testPerformanceGetFirst(size, numOps);
+			//TestRuns tr3 = newRun();
+			//tr3.testPerformanceGetRandom(size, numOps);
+
+			showChart(GapList.create(tr1, tr2));
+			//showChart(GapList.create(tr1, tr2, tr3));
 
 			// Chart 2: Add
 			size = 10 * 1000;
