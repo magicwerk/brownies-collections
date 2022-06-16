@@ -63,6 +63,10 @@ public class TestRuns {
 		this.runner = runner;
 	}
 
+	public Runner getRunner() {
+		return runner;
+	}
+
 	public void setFactories(CollectionFactory... factories) {
 		this.factories = GapList.create(factories);
 	}
