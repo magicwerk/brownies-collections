@@ -15,14 +15,13 @@ import org.magicwerk.brownies.tools.runner.Runner;
 
 import ch.qos.logback.classic.Logger;
 
-
 /**
  *
  *
  * @author Thomas Mauch
  */
 public class KeyCollectionsTestPerformance {
-	
+
 	static final Logger LOG = LogbackTools.getConsoleLogger();
 
 	/**
@@ -34,41 +33,41 @@ public class KeyCollectionsTestPerformance {
 
 	static void test() {
 		testPerfIntersect();
-		
-//		for (int i=0; i<5; i++) {
-//			//testKeyList();
-//			testKeyCollection();
-//		}
+
+		//		for (int i=0; i<5; i++) {
+		//			//testKeyList();
+		//			testKeyCollection();
+		//		}
 	}
-	
+
 	static void testPerfIntersect() {
 		int size = 10000;
 		int offset1 = 0;
 		int offset2 = 100;
 		int num = 100;
-		
+
 		List<Integer> list1 = new ArrayList<Integer>();
-		for (int i=0; i<size; i++) {
-			list1.add(offset1+i);
+		for (int i = 0; i < size; i++) {
+			list1.add(offset1 + i);
 		}
 		List<Integer> list2 = new ArrayList<Integer>();
-		for (int i=0; i<size; i++) {
-			list2.add(offset2+i);
+		for (int i = 0; i < size; i++) {
+			list2.add(offset2 + i);
 		}
-		
+
 		Timer t = new Timer();
-		for (int i=0; i<num; i++) {
+		for (int i = 0; i < num; i++) {
 			intersect1(list1, list2);
 		}
 		t.printElapsed();
-		
+
 		t = new Timer();
-		for (int i=0; i<num; i++) {
+		for (int i = 0; i < num; i++) {
 			intersect2(list1, list2);
 		}
 		t.printElapsed();
 	}
-	
+
 	public static <T> List<T> intersect1(List<T> list1, List<T> list2) {
 		List<T> intersect = new ArrayList<T>();
 		intersect.addAll(list1);
@@ -126,123 +125,133 @@ public class KeyCollectionsTestPerformance {
 
 		@Override
 		public void run() {
-			for (int i=0; i<numGets; i++) {
+			for (int i = 0; i < numGets; i++) {
 				list.add(i);
 				//list.add(size+i);
 			}
 		}
 	}
 
-	static class KeyListFactory extends CollectionFactory {
+	static class KeyListFactory extends CollectionFactory<KeyList> {
 		@Override
 		public Class<?> getType() {
 			return KeyList.class;
 		}
+
 		@Override
-		public List create(int size) {
+		public KeyList create(int size) {
 			Integer obj = new Integer(0);
-	    	KeyList<Object> list = new KeyList.Builder<Object>().build();
-			for (int i=0; i<size; i++) {
+			KeyList<Object> list = new KeyList.Builder<Object>().build();
+			for (int i = 0; i < size; i++) {
 				list.add(obj);
 			}
 			return list;
 		}
+
 		@Override
-		public List createSize(int size) {
+		public KeyList createSize(int size) {
 			Integer obj = new Integer(0);
-	    	KeyList<Object> list = new KeyList.Builder<Object>().withCapacity(size).build();
-			for (int i=0; i<size; i++) {
+			KeyList<Object> list = new KeyList.Builder<Object>().withCapacity(size).build();
+			for (int i = 0; i < size; i++) {
 				list.add(obj);
 			}
 			return list;
 		}
+
 		@Override
-		Collection<?> copy(Collection<?> that) {
-			return ((KeyList) that).copy();
+		KeyList copy(KeyList that) {
+			return that.copy();
 		}
 	}
 
-	static class KeyListWithElemSetFactory extends CollectionFactory {
+	static class KeyListWithElemSetFactory extends CollectionFactory<KeyList> {
 		@Override
 		public Class<?> getType() {
 			return KeyList.class;
 		}
+
 		@Override
-		public List create(int size) {
-	    	KeyList<Object> list = new KeyList.Builder<Object>().withElemSet().build();
-			for (int i=0; i<size; i++) {
+		public KeyList create(int size) {
+			KeyList<Object> list = new KeyList.Builder<Object>().withElemSet().build();
+			for (int i = 0; i < size; i++) {
 				list.add(i);
 			}
 			return list;
 		}
+
 		@Override
-		public List createSize(int size) {
-	    	KeyList<Object> list = new KeyList.Builder<Object>().withElemSet().withCapacity(size).build();
-			for (int i=0; i<size; i++) {
+		public KeyList createSize(int size) {
+			KeyList<Object> list = new KeyList.Builder<Object>().withElemSet().withCapacity(size).build();
+			for (int i = 0; i < size; i++) {
 				list.add(i);
 			}
 			return list;
 		}
+
 		@Override
-		Collection<?> copy(Collection<?> that) {
-			return ((KeyList) that).copy();
+		KeyList copy(KeyList that) {
+			return that.copy();
 		}
 	}
 
-	static class KeyCollectionFactory extends CollectionFactory {
+	static class KeyCollectionFactory extends CollectionFactory<KeyCollection> {
 		@Override
 		public Class<?> getType() {
 			return KeyCollection.class;
 		}
+
 		@Override
-		public Collection create(int size) {
+		public KeyCollection create(int size) {
 			KeyCollection<Object> list = new KeyCollection.Builder<Object>().build();
-			for (int i=0; i<size; i++) {
+			for (int i = 0; i < size; i++) {
 				list.add(i);
 			}
 			return list;
 		}
+
 		@Override
-		public Collection createSize(int size) {
+		public KeyCollection createSize(int size) {
 			KeyCollection<Object> list = new KeyCollection.Builder<Object>().withCapacity(size).build();
-			for (int i=0; i<size; i++) {
+			for (int i = 0; i < size; i++) {
 				list.add(i);
 			}
 			return list;
 		}
+
 		@Override
-		Collection<?> copy(Collection<?> that) {
-			return ((KeyCollection) that).copy();
+		KeyCollection copy(KeyCollection that) {
+			return that.copy();
 		}
 	}
 
-	static class HashSetFactory extends CollectionFactory {
+	static class HashSetFactory extends CollectionFactory<HashSet> {
 		@Override
 		public Class<?> getType() {
 			return HashSet.class;
 		}
+
 		@Override
-		public Collection create(int size) {
+		public HashSet create(int size) {
 			HashSet<Object> list = new HashSet<Object>();
-			for (int i=0; i<size; i++) {
+			for (int i = 0; i < size; i++) {
 				list.add(i);
 			}
 			return list;
 		}
+
 		@Override
-		public Collection createSize(int size) {
+		public HashSet createSize(int size) {
 			HashSet<Object> list = new HashSet<Object>();
-			for (int i=0; i<size; i++) {
+			for (int i = 0; i < size; i++) {
 				list.add(i);
 			}
 			return list;
 		}
+
 		@Override
-		Collection<?> copy(Collection<?> that) {
+		HashSet copy(HashSet that) {
 			return new HashSet<Object>(that);
 		}
 	}
 
 }
-
-

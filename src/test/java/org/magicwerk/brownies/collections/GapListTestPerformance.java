@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Deque;
 import java.util.List;
 import java.util.RandomAccess;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.magicwerk.brownies.collections.TestFactories.ArrayListFactory;
@@ -15,18 +16,29 @@ import org.magicwerk.brownies.collections.TestRuns.FilterLambdaRun;
 import org.magicwerk.brownies.collections.ext.TList;
 import org.magicwerk.brownies.collections.primitive.IntGapList;
 import org.magicwerk.brownies.core.ArrayTools;
+import org.magicwerk.brownies.core.MathTools;
 import org.magicwerk.brownies.core.SystemTools;
 import org.magicwerk.brownies.core.Timer;
+import org.magicwerk.brownies.core.collections.GridSelection;
+import org.magicwerk.brownies.core.function.IFormatter;
+import org.magicwerk.brownies.core.function.Predicates;
 import org.magicwerk.brownies.core.logback.LogbackTools;
 import org.magicwerk.brownies.core.stat.NumberStat;
 import org.magicwerk.brownies.core.stat.StatValues.StoreValues;
 import org.magicwerk.brownies.core.types.Type;
+import org.magicwerk.brownies.core.validator.NumberFormatter;
 import org.magicwerk.brownies.core.values.Table;
+import org.magicwerk.brownies.html.CssStyle;
 import org.magicwerk.brownies.html.HtmlDoclet;
 import org.magicwerk.brownies.html.HtmlDocument;
 import org.magicwerk.brownies.html.HtmlReport;
+import org.magicwerk.brownies.html.HtmlTable;
+import org.magicwerk.brownies.html.StyleResource;
 import org.magicwerk.brownies.html.content.HtmlChartCreator;
 import org.magicwerk.brownies.html.content.HtmlChartCreator.ChartType;
+import org.magicwerk.brownies.html.content.HtmlFormatters;
+import org.magicwerk.brownies.html.content.HtmlFormatters.ConditionalFormatter;
+import org.magicwerk.brownies.html.content.HtmlTableFormatter;
 import org.magicwerk.brownies.test.JmhRunner;
 import org.magicwerk.brownies.test.JmhRunner.Options;
 import org.magicwerk.brownies.tools.dev.java.BuildHelper;
@@ -472,11 +484,40 @@ public class GapListTestPerformance {
 
 	//--- Memory ---
 
-	static void showChart(IList<TestRuns> trs) {
-		Table tab = getTable(trs);
-		LOG.info("{}", tab);
-		HtmlDocument doc = getDoc(tab);
+	static void showTable(IList<TestRuns> trs) {
+		String colBest = "#88ff88";
+		String colGood = "#4488ff";
+		String colModerate = "#ffff88";
+		String colBad = "#ff8888";
 
+		Table tab = getTable(trs, true);
+		LOG.info("{}", tab);
+
+		ConditionalFormatter cf = new ConditionalFormatter();
+		cf.add(c -> (double) c.getValue() > 25, t -> new CssStyle().setBackgroundColor(colBad).getAttribute());
+		cf.add(c -> (double) c.getValue() > 5, t -> new CssStyle().setBackgroundColor(colModerate).getAttribute());
+		cf.add(c -> (double) c.getValue() > 1, t -> new CssStyle().setBackgroundColor(colGood).getAttribute());
+		cf.add(Predicates.allow(), t -> new CssStyle().setBackgroundColor(colBest).getAttribute());
+
+		HtmlFormatters hf = new HtmlFormatters();
+		hf.addFormatter(GridSelection.Region(0, 1, tab.getNumRows() - 1, tab.getNumCols() - 1), cf);
+
+		HtmlTableFormatter htf = new HtmlTableFormatter();
+		htf.setFormatters(hf);
+
+		HtmlReport report = new HtmlReport();
+		report.add(StyleResource.INSTANCE);
+		report.add(HtmlTableFormatter.getHtmlResources());
+		HtmlTable ht = htf.format(tab);
+		report.add(ht);
+		report.showHtml();
+	}
+
+	static void showChart2(IList<TestRuns> trs) {
+		Table tab = getTable(trs, false);
+		LOG.info("{}", tab);
+
+		HtmlDocument doc = getDoc(tab);
 		HtmlReport report = new HtmlReport();
 		report.setDoc(doc);
 		report.showHtml();
@@ -499,31 +540,63 @@ public class GapListTestPerformance {
 		return doc;
 	}
 
-	static Table getTable(IList<TestRuns> trs) {
-		Table tab = new Table();
-
-		{
-			TestRuns tr = trs.getFirst();
-			tab.addCol("Test", Type.STRING_TYPE);
-
-			List<RunResult> rrs = tr.getRunner().getResults();
-			for (RunResult rr : rrs) {
-				tab.addCol(rr.getName(), Type.DOUBLE_TYPE); // e.g. "GapList"
-			}
-		}
+	static Table getTable(IList<TestRuns> trs, boolean factor) {
+		Table tab = getTableHeader(trs, factor);
 
 		for (TestRuns tr : trs) {
 			IList<Object> row = GapList.create();
 			String test = tr.getRunner().getName(); // e.g. "Get last"
 			row.add(test);
 
+			IList<Double> times = GapList.create();
 			List<RunResult> rrs = tr.getRunner().getResults();
 			for (RunResult rr : rrs) {
-				row.add(rr.getAvgTime());
+				times.add(rr.getAvgTime());
 			}
+
+			if (factor) {
+				normalizeNumbers(times);
+			}
+
+			row.addAll(times);
 			tab.addRowElems(row);
 		}
 		return tab;
+	}
+
+	static void normalizeNumbers(List<Double> vals) {
+		double min = MathTools.min(vals);
+		for (int i = 0; i < vals.size(); i++) {
+			vals.set(i, vals.get(i) / min);
+		}
+	}
+
+	static Type<Double> FactorNumberType = Type.builder(Double.class).with((IFormatter) new NumberFormatter(1)).toType();
+
+	static Table getTableHeader(IList<TestRuns> trs, boolean factor) {
+		Table tab = new Table();
+
+		TestRuns tr = trs.getFirst();
+		tab.addCol("Test", Type.STRING_TYPE);
+
+		Type<Double> numberType = (factor) ? FactorNumberType : Type.DOUBLE_TYPE;
+		List<RunResult> rrs = tr.getRunner().getResults();
+		for (RunResult rr : rrs) {
+			tab.addCol(rr.getName(), numberType); // e.g. "GapList"
+		}
+
+		return tab;
+	}
+
+	static class AllTestRuns {
+
+		IList<TestRuns> trs = GapList.create();
+
+		void runTest(Consumer<TestRuns> run) {
+			TestRuns tr = newRun();
+			trs.add(tr);
+			run.accept(tr);
+		}
 	}
 
 	static void doRun() {
@@ -542,31 +615,31 @@ public class GapListTestPerformance {
 
 		boolean orig = true;
 		if (orig) {
-			int size = 100 * 1000;
-			int numOps = 50 * 1000;
+			AllTestRuns atrs = new AllTestRuns();
+			{
+				int size = 100 * 1000;
+				int numOps = 50 * 1000;
 
-			// Chart 1: Get
-			TestRuns tr1 = newRun();
-			tr1.testPerformanceGetLast(size, numOps);
-			TestRuns tr2 = newRun();
-			tr2.testPerformanceGetFirst(size, numOps);
-			//TestRuns tr3 = newRun();
-			//tr3.testPerformanceGetRandom(size, numOps);
-
-			showChart(GapList.create(tr1, tr2));
-			//showChart(GapList.create(tr1, tr2, tr3));
+				// Chart 1: Get
+				atrs.runTest(tr -> tr.testPerformanceGetLast(size, numOps));
+				atrs.runTest(tr -> tr.testPerformanceGetFirst(size, numOps));
+				atrs.runTest(tr -> tr.testPerformanceGetRandom(size, numOps));
+			}
 
 			// Chart 2: Add
-			size = 10 * 1000;
-			numOps = 10 * 1000;
-			newRun().testPerformanceAddLast(size, numOps);
-			newRun().testPerformanceAddFirst(size, numOps);
-			newRun().testPerformanceAddRandom(size, numOps);
+			int size = 10 * 1000;
+			int numOps = 10 * 1000;
+			atrs.runTest(tr -> tr.testPerformanceAddLast(size, numOps));
+			atrs.runTest(tr -> tr.testPerformanceAddFirst(size, numOps));
+			atrs.runTest(tr -> tr.testPerformanceAddRandom(size, numOps));
 
 			// Chart 3: Add near iter
-			newRun().testPerformanceAddNear(size, numOps, 0.1);
-			newRun().testPerformanceAddNear(size, numOps, 0.01);
-			newRun().testPerformanceAddIter(size, numOps, 2);
+			atrs.runTest(tr -> tr.testPerformanceAddNear(size, numOps, 0.1));
+			atrs.runTest(tr -> tr.testPerformanceAddNear(size, numOps, 0.01));
+			atrs.runTest(tr -> tr.testPerformanceAddIter(size, numOps, 2));
+
+			//showChart(GapList.create(tr1, tr2));
+			showTable(atrs.trs);
 		}
 
 		boolean chart = false;

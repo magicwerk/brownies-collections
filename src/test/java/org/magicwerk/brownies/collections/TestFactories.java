@@ -25,7 +25,7 @@ import javolution.util.FastTable;
 public class TestFactories {
 
 	/**
-	 * Interface to create lists.
+	 * Interface to create objects used for testing.
 	 *
 	 * @author Thomas Mauch
 	 */
@@ -38,9 +38,7 @@ public class TestFactories {
 		public String getName() {
 			return getType().getSimpleName();
 		}
-	}
 
-	public static abstract class PrimitiveFactory extends Factory {
 		/**
 		 * Create collection with specified number of elements.
 		 * The collection will grow as needed.
@@ -52,11 +50,6 @@ public class TestFactories {
 		 * The collection's capacity will be set accordingly before the elements are added.
 		 */
 		abstract Object createSize(int size);
-
-		/**
-		 * Create collection with specified content.
-		 */
-		abstract Object copy(Object that);
 	}
 
 	/**
@@ -123,11 +116,9 @@ public class TestFactories {
 	}
 
 	/**
-	 * Interface to create lists.
-	 *
-	 * @author Thomas Mauch
+	 * Class to create {@link Collection}s.
 	 */
-	public static abstract class CollectionFactory extends Factory {
+	public static abstract class CollectionFactory<T> extends Factory {
 		ContentFactory contentFactory = new SingletonContentFactory();
 
 		public ContentFactory getContentFactory() {
@@ -159,39 +150,41 @@ public class TestFactories {
 		 * Create collection with specified number of elements.
 		 * The collection will grow as needed.
 		 */
-		abstract Collection<?> create(int size);
+		@Override
+		abstract T create(int size);
 
 		/**
 		 * Create collection with specified number of elements.
 		 * The collection's capacity will be set accordingly before the elements are added.
 		 */
-		abstract Collection<?> createSize(int size);
+		@Override
+		abstract T createSize(int size);
 
 		/**
 		 * Create collection with specified content.
 		 */
-		abstract Collection<?> copy(Collection<?> that);
+		abstract T copy(T that);
 	}
 
-	public static class GapListFactory extends CollectionFactory {
+	public static class GapListFactory extends CollectionFactory<GapList> {
 		@Override
 		public Class<?> getType() {
 			return GapList.class;
 		}
 
 		@Override
-		public List create(int size) {
+		public GapList create(int size) {
 			return allocGapList(size);
 		}
 
 		@Override
-		public List createSize(int size) {
+		public GapList createSize(int size) {
 			return allocGapListSize(size);
 		}
 
 		@Override
-		public List copy(Collection that) {
-			return ((GapList) that).copy();
+		public GapList copy(GapList that) {
+			return that.copy();
 		}
 
 		GapList<Object> allocGapList(int size) {
@@ -207,7 +200,7 @@ public class TestFactories {
 		}
 	}
 
-	public static class IntGapListFactory extends PrimitiveFactory {
+	public static class IntGapListFactory extends CollectionFactory<IntGapList> {
 		@Override
 		public String getName() {
 			return "IntGapList";
@@ -229,9 +222,8 @@ public class TestFactories {
 		}
 
 		@Override
-		public IntGapList copy(Object that) {
-			IntGapList list = (IntGapList) that;
-			return list.copy();
+		IntGapList copy(IntGapList that) {
+			return that.copy();
 		}
 
 		public static IntGapList allocGapList(int size) {
@@ -251,9 +243,10 @@ public class TestFactories {
 			}
 			return l;
 		}
+
 	}
 
-	public static class IntBigListFactory extends PrimitiveFactory {
+	public static class IntBigListFactory extends CollectionFactory<IntBigList> {
 		public static final int BLOCK_SIZE = 1000;
 
 		int blockSize;
@@ -287,9 +280,8 @@ public class TestFactories {
 		}
 
 		@Override
-		public IntBigList copy(Object that) {
-			IntBigList list = (IntBigList) that;
-			return list.copy();
+		IntBigList copy(IntBigList that) {
+			return that.copy();
 		}
 
 		public static IntBigList allocBigList(int size) {
@@ -304,26 +296,27 @@ public class TestFactories {
 			}
 			return l;
 		}
+
 	}
 
-	public static class TreeListFactory extends CollectionFactory {
+	public static class TreeListFactory extends CollectionFactory<TreeList> {
 		@Override
 		public Class<?> getType() {
 			return TreeList.class;
 		}
 
 		@Override
-		public Collection<?> create(int size) {
+		public TreeList create(int size) {
 			return allocTreeList(size);
 		}
 
 		@Override
-		public Collection<?> createSize(int size) {
+		public TreeList createSize(int size) {
 			return allocTreeList(size);
 		}
 
 		@Override
-		public List copy(Collection that) {
+		public TreeList copy(TreeList that) {
 			return new TreeList(that);
 		}
 
@@ -338,7 +331,7 @@ public class TestFactories {
 
 	}
 
-	public static class BigListFactory extends CollectionFactory {
+	public static class BigListFactory extends CollectionFactory<BigList> {
 		public static final int BLOCK_SIZE = 1000;
 
 		int blockSize;
@@ -362,18 +355,18 @@ public class TestFactories {
 		}
 
 		@Override
-		public List create(int size) {
+		public BigList create(int size) {
 			return allocBigList(size, blockSize);
 		}
 
 		@Override
-		public List createSize(int size) {
+		public BigList createSize(int size) {
 			return allocBigList(size);
 		}
 
 		@Override
-		public List copy(Collection that) {
-			return ((BigList) that).copy();
+		public BigList copy(BigList that) {
+			return that.copy();
 		}
 
 		public static BigList<Object> allocBigList(int size) {
@@ -390,25 +383,25 @@ public class TestFactories {
 		}
 	}
 
-	static class ArrayListFactory extends CollectionFactory {
+	static class ArrayListFactory extends CollectionFactory<ArrayList> {
 		@Override
 		public Class<?> getType() {
 			return ArrayList.class;
 		}
 
 		@Override
-		public List create(int size) {
+		public ArrayList create(int size) {
 			return allocArrayList(size);
 		}
 
 		@Override
-		public List createSize(int size) {
+		public ArrayList createSize(int size) {
 			return allocArrayListSize(size);
 		}
 
 		@Override
-		public List copy(Collection that) {
-			return (List) ((ArrayList) that).clone();
+		public ArrayList copy(ArrayList that) {
+			return (ArrayList) that.clone();
 		}
 
 		public static ArrayList<Object> allocArrayList(int size) {
@@ -430,24 +423,24 @@ public class TestFactories {
 		}
 	}
 
-	static class TListFactory extends CollectionFactory {
+	static class TListFactory extends CollectionFactory<TList> {
 		@Override
 		public Class<?> getType() {
 			return TList.class;
 		}
 
 		@Override
-		public Collection<?> create(int size) {
+		public TList create(int size) {
 			return allocTList(size);
 		}
 
 		@Override
-		public Collection<?> createSize(int size) {
+		public TList createSize(int size) {
 			return create(size);
 		}
 
 		@Override
-		public List copy(Collection that) {
+		public TList copy(TList that) {
 			return new TList(that);
 		}
 
@@ -462,24 +455,24 @@ public class TestFactories {
 
 	}
 
-	static class RootishArrayStackFactory extends CollectionFactory {
+	static class RootishArrayStackFactory extends CollectionFactory<RootishArrayStack> {
 		@Override
 		public Class<?> getType() {
 			return RootishArrayStack.class;
 		}
 
 		@Override
-		public Collection<?> create(int size) {
+		public RootishArrayStack create(int size) {
 			return allocRootishArrayStack(size);
 		}
 
 		@Override
-		public Collection<?> createSize(int size) {
+		public RootishArrayStack createSize(int size) {
 			return create(size);
 		}
 
 		@Override
-		public List copy(Collection that) {
+		public RootishArrayStack copy(RootishArrayStack that) {
 			throw new UnsupportedOperationException();
 		}
 
@@ -494,24 +487,24 @@ public class TestFactories {
 
 	}
 
-	public static class CircularArrayListFactory extends CollectionFactory {
+	public static class CircularArrayListFactory extends CollectionFactory<CircularArrayList> {
 		@Override
 		public Class<?> getType() {
 			return CircularArrayList.class;
 		}
 
 		@Override
-		public List create(int size) {
+		public CircularArrayList create(int size) {
 			return allocCircularArrayList(size);
 		}
 
 		@Override
-		public List createSize(int size) {
+		public CircularArrayList createSize(int size) {
 			return allocCircularArrayListSize(size);
 		}
 
 		@Override
-		public List copy(Collection that) {
+		public CircularArrayList copy(CircularArrayList that) {
 			return new CircularArrayList(that);
 		}
 
@@ -534,25 +527,25 @@ public class TestFactories {
 		}
 	}
 
-	static class LinkedListFactory extends CollectionFactory {
+	static class LinkedListFactory extends CollectionFactory<LinkedList> {
 		@Override
 		public Class<?> getType() {
 			return LinkedList.class;
 		}
 
 		@Override
-		public Collection<?> create(int size) {
+		public LinkedList create(int size) {
 			return allocLinkedList(size);
 		}
 
 		@Override
-		public Collection<?> createSize(int size) {
+		public LinkedList createSize(int size) {
 			return create(size);
 		}
 
 		@Override
-		public List copy(Collection that) {
-			return (List) ((LinkedList) that).clone();
+		public LinkedList copy(LinkedList that) {
+			return (LinkedList) that.clone();
 		}
 
 		public static LinkedList<Object> allocLinkedList(int size) {
@@ -565,14 +558,14 @@ public class TestFactories {
 		}
 	}
 
-	public static class FastTableFactory extends CollectionFactory {
+	public static class FastTableFactory extends CollectionFactory<FastTable> {
 		@Override
 		public Class<?> getType() {
 			return FastTable.class;
 		}
 
 		@Override
-		public List create(int size) {
+		public FastTable create(int size) {
 			Integer obj = new Integer(0);
 			FastTable<Object> l = new FastTable<Object>();
 			for (int i = 0; i < size; i++) {
@@ -582,12 +575,12 @@ public class TestFactories {
 		}
 
 		@Override
-		public List createSize(int size) {
+		public FastTable createSize(int size) {
 			return create(size);
 		}
 
 		@Override
-		public List copy(Collection that) {
+		public FastTable copy(FastTable that) {
 			FastTable ft = new FastTable();
 			ft.addAll(that);
 			return ft;
@@ -603,16 +596,16 @@ public class TestFactories {
 		}
 	}
 
-	public static class DualRootishArrayDequeFactory extends CollectionFactory {
+	public static class DualRootishArrayDequeFactory extends CollectionFactory<DualRootishArrayDeque> {
 		@Override
 		public Class<?> getType() {
 			return DualRootishArrayDeque.class;
 		}
 
 		@Override
-		public List create(int size) {
+		public DualRootishArrayDeque create(int size) {
 			Integer obj = new Integer(0);
-			List l = new DualRootishArrayDeque<Object>(Object.class);
+			DualRootishArrayDeque l = new DualRootishArrayDeque<Object>(Object.class);
 			for (int i = 0; i < size; i++) {
 				l.add(i, obj);
 			}
@@ -620,27 +613,27 @@ public class TestFactories {
 		}
 
 		@Override
-		public List createSize(int size) {
+		public DualRootishArrayDeque createSize(int size) {
 			return create(size);
 		}
 
 		@Override
-		public List copy(Collection that) {
+		public DualRootishArrayDeque copy(DualRootishArrayDeque that) {
 			throw new UnsupportedOperationException();
 		}
 
 	}
 
-	public static class DualArrayDequeFactory extends CollectionFactory {
+	public static class DualArrayDequeFactory extends CollectionFactory<DualArrayDeque> {
 		@Override
 		public Class<?> getType() {
 			return DualArrayDeque.class;
 		}
 
 		@Override
-		public List create(int size) {
+		public DualArrayDeque create(int size) {
 			Integer obj = new Integer(0);
-			List l = new DualArrayDeque<Object>(Object.class);
+			DualArrayDeque l = new DualArrayDeque<Object>(Object.class);
 			for (int i = 0; i < size; i++) {
 				l.add(i, obj);
 			}
@@ -648,12 +641,12 @@ public class TestFactories {
 		}
 
 		@Override
-		public List createSize(int size) {
+		public DualArrayDeque createSize(int size) {
 			return create(size);
 		}
 
 		@Override
-		public List copy(Collection that) {
+		public DualArrayDeque copy(DualArrayDeque that) {
 			throw new UnsupportedOperationException();
 		}
 	}
