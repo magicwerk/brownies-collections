@@ -13,11 +13,9 @@ import org.magicwerk.brownies.collections.TestFactories.CircularArrayListFactory
 import org.magicwerk.brownies.collections.TestFactories.CollectionFactory;
 import org.magicwerk.brownies.collections.TestFactories.DualArrayDequeFactory;
 import org.magicwerk.brownies.collections.TestFactories.DualRootishArrayDequeFactory;
-import org.magicwerk.brownies.collections.TestFactories.Factory;
 import org.magicwerk.brownies.collections.TestFactories.FastTableFactory;
 import org.magicwerk.brownies.collections.TestFactories.GapListFactory;
 import org.magicwerk.brownies.collections.TestFactories.LinkedListFactory;
-import org.magicwerk.brownies.collections.TestFactories.PrimitiveFactory;
 import org.magicwerk.brownies.collections.TestFactories.RandomRandomContentFactory;
 import org.magicwerk.brownies.collections.TestFactories.RootishArrayStackFactory;
 import org.magicwerk.brownies.collections.TestFactories.TreeListFactory;
@@ -71,6 +69,22 @@ public class TestRuns {
 		this.factories = GapList.create(factories);
 	}
 
+	// Get
+
+	public void testPerformanceGetFirst(int size, int numOps) {
+		testPerformance("Get first", GetFirstRunDeque.class, GetFirstRunList.class, size, numOps, 0);
+	}
+
+	public void testPerformanceGetLast(int size, int numOps) {
+		testPerformance("Get last", GetLastRunDeque.class, GetLastRunList.class, size, numOps, 0);
+	}
+
+	public void testPerformanceGetRandom(int size, int numOps) {
+		testPerformance("Get random", GetRandomRun.class, GetRandomRun.class, size, numOps, 0);
+	}
+
+	//
+
 	public void testPerformanceRemoveRange(int size) {
 		testPerformance("Remove range", RemoveRangeRunList.class, RemoveRangeRunList.class, RemoveRangeRunIList.class, size, 0, 0);
 	}
@@ -81,18 +95,6 @@ public class TestRuns {
 
 	public void testPerformanceRetainAll(int size) {
 		testPerformance("RetainAll", RetainAllRun.class, RetainAllRun.class, size, 0, 0);
-	}
-
-	public void testPerformanceGetLast(int size, int numOps) {
-		testPerformance("Get last", GetLastRunDeque.class, GetLastRunList.class, size, numOps, 0);
-	}
-
-	public void testPerformanceGetFirst(int size, int numOps) {
-		testPerformance("Get first", GetFirstRunDeque.class, GetFirstRunList.class, size, numOps, 0);
-	}
-
-	public void testPerformanceGetRandom(int size, int numOps) {
-		testPerformance("Get random", GetRandomRun.class, GetRandomRun.class, size, numOps, 0);
 	}
 
 	public void testPerformanceAddLast(int size, int numOps) {
@@ -154,19 +156,13 @@ public class TestRuns {
 		String str = StringFormatter.format(desc, size, numOps, near);
 		runner.setName(str);
 		for (CollectionFactory factory : factories) {
-			Class<?> listClass = factory.getType();
-			FactoryRun run = null;
 			String name = factory.getClass().getSimpleName();
 			name = StringTools.removeTail(name, "Factory");
-			if (IList.class.isAssignableFrom(listClass)) {
-				run = (FactoryRun) ReflectTools.create(ilistRun);
-			} else if (List.class.isAssignableFrom(listClass)) {
-				run = (FactoryRun) ReflectTools.create(listRun);
-			} else if (Deque.class.isAssignableFrom(listClass)) {
-				run = (FactoryRun) ReflectTools.create(dequeRun);
-			} else {
-				throw new AssertionError();
-			}
+
+			Class<?> listClass = factory.getType();
+			Class<?> runClass = selectRunClass(listClass, dequeRun, listRun, ilistRun);
+			FactoryRun run = (FactoryRun) ReflectTools.create(runClass);
+
 			run.setName(name);
 			run.setTags(name);
 			run.setFactory(factory);
@@ -196,34 +192,20 @@ public class TestRuns {
 		report.save();
 	}
 
-	//
+	Class<?> selectRunClass(Class<?> listClass, Class<?> dequeRun, Class<?> listRun, Class<?> ilistRun) {
+		if (IList.class.isAssignableFrom(listClass)) {
+			return ilistRun;
+		} else if (List.class.isAssignableFrom(listClass)) {
+			return listRun;
+		} else if (Deque.class.isAssignableFrom(listClass)) {
+			return dequeRun;
+		} else {
+			throw new AssertionError();
+		}
+	}
 
-	public static abstract class FactoryRun extends FactoryRun2 {
+	public static abstract class FactoryRun extends Run {
 		protected CollectionFactory factory;
-
-		@Override
-		public FactoryRun setFactory(Factory factory) {
-			super.setFactory(factory);
-			this.factory = (CollectionFactory) factory;
-			return this;
-		}
-
-	}
-
-	public static abstract class PrimitiveFactoryRun extends FactoryRun2 {
-		protected PrimitiveFactory factory;
-
-		@Override
-		public PrimitiveFactoryRun setFactory(Factory factory) {
-			super.setFactory(factory);
-			this.factory = (PrimitiveFactory) factory;
-			return this;
-		}
-
-	}
-
-	public static abstract class FactoryRun2 extends Run {
-		protected Factory factory2;
 		/** size of collection */
 		int size;
 		/** number of operations to execute on collection */
@@ -239,35 +221,35 @@ public class TestRuns {
 			if (name != null) {
 				return name;
 			}
-			return factory2.getName();
+			return factory.getName();
 		}
 
-		/** Setter for {@link #factory2} */
-		public FactoryRun2 setFactory(Factory factory) {
-			this.factory2 = factory;
+		/** Setter for {@link #factory} */
+		public FactoryRun setFactory(CollectionFactory factory) {
+			this.factory = factory;
 			return this;
 		}
 
 		/** Setter for {@link #size} */
-		public FactoryRun2 setSize(int size) {
+		public FactoryRun setSize(int size) {
 			this.size = size;
 			return this;
 		}
 
 		/** Setter for {@link #numOps} */
-		public FactoryRun2 setNumOps(int numOps) {
+		public FactoryRun setNumOps(int numOps) {
 			this.numOps = numOps;
 			return this;
 		}
 
 		/** Setter for {@link #near} */
-		public FactoryRun2 setNear(double near) {
+		public FactoryRun setNear(double near) {
 			this.near = near;
 			return this;
 		}
 
 		/** Setter for {@link #localOps} */
-		public FactoryRun2 setLocalOps(int localOps) {
+		public FactoryRun setLocalOps(int localOps) {
 			this.localOps = localOps;
 			return this;
 		}
@@ -442,7 +424,7 @@ public class TestRuns {
 		}
 	}
 
-	public static class GetIntRandomRun extends PrimitiveFactoryRun {
+	public static class GetIntRandomRun extends FactoryRun {
 		IIntList list;
 
 		@Override
@@ -480,6 +462,8 @@ public class TestRuns {
 			}
 		}
 	}
+
+	//
 
 	public static class SortRun extends FactoryRun {
 		List<Object> list;
@@ -527,11 +511,9 @@ public class TestRuns {
 		public void run() {
 			Random r = new Random(0);
 			int size = list.size();
-			//int pos = size / 2;
+			int pos = size / 2;
 			for (int i = 0; i < numOps; i++) {
-				int pos = r.nextInt(size);
-				//pos = RemoveNearRun.getPos(r, size, pos, near);
-				//System.out.println(pos);
+				pos = getPos(r, pos, list.size() - localOps, near);
 				for (int j = 0; j < localOps; j++) {
 					list.get(pos);
 				}
@@ -779,7 +761,7 @@ public class TestRuns {
 		}
 	}
 
-	public static class AddIntRandomRun extends PrimitiveFactoryRun {
+	public static class AddIntRandomRun extends FactoryRun {
 		IIntList list;
 
 		@SuppressWarnings("unchecked")
@@ -936,7 +918,7 @@ public class TestRuns {
 		}
 	}
 
-	public static class RemoveIntRandomRun extends PrimitiveFactoryRun {
+	public static class RemoveIntRandomRun extends FactoryRun {
 		IIntList list;
 
 		@Override

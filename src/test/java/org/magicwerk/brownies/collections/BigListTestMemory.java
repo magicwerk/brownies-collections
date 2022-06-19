@@ -16,7 +16,6 @@ import org.magicwerk.brownies.collections.TestFactories.FastTableFactory;
 import org.magicwerk.brownies.collections.TestFactories.GapListFactory;
 import org.magicwerk.brownies.collections.TestFactories.IntBigListFactory;
 import org.magicwerk.brownies.collections.TestFactories.LinkedListFactory;
-import org.magicwerk.brownies.collections.TestFactories.PrimitiveFactory;
 import org.magicwerk.brownies.collections.TestFactories.TreeListFactory;
 import org.magicwerk.brownies.collections.primitive.IntBigList;
 import org.magicwerk.brownies.collections.primitive.IntObjBigList;
@@ -100,8 +99,6 @@ public class BigListTestMemory {
 			Object coll;
 			if (factory instanceof CollectionFactory) {
 				coll = ((CollectionFactory) factory).create(size);
-			} else if (factory instanceof PrimitiveFactory) {
-				coll = ((PrimitiveFactory) factory).create(size);
 			} else {
 				throw new AssertionError();
 			}
@@ -139,7 +136,7 @@ public class BigListTestMemory {
 
 	static void testMemoryCopy() {
 		FastTableFactory f = new org.magicwerk.brownies.collections.TestFactories.FastTableFactory();
-		Collection l1 = f.createSize(100000);
+		FastTable l1 = f.createSize(100000);
 		Collection l2 = f.copy(l1);
 		List<Object> l = GapList.create();
 		l.add(l1);
@@ -152,7 +149,7 @@ public class BigListTestMemory {
 		StringFormatter.println("Size clone = " + size);
 		for (Factory factory : factories) {
 			CollectionFactory collFactory = (CollectionFactory) factory;
-			Collection coll = collFactory.create(size);
+			Collection coll = (Collection) collFactory.create(size);
 			List<Object> list = GapList.create();
 			list.add(coll);
 			for (int i = 1; i <= copy; i++) {
