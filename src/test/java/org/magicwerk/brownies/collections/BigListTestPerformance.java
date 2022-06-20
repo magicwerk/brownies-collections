@@ -38,7 +38,6 @@ import org.magicwerk.brownies.collections.TestRuns.FactoryRun;
 import org.magicwerk.brownies.collections.TestRuns.GetIntRandomRun;
 import org.magicwerk.brownies.collections.TestRuns.GetIntWrapperRandomRun;
 import org.magicwerk.brownies.collections.TestRuns.GetIterRun;
-import org.magicwerk.brownies.collections.TestRuns.GetNearRun;
 import org.magicwerk.brownies.collections.TestRuns.GetRandomRun;
 import org.magicwerk.brownies.collections.TestRuns.RemoveFirstRunList;
 import org.magicwerk.brownies.collections.TestRuns.RemoveIntRandomRun;
@@ -256,9 +255,9 @@ public class BigListTestPerformance {
 		newRun().testPerformanceAddRandom(size, numOps);
 
 		// Chart 3: Add near iter
-		newRun().testPerformanceAddNear(size, numOps, 0.1);
-		newRun().testPerformanceAddNear(size, numOps, 0.01);
-		newRun().testPerformanceAddIter(size, numOps, 2);
+		//newRun().testPerformanceAddNear(size, numOps, 0.1);
+		//newRun().testPerformanceAddNear(size, numOps, 0.01);
+		//newRun().testPerformanceAddIter(size, numOps, 2);
 	}
 
 	static TestRuns newRun() {
@@ -297,15 +296,15 @@ public class BigListTestPerformance {
 		runner.add(new AddLastRunList().setFactory(factory).setSize(100000).setNumOps(1000).setName("AddLast"));
 		runner.add(new AddFirstRunList().setFactory(factory).setSize(100000).setNumOps(1000).setName("AddFirst"));
 		runner.add(new AddRandomRun().setFactory(factory).setSize(100000).setNumOps(1000).setName("BigList  10'000"));
-		runner.add(new AddNearRun().setFactory(factory).setSize(100000).setNumOps(1000).setNear(0).setName(""));
-		runner.add(new AddNearRun().setFactory(factory).setSize(100000).setNumOps(1000).setNear(0.01).setName("FastTable"));
-		runner.add(new AddNearRun().setFactory(factory).setSize(100000).setNumOps(1000).setNear(0.1).setName(""));
+		//runner.add(new AddNearRun().setFactory(factory).setSize(100000).setNumOps(1000).setNear(0).setName(""));
+		//runner.add(new AddNearRun().setFactory(factory).setSize(100000).setNumOps(1000).setNear(0.01).setName("FastTable"));
+		//runner.add(new AddNearRun().setFactory(factory).setSize(100000).setNumOps(1000).setNear(0.1).setName(""));
 		runner.add(new RemoveLastRunList().setFactory(factory).setSize(100000).setNumOps(1000).setName("Remove"));
 		runner.add(new RemoveFirstRunList().setFactory(factory).setSize(100000).setNumOps(1000).setName("BigList 100'000"));
 		runner.add(new RemoveRandomRun().setFactory(factory).setSize(100000).setNumOps(1000).setName("FastTable"));
-		runner.add(new RemoveNearRun().setFactory(factory).setSize(100000).setNumOps(1000).setNear(0).setName("FastTable"));
-		runner.add(new RemoveNearRun().setFactory(factory).setSize(100000).setNumOps(1000).setNear(0.01).setName("FastTable"));
-		runner.add(new RemoveNearRun().setFactory(factory).setSize(100000).setNumOps(1000).setNear(0.1).setName("FastTable"));
+		//runner.add(new RemoveNearRun().setFactory(factory).setSize(100000).setNumOps(1000).setNear(0).setName("FastTable"));
+		//runner.add(new RemoveNearRun().setFactory(factory).setSize(100000).setNumOps(1000).setNear(0.01).setName("FastTable"));
+		//runner.add(new RemoveNearRun().setFactory(factory).setSize(100000).setNumOps(1000).setNear(0.1).setName("FastTable"));
 		runner.setDurations(500);
 		runner.run();
 		runner.printResults();
@@ -441,23 +440,25 @@ public class BigListTestPerformance {
 		runner.printResults();
 	}
 
-	static void testGetNear() {
-		int numOps = 10000;
-		int localOps = 1;
-		Runner runner = new Runner("Get random near");
-		for (CollectionFactory factory : factories) {
-			runner.add(new GetNearRun().setSize(size).setNumOps(numOps).setLocalOps(localOps).setNear(0).setFactory(factory));
-		}
-		runner.run();
-		runner.printResults();
-	}
+	//	static void testGetNear() {
+	//		int numOps = 10000;
+	//		int localOps = 1;
+	//		int step = 0;
+	//		Runner runner = new Runner("Get random near");
+	//		for (CollectionFactory factory : factories) {
+	//			runner.add(new GetNearRun().setSize(size).setNumOps(numOps).setLocalOps(localOps).setStep(step).setFactory(factory));
+	//		}
+	//		runner.run();
+	//		runner.printResults();
+	//	}
 
 	static void testAddNear() {
 		int numOps = 1000;
 		int localOps = 10;
+		int step = 0;
 		Runner runner = new Runner("Add near ");
 		for (CollectionFactory factory : factories) {
-			runner.add(new AddNearRun().setSize(size).setNumOps(numOps).setNear(0).setLocalOps(localOps).setFactory(factory));
+			runner.add(new AddNearRun().setSize(size).setNumOps(numOps).setStep(step).setLocalOps(localOps).setFactory(factory));
 		}
 		runner.run();
 		runner.printResults();
@@ -466,9 +467,10 @@ public class BigListTestPerformance {
 	static void testRemoveNear() {
 		int numOps = 1000;
 		int localOps = 10;
+		int step = 0;
 		Runner runner = new Runner("Remove near ");
 		for (CollectionFactory factory : factories) {
-			runner.add(new RemoveNearRun().setSize(size).setNumOps(numOps).setNear(0).setLocalOps(localOps).setFactory(factory));
+			runner.add(new RemoveNearRun().setSize(size).setNumOps(numOps).setStep(step).setLocalOps(localOps).setFactory(factory));
 		}
 		runner.run();
 		runner.printResults();
@@ -613,7 +615,7 @@ public class BigListTestPerformance {
 	static void testRemoveRandom() {
 		Runner runner = new Runner("Remove random");
 		for (CollectionFactory factory : factories) {
-			runner.add(new RemoveRandomRun().setSize(size).setNumOps(1000).setNear(0).setLocalOps(1).setFactory(factory));
+			runner.add(new RemoveRandomRun().setSize(size).setNumOps(1000).setStep(0).setLocalOps(1).setFactory(factory));
 		}
 		runner.run();
 		runner.printResults();
@@ -672,7 +674,7 @@ public class BigListTestPerformance {
 		}
 
 		@Override
-		public void run() {
+		public Object run() {
 			Random random = new Random(5);
 
 			List<Integer> list = (List<Integer>) factory.copy(init);
@@ -704,6 +706,7 @@ public class BigListTestPerformance {
 					throw new AssertionError();
 				}
 			}
+			return list;
 		}
 	}
 
@@ -829,10 +832,11 @@ public class BigListTestPerformance {
 			int[] array = new int[size];
 
 			@Override
-			public void run() {
+			public Object run() {
 				for (int i = 0; i < 1000; i++) {
 					System.arraycopy(array, 0, array, size / 2, size / 2);
 				}
+				return array;
 			}
 		});
 		runner.run();

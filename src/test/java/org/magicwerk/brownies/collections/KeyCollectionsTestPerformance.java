@@ -124,11 +124,12 @@ public class KeyCollectionsTestPerformance {
 		}
 
 		@Override
-		public void run() {
+		public Object run() {
 			for (int i = 0; i < numGets; i++) {
 				list.add(i);
 				//list.add(size+i);
 			}
+			return list;
 		}
 	}
 

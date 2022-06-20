@@ -72,11 +72,11 @@ public class TestRuns {
 	// Get
 
 	public void testPerformanceGetFirst(int size, int numOps) {
-		testPerformance("Get first", GetFirstRunDeque.class, GetFirstRunList.class, size, numOps, 0);
+		testPerformance("Get first", GetFirstRunDeque.class, GetFirstRun.class, size, numOps, 0);
 	}
 
 	public void testPerformanceGetLast(int size, int numOps) {
-		testPerformance("Get last", GetLastRunDeque.class, GetLastRunList.class, size, numOps, 0);
+		testPerformance("Get last", GetLastRunDeque.class, GetLastRun.class, size, numOps, 0);
 	}
 
 	public void testPerformanceGetRandom(int size, int numOps) {
@@ -125,27 +125,27 @@ public class TestRuns {
 		testPerformance("Remove random", RemoveRandomRun.class, RemoveRandomRun.class, size, numOps, 0);
 	}
 
-	public void testPerformanceAddNear(int size, int numOps, double near) {
-		testPerformance("Add near {2}", AddNearRun.class, AddNearRun.class, size, numOps, near);
+	public void testPerformanceAddNear(int size, int numOps, int step) {
+		testPerformance("Add near {2}", AddNearRun.class, AddNearRun.class, size, numOps, step);
 	}
 
 	public void testPerformanceAddIter(int size, int numOps, int sel) {
 		testPerformance("Add iter {2}", AddIterRun.class, AddIterRun.class, size, numOps, sel);
 	}
 
-	public void testPerformanceRemoveNear(int size, int numOps, double near) {
-		testPerformance("Remove near {2}", RemoveNearRun.class, RemoveNearRun.class, size, numOps, near);
+	public void testPerformanceRemoveNear(int size, int numOps, int step) {
+		testPerformance("Remove near {2}", RemoveNearRun.class, RemoveNearRun.class, size, numOps, step);
 	}
 
-	public void testPerformanceRemoveIter(int size, int numOps, double near) {
-		testPerformance("Remove iter {2}", RemoveIterRun.class, RemoveIterRun.class, size, numOps, near);
+	public void testPerformanceRemoveIter(int size, int numOps, int step) {
+		testPerformance("Remove iter {2}", RemoveIterRun.class, RemoveIterRun.class, size, numOps, step);
 	}
 
-	void testPerformance(String desc, Class<?> dequeRun, Class<?> listRun, int size, int numOps, double near) {
-		testPerformance(desc, dequeRun, listRun, listRun, size, numOps, near);
+	void testPerformance(String desc, Class<?> dequeRun, Class<?> listRun, int size, int numOps, int step) {
+		testPerformance(desc, dequeRun, listRun, listRun, size, numOps, step);
 	}
 
-	void testPerformance(String desc, Class<?> dequeRun, Class<?> listRun, Class<?> ilistRun, int size, int numOps, double near) {
+	void testPerformance(String desc, Class<?> dequeRun, Class<?> listRun, Class<?> ilistRun, int size, int numOps, int step) {
 		if (factories == null) {
 			factories = GapList.create();
 			for (Class<?> factoryClass : listFactories) {
@@ -153,7 +153,7 @@ public class TestRuns {
 				factories.add(factory);
 			}
 		}
-		String str = StringFormatter.format(desc, size, numOps, near);
+		String str = StringFormatter.format(desc, size, numOps, step);
 		runner.setName(str);
 		for (CollectionFactory factory : factories) {
 			String name = factory.getClass().getSimpleName();
@@ -168,7 +168,7 @@ public class TestRuns {
 			run.setFactory(factory);
 			run.setSize(size);
 			run.setNumOps(numOps);
-			run.setNear(near);
+			run.setStep(step);
 			runner.add(run);
 		}
 		runner.run();
@@ -211,7 +211,7 @@ public class TestRuns {
 		/** number of operations to execute on collection */
 		int numOps;
 		/** specify how near two subsequent operations will be in the collection */
-		double near;
+		int step;
 		/** number of operations which will executed locally on the same index */
 		int localOps = 1;
 
@@ -242,9 +242,9 @@ public class TestRuns {
 			return this;
 		}
 
-		/** Setter for {@link #near} */
-		public FactoryRun setNear(double near) {
-			this.near = near;
+		/** Setter for {@link #step} */
+		public FactoryRun setStep(int step) {
+			this.step = step;
 			return this;
 		}
 
@@ -266,7 +266,7 @@ public class TestRuns {
 		 * @param near		factor to control how near the generated index will be to the previous one
 		 * @return
 		 */
-		static int getPos(Random random, int pos, int size, double near) {
+		static int getNearPos(Random random, int pos, int size, double near) {
 			int range = (int) (size * near);
 			int min = pos - range / 2;
 			int max;
@@ -307,99 +307,116 @@ public class TestRuns {
 		}
 
 		@Override
-		public void run() {
+		public Object run() {
 			List<Object> copy = (List<Object>) factory.copy(list);
 			int pos = (size - localOps) / 2;
 			for (int i = 0; i < localOps; i++) {
 				copy.set(pos + i, null);
 			}
+			return copy;
 		}
 	}
 
 	// --- Get ---
 
-	static abstract class GetLastRun extends FactoryRun {
+	static abstract class GetBaseRun extends FactoryRun {
+		int indexes[];
+		Random r = new Random(0);
+
 		List<Object> list;
-
-		@Override
-		public void beforeAll() {
-			list = (List<Object>) factory.createSize(size);
-		}
-
-		public String exitOnce() {
-			return "Memory: " + ReflectTools.getObjectSize(list);
-		}
-	}
-
-	static class GetLastRunList extends GetLastRun {
-		@Override
-		public void run() {
-			// Use random so values can be compared with GetRandomRun
-			Random r = new Random(0);
-			for (int i = 0; i < numOps; i++) {
-				list.get(list.size() - 1);
-				r.nextInt(1);
-			}
-		}
-	}
-
-	static class GetLastRunDeque extends GetLastRun {
 		Deque<Object> deque;
 
 		@Override
 		public void beforeAll() {
-			super.beforeAll();
-			deque = (Deque<Object>) list;
-		}
-
-		@Override
-		public void run() {
-			// Use random so values can be compared with GetRandomRun
-			Random r = new Random(0);
+			indexes = new int[numOps];
 			for (int i = 0; i < numOps; i++) {
-				r.nextInt(1);
-				deque.getLast();
+				indexes[i] = r.nextInt(1);
+			}
+			Object obj = factory.createSize(size);
+			if (obj instanceof List) {
+				list = (List<Object>) obj;
+			} else if (obj instanceof Deque) {
+				deque = (Deque<Object>) obj;
+			} else {
+				throw new AssertionError();
 			}
 		}
-	}
 
-	static abstract class GetFirstRun extends FactoryRun {
-		List<Object> list;
+		void initIndexes() {
+		}
 
 		@Override
-		public void beforeAll() {
-			list = (List<Object>) factory.createSize(size);
+		public Object run() {
+			for (int i = 0; i < numOps; i++) {
+				list.get(indexes[i]);
+			}
+			return list;
 		}
 	}
 
-	static class GetFirstRunList extends GetFirstRun {
+	static abstract class GetFirstRun extends GetBaseRun {
 		@Override
-		public void run() {
-			// Use random so values can be compared with GetRandomRun
-			Random r = new Random(0);
+		void initIndexes() {
 			for (int i = 0; i < numOps; i++) {
-				r.nextInt(1);
-				list.get(0);
+				indexes[i] = i;
 			}
 		}
 	}
 
 	static class GetFirstRunDeque extends GetFirstRun {
-		Deque<Object> deque;
-
 		@Override
-		public void beforeAll() {
-			super.beforeAll();
-			deque = (Deque<Object>) list;
-		}
-
-		@Override
-		public void run() {
-			// Use random so values can be compared with GetRandomRun
-			Random r = new Random(0);
+		public Object run() {
 			for (int i = 0; i < numOps; i++) {
-				r.nextInt(1);
-				deque.getFirst();
+				deque.getFirst(); // Deque only know getFirst()
+			}
+			return deque;
+		}
+	}
+
+	static abstract class GetLastRun extends GetBaseRun {
+		@Override
+		void initIndexes() {
+			for (int i = 0; i < numOps; i++) {
+				indexes[i] = size - 1 - i;
+			}
+		}
+	}
+
+	static class GetLastRunDeque extends GetLastRun {
+		@Override
+		public Object run() {
+			for (int i = 0; i < numOps; i++) {
+				deque.getLast(); // Deque only know getLast()
+			}
+			return deque;
+		}
+	}
+
+	public static class GetMidRun extends GetBaseRun {
+		@Override
+		void initIndexes() {
+			int start = (size / 2) - (numOps / 2);
+			for (int i = 0; i < numOps; i++) {
+				indexes[i] = start + i;
+			}
+		}
+	}
+
+	public static class GetRandomRun extends GetBaseRun {
+		@Override
+		void initIndexes() {
+			for (int i = 0; i < numOps; i++) {
+				indexes[i] = r.nextInt(size);
+			}
+		}
+	}
+
+	public static class GetIterRun extends GetBaseRun {
+		@Override
+		void initIndexes() {
+			int start = (size / 2) - (numOps * step / 2);
+			for (int i = 0; i < numOps; i++) {
+				indexes[i] = start + i * step;
 			}
 		}
 	}
@@ -414,13 +431,14 @@ public class TestRuns {
 		}
 
 		@Override
-		public void run() {
+		public Object run() {
 			Random r = new Random();
 			r.setSeed(0);
 			for (int i = 0; i < numOps; i++) {
 				int pos = r.nextInt(list.size());
 				int val = list.get(pos);
 			}
+			return list;
 		}
 	}
 
@@ -433,33 +451,14 @@ public class TestRuns {
 		}
 
 		@Override
-		public void run() {
+		public Object run() {
 			Random r = new Random();
 			r.setSeed(0);
 			for (int i = 0; i < numOps; i++) {
 				int pos = r.nextInt(list.size());
 				int val = list.get(pos);
 			}
-		}
-	}
-
-	public static class GetRandomRun extends FactoryRun {
-		List<Object> list;
-
-		@SuppressWarnings("unchecked")
-		@Override
-		public void beforeAll() {
-			list = (List<Object>) factory.createSize(size);
-		}
-
-		@Override
-		public void run() {
-			Random r = new Random(0);
-			int size = list.size();
-			for (int i = 0; i < numOps; i++) {
-				int pos = r.nextInt(size);
-				list.get(pos);
-			}
+			return list;
 		}
 	}
 
@@ -475,58 +474,10 @@ public class TestRuns {
 		}
 
 		@Override
-		public void run() {
+		public Object run() {
 			list.sort(null);
+			return list;
 		}
-	}
-
-	public static class GetIterRun extends FactoryRun {
-		List<Object> list;
-
-		@SuppressWarnings("unchecked")
-		@Override
-		public void beforeAll() {
-			list = (List<Object>) factory.createSize(size);
-		}
-
-		@Override
-		public void run() {
-			Random r = new Random(0);
-			for (int i = 0; i < numOps; i++) {
-				int pos = r.nextInt(size);
-				list.get(i);
-			}
-		}
-	}
-
-	public static class GetNearRun extends FactoryRun {
-		List<Object> list;
-
-		@Override
-		public void beforeAll() {
-			list = (List<Object>) factory.createSize(size);
-		}
-
-		@Override
-		public void run() {
-			Random r = new Random(0);
-			int size = list.size();
-			int pos = size / 2;
-			for (int i = 0; i < numOps; i++) {
-				pos = getPos(r, pos, list.size() - localOps, near);
-				for (int j = 0; j < localOps; j++) {
-					list.get(pos);
-				}
-			}
-		}
-
-		@Override
-		public String afterAll() {
-			int size = ReflectTools.getObjectSize(list);
-			list = null;
-			return "Size " + size;
-		}
-
 	}
 
 	// --- Add ---
@@ -540,11 +491,12 @@ public class TestRuns {
 		}
 
 		@Override
-		public void run() {
+		public Object run() {
 			Object o = new Object();
 			for (int i = 0; i < numOps; i++) {
 				list.add(o);
 			}
+			return list;
 		}
 	}
 
@@ -563,8 +515,9 @@ public class TestRuns {
 		}
 
 		@Override
-		public void run() {
+		public Object run() {
 			list.addAll(add);
+			return list;
 		}
 	}
 
@@ -577,7 +530,7 @@ public class TestRuns {
 		}
 
 		@Override
-		public void run() {
+		public Object run() {
 			Random r = new Random();
 			int pos = size / 2;
 			Object o = new Object();
@@ -585,6 +538,7 @@ public class TestRuns {
 				r.nextInt(1);
 				list.add(pos, o);
 			}
+			return list;
 		}
 	}
 
@@ -600,9 +554,10 @@ public class TestRuns {
 		}
 
 		@Override
-		public void run() {
+		public Object run() {
 			int pos = size / 2;
 			list.addAll(pos, add);
+			return list;
 		}
 	}
 
@@ -630,7 +585,7 @@ public class TestRuns {
 		}
 
 		@Override
-		public void run() {
+		public Object run() {
 			Random r = getRandom();
 			Object elem = new Object();
 			GapList<Object> elems = new GapList(localOps);
@@ -645,6 +600,7 @@ public class TestRuns {
 					}
 				}
 			}
+			return list;
 		}
 	}
 
@@ -658,11 +614,12 @@ public class TestRuns {
 		}
 
 		@Override
-		public void run() {
+		public Object run() {
 			Object o = new Object();
 			for (int i = 0; i < numOps; i++) {
 				deque.addLast(o);
 			}
+			return deque;
 		}
 	}
 
@@ -677,11 +634,12 @@ public class TestRuns {
 
 	public static class AddFirstRunList extends AddFirstRun {
 		@Override
-		public void run() {
+		public Object run() {
 			Object o = new Object();
 			for (int i = 0; i < numOps; i++) {
 				list.add(0, o);
 			}
+			return list;
 		}
 	}
 
@@ -695,11 +653,12 @@ public class TestRuns {
 		}
 
 		@Override
-		public void run() {
+		public Object run() {
 			Object o = new Object();
 			for (int i = 0; i < numOps; i++) {
 				deque.addFirst(o);
 			}
+			return deque;
 		}
 	}
 
@@ -727,7 +686,7 @@ public class TestRuns {
 		}
 
 		@Override
-		public void run() {
+		public Object run() {
 			Random r = getRandom();
 			for (int i = 0; i < numOps; i++) {
 				int pos = (i == 0) ? 0 : r.nextInt(list.size());
@@ -739,6 +698,7 @@ public class TestRuns {
 					}
 				}
 			}
+			return list;
 		}
 	}
 
@@ -752,12 +712,13 @@ public class TestRuns {
 		}
 
 		@Override
-		public void run() {
+		public Object run() {
 			Random r = getRandom();
 			for (int i = 0; i < numOps; i++) {
 				int pos = (i == 0) ? 0 : r.nextInt(list.size());
 				list.add(pos, 1000 + i);
 			}
+			return list;
 		}
 	}
 
@@ -771,12 +732,13 @@ public class TestRuns {
 		}
 
 		@Override
-		public void run() {
+		public Object run() {
 			Random r = getRandom();
 			for (int i = 0; i < numOps; i++) {
 				int pos = (i == 0) ? 0 : r.nextInt(list.size());
 				list.add(pos, 1000 + i);
 			}
+			return list;
 		}
 	}
 
@@ -793,10 +755,11 @@ public class TestRuns {
 
 	public static class RemoveLastRunList extends RemoveLastRun {
 		@Override
-		public void run() {
+		public Object run() {
 			for (int i = 0; i < numOps; i++) {
 				list.remove(list.size() - 1); // no removeLast
 			}
+			return list;
 		}
 	}
 
@@ -810,10 +773,11 @@ public class TestRuns {
 		}
 
 		@Override
-		public void run() {
+		public Object run() {
 			for (int i = 0; i < numOps; i++) {
 				deque.removeLast();
 			}
+			return deque;
 		}
 	}
 
@@ -828,10 +792,11 @@ public class TestRuns {
 
 	public static class RemoveFirstRunList extends RemoveFirstRun {
 		@Override
-		public void run() {
+		public Object run() {
 			for (int i = 0; i < numOps; i++) {
 				list.remove(list.size() - 1); // no removeLast
 			}
+			return list;
 		}
 	}
 
@@ -845,10 +810,11 @@ public class TestRuns {
 		}
 
 		@Override
-		public void run() {
+		public Object run() {
 			for (int i = 0; i < numOps; i++) {
 				deque.removeLast();
 			}
+			return deque;
 		}
 	}
 
@@ -867,7 +833,7 @@ public class TestRuns {
 		}
 
 		@Override
-		public void run() {
+		public Object run() {
 			IList ilist = null;
 			if (all) {
 				if (list instanceof IList) {
@@ -896,6 +862,7 @@ public class TestRuns {
 					}
 				}
 			}
+			return list;
 		}
 	}
 
@@ -908,13 +875,14 @@ public class TestRuns {
 		}
 
 		@Override
-		public void run() {
+		public Object run() {
 			Random r = getRandom();
 			for (int i = 0; i < numOps; i++) {
 				int size = list.size();
 				int pos = r.nextInt(size);
 				list.remove(pos);
 			}
+			return list;
 		}
 	}
 
@@ -927,13 +895,14 @@ public class TestRuns {
 		}
 
 		@Override
-		public void run() {
+		public Object run() {
 			Random r = getRandom();
 			for (int i = 0; i < numOps; i++) {
 				int size = list.size();
 				int pos = r.nextInt(size);
 				list.remove(pos);
 			}
+			return list;
 		}
 	}
 
@@ -946,11 +915,12 @@ public class TestRuns {
 		}
 
 		@Override
-		public void run() {
+		public Object run() {
 			int pos = (size - numOps) / 2;
 			for (int i = 0; i < numOps; i++) {
 				list.remove(pos);
 			}
+			return list;
 		}
 	}
 
@@ -967,7 +937,7 @@ public class TestRuns {
 		}
 
 		@Override
-		public void run() {
+		public Object run() {
 			int pos = (size - numOps) / 2;
 			if (ilist != null) {
 				ilist.remove(pos, numOps);
@@ -978,6 +948,7 @@ public class TestRuns {
 				//	list.remove(pos);
 				//}
 			}
+			return list;
 		}
 	}
 
@@ -992,16 +963,17 @@ public class TestRuns {
 		}
 
 		@Override
-		public void run() {
+		public Object run() {
 			Random r = getRandom();
 			Integer elem = 0;
 			int pos = list.size() / 2;
 			for (int i = 0; i < numOps; i++) {
-				pos = getPos(r, pos, list.size(), near);
+				pos = getNearPos(r, pos, list.size(), 0); // near
 				for (int n = 0; n < localOps; n++) {
 					list.add(pos + n, elem);
 				}
 			}
+			return list;
 		}
 	}
 
@@ -1014,11 +986,11 @@ public class TestRuns {
 		}
 
 		@Override
-		public void run() {
+		public Object run() {
 			int cnt = 0;
 			for (int i = 0; i < list.size(); i++) {
 				Object o = list.get(i);
-				int sel = (int) near;
+				int sel = 0; // near
 				if (cnt % sel == 0) {
 					for (int j = 0; j < numOps / (size / sel); j++) {
 						list.add(i + 1, o);
@@ -1027,6 +999,7 @@ public class TestRuns {
 				}
 				cnt++;
 			}
+			return list;
 		}
 	}
 
@@ -1041,15 +1014,16 @@ public class TestRuns {
 		}
 
 		@Override
-		public void run() {
+		public Object run() {
 			Random r = getRandom();
 			int pos = list.size() / 2;
 			for (int i = 0; i < numOps; i++) {
-				pos = getPos(r, pos, list.size() - localOps, near);
+				pos = getNearPos(r, pos, list.size() - localOps, 0); // near
 				for (int j = 0; j < localOps; j++) {
 					list.remove(pos);
 				}
 			}
+			return list;
 		}
 
 	}
@@ -1063,8 +1037,8 @@ public class TestRuns {
 		}
 
 		@Override
-		public void run() {
-			int sel = (int) near;
+		public Object run() {
+			int sel = 0; // near
 
 			int cnt = 0;
 			int num = size;
@@ -1077,6 +1051,7 @@ public class TestRuns {
 				}
 				cnt++;
 			}
+			return list;
 		}
 	}
 
@@ -1104,8 +1079,9 @@ public class TestRuns {
 		}
 
 		@Override
-		public void run() {
+		public Object run() {
 			list.removeAll(remove);
+			return list;
 		}
 	}
 
@@ -1133,8 +1109,9 @@ public class TestRuns {
 		}
 
 		@Override
-		public void run() {
+		public Object run() {
 			list.retainAll(remove);
+			return list;
 		}
 	}
 
@@ -1152,10 +1129,11 @@ public class TestRuns {
 		}
 
 		@Override
-		public void run() {
+		public Object run() {
 			int len = size / 2;
 			int index = len / 2;
 			list.subList(index, index + len).clear();
+			return list;
 		}
 	}
 
@@ -1171,10 +1149,11 @@ public class TestRuns {
 		}
 
 		@Override
-		public void run() {
+		public Object run() {
 			int len = size / 2;
 			int index = len / 2;
 			list.remove(index, len);
+			return list;
 		}
 	}
 
@@ -1189,8 +1168,9 @@ public class TestRuns {
 		}
 
 		@Override
-		public void run() {
+		public Object run() {
 			List<Integer> result = list.stream().filter((i) -> i % 2 == 0).collect(Collectors.toList());
+			return list;
 		}
 	}
 
@@ -1203,8 +1183,9 @@ public class TestRuns {
 		}
 
 		@Override
-		public void run() {
+		public Object run() {
 			List<Integer> result = list.filteredList((i) -> i % 2 == 0);
+			return list;
 		}
 	}
 

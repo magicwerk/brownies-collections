@@ -634,9 +634,9 @@ public class GapListTestPerformance {
 			atrs.runTest(tr -> tr.testPerformanceAddRandom(size, numOps));
 
 			// Chart 3: Add near iter
-			atrs.runTest(tr -> tr.testPerformanceAddNear(size, numOps, 0.1));
-			atrs.runTest(tr -> tr.testPerformanceAddNear(size, numOps, 0.01));
-			atrs.runTest(tr -> tr.testPerformanceAddIter(size, numOps, 2));
+			//atrs.runTest(tr -> tr.testPerformanceAddNear(size, numOps, 0.1));
+			//atrs.runTest(tr -> tr.testPerformanceAddNear(size, numOps, 0.01));
+			//atrs.runTest(tr -> tr.testPerformanceAddIter(size, numOps, 2));
 
 			//showChart(GapList.create(tr1, tr2));
 			showTable(atrs.trs);
@@ -659,9 +659,9 @@ public class GapListTestPerformance {
 
 			// Chart 3: Add near iter
 			//newRun().testPerformanceAddRandom(size, numOps);
-			newRun().testPerformanceAddNear(size, numOps, 1.0);
-			newRun().testPerformanceAddNear(size, numOps, 0.1);
-			newRun().testPerformanceAddNear(size, numOps, 0.01);
+			//newRun().testPerformanceAddNear(size, numOps, 1.0);
+			//newRun().testPerformanceAddNear(size, numOps, 0.1);
+			//newRun().testPerformanceAddNear(size, numOps, 0.01);
 		}
 
 		//		newRun().testPerformanceAddIter(size, numOps, 2);
