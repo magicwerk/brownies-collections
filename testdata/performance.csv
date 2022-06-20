@@ -674,3 +674,151 @@ Java,Release,Run,Type,Time,VmArgs
 1.8.0_241_x64,0.9.16,Get first,ArrayList,0.8071359677419354,-ea -Dfile.encoding=UTF-8
 1.8.0_241_x64,0.9.16,Get first,BigList,0.8722268292682938,-ea -Dfile.encoding=UTF-8
 1.8.0_241_x64,0.9.16,Get first,LinkedList,0.7584152716593245,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get last,GapList,0.4208364171572709,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get last,ArrayList,0.41496531120331825,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get last,BigList,0.5781115606936413,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get last,LinkedList,0.5406925405405378,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get first,GapList,0.41894011725292807,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get first,ArrayList,0.4175588480801322,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get first,BigList,0.49487220573689406,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get first,LinkedList,0.4264800511508929,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get random,GapList,0.46979201877934246,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get random,ArrayList,0.4525419004524862,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get random,BigList,2.9113691860465116,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get random,LinkedList,2151.7281000000003,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get last,GapList,0.45212233273056107,"-agentlib:jdwp=transport=dt_socket,suspend=y,address=localhost:54723 -ea -Dfile.encoding=UTF-8"
+1.8.0_241_x64,0.9.16,Get last,ArrayList,0.44869587443946085,"-agentlib:jdwp=transport=dt_socket,suspend=y,address=localhost:54723 -ea -Dfile.encoding=UTF-8"
+1.8.0_241_x64,0.9.16,Get last,BigList,0.7064194915254238,"-agentlib:jdwp=transport=dt_socket,suspend=y,address=localhost:54723 -ea -Dfile.encoding=UTF-8"
+1.8.0_241_x64,0.9.16,Get last,LinkedList,0.5988336526946101,"-agentlib:jdwp=transport=dt_socket,suspend=y,address=localhost:54723 -ea -Dfile.encoding=UTF-8"
+1.8.0_241_x64,0.9.16,Get last,GapList,0.41992695214105713,"-agentlib:jdwp=transport=dt_socket,suspend=y,address=localhost:55678 -ea -Dfile.encoding=UTF-8"
+1.8.0_241_x64,0.9.16,Get last,ArrayList,0.4254151360544204,"-agentlib:jdwp=transport=dt_socket,suspend=y,address=localhost:55678 -ea -Dfile.encoding=UTF-8"
+1.8.0_241_x64,0.9.16,Get last,BigList,0.6367745547073792,"-agentlib:jdwp=transport=dt_socket,suspend=y,address=localhost:55678 -ea -Dfile.encoding=UTF-8"
+1.8.0_241_x64,0.9.16,Get last,LinkedList,0.643087660668379,"-agentlib:jdwp=transport=dt_socket,suspend=y,address=localhost:55678 -ea -Dfile.encoding=UTF-8"
+1.8.0_241_x64,0.9.16,Get last,GapList,0.4230978849407783,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get last,ArrayList,0.39935760956175564,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get last,BigList,0.5456071973827701,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get last,LinkedList,0.5112929447852728,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get last,GapList,0.40577396593674364,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get last,ArrayList,0.4175352253756222,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get last,BigList,0.6012832932692298,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get last,LinkedList,0.5551063263041055,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get last,GapList,0.44968561151079206,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get last,ArrayList,0.6278043914680045,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get last,BigList,0.5941232779097388,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get last,LinkedList,0.610340853658537,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get last,GapList,0.40169670682730935,"-agentlib:jdwp=transport=dt_socket,suspend=y,address=localhost:57267 -ea -Dfile.encoding=UTF-8"
+1.8.0_241_x64,0.9.16,Get last,ArrayList,0.4161149750415975,"-agentlib:jdwp=transport=dt_socket,suspend=y,address=localhost:57267 -ea -Dfile.encoding=UTF-8"
+1.8.0_241_x64,0.9.16,Get last,BigList,0.6258415519399247,"-agentlib:jdwp=transport=dt_socket,suspend=y,address=localhost:57267 -ea -Dfile.encoding=UTF-8"
+1.8.0_241_x64,0.9.16,Get last,LinkedList,0.5397987055016171,"-agentlib:jdwp=transport=dt_socket,suspend=y,address=localhost:57267 -ea -Dfile.encoding=UTF-8"
+1.8.0_241_x64,0.9.16,Get last,GapList,0.4643177344475394,"-agentlib:jdwp=transport=dt_socket,suspend=y,address=localhost:57267 -ea -Dfile.encoding=UTF-8"
+1.8.0_241_x64,0.9.16,Get last,ArrayList,0.6635400530503979,"-agentlib:jdwp=transport=dt_socket,suspend=y,address=localhost:57267 -ea -Dfile.encoding=UTF-8"
+1.8.0_241_x64,0.9.16,Get last,BigList,0.7841029780564253,"-agentlib:jdwp=transport=dt_socket,suspend=y,address=localhost:57267 -ea -Dfile.encoding=UTF-8"
+1.8.0_241_x64,0.9.16,Get last,LinkedList,0.6504710389610389,"-agentlib:jdwp=transport=dt_socket,suspend=y,address=localhost:57267 -ea -Dfile.encoding=UTF-8"
+1.8.0_241_x64,0.9.16,Get first,GapList,0.4011941459502834,"-agentlib:jdwp=transport=dt_socket,suspend=y,address=localhost:57267 -ea -Dfile.encoding=UTF-8"
+1.8.0_241_x64,0.9.16,Get first,ArrayList,0.39938619313647494,"-agentlib:jdwp=transport=dt_socket,suspend=y,address=localhost:57267 -ea -Dfile.encoding=UTF-8"
+1.8.0_241_x64,0.9.16,Get first,BigList,0.5226915360501548,"-agentlib:jdwp=transport=dt_socket,suspend=y,address=localhost:57267 -ea -Dfile.encoding=UTF-8"
+1.8.0_241_x64,0.9.16,Get first,LinkedList,0.39500765588003434,"-agentlib:jdwp=transport=dt_socket,suspend=y,address=localhost:57267 -ea -Dfile.encoding=UTF-8"
+1.8.0_241_x64,0.9.16,Get random,GapList,0.4539502722323058,"-agentlib:jdwp=transport=dt_socket,suspend=y,address=localhost:57267 -ea -Dfile.encoding=UTF-8"
+1.8.0_241_x64,0.9.16,Get random,ArrayList,0.4625582793709514,"-agentlib:jdwp=transport=dt_socket,suspend=y,address=localhost:57267 -ea -Dfile.encoding=UTF-8"
+1.8.0_241_x64,0.9.16,Get random,BigList,2.9103924418604636,"-agentlib:jdwp=transport=dt_socket,suspend=y,address=localhost:57267 -ea -Dfile.encoding=UTF-8"
+1.8.0_241_x64,0.9.16,Get random,LinkedList,1991.07675,"-agentlib:jdwp=transport=dt_socket,suspend=y,address=localhost:57267 -ea -Dfile.encoding=UTF-8"
+1.8.0_241_x64,0.9.16,Get last,GapList,0.3979478122513929,"-agentlib:jdwp=transport=dt_socket,suspend=y,address=localhost:57377 -ea -Dfile.encoding=UTF-8"
+1.8.0_241_x64,0.9.16,Get last,ArrayList,0.3922703529411777,"-agentlib:jdwp=transport=dt_socket,suspend=y,address=localhost:57377 -ea -Dfile.encoding=UTF-8"
+1.8.0_241_x64,0.9.16,Get last,BigList,0.6033936067551255,"-agentlib:jdwp=transport=dt_socket,suspend=y,address=localhost:57377 -ea -Dfile.encoding=UTF-8"
+1.8.0_241_x64,0.9.16,Get last,LinkedList,0.5254261554621841,"-agentlib:jdwp=transport=dt_socket,suspend=y,address=localhost:57377 -ea -Dfile.encoding=UTF-8"
+1.8.0_241_x64,0.9.16,Get last,GapList,0.6337674271229402,"-agentlib:jdwp=transport=dt_socket,suspend=y,address=localhost:57377 -ea -Dfile.encoding=UTF-8"
+1.8.0_241_x64,0.9.16,Get last,ArrayList,0.6020968712394698,"-agentlib:jdwp=transport=dt_socket,suspend=y,address=localhost:57377 -ea -Dfile.encoding=UTF-8"
+1.8.0_241_x64,0.9.16,Get last,BigList,0.7284094614264922,"-agentlib:jdwp=transport=dt_socket,suspend=y,address=localhost:57377 -ea -Dfile.encoding=UTF-8"
+1.8.0_241_x64,0.9.16,Get last,LinkedList,0.590116391509434,"-agentlib:jdwp=transport=dt_socket,suspend=y,address=localhost:57377 -ea -Dfile.encoding=UTF-8"
+1.8.0_241_x64,0.9.16,Get first,GapList,0.402784380032206,"-agentlib:jdwp=transport=dt_socket,suspend=y,address=localhost:57377 -ea -Dfile.encoding=UTF-8"
+1.8.0_241_x64,0.9.16,Get first,ArrayList,0.4017077108433777,"-agentlib:jdwp=transport=dt_socket,suspend=y,address=localhost:57377 -ea -Dfile.encoding=UTF-8"
+1.8.0_241_x64,0.9.16,Get first,BigList,0.5090160732451651,"-agentlib:jdwp=transport=dt_socket,suspend=y,address=localhost:57377 -ea -Dfile.encoding=UTF-8"
+1.8.0_241_x64,0.9.16,Get first,LinkedList,0.3953261660079075,"-agentlib:jdwp=transport=dt_socket,suspend=y,address=localhost:57377 -ea -Dfile.encoding=UTF-8"
+1.8.0_241_x64,0.9.16,Get random,GapList,0.4733113528855245,"-agentlib:jdwp=transport=dt_socket,suspend=y,address=localhost:57377 -ea -Dfile.encoding=UTF-8"
+1.8.0_241_x64,0.9.16,Get random,ArrayList,0.41912782900251044,"-agentlib:jdwp=transport=dt_socket,suspend=y,address=localhost:57377 -ea -Dfile.encoding=UTF-8"
+1.8.0_241_x64,0.9.16,Get random,BigList,2.815904494382023,"-agentlib:jdwp=transport=dt_socket,suspend=y,address=localhost:57377 -ea -Dfile.encoding=UTF-8"
+1.8.0_241_x64,0.9.16,Get random,LinkedList,1932.53755,"-agentlib:jdwp=transport=dt_socket,suspend=y,address=localhost:57377 -ea -Dfile.encoding=UTF-8"
+1.8.0_241_x64,0.9.16,Get last,GapList,0.3970265079365104,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get last,ArrayList,0.39030148205928655,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get last,BigList,0.6121930232558134,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get last,LinkedList,0.5334969083155626,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get last,GapList,0.4307536606373843,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get last,ArrayList,0.622375870646766,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get last,BigList,0.7356879411764714,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get last,LinkedList,0.5902843160377348,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get first,GapList,0.398883811802238,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get first,ArrayList,0.39117302580141045,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get first,BigList,0.5005143143143148,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get first,LinkedList,0.41486741293532275,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get random,GapList,0.43437291666666666,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get random,ArrayList,0.41742111853088165,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get random,BigList,2.6688223404255327,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get random,LinkedList,1893.5302000000001,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Add last,GapList,0.15336114688745786,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Add last,ArrayList,0.1283452002053389,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Add last,BigList,0.2357172007540054,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Add last,LinkedList,3.13084882629108,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get last,GapList,0.42550909863945235,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get last,ArrayList,0.41577331670822787,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get last,BigList,0.5625670416197978,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get last,LinkedList,0.5244566037735859,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get first,GapList,0.42286322907861285,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get first,ArrayList,0.42814965753424433,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get first,BigList,0.5332669509594897,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get first,LinkedList,0.41406382450331375,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get last,GapList,0.41474925373134186,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get last,ArrayList,0.402307079646019,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get last,BigList,0.5508661894273126,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get last,LinkedList,0.5269603157894719,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get first,GapList,0.40930523731587454,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get first,ArrayList,0.3994454472843488,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get first,BigList,0.48696329113923936,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get first,LinkedList,0.39139655712050425,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get random,GapList,0.46518725581395426,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get random,ArrayList,0.4224195945945917,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get random,BigList,2.6641329787234045,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get random,LinkedList,1893.486,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get last,GapList,0.4179606516290737,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get last,ArrayList,0.4267459044368568,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get last,BigList,0.5722933638443939,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get last,LinkedList,0.5478628696604572,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get first,GapList,0.39440630914826813,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get first,ArrayList,0.3936774980330463,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get first,BigList,0.513935010266941,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get first,LinkedList,0.3977759745425642,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get random,GapList,0.44307927369353417,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get random,ArrayList,0.43408072916666596,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get random,BigList,2.638973684210526,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get random,LinkedList,1897.78555,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Add last,GapList,0.15547276966117507,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Add last,ArrayList,0.12708144853875522,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Add last,BigList,0.23952533524904224,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Add last,LinkedList,0.17025085378868837,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get last,GapList,0.4019024899598428,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get last,ArrayList,0.4069639544345036,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get last,BigList,0.5505573157315731,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get last,LinkedList,0.5165633264462794,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get first,GapList,0.399830135891288,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get first,ArrayList,0.4166855833333295,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get first,BigList,0.5454176470588246,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get first,LinkedList,0.4096886158886202,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get random,GapList,0.44599153297682914,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get random,ArrayList,0.4311072413793089,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get random,BigList,2.877860344827584,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get random,LinkedList,1934.3198,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Add last,GapList,0.15135335956416504,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Add last,ArrayList,0.1297845315338694,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Add last,BigList,0.23785111745126056,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Add last,LinkedList,0.15843693834900896,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Add first,GapList,0.08342057057057073,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Add first,ArrayList,10.980456521739134,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Add first,BigList,0.14477266936884778,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Add first,LinkedList,0.08825238263325032,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get last,GapList,0.41170905349794334,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get last,ArrayList,0.42972689003436165,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get last,BigList,0.549731868131869,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get last,LinkedList,0.5142500513874585,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get first,GapList,0.41922673931265597,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get first,ArrayList,0.40749837000815176,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get first,BigList,0.5062516194331983,-ea -Dfile.encoding=UTF-8
+1.8.0_241_x64,0.9.16,Get first,LinkedList,0.3949863349131178,-ea -Dfile.encoding=UTF-8
