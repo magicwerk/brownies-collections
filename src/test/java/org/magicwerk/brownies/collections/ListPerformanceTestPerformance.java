@@ -5,6 +5,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
+import org.magicwerk.brownies.core.FuncTools;
+import org.magicwerk.brownies.core.FuncTools.MapMode;
 import org.magicwerk.brownies.core.logback.LogbackTools;
 import org.magicwerk.brownies.test.JmhRunner;
 import org.magicwerk.brownies.test.JmhRunner.Options;
@@ -58,8 +60,8 @@ public class ListPerformanceTestPerformance {
 
 	static final Logger LOG = LogbackTools.getConsoleLogger();
 
-	static final int warmupIterations = 3;
-	static final int measurementIterations = 2;
+	static final int warmupIterations = 2;
+	static final int measurementIterations = 1;
 
 	public static void main(String[] args) {
 		new ListPerformanceTestPerformance().run();
@@ -70,15 +72,20 @@ public class ListPerformanceTestPerformance {
 	}
 
 	void testGet() {
-		test(GetFirstListTest.class);
-		test(GetLastListTest.class);
-		test(GetMidListTest.class);
-		test(GetRandomListTest.class);
-		test(GetIterListTest.class);
+		//test(GetFirstListTest.class);
+		//test(GetLastListTest.class);
+		//test(GetMidListTest.class);
+		//test(GetIterListTest.class);
+		//test(ListTest.class);
+		//test(GetRandomListTest2.class);
+		testList();
 	}
 
-	void test(Class<?> testClass) {
-		Options opts = new Options().includeClass(testClass);
+	void testList() {
+		Options opts = new Options();
+		opts.includeMethod(ListTest.class, "testGet");
+		opts.includeMethod(ListTest.class, "testAdd");
+		opts.includeMethod(ListTest.class, "testRemove");
 		opts.setWarmupIterations(warmupIterations);
 		opts.setMeasurementIterations(measurementIterations);
 		JmhRunner runner = new JmhRunner();
@@ -86,166 +93,417 @@ public class ListPerformanceTestPerformance {
 	}
 
 	@State(Scope.Benchmark)
-	public static abstract class ListState {
+	public abstract static class ListState {
 
-		int size = 100;
-		int numOps = 50;
+		// Total runs = 4 * 5 * 3 = 60
+
+		@Param({ "ArrayList", "LinkedList", "GapList", "BigList" })
+		String type;
+
+		@Param({ "First", "Last", "Mid", "Iter", "Random" })
+		String op;
+
+		@Param({ "100", "10000", "1000000" })
+		int size;
+
 		int step = 1;
+		int numOps;
 
 		Random r;
-		List<Integer>[] lists;
+		List<Integer> list;
 		int[] indexes;
 		int pos;
 
-		@Param({ "0", "1", "2", "3" })
-		int type;
-
 		@Setup(Level.Iteration)
 		public void init() {
+			numOps = size / 10;
+
+			initList(type);
 			r = new Random(0);
-
-			lists = new List[4];
-			lists[0] = initList(new ArrayList<>());
-			lists[1] = initList(new LinkedList<>());
-			lists[2] = initList(GapList.create());
-			lists[3] = initList(BigList.create());
-
-			indexes = new int[numOps];
-			initIndexes();
+			initIndexes(op);
 			pos = 0;
 		}
 
-		List<Integer> initList(List<Integer> list) {
+		void initList(String type) {
+			list = FuncTools.map(type, MapMode.ERROR,
+					"ArrayList", new ArrayList<>(), "LinkedList", new LinkedList<>(), "GapList", GapList.create(), "BigList", BigList.create());
 			for (int i = 0; i < size; i++) {
 				list.add(i);
 			}
-			return list;
 		}
 
-		abstract void initIndexes();
-
-		List<Integer> list() {
-			return lists[type];
-		}
+		abstract void initIndexes(String op);
 
 		int pos() {
 			return indexes[pos++ % numOps];
 		}
 	}
 
-	public static class GetListTest {
+	@State(Scope.Benchmark)
+	public static class GetListState extends ListState {
+		@Override
+		void initIndexes(String op) {
+			indexes = new int[numOps];
+			if ("First".equals(op)) {
+				for (int i = 0; i < numOps; i++) {
+					indexes[i] = 0;
+				}
+			} else if ("Last".equals(op)) {
+				for (int i = 0; i < numOps; i++) {
+					indexes[i] = size - 1;
+				}
+			} else if ("Mid".equals(op)) {
+				for (int i = 0; i < numOps; i++) {
+					indexes[i] = size / 2;
+				}
+			} else if ("Iter".equals(op)) {
+				int start = (size / 2) - (numOps * step / 2);
+				for (int i = 0; i < numOps; i++) {
+					indexes[i] = start + i * step;
+				}
+			} else if ("Random".equals(op)) {
+				for (int i = 0; i < numOps; i++) {
+					indexes[i] = r.nextInt(size);
+				}
+			} else {
+				throw new AssertionError();
+			}
+		}
+	}
 
-		public Object testGet(ListState state) {
-			List<Integer> list = state.list();
+	@State(Scope.Benchmark)
+	public static class AddListState extends ListState {
+		@Override
+		void initIndexes(String op) {
+			indexes = new int[numOps];
+			if ("First".equals(op)) {
+				for (int i = 0; i < numOps; i++) {
+					indexes[i] = 0;
+				}
+			} else if ("Last".equals(op)) {
+				for (int i = 0; i < numOps; i++) {
+					indexes[i] = size - 1 + i;
+				}
+			} else if ("Mid".equals(op)) {
+				for (int i = 0; i < numOps; i++) {
+					indexes[i] = size / 2;
+				}
+			} else if ("Iter".equals(op)) {
+				int start = (size / 2) - (numOps * step / 2);
+				for (int i = 0; i < numOps; i++) {
+					indexes[i] = start + i * step;
+				}
+			} else if ("Random".equals(op)) {
+				for (int i = 0; i < numOps; i++) {
+					indexes[i] = r.nextInt(size + i);
+				}
+			} else {
+				throw new AssertionError();
+			}
+		}
+	}
+
+	@State(Scope.Benchmark)
+	public static class RemoveListState extends ListState {
+		@Override
+		void initIndexes(String op) {
+			indexes = new int[numOps];
+			if ("First".equals(op)) {
+				for (int i = 0; i < numOps; i++) {
+					indexes[i] = 0;
+				}
+			} else if ("Last".equals(op)) {
+				for (int i = 0; i < numOps; i++) {
+					indexes[i] = size - 1 - i;
+				}
+			} else if ("Mid".equals(op)) {
+				for (int i = 0; i < numOps; i++) {
+					indexes[i] = size / 2;
+				}
+			} else if ("Iter".equals(op)) {
+				int start = (size / 2) - (numOps * step / 2);
+				for (int i = 0; i < numOps; i++) {
+					indexes[i] = start + i * step;
+				}
+			} else if ("Random".equals(op)) {
+				for (int i = 0; i < numOps; i++) {
+					indexes[i] = r.nextInt(size - i);
+				}
+			} else {
+				throw new AssertionError();
+			}
+		}
+	}
+
+	// Get
+
+	public static class ListTest {
+
+		@Benchmark
+		public Object testGet(GetListState state) {
+			List<Integer> list = state.list;
 			int pos = state.pos();
 			list.get(pos);
 			return state;
 		}
-	}
 
-	public static class GetFirstListTest extends GetListTest {
-
-		@State(Scope.Benchmark)
-		public static class GetFirstListState extends ListState {
-			@Override
-			void initIndexes() {
-				for (int i = 0; i < numOps; i++) {
-					indexes[i] = 0;
-				}
-			}
+		@Benchmark
+		public Object testAdd(AddListState state) {
+			List<Integer> list = state.list;
+			int pos = state.pos();
+			list.add(pos, pos);
+			return state;
 		}
 
 		@Benchmark
-		public Object testGetFirst(GetFirstListState state) {
-			return testGet(state);
+		public Object testRemove(RemoveListState state) {
+			List<Integer> list = state.list;
+			int pos = state.pos();
+			list.remove(pos);
+			return state;
 		}
 	}
 
-	public static class GetLastListTest extends GetListTest {
+	// Add
+
+	//
+	//	public static class AddFirstListTest extends AddListTest {
+	//
+	//		@State(Scope.Benchmark)
+	//		public static class AddFirstListState extends ListState {
+	//			@Override
+	//			void initIndexes() {
+	//			}
+	//		}
+	//
+	//		@Benchmark
+	//		public Object testAddFirst(AddFirstListState state) {
+	//			return testAdd(state);
+	//		}
+	//	}
+
+	//	public static class GetFirstListTest extends GetListTest {
+	//
+	//		@State(Scope.Benchmark)
+	//		public static class GetFirstListState extends ListState {
+	//			@Override
+	//			void initIndexes() {
+	//				for (int i = 0; i < numOps; i++) {
+	//					indexes[i] = 0;
+	//				}
+	//			}
+	//		}
+	//
+	//		@Benchmark
+	//		public Object testGetFirst(GetFirstListState state) {
+	//			return testGet(state);
+	//		}
+	//	}
+	//
+	//	public static class GetLastListTest extends GetListTest {
+	//
+	//		@State(Scope.Benchmark)
+	//		public static class GetLastListState extends ListState {
+	//			@Override
+	//			void initIndexes() {
+	//				for (int i = 0; i < numOps; i++) {
+	//					indexes[i] = size - 1;
+	//				}
+	//			}
+	//		}
+	//
+	//		@Benchmark
+	//		public Object testGetLast(GetLastListState state) {
+	//			return testGet(state);
+	//		}
+	//	}
+	//
+	//	public static class GetMidListTest extends GetListTest {
+	//
+	//		@State(Scope.Benchmark)
+	//		public static class GetMidListState extends ListState {
+	//			@Override
+	//			void initIndexes() {
+	//				for (int i = 0; i < numOps; i++) {
+	//					indexes[i] = size / 2;
+	//				}
+	//			}
+	//		}
+	//
+	//		@Benchmark
+	//		public Object testGetLast(GetMidListState state) {
+	//			return testGet(state);
+	//		}
+	//	}
+	//
+	//	public static class GetIterListTest extends GetListTest {
+	//
+	//		@State(Scope.Benchmark)
+	//		public static class GetIterListState extends ListState {
+	//			@Override
+	//			void initIndexes() {
+	//				int start = (size / 2) - (numOps * step / 2);
+	//				for (int i = 0; i < numOps; i++) {
+	//					indexes[i] = start + i * step;
+	//				}
+	//			}
+	//		}
+	//
+	//		@Benchmark
+	//		public Object testGetIter(GetIterListState state) {
+	//			return testGet(state);
+	//		}
+	//	}
+	//
+	//	public static class GetRandomListTest extends GetListTest {
+	//
+	//		@State(Scope.Benchmark)
+	//		public static class GetRandomListState extends ListState {
+	//			@Override
+	//			void initIndexes() {
+	//				for (int i = 0; i < numOps; i++) {
+	//					indexes[i] = r.nextInt(size);
+	//				}
+	//			}
+	//		}
+	//
+	//		@Benchmark
+	//		public Object testGetRandom(GetRandomListState state) {
+	//			return testGet(state);
+	//		}
+	//	}
+
+	//
+
+	public static class GetRandomListTest2 {
 
 		@State(Scope.Benchmark)
-		public static class GetLastListState extends ListState {
-			@Override
-			void initIndexes() {
-				for (int i = 0; i < numOps; i++) {
-					indexes[i] = size - 1;
-				}
+		public static abstract class ListState {
+
+			int size = 100;
+			int numOps = 50;
+			int step = 1;
+
+			Random r;
+			List<Integer> list;
+			int[] indexes;
+			int pos;
+
+			@Setup(Level.Iteration)
+			public void init() {
+				r = new Random(0);
+				list = initList();
+				indexes = new int[numOps];
+				initIndexes();
+				pos = 0;
 			}
-		}
 
-		@Benchmark
-		public Object testGetLast(GetLastListState state) {
-			return testGet(state);
-		}
-	}
+			abstract List<Integer> initList();
 
-	public static class GetMidListTest extends GetListTest {
-
-		@State(Scope.Benchmark)
-		public static class GetMidListState extends ListState {
-			@Override
-			void initIndexes() {
-				for (int i = 0; i < numOps; i++) {
-					indexes[i] = size / 2;
+			List<Integer> initList(List<Integer> list) {
+				for (int i = 0; i < size; i++) {
+					list.add(i);
 				}
+				return list;
 			}
-		}
 
-		@Benchmark
-		public Object testGetLast(GetMidListState state) {
-			return testGet(state);
-		}
-	}
-
-	public static class GetRandomListTest extends GetListTest {
-
-		@State(Scope.Benchmark)
-		public static class GetRandomListState extends ListState {
-			@Override
 			void initIndexes() {
 				for (int i = 0; i < numOps; i++) {
 					indexes[i] = r.nextInt(size);
 				}
 			}
-		}
 
-		@Benchmark
-		public Object testGetRandom(GetRandomListState state) {
-			return testGet(state);
-		}
-	}
-
-	public static class GetIterListTest extends GetListTest {
-
-		@State(Scope.Benchmark)
-		public static class GetIterListState extends ListState {
-			@Override
-			void initIndexes() {
-				int start = (size / 2) - (numOps * step / 2);
-				for (int i = 0; i < numOps; i++) {
-					indexes[i] = start + i * step;
-				}
+			int pos() {
+				return indexes[pos++ % numOps];
 			}
 		}
 
+		@State(Scope.Benchmark)
+		public static class GetRandomArrayListState extends ListState {
+			@Override
+			List<Integer> initList() {
+				return initList(new ArrayList<>());
+			}
+		}
+
+		@State(Scope.Benchmark)
+		public static class GetRandomLinkedListState extends ListState {
+			@Override
+			List<Integer> initList() {
+				return initList(new LinkedList<>());
+			}
+		}
+
+		@State(Scope.Benchmark)
+		public static class GetRandomGapListState extends ListState {
+			@Override
+			List<Integer> initList() {
+				return initList(GapList.create());
+			}
+		}
+
+		@State(Scope.Benchmark)
+		public static class GetRandomBigListState extends ListState {
+			@Override
+			List<Integer> initList() {
+				return initList(BigList.create());
+			}
+		}
+
+		Object testGet(ListState state) {
+			List<Integer> list = state.list;
+			int pos = state.pos();
+			list.get(pos);
+			return state;
+		}
+
 		@Benchmark
-		public Object testGetRandom(GetIterListState state) {
+		public Object testGetRandomArrayList(GetRandomArrayListState state) {
 			return testGet(state);
+			//			List<Integer> list = state.list;
+			//			int pos = state.pos();
+			//			list.get(pos);
+			//			return state;
+		}
+
+		@Benchmark
+		public Object testGetRandomLinkedList(GetRandomLinkedListState state) {
+			return testGet(state);
+			//			List<Integer> list = state.list;
+			//			int pos = state.pos();
+			//			list.get(pos);
+			//			return state;
+		}
+
+		@Benchmark
+		public Object testGetRandomGapList(GetRandomGapListState state) {
+			return testGet(state);
+			//			List<Integer> list = state.list;
+			//			int pos = state.pos();
+			//			list.get(pos);
+			//			return state;
+		}
+
+		@Benchmark
+		public Object testGetRandomBigList(GetRandomBigListState state) {
+			return testGet(state);
+			//			List<Integer> list = state.list;
+			//			int pos = state.pos();
+			//			list.get(pos);
+			//			return state;
 		}
 	}
-
-	//
 
 	public static class GetFirstListTest2 {
 
-		public static class GetFirstListState extends ListState {
-			@Override
-			void initIndexes() {
-				for (int i = 0; i < numOps; i++) {
-					indexes[i] = 0;
-				}
-			}
-		}
+		//		public static class GetFirstListState extends ListState {
+		//			@Override
+		//			void initIndexes() {
+		//				for (int i = 0; i < numOps; i++) {
+		//					indexes[i] = 0;
+		//				}
+		//			}
+		//		}
 
 		//		@State(Scope.Benchmark)
 		//		public static class GapListState extends GetFirstListState {
