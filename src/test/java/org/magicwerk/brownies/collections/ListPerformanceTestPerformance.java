@@ -50,21 +50,37 @@ public class ListPerformanceTestPerformance {
 	// 0: All benchmarks are executed as part of the main process, should not be used
 	// N: For each test, N forks are created which run the test iterations
 
+	// http://hg.openjdk.java.net/code-tools/jmh/file/3c8d4f23d112/jmh-samples/src/main/java/org/openjdk/jmh/samples/JMHSample_11_Loops.java
+	// http://hg.openjdk.java.net/code-tools/jmh/file/3c8d4f23d112/jmh-samples/src/main/java/org/openjdk/jmh/samples/JMHSample_26_BatchSize.java
+	// http://hg.openjdk.java.net/code-tools/jmh/file/3c8d4f23d112/jmh-samples/src/main/java/org/openjdk/jmh/samples/JMHSample_27_Params.java
+	//
+	// https://shipilev.net/blog/2014/nanotrusting-nanotime/
+
 	static final Logger LOG = LogbackTools.getConsoleLogger();
+
+	static final int warmupIterations = 3;
+	static final int measurementIterations = 2;
 
 	public static void main(String[] args) {
 		new ListPerformanceTestPerformance().run();
 	}
 
 	void run() {
-		//test(GetFirstListTest.class);
+		testGet();
+	}
+
+	void testGet() {
+		test(GetFirstListTest.class);
+		test(GetLastListTest.class);
+		test(GetMidListTest.class);
 		test(GetRandomListTest.class);
+		test(GetIterListTest.class);
 	}
 
 	void test(Class<?> testClass) {
 		Options opts = new Options().includeClass(testClass);
-		opts.setWarmupIterations(1);
-		opts.setMeasurementIterations(2);
+		opts.setWarmupIterations(warmupIterations);
+		opts.setMeasurementIterations(measurementIterations);
 		JmhRunner runner = new JmhRunner();
 		runner.runJmh(opts);
 	}
@@ -74,6 +90,7 @@ public class ListPerformanceTestPerformance {
 
 		int size = 100;
 		int numOps = 50;
+		int step = 1;
 
 		Random r;
 		List<Integer>[] lists;
@@ -87,7 +104,7 @@ public class ListPerformanceTestPerformance {
 		public void init() {
 			r = new Random(0);
 
-			this.lists = new List[4];
+			lists = new List[4];
 			lists[0] = initList(new ArrayList<>());
 			lists[1] = initList(new LinkedList<>());
 			lists[2] = initList(GapList.create());
@@ -144,6 +161,42 @@ public class ListPerformanceTestPerformance {
 		}
 	}
 
+	public static class GetLastListTest extends GetListTest {
+
+		@State(Scope.Benchmark)
+		public static class GetLastListState extends ListState {
+			@Override
+			void initIndexes() {
+				for (int i = 0; i < numOps; i++) {
+					indexes[i] = size - 1;
+				}
+			}
+		}
+
+		@Benchmark
+		public Object testGetLast(GetLastListState state) {
+			return testGet(state);
+		}
+	}
+
+	public static class GetMidListTest extends GetListTest {
+
+		@State(Scope.Benchmark)
+		public static class GetMidListState extends ListState {
+			@Override
+			void initIndexes() {
+				for (int i = 0; i < numOps; i++) {
+					indexes[i] = size / 2;
+				}
+			}
+		}
+
+		@Benchmark
+		public Object testGetLast(GetMidListState state) {
+			return testGet(state);
+		}
+	}
+
 	public static class GetRandomListTest extends GetListTest {
 
 		@State(Scope.Benchmark)
@@ -161,6 +214,27 @@ public class ListPerformanceTestPerformance {
 			return testGet(state);
 		}
 	}
+
+	public static class GetIterListTest extends GetListTest {
+
+		@State(Scope.Benchmark)
+		public static class GetIterListState extends ListState {
+			@Override
+			void initIndexes() {
+				int start = (size / 2) - (numOps * step / 2);
+				for (int i = 0; i < numOps; i++) {
+					indexes[i] = start + i * step;
+				}
+			}
+		}
+
+		@Benchmark
+		public Object testGetRandom(GetIterListState state) {
+			return testGet(state);
+		}
+	}
+
+	//
 
 	public static class GetFirstListTest2 {
 
