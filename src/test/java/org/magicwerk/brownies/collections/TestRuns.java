@@ -22,13 +22,17 @@ import org.magicwerk.brownies.collections.TestFactories.TreeListFactory;
 import org.magicwerk.brownies.collections.primitive.IIntList;
 import org.magicwerk.brownies.core.StringTools;
 import org.magicwerk.brownies.core.SystemTools;
+import org.magicwerk.brownies.core.logback.LogbackTools;
 import org.magicwerk.brownies.core.reflect.ReflectTools;
 import org.magicwerk.brownies.core.strings.StringFormatter;
 import org.magicwerk.brownies.tools.runner.Run;
 import org.magicwerk.brownies.tools.runner.Runner;
 import org.magicwerk.brownies.tools.runner.Runner.RunResult;
+import org.slf4j.Logger;
 
 public class TestRuns {
+
+	static final Logger LOG = LogbackTools.getConsoleLogger();
 
 	public static final String GAPLIST = "GapList";
 	public static final String BIGLIST = "BigList";
@@ -79,8 +83,20 @@ public class TestRuns {
 		testPerformance("Get last", GetLastRunDeque.class, GetLastRun.class, size, numOps, 0);
 	}
 
+	public void testPerformanceGetMid(int size, int numOps) {
+		testPerformance("Get mid", GetMidRun.class, GetMidRun.class, size, numOps, 0);
+	}
+
 	public void testPerformanceGetRandom(int size, int numOps) {
 		testPerformance("Get random", GetRandomRun.class, GetRandomRun.class, size, numOps, 0);
+	}
+
+	public void testPerformanceGetIter1(int size, int numOps) {
+		testPerformance("Get iter 1", GetIterRun.class, GetIterRun.class, size, numOps, 1);
+	}
+
+	public void testPerformanceGetIter2(int size, int numOps) {
+		testPerformance("Get iter 2", GetIterRun.class, GetIterRun.class, size, numOps, 2);
 	}
 
 	//
@@ -329,9 +345,9 @@ public class TestRuns {
 		@Override
 		public void beforeAll() {
 			indexes = new int[numOps];
-			for (int i = 0; i < numOps; i++) {
-				indexes[i] = r.nextInt(1);
-			}
+			initIndexes();
+			LOG.info("{}", indexes);
+
 			Object obj = factory.createSize(size);
 			if (obj instanceof List) {
 				list = (List<Object>) obj;
@@ -354,11 +370,11 @@ public class TestRuns {
 		}
 	}
 
-	static abstract class GetFirstRun extends GetBaseRun {
+	static class GetFirstRun extends GetBaseRun {
 		@Override
 		void initIndexes() {
 			for (int i = 0; i < numOps; i++) {
-				indexes[i] = i;
+				indexes[i] = 0;
 			}
 		}
 	}
@@ -373,11 +389,11 @@ public class TestRuns {
 		}
 	}
 
-	static abstract class GetLastRun extends GetBaseRun {
+	static class GetLastRun extends GetBaseRun {
 		@Override
 		void initIndexes() {
 			for (int i = 0; i < numOps; i++) {
-				indexes[i] = size - 1 - i;
+				indexes[i] = size - 1;
 			}
 		}
 	}
@@ -395,9 +411,9 @@ public class TestRuns {
 	public static class GetMidRun extends GetBaseRun {
 		@Override
 		void initIndexes() {
-			int start = (size / 2) - (numOps / 2);
+			int pos = size / 2;
 			for (int i = 0; i < numOps; i++) {
-				indexes[i] = start + i;
+				indexes[i] = pos;
 			}
 		}
 	}
