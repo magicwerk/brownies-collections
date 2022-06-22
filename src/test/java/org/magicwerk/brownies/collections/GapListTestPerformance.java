@@ -617,22 +617,27 @@ public class GapListTestPerformance {
 		if (orig) {
 			AllTestRuns atrs = new AllTestRuns();
 			{
-				int size = 100 * 1000;
-				int numOps = 50 * 1000;
+				//int size = 100 * 1000;
+				//int numOps = 50 * 1000;
+				int size = 100;
+				int numOps = 10;
 
 				// Chart 1: Get
-				atrs.runTest(tr -> tr.testPerformanceGetLast(size, numOps));
 				atrs.runTest(tr -> tr.testPerformanceGetFirst(size, numOps));
+				atrs.runTest(tr -> tr.testPerformanceGetLast(size, numOps));
+				atrs.runTest(tr -> tr.testPerformanceGetMid(size, numOps));
 				atrs.runTest(tr -> tr.testPerformanceGetRandom(size, numOps));
+				atrs.runTest(tr -> tr.testPerformanceGetIter1(size, numOps));
+				atrs.runTest(tr -> tr.testPerformanceGetIter2(size, numOps));
 			}
 
 			// Chart 2: Add
-			int size = 10 * 1000;
-			int numOps = 10 * 1000;
-			atrs.runTest(tr -> tr.testPerformanceAddLast(size, numOps));
-			atrs.runTest(tr -> tr.testPerformanceAddFirst(size, numOps));
-			atrs.runTest(tr -> tr.testPerformanceAddRandom(size, numOps));
-
+			//			int size = 10 * 1000;
+			//			int numOps = 10 * 1000;
+			//			atrs.runTest(tr -> tr.testPerformanceAddLast(size, numOps));
+			//			atrs.runTest(tr -> tr.testPerformanceAddFirst(size, numOps));
+			//			atrs.runTest(tr -> tr.testPerformanceAddRandom(size, numOps));
+			//
 			// Chart 3: Add near iter
 			//atrs.runTest(tr -> tr.testPerformanceAddNear(size, numOps, 0.1));
 			//atrs.runTest(tr -> tr.testPerformanceAddNear(size, numOps, 0.01));
