@@ -60,9 +60,6 @@ public class ListPerformanceTestPerformance {
 
 	static final Logger LOG = LogbackTools.getConsoleLogger();
 
-	static final int warmupIterations = 2;
-	static final int measurementIterations = 1;
-
 	public static void main(String[] args) {
 		new ListPerformanceTestPerformance().run();
 	}
@@ -84,10 +81,12 @@ public class ListPerformanceTestPerformance {
 	void testList() {
 		Options opts = new Options();
 		opts.includeMethod(ListTest.class, "testGet");
-		opts.includeMethod(ListTest.class, "testAdd");
-		opts.includeMethod(ListTest.class, "testRemove");
-		opts.setWarmupIterations(warmupIterations);
-		opts.setMeasurementIterations(measurementIterations);
+		//opts.includeMethod(ListTest.class, "testAdd");
+		//opts.includeMethod(ListTest.class, "testRemove");
+
+		opts.setWarmupIterations(1);
+		opts.setMeasurementIterations(1);
+		opts.setResultFile("output/jmh.json");
 		JmhRunner runner = new JmhRunner();
 		runner.runJmh(opts);
 	}
