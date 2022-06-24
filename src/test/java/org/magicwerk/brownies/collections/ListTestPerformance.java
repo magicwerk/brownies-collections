@@ -86,7 +86,7 @@ public class ListTestPerformance {
 		//opts.includeMethod(ListTest.class, "testRemove");
 
 		int numIter = ListState.numIter;
-		opts.setJvmArgs(GapList.create("-Xmx4g", "-Xms4g", "-XX:+UseG1GC"));
+		opts.setJvmArgs(GapList.create("-Xmx6g", "-Xms6g", "-XX:+UseG1GC"));
 		opts.setWarmupIterations(numIter);
 		opts.setMeasurementIterations(numIter);
 		opts.setRunTimeMillis(ListState.runTimeMillis);
@@ -126,22 +126,26 @@ public class ListTestPerformance {
 		int batchSize;
 		int realNumBatches;
 		int realBatchSize;
+		int realNumIter;
 		List<Integer> sourceList;
 		List<Integer>[] lists;
 		int numLists = 1;
 		int[] indexes;
+		int basePos;
+		int iter;
 		int pos;
 
 		@Setup(Level.Trial)
 		public void setupTrial() {
 			// This setup is called before a trial (a sequence of all warmup / measurement iterations)
-			LOG.info("setupTrial.start pid={}, type={}, op={}, size={}", SystemTools.getProcessId(), type, op, size);
+			LOG.info("### setupTrial.start pid={}, type={}, op={}, size={}", SystemTools.getProcessId(), type, op, size);
 
 			batchSize = size / 10;
 			numBatches = maxAccess / batchSize;
+			realNumIter = 2 * numIter; // warmup and measurement iterations
 
 			if (needsBatches()) {
-				realNumBatches = numBatches;
+				realNumBatches = realNumIter * numBatches;
 				realBatchSize = batchSize;
 			} else {
 				realNumBatches = 1;
@@ -157,8 +161,9 @@ public class ListTestPerformance {
 
 			r = new Random(0);
 			initIndexes(op, batchSize);
+			iter = 0;
 
-			LOG.info("setupTrial.end");
+			LOG.info("### setupTrial.end");
 		}
 
 		@Setup(Level.Iteration)
@@ -166,11 +171,8 @@ public class ListTestPerformance {
 			// This setup is called before each warmup / measurement iteration
 			LOG.info("setupIteration.start");
 
-			for (int i = 0; i < realNumBatches; i++) {
-				lists[i].clear();
-				lists[i].addAll(sourceList);
-			}
-
+			basePos = iter * batchSize;
+			iter++;
 			pos = 0;
 
 			LOG.info("setupIteration.end");
@@ -207,7 +209,7 @@ public class ListTestPerformance {
 	public static class GetListState extends ListState {
 		@Override
 		boolean needsBatches() {
-			return false;
+			return true;
 		}
 
 		@Override
