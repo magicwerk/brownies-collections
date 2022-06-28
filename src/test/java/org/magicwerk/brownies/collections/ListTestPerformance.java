@@ -5,14 +5,18 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.function.BiConsumer;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
 import org.apache.commons.collections4.list.TreeList;
+import org.jdom2.Attribute;
+import org.jdom2.Element;
 import org.magicwerk.brownies.collections.primitive.IntBigList;
 import org.magicwerk.brownies.collections.primitive.IntGapList;
 import org.magicwerk.brownies.collections.primitive.IntObjBigList;
 import org.magicwerk.brownies.collections.primitive.IntObjGapList;
+import org.magicwerk.brownies.core.CheckTools;
 import org.magicwerk.brownies.core.CollectionTools;
 import org.magicwerk.brownies.core.MathTools;
 import org.magicwerk.brownies.core.ObjectTools;
@@ -28,10 +32,12 @@ import org.magicwerk.brownies.core.types.Type;
 import org.magicwerk.brownies.core.validator.NumberFormatter;
 import org.magicwerk.brownies.core.values.Table;
 import org.magicwerk.brownies.html.CssStyle;
+import org.magicwerk.brownies.html.HtmlConst;
 import org.magicwerk.brownies.html.HtmlDoclet;
 import org.magicwerk.brownies.html.HtmlDocument;
 import org.magicwerk.brownies.html.HtmlReport;
 import org.magicwerk.brownies.html.HtmlTable;
+import org.magicwerk.brownies.html.HtmlTools;
 import org.magicwerk.brownies.html.StyleResource;
 import org.magicwerk.brownies.html.content.HtmlChartCreator;
 import org.magicwerk.brownies.html.content.HtmlChartCreator.ChartType;
@@ -485,10 +491,44 @@ public class ListTestPerformance {
 			}
 		}
 
+		// Configuration
+		boolean normalize;
+
+		// State
 		IList<String> benchmarks;
 		IList<String> sizes;
 		IList<String> types;
 		IList<String> ops;
+
+		//
+
+		// NOT USED
+		void showChart(IList<Result> trs) {
+			Table tab = getTable(trs, false);
+			LOG.info("{}", tab);
+
+			HtmlDocument doc = getChartDoc(tab);
+			HtmlReport report = new HtmlReport();
+			report.setDoc(doc);
+			report.showHtml();
+		}
+
+		HtmlDocument getChartDoc(Table tab) {
+			HtmlDocument doc = new HtmlDocument();
+			doc.getBody().addH1("Charts");
+
+			HtmlChartCreator creator = new HtmlChartCreator();
+			creator.setTitle("Chart");
+			creator.setWidth("800px");
+			creator.setHeight("400px");
+
+			creator.setTable(tab);
+			creator.setChartType(ChartType.LINE);
+			HtmlDoclet chart = creator.getChart();
+			doc.addResources(chart.getResources());
+			doc.getBody().addElem(chart.getElement());
+			return doc;
+		}
 
 		//
 
@@ -499,7 +539,7 @@ public class ListTestPerformance {
 			report.add(StyleResource.INSTANCE);
 
 			renderObjectSizeTable(report);
-			renderBenchmarkTables(report, rs);
+			renderBenchmarkTables(report, rs, normalize);
 
 			report.showHtml();
 		}
@@ -517,7 +557,7 @@ public class ListTestPerformance {
 			return rs;
 		}
 
-		void renderBenchmarkTables(HtmlReport report, IList<Result> rs) {
+		void renderBenchmarkTables(HtmlReport report, IList<Result> rs, boolean normalize) {
 			benchmarks = CollectionTools.getDistinct(rs.mappedList(r -> r.benchmark));
 			sizes = CollectionTools.getDistinct(rs.mappedList(r -> r.size));
 			types = CollectionTools.getDistinct(rs.mappedList(r -> r.type));
@@ -525,7 +565,7 @@ public class ListTestPerformance {
 
 			for (String size : sizes) {
 				IList<Result> rs2 = rs.filteredList(r -> r.size.equals(size));
-				Table tab = getTable(rs2, true);
+				Table tab = getTable(rs2, normalize);
 				HtmlTable ht = renderTable(tab);
 				report.add(ht);
 			}
@@ -542,13 +582,16 @@ public class ListTestPerformance {
 			String colGood = "#4488ff";
 			String colModerate = "#ffff88";
 			String colBad = "#ff8888";
+			double valRed = 25;
+			double valYellow = 5;
+			double valBlue = 1;
 
 			LOG.info("{}", tab);
 
 			ConditionalFormatter cf = new ConditionalFormatter();
-			cf.add(c -> (double) c.getValue() > 25, t -> new CssStyle().setBackgroundColor(colBad).getAttribute());
-			cf.add(c -> (double) c.getValue() > 5, t -> new CssStyle().setBackgroundColor(colModerate).getAttribute());
-			cf.add(c -> (double) c.getValue() > 1, t -> new CssStyle().setBackgroundColor(colGood).getAttribute());
+			cf.add(c -> (double) c.getValue() > valRed, t -> new CssStyle().setBackgroundColor(colBad).getAttribute());
+			cf.add(c -> (double) c.getValue() > valYellow, t -> new CssStyle().setBackgroundColor(colModerate).getAttribute());
+			cf.add(c -> (double) c.getValue() > valBlue, t -> new CssStyle().setBackgroundColor(colGood).getAttribute());
 			cf.add(Predicates.allow(), t -> new CssStyle().setBackgroundColor(colBest).getAttribute());
 
 			HtmlFormatters hf = new HtmlFormatters();
@@ -556,38 +599,35 @@ public class ListTestPerformance {
 
 			HtmlTableFormatter htf = new HtmlTableFormatter();
 			htf.setFormatters(hf);
-			return htf.format(tab);
+			HtmlTable ht = htf.format(tab);
+
+			IList<Element> src = HtmlTools.getTableColCells(ht.getElement(), 1);
+			IList<Element> dst = HtmlTools.getTableColCells(ht.getElement(), 0);
+			copyFormatting(src, dst);
+
+			return ht;
 		}
 
-		void showChart2(IList<Result> trs) {
-			Table tab = getTable(trs, false);
-			LOG.info("{}", tab);
-
-			HtmlDocument doc = getDoc(tab);
-			HtmlReport report = new HtmlReport();
-			report.setDoc(doc);
-			report.showHtml();
+		/** Apply formatting by copying the style attribute. */
+		void copyFormatting(IList<Element> srcElems, IList<Element> dstElems) {
+			BiConsumer<Element, Element> handler = (src, dst) -> {
+				Attribute attr = src.getAttribute(HtmlConst.ATTR_STYLE);
+				if (attr != null) {
+					dst.setAttribute(attr.clone());
+				}
+			};
+			copyFormatting(srcElems, dstElems, handler);
 		}
 
-		HtmlDocument getDoc(Table tab) {
-			HtmlDocument doc = new HtmlDocument();
-			doc.getBody().addH1("Charts");
-
-			HtmlChartCreator creator = new HtmlChartCreator();
-			creator.setTitle("Chart");
-			creator.setWidth("800px");
-			creator.setHeight("400px");
-
-			creator.setTable(tab);
-			creator.setChartType(ChartType.LINE);
-			HtmlDoclet chart = creator.getChart();
-			doc.addResources(chart.getResources());
-			doc.getBody().addElem(chart.getElement());
-			return doc;
+		void copyFormatting(IList<Element> srcElems, IList<Element> dstElems, BiConsumer<Element, Element> handler) {
+			CheckTools.check(srcElems.size() == dstElems.size());
+			for (int i = 0; i < srcElems.size(); i++) {
+				handler.accept(srcElems.get(i), dstElems.get(i));
+			}
 		}
 
-		Table getTable(IList<Result> rs, boolean factor) {
-			Table tab = getTableHeader(rs, factor);
+		Table getTable(IList<Result> rs, boolean normalize) {
+			Table tab = getTableHeader(rs, normalize);
 
 			for (String benchmark : benchmarks) {
 				for (String op : ops) {
@@ -604,7 +644,7 @@ public class ListTestPerformance {
 						continue;
 					}
 
-					if (factor) {
+					if (normalize) {
 						normalizeNumbers(times);
 					}
 
@@ -625,13 +665,13 @@ public class ListTestPerformance {
 			}
 		}
 
-		Table getTableHeader(IList<Result> trs, boolean factor) {
+		Table getTableHeader(IList<Result> trs, boolean normalize) {
 			Table tab = new Table();
 
 			Result tr = trs.getFirst();
 			tab.addCol("Size= " + tr.size, Type.STRING_TYPE);
 
-			Type<Double> numberType = (factor) ? FactorNumberType : Type.DOUBLE_TYPE;
+			Type<Double> numberType = (normalize) ? FactorNumberType : Type.DOUBLE_TYPE;
 			for (String type : types) {
 				tab.addCol(type, numberType); // e.g. "GapList"
 			}
