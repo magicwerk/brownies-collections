@@ -33,12 +33,13 @@ dependencies {
     
     testImplementation libraries.junit
     testImplementation libraries.guava_testlib
-	testImplementation libraries.javaparser	
-	
+	testImplementation libraries.javaparser
 	testImplementation 'com.melloware:jintellitype:1.3.9:dll-x64' 
+
 	testImplementation 'org.apache.commons:commons-collections4:4.0'
 	testImplementation 'org.javolution:javolution-core-java:6.0.0'
 	testImplementation 'it.unimi.dsi:fastutil:7.0.9'
+	//testImplementation 'com.ertu.collection:ertu-collection:1.0-SNAPSHOT'
 }
 
 javadoc {
