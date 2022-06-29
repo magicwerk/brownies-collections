@@ -28,6 +28,8 @@ import org.magicwerk.brownies.core.function.Predicates;
 import org.magicwerk.brownies.core.logback.LogbackTools;
 import org.magicwerk.brownies.core.reflect.ClassTools;
 import org.magicwerk.brownies.core.reflect.ReflectTools;
+import org.magicwerk.brownies.core.time.DurationTools;
+import org.magicwerk.brownies.core.types.ByteSizeType.ByteSizeTypeFormatter;
 import org.magicwerk.brownies.core.types.Type;
 import org.magicwerk.brownies.core.validator.NumberFormatter;
 import org.magicwerk.brownies.core.values.Table;
@@ -468,6 +470,11 @@ public class ListTestPerformance {
 	static class ShowBenchmark {
 
 		static Type<Double> FactorNumberType = Type.builder(Double.class).with((IFormatter) new NumberFormatter(2)).toType();
+		static IFormatter<Double> timeFormatter = s -> DurationTools.formatSeconds(s);
+		static Type<Double> TimeNumberType = Type.builder(Double.class).with(timeFormatter).toType();
+		static ByteSizeTypeFormatter byteSizeFormatter = new ByteSizeTypeFormatter(false);
+		static IFormatter<Double> sizeFormatter = d -> byteSizeFormatter.format(d.longValue());
+		static Type<Double> SizeNumberType = Type.builder(Double.class).with(sizeFormatter).toType();
 
 		static class Result {
 			String benchmark;
@@ -504,7 +511,7 @@ public class ListTestPerformance {
 
 		// NOT USED
 		void showChart(IList<Result> trs) {
-			Table tab = getTable(trs, false);
+			Table tab = getTable(trs);
 			LOG.info("{}", tab);
 
 			HtmlDocument doc = getChartDoc(tab);
@@ -539,7 +546,7 @@ public class ListTestPerformance {
 			report.add(StyleResource.INSTANCE);
 
 			renderObjectSizeTable(report);
-			renderBenchmarkTables(report, rs, normalize);
+			renderBenchmarkTables(report, rs);
 
 			report.showHtml();
 		}
@@ -557,7 +564,7 @@ public class ListTestPerformance {
 			return rs;
 		}
 
-		void renderBenchmarkTables(HtmlReport report, IList<Result> rs, boolean normalize) {
+		void renderBenchmarkTables(HtmlReport report, IList<Result> rs) {
 			benchmarks = CollectionTools.getDistinct(rs.mappedList(r -> r.benchmark));
 			sizes = CollectionTools.getDistinct(rs.mappedList(r -> r.size));
 			types = CollectionTools.getDistinct(rs.mappedList(r -> r.type));
@@ -565,7 +572,7 @@ public class ListTestPerformance {
 
 			for (String size : sizes) {
 				IList<Result> rs2 = rs.filteredList(r -> r.size.equals(size));
-				Table tab = getTable(rs2, normalize);
+				Table tab = getTable(rs2);
 				HtmlTable ht = renderTable(tab);
 				report.add(ht);
 			}
@@ -585,25 +592,40 @@ public class ListTestPerformance {
 			double valRed = 25;
 			double valYellow = 5;
 			double valBlue = 1;
+			String alignRight = "right";
 
 			LOG.info("{}", tab);
 
 			ConditionalFormatter cf = new ConditionalFormatter();
-			cf.add(c -> (double) c.getValue() > valRed, t -> new CssStyle().setBackgroundColor(colBad).getAttribute());
-			cf.add(c -> (double) c.getValue() > valYellow, t -> new CssStyle().setBackgroundColor(colModerate).getAttribute());
-			cf.add(c -> (double) c.getValue() > valBlue, t -> new CssStyle().setBackgroundColor(colGood).getAttribute());
-			cf.add(Predicates.allow(), t -> new CssStyle().setBackgroundColor(colBest).getAttribute());
+			cf.add(c -> (double) c.getValue() > valRed, t -> new CssStyle().setBackgroundColor(colBad).setTextAlign(alignRight).getAttribute());
+			cf.add(c -> (double) c.getValue() > valYellow, t -> new CssStyle().setBackgroundColor(colModerate).setTextAlign(alignRight).getAttribute());
+			cf.add(c -> (double) c.getValue() > valBlue, t -> new CssStyle().setBackgroundColor(colGood).setTextAlign(alignRight).getAttribute());
+			cf.add(Predicates.allow(), t -> new CssStyle().setBackgroundColor(colBest).setTextAlign(alignRight).getAttribute());
 
 			HtmlFormatters hf = new HtmlFormatters();
-			hf.addFormatter(GridSelection.Region(0, 1, tab.getNumRows() - 1, tab.getNumCols() - 1), cf);
+			for (int r = 0; r < tab.getNumRows(); r += 2) {
+				hf.addFormatter(GridSelection.Region(r + 1, 1, r + 1, tab.getNumCols() - 1), cf);
+			}
 
 			HtmlTableFormatter htf = new HtmlTableFormatter();
 			htf.setFormatters(hf);
 			HtmlTable ht = htf.format(tab);
 
-			IList<Element> src = HtmlTools.getTableColCells(ht.getElement(), 1);
-			IList<Element> dst = HtmlTools.getTableColCells(ht.getElement(), 0);
-			copyFormatting(src, dst);
+			boolean removeFactorRows = true;
+			Element e = ht.getElement();
+			int rows = HtmlTools.getTableNumRows(e);
+			for (int r = 1; r < rows; r++) {
+				IList<Element> src = HtmlTools.getTableRowCells(e, r + 1);
+				IList<Element> dst = HtmlTools.getTableRowCells(e, r);
+				copyFormatting(src, dst);
+
+				if (removeFactorRows) {
+					HtmlTools.removeTableRow(e, r + 1);
+					rows--;
+				} else {
+					r++;
+				}
+			}
 
 			return ht;
 		}
@@ -626,8 +648,8 @@ public class ListTestPerformance {
 			}
 		}
 
-		Table getTable(IList<Result> rs, boolean normalize) {
-			Table tab = getTableHeader(rs, normalize);
+		Table getTable(IList<Result> rs) {
+			Table tab = getTableHeader(rs);
 
 			for (String benchmark : benchmarks) {
 				for (String op : ops) {
@@ -644,12 +666,17 @@ public class ListTestPerformance {
 						continue;
 					}
 
-					if (normalize) {
-						normalizeNumbers(times);
-					}
-
-					IList<Object> row = GapList.create();
 					String name = (op != null) ? benchmark + " " + op : benchmark;
+
+					// Add row with times
+					IList<Object> row = GapList.create();
+					row.add(name);
+					row.addAll(times);
+					tab.addRowElems(row);
+
+					// Add row with normalized factors
+					normalizeNumbers(times);
+					row.clear();
 					row.add(name);
 					row.addAll(times);
 					tab.addRowElems(row);
@@ -665,15 +692,14 @@ public class ListTestPerformance {
 			}
 		}
 
-		Table getTableHeader(IList<Result> trs, boolean normalize) {
+		Table getTableHeader(IList<Result> trs) {
 			Table tab = new Table();
 
 			Result tr = trs.getFirst();
 			tab.addCol("Size= " + tr.size, Type.STRING_TYPE);
 
-			Type<Double> numberType = (normalize) ? FactorNumberType : Type.DOUBLE_TYPE;
 			for (String type : types) {
-				tab.addCol(type, numberType); // e.g. "GapList"
+				tab.addCol(type, TimeNumberType); // e.g. "GapList"
 			}
 			return tab;
 		}
@@ -685,13 +711,10 @@ public class ListTestPerformance {
 			Table tab = new Table();
 			tab.addCol("Size", Type.intType);
 			for (String type : types) {
-				tab.addCol(type, FactorNumberType); // e.g. "GapList"
+				tab.addCol(type, SizeNumberType); // e.g. "GapList"
 			}
 
 			for (int size : sizes) {
-				IList<Object> row = GapList.create();
-				row.add(size);
-
 				IList<Double> vals = GapList.create();
 				for (String type : types) {
 					Supplier newOp = getNewOperation(type);
@@ -699,12 +722,20 @@ public class ListTestPerformance {
 					for (int i = 0; i < size; i++) {
 						list.add(i);
 					}
-					int objSize = ReflectTools.getObjectSize(list);
+					long objSize = ReflectTools.getObjectSize(list);
 					vals.add((double) objSize);
 				}
 
-				normalizeNumbers(vals);
+				// Add row with sizes
+				IList<Object> row = GapList.create();
+				row.add(size);
+				row.addAll(vals);
+				tab.addRowElems(row);
 
+				// Add row with normalized factors
+				normalizeNumbers(vals);
+				row.clear();
+				row.add(size);
 				row.addAll(vals);
 				tab.addRowElems(row);
 			}
