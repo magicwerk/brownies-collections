@@ -149,7 +149,13 @@ public class IntBigList extends IIntList {
     }
 
     // This separate method is needed as the varargs variant creates the list with specific size
-    public static IntBigList create() {
+    public static /**
+     * Create new list.
+     *
+     * @return          created list
+     * @param        type of elements stored in the list
+     */
+    IntBigList create() {
         return new IntBigList();
     }
 
@@ -428,6 +434,10 @@ public class IntBigList extends IIntList {
             }
             releaseIntBlock();
         }
+        return getIntBlockIndex2(index, write, modify);
+    }
+
+    private int getIntBlockIndex2(int index, boolean write, int modify) {
         if (index == size) {
             if (currNode == null || currIntBlockEnd != size) {
                 currNode = rootNode.max();
@@ -516,36 +526,14 @@ public class IntBigList extends IIntList {
                 if (index < currIntBlockEnd) {
                     // Traverse the left node
                     nextNode = currNode.getLeftSubTree();
-                    if (modify != 0) {
-                        if (nextNode == null || !wasLeft) {
-                            if (currNode.relPos > 0) {
-                                currNode.relPos += modify;
-                            } else {
-                                currNode.relPos -= modify;
-                            }
-                            wasLeft = true;
-                        }
-                    }
+                    wasLeft = doGetIntBlockLeft(modify, nextNode, wasLeft);
                     if (nextNode == null) {
                         break;
                     }
                 } else {
                     // Traverse the right node
                     nextNode = currNode.getRightSubTree();
-                    if (modify != 0) {
-                        if (nextNode == null || wasLeft) {
-                            if (currNode.relPos > 0) {
-                                currNode.relPos += modify;
-                                IntBlockNode left = currNode.getLeftSubTree();
-                                if (left != null) {
-                                    left.relPos -= modify;
-                                }
-                            } else {
-                                currNode.relPos -= modify;
-                            }
-                            wasLeft = false;
-                        }
-                    }
+                    wasLeft = doGetIntBlockRight(modify, nextNode, wasLeft);
                     if (nextNode == null) {
                         break;
                     }
@@ -555,6 +543,38 @@ public class IntBigList extends IIntList {
             }
         }
         currIntBlockStart = currIntBlockEnd - currNode.block.size();
+    }
+
+    private boolean doGetIntBlockLeft(int modify, IntBlockNode nextNode, boolean wasLeft) {
+        if (modify != 0) {
+            if (nextNode == null || !wasLeft) {
+                if (currNode.relPos > 0) {
+                    currNode.relPos += modify;
+                } else {
+                    currNode.relPos -= modify;
+                }
+                wasLeft = true;
+            }
+        }
+        return wasLeft;
+    }
+
+    private boolean doGetIntBlockRight(int modify, IntBlockNode nextNode, boolean wasLeft) {
+        if (modify != 0) {
+            if (nextNode == null || wasLeft) {
+                if (currNode.relPos > 0) {
+                    currNode.relPos += modify;
+                    IntBlockNode left = currNode.getLeftSubTree();
+                    if (left != null) {
+                        left.relPos -= modify;
+                    }
+                } else {
+                    currNode.relPos -= modify;
+                }
+                wasLeft = false;
+            }
+        }
+        return wasLeft;
     }
 
     /**
@@ -611,31 +631,35 @@ public class IntBigList extends IIntList {
                 currIntBlockEnd = 1;
             } else {
                 // Split block for insert
-                int nextIntBlockLen = blockSize / 2;
-                int blockLen = blockSize - nextIntBlockLen;
-                IntGapList.transferRemove(currNode.block, blockLen, nextIntBlockLen, newIntBlock, 0, 0);
-                // Subtract 1 more because getIntBlockIndex() has already added 1
-                modify(currNode, -nextIntBlockLen - 1);
-                addIntBlock(currIntBlockEnd - nextIntBlockLen, newIntBlock);
-                if (pos < blockLen) {
-                    // Insert element in first block
-                    currNode.block.doAdd(pos, element);
-                    currIntBlockEnd = currIntBlockStart + blockLen + 1;
-                    modify(currNode, 1);
-                } else {
-                    // Insert element in second block
-                    currNode = currNode.next();
-                    modify(currNode, 1);
-                    currNode.block.doAdd(pos - blockLen, element);
-                    currIntBlockStart += blockLen;
-                    currIntBlockEnd++;
-                }
+                doAddSplitIntBlock(index, element, pos, newIntBlock);
             }
         }
         size++;
         if (CHECK)
             check();
         return true;
+    }
+
+    private void doAddSplitIntBlock(int index, int element, int pos, IntBlock newIntBlock) {
+        int nextIntBlockLen = blockSize / 2;
+        int blockLen = blockSize - nextIntBlockLen;
+        IntGapList.transferRemove(currNode.block, blockLen, nextIntBlockLen, newIntBlock, 0, 0);
+        // Subtract 1 more because getIntBlockIndex() has already added 1
+        modify(currNode, -nextIntBlockLen - 1);
+        addIntBlock(currIntBlockEnd - nextIntBlockLen, newIntBlock);
+        if (pos < blockLen) {
+            // Insert element in first block
+            currNode.block.doAdd(pos, element);
+            currIntBlockEnd = currIntBlockStart + blockLen + 1;
+            modify(currNode, 1);
+        } else {
+            // Insert element in second block
+            currNode = currNode.next();
+            modify(currNode, 1);
+            currNode.block.doAdd(pos - blockLen, element);
+            currIntBlockStart += blockLen;
+            currIntBlockEnd++;
+        }
     }
 
     /**
@@ -655,63 +679,69 @@ public class IntBigList extends IIntList {
             return;
         }
         if (node.relPos < 0) {
-            // Left node
-            IntBlockNode leftNode = node.getLeftSubTree();
-            if (leftNode != null) {
-                leftNode.relPos -= modify;
+            modifyLeftNode(node, modify);
+        } else {
+            modifyRightNode(node, modify);
+        }
+    }
+
+    private void modifyLeftNode(IntBlockNode node, int modify) {
+        IntBlockNode leftNode = node.getLeftSubTree();
+        if (leftNode != null) {
+            leftNode.relPos -= modify;
+        }
+        IntBlockNode pp = node.parent;
+        assert (pp.getLeftSubTree() == node);
+        boolean parentRight = true;
+        while (true) {
+            IntBlockNode p = pp.parent;
+            if (p == null) {
+                break;
             }
-            IntBlockNode pp = node.parent;
-            assert (pp.getLeftSubTree() == node);
-            boolean parentRight = true;
+            boolean pRight = (p.getLeftSubTree() == pp);
+            if (parentRight != pRight) {
+                if (pp.relPos > 0) {
+                    pp.relPos += modify;
+                } else {
+                    pp.relPos -= modify;
+                }
+            }
+            pp = p;
+            parentRight = pRight;
+        }
+        if (parentRight) {
+            rootNode.relPos += modify;
+        }
+    }
+
+    private void modifyRightNode(IntBlockNode node, int modify) {
+        node.relPos += modify;
+        IntBlockNode leftNode = node.getLeftSubTree();
+        if (leftNode != null) {
+            leftNode.relPos -= modify;
+        }
+        IntBlockNode parent = node.parent;
+        if (parent != null) {
+            assert (parent.getRightSubTree() == node);
+            boolean parentLeft = true;
             while (true) {
-                IntBlockNode p = pp.parent;
+                IntBlockNode p = parent.parent;
                 if (p == null) {
                     break;
                 }
-                boolean pRight = (p.getLeftSubTree() == pp);
-                if (parentRight != pRight) {
-                    if (pp.relPos > 0) {
-                        pp.relPos += modify;
+                boolean pLeft = (p.getRightSubTree() == parent);
+                if (parentLeft != pLeft) {
+                    if (parent.relPos > 0) {
+                        parent.relPos += modify;
                     } else {
-                        pp.relPos -= modify;
+                        parent.relPos -= modify;
                     }
                 }
-                pp = p;
-                parentRight = pRight;
+                parent = p;
+                parentLeft = pLeft;
             }
-            if (parentRight) {
+            if (!parentLeft) {
                 rootNode.relPos += modify;
-            }
-        } else {
-            // Right node
-            node.relPos += modify;
-            IntBlockNode leftNode = node.getLeftSubTree();
-            if (leftNode != null) {
-                leftNode.relPos -= modify;
-            }
-            IntBlockNode parent = node.parent;
-            if (parent != null) {
-                assert (parent.getRightSubTree() == node);
-                boolean parentLeft = true;
-                while (true) {
-                    IntBlockNode p = parent.parent;
-                    if (p == null) {
-                        break;
-                    }
-                    boolean pLeft = (p.getRightSubTree() == parent);
-                    if (parentLeft != pLeft) {
-                        if (parent.relPos > 0) {
-                            parent.relPos += modify;
-                        } else {
-                            parent.relPos -= modify;
-                        }
-                    }
-                    parent = p;
-                    parentLeft = pLeft;
-                }
-                if (!parentLeft) {
-                    rootNode.relPos += modify;
-                }
             }
         }
     }
@@ -763,142 +793,156 @@ public class IntBigList extends IIntList {
         } else {
             if (index == size) {
                 // Add elements at end
-                for (int i = 0; i < space; i++) {
-                    currNode.block.add(addPos + i, list.get(i));
-                }
-                modify(currNode, space);
-                int done = space;
-                int todo = addLen - space;
-                while (todo > 0) {
-                    IntBlock nextIntBlock = new IntBlock(blockSize);
-                    int add = Math.min(todo, blockSize);
-                    for (int i = 0; i < add; i++) {
-                        nextIntBlock.add(i, list.get(done + i));
-                    }
-                    done += add;
-                    todo -= add;
-                    addIntBlock(size + done, nextIntBlock);
-                    currNode = currNode.next();
-                }
-                size += addLen;
-                currIntBlockEnd = size;
-                currIntBlockStart = currIntBlockEnd - currNode.block.size();
+                doAddAllTail(list, addPos, addLen, space);
             } else if (index == 0) {
                 // Add elements at head
-                assert (addPos == 0);
-                for (int i = 0; i < space; i++) {
-                    currNode.block.add(addPos + i, list.get(addLen - space + i));
-                }
-                modify(currNode, space);
-                int done = space;
-                int todo = addLen - space;
-                while (todo > 0) {
-                    IntBlock nextIntBlock = new IntBlock(blockSize);
-                    int add = Math.min(todo, blockSize);
-                    for (int i = 0; i < add; i++) {
-                        nextIntBlock.add(i, list.get(addLen - done - add + i));
-                    }
-                    done += add;
-                    todo -= add;
-                    addIntBlock(0, nextIntBlock);
-                    currNode = currNode.previous();
-                }
-                size += addLen;
-                currIntBlockStart = 0;
-                currIntBlockEnd = currNode.block.size();
+                doAddAllHead(list, addPos, addLen, space);
             } else {
                 // Add elements in the middle
-                // Split first block to remove tail elements if necessary
-                // TODO avoid unnecessary copy
-                IntGapList list2 = IntGapList.create();
-                list2.addAll(list);
-                int remove = currNode.block.size() - addPos;
-                if (remove > 0) {
-                    list2.addAll(currNode.block.getAll(addPos, remove));
-                    currNode.block.remove(addPos, remove);
-                    modify(currNode, -remove);
-                    size -= remove;
-                    currIntBlockEnd -= remove;
-                }
-                // Calculate how many blocks we need for the elements
-                int numElems = currNode.block.size() + list2.size();
-                int numIntBlocks = (numElems - 1) / blockSize + 1;
-                assert (numIntBlocks > 1);
-                int has = currNode.block.size();
-                int should = numElems / numIntBlocks;
-                int listPos = 0;
-                if (has < should) {
-                    // Elements must be added to first block
-                    int add = should - has;
-                    IIntList sublist = list2.getAll(0, add);
-                    listPos += add;
-                    currNode.block.addAll(addPos, sublist);
-                    modify(currNode, add);
-                    assert (currNode.block.size() == should);
-                    numElems -= should;
-                    numIntBlocks--;
-                    size += add;
-                    currIntBlockEnd += add;
-                } else if (has > should) {
-                    // Elements must be moved from first to second block
-                    IntBlock nextIntBlock = new IntBlock(blockSize);
-                    int move = has - should;
-                    nextIntBlock.addAll(currNode.block.getAll(currNode.block.size() - move, move));
-                    currNode.block.remove(currNode.block.size() - move, move);
-                    modify(currNode, -move);
-                    assert (currNode.block.size() == should);
-                    numElems -= should;
-                    numIntBlocks--;
-                    currIntBlockEnd -= move;
-                    should = numElems / numIntBlocks;
-                    int add = should - move;
-                    assert (add >= 0);
-                    IIntList sublist = list2.getAll(0, add);
-                    nextIntBlock.addAll(move, sublist);
-                    listPos += add;
-                    assert (nextIntBlock.size() == should);
-                    numElems -= should;
-                    numIntBlocks--;
-                    size += add;
-                    addIntBlock(currIntBlockEnd, nextIntBlock);
-                    currNode = currNode.next();
-                    assert (currNode.block == nextIntBlock);
-                    assert (currNode.block.size() == add + move);
-                    currIntBlockStart = currIntBlockEnd;
-                    currIntBlockEnd += add + move;
-                } else {
-                    // IntBlock already has the correct size
-                    numElems -= should;
-                    numIntBlocks--;
-                }
-                if (CHECK)
-                    check();
-                while (numIntBlocks > 0) {
-                    int add = numElems / numIntBlocks;
-                    assert (add > 0);
-                    IIntList sublist = list2.getAll(listPos, add);
-                    listPos += add;
-                    IntBlock nextIntBlock = new IntBlock();
-                    nextIntBlock.addAll(sublist);
-                    assert (nextIntBlock.size() == add);
-                    numElems -= add;
-                    addIntBlock(currIntBlockEnd, nextIntBlock);
-                    currNode = currNode.next();
-                    assert (currNode.block == nextIntBlock);
-                    assert (currNode.block.size() == add);
-                    currIntBlockStart = currIntBlockEnd;
-                    currIntBlockEnd += add;
-                    size += add;
-                    numIntBlocks--;
-                    if (CHECK)
-                        check();
-                }
+                doAddAllMiddle(list, addPos);
             }
         }
         assert (oldSize + addLen == size);
         if (CHECK)
             check();
         return true;
+    }
+
+    private void doAddAllTail(IIntList list, int addPos, int addLen, int space) {
+        for (int i = 0; i < space; i++) {
+            currNode.block.add(addPos + i, list.get(i));
+        }
+        modify(currNode, space);
+        int done = space;
+        int todo = addLen - space;
+        while (todo > 0) {
+            IntBlock nextIntBlock = new IntBlock(blockSize);
+            int add = Math.min(todo, blockSize);
+            for (int i = 0; i < add; i++) {
+                nextIntBlock.add(i, list.get(done + i));
+            }
+            done += add;
+            todo -= add;
+            addIntBlock(size + done, nextIntBlock);
+            currNode = currNode.next();
+        }
+        size += addLen;
+        currIntBlockEnd = size;
+        currIntBlockStart = currIntBlockEnd - currNode.block.size();
+    }
+
+    private void doAddAllHead(IIntList list, int addPos, int addLen, int space) {
+        assert (addPos == 0);
+        for (int i = 0; i < space; i++) {
+            currNode.block.add(addPos + i, list.get(addLen - space + i));
+        }
+        modify(currNode, space);
+        int done = space;
+        int todo = addLen - space;
+        while (todo > 0) {
+            IntBlock nextIntBlock = new IntBlock(blockSize);
+            int add = Math.min(todo, blockSize);
+            for (int i = 0; i < add; i++) {
+                nextIntBlock.add(i, list.get(addLen - done - add + i));
+            }
+            done += add;
+            todo -= add;
+            addIntBlock(0, nextIntBlock);
+            currNode = currNode.previous();
+        }
+        size += addLen;
+        currIntBlockStart = 0;
+        currIntBlockEnd = currNode.block.size();
+    }
+
+    // method is not changed right now.
+    private // To have good performance, it would have to be guaranteed that escape analysis is able to perform scalar replacement. As this is not trivial,
+    void doAddAllMiddle(IIntList list, int addPos) {
+        // Split first block to remove tail elements if necessary
+        // TODO avoid unnecessary copy
+        IntGapList list2 = IntGapList.create();
+        list2.addAll(list);
+        int remove = currNode.block.size() - addPos;
+        if (remove > 0) {
+            list2.addAll(currNode.block.getAll(addPos, remove));
+            currNode.block.remove(addPos, remove);
+            modify(currNode, -remove);
+            size -= remove;
+            currIntBlockEnd -= remove;
+        }
+        // Calculate how many blocks we need for the elements
+        int numElems = currNode.block.size() + list2.size();
+        int numIntBlocks = (numElems - 1) / blockSize + 1;
+        assert (numIntBlocks > 1);
+        int has = currNode.block.size();
+        int should = numElems / numIntBlocks;
+        int listPos = 0;
+        if (has < should) {
+            // Elements must be added to first block
+            int add = should - has;
+            IIntList sublist = list2.getAll(0, add);
+            listPos += add;
+            currNode.block.addAll(addPos, sublist);
+            modify(currNode, add);
+            assert (currNode.block.size() == should);
+            numElems -= should;
+            numIntBlocks--;
+            size += add;
+            currIntBlockEnd += add;
+        } else if (has > should) {
+            // Elements must be moved from first to second block
+            IntBlock nextIntBlock = new IntBlock(blockSize);
+            int move = has - should;
+            nextIntBlock.addAll(currNode.block.getAll(currNode.block.size() - move, move));
+            currNode.block.remove(currNode.block.size() - move, move);
+            modify(currNode, -move);
+            assert (currNode.block.size() == should);
+            numElems -= should;
+            numIntBlocks--;
+            currIntBlockEnd -= move;
+            should = numElems / numIntBlocks;
+            int add = should - move;
+            assert (add >= 0);
+            IIntList sublist = list2.getAll(0, add);
+            nextIntBlock.addAll(move, sublist);
+            listPos += add;
+            assert (nextIntBlock.size() == should);
+            numElems -= should;
+            numIntBlocks--;
+            size += add;
+            addIntBlock(currIntBlockEnd, nextIntBlock);
+            currNode = currNode.next();
+            assert (currNode.block == nextIntBlock);
+            assert (currNode.block.size() == add + move);
+            currIntBlockStart = currIntBlockEnd;
+            currIntBlockEnd += add + move;
+        } else {
+            // IntBlock already has the correct size
+            numElems -= should;
+            numIntBlocks--;
+        }
+        if (CHECK)
+            check();
+        while (numIntBlocks > 0) {
+            int add = numElems / numIntBlocks;
+            assert (add > 0);
+            IIntList sublist = list2.getAll(listPos, add);
+            listPos += add;
+            IntBlock nextIntBlock = new IntBlock();
+            nextIntBlock.addAll(sublist);
+            assert (nextIntBlock.size() == add);
+            numElems -= add;
+            addIntBlock(currIntBlockEnd, nextIntBlock);
+            currNode = currNode.next();
+            assert (currNode.block == nextIntBlock);
+            assert (currNode.block.size() == add);
+            currIntBlockStart = currIntBlockEnd;
+            currIntBlockEnd += add;
+            size += add;
+            numIntBlocks--;
+            if (CHECK)
+                check();
+        }
     }
 
     @Override
@@ -948,50 +992,54 @@ public class IntBigList extends IIntList {
             size -= len;
         } else {
             // Delete from start block
-            if (CHECK)
-                check();
-            int startLen = startNode.block.size() - startPos;
-            getIntBlockIndex(index, true, -startLen);
-            startNode.block.remove(startPos, startLen);
-            assert (startNode == currNode);
-            if (currNode.block.isEmpty()) {
-                releaseIntBlock();
-                doRemove(startNode);
-                startNode = null;
-            }
-            len -= startLen;
-            size -= startLen;
-            while (len > 0) {
-                currNode = null;
-                getIntBlockIndex(index, true, 0);
-                int s = currNode.block.size();
-                if (s <= len) {
-                    modify(currNode, -s);
-                    IntBlockNode oldCurrNode = currNode;
-                    releaseIntBlock();
-                    doRemove(oldCurrNode);
-                    if (oldCurrNode == endNode) {
-                        endNode = null;
-                    }
-                    len -= s;
-                    size -= s;
-                    if (CHECK)
-                        check();
-                } else {
-                    modify(currNode, -len);
-                    currNode.block.remove(0, len);
-                    size -= len;
-                    break;
-                }
-            }
-            releaseIntBlock();
-            if (CHECK)
-                check();
-            getIntBlockIndex(index, false, 0);
-            merge(currNode);
+            doRemoveAll2(index, len, startPos, startNode, endNode);
         }
         if (CHECK)
             check();
+    }
+
+    private void doRemoveAll2(int index, int len, int startPos, IntBlockNode startNode, IntBlockNode endNode) {
+        if (CHECK)
+            check();
+        int startLen = startNode.block.size() - startPos;
+        getIntBlockIndex(index, true, -startLen);
+        startNode.block.remove(startPos, startLen);
+        assert (startNode == currNode);
+        if (currNode.block.isEmpty()) {
+            releaseIntBlock();
+            doRemove(startNode);
+            startNode = null;
+        }
+        len -= startLen;
+        size -= startLen;
+        while (len > 0) {
+            currNode = null;
+            getIntBlockIndex(index, true, 0);
+            int s = currNode.block.size();
+            if (s <= len) {
+                modify(currNode, -s);
+                IntBlockNode oldCurrNode = currNode;
+                releaseIntBlock();
+                doRemove(oldCurrNode);
+                if (oldCurrNode == endNode) {
+                    endNode = null;
+                }
+                len -= s;
+                size -= s;
+                if (CHECK)
+                    check();
+            } else {
+                modify(currNode, -len);
+                currNode.block.remove(0, len);
+                size -= len;
+                break;
+            }
+        }
+        releaseIntBlock();
+        if (CHECK)
+            check();
+        getIntBlockIndex(index, false, 0);
+        merge(currNode);
     }
 
     /**

@@ -149,7 +149,13 @@ public class DoubleBigList extends IDoubleList {
     }
 
     // This separate method is needed as the varargs variant creates the list with specific size
-    public static DoubleBigList create() {
+    public static /**
+     * Create new list.
+     *
+     * @return          created list
+     * @param        type of elements stored in the list
+     */
+    DoubleBigList create() {
         return new DoubleBigList();
     }
 
@@ -428,6 +434,10 @@ public class DoubleBigList extends IDoubleList {
             }
             releaseDoubleBlock();
         }
+        return getDoubleBlockIndex2(index, write, modify);
+    }
+
+    private int getDoubleBlockIndex2(int index, boolean write, int modify) {
         if (index == size) {
             if (currNode == null || currDoubleBlockEnd != size) {
                 currNode = rootNode.max();
@@ -516,36 +526,14 @@ public class DoubleBigList extends IDoubleList {
                 if (index < currDoubleBlockEnd) {
                     // Traverse the left node
                     nextNode = currNode.getLeftSubTree();
-                    if (modify != 0) {
-                        if (nextNode == null || !wasLeft) {
-                            if (currNode.relPos > 0) {
-                                currNode.relPos += modify;
-                            } else {
-                                currNode.relPos -= modify;
-                            }
-                            wasLeft = true;
-                        }
-                    }
+                    wasLeft = doGetDoubleBlockLeft(modify, nextNode, wasLeft);
                     if (nextNode == null) {
                         break;
                     }
                 } else {
                     // Traverse the right node
                     nextNode = currNode.getRightSubTree();
-                    if (modify != 0) {
-                        if (nextNode == null || wasLeft) {
-                            if (currNode.relPos > 0) {
-                                currNode.relPos += modify;
-                                DoubleBlockNode left = currNode.getLeftSubTree();
-                                if (left != null) {
-                                    left.relPos -= modify;
-                                }
-                            } else {
-                                currNode.relPos -= modify;
-                            }
-                            wasLeft = false;
-                        }
-                    }
+                    wasLeft = doGetDoubleBlockRight(modify, nextNode, wasLeft);
                     if (nextNode == null) {
                         break;
                     }
@@ -555,6 +543,38 @@ public class DoubleBigList extends IDoubleList {
             }
         }
         currDoubleBlockStart = currDoubleBlockEnd - currNode.block.size();
+    }
+
+    private boolean doGetDoubleBlockLeft(int modify, DoubleBlockNode nextNode, boolean wasLeft) {
+        if (modify != 0) {
+            if (nextNode == null || !wasLeft) {
+                if (currNode.relPos > 0) {
+                    currNode.relPos += modify;
+                } else {
+                    currNode.relPos -= modify;
+                }
+                wasLeft = true;
+            }
+        }
+        return wasLeft;
+    }
+
+    private boolean doGetDoubleBlockRight(int modify, DoubleBlockNode nextNode, boolean wasLeft) {
+        if (modify != 0) {
+            if (nextNode == null || wasLeft) {
+                if (currNode.relPos > 0) {
+                    currNode.relPos += modify;
+                    DoubleBlockNode left = currNode.getLeftSubTree();
+                    if (left != null) {
+                        left.relPos -= modify;
+                    }
+                } else {
+                    currNode.relPos -= modify;
+                }
+                wasLeft = false;
+            }
+        }
+        return wasLeft;
     }
 
     /**
@@ -611,31 +631,35 @@ public class DoubleBigList extends IDoubleList {
                 currDoubleBlockEnd = 1;
             } else {
                 // Split block for insert
-                int nextDoubleBlockLen = blockSize / 2;
-                int blockLen = blockSize - nextDoubleBlockLen;
-                DoubleGapList.transferRemove(currNode.block, blockLen, nextDoubleBlockLen, newDoubleBlock, 0, 0);
-                // Subtract 1 more because getDoubleBlockIndex() has already added 1
-                modify(currNode, -nextDoubleBlockLen - 1);
-                addDoubleBlock(currDoubleBlockEnd - nextDoubleBlockLen, newDoubleBlock);
-                if (pos < blockLen) {
-                    // Insert element in first block
-                    currNode.block.doAdd(pos, element);
-                    currDoubleBlockEnd = currDoubleBlockStart + blockLen + 1;
-                    modify(currNode, 1);
-                } else {
-                    // Insert element in second block
-                    currNode = currNode.next();
-                    modify(currNode, 1);
-                    currNode.block.doAdd(pos - blockLen, element);
-                    currDoubleBlockStart += blockLen;
-                    currDoubleBlockEnd++;
-                }
+                doAddSplitDoubleBlock(index, element, pos, newDoubleBlock);
             }
         }
         size++;
         if (CHECK)
             check();
         return true;
+    }
+
+    private void doAddSplitDoubleBlock(int index, double element, int pos, DoubleBlock newDoubleBlock) {
+        int nextDoubleBlockLen = blockSize / 2;
+        int blockLen = blockSize - nextDoubleBlockLen;
+        DoubleGapList.transferRemove(currNode.block, blockLen, nextDoubleBlockLen, newDoubleBlock, 0, 0);
+        // Subtract 1 more because getDoubleBlockIndex() has already added 1
+        modify(currNode, -nextDoubleBlockLen - 1);
+        addDoubleBlock(currDoubleBlockEnd - nextDoubleBlockLen, newDoubleBlock);
+        if (pos < blockLen) {
+            // Insert element in first block
+            currNode.block.doAdd(pos, element);
+            currDoubleBlockEnd = currDoubleBlockStart + blockLen + 1;
+            modify(currNode, 1);
+        } else {
+            // Insert element in second block
+            currNode = currNode.next();
+            modify(currNode, 1);
+            currNode.block.doAdd(pos - blockLen, element);
+            currDoubleBlockStart += blockLen;
+            currDoubleBlockEnd++;
+        }
     }
 
     /**
@@ -655,63 +679,69 @@ public class DoubleBigList extends IDoubleList {
             return;
         }
         if (node.relPos < 0) {
-            // Left node
-            DoubleBlockNode leftNode = node.getLeftSubTree();
-            if (leftNode != null) {
-                leftNode.relPos -= modify;
+            modifyLeftNode(node, modify);
+        } else {
+            modifyRightNode(node, modify);
+        }
+    }
+
+    private void modifyLeftNode(DoubleBlockNode node, int modify) {
+        DoubleBlockNode leftNode = node.getLeftSubTree();
+        if (leftNode != null) {
+            leftNode.relPos -= modify;
+        }
+        DoubleBlockNode pp = node.parent;
+        assert (pp.getLeftSubTree() == node);
+        boolean parentRight = true;
+        while (true) {
+            DoubleBlockNode p = pp.parent;
+            if (p == null) {
+                break;
             }
-            DoubleBlockNode pp = node.parent;
-            assert (pp.getLeftSubTree() == node);
-            boolean parentRight = true;
+            boolean pRight = (p.getLeftSubTree() == pp);
+            if (parentRight != pRight) {
+                if (pp.relPos > 0) {
+                    pp.relPos += modify;
+                } else {
+                    pp.relPos -= modify;
+                }
+            }
+            pp = p;
+            parentRight = pRight;
+        }
+        if (parentRight) {
+            rootNode.relPos += modify;
+        }
+    }
+
+    private void modifyRightNode(DoubleBlockNode node, int modify) {
+        node.relPos += modify;
+        DoubleBlockNode leftNode = node.getLeftSubTree();
+        if (leftNode != null) {
+            leftNode.relPos -= modify;
+        }
+        DoubleBlockNode parent = node.parent;
+        if (parent != null) {
+            assert (parent.getRightSubTree() == node);
+            boolean parentLeft = true;
             while (true) {
-                DoubleBlockNode p = pp.parent;
+                DoubleBlockNode p = parent.parent;
                 if (p == null) {
                     break;
                 }
-                boolean pRight = (p.getLeftSubTree() == pp);
-                if (parentRight != pRight) {
-                    if (pp.relPos > 0) {
-                        pp.relPos += modify;
+                boolean pLeft = (p.getRightSubTree() == parent);
+                if (parentLeft != pLeft) {
+                    if (parent.relPos > 0) {
+                        parent.relPos += modify;
                     } else {
-                        pp.relPos -= modify;
+                        parent.relPos -= modify;
                     }
                 }
-                pp = p;
-                parentRight = pRight;
+                parent = p;
+                parentLeft = pLeft;
             }
-            if (parentRight) {
+            if (!parentLeft) {
                 rootNode.relPos += modify;
-            }
-        } else {
-            // Right node
-            node.relPos += modify;
-            DoubleBlockNode leftNode = node.getLeftSubTree();
-            if (leftNode != null) {
-                leftNode.relPos -= modify;
-            }
-            DoubleBlockNode parent = node.parent;
-            if (parent != null) {
-                assert (parent.getRightSubTree() == node);
-                boolean parentLeft = true;
-                while (true) {
-                    DoubleBlockNode p = parent.parent;
-                    if (p == null) {
-                        break;
-                    }
-                    boolean pLeft = (p.getRightSubTree() == parent);
-                    if (parentLeft != pLeft) {
-                        if (parent.relPos > 0) {
-                            parent.relPos += modify;
-                        } else {
-                            parent.relPos -= modify;
-                        }
-                    }
-                    parent = p;
-                    parentLeft = pLeft;
-                }
-                if (!parentLeft) {
-                    rootNode.relPos += modify;
-                }
             }
         }
     }
@@ -763,142 +793,156 @@ public class DoubleBigList extends IDoubleList {
         } else {
             if (index == size) {
                 // Add elements at end
-                for (int i = 0; i < space; i++) {
-                    currNode.block.add(addPos + i, list.get(i));
-                }
-                modify(currNode, space);
-                int done = space;
-                int todo = addLen - space;
-                while (todo > 0) {
-                    DoubleBlock nextDoubleBlock = new DoubleBlock(blockSize);
-                    int add = Math.min(todo, blockSize);
-                    for (int i = 0; i < add; i++) {
-                        nextDoubleBlock.add(i, list.get(done + i));
-                    }
-                    done += add;
-                    todo -= add;
-                    addDoubleBlock(size + done, nextDoubleBlock);
-                    currNode = currNode.next();
-                }
-                size += addLen;
-                currDoubleBlockEnd = size;
-                currDoubleBlockStart = currDoubleBlockEnd - currNode.block.size();
+                doAddAllTail(list, addPos, addLen, space);
             } else if (index == 0) {
                 // Add elements at head
-                assert (addPos == 0);
-                for (int i = 0; i < space; i++) {
-                    currNode.block.add(addPos + i, list.get(addLen - space + i));
-                }
-                modify(currNode, space);
-                int done = space;
-                int todo = addLen - space;
-                while (todo > 0) {
-                    DoubleBlock nextDoubleBlock = new DoubleBlock(blockSize);
-                    int add = Math.min(todo, blockSize);
-                    for (int i = 0; i < add; i++) {
-                        nextDoubleBlock.add(i, list.get(addLen - done - add + i));
-                    }
-                    done += add;
-                    todo -= add;
-                    addDoubleBlock(0, nextDoubleBlock);
-                    currNode = currNode.previous();
-                }
-                size += addLen;
-                currDoubleBlockStart = 0;
-                currDoubleBlockEnd = currNode.block.size();
+                doAddAllHead(list, addPos, addLen, space);
             } else {
                 // Add elements in the middle
-                // Split first block to remove tail elements if necessary
-                // TODO avoid unnecessary copy
-                DoubleGapList list2 = DoubleGapList.create();
-                list2.addAll(list);
-                int remove = currNode.block.size() - addPos;
-                if (remove > 0) {
-                    list2.addAll(currNode.block.getAll(addPos, remove));
-                    currNode.block.remove(addPos, remove);
-                    modify(currNode, -remove);
-                    size -= remove;
-                    currDoubleBlockEnd -= remove;
-                }
-                // Calculate how many blocks we need for the elements
-                int numElems = currNode.block.size() + list2.size();
-                int numDoubleBlocks = (numElems - 1) / blockSize + 1;
-                assert (numDoubleBlocks > 1);
-                int has = currNode.block.size();
-                int should = numElems / numDoubleBlocks;
-                int listPos = 0;
-                if (has < should) {
-                    // Elements must be added to first block
-                    int add = should - has;
-                    IDoubleList sublist = list2.getAll(0, add);
-                    listPos += add;
-                    currNode.block.addAll(addPos, sublist);
-                    modify(currNode, add);
-                    assert (currNode.block.size() == should);
-                    numElems -= should;
-                    numDoubleBlocks--;
-                    size += add;
-                    currDoubleBlockEnd += add;
-                } else if (has > should) {
-                    // Elements must be moved from first to second block
-                    DoubleBlock nextDoubleBlock = new DoubleBlock(blockSize);
-                    int move = has - should;
-                    nextDoubleBlock.addAll(currNode.block.getAll(currNode.block.size() - move, move));
-                    currNode.block.remove(currNode.block.size() - move, move);
-                    modify(currNode, -move);
-                    assert (currNode.block.size() == should);
-                    numElems -= should;
-                    numDoubleBlocks--;
-                    currDoubleBlockEnd -= move;
-                    should = numElems / numDoubleBlocks;
-                    int add = should - move;
-                    assert (add >= 0);
-                    IDoubleList sublist = list2.getAll(0, add);
-                    nextDoubleBlock.addAll(move, sublist);
-                    listPos += add;
-                    assert (nextDoubleBlock.size() == should);
-                    numElems -= should;
-                    numDoubleBlocks--;
-                    size += add;
-                    addDoubleBlock(currDoubleBlockEnd, nextDoubleBlock);
-                    currNode = currNode.next();
-                    assert (currNode.block == nextDoubleBlock);
-                    assert (currNode.block.size() == add + move);
-                    currDoubleBlockStart = currDoubleBlockEnd;
-                    currDoubleBlockEnd += add + move;
-                } else {
-                    // DoubleBlock already has the correct size
-                    numElems -= should;
-                    numDoubleBlocks--;
-                }
-                if (CHECK)
-                    check();
-                while (numDoubleBlocks > 0) {
-                    int add = numElems / numDoubleBlocks;
-                    assert (add > 0);
-                    IDoubleList sublist = list2.getAll(listPos, add);
-                    listPos += add;
-                    DoubleBlock nextDoubleBlock = new DoubleBlock();
-                    nextDoubleBlock.addAll(sublist);
-                    assert (nextDoubleBlock.size() == add);
-                    numElems -= add;
-                    addDoubleBlock(currDoubleBlockEnd, nextDoubleBlock);
-                    currNode = currNode.next();
-                    assert (currNode.block == nextDoubleBlock);
-                    assert (currNode.block.size() == add);
-                    currDoubleBlockStart = currDoubleBlockEnd;
-                    currDoubleBlockEnd += add;
-                    size += add;
-                    numDoubleBlocks--;
-                    if (CHECK)
-                        check();
-                }
+                doAddAllMiddle(list, addPos);
             }
         }
         assert (oldSize + addLen == size);
         if (CHECK)
             check();
         return true;
+    }
+
+    private void doAddAllTail(IDoubleList list, int addPos, int addLen, int space) {
+        for (int i = 0; i < space; i++) {
+            currNode.block.add(addPos + i, list.get(i));
+        }
+        modify(currNode, space);
+        int done = space;
+        int todo = addLen - space;
+        while (todo > 0) {
+            DoubleBlock nextDoubleBlock = new DoubleBlock(blockSize);
+            int add = Math.min(todo, blockSize);
+            for (int i = 0; i < add; i++) {
+                nextDoubleBlock.add(i, list.get(done + i));
+            }
+            done += add;
+            todo -= add;
+            addDoubleBlock(size + done, nextDoubleBlock);
+            currNode = currNode.next();
+        }
+        size += addLen;
+        currDoubleBlockEnd = size;
+        currDoubleBlockStart = currDoubleBlockEnd - currNode.block.size();
+    }
+
+    private void doAddAllHead(IDoubleList list, int addPos, int addLen, int space) {
+        assert (addPos == 0);
+        for (int i = 0; i < space; i++) {
+            currNode.block.add(addPos + i, list.get(addLen - space + i));
+        }
+        modify(currNode, space);
+        int done = space;
+        int todo = addLen - space;
+        while (todo > 0) {
+            DoubleBlock nextDoubleBlock = new DoubleBlock(blockSize);
+            int add = Math.min(todo, blockSize);
+            for (int i = 0; i < add; i++) {
+                nextDoubleBlock.add(i, list.get(addLen - done - add + i));
+            }
+            done += add;
+            todo -= add;
+            addDoubleBlock(0, nextDoubleBlock);
+            currNode = currNode.previous();
+        }
+        size += addLen;
+        currDoubleBlockStart = 0;
+        currDoubleBlockEnd = currNode.block.size();
+    }
+
+    // method is not changed right now.
+    private // To have good performance, it would have to be guaranteed that escape analysis is able to perform scalar replacement. As this is not trivial,
+    void doAddAllMiddle(IDoubleList list, int addPos) {
+        // Split first block to remove tail elements if necessary
+        // TODO avoid unnecessary copy
+        DoubleGapList list2 = DoubleGapList.create();
+        list2.addAll(list);
+        int remove = currNode.block.size() - addPos;
+        if (remove > 0) {
+            list2.addAll(currNode.block.getAll(addPos, remove));
+            currNode.block.remove(addPos, remove);
+            modify(currNode, -remove);
+            size -= remove;
+            currDoubleBlockEnd -= remove;
+        }
+        // Calculate how many blocks we need for the elements
+        int numElems = currNode.block.size() + list2.size();
+        int numDoubleBlocks = (numElems - 1) / blockSize + 1;
+        assert (numDoubleBlocks > 1);
+        int has = currNode.block.size();
+        int should = numElems / numDoubleBlocks;
+        int listPos = 0;
+        if (has < should) {
+            // Elements must be added to first block
+            int add = should - has;
+            IDoubleList sublist = list2.getAll(0, add);
+            listPos += add;
+            currNode.block.addAll(addPos, sublist);
+            modify(currNode, add);
+            assert (currNode.block.size() == should);
+            numElems -= should;
+            numDoubleBlocks--;
+            size += add;
+            currDoubleBlockEnd += add;
+        } else if (has > should) {
+            // Elements must be moved from first to second block
+            DoubleBlock nextDoubleBlock = new DoubleBlock(blockSize);
+            int move = has - should;
+            nextDoubleBlock.addAll(currNode.block.getAll(currNode.block.size() - move, move));
+            currNode.block.remove(currNode.block.size() - move, move);
+            modify(currNode, -move);
+            assert (currNode.block.size() == should);
+            numElems -= should;
+            numDoubleBlocks--;
+            currDoubleBlockEnd -= move;
+            should = numElems / numDoubleBlocks;
+            int add = should - move;
+            assert (add >= 0);
+            IDoubleList sublist = list2.getAll(0, add);
+            nextDoubleBlock.addAll(move, sublist);
+            listPos += add;
+            assert (nextDoubleBlock.size() == should);
+            numElems -= should;
+            numDoubleBlocks--;
+            size += add;
+            addDoubleBlock(currDoubleBlockEnd, nextDoubleBlock);
+            currNode = currNode.next();
+            assert (currNode.block == nextDoubleBlock);
+            assert (currNode.block.size() == add + move);
+            currDoubleBlockStart = currDoubleBlockEnd;
+            currDoubleBlockEnd += add + move;
+        } else {
+            // DoubleBlock already has the correct size
+            numElems -= should;
+            numDoubleBlocks--;
+        }
+        if (CHECK)
+            check();
+        while (numDoubleBlocks > 0) {
+            int add = numElems / numDoubleBlocks;
+            assert (add > 0);
+            IDoubleList sublist = list2.getAll(listPos, add);
+            listPos += add;
+            DoubleBlock nextDoubleBlock = new DoubleBlock();
+            nextDoubleBlock.addAll(sublist);
+            assert (nextDoubleBlock.size() == add);
+            numElems -= add;
+            addDoubleBlock(currDoubleBlockEnd, nextDoubleBlock);
+            currNode = currNode.next();
+            assert (currNode.block == nextDoubleBlock);
+            assert (currNode.block.size() == add);
+            currDoubleBlockStart = currDoubleBlockEnd;
+            currDoubleBlockEnd += add;
+            size += add;
+            numDoubleBlocks--;
+            if (CHECK)
+                check();
+        }
     }
 
     @Override
@@ -948,50 +992,54 @@ public class DoubleBigList extends IDoubleList {
             size -= len;
         } else {
             // Delete from start block
-            if (CHECK)
-                check();
-            int startLen = startNode.block.size() - startPos;
-            getDoubleBlockIndex(index, true, -startLen);
-            startNode.block.remove(startPos, startLen);
-            assert (startNode == currNode);
-            if (currNode.block.isEmpty()) {
-                releaseDoubleBlock();
-                doRemove(startNode);
-                startNode = null;
-            }
-            len -= startLen;
-            size -= startLen;
-            while (len > 0) {
-                currNode = null;
-                getDoubleBlockIndex(index, true, 0);
-                int s = currNode.block.size();
-                if (s <= len) {
-                    modify(currNode, -s);
-                    DoubleBlockNode oldCurrNode = currNode;
-                    releaseDoubleBlock();
-                    doRemove(oldCurrNode);
-                    if (oldCurrNode == endNode) {
-                        endNode = null;
-                    }
-                    len -= s;
-                    size -= s;
-                    if (CHECK)
-                        check();
-                } else {
-                    modify(currNode, -len);
-                    currNode.block.remove(0, len);
-                    size -= len;
-                    break;
-                }
-            }
-            releaseDoubleBlock();
-            if (CHECK)
-                check();
-            getDoubleBlockIndex(index, false, 0);
-            merge(currNode);
+            doRemoveAll2(index, len, startPos, startNode, endNode);
         }
         if (CHECK)
             check();
+    }
+
+    private void doRemoveAll2(int index, int len, int startPos, DoubleBlockNode startNode, DoubleBlockNode endNode) {
+        if (CHECK)
+            check();
+        int startLen = startNode.block.size() - startPos;
+        getDoubleBlockIndex(index, true, -startLen);
+        startNode.block.remove(startPos, startLen);
+        assert (startNode == currNode);
+        if (currNode.block.isEmpty()) {
+            releaseDoubleBlock();
+            doRemove(startNode);
+            startNode = null;
+        }
+        len -= startLen;
+        size -= startLen;
+        while (len > 0) {
+            currNode = null;
+            getDoubleBlockIndex(index, true, 0);
+            int s = currNode.block.size();
+            if (s <= len) {
+                modify(currNode, -s);
+                DoubleBlockNode oldCurrNode = currNode;
+                releaseDoubleBlock();
+                doRemove(oldCurrNode);
+                if (oldCurrNode == endNode) {
+                    endNode = null;
+                }
+                len -= s;
+                size -= s;
+                if (CHECK)
+                    check();
+            } else {
+                modify(currNode, -len);
+                currNode.block.remove(0, len);
+                size -= len;
+                break;
+            }
+        }
+        releaseDoubleBlock();
+        if (CHECK)
+            check();
+        getDoubleBlockIndex(index, false, 0);
+        merge(currNode);
     }
 
     /**
