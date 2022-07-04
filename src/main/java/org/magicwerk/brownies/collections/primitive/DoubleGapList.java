@@ -138,7 +138,13 @@ public class DoubleGapList extends IDoubleList {
     private int gapStart;
 
     // This separate method is needed as the varargs variant creates the list with specific size
-    public static DoubleGapList create() {
+    public static /**
+     * Create new list.
+     *
+     * @return          created list
+     * @param        type of elements stored in the list
+     */
+    DoubleGapList create() {
         return new DoubleGapList();
     }
 
@@ -630,123 +636,9 @@ public class DoubleGapList extends IDoubleList {
         } else {
             physIdx = physIndex(index);
             if (gapSize == 0) {
-                // Create new gap
-                if (start < end && start > 0) {
-                    // S4: Space is at head and tail
-                    assert (debugState() == 4);
-                    int len1 = physIdx - start;
-                    int len2 = end - physIdx;
-                    if (len1 <= len2) {
-                        if (DEBUG_TRACE)
-                            debugLog("Case A3");
-                        moveData(start, 0, len1);
-                        gapSize = start - 1;
-                        gapStart = len1;
-                        gapIndex = len1;
-                        start = 0;
-                        physIdx--;
-                    } else {
-                        if (DEBUG_TRACE)
-                            debugLog("Case A4");
-                        moveData(physIdx, values.length - len2, len2);
-                        gapSize = values.length - end - 1;
-                        gapStart = physIdx + 1;
-                        gapIndex = index + 1;
-                        end = 0;
-                    }
-                } else if (physIdx < end) {
-                    assert (debugState() == 2 || debugState() == 5);
-                    if (DEBUG_TRACE)
-                        debugLog("Case A5");
-                    int len = end - physIdx;
-                    int rightSize = (start - end + values.length) % values.length;
-                    moveData(physIdx, end + rightSize - len, len);
-                    end = start;
-                    gapSize = rightSize - 1;
-                    gapStart = physIdx + 1;
-                    gapIndex = index + 1;
-                } else {
-                    assert (debugState() == 3 || debugState() == 5);
-                    assert (physIdx > end);
-                    if (DEBUG_TRACE)
-                        debugLog("Case A6");
-                    int len = physIdx - start;
-                    int rightSize = start - end;
-                    moveData(start, end, len);
-                    start -= rightSize;
-                    end = start;
-                    gapSize = rightSize - 1;
-                    gapStart = start + len;
-                    gapIndex = index;
-                    physIdx--;
-                }
+                physIdx = doAddCreateNewGap(index, physIdx);
             } else {
-                // Move existing gap
-                boolean moveLeft;
-                int gapEnd = (gapStart + gapSize - 1) % values.length + 1;
-                if (gapEnd < gapStart) {
-                    assert (debugState() == 9 || debugState() == 12);
-                    // Gap is at head and tail
-                    int len1 = physIdx - gapEnd;
-                    int len2 = gapStart - physIdx - 1;
-                    if (len1 <= len2) {
-                        if (DEBUG_TRACE)
-                            debugLog("Case A7a");
-                        moveLeft = true;
-                    } else {
-                        if (DEBUG_TRACE)
-                            debugLog("Case A8a");
-                        moveLeft = false;
-                    }
-                } else {
-                    assert (debugState() == 6 || debugState() == 7 || debugState() == 8 || debugState() == 9 || debugState() == 10 || debugState() == 11 || debugState() == 12 || debugState() == 13 || debugState() == 14 || debugState() == 15);
-                    if (physIdx > gapStart) {
-                        if (DEBUG_TRACE)
-                            debugLog("Case A7b");
-                        moveLeft = true;
-                    } else {
-                        if (DEBUG_TRACE)
-                            debugLog("Case A8b");
-                        moveLeft = false;
-                    }
-                }
-                if (moveLeft) {
-                    int src = gapStart + gapSize;
-                    int dst = gapStart;
-                    int len = physIdx - gapEnd;
-                    moveDataWithGap(src, dst, len);
-                    physIdx--;
-                    gapSize--;
-                    gapIndex = index;
-                    gapStart += len;
-                    if (gapStart >= values.length) {
-                        gapStart -= values.length;
-                    }
-                    if (index == 0) {
-                        start = physIdx;
-                        if ((gapStart + gapSize) % values.length == start) {
-                            end = gapStart;
-                            gapSize = 0;
-                        }
-                    }
-                } else {
-                    int src = physIdx;
-                    int dst = physIdx + gapSize;
-                    int len = gapStart - physIdx;
-                    moveDataWithGap(src, dst, len);
-                    gapSize--;
-                    gapStart = physIdx + 1;
-                    gapIndex = index + 1;
-                    if (index == 0) {
-                        start = physIdx;
-                        end = physIdx;
-                    } else if (index == size) {
-                        if ((gapStart + gapSize) % values.length == start) {
-                            end = gapStart;
-                            gapSize = 0;
-                        }
-                    }
-                }
+                physIdx = doAddMoveExistingGap(index, physIdx);
             }
         }
         values[physIdx] = elem;
@@ -756,6 +648,139 @@ public class DoubleGapList extends IDoubleList {
         if (DEBUG_CHECK)
             debugCheck();
         return true;
+    }
+
+    private int doAddCreateNewGap(int index, int physIdx) {
+        if (start < end && start > 0) {
+            // S4: Space is at head and tail
+            assert (debugState() == 4);
+            int len1 = physIdx - start;
+            int len2 = end - physIdx;
+            if (len1 <= len2) {
+                if (DEBUG_TRACE)
+                    debugLog("Case A3");
+                moveData(start, 0, len1);
+                gapSize = start - 1;
+                gapStart = len1;
+                gapIndex = len1;
+                start = 0;
+                physIdx--;
+            } else {
+                if (DEBUG_TRACE)
+                    debugLog("Case A4");
+                moveData(physIdx, values.length - len2, len2);
+                gapSize = values.length - end - 1;
+                gapStart = physIdx + 1;
+                gapIndex = index + 1;
+                end = 0;
+            }
+            return physIdx;
+        } else {
+            return doAddCreateNewGap2(index, physIdx);
+        }
+    }
+
+    private int doAddCreateNewGap2(int index, int physIdx) {
+        if (physIdx < end) {
+            assert (debugState() == 2 || debugState() == 5);
+            if (DEBUG_TRACE)
+                debugLog("Case A5");
+            int len = end - physIdx;
+            int rightSize = (start - end + values.length) % values.length;
+            moveData(physIdx, end + rightSize - len, len);
+            end = start;
+            gapSize = rightSize - 1;
+            gapStart = physIdx + 1;
+            gapIndex = index + 1;
+        } else {
+            assert (debugState() == 3 || debugState() == 5);
+            assert (physIdx > end);
+            if (DEBUG_TRACE)
+                debugLog("Case A6");
+            int len = physIdx - start;
+            int rightSize = start - end;
+            moveData(start, end, len);
+            start -= rightSize;
+            end = start;
+            gapSize = rightSize - 1;
+            gapStart = start + len;
+            gapIndex = index;
+            physIdx--;
+        }
+        return physIdx;
+    }
+
+    private int doAddMoveExistingGap(int index, int physIdx) {
+        boolean moveLeft;
+        int gapEnd = (gapStart + gapSize - 1) % values.length + 1;
+        if (gapEnd < gapStart) {
+            assert (debugState() == 9 || debugState() == 12);
+            // Gap is at head and tail
+            int len1 = physIdx - gapEnd;
+            int len2 = gapStart - physIdx - 1;
+            if (len1 <= len2) {
+                if (DEBUG_TRACE)
+                    debugLog("Case A7a");
+                moveLeft = true;
+            } else {
+                if (DEBUG_TRACE)
+                    debugLog("Case A8a");
+                moveLeft = false;
+            }
+        } else {
+            assert (debugState() == 6 || debugState() == 7 || debugState() == 8 || debugState() == 9 || debugState() == 10 || debugState() == 11 || debugState() == 12 || debugState() == 13 || debugState() == 14 || debugState() == 15);
+            if (physIdx > gapStart) {
+                if (DEBUG_TRACE)
+                    debugLog("Case A7b");
+                moveLeft = true;
+            } else {
+                if (DEBUG_TRACE)
+                    debugLog("Case A8b");
+                moveLeft = false;
+            }
+        }
+        return doAddMoveExistingGap2(index, physIdx, gapEnd, moveLeft);
+    }
+
+    private int doAddMoveExistingGap2(int index, int physIdx, int gapEnd, boolean moveLeft) {
+        if (moveLeft) {
+            int src = gapStart + gapSize;
+            int dst = gapStart;
+            int len = physIdx - gapEnd;
+            moveDataWithGap(src, dst, len);
+            physIdx--;
+            gapSize--;
+            gapIndex = index;
+            gapStart += len;
+            if (gapStart >= values.length) {
+                gapStart -= values.length;
+            }
+            if (index == 0) {
+                start = physIdx;
+                if ((gapStart + gapSize) % values.length == start) {
+                    end = gapStart;
+                    gapSize = 0;
+                }
+            }
+        } else {
+            int src = physIdx;
+            int dst = physIdx + gapSize;
+            int len = gapStart - physIdx;
+            moveDataWithGap(src, dst, len);
+            gapSize--;
+            gapStart = physIdx + 1;
+            gapIndex = index + 1;
+            if (index == 0) {
+                start = physIdx;
+                end = physIdx;
+            } else if (index == size) {
+                if ((gapStart + gapSize) % values.length == start) {
+                    end = gapStart;
+                    gapSize = 0;
+                }
+            }
+        }
+        return physIdx;
     }
 
     /**
@@ -905,80 +930,7 @@ public class DoubleGapList extends IDoubleList {
         } else {
             // Remove in middle of list
             physIdx = physIndex(index);
-            // Create gap
-            if (gapSize == 0) {
-                if (DEBUG_TRACE)
-                    debugLog("Case R2");
-                gapIndex = index;
-                gapStart = physIdx;
-                gapSize = 1;
-                // Extend existing gap at tail
-            } else if (index == gapIndex) {
-                if (DEBUG_TRACE)
-                    debugLog("Case R3");
-                gapSize++;
-                // Extend existing gap at head
-            } else if (index == gapIndex - 1) {
-                if (DEBUG_TRACE)
-                    debugLog("Case R4");
-                gapStart--;
-                if (gapStart < 0) {
-                    gapStart += values.length;
-                }
-                gapSize++;
-                gapIndex--;
-            } else {
-                // Move existing gap
-                assert (gapSize > 0);
-                boolean moveLeft;
-                int gapEnd = (gapStart + gapSize - 1) % values.length + 1;
-                if (gapEnd < gapStart) {
-                    // Gap is at head and tail: check where fewer
-                    // elements must be moved
-                    int len1 = physIdx - gapEnd;
-                    int len2 = gapStart - physIdx - 1;
-                    if (len1 <= len2) {
-                        if (DEBUG_TRACE)
-                            debugLog("Case R5a");
-                        moveLeft = true;
-                    } else {
-                        if (DEBUG_TRACE)
-                            debugLog("Case R6a");
-                        moveLeft = false;
-                    }
-                } else {
-                    if (physIdx > gapStart) {
-                        // Existing gap is left of insertion point
-                        if (DEBUG_TRACE)
-                            debugLog("Case R5b");
-                        moveLeft = true;
-                    } else {
-                        // Existing gap is right of insertion point
-                        if (DEBUG_TRACE)
-                            debugLog("Case R6b");
-                        moveLeft = false;
-                    }
-                }
-                if (moveLeft) {
-                    int src = gapStart + gapSize;
-                    int dst = gapStart;
-                    int len = physIdx - gapEnd;
-                    moveDataWithGap(src, dst, len);
-                    gapStart += len;
-                    if (gapStart >= values.length) {
-                        gapStart -= values.length;
-                    }
-                    gapSize++;
-                } else {
-                    int src = physIdx + 1;
-                    int dst = physIdx + gapSize + 1;
-                    int len = gapStart - physIdx - 1;
-                    moveDataWithGap(src, dst, len);
-                    gapStart = physIdx;
-                    gapSize++;
-                }
-                gapIndex = index;
-            }
+            doRemoveMiddle(index, physIdx);
         }
         double removed = values[physIdx];
         values[physIdx] = 0;
@@ -988,6 +940,87 @@ public class DoubleGapList extends IDoubleList {
         if (DEBUG_CHECK)
             debugCheck();
         return removed;
+    }
+
+    private void doRemoveMiddle(int index, int physIdx) {
+        // Create gap
+        if (gapSize == 0) {
+            if (DEBUG_TRACE)
+                debugLog("Case R2");
+            gapIndex = index;
+            gapStart = physIdx;
+            gapSize = 1;
+            // Extend existing gap at tail
+        } else if (index == gapIndex) {
+            if (DEBUG_TRACE)
+                debugLog("Case R3");
+            gapSize++;
+            // Extend existing gap at head
+        } else if (index == gapIndex - 1) {
+            if (DEBUG_TRACE)
+                debugLog("Case R4");
+            gapStart--;
+            if (gapStart < 0) {
+                gapStart += values.length;
+            }
+            gapSize++;
+            gapIndex--;
+        } else {
+            // Move existing gap
+            doRemoveMoveExistingGap(index, physIdx);
+        }
+    }
+
+    private void doRemoveMoveExistingGap(int index, int physIdx) {
+        assert (gapSize > 0);
+        boolean moveLeft;
+        int gapEnd = (gapStart + gapSize - 1) % values.length + 1;
+        if (gapEnd < gapStart) {
+            // Gap is at head and tail: check where fewer
+            // elements must be moved
+            int len1 = physIdx - gapEnd;
+            int len2 = gapStart - physIdx - 1;
+            if (len1 <= len2) {
+                if (DEBUG_TRACE)
+                    debugLog("Case R5a");
+                moveLeft = true;
+            } else {
+                if (DEBUG_TRACE)
+                    debugLog("Case R6a");
+                moveLeft = false;
+            }
+        } else {
+            if (physIdx > gapStart) {
+                // Existing gap is left of insertion point
+                if (DEBUG_TRACE)
+                    debugLog("Case R5b");
+                moveLeft = true;
+            } else {
+                // Existing gap is right of insertion point
+                if (DEBUG_TRACE)
+                    debugLog("Case R6b");
+                moveLeft = false;
+            }
+        }
+        if (moveLeft) {
+            int src = gapStart + gapSize;
+            int dst = gapStart;
+            int len = physIdx - gapEnd;
+            moveDataWithGap(src, dst, len);
+            gapStart += len;
+            if (gapStart >= values.length) {
+                gapStart -= values.length;
+            }
+            gapSize++;
+        } else {
+            int src = physIdx + 1;
+            int dst = physIdx + gapSize + 1;
+            int len = gapStart - physIdx - 1;
+            moveDataWithGap(src, dst, len);
+            gapStart = physIdx;
+            gapSize++;
+        }
+        gapIndex = index;
     }
 
     @Override
@@ -1336,6 +1369,8 @@ public class DoubleGapList extends IDoubleList {
      * @param msg message to write out
      */
     private void debugLog(String msg) {
+        // FIXME
+        System.out.println(msg);
     }
 
     // --- ImmutableDoubleGapList ---

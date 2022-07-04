@@ -149,7 +149,13 @@ public class ByteBigList extends IByteList {
     }
 
     // This separate method is needed as the varargs variant creates the list with specific size
-    public static ByteBigList create() {
+    public static /**
+     * Create new list.
+     *
+     * @return          created list
+     * @param        type of elements stored in the list
+     */
+    ByteBigList create() {
         return new ByteBigList();
     }
 
@@ -428,6 +434,10 @@ public class ByteBigList extends IByteList {
             }
             releaseByteBlock();
         }
+        return getByteBlockIndex2(index, write, modify);
+    }
+
+    private int getByteBlockIndex2(int index, boolean write, int modify) {
         if (index == size) {
             if (currNode == null || currByteBlockEnd != size) {
                 currNode = rootNode.max();
@@ -516,36 +526,14 @@ public class ByteBigList extends IByteList {
                 if (index < currByteBlockEnd) {
                     // Traverse the left node
                     nextNode = currNode.getLeftSubTree();
-                    if (modify != 0) {
-                        if (nextNode == null || !wasLeft) {
-                            if (currNode.relPos > 0) {
-                                currNode.relPos += modify;
-                            } else {
-                                currNode.relPos -= modify;
-                            }
-                            wasLeft = true;
-                        }
-                    }
+                    wasLeft = doGetByteBlockLeft(modify, nextNode, wasLeft);
                     if (nextNode == null) {
                         break;
                     }
                 } else {
                     // Traverse the right node
                     nextNode = currNode.getRightSubTree();
-                    if (modify != 0) {
-                        if (nextNode == null || wasLeft) {
-                            if (currNode.relPos > 0) {
-                                currNode.relPos += modify;
-                                ByteBlockNode left = currNode.getLeftSubTree();
-                                if (left != null) {
-                                    left.relPos -= modify;
-                                }
-                            } else {
-                                currNode.relPos -= modify;
-                            }
-                            wasLeft = false;
-                        }
-                    }
+                    wasLeft = doGetByteBlockRight(modify, nextNode, wasLeft);
                     if (nextNode == null) {
                         break;
                     }
@@ -555,6 +543,38 @@ public class ByteBigList extends IByteList {
             }
         }
         currByteBlockStart = currByteBlockEnd - currNode.block.size();
+    }
+
+    private boolean doGetByteBlockLeft(int modify, ByteBlockNode nextNode, boolean wasLeft) {
+        if (modify != 0) {
+            if (nextNode == null || !wasLeft) {
+                if (currNode.relPos > 0) {
+                    currNode.relPos += modify;
+                } else {
+                    currNode.relPos -= modify;
+                }
+                wasLeft = true;
+            }
+        }
+        return wasLeft;
+    }
+
+    private boolean doGetByteBlockRight(int modify, ByteBlockNode nextNode, boolean wasLeft) {
+        if (modify != 0) {
+            if (nextNode == null || wasLeft) {
+                if (currNode.relPos > 0) {
+                    currNode.relPos += modify;
+                    ByteBlockNode left = currNode.getLeftSubTree();
+                    if (left != null) {
+                        left.relPos -= modify;
+                    }
+                } else {
+                    currNode.relPos -= modify;
+                }
+                wasLeft = false;
+            }
+        }
+        return wasLeft;
     }
 
     /**
@@ -611,31 +631,35 @@ public class ByteBigList extends IByteList {
                 currByteBlockEnd = 1;
             } else {
                 // Split block for insert
-                int nextByteBlockLen = blockSize / 2;
-                int blockLen = blockSize - nextByteBlockLen;
-                ByteGapList.transferRemove(currNode.block, blockLen, nextByteBlockLen, newByteBlock, 0, 0);
-                // Subtract 1 more because getByteBlockIndex() has already added 1
-                modify(currNode, -nextByteBlockLen - 1);
-                addByteBlock(currByteBlockEnd - nextByteBlockLen, newByteBlock);
-                if (pos < blockLen) {
-                    // Insert element in first block
-                    currNode.block.doAdd(pos, element);
-                    currByteBlockEnd = currByteBlockStart + blockLen + 1;
-                    modify(currNode, 1);
-                } else {
-                    // Insert element in second block
-                    currNode = currNode.next();
-                    modify(currNode, 1);
-                    currNode.block.doAdd(pos - blockLen, element);
-                    currByteBlockStart += blockLen;
-                    currByteBlockEnd++;
-                }
+                doAddSplitByteBlock(index, element, pos, newByteBlock);
             }
         }
         size++;
         if (CHECK)
             check();
         return true;
+    }
+
+    private void doAddSplitByteBlock(int index, byte element, int pos, ByteBlock newByteBlock) {
+        int nextByteBlockLen = blockSize / 2;
+        int blockLen = blockSize - nextByteBlockLen;
+        ByteGapList.transferRemove(currNode.block, blockLen, nextByteBlockLen, newByteBlock, 0, 0);
+        // Subtract 1 more because getByteBlockIndex() has already added 1
+        modify(currNode, -nextByteBlockLen - 1);
+        addByteBlock(currByteBlockEnd - nextByteBlockLen, newByteBlock);
+        if (pos < blockLen) {
+            // Insert element in first block
+            currNode.block.doAdd(pos, element);
+            currByteBlockEnd = currByteBlockStart + blockLen + 1;
+            modify(currNode, 1);
+        } else {
+            // Insert element in second block
+            currNode = currNode.next();
+            modify(currNode, 1);
+            currNode.block.doAdd(pos - blockLen, element);
+            currByteBlockStart += blockLen;
+            currByteBlockEnd++;
+        }
     }
 
     /**
@@ -655,63 +679,69 @@ public class ByteBigList extends IByteList {
             return;
         }
         if (node.relPos < 0) {
-            // Left node
-            ByteBlockNode leftNode = node.getLeftSubTree();
-            if (leftNode != null) {
-                leftNode.relPos -= modify;
+            modifyLeftNode(node, modify);
+        } else {
+            modifyRightNode(node, modify);
+        }
+    }
+
+    private void modifyLeftNode(ByteBlockNode node, int modify) {
+        ByteBlockNode leftNode = node.getLeftSubTree();
+        if (leftNode != null) {
+            leftNode.relPos -= modify;
+        }
+        ByteBlockNode pp = node.parent;
+        assert (pp.getLeftSubTree() == node);
+        boolean parentRight = true;
+        while (true) {
+            ByteBlockNode p = pp.parent;
+            if (p == null) {
+                break;
             }
-            ByteBlockNode pp = node.parent;
-            assert (pp.getLeftSubTree() == node);
-            boolean parentRight = true;
+            boolean pRight = (p.getLeftSubTree() == pp);
+            if (parentRight != pRight) {
+                if (pp.relPos > 0) {
+                    pp.relPos += modify;
+                } else {
+                    pp.relPos -= modify;
+                }
+            }
+            pp = p;
+            parentRight = pRight;
+        }
+        if (parentRight) {
+            rootNode.relPos += modify;
+        }
+    }
+
+    private void modifyRightNode(ByteBlockNode node, int modify) {
+        node.relPos += modify;
+        ByteBlockNode leftNode = node.getLeftSubTree();
+        if (leftNode != null) {
+            leftNode.relPos -= modify;
+        }
+        ByteBlockNode parent = node.parent;
+        if (parent != null) {
+            assert (parent.getRightSubTree() == node);
+            boolean parentLeft = true;
             while (true) {
-                ByteBlockNode p = pp.parent;
+                ByteBlockNode p = parent.parent;
                 if (p == null) {
                     break;
                 }
-                boolean pRight = (p.getLeftSubTree() == pp);
-                if (parentRight != pRight) {
-                    if (pp.relPos > 0) {
-                        pp.relPos += modify;
+                boolean pLeft = (p.getRightSubTree() == parent);
+                if (parentLeft != pLeft) {
+                    if (parent.relPos > 0) {
+                        parent.relPos += modify;
                     } else {
-                        pp.relPos -= modify;
+                        parent.relPos -= modify;
                     }
                 }
-                pp = p;
-                parentRight = pRight;
+                parent = p;
+                parentLeft = pLeft;
             }
-            if (parentRight) {
+            if (!parentLeft) {
                 rootNode.relPos += modify;
-            }
-        } else {
-            // Right node
-            node.relPos += modify;
-            ByteBlockNode leftNode = node.getLeftSubTree();
-            if (leftNode != null) {
-                leftNode.relPos -= modify;
-            }
-            ByteBlockNode parent = node.parent;
-            if (parent != null) {
-                assert (parent.getRightSubTree() == node);
-                boolean parentLeft = true;
-                while (true) {
-                    ByteBlockNode p = parent.parent;
-                    if (p == null) {
-                        break;
-                    }
-                    boolean pLeft = (p.getRightSubTree() == parent);
-                    if (parentLeft != pLeft) {
-                        if (parent.relPos > 0) {
-                            parent.relPos += modify;
-                        } else {
-                            parent.relPos -= modify;
-                        }
-                    }
-                    parent = p;
-                    parentLeft = pLeft;
-                }
-                if (!parentLeft) {
-                    rootNode.relPos += modify;
-                }
             }
         }
     }
@@ -763,142 +793,156 @@ public class ByteBigList extends IByteList {
         } else {
             if (index == size) {
                 // Add elements at end
-                for (int i = 0; i < space; i++) {
-                    currNode.block.add(addPos + i, list.get(i));
-                }
-                modify(currNode, space);
-                int done = space;
-                int todo = addLen - space;
-                while (todo > 0) {
-                    ByteBlock nextByteBlock = new ByteBlock(blockSize);
-                    int add = Math.min(todo, blockSize);
-                    for (int i = 0; i < add; i++) {
-                        nextByteBlock.add(i, list.get(done + i));
-                    }
-                    done += add;
-                    todo -= add;
-                    addByteBlock(size + done, nextByteBlock);
-                    currNode = currNode.next();
-                }
-                size += addLen;
-                currByteBlockEnd = size;
-                currByteBlockStart = currByteBlockEnd - currNode.block.size();
+                doAddAllTail(list, addPos, addLen, space);
             } else if (index == 0) {
                 // Add elements at head
-                assert (addPos == 0);
-                for (int i = 0; i < space; i++) {
-                    currNode.block.add(addPos + i, list.get(addLen - space + i));
-                }
-                modify(currNode, space);
-                int done = space;
-                int todo = addLen - space;
-                while (todo > 0) {
-                    ByteBlock nextByteBlock = new ByteBlock(blockSize);
-                    int add = Math.min(todo, blockSize);
-                    for (int i = 0; i < add; i++) {
-                        nextByteBlock.add(i, list.get(addLen - done - add + i));
-                    }
-                    done += add;
-                    todo -= add;
-                    addByteBlock(0, nextByteBlock);
-                    currNode = currNode.previous();
-                }
-                size += addLen;
-                currByteBlockStart = 0;
-                currByteBlockEnd = currNode.block.size();
+                doAddAllHead(list, addPos, addLen, space);
             } else {
                 // Add elements in the middle
-                // Split first block to remove tail elements if necessary
-                // TODO avoid unnecessary copy
-                ByteGapList list2 = ByteGapList.create();
-                list2.addAll(list);
-                int remove = currNode.block.size() - addPos;
-                if (remove > 0) {
-                    list2.addAll(currNode.block.getAll(addPos, remove));
-                    currNode.block.remove(addPos, remove);
-                    modify(currNode, -remove);
-                    size -= remove;
-                    currByteBlockEnd -= remove;
-                }
-                // Calculate how many blocks we need for the elements
-                int numElems = currNode.block.size() + list2.size();
-                int numByteBlocks = (numElems - 1) / blockSize + 1;
-                assert (numByteBlocks > 1);
-                int has = currNode.block.size();
-                int should = numElems / numByteBlocks;
-                int listPos = 0;
-                if (has < should) {
-                    // Elements must be added to first block
-                    int add = should - has;
-                    IByteList sublist = list2.getAll(0, add);
-                    listPos += add;
-                    currNode.block.addAll(addPos, sublist);
-                    modify(currNode, add);
-                    assert (currNode.block.size() == should);
-                    numElems -= should;
-                    numByteBlocks--;
-                    size += add;
-                    currByteBlockEnd += add;
-                } else if (has > should) {
-                    // Elements must be moved from first to second block
-                    ByteBlock nextByteBlock = new ByteBlock(blockSize);
-                    int move = has - should;
-                    nextByteBlock.addAll(currNode.block.getAll(currNode.block.size() - move, move));
-                    currNode.block.remove(currNode.block.size() - move, move);
-                    modify(currNode, -move);
-                    assert (currNode.block.size() == should);
-                    numElems -= should;
-                    numByteBlocks--;
-                    currByteBlockEnd -= move;
-                    should = numElems / numByteBlocks;
-                    int add = should - move;
-                    assert (add >= 0);
-                    IByteList sublist = list2.getAll(0, add);
-                    nextByteBlock.addAll(move, sublist);
-                    listPos += add;
-                    assert (nextByteBlock.size() == should);
-                    numElems -= should;
-                    numByteBlocks--;
-                    size += add;
-                    addByteBlock(currByteBlockEnd, nextByteBlock);
-                    currNode = currNode.next();
-                    assert (currNode.block == nextByteBlock);
-                    assert (currNode.block.size() == add + move);
-                    currByteBlockStart = currByteBlockEnd;
-                    currByteBlockEnd += add + move;
-                } else {
-                    // ByteBlock already has the correct size
-                    numElems -= should;
-                    numByteBlocks--;
-                }
-                if (CHECK)
-                    check();
-                while (numByteBlocks > 0) {
-                    int add = numElems / numByteBlocks;
-                    assert (add > 0);
-                    IByteList sublist = list2.getAll(listPos, add);
-                    listPos += add;
-                    ByteBlock nextByteBlock = new ByteBlock();
-                    nextByteBlock.addAll(sublist);
-                    assert (nextByteBlock.size() == add);
-                    numElems -= add;
-                    addByteBlock(currByteBlockEnd, nextByteBlock);
-                    currNode = currNode.next();
-                    assert (currNode.block == nextByteBlock);
-                    assert (currNode.block.size() == add);
-                    currByteBlockStart = currByteBlockEnd;
-                    currByteBlockEnd += add;
-                    size += add;
-                    numByteBlocks--;
-                    if (CHECK)
-                        check();
-                }
+                doAddAllMiddle(list, addPos);
             }
         }
         assert (oldSize + addLen == size);
         if (CHECK)
             check();
         return true;
+    }
+
+    private void doAddAllTail(IByteList list, int addPos, int addLen, int space) {
+        for (int i = 0; i < space; i++) {
+            currNode.block.add(addPos + i, list.get(i));
+        }
+        modify(currNode, space);
+        int done = space;
+        int todo = addLen - space;
+        while (todo > 0) {
+            ByteBlock nextByteBlock = new ByteBlock(blockSize);
+            int add = Math.min(todo, blockSize);
+            for (int i = 0; i < add; i++) {
+                nextByteBlock.add(i, list.get(done + i));
+            }
+            done += add;
+            todo -= add;
+            addByteBlock(size + done, nextByteBlock);
+            currNode = currNode.next();
+        }
+        size += addLen;
+        currByteBlockEnd = size;
+        currByteBlockStart = currByteBlockEnd - currNode.block.size();
+    }
+
+    private void doAddAllHead(IByteList list, int addPos, int addLen, int space) {
+        assert (addPos == 0);
+        for (int i = 0; i < space; i++) {
+            currNode.block.add(addPos + i, list.get(addLen - space + i));
+        }
+        modify(currNode, space);
+        int done = space;
+        int todo = addLen - space;
+        while (todo > 0) {
+            ByteBlock nextByteBlock = new ByteBlock(blockSize);
+            int add = Math.min(todo, blockSize);
+            for (int i = 0; i < add; i++) {
+                nextByteBlock.add(i, list.get(addLen - done - add + i));
+            }
+            done += add;
+            todo -= add;
+            addByteBlock(0, nextByteBlock);
+            currNode = currNode.previous();
+        }
+        size += addLen;
+        currByteBlockStart = 0;
+        currByteBlockEnd = currNode.block.size();
+    }
+
+    // method is not changed right now.
+    private // To have good performance, it would have to be guaranteed that escape analysis is able to perform scalar replacement. As this is not trivial,
+    void doAddAllMiddle(IByteList list, int addPos) {
+        // Split first block to remove tail elements if necessary
+        // TODO avoid unnecessary copy
+        ByteGapList list2 = ByteGapList.create();
+        list2.addAll(list);
+        int remove = currNode.block.size() - addPos;
+        if (remove > 0) {
+            list2.addAll(currNode.block.getAll(addPos, remove));
+            currNode.block.remove(addPos, remove);
+            modify(currNode, -remove);
+            size -= remove;
+            currByteBlockEnd -= remove;
+        }
+        // Calculate how many blocks we need for the elements
+        int numElems = currNode.block.size() + list2.size();
+        int numByteBlocks = (numElems - 1) / blockSize + 1;
+        assert (numByteBlocks > 1);
+        int has = currNode.block.size();
+        int should = numElems / numByteBlocks;
+        int listPos = 0;
+        if (has < should) {
+            // Elements must be added to first block
+            int add = should - has;
+            IByteList sublist = list2.getAll(0, add);
+            listPos += add;
+            currNode.block.addAll(addPos, sublist);
+            modify(currNode, add);
+            assert (currNode.block.size() == should);
+            numElems -= should;
+            numByteBlocks--;
+            size += add;
+            currByteBlockEnd += add;
+        } else if (has > should) {
+            // Elements must be moved from first to second block
+            ByteBlock nextByteBlock = new ByteBlock(blockSize);
+            int move = has - should;
+            nextByteBlock.addAll(currNode.block.getAll(currNode.block.size() - move, move));
+            currNode.block.remove(currNode.block.size() - move, move);
+            modify(currNode, -move);
+            assert (currNode.block.size() == should);
+            numElems -= should;
+            numByteBlocks--;
+            currByteBlockEnd -= move;
+            should = numElems / numByteBlocks;
+            int add = should - move;
+            assert (add >= 0);
+            IByteList sublist = list2.getAll(0, add);
+            nextByteBlock.addAll(move, sublist);
+            listPos += add;
+            assert (nextByteBlock.size() == should);
+            numElems -= should;
+            numByteBlocks--;
+            size += add;
+            addByteBlock(currByteBlockEnd, nextByteBlock);
+            currNode = currNode.next();
+            assert (currNode.block == nextByteBlock);
+            assert (currNode.block.size() == add + move);
+            currByteBlockStart = currByteBlockEnd;
+            currByteBlockEnd += add + move;
+        } else {
+            // ByteBlock already has the correct size
+            numElems -= should;
+            numByteBlocks--;
+        }
+        if (CHECK)
+            check();
+        while (numByteBlocks > 0) {
+            int add = numElems / numByteBlocks;
+            assert (add > 0);
+            IByteList sublist = list2.getAll(listPos, add);
+            listPos += add;
+            ByteBlock nextByteBlock = new ByteBlock();
+            nextByteBlock.addAll(sublist);
+            assert (nextByteBlock.size() == add);
+            numElems -= add;
+            addByteBlock(currByteBlockEnd, nextByteBlock);
+            currNode = currNode.next();
+            assert (currNode.block == nextByteBlock);
+            assert (currNode.block.size() == add);
+            currByteBlockStart = currByteBlockEnd;
+            currByteBlockEnd += add;
+            size += add;
+            numByteBlocks--;
+            if (CHECK)
+                check();
+        }
     }
 
     @Override
@@ -948,50 +992,54 @@ public class ByteBigList extends IByteList {
             size -= len;
         } else {
             // Delete from start block
-            if (CHECK)
-                check();
-            int startLen = startNode.block.size() - startPos;
-            getByteBlockIndex(index, true, -startLen);
-            startNode.block.remove(startPos, startLen);
-            assert (startNode == currNode);
-            if (currNode.block.isEmpty()) {
-                releaseByteBlock();
-                doRemove(startNode);
-                startNode = null;
-            }
-            len -= startLen;
-            size -= startLen;
-            while (len > 0) {
-                currNode = null;
-                getByteBlockIndex(index, true, 0);
-                int s = currNode.block.size();
-                if (s <= len) {
-                    modify(currNode, -s);
-                    ByteBlockNode oldCurrNode = currNode;
-                    releaseByteBlock();
-                    doRemove(oldCurrNode);
-                    if (oldCurrNode == endNode) {
-                        endNode = null;
-                    }
-                    len -= s;
-                    size -= s;
-                    if (CHECK)
-                        check();
-                } else {
-                    modify(currNode, -len);
-                    currNode.block.remove(0, len);
-                    size -= len;
-                    break;
-                }
-            }
-            releaseByteBlock();
-            if (CHECK)
-                check();
-            getByteBlockIndex(index, false, 0);
-            merge(currNode);
+            doRemoveAll2(index, len, startPos, startNode, endNode);
         }
         if (CHECK)
             check();
+    }
+
+    private void doRemoveAll2(int index, int len, int startPos, ByteBlockNode startNode, ByteBlockNode endNode) {
+        if (CHECK)
+            check();
+        int startLen = startNode.block.size() - startPos;
+        getByteBlockIndex(index, true, -startLen);
+        startNode.block.remove(startPos, startLen);
+        assert (startNode == currNode);
+        if (currNode.block.isEmpty()) {
+            releaseByteBlock();
+            doRemove(startNode);
+            startNode = null;
+        }
+        len -= startLen;
+        size -= startLen;
+        while (len > 0) {
+            currNode = null;
+            getByteBlockIndex(index, true, 0);
+            int s = currNode.block.size();
+            if (s <= len) {
+                modify(currNode, -s);
+                ByteBlockNode oldCurrNode = currNode;
+                releaseByteBlock();
+                doRemove(oldCurrNode);
+                if (oldCurrNode == endNode) {
+                    endNode = null;
+                }
+                len -= s;
+                size -= s;
+                if (CHECK)
+                    check();
+            } else {
+                modify(currNode, -len);
+                currNode.block.remove(0, len);
+                size -= len;
+                break;
+            }
+        }
+        releaseByteBlock();
+        if (CHECK)
+            check();
+        getByteBlockIndex(index, false, 0);
+        merge(currNode);
     }
 
     /**

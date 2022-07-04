@@ -149,7 +149,13 @@ public class ShortBigList extends IShortList {
     }
 
     // This separate method is needed as the varargs variant creates the list with specific size
-    public static ShortBigList create() {
+    public static /**
+     * Create new list.
+     *
+     * @return          created list
+     * @param        type of elements stored in the list
+     */
+    ShortBigList create() {
         return new ShortBigList();
     }
 
@@ -428,6 +434,10 @@ public class ShortBigList extends IShortList {
             }
             releaseShortBlock();
         }
+        return getShortBlockIndex2(index, write, modify);
+    }
+
+    private int getShortBlockIndex2(int index, boolean write, int modify) {
         if (index == size) {
             if (currNode == null || currShortBlockEnd != size) {
                 currNode = rootNode.max();
@@ -516,36 +526,14 @@ public class ShortBigList extends IShortList {
                 if (index < currShortBlockEnd) {
                     // Traverse the left node
                     nextNode = currNode.getLeftSubTree();
-                    if (modify != 0) {
-                        if (nextNode == null || !wasLeft) {
-                            if (currNode.relPos > 0) {
-                                currNode.relPos += modify;
-                            } else {
-                                currNode.relPos -= modify;
-                            }
-                            wasLeft = true;
-                        }
-                    }
+                    wasLeft = doGetShortBlockLeft(modify, nextNode, wasLeft);
                     if (nextNode == null) {
                         break;
                     }
                 } else {
                     // Traverse the right node
                     nextNode = currNode.getRightSubTree();
-                    if (modify != 0) {
-                        if (nextNode == null || wasLeft) {
-                            if (currNode.relPos > 0) {
-                                currNode.relPos += modify;
-                                ShortBlockNode left = currNode.getLeftSubTree();
-                                if (left != null) {
-                                    left.relPos -= modify;
-                                }
-                            } else {
-                                currNode.relPos -= modify;
-                            }
-                            wasLeft = false;
-                        }
-                    }
+                    wasLeft = doGetShortBlockRight(modify, nextNode, wasLeft);
                     if (nextNode == null) {
                         break;
                     }
@@ -555,6 +543,38 @@ public class ShortBigList extends IShortList {
             }
         }
         currShortBlockStart = currShortBlockEnd - currNode.block.size();
+    }
+
+    private boolean doGetShortBlockLeft(int modify, ShortBlockNode nextNode, boolean wasLeft) {
+        if (modify != 0) {
+            if (nextNode == null || !wasLeft) {
+                if (currNode.relPos > 0) {
+                    currNode.relPos += modify;
+                } else {
+                    currNode.relPos -= modify;
+                }
+                wasLeft = true;
+            }
+        }
+        return wasLeft;
+    }
+
+    private boolean doGetShortBlockRight(int modify, ShortBlockNode nextNode, boolean wasLeft) {
+        if (modify != 0) {
+            if (nextNode == null || wasLeft) {
+                if (currNode.relPos > 0) {
+                    currNode.relPos += modify;
+                    ShortBlockNode left = currNode.getLeftSubTree();
+                    if (left != null) {
+                        left.relPos -= modify;
+                    }
+                } else {
+                    currNode.relPos -= modify;
+                }
+                wasLeft = false;
+            }
+        }
+        return wasLeft;
     }
 
     /**
@@ -611,31 +631,35 @@ public class ShortBigList extends IShortList {
                 currShortBlockEnd = 1;
             } else {
                 // Split block for insert
-                int nextShortBlockLen = blockSize / 2;
-                int blockLen = blockSize - nextShortBlockLen;
-                ShortGapList.transferRemove(currNode.block, blockLen, nextShortBlockLen, newShortBlock, 0, 0);
-                // Subtract 1 more because getShortBlockIndex() has already added 1
-                modify(currNode, -nextShortBlockLen - 1);
-                addShortBlock(currShortBlockEnd - nextShortBlockLen, newShortBlock);
-                if (pos < blockLen) {
-                    // Insert element in first block
-                    currNode.block.doAdd(pos, element);
-                    currShortBlockEnd = currShortBlockStart + blockLen + 1;
-                    modify(currNode, 1);
-                } else {
-                    // Insert element in second block
-                    currNode = currNode.next();
-                    modify(currNode, 1);
-                    currNode.block.doAdd(pos - blockLen, element);
-                    currShortBlockStart += blockLen;
-                    currShortBlockEnd++;
-                }
+                doAddSplitShortBlock(index, element, pos, newShortBlock);
             }
         }
         size++;
         if (CHECK)
             check();
         return true;
+    }
+
+    private void doAddSplitShortBlock(int index, short element, int pos, ShortBlock newShortBlock) {
+        int nextShortBlockLen = blockSize / 2;
+        int blockLen = blockSize - nextShortBlockLen;
+        ShortGapList.transferRemove(currNode.block, blockLen, nextShortBlockLen, newShortBlock, 0, 0);
+        // Subtract 1 more because getShortBlockIndex() has already added 1
+        modify(currNode, -nextShortBlockLen - 1);
+        addShortBlock(currShortBlockEnd - nextShortBlockLen, newShortBlock);
+        if (pos < blockLen) {
+            // Insert element in first block
+            currNode.block.doAdd(pos, element);
+            currShortBlockEnd = currShortBlockStart + blockLen + 1;
+            modify(currNode, 1);
+        } else {
+            // Insert element in second block
+            currNode = currNode.next();
+            modify(currNode, 1);
+            currNode.block.doAdd(pos - blockLen, element);
+            currShortBlockStart += blockLen;
+            currShortBlockEnd++;
+        }
     }
 
     /**
@@ -655,63 +679,69 @@ public class ShortBigList extends IShortList {
             return;
         }
         if (node.relPos < 0) {
-            // Left node
-            ShortBlockNode leftNode = node.getLeftSubTree();
-            if (leftNode != null) {
-                leftNode.relPos -= modify;
+            modifyLeftNode(node, modify);
+        } else {
+            modifyRightNode(node, modify);
+        }
+    }
+
+    private void modifyLeftNode(ShortBlockNode node, int modify) {
+        ShortBlockNode leftNode = node.getLeftSubTree();
+        if (leftNode != null) {
+            leftNode.relPos -= modify;
+        }
+        ShortBlockNode pp = node.parent;
+        assert (pp.getLeftSubTree() == node);
+        boolean parentRight = true;
+        while (true) {
+            ShortBlockNode p = pp.parent;
+            if (p == null) {
+                break;
             }
-            ShortBlockNode pp = node.parent;
-            assert (pp.getLeftSubTree() == node);
-            boolean parentRight = true;
+            boolean pRight = (p.getLeftSubTree() == pp);
+            if (parentRight != pRight) {
+                if (pp.relPos > 0) {
+                    pp.relPos += modify;
+                } else {
+                    pp.relPos -= modify;
+                }
+            }
+            pp = p;
+            parentRight = pRight;
+        }
+        if (parentRight) {
+            rootNode.relPos += modify;
+        }
+    }
+
+    private void modifyRightNode(ShortBlockNode node, int modify) {
+        node.relPos += modify;
+        ShortBlockNode leftNode = node.getLeftSubTree();
+        if (leftNode != null) {
+            leftNode.relPos -= modify;
+        }
+        ShortBlockNode parent = node.parent;
+        if (parent != null) {
+            assert (parent.getRightSubTree() == node);
+            boolean parentLeft = true;
             while (true) {
-                ShortBlockNode p = pp.parent;
+                ShortBlockNode p = parent.parent;
                 if (p == null) {
                     break;
                 }
-                boolean pRight = (p.getLeftSubTree() == pp);
-                if (parentRight != pRight) {
-                    if (pp.relPos > 0) {
-                        pp.relPos += modify;
+                boolean pLeft = (p.getRightSubTree() == parent);
+                if (parentLeft != pLeft) {
+                    if (parent.relPos > 0) {
+                        parent.relPos += modify;
                     } else {
-                        pp.relPos -= modify;
+                        parent.relPos -= modify;
                     }
                 }
-                pp = p;
-                parentRight = pRight;
+                parent = p;
+                parentLeft = pLeft;
             }
-            if (parentRight) {
+            if (!parentLeft) {
                 rootNode.relPos += modify;
-            }
-        } else {
-            // Right node
-            node.relPos += modify;
-            ShortBlockNode leftNode = node.getLeftSubTree();
-            if (leftNode != null) {
-                leftNode.relPos -= modify;
-            }
-            ShortBlockNode parent = node.parent;
-            if (parent != null) {
-                assert (parent.getRightSubTree() == node);
-                boolean parentLeft = true;
-                while (true) {
-                    ShortBlockNode p = parent.parent;
-                    if (p == null) {
-                        break;
-                    }
-                    boolean pLeft = (p.getRightSubTree() == parent);
-                    if (parentLeft != pLeft) {
-                        if (parent.relPos > 0) {
-                            parent.relPos += modify;
-                        } else {
-                            parent.relPos -= modify;
-                        }
-                    }
-                    parent = p;
-                    parentLeft = pLeft;
-                }
-                if (!parentLeft) {
-                    rootNode.relPos += modify;
-                }
             }
         }
     }
@@ -763,142 +793,156 @@ public class ShortBigList extends IShortList {
         } else {
             if (index == size) {
                 // Add elements at end
-                for (int i = 0; i < space; i++) {
-                    currNode.block.add(addPos + i, list.get(i));
-                }
-                modify(currNode, space);
-                int done = space;
-                int todo = addLen - space;
-                while (todo > 0) {
-                    ShortBlock nextShortBlock = new ShortBlock(blockSize);
-                    int add = Math.min(todo, blockSize);
-                    for (int i = 0; i < add; i++) {
-                        nextShortBlock.add(i, list.get(done + i));
-                    }
-                    done += add;
-                    todo -= add;
-                    addShortBlock(size + done, nextShortBlock);
-                    currNode = currNode.next();
-                }
-                size += addLen;
-                currShortBlockEnd = size;
-                currShortBlockStart = currShortBlockEnd - currNode.block.size();
+                doAddAllTail(list, addPos, addLen, space);
             } else if (index == 0) {
                 // Add elements at head
-                assert (addPos == 0);
-                for (int i = 0; i < space; i++) {
-                    currNode.block.add(addPos + i, list.get(addLen - space + i));
-                }
-                modify(currNode, space);
-                int done = space;
-                int todo = addLen - space;
-                while (todo > 0) {
-                    ShortBlock nextShortBlock = new ShortBlock(blockSize);
-                    int add = Math.min(todo, blockSize);
-                    for (int i = 0; i < add; i++) {
-                        nextShortBlock.add(i, list.get(addLen - done - add + i));
-                    }
-                    done += add;
-                    todo -= add;
-                    addShortBlock(0, nextShortBlock);
-                    currNode = currNode.previous();
-                }
-                size += addLen;
-                currShortBlockStart = 0;
-                currShortBlockEnd = currNode.block.size();
+                doAddAllHead(list, addPos, addLen, space);
             } else {
                 // Add elements in the middle
-                // Split first block to remove tail elements if necessary
-                // TODO avoid unnecessary copy
-                ShortGapList list2 = ShortGapList.create();
-                list2.addAll(list);
-                int remove = currNode.block.size() - addPos;
-                if (remove > 0) {
-                    list2.addAll(currNode.block.getAll(addPos, remove));
-                    currNode.block.remove(addPos, remove);
-                    modify(currNode, -remove);
-                    size -= remove;
-                    currShortBlockEnd -= remove;
-                }
-                // Calculate how many blocks we need for the elements
-                int numElems = currNode.block.size() + list2.size();
-                int numShortBlocks = (numElems - 1) / blockSize + 1;
-                assert (numShortBlocks > 1);
-                int has = currNode.block.size();
-                int should = numElems / numShortBlocks;
-                int listPos = 0;
-                if (has < should) {
-                    // Elements must be added to first block
-                    int add = should - has;
-                    IShortList sublist = list2.getAll(0, add);
-                    listPos += add;
-                    currNode.block.addAll(addPos, sublist);
-                    modify(currNode, add);
-                    assert (currNode.block.size() == should);
-                    numElems -= should;
-                    numShortBlocks--;
-                    size += add;
-                    currShortBlockEnd += add;
-                } else if (has > should) {
-                    // Elements must be moved from first to second block
-                    ShortBlock nextShortBlock = new ShortBlock(blockSize);
-                    int move = has - should;
-                    nextShortBlock.addAll(currNode.block.getAll(currNode.block.size() - move, move));
-                    currNode.block.remove(currNode.block.size() - move, move);
-                    modify(currNode, -move);
-                    assert (currNode.block.size() == should);
-                    numElems -= should;
-                    numShortBlocks--;
-                    currShortBlockEnd -= move;
-                    should = numElems / numShortBlocks;
-                    int add = should - move;
-                    assert (add >= 0);
-                    IShortList sublist = list2.getAll(0, add);
-                    nextShortBlock.addAll(move, sublist);
-                    listPos += add;
-                    assert (nextShortBlock.size() == should);
-                    numElems -= should;
-                    numShortBlocks--;
-                    size += add;
-                    addShortBlock(currShortBlockEnd, nextShortBlock);
-                    currNode = currNode.next();
-                    assert (currNode.block == nextShortBlock);
-                    assert (currNode.block.size() == add + move);
-                    currShortBlockStart = currShortBlockEnd;
-                    currShortBlockEnd += add + move;
-                } else {
-                    // ShortBlock already has the correct size
-                    numElems -= should;
-                    numShortBlocks--;
-                }
-                if (CHECK)
-                    check();
-                while (numShortBlocks > 0) {
-                    int add = numElems / numShortBlocks;
-                    assert (add > 0);
-                    IShortList sublist = list2.getAll(listPos, add);
-                    listPos += add;
-                    ShortBlock nextShortBlock = new ShortBlock();
-                    nextShortBlock.addAll(sublist);
-                    assert (nextShortBlock.size() == add);
-                    numElems -= add;
-                    addShortBlock(currShortBlockEnd, nextShortBlock);
-                    currNode = currNode.next();
-                    assert (currNode.block == nextShortBlock);
-                    assert (currNode.block.size() == add);
-                    currShortBlockStart = currShortBlockEnd;
-                    currShortBlockEnd += add;
-                    size += add;
-                    numShortBlocks--;
-                    if (CHECK)
-                        check();
-                }
+                doAddAllMiddle(list, addPos);
             }
         }
         assert (oldSize + addLen == size);
         if (CHECK)
             check();
         return true;
+    }
+
+    private void doAddAllTail(IShortList list, int addPos, int addLen, int space) {
+        for (int i = 0; i < space; i++) {
+            currNode.block.add(addPos + i, list.get(i));
+        }
+        modify(currNode, space);
+        int done = space;
+        int todo = addLen - space;
+        while (todo > 0) {
+            ShortBlock nextShortBlock = new ShortBlock(blockSize);
+            int add = Math.min(todo, blockSize);
+            for (int i = 0; i < add; i++) {
+                nextShortBlock.add(i, list.get(done + i));
+            }
+            done += add;
+            todo -= add;
+            addShortBlock(size + done, nextShortBlock);
+            currNode = currNode.next();
+        }
+        size += addLen;
+        currShortBlockEnd = size;
+        currShortBlockStart = currShortBlockEnd - currNode.block.size();
+    }
+
+    private void doAddAllHead(IShortList list, int addPos, int addLen, int space) {
+        assert (addPos == 0);
+        for (int i = 0; i < space; i++) {
+            currNode.block.add(addPos + i, list.get(addLen - space + i));
+        }
+        modify(currNode, space);
+        int done = space;
+        int todo = addLen - space;
+        while (todo > 0) {
+            ShortBlock nextShortBlock = new ShortBlock(blockSize);
+            int add = Math.min(todo, blockSize);
+            for (int i = 0; i < add; i++) {
+                nextShortBlock.add(i, list.get(addLen - done - add + i));
+            }
+            done += add;
+            todo -= add;
+            addShortBlock(0, nextShortBlock);
+            currNode = currNode.previous();
+        }
+        size += addLen;
+        currShortBlockStart = 0;
+        currShortBlockEnd = currNode.block.size();
+    }
+
+    // method is not changed right now.
+    private // To have good performance, it would have to be guaranteed that escape analysis is able to perform scalar replacement. As this is not trivial,
+    void doAddAllMiddle(IShortList list, int addPos) {
+        // Split first block to remove tail elements if necessary
+        // TODO avoid unnecessary copy
+        ShortGapList list2 = ShortGapList.create();
+        list2.addAll(list);
+        int remove = currNode.block.size() - addPos;
+        if (remove > 0) {
+            list2.addAll(currNode.block.getAll(addPos, remove));
+            currNode.block.remove(addPos, remove);
+            modify(currNode, -remove);
+            size -= remove;
+            currShortBlockEnd -= remove;
+        }
+        // Calculate how many blocks we need for the elements
+        int numElems = currNode.block.size() + list2.size();
+        int numShortBlocks = (numElems - 1) / blockSize + 1;
+        assert (numShortBlocks > 1);
+        int has = currNode.block.size();
+        int should = numElems / numShortBlocks;
+        int listPos = 0;
+        if (has < should) {
+            // Elements must be added to first block
+            int add = should - has;
+            IShortList sublist = list2.getAll(0, add);
+            listPos += add;
+            currNode.block.addAll(addPos, sublist);
+            modify(currNode, add);
+            assert (currNode.block.size() == should);
+            numElems -= should;
+            numShortBlocks--;
+            size += add;
+            currShortBlockEnd += add;
+        } else if (has > should) {
+            // Elements must be moved from first to second block
+            ShortBlock nextShortBlock = new ShortBlock(blockSize);
+            int move = has - should;
+            nextShortBlock.addAll(currNode.block.getAll(currNode.block.size() - move, move));
+            currNode.block.remove(currNode.block.size() - move, move);
+            modify(currNode, -move);
+            assert (currNode.block.size() == should);
+            numElems -= should;
+            numShortBlocks--;
+            currShortBlockEnd -= move;
+            should = numElems / numShortBlocks;
+            int add = should - move;
+            assert (add >= 0);
+            IShortList sublist = list2.getAll(0, add);
+            nextShortBlock.addAll(move, sublist);
+            listPos += add;
+            assert (nextShortBlock.size() == should);
+            numElems -= should;
+            numShortBlocks--;
+            size += add;
+            addShortBlock(currShortBlockEnd, nextShortBlock);
+            currNode = currNode.next();
+            assert (currNode.block == nextShortBlock);
+            assert (currNode.block.size() == add + move);
+            currShortBlockStart = currShortBlockEnd;
+            currShortBlockEnd += add + move;
+        } else {
+            // ShortBlock already has the correct size
+            numElems -= should;
+            numShortBlocks--;
+        }
+        if (CHECK)
+            check();
+        while (numShortBlocks > 0) {
+            int add = numElems / numShortBlocks;
+            assert (add > 0);
+            IShortList sublist = list2.getAll(listPos, add);
+            listPos += add;
+            ShortBlock nextShortBlock = new ShortBlock();
+            nextShortBlock.addAll(sublist);
+            assert (nextShortBlock.size() == add);
+            numElems -= add;
+            addShortBlock(currShortBlockEnd, nextShortBlock);
+            currNode = currNode.next();
+            assert (currNode.block == nextShortBlock);
+            assert (currNode.block.size() == add);
+            currShortBlockStart = currShortBlockEnd;
+            currShortBlockEnd += add;
+            size += add;
+            numShortBlocks--;
+            if (CHECK)
+                check();
+        }
     }
 
     @Override
@@ -948,50 +992,54 @@ public class ShortBigList extends IShortList {
             size -= len;
         } else {
             // Delete from start block
-            if (CHECK)
-                check();
-            int startLen = startNode.block.size() - startPos;
-            getShortBlockIndex(index, true, -startLen);
-            startNode.block.remove(startPos, startLen);
-            assert (startNode == currNode);
-            if (currNode.block.isEmpty()) {
-                releaseShortBlock();
-                doRemove(startNode);
-                startNode = null;
-            }
-            len -= startLen;
-            size -= startLen;
-            while (len > 0) {
-                currNode = null;
-                getShortBlockIndex(index, true, 0);
-                int s = currNode.block.size();
-                if (s <= len) {
-                    modify(currNode, -s);
-                    ShortBlockNode oldCurrNode = currNode;
-                    releaseShortBlock();
-                    doRemove(oldCurrNode);
-                    if (oldCurrNode == endNode) {
-                        endNode = null;
-                    }
-                    len -= s;
-                    size -= s;
-                    if (CHECK)
-                        check();
-                } else {
-                    modify(currNode, -len);
-                    currNode.block.remove(0, len);
-                    size -= len;
-                    break;
-                }
-            }
-            releaseShortBlock();
-            if (CHECK)
-                check();
-            getShortBlockIndex(index, false, 0);
-            merge(currNode);
+            doRemoveAll2(index, len, startPos, startNode, endNode);
         }
         if (CHECK)
             check();
+    }
+
+    private void doRemoveAll2(int index, int len, int startPos, ShortBlockNode startNode, ShortBlockNode endNode) {
+        if (CHECK)
+            check();
+        int startLen = startNode.block.size() - startPos;
+        getShortBlockIndex(index, true, -startLen);
+        startNode.block.remove(startPos, startLen);
+        assert (startNode == currNode);
+        if (currNode.block.isEmpty()) {
+            releaseShortBlock();
+            doRemove(startNode);
+            startNode = null;
+        }
+        len -= startLen;
+        size -= startLen;
+        while (len > 0) {
+            currNode = null;
+            getShortBlockIndex(index, true, 0);
+            int s = currNode.block.size();
+            if (s <= len) {
+                modify(currNode, -s);
+                ShortBlockNode oldCurrNode = currNode;
+                releaseShortBlock();
+                doRemove(oldCurrNode);
+                if (oldCurrNode == endNode) {
+                    endNode = null;
+                }
+                len -= s;
+                size -= s;
+                if (CHECK)
+                    check();
+            } else {
+                modify(currNode, -len);
+                currNode.block.remove(0, len);
+                size -= len;
+                break;
+            }
+        }
+        releaseShortBlock();
+        if (CHECK)
+            check();
+        getShortBlockIndex(index, false, 0);
+        merge(currNode);
     }
 
     /**

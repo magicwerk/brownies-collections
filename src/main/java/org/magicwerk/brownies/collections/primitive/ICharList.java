@@ -293,10 +293,8 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
     abstract protected void doEnsureCapacity(int minCapacity);
 
     // smooth as possible
-    /**
-     * An application can use this operation to minimize the storage of an instance.
-     */
-    abstract public void trimToSize();
+    abstract public // Note: Provide this method to make transition from ArrayList as
+    void trimToSize();
 
     public boolean equals(Object obj) {
         if (obj == this) {
@@ -1295,7 +1293,8 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
      * @param capacity	initial capacity (use -1 for default capacity)
      * @return			created list
      */
-    abstract protected ICharList doCreate(int capacity);
+    abstract protected // -- Readers --
+    ICharList doCreate(int capacity);
 
     /**
      * Assign this list the content of the that list.
@@ -1803,7 +1802,12 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
     }
 
     // see java.util.Arrays#fill
-    public void fill(char elem) {
+    public /**
+     * Fill list.
+     *
+     * @param elem  element used for filling
+     */
+    void fill(char elem) {
         int size = size();
         for (int i = 0; i < size; i++) {
             doSet(i, elem);

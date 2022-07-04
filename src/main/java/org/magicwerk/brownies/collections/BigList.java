@@ -427,6 +427,10 @@ public class BigList<E> extends IList<E> {
 			releaseBlock();
 		}
 
+		return getBlockIndex2(index, write, modify);
+	}
+
+	private int getBlockIndex2(int index, boolean write, int modify) {
 		if (index == size) {
 			if (currNode == null || currBlockEnd != size) {
 				currNode = rootNode.max();
@@ -524,16 +528,7 @@ public class BigList<E> extends IList<E> {
 				if (index < currBlockEnd) {
 					// Traverse the left node
 					nextNode = currNode.getLeftSubTree();
-					if (modify != 0) {
-						if (nextNode == null || !wasLeft) {
-							if (currNode.relPos > 0) {
-								currNode.relPos += modify;
-							} else {
-								currNode.relPos -= modify;
-							}
-							wasLeft = true;
-						}
-					}
+					wasLeft = doGetBlockLeft(modify, nextNode, wasLeft);
 					if (nextNode == null) {
 						break;
 					}
@@ -541,20 +536,7 @@ public class BigList<E> extends IList<E> {
 				} else {
 					// Traverse the right node
 					nextNode = currNode.getRightSubTree();
-					if (modify != 0) {
-						if (nextNode == null || wasLeft) {
-							if (currNode.relPos > 0) {
-								currNode.relPos += modify;
-								BlockNode<E> left = currNode.getLeftSubTree();
-								if (left != null) {
-									left.relPos -= modify;
-								}
-							} else {
-								currNode.relPos -= modify;
-							}
-							wasLeft = false;
-						}
-					}
+					wasLeft = doGetBlockRight(modify, nextNode, wasLeft);
 					if (nextNode == null) {
 						break;
 					}
@@ -564,6 +546,38 @@ public class BigList<E> extends IList<E> {
 			}
 		}
 		currBlockStart = currBlockEnd - currNode.block.size();
+	}
+
+	private boolean doGetBlockLeft(int modify, BlockNode<E> nextNode, boolean wasLeft) {
+		if (modify != 0) {
+			if (nextNode == null || !wasLeft) {
+				if (currNode.relPos > 0) {
+					currNode.relPos += modify;
+				} else {
+					currNode.relPos -= modify;
+				}
+				wasLeft = true;
+			}
+		}
+		return wasLeft;
+	}
+
+	private boolean doGetBlockRight(int modify, BlockNode<E> nextNode, boolean wasLeft) {
+		if (modify != 0) {
+			if (nextNode == null || wasLeft) {
+				if (currNode.relPos > 0) {
+					currNode.relPos += modify;
+					BlockNode<E> left = currNode.getLeftSubTree();
+					if (left != null) {
+						left.relPos -= modify;
+					}
+				} else {
+					currNode.relPos -= modify;
+				}
+				wasLeft = false;
+			}
+		}
+		return wasLeft;
 	}
 
 	/**
@@ -624,27 +638,7 @@ public class BigList<E> extends IList<E> {
 
 			} else {
 				// Split block for insert
-				int nextBlockLen = blockSize / 2;
-				int blockLen = blockSize - nextBlockLen;
-				GapList.transferRemove(currNode.block, blockLen, nextBlockLen, newBlock, 0, 0);
-
-				// Subtract 1 more because getBlockIndex() has already added 1
-				modify(currNode, -nextBlockLen - 1);
-				addBlock(currBlockEnd - nextBlockLen, newBlock);
-
-				if (pos < blockLen) {
-					// Insert element in first block
-					currNode.block.doAdd(pos, element);
-					currBlockEnd = currBlockStart + blockLen + 1;
-					modify(currNode, 1);
-				} else {
-					// Insert element in second block
-					currNode = currNode.next();
-					modify(currNode, 1);
-					currNode.block.doAdd(pos - blockLen, element);
-					currBlockStart += blockLen;
-					currBlockEnd++;
-				}
+				doAddSplitBlock(index, element, pos, newBlock);
 			}
 		}
 		size++;
@@ -652,6 +646,30 @@ public class BigList<E> extends IList<E> {
 		if (CHECK)
 			check();
 		return true;
+	}
+
+	private void doAddSplitBlock(int index, E element, int pos, Block<E> newBlock) {
+		int nextBlockLen = blockSize / 2;
+		int blockLen = blockSize - nextBlockLen;
+		GapList.transferRemove(currNode.block, blockLen, nextBlockLen, newBlock, 0, 0);
+
+		// Subtract 1 more because getBlockIndex() has already added 1
+		modify(currNode, -nextBlockLen - 1);
+		addBlock(currBlockEnd - nextBlockLen, newBlock);
+
+		if (pos < blockLen) {
+			// Insert element in first block
+			currNode.block.doAdd(pos, element);
+			currBlockEnd = currBlockStart + blockLen + 1;
+			modify(currNode, 1);
+		} else {
+			// Insert element in second block
+			currNode = currNode.next();
+			modify(currNode, 1);
+			currNode.block.doAdd(pos - blockLen, element);
+			currBlockStart += blockLen;
+			currBlockEnd++;
+		}
 	}
 
 	/**
@@ -672,63 +690,69 @@ public class BigList<E> extends IList<E> {
 		}
 
 		if (node.relPos < 0) {
-			// Left node
-			BlockNode<E> leftNode = node.getLeftSubTree();
-			if (leftNode != null) {
-				leftNode.relPos -= modify;
+			modifyLeftNode(node, modify);
+		} else {
+			modifyRightNode(node, modify);
+		}
+	}
+
+	private void modifyLeftNode(BlockNode<E> node, int modify) {
+		BlockNode<E> leftNode = node.getLeftSubTree();
+		if (leftNode != null) {
+			leftNode.relPos -= modify;
+		}
+		BlockNode<E> pp = node.parent;
+		assert (pp.getLeftSubTree() == node);
+		boolean parentRight = true;
+		while (true) {
+			BlockNode<E> p = pp.parent;
+			if (p == null) {
+				break;
 			}
-			BlockNode<E> pp = node.parent;
-			assert (pp.getLeftSubTree() == node);
-			boolean parentRight = true;
+			boolean pRight = (p.getLeftSubTree() == pp);
+			if (parentRight != pRight) {
+				if (pp.relPos > 0) {
+					pp.relPos += modify;
+				} else {
+					pp.relPos -= modify;
+				}
+			}
+			pp = p;
+			parentRight = pRight;
+		}
+		if (parentRight) {
+			rootNode.relPos += modify;
+		}
+	}
+
+	private void modifyRightNode(BlockNode<E> node, int modify) {
+		node.relPos += modify;
+		BlockNode<E> leftNode = node.getLeftSubTree();
+		if (leftNode != null) {
+			leftNode.relPos -= modify;
+		}
+		BlockNode<E> parent = node.parent;
+		if (parent != null) {
+			assert (parent.getRightSubTree() == node);
+			boolean parentLeft = true;
 			while (true) {
-				BlockNode<E> p = pp.parent;
+				BlockNode<E> p = parent.parent;
 				if (p == null) {
 					break;
 				}
-				boolean pRight = (p.getLeftSubTree() == pp);
-				if (parentRight != pRight) {
-					if (pp.relPos > 0) {
-						pp.relPos += modify;
+				boolean pLeft = (p.getRightSubTree() == parent);
+				if (parentLeft != pLeft) {
+					if (parent.relPos > 0) {
+						parent.relPos += modify;
 					} else {
-						pp.relPos -= modify;
+						parent.relPos -= modify;
 					}
 				}
-				pp = p;
-				parentRight = pRight;
+				parent = p;
+				parentLeft = pLeft;
 			}
-			if (parentRight) {
+			if (!parentLeft) {
 				rootNode.relPos += modify;
-			}
-		} else {
-			// Right node
-			node.relPos += modify;
-			BlockNode<E> leftNode = node.getLeftSubTree();
-			if (leftNode != null) {
-				leftNode.relPos -= modify;
-			}
-			BlockNode<E> parent = node.parent;
-			if (parent != null) {
-				assert (parent.getRightSubTree() == node);
-				boolean parentLeft = true;
-				while (true) {
-					BlockNode<E> p = parent.parent;
-					if (p == null) {
-						break;
-					}
-					boolean pLeft = (p.getRightSubTree() == parent);
-					if (parentLeft != pLeft) {
-						if (parent.relPos > 0) {
-							parent.relPos += modify;
-						} else {
-							parent.relPos -= modify;
-						}
-					}
-					parent = p;
-					parentLeft = pLeft;
-				}
-				if (!parentLeft) {
-					rootNode.relPos += modify;
-				}
 			}
 		}
 	}
@@ -784,151 +808,15 @@ public class BigList<E> extends IList<E> {
 		} else {
 			if (index == size) {
 				// Add elements at end
-				for (int i = 0; i < space; i++) {
-					currNode.block.add(addPos + i, list.get(i));
-				}
-				modify(currNode, space);
-
-				int done = space;
-				int todo = addLen - space;
-				while (todo > 0) {
-					Block<E> nextBlock = new Block<E>(blockSize);
-					int add = Math.min(todo, blockSize);
-					for (int i = 0; i < add; i++) {
-						nextBlock.add(i, list.get(done + i));
-					}
-					done += add;
-					todo -= add;
-					addBlock(size + done, nextBlock);
-					currNode = currNode.next();
-				}
-
-				size += addLen;
-				currBlockEnd = size;
-				currBlockStart = currBlockEnd - currNode.block.size();
+				doAddAllTail(list, addPos, addLen, space);
 
 			} else if (index == 0) {
 				// Add elements at head
-				assert (addPos == 0);
-				for (int i = 0; i < space; i++) {
-					currNode.block.add(addPos + i, list.get(addLen - space + i));
-				}
-				modify(currNode, space);
-
-				int done = space;
-				int todo = addLen - space;
-				while (todo > 0) {
-					Block<E> nextBlock = new Block<E>(blockSize);
-					int add = Math.min(todo, blockSize);
-					for (int i = 0; i < add; i++) {
-						nextBlock.add(i, list.get(addLen - done - add + i));
-					}
-					done += add;
-					todo -= add;
-					addBlock(0, nextBlock);
-					currNode = currNode.previous();
-				}
-
-				size += addLen;
-				currBlockStart = 0;
-				currBlockEnd = currNode.block.size();
+				doAddAllHead(list, addPos, addLen, space);
 
 			} else {
 				// Add elements in the middle
-
-				// Split first block to remove tail elements if necessary
-				GapList<E> list2 = GapList.create(); // TODO avoid unnecessary copy
-				list2.addAll(list);
-				int remove = currNode.block.size() - addPos;
-				if (remove > 0) {
-					list2.addAll(currNode.block.getAll(addPos, remove));
-					currNode.block.remove(addPos, remove);
-					modify(currNode, -remove);
-					size -= remove;
-					currBlockEnd -= remove;
-				}
-
-				// Calculate how many blocks we need for the elements
-				int numElems = currNode.block.size() + list2.size();
-				int numBlocks = (numElems - 1) / blockSize + 1;
-				assert (numBlocks > 1);
-
-				int has = currNode.block.size();
-				int should = numElems / numBlocks;
-				int listPos = 0;
-				if (has < should) {
-					// Elements must be added to first block
-					int add = should - has;
-					List<? extends E> sublist = list2.getAll(0, add);
-					listPos += add;
-
-					currNode.block.addAll(addPos, sublist);
-					modify(currNode, add);
-					assert (currNode.block.size() == should);
-					numElems -= should;
-					numBlocks--;
-					size += add;
-					currBlockEnd += add;
-
-				} else if (has > should) {
-					// Elements must be moved from first to second block
-					Block<E> nextBlock = new Block<E>(blockSize);
-					int move = has - should;
-					nextBlock.addAll(currNode.block.getAll(currNode.block.size() - move, move));
-					currNode.block.remove(currNode.block.size() - move, move);
-					modify(currNode, -move);
-					assert (currNode.block.size() == should);
-					numElems -= should;
-					numBlocks--;
-					currBlockEnd -= move;
-
-					should = numElems / numBlocks;
-					int add = should - move;
-					assert (add >= 0);
-					List<? extends E> sublist = list2.getAll(0, add);
-					nextBlock.addAll(move, sublist);
-					listPos += add;
-					assert (nextBlock.size() == should);
-					numElems -= should;
-
-					numBlocks--;
-					size += add;
-					addBlock(currBlockEnd, nextBlock);
-					currNode = currNode.next();
-					assert (currNode.block == nextBlock);
-					assert (currNode.block.size() == add + move);
-					currBlockStart = currBlockEnd;
-					currBlockEnd += add + move;
-
-				} else {
-					// Block already has the correct size
-					numElems -= should;
-					numBlocks--;
-				}
-				if (CHECK)
-					check();
-
-				while (numBlocks > 0) {
-					int add = numElems / numBlocks;
-					assert (add > 0);
-					List<? extends E> sublist = list2.getAll(listPos, add);
-					listPos += add;
-
-					Block<E> nextBlock = new Block<E>();
-					nextBlock.addAll(sublist);
-					assert (nextBlock.size() == add);
-					numElems -= add;
-					addBlock(currBlockEnd, nextBlock);
-					currNode = currNode.next();
-					assert (currNode.block == nextBlock);
-					assert (currNode.block.size() == add);
-					currBlockStart = currBlockEnd;
-					currBlockEnd += add;
-					size += add;
-					numBlocks--;
-					if (CHECK)
-						check();
-				}
+				doAddAllMiddle(list, addPos);
 			}
 		}
 
@@ -937,6 +825,157 @@ public class BigList<E> extends IList<E> {
 			check();
 
 		return true;
+	}
+
+	private void doAddAllTail(IList<? extends E> list, int addPos, int addLen, int space) {
+		for (int i = 0; i < space; i++) {
+			currNode.block.add(addPos + i, list.get(i));
+		}
+		modify(currNode, space);
+
+		int done = space;
+		int todo = addLen - space;
+		while (todo > 0) {
+			Block<E> nextBlock = new Block<E>(blockSize);
+			int add = Math.min(todo, blockSize);
+			for (int i = 0; i < add; i++) {
+				nextBlock.add(i, list.get(done + i));
+			}
+			done += add;
+			todo -= add;
+			addBlock(size + done, nextBlock);
+			currNode = currNode.next();
+		}
+
+		size += addLen;
+		currBlockEnd = size;
+		currBlockStart = currBlockEnd - currNode.block.size();
+	}
+
+	private void doAddAllHead(IList<? extends E> list, int addPos, int addLen, int space) {
+		assert (addPos == 0);
+
+		for (int i = 0; i < space; i++) {
+			currNode.block.add(addPos + i, list.get(addLen - space + i));
+		}
+		modify(currNode, space);
+
+		int done = space;
+		int todo = addLen - space;
+		while (todo > 0) {
+			Block<E> nextBlock = new Block<E>(blockSize);
+			int add = Math.min(todo, blockSize);
+			for (int i = 0; i < add; i++) {
+				nextBlock.add(i, list.get(addLen - done - add + i));
+			}
+			done += add;
+			todo -= add;
+			addBlock(0, nextBlock);
+			currNode = currNode.previous();
+		}
+
+		size += addLen;
+		currBlockStart = 0;
+		currBlockEnd = currNode.block.size();
+	}
+
+	// This method is too large to be inlined. However it cannot easily be split up, as several values would have to be returned from the different parts.
+	// To have good performance, it would have to be guaranteed that escape analysis is able to perform scalar replacement. As this is not trivial,
+	// method is not changed right now.
+	private void doAddAllMiddle(IList<? extends E> list, int addPos) {
+		// Split first block to remove tail elements if necessary
+		GapList<E> list2 = GapList.create(); // TODO avoid unnecessary copy
+		list2.addAll(list);
+		int remove = currNode.block.size() - addPos;
+		if (remove > 0) {
+			list2.addAll(currNode.block.getAll(addPos, remove));
+			currNode.block.remove(addPos, remove);
+			modify(currNode, -remove);
+			size -= remove;
+			currBlockEnd -= remove;
+		}
+
+		// Calculate how many blocks we need for the elements
+		int numElems = currNode.block.size() + list2.size();
+		int numBlocks = (numElems - 1) / blockSize + 1;
+		assert (numBlocks > 1);
+
+		int has = currNode.block.size();
+		int should = numElems / numBlocks;
+		int listPos = 0;
+		if (has < should) {
+			// Elements must be added to first block
+			int add = should - has;
+			List<? extends E> sublist = list2.getAll(0, add);
+			listPos += add;
+
+			currNode.block.addAll(addPos, sublist);
+			modify(currNode, add);
+			assert (currNode.block.size() == should);
+			numElems -= should;
+			numBlocks--;
+			size += add;
+			currBlockEnd += add;
+
+		} else if (has > should) {
+			// Elements must be moved from first to second block
+			Block<E> nextBlock = new Block<E>(blockSize);
+			int move = has - should;
+			nextBlock.addAll(currNode.block.getAll(currNode.block.size() - move, move));
+			currNode.block.remove(currNode.block.size() - move, move);
+			modify(currNode, -move);
+			assert (currNode.block.size() == should);
+			numElems -= should;
+			numBlocks--;
+			currBlockEnd -= move;
+
+			should = numElems / numBlocks;
+			int add = should - move;
+			assert (add >= 0);
+			List<? extends E> sublist = list2.getAll(0, add);
+			nextBlock.addAll(move, sublist);
+			listPos += add;
+			assert (nextBlock.size() == should);
+			numElems -= should;
+
+			numBlocks--;
+			size += add;
+			addBlock(currBlockEnd, nextBlock);
+			currNode = currNode.next();
+			assert (currNode.block == nextBlock);
+			assert (currNode.block.size() == add + move);
+			currBlockStart = currBlockEnd;
+			currBlockEnd += add + move;
+
+		} else {
+			// Block already has the correct size
+			numElems -= should;
+			numBlocks--;
+		}
+		if (CHECK)
+			check();
+
+		while (numBlocks > 0) {
+			int add = numElems / numBlocks;
+			assert (add > 0);
+			List<? extends E> sublist = list2.getAll(listPos, add);
+			listPos += add;
+
+			Block<E> nextBlock = new Block<E>();
+			nextBlock.addAll(sublist);
+			assert (nextBlock.size() == add);
+			numElems -= add;
+			addBlock(currBlockEnd, nextBlock);
+			currNode = currNode.next();
+			assert (currNode.block == nextBlock);
+			assert (currNode.block.size() == add);
+			currBlockStart = currBlockEnd;
+			currBlockEnd += add;
+			size += add;
+			numBlocks--;
+			if (CHECK)
+				check();
+		}
 	}
 
 	@Override
@@ -991,52 +1030,56 @@ public class BigList<E> extends IList<E> {
 			size -= len;
 		} else {
 			// Delete from start block
-			if (CHECK)
-				check();
-			int startLen = startNode.block.size() - startPos;
-			getBlockIndex(index, true, -startLen);
-			startNode.block.remove(startPos, startLen);
-			assert (startNode == currNode);
-			if (currNode.block.isEmpty()) {
-				releaseBlock();
-				doRemove(startNode);
-				startNode = null;
-			}
-			len -= startLen;
-			size -= startLen;
-
-			while (len > 0) {
-				currNode = null;
-				getBlockIndex(index, true, 0);
-				int s = currNode.block.size();
-				if (s <= len) {
-					modify(currNode, -s);
-					BlockNode<E> oldCurrNode = currNode;
-					releaseBlock();
-					doRemove(oldCurrNode);
-					if (oldCurrNode == endNode) {
-						endNode = null;
-					}
-					len -= s;
-					size -= s;
-					if (CHECK)
-						check();
-				} else {
-					modify(currNode, -len);
-					currNode.block.remove(0, len);
-					size -= len;
-					break;
-				}
-			}
-			releaseBlock();
-			if (CHECK)
-				check();
-			getBlockIndex(index, false, 0);
-			merge(currNode);
+			doRemoveAll2(index, len, startPos, startNode, endNode);
 		}
 
 		if (CHECK)
 			check();
+	}
+
+	private void doRemoveAll2(int index, int len, int startPos, BlockNode<E> startNode, BlockNode<E> endNode) {
+		if (CHECK)
+			check();
+		int startLen = startNode.block.size() - startPos;
+		getBlockIndex(index, true, -startLen);
+		startNode.block.remove(startPos, startLen);
+		assert (startNode == currNode);
+		if (currNode.block.isEmpty()) {
+			releaseBlock();
+			doRemove(startNode);
+			startNode = null;
+		}
+		len -= startLen;
+		size -= startLen;
+
+		while (len > 0) {
+			currNode = null;
+			getBlockIndex(index, true, 0);
+			int s = currNode.block.size();
+			if (s <= len) {
+				modify(currNode, -s);
+				BlockNode<E> oldCurrNode = currNode;
+				releaseBlock();
+				doRemove(oldCurrNode);
+				if (oldCurrNode == endNode) {
+					endNode = null;
+				}
+				len -= s;
+				size -= s;
+				if (CHECK)
+					check();
+			} else {
+				modify(currNode, -len);
+				currNode.block.remove(0, len);
+				size -= len;
+				break;
+			}
+		}
+		releaseBlock();
+		if (CHECK)
+			check();
+		getBlockIndex(index, false, 0);
+		merge(currNode);
 	}
 
 	/**

@@ -149,7 +149,13 @@ public class CharBigList extends ICharList {
     }
 
     // This separate method is needed as the varargs variant creates the list with specific size
-    public static CharBigList create() {
+    public static /**
+     * Create new list.
+     *
+     * @return          created list
+     * @param        type of elements stored in the list
+     */
+    CharBigList create() {
         return new CharBigList();
     }
 
@@ -428,6 +434,10 @@ public class CharBigList extends ICharList {
             }
             releaseCharBlock();
         }
+        return getCharBlockIndex2(index, write, modify);
+    }
+
+    private int getCharBlockIndex2(int index, boolean write, int modify) {
         if (index == size) {
             if (currNode == null || currCharBlockEnd != size) {
                 currNode = rootNode.max();
@@ -516,36 +526,14 @@ public class CharBigList extends ICharList {
                 if (index < currCharBlockEnd) {
                     // Traverse the left node
                     nextNode = currNode.getLeftSubTree();
-                    if (modify != 0) {
-                        if (nextNode == null || !wasLeft) {
-                            if (currNode.relPos > 0) {
-                                currNode.relPos += modify;
-                            } else {
-                                currNode.relPos -= modify;
-                            }
-                            wasLeft = true;
-                        }
-                    }
+                    wasLeft = doGetCharBlockLeft(modify, nextNode, wasLeft);
                     if (nextNode == null) {
                         break;
                     }
                 } else {
                     // Traverse the right node
                     nextNode = currNode.getRightSubTree();
-                    if (modify != 0) {
-                        if (nextNode == null || wasLeft) {
-                            if (currNode.relPos > 0) {
-                                currNode.relPos += modify;
-                                CharBlockNode left = currNode.getLeftSubTree();
-                                if (left != null) {
-                                    left.relPos -= modify;
-                                }
-                            } else {
-                                currNode.relPos -= modify;
-                            }
-                            wasLeft = false;
-                        }
-                    }
+                    wasLeft = doGetCharBlockRight(modify, nextNode, wasLeft);
                     if (nextNode == null) {
                         break;
                     }
@@ -555,6 +543,38 @@ public class CharBigList extends ICharList {
             }
         }
         currCharBlockStart = currCharBlockEnd - currNode.block.size();
+    }
+
+    private boolean doGetCharBlockLeft(int modify, CharBlockNode nextNode, boolean wasLeft) {
+        if (modify != 0) {
+            if (nextNode == null || !wasLeft) {
+                if (currNode.relPos > 0) {
+                    currNode.relPos += modify;
+                } else {
+                    currNode.relPos -= modify;
+                }
+                wasLeft = true;
+            }
+        }
+        return wasLeft;
+    }
+
+    private boolean doGetCharBlockRight(int modify, CharBlockNode nextNode, boolean wasLeft) {
+        if (modify != 0) {
+            if (nextNode == null || wasLeft) {
+                if (currNode.relPos > 0) {
+                    currNode.relPos += modify;
+                    CharBlockNode left = currNode.getLeftSubTree();
+                    if (left != null) {
+                        left.relPos -= modify;
+                    }
+                } else {
+                    currNode.relPos -= modify;
+                }
+                wasLeft = false;
+            }
+        }
+        return wasLeft;
     }
 
     /**
@@ -611,31 +631,35 @@ public class CharBigList extends ICharList {
                 currCharBlockEnd = 1;
             } else {
                 // Split block for insert
-                int nextCharBlockLen = blockSize / 2;
-                int blockLen = blockSize - nextCharBlockLen;
-                CharGapList.transferRemove(currNode.block, blockLen, nextCharBlockLen, newCharBlock, 0, 0);
-                // Subtract 1 more because getCharBlockIndex() has already added 1
-                modify(currNode, -nextCharBlockLen - 1);
-                addCharBlock(currCharBlockEnd - nextCharBlockLen, newCharBlock);
-                if (pos < blockLen) {
-                    // Insert element in first block
-                    currNode.block.doAdd(pos, element);
-                    currCharBlockEnd = currCharBlockStart + blockLen + 1;
-                    modify(currNode, 1);
-                } else {
-                    // Insert element in second block
-                    currNode = currNode.next();
-                    modify(currNode, 1);
-                    currNode.block.doAdd(pos - blockLen, element);
-                    currCharBlockStart += blockLen;
-                    currCharBlockEnd++;
-                }
+                doAddSplitCharBlock(index, element, pos, newCharBlock);
             }
         }
         size++;
         if (CHECK)
             check();
         return true;
+    }
+
+    private void doAddSplitCharBlock(int index, char element, int pos, CharBlock newCharBlock) {
+        int nextCharBlockLen = blockSize / 2;
+        int blockLen = blockSize - nextCharBlockLen;
+        CharGapList.transferRemove(currNode.block, blockLen, nextCharBlockLen, newCharBlock, 0, 0);
+        // Subtract 1 more because getCharBlockIndex() has already added 1
+        modify(currNode, -nextCharBlockLen - 1);
+        addCharBlock(currCharBlockEnd - nextCharBlockLen, newCharBlock);
+        if (pos < blockLen) {
+            // Insert element in first block
+            currNode.block.doAdd(pos, element);
+            currCharBlockEnd = currCharBlockStart + blockLen + 1;
+            modify(currNode, 1);
+        } else {
+            // Insert element in second block
+            currNode = currNode.next();
+            modify(currNode, 1);
+            currNode.block.doAdd(pos - blockLen, element);
+            currCharBlockStart += blockLen;
+            currCharBlockEnd++;
+        }
     }
 
     /**
@@ -655,63 +679,69 @@ public class CharBigList extends ICharList {
             return;
         }
         if (node.relPos < 0) {
-            // Left node
-            CharBlockNode leftNode = node.getLeftSubTree();
-            if (leftNode != null) {
-                leftNode.relPos -= modify;
+            modifyLeftNode(node, modify);
+        } else {
+            modifyRightNode(node, modify);
+        }
+    }
+
+    private void modifyLeftNode(CharBlockNode node, int modify) {
+        CharBlockNode leftNode = node.getLeftSubTree();
+        if (leftNode != null) {
+            leftNode.relPos -= modify;
+        }
+        CharBlockNode pp = node.parent;
+        assert (pp.getLeftSubTree() == node);
+        boolean parentRight = true;
+        while (true) {
+            CharBlockNode p = pp.parent;
+            if (p == null) {
+                break;
             }
-            CharBlockNode pp = node.parent;
-            assert (pp.getLeftSubTree() == node);
-            boolean parentRight = true;
+            boolean pRight = (p.getLeftSubTree() == pp);
+            if (parentRight != pRight) {
+                if (pp.relPos > 0) {
+                    pp.relPos += modify;
+                } else {
+                    pp.relPos -= modify;
+                }
+            }
+            pp = p;
+            parentRight = pRight;
+        }
+        if (parentRight) {
+            rootNode.relPos += modify;
+        }
+    }
+
+    private void modifyRightNode(CharBlockNode node, int modify) {
+        node.relPos += modify;
+        CharBlockNode leftNode = node.getLeftSubTree();
+        if (leftNode != null) {
+            leftNode.relPos -= modify;
+        }
+        CharBlockNode parent = node.parent;
+        if (parent != null) {
+            assert (parent.getRightSubTree() == node);
+            boolean parentLeft = true;
             while (true) {
-                CharBlockNode p = pp.parent;
+                CharBlockNode p = parent.parent;
                 if (p == null) {
                     break;
                 }
-                boolean pRight = (p.getLeftSubTree() == pp);
-                if (parentRight != pRight) {
-                    if (pp.relPos > 0) {
-                        pp.relPos += modify;
+                boolean pLeft = (p.getRightSubTree() == parent);
+                if (parentLeft != pLeft) {
+                    if (parent.relPos > 0) {
+                        parent.relPos += modify;
                     } else {
-                        pp.relPos -= modify;
+                        parent.relPos -= modify;
                     }
                 }
-                pp = p;
-                parentRight = pRight;
+                parent = p;
+                parentLeft = pLeft;
             }
-            if (parentRight) {
+            if (!parentLeft) {
                 rootNode.relPos += modify;
-            }
-        } else {
-            // Right node
-            node.relPos += modify;
-            CharBlockNode leftNode = node.getLeftSubTree();
-            if (leftNode != null) {
-                leftNode.relPos -= modify;
-            }
-            CharBlockNode parent = node.parent;
-            if (parent != null) {
-                assert (parent.getRightSubTree() == node);
-                boolean parentLeft = true;
-                while (true) {
-                    CharBlockNode p = parent.parent;
-                    if (p == null) {
-                        break;
-                    }
-                    boolean pLeft = (p.getRightSubTree() == parent);
-                    if (parentLeft != pLeft) {
-                        if (parent.relPos > 0) {
-                            parent.relPos += modify;
-                        } else {
-                            parent.relPos -= modify;
-                        }
-                    }
-                    parent = p;
-                    parentLeft = pLeft;
-                }
-                if (!parentLeft) {
-                    rootNode.relPos += modify;
-                }
             }
         }
     }
@@ -763,142 +793,156 @@ public class CharBigList extends ICharList {
         } else {
             if (index == size) {
                 // Add elements at end
-                for (int i = 0; i < space; i++) {
-                    currNode.block.add(addPos + i, list.get(i));
-                }
-                modify(currNode, space);
-                int done = space;
-                int todo = addLen - space;
-                while (todo > 0) {
-                    CharBlock nextCharBlock = new CharBlock(blockSize);
-                    int add = Math.min(todo, blockSize);
-                    for (int i = 0; i < add; i++) {
-                        nextCharBlock.add(i, list.get(done + i));
-                    }
-                    done += add;
-                    todo -= add;
-                    addCharBlock(size + done, nextCharBlock);
-                    currNode = currNode.next();
-                }
-                size += addLen;
-                currCharBlockEnd = size;
-                currCharBlockStart = currCharBlockEnd - currNode.block.size();
+                doAddAllTail(list, addPos, addLen, space);
             } else if (index == 0) {
                 // Add elements at head
-                assert (addPos == 0);
-                for (int i = 0; i < space; i++) {
-                    currNode.block.add(addPos + i, list.get(addLen - space + i));
-                }
-                modify(currNode, space);
-                int done = space;
-                int todo = addLen - space;
-                while (todo > 0) {
-                    CharBlock nextCharBlock = new CharBlock(blockSize);
-                    int add = Math.min(todo, blockSize);
-                    for (int i = 0; i < add; i++) {
-                        nextCharBlock.add(i, list.get(addLen - done - add + i));
-                    }
-                    done += add;
-                    todo -= add;
-                    addCharBlock(0, nextCharBlock);
-                    currNode = currNode.previous();
-                }
-                size += addLen;
-                currCharBlockStart = 0;
-                currCharBlockEnd = currNode.block.size();
+                doAddAllHead(list, addPos, addLen, space);
             } else {
                 // Add elements in the middle
-                // Split first block to remove tail elements if necessary
-                // TODO avoid unnecessary copy
-                CharGapList list2 = CharGapList.create();
-                list2.addAll(list);
-                int remove = currNode.block.size() - addPos;
-                if (remove > 0) {
-                    list2.addAll(currNode.block.getAll(addPos, remove));
-                    currNode.block.remove(addPos, remove);
-                    modify(currNode, -remove);
-                    size -= remove;
-                    currCharBlockEnd -= remove;
-                }
-                // Calculate how many blocks we need for the elements
-                int numElems = currNode.block.size() + list2.size();
-                int numCharBlocks = (numElems - 1) / blockSize + 1;
-                assert (numCharBlocks > 1);
-                int has = currNode.block.size();
-                int should = numElems / numCharBlocks;
-                int listPos = 0;
-                if (has < should) {
-                    // Elements must be added to first block
-                    int add = should - has;
-                    ICharList sublist = list2.getAll(0, add);
-                    listPos += add;
-                    currNode.block.addAll(addPos, sublist);
-                    modify(currNode, add);
-                    assert (currNode.block.size() == should);
-                    numElems -= should;
-                    numCharBlocks--;
-                    size += add;
-                    currCharBlockEnd += add;
-                } else if (has > should) {
-                    // Elements must be moved from first to second block
-                    CharBlock nextCharBlock = new CharBlock(blockSize);
-                    int move = has - should;
-                    nextCharBlock.addAll(currNode.block.getAll(currNode.block.size() - move, move));
-                    currNode.block.remove(currNode.block.size() - move, move);
-                    modify(currNode, -move);
-                    assert (currNode.block.size() == should);
-                    numElems -= should;
-                    numCharBlocks--;
-                    currCharBlockEnd -= move;
-                    should = numElems / numCharBlocks;
-                    int add = should - move;
-                    assert (add >= 0);
-                    ICharList sublist = list2.getAll(0, add);
-                    nextCharBlock.addAll(move, sublist);
-                    listPos += add;
-                    assert (nextCharBlock.size() == should);
-                    numElems -= should;
-                    numCharBlocks--;
-                    size += add;
-                    addCharBlock(currCharBlockEnd, nextCharBlock);
-                    currNode = currNode.next();
-                    assert (currNode.block == nextCharBlock);
-                    assert (currNode.block.size() == add + move);
-                    currCharBlockStart = currCharBlockEnd;
-                    currCharBlockEnd += add + move;
-                } else {
-                    // CharBlock already has the correct size
-                    numElems -= should;
-                    numCharBlocks--;
-                }
-                if (CHECK)
-                    check();
-                while (numCharBlocks > 0) {
-                    int add = numElems / numCharBlocks;
-                    assert (add > 0);
-                    ICharList sublist = list2.getAll(listPos, add);
-                    listPos += add;
-                    CharBlock nextCharBlock = new CharBlock();
-                    nextCharBlock.addAll(sublist);
-                    assert (nextCharBlock.size() == add);
-                    numElems -= add;
-                    addCharBlock(currCharBlockEnd, nextCharBlock);
-                    currNode = currNode.next();
-                    assert (currNode.block == nextCharBlock);
-                    assert (currNode.block.size() == add);
-                    currCharBlockStart = currCharBlockEnd;
-                    currCharBlockEnd += add;
-                    size += add;
-                    numCharBlocks--;
-                    if (CHECK)
-                        check();
-                }
+                doAddAllMiddle(list, addPos);
             }
         }
         assert (oldSize + addLen == size);
         if (CHECK)
             check();
         return true;
+    }
+
+    private void doAddAllTail(ICharList list, int addPos, int addLen, int space) {
+        for (int i = 0; i < space; i++) {
+            currNode.block.add(addPos + i, list.get(i));
+        }
+        modify(currNode, space);
+        int done = space;
+        int todo = addLen - space;
+        while (todo > 0) {
+            CharBlock nextCharBlock = new CharBlock(blockSize);
+            int add = Math.min(todo, blockSize);
+            for (int i = 0; i < add; i++) {
+                nextCharBlock.add(i, list.get(done + i));
+            }
+            done += add;
+            todo -= add;
+            addCharBlock(size + done, nextCharBlock);
+            currNode = currNode.next();
+        }
+        size += addLen;
+        currCharBlockEnd = size;
+        currCharBlockStart = currCharBlockEnd - currNode.block.size();
+    }
+
+    private void doAddAllHead(ICharList list, int addPos, int addLen, int space) {
+        assert (addPos == 0);
+        for (int i = 0; i < space; i++) {
+            currNode.block.add(addPos + i, list.get(addLen - space + i));
+        }
+        modify(currNode, space);
+        int done = space;
+        int todo = addLen - space;
+        while (todo > 0) {
+            CharBlock nextCharBlock = new CharBlock(blockSize);
+            int add = Math.min(todo, blockSize);
+            for (int i = 0; i < add; i++) {
+                nextCharBlock.add(i, list.get(addLen - done - add + i));
+            }
+            done += add;
+            todo -= add;
+            addCharBlock(0, nextCharBlock);
+            currNode = currNode.previous();
+        }
+        size += addLen;
+        currCharBlockStart = 0;
+        currCharBlockEnd = currNode.block.size();
+    }
+
+    // method is not changed right now.
+    private // To have good performance, it would have to be guaranteed that escape analysis is able to perform scalar replacement. As this is not trivial,
+    void doAddAllMiddle(ICharList list, int addPos) {
+        // Split first block to remove tail elements if necessary
+        // TODO avoid unnecessary copy
+        CharGapList list2 = CharGapList.create();
+        list2.addAll(list);
+        int remove = currNode.block.size() - addPos;
+        if (remove > 0) {
+            list2.addAll(currNode.block.getAll(addPos, remove));
+            currNode.block.remove(addPos, remove);
+            modify(currNode, -remove);
+            size -= remove;
+            currCharBlockEnd -= remove;
+        }
+        // Calculate how many blocks we need for the elements
+        int numElems = currNode.block.size() + list2.size();
+        int numCharBlocks = (numElems - 1) / blockSize + 1;
+        assert (numCharBlocks > 1);
+        int has = currNode.block.size();
+        int should = numElems / numCharBlocks;
+        int listPos = 0;
+        if (has < should) {
+            // Elements must be added to first block
+            int add = should - has;
+            ICharList sublist = list2.getAll(0, add);
+            listPos += add;
+            currNode.block.addAll(addPos, sublist);
+            modify(currNode, add);
+            assert (currNode.block.size() == should);
+            numElems -= should;
+            numCharBlocks--;
+            size += add;
+            currCharBlockEnd += add;
+        } else if (has > should) {
+            // Elements must be moved from first to second block
+            CharBlock nextCharBlock = new CharBlock(blockSize);
+            int move = has - should;
+            nextCharBlock.addAll(currNode.block.getAll(currNode.block.size() - move, move));
+            currNode.block.remove(currNode.block.size() - move, move);
+            modify(currNode, -move);
+            assert (currNode.block.size() == should);
+            numElems -= should;
+            numCharBlocks--;
+            currCharBlockEnd -= move;
+            should = numElems / numCharBlocks;
+            int add = should - move;
+            assert (add >= 0);
+            ICharList sublist = list2.getAll(0, add);
+            nextCharBlock.addAll(move, sublist);
+            listPos += add;
+            assert (nextCharBlock.size() == should);
+            numElems -= should;
+            numCharBlocks--;
+            size += add;
+            addCharBlock(currCharBlockEnd, nextCharBlock);
+            currNode = currNode.next();
+            assert (currNode.block == nextCharBlock);
+            assert (currNode.block.size() == add + move);
+            currCharBlockStart = currCharBlockEnd;
+            currCharBlockEnd += add + move;
+        } else {
+            // CharBlock already has the correct size
+            numElems -= should;
+            numCharBlocks--;
+        }
+        if (CHECK)
+            check();
+        while (numCharBlocks > 0) {
+            int add = numElems / numCharBlocks;
+            assert (add > 0);
+            ICharList sublist = list2.getAll(listPos, add);
+            listPos += add;
+            CharBlock nextCharBlock = new CharBlock();
+            nextCharBlock.addAll(sublist);
+            assert (nextCharBlock.size() == add);
+            numElems -= add;
+            addCharBlock(currCharBlockEnd, nextCharBlock);
+            currNode = currNode.next();
+            assert (currNode.block == nextCharBlock);
+            assert (currNode.block.size() == add);
+            currCharBlockStart = currCharBlockEnd;
+            currCharBlockEnd += add;
+            size += add;
+            numCharBlocks--;
+            if (CHECK)
+                check();
+        }
     }
 
     @Override
@@ -948,50 +992,54 @@ public class CharBigList extends ICharList {
             size -= len;
         } else {
             // Delete from start block
-            if (CHECK)
-                check();
-            int startLen = startNode.block.size() - startPos;
-            getCharBlockIndex(index, true, -startLen);
-            startNode.block.remove(startPos, startLen);
-            assert (startNode == currNode);
-            if (currNode.block.isEmpty()) {
-                releaseCharBlock();
-                doRemove(startNode);
-                startNode = null;
-            }
-            len -= startLen;
-            size -= startLen;
-            while (len > 0) {
-                currNode = null;
-                getCharBlockIndex(index, true, 0);
-                int s = currNode.block.size();
-                if (s <= len) {
-                    modify(currNode, -s);
-                    CharBlockNode oldCurrNode = currNode;
-                    releaseCharBlock();
-                    doRemove(oldCurrNode);
-                    if (oldCurrNode == endNode) {
-                        endNode = null;
-                    }
-                    len -= s;
-                    size -= s;
-                    if (CHECK)
-                        check();
-                } else {
-                    modify(currNode, -len);
-                    currNode.block.remove(0, len);
-                    size -= len;
-                    break;
-                }
-            }
-            releaseCharBlock();
-            if (CHECK)
-                check();
-            getCharBlockIndex(index, false, 0);
-            merge(currNode);
+            doRemoveAll2(index, len, startPos, startNode, endNode);
         }
         if (CHECK)
             check();
+    }
+
+    private void doRemoveAll2(int index, int len, int startPos, CharBlockNode startNode, CharBlockNode endNode) {
+        if (CHECK)
+            check();
+        int startLen = startNode.block.size() - startPos;
+        getCharBlockIndex(index, true, -startLen);
+        startNode.block.remove(startPos, startLen);
+        assert (startNode == currNode);
+        if (currNode.block.isEmpty()) {
+            releaseCharBlock();
+            doRemove(startNode);
+            startNode = null;
+        }
+        len -= startLen;
+        size -= startLen;
+        while (len > 0) {
+            currNode = null;
+            getCharBlockIndex(index, true, 0);
+            int s = currNode.block.size();
+            if (s <= len) {
+                modify(currNode, -s);
+                CharBlockNode oldCurrNode = currNode;
+                releaseCharBlock();
+                doRemove(oldCurrNode);
+                if (oldCurrNode == endNode) {
+                    endNode = null;
+                }
+                len -= s;
+                size -= s;
+                if (CHECK)
+                    check();
+            } else {
+                modify(currNode, -len);
+                currNode.block.remove(0, len);
+                size -= len;
+                break;
+            }
+        }
+        releaseCharBlock();
+        if (CHECK)
+            check();
+        getCharBlockIndex(index, false, 0);
+        merge(currNode);
     }
 
     /**
