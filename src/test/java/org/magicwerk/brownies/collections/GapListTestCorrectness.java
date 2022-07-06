@@ -24,7 +24,8 @@ public class GapListTestCorrectness {
 	private static Logger LOG = LogbackTools.getConsoleLogger();
 
 	public static void main(String[] args) {
-		test();
+		testAllStatesAdd();
+		//test();
 	}
 
 	static void test() {
