@@ -641,6 +641,7 @@ public class GapList<E> extends IList<E> {
 		} else {
 			physIdx = physIndex(index);
 			if (gapSize == 0) {
+				assert (index != 0 && index != size);
 				physIdx = doAddCreateNewGap(index, physIdx);
 			} else {
 				physIdx = doAddMoveExistingGap(index, physIdx);
@@ -799,8 +800,7 @@ public class GapList<E> extends IList<E> {
 
 	/**
 	 * Move a range of elements in the values array and adjust the gap.
-	 * The elements are first copied and the source range is then
-	 * filled with null.
+	 * The elements are first copied and the source range is then filled with null.
 	 *
 	 * @param src	start index of source range
 	 * @param dst	start index of destination range
@@ -808,7 +808,7 @@ public class GapList<E> extends IList<E> {
 	 */
 	private void moveDataWithGap(int src, int dst, int len) {
 		if (DEBUG_TRACE) {
-			debugLog("moveGap: " + src + "-" + src + len + " -> " + dst + "-" + dst + len);
+			debugLog("moveGap: " + src + "-" + (src + len) + " -> " + dst + "-" + (dst + len));
 		}
 
 		if (src > values.length) {
@@ -851,8 +851,7 @@ public class GapList<E> extends IList<E> {
 
 	/**
 	 * Move a range of elements in the values array.
-	 * The elements are first copied and the source range is then
-	 * filled with null.
+	 * The elements are first copied and the source range is then filled with null.
 	 *
 	 * @param src	start index of source range
 	 * @param dst	start index of destination range
@@ -860,7 +859,7 @@ public class GapList<E> extends IList<E> {
 	 */
 	private void moveData(int src, int dst, int len) {
 		if (DEBUG_TRACE) {
-			debugLog("moveData: " + src + "-" + src + len + " -> " + dst + "-" + dst + len);
+			debugLog("moveData: " + src + "-" + (src + len) + " -> " + dst + "-" + (dst + len));
 			if (DEBUG_DUMP) {
 				debugLog(debugPrint(values));
 			}
@@ -1430,7 +1429,10 @@ public class GapList<E> extends IList<E> {
 	 * @param msg message to write out
 	 */
 	private void debugLog(String msg) {
-		System.out.println(msg); // FIXME
+		if (DEBUG_TRACE) {
+			// This call will be removed by javac unless it is a special debug build.
+			System.out.println(msg);
+		}
 	}
 
 	// --- ImmutableGapList ---
