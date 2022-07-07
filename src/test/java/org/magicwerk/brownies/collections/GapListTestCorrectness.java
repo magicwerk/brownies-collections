@@ -24,8 +24,15 @@ public class GapListTestCorrectness {
 	private static Logger LOG = LogbackTools.getConsoleLogger();
 
 	public static void main(String[] args) {
-		testAllStatesAdd();
+		testManual();
+		//testAllStatesAdd();
 		//test();
+	}
+
+	static void testManual() {
+		IList<Object> l = initState5();
+		LOG.info("---");
+		l.add(5, 99);
 	}
 
 	static void test() {
