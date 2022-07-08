@@ -137,6 +137,12 @@ public class BooleanGapList extends IBooleanList {
      */
     private int gapStart;
 
+    /**
+     * If false, an element is added on the left side of the gap (favorable for adding after an insertion point, e.g. indexes 5, 6, 7),
+     * if true, the element is added on the right side of the gap (favorable for adding before an insertion point, e.g. indexes 5, 5, 5)
+     */
+    private boolean gapAddRight;
+
     // This separate method is needed as the varargs variant creates the list with specific size
     public static /**
      * Create new list.
@@ -270,6 +276,7 @@ public class BooleanGapList extends IBooleanList {
         this.gapSize = list.gapSize;
         this.gapIndex = list.gapIndex;
         this.gapStart = list.gapStart;
+        this.gapAddRight = list.gapAddRight;
     }
 
     /**
@@ -428,6 +435,7 @@ public class BooleanGapList extends IBooleanList {
         gapSize = 0;
         gapStart = 0;
         gapIndex = 0;
+        gapAddRight = false;
         if (DEBUG_CHECK)
             debugCheck();
     }
@@ -625,17 +633,29 @@ public class BooleanGapList extends IBooleanList {
             }
             // Shrink gap
         } else if (gapSize > 0 && index == gapIndex) {
-            if (DEBUG_TRACE)
-                debugLog("Case A2");
-            physIdx = gapStart + gapSize - 1;
-            if (physIdx >= values.length) {
-                physIdx -= values.length;
+            if (gapAddRight) {
+                if (DEBUG_TRACE)
+                    debugLog("Case A2L");
+                physIdx = gapStart + gapSize - 1;
+                if (physIdx >= values.length) {
+                    physIdx -= values.length;
+                }
+            } else {
+                if (DEBUG_TRACE)
+                    debugLog("Case A2R");
+                physIdx = gapStart;
+                gapStart++;
+                if (gapStart >= values.length) {
+                    gapStart -= values.length;
+                }
+                gapIndex++;
             }
             gapSize--;
             // Add at other positions
         } else {
             physIdx = physIndex(index);
             if (gapSize == 0) {
+                assert (index != 0 && index != size);
                 physIdx = doAddCreateNewGap(index, physIdx);
             } else {
                 physIdx = doAddMoveExistingGap(index, physIdx);
@@ -651,6 +671,8 @@ public class BooleanGapList extends IBooleanList {
     }
 
     private int doAddCreateNewGap(int index, int physIdx) {
+        // If we create a new gap, we deliberately set gapAddRight to false
+        gapAddRight = false;
         if (start < end && start > 0) {
             // S4: Space is at head and tail
             assert (debugState() == 4);
@@ -665,6 +687,13 @@ public class BooleanGapList extends IBooleanList {
                 gapIndex = len1;
                 start = 0;
                 physIdx--;
+                // swap
+                physIdx = gapStart;
+                gapStart++;
+                if (gapStart >= values.length) {
+                    gapStart -= values.length;
+                }
+                gapIndex++;
             } else {
                 if (DEBUG_TRACE)
                     debugLog("Case A4");
@@ -706,6 +735,13 @@ public class BooleanGapList extends IBooleanList {
             gapStart = start + len;
             gapIndex = index;
             physIdx--;
+            // swap
+            physIdx = gapStart;
+            gapStart++;
+            if (gapStart >= values.length) {
+                gapStart -= values.length;
+            }
+            gapIndex++;
         }
         return physIdx;
     }
@@ -715,7 +751,7 @@ public class BooleanGapList extends IBooleanList {
         int gapEnd = (gapStart + gapSize - 1) % values.length + 1;
         if (gapEnd < gapStart) {
             assert (debugState() == 9 || debugState() == 12);
-            // Gap is at head and tail
+            // Gap physically split, the gap is moved where less memory must be moved
             int len1 = physIdx - gapEnd;
             int len2 = gapStart - physIdx - 1;
             if (len1 <= len2) {
@@ -729,6 +765,7 @@ public class BooleanGapList extends IBooleanList {
             }
         } else {
             assert (debugState() == 6 || debugState() == 7 || debugState() == 8 || debugState() == 9 || debugState() == 10 || debugState() == 11 || debugState() == 12 || debugState() == 13 || debugState() == 14 || debugState() == 15);
+            // Gap physically together, the insertion point dictates in which direction the gap can be moved
             if (physIdx > gapStart) {
                 if (DEBUG_TRACE)
                     debugLog("Case A7b");
@@ -739,7 +776,28 @@ public class BooleanGapList extends IBooleanList {
                 moveLeft = false;
             }
         }
-        return doAddMoveExistingGap2(index, physIdx, gapEnd, moveLeft);
+        gapAddRight = (index == gapIndex - 1);
+        physIdx = doAddMoveExistingGap2(index, physIdx, gapEnd, moveLeft);
+        if (gapAddRight && gapSize > 0) {
+            physIdx = gapStart + gapSize - 1;
+            if (physIdx >= values.length) {
+                physIdx -= values.length;
+            }
+            gapStart--;
+            if (gapStart == start) {
+                start += gapSize;
+                if (start >= values.length) {
+                    start -= values.length;
+                }
+                gapSize = 0;
+            } else {
+                if (gapStart < 0) {
+                    gapStart += values.length;
+                }
+                gapIndex--;
+            }
+        }
+        return physIdx;
     }
 
     private int doAddMoveExistingGap2(int index, int physIdx, int gapEnd, boolean moveLeft) {
@@ -759,6 +817,25 @@ public class BooleanGapList extends IBooleanList {
                 start = physIdx;
                 if ((gapStart + gapSize) % values.length == start) {
                     end = gapStart;
+                    gapSize = 0;
+                }
+            }
+            // swap
+            if (gapSize > 0) {
+                if (gapIndex < size) {
+                    physIdx = gapStart;
+                    gapStart++;
+                    if (gapStart >= values.length) {
+                        gapStart -= values.length;
+                    }
+                    gapIndex++;
+                } else {
+                    assert (start == end);
+                    physIdx = gapStart;
+                    end = gapStart + 1;
+                    if (end >= values.length) {
+                        end -= values.length;
+                    }
                     gapSize = 0;
                 }
             }
@@ -785,22 +862,21 @@ public class BooleanGapList extends IBooleanList {
 
     /**
      * Move a range of elements in the values array and adjust the gap.
-     * The elements are first copied and the source range is then
-     * filled with null.
+     * The elements are first copied and the source range is then filled with null.
      *
      * @param src	start index of source range
      * @param dst	start index of destination range
      * @param len	number of elements to move
      */
     private void moveDataWithGap(int src, int dst, int len) {
-        if (DEBUG_TRACE) {
-            debugLog("moveGap: " + src + "-" + src + len + " -> " + dst + "-" + dst + len);
-        }
         if (src > values.length) {
             src -= values.length;
         }
         if (dst > values.length) {
             dst -= values.length;
+        }
+        if (DEBUG_TRACE) {
+            debugLog("moveGap: " + src + "-" + (src + len) + " -> " + dst + "-" + (dst + len));
         }
         assert (len >= 0);
         assert (src + len <= values.length);
@@ -819,8 +895,7 @@ public class BooleanGapList extends IBooleanList {
         if (dst + len <= values.length) {
             moveData(src, dst, len);
         } else {
-            // Destination range overlaps end of range so do the
-            // move in two calls
+            // Destination range overlaps end of range so do the move in two calls
             int len2 = dst + len - values.length;
             int len1 = len - len2;
             if (!(src <= len2 && len2 < dst)) {
@@ -835,8 +910,7 @@ public class BooleanGapList extends IBooleanList {
 
     /**
      * Move a range of elements in the values array.
-     * The elements are first copied and the source range is then
-     * filled with null.
+     * The elements are first copied and the source range is then filled with null.
      *
      * @param src	start index of source range
      * @param dst	start index of destination range
@@ -844,14 +918,13 @@ public class BooleanGapList extends IBooleanList {
      */
     private void moveData(int src, int dst, int len) {
         if (DEBUG_TRACE) {
-            debugLog("moveData: " + src + "-" + src + len + " -> " + dst + "-" + dst + len);
+            debugLog("moveData: " + src + "-" + (src + len) + " -> " + dst + "-" + (dst + len));
             if (DEBUG_DUMP) {
                 debugLog(debugPrint(values));
             }
         }
         System.arraycopy(values, src, values, dst, len);
-        // Write false into array slots which are not used anymore
-        // This is necessary to allow GC to reclaim non used objects.
+        // Write false into array slots which are not used anymore (alloc GC to reclaim non used objects)
         int start;
         int end;
         if (src <= dst) {
@@ -1338,9 +1411,11 @@ public class BooleanGapList extends IBooleanList {
      * It is only called if the code is run in development mode.
      */
     private void debugDump() {
-        debugLog("values: size= " + values.length + ", data= " + debugPrint(values));
-        debugLog("size=" + size + ", start=" + start + ", end=" + end + ", gapStart=" + gapStart + ", gapSize=" + gapSize + ", gapIndex=" + gapIndex);
-        debugLog(toString());
+        if (DEBUG_DUMP) {
+            debugLog("values: size= " + values.length + ", data= " + debugPrint(values));
+            debugLog("state= " + debugState() + ", size=" + size + ", start=" + start + ", end=" + end + ", gapStart=" + gapStart + ", gapSize=" + gapSize + ", gapIndex=" + gapIndex + ", gapAddRight=" + gapAddRight);
+            debugLog(toString());
+        }
     }
 
     /**
@@ -1350,16 +1425,20 @@ public class BooleanGapList extends IBooleanList {
      * @return			string representing array values
      */
     private String debugPrint(boolean[] values) {
-        StringBuilder buf = new StringBuilder();
-        buf.append("[ ");
-        for (int i = 0; i < values.length; i++) {
-            if (i > 0) {
-                buf.append(", ");
+        if (DEBUG_DUMP) {
+            StringBuilder buf = new StringBuilder();
+            buf.append("[ ");
+            for (int i = 0; i < values.length; i++) {
+                if (i > 0) {
+                    buf.append(", ");
+                }
+                buf.append(values[i]);
             }
-            buf.append(values[i]);
+            buf.append(" ]");
+            return buf.toString();
         }
-        buf.append(" ]");
-        return buf.toString();
+        // never used
+        return "";
     }
 
     /**
@@ -1369,8 +1448,9 @@ public class BooleanGapList extends IBooleanList {
      * @param msg message to write out
      */
     private void debugLog(String msg) {
-        // FIXME
-        System.out.println(msg);
+        if (DEBUG_TRACE) {
+            System.out.println(msg);
+        }
     }
 
     // --- ImmutableBooleanGapList ---

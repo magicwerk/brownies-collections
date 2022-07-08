@@ -6,11 +6,14 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
+import java.util.function.Consumer;
 
 import org.apache.commons.lang3.StringUtils;
 import org.magicwerk.brownies.core.CheckTools;
 import org.magicwerk.brownies.core.logback.LogbackTools;
 import org.magicwerk.brownies.core.reflect.ReflectTools;
+
+import com.google.common.base.Supplier;
 
 import ch.qos.logback.classic.Logger;
 
@@ -20,19 +23,92 @@ import ch.qos.logback.classic.Logger;
  * @author Thomas Mauch
  */
 public class GapListTestCorrectness {
-	/** Logger */
-	private static Logger LOG = LogbackTools.getConsoleLogger();
+
+	static final Logger LOG = LogbackTools.getConsoleLogger();
 
 	public static void main(String[] args) {
-		testManual();
+		testManualExploitAccessPattern();
+		//testCorrectnes();
+		//testManual();
 		//testAllStatesAdd();
 		//test();
 	}
 
 	static void testManual() {
-		IList<Object> l = initState5();
+		IList<Object> l = initState1();
+		l.remove(5);
 		LOG.info("---");
-		l.add(5, 99);
+		l.add(3, 99);
+	}
+
+	static void testManualExploitAccessPattern() {
+		// This is currently a manual test to check whether the access pattern is exploited
+		// - Set GapList.DEBUG_TRACE to true
+		// - Run test and visually check that the handled cases (e.g. "A2r" etc) are correct
+		{
+			LOG.info("---- Add after insertion point");
+			LOG.info("-- Prepare");
+			IList<Object> l = initState1();
+			LOG.info("-- Add after 1");
+			l.add(4, 4.1);
+			LOG.info("-- Add after 2");
+			l.add(5, 4.2);
+			LOG.info("-- Add after 3");
+			l.add(6, 4.3);
+		}
+		{
+			LOG.info("---- Add before insertion point");
+			LOG.info("-- Prepare");
+			IList<Object> l = initState1();
+			LOG.info("-- Add before 1");
+			l.add(4, 4.4);
+			LOG.info("-- Add before 2");
+			l.add(4, 4.3);
+			LOG.info("-- Add before 3");
+			l.add(4, 4.2);
+			LOG.info("-- Add before 4");
+			l.add(4, 4.1);
+		}
+		{
+			LOG.info("---- First add after, then before insertion point");
+			LOG.info("-- Prepare");
+			IList<Object> l = initState1();
+			l.ensureCapacity(16);
+			LOG.info("-- Add after 1");
+			l.add(4, 4.1);
+			LOG.info("-- Add after 2");
+			l.add(5, 4.2);
+			LOG.info("-- Add after 3");
+			l.add(6, 4.3);
+
+			LOG.info("-- Add before 1");
+			l.add(6, 4.25);
+			LOG.info("-- Add before 2");
+			l.add(6, 4.24);
+			LOG.info("-- Add before 3");
+			l.add(6, 4.23);
+		}
+		{
+			LOG.info("---- First add before, then after insertion point");
+			LOG.info("-- Prepare");
+			IList<Object> l = initState1();
+			l.ensureCapacity(16);
+			LOG.info("-- Add before 1");
+			l.add(4, 4.4);
+			LOG.info("-- Add before 2");
+			l.add(4, 4.3);
+			LOG.info("-- Add before 3");
+			l.add(4, 4.2);
+			LOG.info("-- Add before 4");
+			l.add(4, 4.1);
+
+			LOG.info("-- Add after 1");
+			l.add(5, 4.11);
+			LOG.info("-- Add after 2");
+			l.add(6, 4.12);
+			LOG.info("-- Add after 3");
+			l.add(7, 4.13);
+		}
 	}
 
 	static void test() {
@@ -280,100 +356,17 @@ public class GapListTestCorrectness {
 		states[15] = initState15();
 		check(states[15], "S15");
 
-		// Test add
-		LOG.info("Test add");
-		c = initState0();
-		testAdd(c);
-		c = initState1();
-		testAdd(c);
-		c = initState2();
-		testAdd(c);
-		c = initState3();
-		testAdd(c);
-		c = initState4();
-		testAdd(c);
-		c = initState5();
-		testAdd(c);
-		c = initState6();
-		testAdd(c);
-		c = initState8();
-		testAdd(c);
-		c = initState7();
-		testAdd(c);
-		c = initState9();
-		testAdd(c);
-		c = initState10();
-		testAdd(c);
-		c = initState11();
-		testAdd(c);
-		c = initState12();
-		testAdd(c);
-		c = initState13();
-		testAdd(c);
-		c = initState14();
-		testAdd(c);
-		c = initState15();
-		testAdd(c);
+		LOG.info("Test add specific cases");
+		testAddSpecificCases();
 
-		// Test remove
+		LOG.info("Test add all combinations");
+		testAddAllCombinations();
+
 		LOG.info("Test remove");
-		c = initState1();
-		testRemove(c);
-		c = initState2();
-		testRemove(c);
-		c = initState3();
-		testRemove(c);
-		c = initState4();
-		testRemove(c);
-		c = initState5();
-		testRemove(c);
-		c = initState6();
-		testRemove(c);
-		c = initState8();
-		testRemove(c);
-		c = initState7();
-		testRemove(c);
-		c = initState9();
-		testRemove(c);
-		c = initState10();
-		testRemove(c);
-		c = initState11();
-		testRemove(c);
-		c = initState12();
-		testRemove(c);
-		c = initState13();
-		testRemove(c);
-		c = initState14();
-		testRemove(c);
-		c = initState15();
-		testRemove(c);
+		testRemove();
 
-		//		// Add
-		//		LOG.info("Test add");
-		//		c = new GapList<Object>(); testCaseA1(c); check(c);
-		//		c = new GapList<Object>(); testCaseA2(c); check(c);
-		//		c = new GapList<Object>(); testCaseA5(c); check(c);
-		//		c = new GapList<Object>(); testCaseA5b(c); check(c);
-		//		c = new GapList<Object>(); testCaseA6(c); check(c);
-		//		c = new GapList<Object>(); testCaseA7(c); check(c);
-		//		c = new GapList<Object>(); testCaseA7b(c); check(c);
-		//		c = new GapList<Object>(); testCaseA7c(c); check(c);
-		//		c = new GapList<Object>(); testCaseA8(c); check(c);
-		//		c = new GapList<Object>(); testCaseA8b(c); check(c);
-		//		c = new GapList<Object>(); testCaseA8c(c); check(c);
-		//		c = new GapList<Object>(); testCaseA9(c); check(c);
-		//		c = new GapList<Object>(); testCaseA10(c); check(c);
-		//		c = new GapList<Object>(); testCaseA12(c); check(c);
-		//		c = new GapList<Object>(); testCaseA13(c); check(c);
-		//		c = new GapList<Object>(); testCaseA14(c); check(c);
-		//		c = new GapList<Object>(); testCaseA15(c); check(c);
-		//		c = new GapList<Object>(); testCaseA15b(c); check(c);
-		//		c = new GapList<Object>(); testCaseA16(c); check(c);
-		//		c = new GapList<Object>(); testCaseA16b(c); check(c);
-		//		c = new GapList<Object>(); testCaseA16c(c); check(c);
-		//		c = new GapList<Object>(); testCaseA17(c); check(c);
-		//		c = new GapList<Object>(); testCaseA18(c); check(c);
 		//
+
 		//		// Remove
 		//		LOG.info("Test remove");
 		//		c = new GapList<Object>(); testCaseR1(c); check(c);
@@ -384,6 +377,113 @@ public class GapListTestCorrectness {
 		//		c = new GapList<Object>(); testCaseR11(c); check(c);
 		//		c = new GapList<Object>(); testCaseR11b(c); check(c);
 		//
+	}
+
+	static void testAddSpecificCases() {
+		// Add last
+		testAction("A0a", GapListTestCorrectness::initState0, s -> s.addLast(0.5));
+		testAction("A0b", GapListTestCorrectness::initState2, s -> s.addLast(4.5));
+		testAction("A0c", GapListTestCorrectness::initState3, s -> s.addLast(8.5));
+
+		// Add first
+		testAction("A1a", GapListTestCorrectness::initState2, s -> s.addFirst(0.5));
+		testAction("A1b", GapListTestCorrectness::initState4, s -> s.addFirst(0.5));
+
+		// Shrink gap
+		testAction("A2a", GapListTestCorrectness::initState6, s -> s.add(2, 2.5));
+		testAction("A2b", GapListTestCorrectness::initState10, s -> s.add(2, 2.5));
+
+		// Create gap
+		testAction("A3", GapListTestCorrectness::initState4, s -> s.add(1, 3.5));
+		testAction("A4", GapListTestCorrectness::initState4, s -> s.add(3, 5.5));
+		testAction("A5", GapListTestCorrectness::initState2, s -> s.add(2, 2.5));
+		testAction("A6", GapListTestCorrectness::initState3, s -> s.add(1, 5.5));
+
+		// Move gap
+		testAction("A7a", GapListTestCorrectness::initState9, s -> s.add(3, 7.5));
+		testAction("A7b", GapListTestCorrectness::initState6, s -> s.add(3, 7.5));
+
+		testAction("A8a", GapListTestCorrectness::initState9, s -> s.add(1, 1.5));
+		testAction("A8b", GapListTestCorrectness::initState6, s -> s.add(1, 1.5));
+	}
+
+	static void testAddAllCombinations() {
+		GapList<Object> c = initState0();
+		testAdd(c);
+		c = initState1();
+		testAdd(c);
+		c = initState2();
+		testAdd(c);
+		c = initState3();
+		testAdd(c);
+		c = initState4();
+		testAdd(c);
+		c = initState5();
+		testAdd(c);
+		c = initState6();
+		testAdd(c);
+		c = initState8();
+		testAdd(c);
+		c = initState7();
+		testAdd(c);
+		c = initState9();
+		testAdd(c);
+		c = initState10();
+		testAdd(c);
+		c = initState11();
+		testAdd(c);
+		c = initState12();
+		testAdd(c);
+		c = initState13();
+		testAdd(c);
+		c = initState14();
+		testAdd(c);
+		c = initState15();
+		testAdd(c);
+	}
+
+	static void testRemove() {
+		GapList<Object> c = initState1();
+		testRemove(c);
+		c = initState2();
+		testRemove(c);
+		c = initState3();
+		testRemove(c);
+		c = initState4();
+		testRemove(c);
+		c = initState5();
+		testRemove(c);
+		c = initState6();
+		testRemove(c);
+		c = initState8();
+		testRemove(c);
+		c = initState7();
+		testRemove(c);
+		c = initState9();
+		testRemove(c);
+		c = initState10();
+		testRemove(c);
+		c = initState11();
+		testRemove(c);
+		c = initState12();
+		testRemove(c);
+		c = initState13();
+		testRemove(c);
+		c = initState14();
+		testRemove(c);
+		c = initState15();
+		testRemove(c);
+
+	}
+
+	static void testAction(String action, Supplier<GapList<Object>> supplier, Consumer<GapList<Object>> adder) {
+		LOG.info("--- Action {}", action);
+		LOG.info("---- Prepare");
+		GapList<Object> c = supplier.get();
+		LOG.info("---- Add {}", action);
+		adder.accept(c);
+		check(c);
+		LOG.info("---");
 	}
 
 	static void testGapMove() {
@@ -897,15 +997,18 @@ public class GapListTestCorrectness {
 
 	//
 
-	static void testCaseA1(GapList<Object> c) {
-		c.add(0, 1d);
-		c.add(1, 2d);
-		c.add(2, 3d);
-		c.add(3, 4d);
-		c.add(4, 4.5);
+	static IList<Object> testCaseA0(IList<Object> c) {
+		double val = (c.isEmpty()) ? 0 : ((Double) c.getLast()).doubleValue();
+		c.addLast(val + 0.5);
+		return c;
 	}
 
-	static void testCaseA2(GapList<Object> c) {
+	static IList<Object> testCaseA1(IList<Object> c) {
+		c.addFirst(0.5);
+		return c;
+	}
+
+	static void testCaseA1b(GapList<Object> c) {
 		c.add(0, 1d);
 		c.add(1, 2d);
 		c.add(2, 3d);
@@ -1166,13 +1269,14 @@ public class GapListTestCorrectness {
 		check(c);
 	}
 
-	static void check(GapList<Object> c) {
+	static void check(IList<Object> c) {
 		check(c, null);
 	}
 
-	static void check(GapList<Object> c, String s) {
+	static void check(IList<Object> c, String s) {
 		if (s != null) {
 			System.out.println(s);
+			System.out.println();
 			//c.dump(); TODO
 		}
 
