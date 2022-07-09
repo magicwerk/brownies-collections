@@ -691,18 +691,20 @@ public class GapList<E> extends IList<E> {
 					debugLog("Case A3");
 				moveData(start, 0, len1);
 				gapSize = start - 1;
-				gapStart = len1;
-				gapIndex = len1;
 				start = 0;
-				physIdx--;
 
-				// swap
-				physIdx = gapStart;
-				gapStart++;
+				// Case gapAddRight = true
+				//gapStart = len1;
+				//gapIndex = len1;
+				//physIdx--;
+
+				// Case gapAddRight = false
+				physIdx = len1;
+				gapStart = len1 + 1;
 				if (gapStart >= values.length) {
 					gapStart -= values.length;
 				}
-				gapIndex++;
+				gapIndex = len1 + 1;
 
 			} else {
 				if (DEBUG_TRACE)
@@ -744,17 +746,19 @@ public class GapList<E> extends IList<E> {
 			start -= rightSize;
 			end = start;
 			gapSize = rightSize - 1;
-			gapStart = start + len;
-			gapIndex = index;
-			physIdx--;
 
-			// swap
-			physIdx = gapStart;
-			gapStart++;
+			// Case gapAddRight = true
+			//physIdx--;
+			//gapStart = start + len;
+			//gapIndex = index;
+
+			// Case gapAddRight = false
+			physIdx = start + len;
+			gapStart = physIdx + 1;
 			if (gapStart >= values.length) {
 				gapStart -= values.length;
 			}
-			gapIndex++;
+			gapIndex = index + 1;
 		}
 		return physIdx;
 	}
@@ -794,6 +798,7 @@ public class GapList<E> extends IList<E> {
 
 		gapAddRight = (index == gapIndex - 1);
 		physIdx = doAddMoveExistingGap2(index, physIdx, gapEnd, moveLeft);
+
 		if (gapAddRight && gapSize > 0) {
 			physIdx = gapStart + gapSize - 1;
 			if (physIdx >= values.length) {
@@ -823,6 +828,8 @@ public class GapList<E> extends IList<E> {
 			int dst = gapStart;
 			int len = physIdx - gapEnd;
 			moveDataWithGap(src, dst, len);
+
+			// Case gapAdddRight=false
 			physIdx--;
 			gapSize--;
 			gapIndex = index;
@@ -839,18 +846,19 @@ public class GapList<E> extends IList<E> {
 				}
 			}
 
-			// swap
+			// Case gapAddRight=false
 			if (gapSize > 0) {
+				physIdx = gapStart;
+
 				if (gapIndex < size) {
-					physIdx = gapStart;
 					gapStart++;
 					if (gapStart >= values.length) {
 						gapStart -= values.length;
 					}
 					gapIndex++;
+
 				} else {
 					assert (start == end);
-					physIdx = gapStart;
 					end = gapStart + 1;
 					if (end >= values.length) {
 						end -= values.length;
@@ -864,6 +872,7 @@ public class GapList<E> extends IList<E> {
 			int dst = physIdx + gapSize;
 			int len = gapStart - physIdx;
 			moveDataWithGap(src, dst, len);
+
 			gapSize--;
 			gapStart = physIdx + 1;
 			gapIndex = index + 1;
