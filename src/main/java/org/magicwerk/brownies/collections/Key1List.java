@@ -369,6 +369,7 @@ public class Key1List<E, K> extends KeyListImpl<E> {
 	/**
 	 * Returns a map view to the key map.
 	 * The collection can be modified through the map as long as the constraint are not violated.
+	 * Note however that operations put() and remove() will be slow if the list is not sorted by the key and the element must therefore be searched. 
 	 * The collections returned by the methods entrySet(), keySet(), and values() are immutable however.
 	 *
 	 * @return map view to key map

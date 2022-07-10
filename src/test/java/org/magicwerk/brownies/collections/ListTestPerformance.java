@@ -72,8 +72,8 @@ public class ListTestPerformance {
 	}
 
 	void run() {
-		runBenchmarks();
-		//showBenchmark();
+		//runBenchmarks();
+		showBenchmark();
 	}
 
 	//
@@ -84,14 +84,15 @@ public class ListTestPerformance {
 	void runBenchmarks() {
 		boolean fast = false;
 		runBenchmarkOp(fast);
-		//runBenchmarkCopy(fast);
+		runBenchmarkCopy(fast);
 	}
 
 	void runBenchmarkOp(boolean fast) {
 		Options opts = configure(fast);
-		//opts.includeMethod(ListTest.class, "testGet");
+		opts.includeMethod(ListTest.class, "testGet");
 		opts.includeMethod(ListTest.class, "testAdd");
-		//opts.includeMethod(ListTest.class, "testRemove");
+		opts.includeMethod(ListTest.class, "testRemove");
+
 		opts.setResultFile("output/ListTestPerformance.json");
 		opts.setLogFile("output/ListTestPerformance.log");
 		JmhRunner runner = new JmhRunner();
@@ -116,6 +117,7 @@ public class ListTestPerformance {
 	void runBenchmarkCopy(boolean fast) {
 		Options opts = configure(fast);
 		opts.includeMethod(ListTest.class, "testCopy");
+
 		opts.setResultFile("output/ListTestCopyPerformance.json");
 		opts.setLogFile("output/ListTestCopyPerformance.log");
 		JmhRunner runner = new JmhRunner();
@@ -589,7 +591,7 @@ public class ListTestPerformance {
 			String colGood = "#4488ff";
 			String colModerate = "#ffff88";
 			String colBad = "#ff8888";
-			double valRed = 25;
+			double valRed = 50;
 			double valYellow = 5;
 			double valBlue = 1;
 			String alignRight = "right";

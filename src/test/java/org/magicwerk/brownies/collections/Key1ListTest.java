@@ -17,11 +17,14 @@
  */
 package org.magicwerk.brownies.collections;
 
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.magictest.client.Assert;
 import org.magictest.client.Capture;
@@ -55,12 +58,12 @@ public class Key1ListTest {
 		//testInitAll();
 		//testContains();
 		//testRemoveAllByKey1();
-		//testMemorySize();
+		testMemorySize();
 		//testPut();
 		//testAsMap();
 		//testKeys();
 		//testKeys();
-		testKeys();
+		//testKeys();
 		//testMove();
 	}
 
@@ -237,26 +240,47 @@ public class Key1ListTest {
 		}
 		StringFormatter.println("GapList = {}", TypeTools.formatGrouped(ReflectTools.getObjectSize(gapList)));
 
-		LinkedList<Ticket> linkedList = new LinkedList<>(gapList);
-		StringFormatter.println("LinkedList = {}", TypeTools.formatGrouped(ReflectTools.getObjectSize(linkedList)));
-
+		{
+			List<Ticket> list = new ArrayList<>(gapList);
+			StringFormatter.println("ArrayList = {}", TypeTools.formatGrouped(ReflectTools.getObjectSize(list)));
+		}
+		{
+			List<Ticket> list = new LinkedList<>(gapList);
+			StringFormatter.println("LinkedList = {}", TypeTools.formatGrouped(ReflectTools.getObjectSize(list)));
+		}
 		{
 			Key1List<Ticket, Integer> key1List = new Key1List.Builder<Ticket, Integer>().withPrimaryKey1Map(Ticket.IdMapper).build();
 			key1List.addAll(gapList);
-			Map<Integer, Ticket> key1ListMap = key1List.asMap1();
-			StringFormatter.println("Key1List = {}", TypeTools.formatGrouped(ReflectTools.getObjectSize(key1ListMap)));
+			StringFormatter.println("Key1List = {}", TypeTools.formatGrouped(ReflectTools.getObjectSize(key1List)));
 		}
 		{
-			Key1List<Ticket, Integer> key1List = new Key1List.Builder<Ticket, Integer>().withPrimaryKey1Map(Ticket.IdMapper).build();
-			Map<Integer, Ticket> key1ListMap = key1List.asMap1();
-			gapList.forEach(t -> key1ListMap.put(t.getId(), t));
-			StringFormatter.println("Key1List = {}", TypeTools.formatGrouped(ReflectTools.getObjectSize(key1ListMap)));
+			Map<Integer, Ticket> map = new HashMap<>();
+			gapList.forEach(t -> map.put(t.getId(), t));
+			StringFormatter.println("HashMap = {}", TypeTools.formatGrouped(ReflectTools.getObjectSize(map)));
 		}
 		{
-			LinkedHashMap<Integer, Ticket> linkedHashMap = new LinkedHashMap<>();
-			gapList.forEach(t -> linkedHashMap.put(t.getId(), t));
-			StringFormatter.println("LinkedHashMap = {}", TypeTools.formatGrouped(ReflectTools.getObjectSize(linkedHashMap)));
+			Map<Integer, Ticket> map = new TreeMap<>();
+			gapList.forEach(t -> map.put(t.getId(), t));
+			StringFormatter.println("TreeMap = {}", TypeTools.formatGrouped(ReflectTools.getObjectSize(map)));
 		}
+		{
+			Map<Integer, Ticket> map = new LinkedHashMap<>();
+			gapList.forEach(t -> map.put(t.getId(), t));
+			StringFormatter.println("LinkedHashMap = {}", TypeTools.formatGrouped(ReflectTools.getObjectSize(map)));
+		}
+
+		//		{
+		//			Key1List<Ticket, Integer> key1List = new Key1List.Builder<Ticket, Integer>().withPrimaryKey1Map(Ticket.IdMapper).build();
+		//			key1List.addAll(gapList);
+		//			Map<Integer, Ticket> key1ListMap = key1List.asMap1();
+		//			StringFormatter.println("Key1List = {}", TypeTools.formatGrouped(ReflectTools.getObjectSize(key1ListMap)));
+		//		}
+		//		{
+		//			Key1List<Ticket, Integer> key1List = new Key1List.Builder<Ticket, Integer>().withPrimaryKey1Map(Ticket.IdMapper).build();
+		//			Map<Integer, Ticket> key1ListMap = key1List.asMap1();
+		//			gapList.forEach(t -> key1ListMap.put(t.getId(), t));
+		//			StringFormatter.println("Key1List = {}", TypeTools.formatGrouped(ReflectTools.getObjectSize(key1ListMap)));
+		//		}
 	}
 
 	@Capture
