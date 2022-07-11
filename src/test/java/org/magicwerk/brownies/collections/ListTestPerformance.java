@@ -72,8 +72,8 @@ public class ListTestPerformance {
 	}
 
 	void run() {
-		//runBenchmarks();
-		showBenchmark();
+		runBenchmarks();
+		//showBenchmark();
 	}
 
 	//
@@ -89,12 +89,14 @@ public class ListTestPerformance {
 
 	void runBenchmarkOp(boolean fast) {
 		Options opts = configure(fast);
-		opts.includeMethod(ListTest.class, "testGet");
+		//opts.includeMethod(ListTest.class, "testGet");
 		opts.includeMethod(ListTest.class, "testAdd");
-		opts.includeMethod(ListTest.class, "testRemove");
+		//opts.includeMethod(ListTest.class, "testRemove");
 
 		opts.setResultFile("output/ListTestPerformance.json");
 		opts.setLogFile("output/ListTestPerformance.log");
+
+		opts.setUseGcProfiler(true);
 		JmhRunner runner = new JmhRunner();
 		runner.runJmh(opts);
 	}
