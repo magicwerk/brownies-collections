@@ -51,6 +51,7 @@ import org.magicwerk.brownies.test.JmhRunner.BenchmarkJsonParser;
 import org.magicwerk.brownies.test.JmhRunner.BenchmarkJsonResult;
 import org.magicwerk.brownies.test.JmhRunner.BenchmarkJsonResult.BenchmarkTrial;
 import org.magicwerk.brownies.test.JmhRunner.Options;
+import org.magicwerk.brownies.tools.dev.tools.JavaTools.JavaVersion;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Level;
 import org.openjdk.jmh.annotations.Param;
@@ -82,7 +83,7 @@ public class ListTestPerformance {
 	IList<String> jvmArgs = GapList.create("-Xmx4g", "-Xms4g", "-XX:+UseG1GC");
 
 	void runBenchmarks() {
-		boolean fast = false;
+		boolean fast = true;
 		runBenchmarkOp(fast);
 		runBenchmarkCopy(fast);
 	}
@@ -95,6 +96,10 @@ public class ListTestPerformance {
 
 		opts.setResultFile("output/ListTestPerformance.json");
 		opts.setLogFile("output/ListTestPerformance.log");
+
+		//opts.setJavaVersion(null);
+		//opts.setJavaVersion(JavaVersion.JAVA_8);
+		opts.setJavaVersion(JavaVersion.JAVA_11);
 
 		opts.setUseGcProfiler(true);
 		JmhRunner runner = new JmhRunner();

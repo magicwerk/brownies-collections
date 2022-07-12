@@ -23,7 +23,7 @@ import org.magicwerk.brownies.core.stat.NumberStat;
 import org.magicwerk.brownies.core.stat.StatValues.StoreValues;
 import org.magicwerk.brownies.test.JmhRunner;
 import org.magicwerk.brownies.test.JmhRunner.Options;
-import org.magicwerk.brownies.tools.dev.java.BuildHelper;
+import org.magicwerk.brownies.tools.dev.tools.JavaTools;
 import org.magicwerk.brownies.tools.runner.JvmRunner;
 import org.magicwerk.brownies.tools.runner.Runner;
 import org.openjdk.jmh.annotations.Benchmark;
@@ -445,7 +445,7 @@ public class GapListTestPerformance {
 		//String[] jvmArgs = new String[] { "-Xms512m", "-Xmx512m" };
 		String[] jvmArgs = new String[] { "-Xms1024m", "-Xmx1024m" };
 
-		BuildHelper bh = new BuildHelper();
+		JavaTools bh = new JavaTools();
 		runner.addJavaArgsRun(bh.getJava8Exe(), jvmArgs);
 		//runner.addJavaArgsRun(bh.getJava11Exe(), jvmArgs);
 
