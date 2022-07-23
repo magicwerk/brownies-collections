@@ -103,6 +103,7 @@ public class ListTestPerformance {
 
 		opts.setUseGcProfiler(true);
 		JmhRunner runner = new JmhRunner();
+		runner.setVerbose(true);
 		runner.runJmh(opts);
 	}
 
