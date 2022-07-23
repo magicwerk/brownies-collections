@@ -3,8 +3,6 @@ package org.magicwerk.brownies.collections;
 import org.magicwerk.brownies.core.CheckTools;
 import org.magicwerk.brownies.core.exec.Exec;
 import org.magicwerk.brownies.core.exec.Exec.ExecStatus;
-import org.magicwerk.brownies.core.exec.JavaOptions;
-import org.magicwerk.brownies.core.exec.JavaTool;
 import org.magicwerk.brownies.core.files.FileInfo;
 import org.magicwerk.brownies.core.files.FilePath;
 import org.magicwerk.brownies.core.files.FileTools;
@@ -12,6 +10,8 @@ import org.magicwerk.brownies.core.files.TextData;
 import org.magicwerk.brownies.core.files.TextData.Type;
 import org.magicwerk.brownies.core.logback.LogbackTools;
 import org.magicwerk.brownies.core.regex.RegexReplacer;
+import org.magicwerk.brownies.tools.dev.tools.JavaOptions;
+import org.magicwerk.brownies.tools.dev.tools.JavaTool;
 
 import ch.qos.logback.classic.Logger;
 
