@@ -51,6 +51,7 @@ import org.magicwerk.brownies.test.JmhRunner.BenchmarkJsonParser;
 import org.magicwerk.brownies.test.JmhRunner.BenchmarkJsonResult;
 import org.magicwerk.brownies.test.JmhRunner.BenchmarkJsonResult.BenchmarkTrial;
 import org.magicwerk.brownies.test.JmhRunner.Options;
+import org.magicwerk.brownies.tools.dev.tools.JavaTools.JavaVersion;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Level;
 import org.openjdk.jmh.annotations.Param;
@@ -96,8 +97,7 @@ public class ListTestPerformance {
 		opts.setResultFile("output/ListTestPerformance.json");
 		opts.setLogFile("output/ListTestPerformance.log");
 
-		opts.setJavaVersion(null);
-		//opts.setJavaVersion(JavaVersion.JAVA_8);
+		opts.setJavaVersion(JavaVersion.JAVA_8);
 		//opts.setJavaVersion(JavaVersion.JAVA_11);
 
 		//opts.setUseGcProfiler(true);
@@ -114,8 +114,8 @@ public class ListTestPerformance {
 			opts.setMeasurementIterations(1);
 			opts.setRunTimeMillis(100);
 		} else {
-			opts.setWarmupIterations(50);
-			opts.setMeasurementIterations(50);
+			opts.setWarmupIterations(25);
+			opts.setMeasurementIterations(25);
 			opts.setRunTimeMillis(100);
 		}
 		opts.setJvmArgs(jvmArgs);
@@ -328,7 +328,6 @@ public class ListTestPerformance {
 
 	@State(Scope.Benchmark)
 	public static class AddListState extends ListOpState {
-
 		public AddListState() {
 			//LOG.info("AddListState");
 		}
@@ -421,6 +420,9 @@ public class ListTestPerformance {
 		}
 
 		List<?> copy(List<?> list) {
+			if (type.equals("ArrayList") && size == 1000000) {
+				throw new RuntimeException();
+			}
 			return (List<?>) ((UnaryOperator) copyOp).apply(list);
 		}
 	}
@@ -474,6 +476,7 @@ public class ListTestPerformance {
 	void showBenchmark() {
 		ShowBenchmark sb = new ShowBenchmark();
 		sb.benchmarks = benchmarks;
+		sb.classifier = "java8iter25";
 		sb.showTables();
 	}
 
@@ -509,43 +512,13 @@ public class ListTestPerformance {
 		}
 
 		// Configuration
-		boolean normalize;
+		String classifier;
 
 		// State
 		IList<String> benchmarks;
 		IList<String> sizes;
 		IList<String> types;
 		IList<String> ops;
-
-		//
-
-		// NOT USED
-		void showChart(IList<Result> trs) {
-			Table tab = getTable(trs);
-			LOG.info("{}", tab);
-
-			HtmlDocument doc = getChartDoc(tab);
-			HtmlReport report = new HtmlReport();
-			report.setDoc(doc);
-			report.showHtml();
-		}
-
-		HtmlDocument getChartDoc(Table tab) {
-			HtmlDocument doc = new HtmlDocument();
-			doc.getBody().addH1("Charts");
-
-			HtmlChartCreator creator = new HtmlChartCreator();
-			creator.setTitle("Chart");
-			creator.setWidth("800px");
-			creator.setHeight("400px");
-
-			creator.setTable(tab);
-			creator.setChartType(ChartType.LINE);
-			HtmlDoclet chart = creator.getChart();
-			doc.addResources(chart.getResources());
-			doc.getBody().addElem(chart.getElement());
-			return doc;
-		}
 
 		//
 
@@ -562,7 +535,13 @@ public class ListTestPerformance {
 		}
 
 		IList<Result> readBenchmarks() {
-			IList<String> files = GapList.create("output/ListTestPerformance.json", "output/ListTestCopyPerformance.json");
+			IList<String> names = GapList.create("ListTestPerformance", "ListTestCopyPerformance");
+			IList<String> files = names.mappedList(n -> {
+				if (classifier != null) {
+					n = n + "-" + classifier;
+				}
+				return "output/" + n + ".json";
+			});
 
 			IList<BenchmarkTrial> brs = GapList.create();
 			for (String file : files) {
@@ -751,6 +730,35 @@ public class ListTestPerformance {
 			}
 
 			return tab;
+		}
+
+		// Charts - NOT USED
+
+		void showChart(IList<Result> trs) {
+			Table tab = getTable(trs);
+			LOG.info("{}", tab);
+
+			HtmlDocument doc = getChartDoc(tab);
+			HtmlReport report = new HtmlReport();
+			report.setDoc(doc);
+			report.showHtml();
+		}
+
+		HtmlDocument getChartDoc(Table tab) {
+			HtmlDocument doc = new HtmlDocument();
+			doc.getBody().addH1("Charts");
+
+			HtmlChartCreator creator = new HtmlChartCreator();
+			creator.setTitle("Chart");
+			creator.setWidth("800px");
+			creator.setHeight("400px");
+
+			creator.setTable(tab);
+			creator.setChartType(ChartType.LINE);
+			HtmlDoclet chart = creator.getChart();
+			doc.addResources(chart.getResources());
+			doc.getBody().addElem(chart.getElement());
+			return doc;
 		}
 
 	}
