@@ -73,8 +73,8 @@ public class ListTestPerformance {
 	}
 
 	void run() {
-		runBenchmarks();
-		//showBenchmark();
+		//runBenchmarks();
+		showBenchmark();
 	}
 
 	//
@@ -476,7 +476,7 @@ public class ListTestPerformance {
 	void showBenchmark() {
 		ShowBenchmark sb = new ShowBenchmark();
 		sb.benchmarks = benchmarks;
-		sb.classifier = "java8iter25";
+		//sb.classifier = "java8iter25";
 		sb.showTables();
 	}
 
@@ -531,6 +531,7 @@ public class ListTestPerformance {
 			renderObjectSizeTable(report);
 			renderBenchmarkTables(report, rs);
 
+			report.setHtmlFile("output/tables.html");
 			report.showHtml();
 		}
 
@@ -563,6 +564,7 @@ public class ListTestPerformance {
 				IList<Result> rs2 = rs.filteredList(r -> r.size.equals(size));
 				Table tab = getTable(rs2);
 				HtmlTable ht = renderTable(tab);
+				ht.setId("benchmark-performance-" + size);
 				report.add(ht);
 			}
 		}
@@ -570,6 +572,7 @@ public class ListTestPerformance {
 		void renderObjectSizeTable(HtmlReport report) {
 			Table tab = getObjectSizeTable();
 			HtmlTable ht = renderTable(tab);
+			ht.setId("benchmark-memory");
 			report.add(ht);
 		}
 
