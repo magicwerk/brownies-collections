@@ -53,11 +53,67 @@ public class CollectionsTestCompare {
 	}
 
 	static void test() {
-		testCompareAllMethods();
-		testCompareAddRemove();
+		//testCompareAllMethods();
+		//testCompareAddRemove();
 
 		//testCreateStringBetween();
+		//testCapacity();
 	}
+
+	//
+
+	public static void testCapacity() {
+		ArrayList<Integer> al = new ArrayList<>(7);
+		GapList<Integer> gl = new GapList<>(7);
+		checkCapacity(al, gl);
+
+		for (int i = 0; i < 7; i++) {
+			al.add(i);
+			gl.add(i);
+		}
+		checkCapacity(al, gl);
+
+		al.ensureCapacity(20);
+		gl.ensureCapacity(20);
+		checkCapacity(al, gl);
+
+		al = (ArrayList<Integer>) al.clone();
+		gl = (GapList<Integer>) gl.clone();
+		checkCapacity(al, gl);
+
+		al.add(99);
+		gl.add(99);
+		checkCapacity(al, gl);
+	}
+
+	static void checkCapacity(List<?> list1, List<?> list2) {
+		int c1 = getCapacity(list1);
+		int c2 = getCapacity(list2);
+		CheckTools.check(c1 == c2);
+	}
+
+	static void ensureCapacity(List<?> list, int capacity) {
+		if (list instanceof IList) {
+			((IList) list).ensureCapacity(capacity);
+		} else if (list instanceof ArrayList) {
+			((ArrayList) list).ensureCapacity(capacity);
+		} else {
+			throw CheckTools.error("Unsupported list class: {}", list.getClass());
+		}
+	}
+
+	static int getCapacity(List<?> list) {
+		if (list instanceof IList) {
+			return ((IList) list).capacity();
+		} else if (list instanceof ArrayList) {
+			Object[] data = (Object[]) ReflectTools.getAnyFieldValue(list, "elementData");
+			return data.length;
+		} else {
+			throw CheckTools.error("Unsupported list class: {}", list.getClass());
+		}
+	}
+
+	//
 
 	public static void testCreateStringBetween() {
 		IList<String> strs = GapList.create();
