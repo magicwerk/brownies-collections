@@ -476,7 +476,7 @@ public class ListTestPerformance {
 	void showBenchmark() {
 		ShowBenchmark sb = new ShowBenchmark();
 		sb.benchmarks = benchmarks;
-		//sb.classifier = "java8iter25";
+		sb.classifier = "java8";
 		sb.showTables();
 	}
 
@@ -577,22 +577,21 @@ public class ListTestPerformance {
 		}
 
 		HtmlTable renderTable(Table tab) {
-			String colBest = "#88ff88";
-			String colGood = "#4488ff";
-			String colModerate = "#ffff88";
-			String colBad = "#ff8888";
-			double valRed = 50;
-			double valYellow = 5;
+			String colBest = "#99ff99";
+			String colGood = "#88aaff";
+			String colModerate = "#ffff99";
+			String colBad = "#ff9999";
+			double valRed = 10;
+			double valYellow = 2;
 			double valBlue = 1;
-			String alignRight = "right";
 
 			LOG.info("{}", tab);
 
 			ConditionalFormatter cf = new ConditionalFormatter();
-			cf.add(c -> (double) c.getValue() > valRed, t -> new CssStyle().setBackgroundColor(colBad).setTextAlign(alignRight).getAttribute());
-			cf.add(c -> (double) c.getValue() > valYellow, t -> new CssStyle().setBackgroundColor(colModerate).setTextAlign(alignRight).getAttribute());
-			cf.add(c -> (double) c.getValue() > valBlue, t -> new CssStyle().setBackgroundColor(colGood).setTextAlign(alignRight).getAttribute());
-			cf.add(Predicates.allow(), t -> new CssStyle().setBackgroundColor(colBest).setTextAlign(alignRight).getAttribute());
+			cf.add(c -> (double) c.getValue() > valRed, t -> getCssStyle(colBad).getAttribute());
+			cf.add(c -> (double) c.getValue() > valYellow, t -> getCssStyle(colModerate).getAttribute());
+			cf.add(c -> (double) c.getValue() > valBlue, t -> getCssStyle(colGood).getAttribute());
+			cf.add(Predicates.allow(), t -> getCssStyle(colBest).getAttribute());
 
 			HtmlFormatters hf = new HtmlFormatters();
 			for (int r = 0; r < tab.getNumRows(); r += 2) {
@@ -620,6 +619,11 @@ public class ListTestPerformance {
 			}
 
 			return ht;
+		}
+
+		CssStyle getCssStyle(String bgColor) {
+			String alignRight = "right";
+			return new CssStyle().setBackgroundColor(bgColor).setTextAlign(alignRight).set("width", "84px");
 		}
 
 		/** Apply formatting by copying the style attribute. */

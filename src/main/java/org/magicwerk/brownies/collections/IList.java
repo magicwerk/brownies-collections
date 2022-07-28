@@ -298,9 +298,8 @@ public abstract class IList<E>
 	abstract protected E doRemove(int index);
 
 	/**
-	 * Increases the capacity of this <tt>IList</tt> instance, if
-	 * necessary, to ensure that it can hold at least the number of elements
-	 * specified by the minimum capacity argument.
+	 * Increases the capacity of this instance, if necessary, to ensure that it can hold at least the number of
+	 * elements specified by the minimum capacity argument.
 	 *
 	 * @param   minCapacity   the desired minimum capacity
 	 */
