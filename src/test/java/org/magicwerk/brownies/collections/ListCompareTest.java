@@ -13,7 +13,6 @@ import org.magicwerk.brownies.core.logback.LogbackTools;
 
 import ch.qos.logback.classic.Logger;
 
-
 /**
  * Test lists by comparing the output with an instance of ArrayList.
  * The following classes are tested: GapList, IntGapList, IntObjGapList, BigList, IntBigList, IntObjBigList.
@@ -39,7 +38,6 @@ public class ListCompareTest {
 		IntBigList intBigList = new IntBigList(blockSize);
 		IntObjBigList intObjBigList = new IntObjBigList(blockSize);
 
-
 		int size() {
 			return arrayList.size();
 		}
@@ -58,11 +56,11 @@ public class ListCompareTest {
 
 		void addAll(int index, int len) {
 			ArrayList<Integer> add1 = new ArrayList<Integer>(len);
-			for (int i=0; i<len; i++) {
+			for (int i = 0; i < len; i++) {
 				add1.add(i);
 			}
 			int[] add2 = new int[len];
-			for (int i=0; i<len; i++) {
+			for (int i = 0; i < len; i++) {
 				add2[i] = i;
 			}
 
@@ -90,7 +88,8 @@ public class ListCompareTest {
 		}
 
 		void removeAll(int index, int len) {
-			arrayList.subList(index, index+len).clear();;
+			arrayList.subList(index, index + len).clear();
+			;
 
 			gapList.remove(index, len);
 			intGapList.remove(index, len);
@@ -113,9 +112,9 @@ public class ListCompareTest {
 
 		void checkEquals(IList<Integer> list) {
 			Assert.assertTrue(arrayList.size() == list.size());
-			for (int i=0; i<arrayList.size(); i++) {
+			for (int i = 0; i < arrayList.size(); i++) {
 				int val1 = arrayList.get(i);
-				int val2 = (Integer) list.get(i);
+				int val2 = list.get(i);
 				if (val1 != val2) {
 					System.out.println("Expected: " + arrayList);
 					System.out.println("Found:    " + list);
@@ -126,7 +125,7 @@ public class ListCompareTest {
 
 		void checkEquals(IIntList list) {
 			Assert.assertTrue(arrayList.size() == list.size());
-			for (int i=0; i<arrayList.size(); i++) {
+			for (int i = 0; i < arrayList.size(); i++) {
 				int val1 = arrayList.get(i);
 				int val2 = list.get(i);
 				if (val1 != val2) {
@@ -142,8 +141,8 @@ public class ListCompareTest {
 	static final Logger LOG = LogbackTools.getConsoleLogger();
 
 	static int size = 1000;
-	static int maxSize = 10*1000;
-	static int numOps = 100*1000;
+	static int maxSize = 10 * 1000;
+	static int numOps = 1000 * 1000;
 
 	Lists lists;
 	Random rnd;
@@ -153,18 +152,18 @@ public class ListCompareTest {
 	}
 
 	static void test() {
-	    new ListCompareTest().doTest();
+		new ListCompareTest().doTest();
 	}
 
 	void doTest() {
 		lists = new Lists();
 
-		for (int i=0; i<size; i++) {
-			int val = rnd(i+1);
+		for (int i = 0; i < size; i++) {
+			int val = rnd(i + 1);
 			lists.add(val, val);
 		}
 
-		for (int i=0; i<numOps; i++) {
+		for (int i = 0; i < numOps; i++) {
 			modify();
 		}
 
@@ -221,13 +220,13 @@ public class ListCompareTest {
 			removeAll();
 			break;
 		default:
-			assert(false);
+			assert (false);
 		}
 		lists.checkEquals();
 	}
 
 	void add() {
-		int r = rnd(lists.size()+1);
+		int r = rnd(lists.size() + 1);
 		lists.add(r, r);
 	}
 
@@ -249,9 +248,9 @@ public class ListCompareTest {
 		} else if (r2 == 1) {
 			r = size;
 		} else {
-			r = rnd(size+1);
+			r = rnd(size + 1);
 		}
-		int l = 3*rnd(lists.blockSize)+1;
+		int l = 3 * rnd(lists.blockSize) + 1;
 		lists.addAll(r, l);
 	}
 
@@ -280,8 +279,7 @@ public class ListCompareTest {
 
 		int p0 = Math.min(r0, r1);
 		int p1 = Math.max(r0, r1);
-		lists.removeAll(p0, p1-p0);
+		lists.removeAll(p0, p1 - p0);
 	}
 
 }
-

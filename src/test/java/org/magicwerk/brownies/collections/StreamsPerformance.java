@@ -42,10 +42,176 @@ public class StreamsPerformance {
 	static void run() {
 		//testListIterator();
 		//testPipe();
-		testPerformanceFilterMapJmhTest();
+		//testPerformanceFilterMapJmhTest();
 		//testPerformancePipeJmhTest();
 		//testPerformanceFlatMapJmhTest();
+		testPerformanceHierachyTest();
 	}
+
+	//
+
+	// http://insightfullogic.com/2014/May/12/fast-and-megamorphic-what-influences-method-invoca/
+	static void testPerformanceHierachyTest() {
+		Options opts = new Options().includeClass(PerformanceHierachyTest.class);
+		//opts.useGcProfiler();
+		//opts.setWarmupIterations(1).setMeasurementIterations(1).setRunTimeSecs(2);
+		JmhRunner runner = new JmhRunner();
+		//runner.setBuildBrowniesTestAllJar(true);
+		runner.runJmh(opts);
+	}
+
+	public static class PerformanceHierachyTest {
+
+		static interface Getter {
+			int get();
+		}
+
+		static class MonoClass implements Getter {
+
+			static Getter of(int count) {
+				return new MonoClass(count);
+			}
+
+			int count;
+
+			MonoClass(int count) {
+				this.count = count;
+			}
+
+			@Override
+			public int get() {
+				return count;
+			}
+		}
+
+		static class BipolarClass implements Getter {
+
+			static Getter of(int count) {
+				if (count == 0) {
+					return new MonoClass(count);
+				} else {
+					return new BipolarClass(count);
+				}
+			}
+
+			int count;
+
+			BipolarClass(int count) {
+				this.count = count;
+			}
+
+			@Override
+			public int get() {
+				return count;
+			}
+		}
+
+		static class MegaClass implements Getter {
+
+			static Getter of(int count) {
+				if (count == 0) {
+					return new MonoClass(count);
+				} else if (count == 1) {
+					return new BipolarClass(count);
+				} else {
+					return new MegaClass(count);
+				}
+			}
+
+			int count;
+
+			MegaClass(int count) {
+				this.count = count;
+			}
+
+			@Override
+			public int get() {
+				return count;
+			}
+		}
+
+		static class Getter4 implements Getter {
+
+			static Getter of(int count) {
+				if (count == 0) {
+					return new MonoClass(count);
+				} else if (count == 1) {
+					return new BipolarClass(count);
+				} else if (count == 2) {
+					return new MegaClass(count);
+				} else {
+					return new Getter4(count);
+				}
+			}
+
+			int count;
+
+			Getter4(int count) {
+				this.count = count;
+			}
+
+			@Override
+			public int get() {
+				return count;
+			}
+		}
+
+		@State(Scope.Benchmark)
+		public static class ListState {
+			Getter getter11 = MonoClass.of(0);
+
+			Getter getter21 = BipolarClass.of(0);
+			Getter getter22 = BipolarClass.of(1);
+
+			Getter getter31 = MegaClass.of(0);
+			Getter getter32 = MegaClass.of(1);
+			Getter getter33 = MegaClass.of(2);
+
+			Getter getter41 = Getter4.of(0);
+			Getter getter42 = Getter4.of(1);
+			Getter getter43 = Getter4.of(2);
+			Getter getter44 = Getter4.of(3);
+
+			// monomorphic
+			IList<Getter> getters1 = GapList.create(getter11, getter11, getter11, getter11);
+			// bimorphics
+			IList<Getter> getters2 = GapList.create(getter21, getter22, getter21, getter22);
+			// megamorphic
+			IList<Getter> getters3 = GapList.create(getter31, getter32, getter33, getter31);
+			IList<Getter> getters4 = GapList.create(getter41, getter42, getter43, getter44);
+		}
+
+		@Benchmark
+		public Object testGetter1(ListState state) {
+			return test(state.getters1);
+		}
+
+		@Benchmark
+		public Object testGetter2(ListState state) {
+			return test(state.getters2);
+		}
+
+		@Benchmark
+		public Object testGetter3(ListState state) {
+			return test(state.getters3);
+		}
+
+		@Benchmark
+		public Object testGetter4(ListState state) {
+			return test(state.getters4);
+		}
+
+		int test(IList<Getter> getters) {
+			int c = 0;
+			for (int i = 0; i < getters.size(); i++) {
+				c = getters.get(i).get();
+			}
+			return c;
+		}
+
+	}
+
+	//
 
 	static void testPerformancePipeJmhTest() {
 		Options opts = new Options().includeClass(PerformancePipeJmhTest.class);
@@ -254,14 +420,14 @@ public class StreamsPerformance {
 
 		/**
 		 * Method {@link #handleStart} is called before iteration of the list starts, i.e. before the first call to {@link #handle}.
-		 * If an element should be added at the head, {@link #append} may be called (other methods will throw an exception).
+		 * If an element should be added at the head, {@link #add} may be called.
 		 */
 		public void handleStart() {
 		}
 
 		/**
 		 * Method {@link #handleEnd} is called after iteration of the list has ended, i.e. after the last call to {@link #handle}.
-		 * If an element should be added at the tail, {@link #prepend} may be called (other methods will throw an exception).
+		 * If an element should be added at the tail, {@link #add} may be called.
 		 */
 		public void handleEnd() {
 		}
