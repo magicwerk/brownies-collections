@@ -103,8 +103,8 @@ public class GapList<E> extends IList<E> {
 	/** Physical position of first slot in gap (ignored if gapSize=0) */
 	private int gapStart;
 	/** 
-	 * If false, an element is added on the left side of the gap (favorable for adding after an insertion point, e.g. indexes 5, 6, 7),
-	 * if true, the element is added on the right side of the gap (favorable for adding before an insertion point, e.g. indexes 5, 5, 5)
+	 * If false (default) an element is added on the left side of the gap (favorable for adding after an insertion point, e.g. indexes 5, 6, 7),
+	 * if true the element is added on the right side of the gap (favorable for adding before an insertion point, e.g. indexes 5, 5, 5)
 	 */
 	private boolean gapAddRight;
 
@@ -349,18 +349,6 @@ public class GapList<E> extends IList<E> {
 		} else {
 			return super.clone();
 		}
-	}
-
-	/**
-	 * Increases the capacity of this <tt>GapList</tt> instance, if necessary, to ensure that it can hold at least the number of elements
-	 * specified by the minimum capacity argument.
-	 *
-	 * @param   minCapacity   the desired minimum capacity
-	 */
-	// Only overridden to change Javadoc
-	@Override
-	public void ensureCapacity(int minCapacity) {
-		super.ensureCapacity(minCapacity);
 	}
 
 	@Override
@@ -693,12 +681,6 @@ public class GapList<E> extends IList<E> {
 				gapSize = start - 1;
 				start = 0;
 
-				// Case gapAddRight = true
-				//gapStart = len1;
-				//gapIndex = len1;
-				//physIdx--;
-
-				// Case gapAddRight = false
 				physIdx = len1;
 				gapStart = len1 + 1;
 				if (gapStart >= values.length) {
@@ -722,6 +704,7 @@ public class GapList<E> extends IList<E> {
 		}
 	}
 
+	// Method split allow inlining by JIT
 	private int doAddCreateNewGap2(int index, int physIdx) {
 		if (physIdx < end) {
 			assert (debugState() == 2 || debugState() == 5);
@@ -730,6 +713,7 @@ public class GapList<E> extends IList<E> {
 			int len = end - physIdx;
 			int rightSize = (start - end + values.length) % values.length;
 			moveData(physIdx, end + rightSize - len, len);
+
 			end = start;
 			gapSize = rightSize - 1;
 			gapStart = physIdx + 1;
@@ -743,16 +727,10 @@ public class GapList<E> extends IList<E> {
 			int len = physIdx - start;
 			int rightSize = start - end;
 			moveData(start, end, len);
+
 			start -= rightSize;
 			end = start;
 			gapSize = rightSize - 1;
-
-			// Case gapAddRight = true
-			//physIdx--;
-			//gapStart = start + len;
-			//gapIndex = index;
-
-			// Case gapAddRight = false
 			physIdx = start + len;
 			gapStart = physIdx + 1;
 			if (gapStart >= values.length) {
@@ -822,6 +800,7 @@ public class GapList<E> extends IList<E> {
 		return physIdx;
 	}
 
+	// Method split allow inlining by JIT
 	private int doAddMoveExistingGap2(int index, int physIdx, int gapEnd, boolean moveLeft) {
 		if (moveLeft) {
 			int src = gapStart + gapSize;
@@ -957,7 +936,7 @@ public class GapList<E> extends IList<E> {
 		}
 		System.arraycopy(values, src, values, dst, len);
 
-		// Write null into array slots which are not used anymore (alloc GC to reclaim non used objects)
+		// Write null into array slots which are not used anymore (allows GC to reclaim non used objects)
 		int start;
 		int end;
 		if (src <= dst) {

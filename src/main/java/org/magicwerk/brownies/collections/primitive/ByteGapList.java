@@ -138,8 +138,8 @@ public class ByteGapList extends IByteList {
     private int gapStart;
 
     /**
-     * If false, an element is added on the left side of the gap (favorable for adding after an insertion point, e.g. indexes 5, 6, 7),
-     * if true, the element is added on the right side of the gap (favorable for adding before an insertion point, e.g. indexes 5, 5, 5)
+     * If false (default) an element is added on the left side of the gap (favorable for adding after an insertion point, e.g. indexes 5, 6, 7),
+     * if true the element is added on the right side of the gap (favorable for adding before an insertion point, e.g. indexes 5, 5, 5)
      */
     private boolean gapAddRight;
 
@@ -371,12 +371,6 @@ public class ByteGapList extends IByteList {
         } else {
             return super.clone();
         }
-    }
-
-    // Only overridden to change Javadoc
-    @Override
-    public void ensureCapacity(int minCapacity) {
-        super.ensureCapacity(minCapacity);
     }
 
     @Override
@@ -683,17 +677,13 @@ public class ByteGapList extends IByteList {
                     debugLog("Case A3");
                 moveData(start, 0, len1);
                 gapSize = start - 1;
-                gapStart = len1;
-                gapIndex = len1;
                 start = 0;
-                physIdx--;
-                // swap
-                physIdx = gapStart;
-                gapStart++;
+                physIdx = len1;
+                gapStart = len1 + 1;
                 if (gapStart >= values.length) {
                     gapStart -= values.length;
                 }
-                gapIndex++;
+                gapIndex = len1 + 1;
             } else {
                 if (DEBUG_TRACE)
                     debugLog("Case A4");
@@ -709,6 +699,7 @@ public class ByteGapList extends IByteList {
         }
     }
 
+    // Method split allow inlining by JIT
     private int doAddCreateNewGap2(int index, int physIdx) {
         if (physIdx < end) {
             assert (debugState() == 2 || debugState() == 5);
@@ -732,16 +723,12 @@ public class ByteGapList extends IByteList {
             start -= rightSize;
             end = start;
             gapSize = rightSize - 1;
-            gapStart = start + len;
-            gapIndex = index;
-            physIdx--;
-            // swap
-            physIdx = gapStart;
-            gapStart++;
+            physIdx = start + len;
+            gapStart = physIdx + 1;
             if (gapStart >= values.length) {
                 gapStart -= values.length;
             }
-            gapIndex++;
+            gapIndex = index + 1;
         }
         return physIdx;
     }
@@ -800,12 +787,14 @@ public class ByteGapList extends IByteList {
         return physIdx;
     }
 
+    // Method split allow inlining by JIT
     private int doAddMoveExistingGap2(int index, int physIdx, int gapEnd, boolean moveLeft) {
         if (moveLeft) {
             int src = gapStart + gapSize;
             int dst = gapStart;
             int len = physIdx - gapEnd;
             moveDataWithGap(src, dst, len);
+            // Case gapAdddRight=false
             physIdx--;
             gapSize--;
             gapIndex = index;
@@ -820,10 +809,10 @@ public class ByteGapList extends IByteList {
                     gapSize = 0;
                 }
             }
-            // swap
+            // Case gapAddRight=false
             if (gapSize > 0) {
+                physIdx = gapStart;
                 if (gapIndex < size) {
-                    physIdx = gapStart;
                     gapStart++;
                     if (gapStart >= values.length) {
                         gapStart -= values.length;
@@ -831,7 +820,6 @@ public class ByteGapList extends IByteList {
                     gapIndex++;
                 } else {
                     assert (start == end);
-                    physIdx = gapStart;
                     end = gapStart + 1;
                     if (end >= values.length) {
                         end -= values.length;
@@ -924,7 +912,7 @@ public class ByteGapList extends IByteList {
             }
         }
         System.arraycopy(values, src, values, dst, len);
-        // Write (byte) 0 into array slots which are not used anymore (alloc GC to reclaim non used objects)
+        // Write (byte) 0 into array slots which are not used anymore (allows GC to reclaim non used objects)
         int start;
         int end;
         if (src <= dst) {
