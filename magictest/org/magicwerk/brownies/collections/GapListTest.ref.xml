@@ -278,8 +278,8 @@
     </traceStep>
   </traceTest>
   <traceTest name="testClone">
-    <runDate>2013-12-24T00:20:26.252+01:00</runDate>
-    <runDuration>0.011259194</runDuration>
+    <runDate>2022-07-28T23:26:21.317+02:00</runDate>
+    <runDuration>0.0148746</runDuration>
     <exception></exception>
     <traceClass>org.magicwerk.brownies.collections.GapList</traceClass>
     <traceMethod>clone</traceMethod>
@@ -301,10 +301,10 @@
         <paramText outputType="TEXT" param="Description">"clone"</paramText>
       </description>
       <parameters>
-        <paramText outputType="VALUE" param="This">"Size: 8, Capacity: 11, Content: [0, 1, 2, 3, 4, 5, 6, 99]"</paramText>
+        <paramText outputType="VALUE" param="This">"Size: 8, Capacity: 10, Content: [0, 1, 2, 3, 4, 5, 6, 99]"</paramText>
       </parameters>
       <result>
-        <paramText outputType="VALUE" param="This">"Size: 8, Capacity: 11, Content: [0, 1, 2, 3, 4, 5, 6, 99]"</paramText>
+        <paramText outputType="VALUE" param="This">"Size: 8, Capacity: 10, Content: [0, 1, 2, 3, 4, 5, 6, 99]"</paramText>
         <paramText outputType="VALUE" param="Result">"Size: 8, Capacity: 8, Content: [0, 1, 2, 3, 4, 5, 6, 99]"</paramText>
       </result>
       <error></error>

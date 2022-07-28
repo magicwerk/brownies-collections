@@ -1135,7 +1135,7 @@ public class CharGapList extends ICharList {
             return values.length;
         }
         minCapacity = Math.max(DEFAULT_CAPACITY, minCapacity);
-        int newCapacity = (oldCapacity * 3) / 2 + 1;
+        int newCapacity = oldCapacity + (oldCapacity >> 1);
         if (newCapacity < minCapacity) {
             newCapacity = minCapacity;
         }
