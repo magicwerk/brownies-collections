@@ -1,69 +1,119 @@
-version = VERSION_BROWNIES_COLLECTIONS
+plugins {
+    id 'java-library'
+	id 'eclipse'
+}
 
-publishing {
-	publications {
-		mavenJava(MavenPublication) {
-			pom {
-                description = ''' 
-Brownies Collections complements the Java Collections Framework. 
-GapList combines the strengths of both ArrayList and LinkedList. 
-BigList is a list optimized for storing large number of elements. 
-There are specialized List implementations for all primitive data types (IntGapList, IntBigList, IntObjGapList, IntObjBigList). 
-The key collection classes offer support for keys and constraints for lists and collections
-(KeyList, KeyCollection, KeySet, Key1List, Key1Collection, Key1Set, Key2List, Key2Collection, Key2Set).
-'''
-                url = 'http://www.magicwerk.org/collections'
-           		scm {
-                	connection = 'scm:git:https://github.com/magicwerk/brownies-collections.git'
-                	developerConnection = 'scm:git:https://github.com/magicwerk/brownies-collections.git'
-                    url = 'scm:git:https://github.com/magicwerk/brownies-collections.git'
-            	}
-            }
-		}
-	}
+repositories {
+	mavenCentral()
 }
 
 dependencies {
-    testImplementation project(':Brownies-Core')
-    testImplementation project(':Brownies-Html')
-    testImplementation project(':Brownies-Swt')
-    testImplementation project(':Brownies-Test')
-    testImplementation project(':Brownies-Tools')
-    testImplementation project(':MagicTest-NG')
-    
-    testImplementation libraries.junit
-    testImplementation libraries.guava_testlib
-	testImplementation libraries.javaparser
-	testImplementation 'com.melloware:jintellitype:1.3.9:dll-x64' 
-
+	testImplementation "org.magicwerk.brownies:brownies-core:0.9.8"
+    testImplementation "org.magicwerk.brownies:brownies-javassist:0.9.8"
+    testImplementation "org.magicwerk.brownies:brownies-jdom:0.9.8"
+    testImplementation "org.magicwerk.brownies:brownies-html:0.9.8"
+    testImplementation "org.magicwerk.brownies:brownies-test:0.9.8"
+    testImplementation "org.magicwerk.brownies:brownies-tools:0.9.8"
+    testImplementation "org.magicwerk.magictest:magictest:0.9.8"
+    testImplementation "org.magicwerk.magictest:magictest-ng:0.9.8"
+ 
+	testImplementation "junit:junit:4.8.2"
+	testImplementation "com.google.guava:guava-testlib:31.1-jre"
+	testImplementation "com.github.javaparser:javaparser-core:3.24.0"	
+	
 	testImplementation 'org.apache.commons:commons-collections4:4.0'
 	testImplementation 'org.javolution:javolution-core-java:6.0.0'
 	testImplementation 'it.unimi.dsi:fastutil:7.0.9'
-	//testImplementation 'com.ertu.collection:ertu-collection:1.0-SNAPSHOT'
-}
-
-javadoc {
-	// Exclude generated files
-	exclude "org/magicwerk/brownies/collections/primitive"
-}
-
-testJavadoc {
-	// Exclude external files
-	exclude "org/magicwerk/brownies/collections/ext"
 	
-	// Prevent "error: cannot find symbol" for classes in excluded packages
-	classpath = sourceSets.test.compileClasspath + sourceSets.test.output
+	testImplementation 'org.slf4j:slf4j-api:1.7.4'
+	testImplementation 'ch.qos.logback:logback-classic:1.0.11'
+	testImplementation 'ch.qos.logback:logback-core:1.0.11'
+	testImplementation 'org.apache.commons:commons-lang3:3.12.0'
+	testImplementation 'de.schlichtherle.truezip:truezip-file:7.7.10'
+	testImplementation 'de.schlichtherle.truezip:truezip-path:7.7.10'
+	testImplementation 'de.schlichtherle.truezip:truezip-driver-zip:7.7.10'
+	testImplementation 'org.javassist:javassist:3.28.0-GA'
+	testImplementation 'org.jdom:jdom2:2.0.6' 
+	testImplementation 'org.openjdk.jmh:jmh-core:1.33'
 }
 
 
-jacocoTestReport {
-    afterEvaluate {
-        classDirectories.setFrom(files(classDirectories.files.collect {
-            fileTree(dir: it, exclude: [
-                "org/magicwerk/brownies/collections/primitive/*",
-                "org/magicwerk/brownies/collections/helper/primitive/*"
-            ])
-        }))
-    }
+// MagicTest
+
+ext {
+	magicTestVerbose = true
+	magicTestAssertions = true
+	stopOnMagicTestError = false
+	excludeTests = []
 }
 
+/**
+ * Run tests using MagicTest.
+ * Per default, suite testng.xml is run if it exists.
+ * Otherwise use -P to control execution:
+ * - gradle magicTest -Ptestclass=myclass
+ * - gradle magicTest -Prun=org.magicwerk.brownies.core.reflect.ReflectToolsTest#testAnnotation
+ */
+task magicTest(type: JavaExec) {
+	group = "Verification"
+	description = "Run the unit tests with MagicTest"
+	main = "org.magictest.ng.MagicTestNG"
+	
+	def myArgs = []
+	def myJvmArgs = []
+
+   	def runArg = project.properties['run']
+   	def saveArg = project.properties['save']
+   	def testclassArg = project.properties['testclass']
+	def existsTestNgXml = file("./testng.xml").exists()
+
+	def run = true
+	if (runArg) {
+		myArgs = [ "-run", runArg]
+	} else if (saveArg) {
+		myArgs = [ "-save", saveArg]
+	} else if (testclassArg) {
+		myArgs = [ "-testclass", testclassArg]
+	} else if (existsTestNgXml) {
+		myArgs = [ "testng.xml" ]
+	} else {
+		run = false
+	}
+
+	onlyIf {
+		run
+	}
+	
+	if (magicTestVerbose) {
+		myArgs << "-verbose" << "10"
+	}		
+	if (magicTestAssertions) {
+		myJvmArgs << "-ea"
+	}
+	
+	def excludeGroups = [ 'manual' ] 
+	excludeGroups.addAll(excludeTests)
+	myArgs << "-excludegroups" << excludeGroups.join(',')
+	
+	// Note: directly manipulating args and jvmArgs seems not work, so copy if all done
+	args = myArgs
+	jvmArgs = myJvmArgs
+	
+	// Set system properties to make test output stable
+	systemProperty 'file.encoding', 'UTF-8'
+	systemProperty 'line.separator', '\r\n'
+	systemProperty 'user.timezone', 'Europe/Berlin'
+	systemProperty 'gradleMagicTest', 'true'
+
+	// classpath includes local tests
+	classpath = sourceSets.test.runtimeClasspath
+	// classpath does not include local tests
+	//classpath = configurations.testRuntimeClasspath
+	
+	ignoreExitValue = !stopOnMagicTestError
+
+	doFirst {
+		mkdir "output"
+		println "Running MagicTest with arguments " + args + ", jvmArgs " + jvmArgs
+	}		
+}
