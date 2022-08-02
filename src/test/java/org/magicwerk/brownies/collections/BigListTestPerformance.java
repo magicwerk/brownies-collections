@@ -57,10 +57,17 @@ import org.magicwerk.brownies.core.exceptions.FileException.Access;
 import org.magicwerk.brownies.core.logback.LogbackTools;
 import org.magicwerk.brownies.core.reflect.ReflectTools;
 import org.magicwerk.brownies.core.strings.StringStreamer;
+import org.magicwerk.brownies.test.JmhRunner;
+import org.magicwerk.brownies.test.JmhRunner.Options;
 import org.magicwerk.brownies.tools.runner.JvmRunner;
 import org.magicwerk.brownies.tools.runner.Run;
 import org.magicwerk.brownies.tools.runner.Runner;
 import org.magicwerk.brownies.tools.runner.Runner.RunIterations;
+import org.openjdk.jmh.annotations.Benchmark;
+import org.openjdk.jmh.annotations.Level;
+import org.openjdk.jmh.annotations.Scope;
+import org.openjdk.jmh.annotations.Setup;
+import org.openjdk.jmh.annotations.State;
 import org.slf4j.Logger;
 
 import javolution.util.FastTable;
@@ -78,13 +85,115 @@ public class BigListTestPerformance {
 
 	public static void main(String[] args) {
 		// Run as separate process(es)
-		runJava(args);
+		//runJava(args);
 
 		// Run in this process for debugging
+		testPerformanceAddAllJmh();
 		//doRun();
 		//testSort();
 		//testStandard();
 	}
+
+	//
+
+	static void testPerformanceAddAllJmh() {
+		Options opts = new Options().includeClass(PerformanceAddAllJmhTest.class);
+		opts.setRunTimeMillis(500);
+		JmhRunner runner = new JmhRunner();
+		runner.runJmh(opts);
+	}
+
+	public static class PerformanceAddAllJmhTest {
+
+		static int initSize = 10_000;
+		static int addSize = 10_000;
+
+		@State(Scope.Benchmark)
+		public static class MyState {
+
+			IList<Integer> addAllList;
+			IList<Integer> addRepeatedList;
+			IList<Integer> addList;
+
+			@Setup(Level.Iteration)
+			public void setup() {
+				LOG.info("setup");
+				addAllList = getSortedBigList(initSize);
+				addRepeatedList = getSortedBigList(initSize);
+				addList = getSortedBigList(addSize);
+			}
+		}
+
+		@Benchmark
+		public void testAddAllLast(MyState state) {
+			state.addAllList.addAll(state.addList);
+		}
+
+		@Benchmark
+		public void testAddRepeatedLast(MyState state) {
+			for (int i = 0; i < state.addList.size(); i++) {
+				state.addRepeatedList.add(state.addList.get(i));
+			}
+		}
+
+		@Benchmark
+		public void testAddAllFirst(MyState state) {
+			state.addAllList.addAll(0, state.addList);
+		}
+
+		@Benchmark
+		public void testAddRepeatedFirst(MyState state) {
+			for (int i = 0; i < state.addList.size(); i++) {
+				state.addRepeatedList.add(i, state.addList.get(i));
+			}
+		}
+
+		@Benchmark
+		public void testAddAllMid(MyState state) {
+			int index = state.addAllList.size() / 2;
+			state.addAllList.addAll(index, state.addList);
+		}
+
+		@Benchmark
+		public void testAddRepeatedMid(MyState state) {
+			int index = state.addAllList.size() / 2;
+			for (int i = 0; i < state.addList.size(); i++) {
+				state.addRepeatedList.add(index + i, state.addList.get(i));
+			}
+		}
+
+	}
+
+	static void testAddAllPerformance() {
+		int initSize = 100_000;
+		int addSize = 10_000;
+		IList<Integer> add = getSortedBigList(addSize);
+
+		{
+			IList<Integer> list = getSortedBigList(initSize);
+			new Runner("addAll").run(() -> {
+				list.addAll(add);
+			});
+		}
+		{
+			IList<Integer> list = getSortedBigList(initSize);
+			new Runner("repeated add").run(() -> {
+				for (int i = 0; i < add.size(); i++) {
+					list.add(add.get(i));
+				}
+			});
+		}
+	}
+
+	static IList<Integer> getSortedBigList(int size) {
+		IList<Integer> list = new BigList<>();
+		for (int i = 0; i < size; i++) {
+			list.add(i);
+		}
+		return list;
+	}
+
+	//
 
 	static void runJava(String[] args) {
 		JvmRunner runner = new JvmRunner();
