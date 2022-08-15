@@ -482,7 +482,7 @@ public class ListTestPerformance {
 
 	static class ShowBenchmark {
 
-		static Type<Double> FactorNumberType = Type.builder(Double.class).with((IFormatter) new NumberFormatter(2)).toType();
+		static Type<Double> FactorNumberType = Type.builder(Double.class).with(new NumberFormatter<Double>(2)).toType();
 		static IFormatter<Double> timeFormatter = s -> DurationTools.formatSeconds(s);
 		static Type<Double> TimeNumberType = Type.builder(Double.class).with(timeFormatter).toType();
 		static ByteSizeTypeFormatter byteSizeFormatter = new ByteSizeTypeFormatter(false);
