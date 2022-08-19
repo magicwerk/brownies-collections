@@ -18,6 +18,7 @@
 package org.magicwerk.brownies.collections;
 
 import java.util.List;
+import java.util.Map;
 
 import org.magictest.client.Assert;
 import org.magictest.client.Capture;
@@ -41,8 +42,9 @@ public class Key2ListTest {
 	}
 
 	static void test() {
+		testAsMap();
 		//testInvalidate();
-		testKey2List();
+		//testKey2List();
 	}
 
 	static class TicketList extends Key2List<Ticket, Integer, String> {
@@ -233,7 +235,63 @@ public class Key2ListTest {
 		tickets4.add(t5);
 		System.out.println("Orig (unchanged): " + format(tickets));
 		System.out.println("Crop (changed): " + format(tickets4));
+	}
 
+	@Capture
+	public static void testAsMap() {
+		Ticket t1 = new Ticket(1, "extId1", "text1");
+		Ticket t2 = new Ticket(2, "extId2", "text2");
+		Ticket t3 = new Ticket(3, "extId3", "text3");
+		Ticket t4 = new Ticket(4, "extId4", "text4");
+
+		Key2List<Ticket, Integer, String> init = new Key2List.Builder<Ticket, Integer, String>().withPrimaryKey1Map(Ticket.IdMapper)
+				.withPrimaryKey2Map(Ticket.ExtIdMapper).build();
+
+		// asMap1
+		{
+			Key2List<Ticket, Integer, String> list = init.copy();
+			list.add(t1);
+			list.add(t3);
+			list.add(t2);
+			list.add(t4);
+
+			Map<Integer, Ticket> map = list.asMap1();
+			System.out.println(map);
+			map.remove(2);
+			System.out.println(map);
+			Ticket t = map.put(2, t2);
+			Assert.assertTrue(t == null);
+			System.out.println(map);
+			t = map.put(2, t2);
+			Assert.assertTrue(t == t2);
+			System.out.println(map);
+			System.out.println(map.keySet());
+			System.out.println(map.values());
+			System.out.println(map.entrySet());
+		}
+
+		// asMap2
+		{
+			Key2List<Ticket, Integer, String> list = init.copy();
+			list.add(t1);
+			list.add(t3);
+			list.add(t2);
+			list.add(t4);
+
+			Map<String, Ticket> map = list.asMap2();
+			System.out.println(map);
+			map.remove("extId2");
+			System.out.println(map);
+			Ticket t = map.put("extId2", t2);
+			Assert.assertTrue(t == null);
+			System.out.println(map);
+			t = map.put("extId2", t2);
+			Assert.assertTrue(t == t2);
+			System.out.println(map);
+			System.out.println(map.keySet());
+			System.out.println(map.values());
+			System.out.println(map.entrySet());
+		}
 	}
 
 }
