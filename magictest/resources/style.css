@@ -45,6 +45,7 @@ table.block table td { margin: 1px; border: 1px solid #000; border-collapse: sep
 .choice-chooser {
 	margin: 4px;
 	float: right;
+	position: relative;
 	background-color: #eee;
 }
 .choice {
