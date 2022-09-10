@@ -1995,7 +1995,16 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 
 	@Override
 	public boolean add(E elem) {
-		// This method is also used by addAll()
+		return doAdd(elem);
+	}
+
+	/**
+	 * Helper method for adding an element to the collection.
+	 * This is the only method which really adds an element.
+	 * Override if you need to validity checks before adding.
+	 * This method is called by both add() and addAll().
+	 */
+	protected boolean doAdd(E elem) {
 		checkAddElem(elem);
 		beforeInsert(elem);
 
@@ -2123,7 +2132,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	public boolean addAll(Collection<? extends E> c) {
 		boolean added = false;
 		for (E e : c) {
-			if (add(e)) {
+			if (doAdd(e)) {
 				added = true;
 			}
 		}
