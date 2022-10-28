@@ -17,8 +17,11 @@ import ch.qos.logback.classic.Logger;
 
 /**
  * Run tests with DEBUG_CHECK enabled.
- *
- * @author Thomas Mauch
+ * <p>
+ * - Copy current sources from "src" into "build/tmp/runDebugTest" <br>
+ * - Set constant DEBUG_CHECK to true <br>
+ * - Check that assertions would fail on problems by running RunDebugTestCheck (expected to fail) <br>
+ * - Execute all tests by running RunAllTest <br>
  */
 public class RunDebugTest {
 

@@ -49,7 +49,12 @@ public class RunAllTest {
 	}
 
 	void run() {
-		// Note that a recompile must be triggered after calling enableDebugCheck()
+		// Typically you will use RunDebugTest to run tests with assertions enabled in a separate source tree.
+		// For debugging, it can however be handy to work with the actual sources.
+		// In this case, you can uncomment the line below which will change the actual sources.
+		// Note that a recompile must be triggered after calling enableDebugCheck(), so enableDebugCheck()/runAllTests()
+		// must be executed as two different applications run with a manual recompile between.
+
 		//enableDebugCheck(true);
 
 		runAllTests();
