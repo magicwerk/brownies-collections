@@ -20,7 +20,7 @@ The key collection classes offer support for keys and constraints for lists and 
             	}
             }
 		}
-		
+/*	
 		relocationPom(MavenPublication) {
 			pom {
 		        groupId 'org.magicwerk'
@@ -63,16 +63,17 @@ The key collection classes offer support for keys and constraints for lists and 
 	            }
             }                
 		}		
-		
+*/		
 	}
 }
 
+/*
 	// gradle publishRelocationToMavenMagicwerk
 	task publishRelocationToMavenMagicwerk(dependsOn: [
 	   	'generatePomFileForRelocationPomPublication',
 	   	'publishRelocationPomPublicationToMagicwerkRepository'
 	])
-
+*/
 
 
 dependencies {
