@@ -20,8 +20,60 @@ The key collection classes offer support for keys and constraints for lists and 
             	}
             }
 		}
+		
+		relocationPom(MavenPublication) {
+			pom {
+		        groupId 'org.magicwerk'
+        		artifactId 'brownies-collections'
+        		version '0.9.16'
+        		
+                name = project.name
+                description = ''' 
+Brownies Collections complements the Java Collections Framework. 
+GapList combines the strengths of both ArrayList and LinkedList. 
+BigList is a list optimized for storing large number of elements. 
+There are specialized List implementations for all primitive data types (IntGapList, IntBigList, IntObjGapList, IntObjBigList). 
+The key collection classes offer support for keys and constraints for lists and collections
+(KeyList, KeyCollection, KeySet, Key1List, Key1Collection, Key1Set, Key2List, Key2Collection, Key2Set).
+'''
+                url = 'http://www.magicwerk.org/collections'
+           		scm {
+                	connection = 'scm:git:https://github.com/magicwerk/brownies-collections.git'
+                	developerConnection = 'scm:git:https://github.com/magicwerk/brownies-collections.git'
+                    url = 'scm:git:https://github.com/magicwerk/brownies-collections.git'
+            	}
+
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        distribution = 'repo'
+                    }
+                }
+                developers {
+                    developer {
+                        name = 'Thomas Mauch'
+                        email = 'magicwerk@gmail.com'
+                    }
+                }            	
+
+        		pom.withXml {
+            		def relocation = asNode().appendNode('distributionManagement').appendNode('relocation')
+            		relocation.appendNode('groupId', 'org.magicwerk.brownies')
+	            }
+            }                
+		}		
+		
 	}
 }
+
+	// gradle publishRelocationToMavenMagicwerk
+	task publishRelocationToMavenMagicwerk(dependsOn: [
+	   	'generatePomFileForRelocationPomPublication',
+	   	'publishRelocationPomPublicationToMagicwerkRepository'
+	])
+
+
 
 dependencies {
     testImplementation project(':Brownies-Core')
