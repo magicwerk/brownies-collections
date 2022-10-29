@@ -618,7 +618,7 @@ public class Key2List<E, K1, K2> extends KeyListImpl<E> {
 	 * @throws IllegalArgumentException if the key map cannot be viewed as Map
 	 */
 	public Map<K2, E> asMap2() {
-		return new KeyCollectionAsMap<K2, E>(this.keyColl, 2, false);
+		return new KeyCollectionAsMap<K2, E>(this, 2, false);
 	}
 
 	/**

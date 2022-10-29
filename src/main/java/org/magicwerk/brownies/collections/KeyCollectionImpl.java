@@ -973,6 +973,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	}
 
 	static class KeyMap<E, K> implements Serializable {
+
 		/** A mapper to extract keys out of element. For the element itself, this is always an IdentMapper. */
 		Function<E, K> mapper;
 		/** True to allow null keys */
@@ -1291,16 +1292,29 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 			}
 		}
 
+		void addThrow(K key, E elem) {
+			Object symbol = add(key, elem);
+			if (symbol == SYMBOL_ADDED) {
+				return;
+			} else if (symbol == SYMBOL_ERROR_NULL_KEY) {
+				errorNullKey();
+			} else {
+				errorDuplicateKey(symbol);
+			}
+		}
+
 		/**
 		 * Add element to key map.
 		 *
 		 * @param key	key of element
 		 * @param elem	element
+		 * @return		SYMBOL_ADDED if element has successfully been added, SYMBOL_ERROR_NULL_KEY if a null key is not allowed, 
+		 * 				otherwise the key which is rejected because of a duplicate exception 
 		 */
-		void add(K key, E elem) {
+		Object add(K key, E elem) {
 			if (key == null) {
 				if (!allowNull) {
-					errorNullKey();
+					return SYMBOL_ERROR_NULL_KEY;
 				}
 			}
 			if (keysMap != null) {
@@ -1330,7 +1344,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 					if (!(allowDuplicates || (key == null && allowDuplicatesNull))) {
 						// Revert change and raise error
 						keysMap.put(key, oldElem);
-						errorDuplicateKey(key);
+						return key;
 					}
 
 					if (count) {
@@ -1374,10 +1388,11 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 					}
 				}
 				if (!add) {
-					errorDuplicateKey(key);
+					return key;
 				}
 				keysList.doAdd(addIndex, key);
 			}
+			return SYMBOL_ADDED;
 		}
 
 		/**
@@ -1546,7 +1561,11 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 		}
 	}
 
-	//-- KeyCollection --
+	//-- KeyCollectionImpl --
+
+	static final Object SYMBOL_ADDED = new Object();
+	static final Object SYMBOL_NOT_ADDED = new Object();
+	static final Object SYMBOL_ERROR_NULL_KEY = new Object();
 
 	/** If true the invariants are checked for debugging */
 	private static final boolean DEBUG_CHECK = false;
@@ -1796,7 +1815,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 		Object key = keyMap.getKey(elem);
 		IList<Object> list = keyMap.keysList;
 
-		if (doAdd(elem, keyMap)) {
+		if (doAddThrow(elem, keyMap)) {
 			size++;
 		}
 		list.doAdd(index, key);
@@ -1812,7 +1831,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	 */
 	void addUnsorted(E elem) {
 		beforeInsert(elem);
-		if (doAdd(elem, null)) {
+		if (doAddThrow(elem, null)) {
 			size++;
 		}
 		afterInsert(elem);
@@ -1832,10 +1851,10 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 		beforeInsert(elem);
 		doRemove(oldElem, keyMap);
 		try {
-			doAdd(elem, keyMap);
+			doAddThrow(elem, keyMap);
 		} catch (RuntimeException e) {
 			// adding failed due to violated constraint, so roll back change
-			doAdd(oldElem, keyMap);
+			doAddThrow(oldElem, keyMap);
 			throw e;
 		}
 		list.doSet(index, key);
@@ -1976,23 +1995,36 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 
 	@Override
 	public boolean add(E elem) {
-		// This method is also used by addAll()
+		return doAdd(elem);
+	}
+
+	/**
+	 * Helper method for adding an element to the collection.
+	 * This is the only method which really adds an element.
+	 * Override if you need to validity checks before adding.
+	 * This method is called by both add() and addAll().
+	 */
+	protected boolean doAdd(E elem) {
 		checkAddElem(elem);
 		beforeInsert(elem);
 
-		try {
-			if (doAdd(elem, null)) {
-				size++;
-			}
-		} catch (DuplicateKeyException ex) {
+		Object symbol = doAdd(elem, null);
+		if (symbol == SYMBOL_ADDED) {
+			size++;
+		} else if (symbol == SYMBOL_NOT_ADDED) {
+			// nothing todo
+		} else if (symbol == SYMBOL_ERROR_NULL_KEY) {
+			errorNullKey();
+		} else {
 			if (setBehavior) {
 				return false;
 			}
-			errorDuplicateKey(ex.getKey());
+			errorDuplicateKey(symbol);
 		}
 
 		if (DEBUG_CHECK)
 			debugCheck();
+
 		afterInsert(elem);
 		return true;
 	}
@@ -2100,7 +2132,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	public boolean addAll(Collection<? extends E> c) {
 		boolean added = false;
 		for (E e : c) {
-			if (add(e)) {
+			if (doAdd(e)) {
 				added = true;
 			}
 		}
@@ -2313,6 +2345,21 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 		}
 	}
 
+	boolean doAddThrow(E elem, KeyMap ignore) {
+		Object symbol = doAdd(elem, ignore);
+		if (symbol == SYMBOL_ADDED) {
+			return true;
+		} else if (symbol == SYMBOL_NOT_ADDED) {
+			return false;
+		} else if (symbol == SYMBOL_ERROR_NULL_KEY) {
+			errorNullKey();
+		} else {
+			errorDuplicateKey(symbol);
+		}
+		assert (false);
+		return false;
+	}
+
 	/**
 	 * Add element.
 	 * This method does not change size, check whether the element may be added or calls any triggers,
@@ -2320,19 +2367,24 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	 *
 	 * @param elem		element to add
 	 * @param ignore	KeyMap to ignore (null to add element to all key maps)
-	 * @return			true if element has been added, false if not (no key maps)
+	 * @return			SYMBOL_ADDED if element has successfully been added, SYMBOL_NOT_ADDED if element has not been added,
+	 * 					SYMBOL_ERROR_NULL_KEY if a null key is not allowed, otherwise the key which is rejected because of a duplicate exception 
 	 */
-	boolean doAdd(E elem, KeyMap ignore) {
+	Object doAdd(E elem, KeyMap ignore) {
 		if (keyMaps == null) {
-			return false;
+			return SYMBOL_NOT_ADDED;
 		}
+		Object symbol = SYMBOL_ADDED;
 		RuntimeException error = null;
 		int i = 0;
 		try {
 			for (i = 0; i < keyMaps.length; i++) {
 				if (keyMaps[i] != null && keyMaps[i] != ignore) {
 					Object key = keyMaps[i].getKey(elem);
-					keyMaps[i].add(key, elem);
+					symbol = keyMaps[i].add(key, elem);
+					if (symbol != SYMBOL_ADDED) {
+						break;
+					}
 				}
 			}
 		} catch (RuntimeException e) {
@@ -2340,7 +2392,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 		}
 
 		// If an error occurred, roll back changes
-		if (error != null) {
+		if (symbol != SYMBOL_ADDED || error != null) {
 			for (i--; i >= 0; i--) {
 				if (keyMaps[i] != null) {
 					Object key = keyMaps[i].getKey(elem);
@@ -2349,9 +2401,11 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 			}
 			if (DEBUG_CHECK)
 				debugCheck();
-			throw error;
+			if (error != null) {
+				throw error;
+			}
 		}
-		return true;
+		return symbol;
 	}
 
 	/**
@@ -2630,7 +2684,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 					}
 					Option<Object> key = invalidate(keyMaps[i], elem);
 					if (key.hasValue()) {
-						keyMaps[i].add(key.getValue(), elem);
+						keyMaps[i].addThrow(key.getValue(), elem);
 					}
 				}
 			}
@@ -2663,7 +2717,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 		if (!removed.hasValue()) {
 			errorInvalidData();
 		}
-		keyMap.add(newKey, removed.getValue());
+		keyMap.addThrow(newKey, removed.getValue());
 		if (DEBUG_CHECK)
 			debugCheck();
 		return (E) removed.getValue();
@@ -2730,7 +2784,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 			try {
 				beforeDelete(elem);
 			} catch (RuntimeException e) {
-				keyMaps[keyIndex].add(key, elem);
+				keyMaps[keyIndex].addThrow(key, elem);
 				throw e;
 			}
 			for (int i = 0; i < keyMaps.length; i++) {
@@ -2772,7 +2826,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 				beforeDelete(elem);
 			} catch (RuntimeException e) {
 				for (E elem2 : removeds) {
-					keyMaps[keyIndex].add(key, elem2);
+					keyMaps[keyIndex].addThrow(key, elem2);
 				}
 				throw e;
 			}
@@ -2805,7 +2859,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 			try {
 				beforeDelete(removed.getValue());
 			} catch (RuntimeException e) {
-				doAdd(removed.getValue(), null);
+				doAddThrow(removed.getValue(), null);
 				throw e;
 			}
 		}
@@ -2814,18 +2868,18 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 			beforeInsert(elem);
 		} catch (RuntimeException e) {
 			size++;
-			doAdd(removed.getValue(), null);
+			doAddThrow(removed.getValue(), null);
 			throw e;
 		}
 
 		// Add new element
 		try {
 			checkAddElem(elem);
-			doAdd(elem, null);
+			doAddThrow(elem, null);
 			size++;
 		} catch (RuntimeException e) {
 			size++;
-			doAdd(removed.getValue(), null);
+			doAddThrow(removed.getValue(), null);
 			throw e;
 		}
 

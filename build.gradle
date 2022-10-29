@@ -8,14 +8,15 @@ repositories {
 }
 
 dependencies {
-	testImplementation "org.magicwerk.brownies:brownies-core:0.9.8"
-    testImplementation "org.magicwerk.brownies:brownies-javassist:0.9.8"
-    testImplementation "org.magicwerk.brownies:brownies-jdom:0.9.8"
-    testImplementation "org.magicwerk.brownies:brownies-html:0.9.8"
-    testImplementation "org.magicwerk.brownies:brownies-test:0.9.8"
-    testImplementation "org.magicwerk.brownies:brownies-tools:0.9.8"
-    testImplementation "org.magicwerk.magictest:magictest:0.9.8"
-    testImplementation "org.magicwerk.magictest:magictest-ng:0.9.8"
+	testImplementation "org.magicwerk.brownies:brownies-collections:0.9.19"
+	testImplementation "org.magicwerk.brownies:brownies-core:0.9.9"
+    testImplementation "org.magicwerk.brownies:brownies-javassist:0.9.9"
+    testImplementation "org.magicwerk.brownies:brownies-jdom:0.9.9"
+    testImplementation "org.magicwerk.brownies:brownies-html:0.9.9"
+    testImplementation "org.magicwerk.brownies:brownies-test:0.9.9"
+    testImplementation "org.magicwerk.brownies:brownies-tools:0.9.9"
+    testImplementation "org.magicwerk.magictest:magictest:0.9.9"
+    testImplementation "org.magicwerk.magictest:magictest-ng:0.9.9"
  
 	testImplementation "junit:junit:4.8.2"
 	testImplementation "com.google.guava:guava-testlib:31.1-jre"

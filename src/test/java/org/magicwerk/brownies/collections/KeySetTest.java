@@ -25,6 +25,13 @@ import java.util.Set;
 import org.magictest.client.Assert;
 import org.magictest.client.Test;
 import org.magicwerk.brownies.core.logback.LogbackTools;
+import org.magicwerk.brownies.test.JmhRunner;
+import org.magicwerk.brownies.test.JmhRunner.Options;
+import org.openjdk.jmh.annotations.Benchmark;
+import org.openjdk.jmh.annotations.Level;
+import org.openjdk.jmh.annotations.Scope;
+import org.openjdk.jmh.annotations.Setup;
+import org.openjdk.jmh.annotations.State;
 import org.slf4j.Logger;
 
 /**
@@ -41,7 +48,8 @@ public class KeySetTest {
 	}
 
 	static void test() {
-		testEquals();
+		//testEquals();
+		testAddPerformanceJmh();
 	}
 
 	@Test
@@ -57,6 +65,88 @@ public class KeySetTest {
 			List<String> list = new ArrayList<>(set);
 			Assert.assertTrue(!set.equals(list));
 		}
+	}
+
+	static void testAddPerformanceJmh() {
+		//		Options opts = new Options().includeClass(PerformanceJmhTest.class);
+		Options opts = new Options().includeClass(AddPerformanceJmhTest.class);
+		opts.setWarmupIterations(3).setMeasurementIterations(2);
+		opts.setRunTimeMillis(500);
+		JmhRunner runner = new JmhRunner();
+		runner.runJmh(opts);
+	}
+
+	public static class AddPerformanceJmhTest {
+
+		@State(Scope.Benchmark)
+		public static class BenchmarkState {
+			static int SIZE = 1000;
+
+			Set<Integer> keySet;
+			Set<Integer> hashSet;
+			int count;
+
+			@Setup(Level.Iteration)
+			public void setup() {
+				keySet = new KeySet.Builder<Integer>().build();
+				for (int i = 0; i < SIZE; i++) {
+					keySet.add(i);
+				}
+				hashSet = new HashSet<Integer>();
+				for (int i = 0; i < SIZE; i++) {
+					hashSet.add(i);
+				}
+				count = SIZE;
+			}
+
+		}
+
+		@Benchmark
+		public int testKeySetAdd(BenchmarkState state) {
+			state.keySet.add(state.count);
+			state.count++;
+			return state.count;
+		}
+
+		@Benchmark
+		public int testKeySetAddCheck(BenchmarkState state) {
+			if (!state.keySet.contains(state.count)) {
+				state.keySet.add(state.count);
+			}
+			state.count++;
+			return state.count;
+		}
+
+		@Benchmark
+		public int testKeySetAddDuplicateSetBehavior(BenchmarkState state) {
+			state.keySet.add(0);
+			state.count++;
+			return state.count;
+		}
+
+		@Benchmark
+		public int testKeySetAddDuplicateCheck(BenchmarkState state) {
+			if (!state.keySet.contains(0)) {
+				state.keySet.add(0);
+			}
+			state.count++;
+			return state.count;
+		}
+
+		@Benchmark
+		public int testHashSetAdd(BenchmarkState state) {
+			state.hashSet.add(state.count);
+			state.count++;
+			return state.count;
+		}
+
+		@Benchmark
+		public int testHashSetAddDuplicate(BenchmarkState state) {
+			state.hashSet.add(0);
+			state.count++;
+			return state.count;
+		}
+
 	}
 
 }
