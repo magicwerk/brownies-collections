@@ -235,6 +235,19 @@ public abstract class KeyListImpl<E> extends IList<E> {
 	}
 
 	/**
+	 * Determines whether calling contains() will be fast, i.e. it can use some sort of key lookup instead of traversing through all elements.
+	 *
+	 * @return	true if calling contains() will be fast, otherwise false
+	 */
+	boolean isContainsFast() {
+		if (keyColl.keyMaps != null) {
+			return keyColl.isContainsFast();
+		} else {
+			return false;
+		}
+	}
+
+	/**
 	 * {@inheritDoc}
 	 * <p>
 	 * If the list is sorted, this is used to speed up the remove operation.
@@ -437,6 +450,15 @@ public abstract class KeyListImpl<E> extends IList<E> {
 		} else {
 			return super.indexOf(elem);
 		}
+	}
+
+	/**
+	 * Determines whether calling indexOf() will be fast, i.e. it can use some sort of key lookup instead of traversing through all elements.
+	 *
+	 * @return	true if calling indexOf() will be fast, otherwise false
+	 */
+	boolean isIndexOfFast() {
+		return keyColl.isSorted();
 	}
 
 	/**
@@ -707,6 +729,15 @@ public abstract class KeyListImpl<E> extends IList<E> {
 	 * @return		element which has been replaced or null otherwise
 	 */
 	protected E put(E elem) {
+		// If contains() is fast but indexOf() slow, we check first whether the element is contained and then call
+		// add if it not (we do not use the index for adding, so we can skip this costly operation)
+		if (!isIndexOfFast() && isContainsFast()) {
+			if (!contains(elem)) {
+				add(elem);
+				return null;
+			}
+		}
+
 		int index = indexOf(elem);
 		if (index != -1) {
 			return set(index, elem);

@@ -2095,6 +2095,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	@Override
 	public boolean contains(Object o) {
 		if (keyMaps[0] != null) {
+			// Use containsKey (fast)
 			return keyMaps[0].containsKey(o);
 		} else {
 			// Try to use containsKey if a map is defined (fast)
@@ -2117,6 +2118,25 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 			// Otherwise use containsValue (slow)
 			return keyMaps[1].containsValue(o);
 		}
+	}
+
+	/**
+	 * Determines whether calling contains() will be fast, i.e. it can use some sort of key lookup instead of traversing through all elements.
+	 *
+	 * @return	true if calling contains() will be fast, otherwise false
+	 */
+	boolean isContainsFast() {
+		if (keyMaps[0] != null) {
+			return true;
+		} else {
+			for (int i = 1; i < keyMaps.length; i++) {
+				KeyMap<E, Object> km = keyMaps[i];
+				if (km != null && km.isPrimaryMap()) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	@Override
