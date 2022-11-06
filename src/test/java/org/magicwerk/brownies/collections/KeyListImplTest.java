@@ -161,13 +161,6 @@ public class KeyListImplTest {
 
 		System.out.println(list);
 
-		try {
-			cancel[0] = true;
-			list.clear(); // FIXME
-		} catch (Exception e) {
-		}
-		System.out.println(list);
-
 		list.initArray(n3, n2);
 
 		testTriggerBeforeInsert();
