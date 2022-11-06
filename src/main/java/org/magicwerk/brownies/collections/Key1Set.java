@@ -164,6 +164,7 @@ public class Key1Set<E, K> extends Key1Collection<E, K> implements Set<E> {
 		}
 
 		@Override
+		@SuppressWarnings("unchecked")
 		public Builder<E, K> withContent(E... elements) {
 			return (Builder<E, K>) super.withContent(elements);
 		}
@@ -181,6 +182,7 @@ public class Key1Set<E, K> extends Key1Collection<E, K> implements Set<E> {
 		 * Note that {@link Key1Set} does not support duplicates, so an exception is thrown if the argument is true.
 		 */
 		@Override
+		@SuppressWarnings("unchecked")
 		public Builder<E, K> withElemCount(boolean count) {
 			if (count) {
 				KeyCollectionImpl.errorInvalidSetBehavior();
@@ -242,6 +244,7 @@ public class Key1Set<E, K> extends Key1Collection<E, K> implements Set<E> {
 		 * @return			this (fluent interface)
 		 */
 		@Override
+		@SuppressWarnings("unchecked")
 		public Builder<E, K> withKey1Map(Function<? super E, K> mapper) {
 			return (Builder<E, K>) withKeyMap(1, mapper);
 		}
@@ -254,6 +257,7 @@ public class Key1Set<E, K> extends Key1Collection<E, K> implements Set<E> {
 		 * @return			this (fluent interface)
 		 */
 		@Override
+		@SuppressWarnings("unchecked")
 		public Builder<E, K> withPrimaryKey1Map(Function<? super E, K> mapper) {
 			return (Builder<E, K>) super.withPrimaryKeyMap(1, mapper);
 		}
@@ -266,6 +270,7 @@ public class Key1Set<E, K> extends Key1Collection<E, K> implements Set<E> {
 		 * @return			this (fluent interface)
 		 */
 		@Override
+		@SuppressWarnings("unchecked")
 		public Builder<E, K> withUniqueKey1Map(Function<? super E, K> mapper) {
 			return (Builder<E, K>) super.withUniqueKeyMap(1, mapper);
 		}
@@ -303,6 +308,7 @@ public class Key1Set<E, K> extends Key1Collection<E, K> implements Set<E> {
 		 * @return              this (fluent interface)
 		 */
 		@Override
+		@SuppressWarnings("unchecked")
 		public Builder<E, K> withKey1Sort(Comparator<? super K> comparator) {
 			return (Builder<E, K>) super.withKeySort(1, comparator);
 		}
@@ -316,6 +322,7 @@ public class Key1Set<E, K> extends Key1Collection<E, K> implements Set<E> {
 		 * @return                      this (fluent interface)
 		 */
 		@Override
+		@SuppressWarnings("unchecked")
 		public Builder<E, K> withKey1Sort(Comparator<? super K> comparator, boolean sortNullsFirst) {
 			return (Builder<E, K>) super.withKeySort(1, comparator, sortNullsFirst);
 		}
@@ -352,8 +359,14 @@ public class Key1Set<E, K> extends Key1Collection<E, K> implements Set<E> {
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public Key1Set<E, K> getAllByKey1(K key) {
 		return (Key1Set<E, K>) super.getAllByKey(1, key);
+	}
+
+	@Override
+	public Key1Set<E, K> filteredList(Predicate<? super E> filter) {
+		return (Key1Set<E, K>) super.filteredList(filter);
 	}
 
 }

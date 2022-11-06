@@ -677,4 +677,10 @@ public class Key2Collection<E, K1, K2> extends KeyCollectionImpl<E> {
 		super.invalidateKey(2, oldKey, newKey, elem);
 	}
 
+	@Override
+	@SuppressWarnings("unchecked")
+	public Key2Collection<E, K1, K2> filteredList(Predicate<? super E> filter) {
+		return (Key2Collection<E, K1, K2>) super.filteredList(filter);
+	}
+
 }

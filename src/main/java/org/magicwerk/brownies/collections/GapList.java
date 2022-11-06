@@ -1281,7 +1281,7 @@ public class GapList<E> extends IList<E> {
 
 	/**
 	 * Remove specified range of elements from list as specialized fast operation.
-	*
+	 *
 	 * @param index index of first element to remove
 	 * @param len number of elements to remove
 	 * @return	true if removal could be done, false otherwise

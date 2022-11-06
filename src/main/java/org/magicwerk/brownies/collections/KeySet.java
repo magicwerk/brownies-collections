@@ -162,6 +162,7 @@ public class KeySet<E> extends KeyCollection<E> implements Set<E> {
 		}
 
 		@Override
+		@SuppressWarnings("unchecked")
 		public Builder<E> withContent(E... elements) {
 			return (Builder<E>) super.withContent(elements);
 		}
@@ -259,6 +260,11 @@ public class KeySet<E> extends KeyCollection<E> implements Set<E> {
 	@Override
 	public KeySet<E> getAll(E elem) {
 		return (KeySet<E>) super.getAll(elem);
+	}
+
+	@Override
+	public KeySet<E> filteredList(Predicate<? super E> filter) {
+		return (KeySet<E>) super.filteredList(filter);
 	}
 
 }

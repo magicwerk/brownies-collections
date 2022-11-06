@@ -105,6 +105,7 @@ public class KeyList<E> extends KeyListImpl<E> {
 		}
 
 		@Override
+		@SuppressWarnings("unchecked")
 		public Builder<E> withContent(E... elements) {
 			return (Builder<E>) super.withContent(elements);
 		}

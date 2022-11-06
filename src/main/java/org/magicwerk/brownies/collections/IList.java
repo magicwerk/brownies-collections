@@ -48,7 +48,7 @@ import java.util.function.UnaryOperator;
  */
 @SuppressWarnings("serial")
 public abstract class IList<E>
-		extends AbstractList<E> implements
+		extends AbstractList<E> implements ICollection<E>,
 		// All interfaces of ArrayList
 		List<E>, RandomAccess, Cloneable, Serializable,
 		// Additional interfaces of LinkedList and ArrayDeque
@@ -163,9 +163,6 @@ public abstract class IList<E>
 		}
 		assert (size() == len);
 	}
-
-	@Override
-	abstract public int size();
 
 	/**
 	 * Returns capacity of this list.
@@ -590,12 +587,7 @@ public abstract class IList<E>
 		return set;
 	}
 
-	/**
-	 * Create a new list by applying the specified mapping function to all elements.
-	 *
-	 * @param func	mapping function
-	 * @return		created list
-	 */
+	@Override
 	public <R> IList<R> mappedList(Function<E, R> func) {
 		int size = size();
 		@SuppressWarnings("unchecked")
@@ -644,6 +636,7 @@ public abstract class IList<E>
 	 * @param predicate	predicate used for filtering
 	 * @return			created list
 	 */
+	@Override
 	public IList<E> filteredList(Predicate<? super E> predicate) {
 		IList<E> list = doCreate(-1);
 		int size = size();

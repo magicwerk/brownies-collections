@@ -115,6 +115,7 @@ public class KeyCollection<E> extends KeyCollectionImpl<E> {
 		}
 
 		@Override
+		@SuppressWarnings("unchecked")
 		public Builder<E> withContent(E... elements) {
 			return (Builder<E>) super.withContent(elements);
 		}
@@ -240,4 +241,9 @@ public class KeyCollection<E> extends KeyCollectionImpl<E> {
 		super.invalidate(elem);
 	}
 
+	@Override
+	@SuppressWarnings("unchecked")
+	public KeyCollection<E> filteredList(Predicate<? super E> filter) {
+		return (KeyCollection<E>) super.filteredList(filter);
+	}
 }

@@ -27,6 +27,7 @@ import org.magicwerk.brownies.tools.dev.tools.JavaTools;
 import org.magicwerk.brownies.tools.runner.JvmRunner;
 import org.magicwerk.brownies.tools.runner.Runner;
 import org.openjdk.jmh.annotations.Benchmark;
+import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.annotations.Scope;
 import org.openjdk.jmh.annotations.State;
 
@@ -43,8 +44,9 @@ public class GapListTestPerformance {
 	static final Logger LOG = LogbackTools.getConsoleLogger();
 
 	public static void main(String[] args) {
-		run(args);
+		//run(args);
 
+		testPerformanceRetainJmh();
 		//testPerformanceJmh();
 		//testPerformanceFilterJmh();
 		//testPerfFilter();
@@ -273,6 +275,50 @@ public class GapListTestPerformance {
 		@Benchmark
 		public List<Integer> testMappedStream(ListState state) {
 			return state.list.stream().map(i -> i + 1).collect(Collectors.toList());
+		}
+
+	}
+
+	//
+
+	static void testPerformanceRetainJmh() {
+		Options opts = new Options().includeClass(PerformanceRetainJmhTest.class);
+		JmhRunner runner = new JmhRunner();
+		runner.runJmh(opts);
+	}
+
+	public static class PerformanceRetainJmhTest {
+
+		@State(Scope.Thread)
+		public static class ListState {
+			//			@Param({ "100", "10000", "1000000" })
+			@Param({ "100" })
+			int size;
+
+			//			@Param({ "2", "10", "50" })
+			@Param({ "2" })
+			int mod;
+
+			IList<Integer> list;
+			int num;
+			{
+				int num = size;
+				list = new GapList<>(num);
+				for (int i = 0; i < num; i++) {
+					list.add(i);
+				}
+			}
+		}
+
+		@Benchmark
+		public boolean testRetainIf(ListState state) {
+			return state.list.retainIf(n -> state.num++ % state.mod == 0);
+		}
+
+		@Benchmark
+		public int testFiltered(ListState state) {
+			state.list.filter(n -> state.num++ % state.mod == 0);
+			return 1;
 		}
 
 	}

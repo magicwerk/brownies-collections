@@ -456,4 +456,9 @@ public class Key1Collection<E, K> extends KeyCollectionImpl<E> {
 		super.invalidateKey(1, oldKey, newKey, elem);
 	}
 
+	@Override
+	@SuppressWarnings("unchecked")
+	public Key1Collection<E, K> filteredList(Predicate<? super E> filter) {
+		return (Key1Collection<E, K>) super.filteredList(filter);
+	}
 }

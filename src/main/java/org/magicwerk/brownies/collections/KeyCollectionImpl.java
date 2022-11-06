@@ -60,7 +60,7 @@ import org.magicwerk.brownies.collections.helper.SortedLists;
  * @param <E> type of elements stored in the list
  */
 @SuppressWarnings("serial")
-public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Cloneable {
+public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Cloneable {
 
 	/**
 	 * Implementation of builder.
@@ -2995,6 +2995,35 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	 */
 	public Set<E> getDistinct() {
 		return (Set<E>) getDistinctKeys(0);
+	}
+
+	/**
+	 * Create a new list by applying the specified filter to all elements.
+	 * Only element which are allowed by the predicate are copied to the new list.
+	 *
+	 * @param predicate	predicate used for filtering
+	 * @return			created list
+	 */
+	@Override
+	public KeyCollectionImpl filteredList(Predicate<? super E> predicate) {
+		KeyCollectionImpl list = crop();
+		int size = size();
+		for (E e : this) {
+			if (predicate.test(e)) {
+				list.add(e);
+			}
+		}
+		return list;
+	}
+
+	@Override
+	public <R> IList<R> mappedList(Function<E, R> func) {
+		int size = size();
+		IList<R> list = new GapList<>(size);
+		for (E e : this) {
+			list.add(func.apply(e));
+		}
+		return list;
 	}
 
 	//-- Key methods
