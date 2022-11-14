@@ -18,6 +18,7 @@
 package org.magicwerk.brownies.collections;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -35,6 +36,25 @@ import java.util.function.Predicate;
  */
 @SuppressWarnings("serial")
 public interface ICollection<E> extends Collection<E> {
+
+	public default E getFirst() {
+		return iterator().next();
+	}
+
+	public default E getFirstOrNull() {
+		Iterator<E> iter = iterator();
+		return iter.hasNext() ? iter.next() : null;
+	}
+
+	public default E getIf(Predicate<? super E> predicate) {
+		for (Iterator<E> iter = iterator(); iter.hasNext();) {
+			E e = iter.next();
+			if (predicate.test(e)) {
+				return e;
+			}
+		}
+		return null;
+	}
 
 	/**
 	 * Create a new collection by applying the specified filter to all elements.

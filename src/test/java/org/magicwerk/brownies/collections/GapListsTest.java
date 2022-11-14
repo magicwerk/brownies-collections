@@ -9,8 +9,8 @@ import org.magictest.client.Capture;
 import org.magicwerk.brownies.collections.helper.GapLists;
 import org.magicwerk.brownies.collections.primitive.ByteGapList;
 import org.magicwerk.brownies.collections.primitive.CharGapList;
-import org.magicwerk.brownies.core.PrintTools;
 import org.magicwerk.brownies.core.exceptions.WrapperException;
+import org.magicwerk.brownies.core.print.PrintTools;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -20,7 +20,7 @@ import org.magictest.client.Test;
 import org.magictest.client.Trace;
 import org.magicwerk.brownies.collections.helper.GapLists;
 import org.magicwerk.brownies.core.CheckTools;
-import org.magicwerk.brownies.core.PrintTools;
+import org.magicwerk.brownies.core.print.PrintTools;
 import org.magicwerk.brownies.core.serialize.SerializeTools;
 import org.magicwerk.brownies.core.strings.StringFormatter;
 import org.slf4j.Logger;
