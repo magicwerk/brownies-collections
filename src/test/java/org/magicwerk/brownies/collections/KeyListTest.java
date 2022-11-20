@@ -266,7 +266,7 @@ public class KeyListTest {
 		list.add("abc");
 
 		System.out.println(list.contains("abc"));
-		System.out.println(list.getCount("abc"));
+		System.out.println(list.count("abc"));
 		System.out.println(list.getAll("abc"));
 		System.out.println(list.getDistinct());
 		list.removeAll("abc");
@@ -685,16 +685,16 @@ public class KeyListTest {
 
 		list = getList();
 		list.getAll(d);
-		list.getCount(d);
+		list.count(d);
 		list.getDistinct();
 
 		list.getAll(x);
-		list.getCount(x);
+		list.count(x);
 		list.remove(x);
 		list.removeAll(x);
 
 		list.getAll(n);
-		list.getCount(n);
+		list.count(n);
 		list.remove(n);
 		list.removeAll(n);
 
@@ -706,16 +706,16 @@ public class KeyListTest {
 
 		list = getListSort();
 		list.getAll(d);
-		list.getCount(d);
+		list.count(d);
 		list.getDistinct();
 
 		list.getAll(x);
-		list.getCount(x);
+		list.count(x);
 		list.remove(x);
 		list.removeAll(x);
 
 		list.getAll(n);
-		list.getCount(n);
+		list.count(n);
 		list.remove(n);
 		list.removeAll(n);
 
@@ -725,14 +725,14 @@ public class KeyListTest {
 		// Null
 		list = getListNull();
 		list.getAll(n);
-		list.getCount(n);
+		list.count(n);
 
 		list.remove(n);
 		list.removeAll(n);
 
 		list = getListNullSort();
 		list.getAll(n);
-		list.getCount(n);
+		list.count(n);
 
 		list.remove(n);
 		list.removeAll(n);

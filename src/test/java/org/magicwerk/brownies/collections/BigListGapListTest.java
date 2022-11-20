@@ -475,16 +475,16 @@ public class BigListGapListTest {
         IList<Integer> l1 = getSortedBigList(7);
         l1.add(0);
         l1.add(6);
-        l1.getCount(0);
-        l1.getCount(1);
-        l1.getCount(9);
+        l1.count(0);
+        l1.count(1);
+        l1.count(9);
     }
 
     @Trace(parameters = Trace.THIS | Trace.ALL_PARAMS)
     public static void testGetCountIf() {
         IList<Integer> l1 = getSortedBigList(7);
-        l1.getCountIf(i -> i == 1);
-        l1.getCountIf(i -> i % 2 == 0);
+        l1.countIf(i -> i == 1);
+        l1.countIf(i -> i % 2 == 0);
     }
 
     @Capture

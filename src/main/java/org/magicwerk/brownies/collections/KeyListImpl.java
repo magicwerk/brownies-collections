@@ -683,11 +683,11 @@ public abstract class KeyListImpl<E> extends IList<E> {
 	}
 
 	@Override
-	public int getCount(E elem) {
+	public int count(E elem) {
 		if (keyColl.hasElemSet()) {
 			return getCountByKey(0, elem);
 		} else {
-			return list.getCount(elem);
+			return list.count(elem);
 		}
 	}
 

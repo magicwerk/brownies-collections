@@ -413,7 +413,7 @@ public class RunKeyCollectionsExamples {
 
 		// Fast set operations
 		System.out.println(list.contains("a"));
-		System.out.println(list.getCount("a"));
+		System.out.println(list.count("a"));
 		// The returned set is unordered
 		System.out.println(list.getDistinct());
 		//@test:end
@@ -508,7 +508,7 @@ public class RunKeyCollectionsExamples {
 
 		// Fast set operations
 		System.out.println(list.contains("a"));
-		System.out.println(list.getCount("a"));
+		System.out.println(list.count("a"));
 		// The returned set is ordered by natural comparator
 		System.out.println(list.getDistinct());
 		//@test:end

@@ -415,7 +415,7 @@ public abstract class IList<E>
 	 * @param elem	element to count
 	 * @return		count how many times the specified element is contained in the list
 	 */
-	public int getCount(E elem) {
+	public int count(E elem) {
 		int count = 0;
 		int size = size();
 		for (int i = 0; i < size; i++) {
@@ -432,12 +432,11 @@ public abstract class IList<E>
 	 * @param predicate a predicate which returns {@code true} for elements to be counted
 	 * @return		count how many elements in the list match the predicate
 	 */
-	public int getCountIf(Predicate<? super E> predicate) {
+	public int countIf(Predicate<? super E> predicate) {
 		int count = 0;
 		int size = size();
 		for (int i = 0; i < size; i++) {
-			E e = doGet(i);
-			if (predicate.test(e)) {
+			if (predicate.test(doGet(i))) {
 				count++;
 			}
 		}
@@ -463,7 +462,7 @@ public abstract class IList<E>
 	 *
 	 * @return	only element stored in the list
 	 */
-	public E getSingleOrEmpty() {
+	public E getSingleOrNull() {
 		int size = size();
 		if (size == 0) {
 			return null;
@@ -498,6 +497,7 @@ public abstract class IList<E>
 	 * @param predicate a predicate which returns {@code true} for elements to be selected
 	 * @return 			first element matching the predicate, null otherwise
 	 */
+	@Override
 	public E getIf(Predicate<? super E> predicate) {
 		int size = size();
 		for (int i = 0; i < size; i++) {

@@ -19,6 +19,7 @@ package org.magicwerk.brownies.collections;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -37,13 +38,55 @@ import java.util.function.Predicate;
 @SuppressWarnings("serial")
 public interface ICollection<E> extends Collection<E> {
 
-	public default E getFirst() {
+	/**
+	 * Returns the first element stored in the collection.
+	 * If the collection is empty, a <code>NoSuchElementException</code> is thrown.
+	 *
+	 * @return	first element stored in the collection
+	 */
+	default E getFirst() {
 		return iterator().next();
 	}
 
-	public default E getFirstOrNull() {
+	/**
+	 * Returns the first element stored in the collection.
+	 * If the collection is empty, null is returned.
+	 *
+	 * @return	first element stored in the collection or null if empty
+	 */
+	default E getFirstOrNull() {
 		Iterator<E> iter = iterator();
 		return iter.hasNext() ? iter.next() : null;
+	}
+
+	/**
+	 * Returns the only element stored in the collection.
+	 * If the collection size is not 1, a <code>NoSuchElementException</code> is thrown.
+	 *
+	 * @return	only element stored in the collection
+	 */
+	default E getSingle() {
+		if (size() != 1) {
+			throw new NoSuchElementException();
+		}
+		return getFirst();
+	}
+
+	/**
+	 * Returns the only element stored in the collection or null if the collection is empty.
+	 * If the collection's size is greater than 1, a <code>NoSuchElementException</code> is thrown.
+	 *
+	 * @return	only element stored in the collection or null if empty
+	 */
+	default E getSingleOrNull() {
+		int size = size();
+		if (size == 0) {
+			return null;
+		} else if (size == 1) {
+			return getFirst();
+		} else {
+			throw new NoSuchElementException();
+		}
 	}
 
 	public default E getIf(Predicate<? super E> predicate) {

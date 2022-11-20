@@ -424,8 +424,8 @@ public class Key2List<E, K1, K2> extends KeyListImpl<E> {
 	}
 
 	@Override
-	public int getCount(E elem) {
-		return super.getCount(elem);
+	public int count(E elem) {
+		return super.count(elem);
 	}
 
 	@Override
