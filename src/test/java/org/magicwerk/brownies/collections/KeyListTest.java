@@ -256,7 +256,7 @@ public class KeyListTest {
 		list.remove(new ComparableName("c", -1));
 	}
 
-	@Trace(traceMethod = "/contains|getCount|getAll|getDistinct|removeAll/", parameters = Trace.ALL_PARAMS | Trace.THIS, result = Trace.THIS | Trace.RESULT)
+	@Trace(traceMethod = "/contains|count|getAll|getDistinct|removeAll/", parameters = Trace.ALL_PARAMS | Trace.THIS, result = Trace.THIS | Trace.RESULT)
 	public static void testElemSet() {
 		KeyList<String> list = new KeyList.Builder<String>().build();
 

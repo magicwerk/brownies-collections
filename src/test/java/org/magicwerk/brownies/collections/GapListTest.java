@@ -523,7 +523,7 @@ public class GapListTest {
 	}
 
 	@Trace(parameters = Trace.THIS | Trace.ALL_PARAMS)
-	public static void testGetCount() {
+	public static void testCount() {
 		IList<Integer> l1 = getSortedGapList(7);
 		l1.add(0);
 		l1.add(6);
@@ -533,7 +533,7 @@ public class GapListTest {
 	}
 
 	@Trace(parameters = Trace.THIS | Trace.ALL_PARAMS)
-	public static void testGetCountIf() {
+	public static void testCountIf() {
 		IList<Integer> l1 = getSortedGapList(7);
 		l1.countIf(i -> i == 1);
 		l1.countIf(i -> i % 2 == 0);

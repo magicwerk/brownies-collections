@@ -151,6 +151,7 @@ public abstract class IShortList implements Cloneable, Serializable {
         assert (size() == len);
     }
 
+    // Do not remove - needed for generating primitive classes
     abstract public int size();
 
     /**
@@ -377,7 +378,7 @@ public abstract class IShortList implements Cloneable, Serializable {
      * @param elem	element to count
      * @return		count how many times the specified element is contained in the list
      */
-    public int getCount(short elem) {
+    public int count(short elem) {
         int count = 0;
         int size = size();
         for (int i = 0; i < size; i++) {
@@ -394,12 +395,11 @@ public abstract class IShortList implements Cloneable, Serializable {
      * @param predicate a predicate which returns {@code true} for elements to be counted
      * @return		count how many elements in the list match the predicate
      */
-    public int getCountIf(Predicate<Short> predicate) {
+    public int countIf(Predicate<Short> predicate) {
         int count = 0;
         int size = size();
         for (int i = 0; i < size; i++) {
-            short e = doGet(i);
-            if (predicate.test(e)) {
+            if (predicate.test(doGet(i))) {
                 count++;
             }
         }
@@ -425,7 +425,7 @@ public abstract class IShortList implements Cloneable, Serializable {
      *
      * @return	only element stored in the list
      */
-    public short getSingleOrEmpty() {
+    public short getSingleOrNull() {
         int size = size();
         if (size == 0) {
             return (short) 0;
@@ -548,12 +548,6 @@ public abstract class IShortList implements Cloneable, Serializable {
         return set;
     }
 
-    /**
-     * Create a new list by applying the specified mapping function to all elements.
-     *
-     * @param func	mapping function
-     * @return		created list
-     */
     public <R> IList<R> mappedList(Function<Short, R> func) {
         int size = size();
         @SuppressWarnings("unchecked")

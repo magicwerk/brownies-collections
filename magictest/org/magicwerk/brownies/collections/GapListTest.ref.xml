@@ -585,6 +585,85 @@
       <error></error>
     </traceStep>
   </traceTest>
+  <traceTest name="testCount">
+    <runDate>2022-11-21T00:06:44.21+01:00</runDate>
+    <runDuration>0.0050655</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.GapList</traceClass>
+    <traceMethod>count</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"count"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6, 0, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"0"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"2"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"count"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6, 0, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"1"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"1"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"count"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6, 0, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"9"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"0"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testCountIf">
+    <runDate>2022-11-21T00:06:44.288+01:00</runDate>
+    <runDuration>0.0050602</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.GapList</traceClass>
+    <traceMethod>countIf</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"countIf"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"{ \r\n}"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"1"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"countIf"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"{ \r\n}"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"4"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+  </traceTest>
   <traceTest name="testCreate">
     <runDate>2014-10-11T02:16:29.345+02:00</runDate>
     <runDuration>0.001023453</runDuration>
@@ -915,85 +994,6 @@
       </parameters>
       <result>
         <paramText outputType="VALUE" param="Result">"{ 1, 2, 3, 4, 5 }"</paramText>
-      </result>
-      <error></error>
-    </traceStep>
-  </traceTest>
-  <traceTest name="testGetCount">
-    <runDate>2014-03-24T23:25:43.889+01:00</runDate>
-    <runDuration>0.016983234</runDuration>
-    <exception></exception>
-    <traceClass>org.magicwerk.brownies.collections.GapList</traceClass>
-    <traceMethod>getCount</traceMethod>
-    <traceStep>
-      <description>
-        <paramText outputType="TEXT" param="Description">"getCount"</paramText>
-      </description>
-      <parameters>
-        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6, 0, 6 }"</paramText>
-        <paramText outputType="VALUE" param="#1">"0"</paramText>
-      </parameters>
-      <result>
-        <paramText outputType="VALUE" param="Result">"2"</paramText>
-      </result>
-      <error></error>
-    </traceStep>
-    <traceStep>
-      <description>
-        <paramText outputType="TEXT" param="Description">"getCount"</paramText>
-      </description>
-      <parameters>
-        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6, 0, 6 }"</paramText>
-        <paramText outputType="VALUE" param="#1">"1"</paramText>
-      </parameters>
-      <result>
-        <paramText outputType="VALUE" param="Result">"1"</paramText>
-      </result>
-      <error></error>
-    </traceStep>
-    <traceStep>
-      <description>
-        <paramText outputType="TEXT" param="Description">"getCount"</paramText>
-      </description>
-      <parameters>
-        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6, 0, 6 }"</paramText>
-        <paramText outputType="VALUE" param="#1">"9"</paramText>
-      </parameters>
-      <result>
-        <paramText outputType="VALUE" param="Result">"0"</paramText>
-      </result>
-      <error></error>
-    </traceStep>
-  </traceTest>
-  <traceTest name="testGetCountIf">
-    <runDate>2021-12-23T16:44:05.857+01:00</runDate>
-    <runDuration>0.0214835</runDuration>
-    <exception></exception>
-    <traceClass>org.magicwerk.brownies.collections.GapList</traceClass>
-    <traceMethod>getCountIf</traceMethod>
-    <traceStep>
-      <description>
-        <paramText outputType="TEXT" param="Description">"getCountIf"</paramText>
-      </description>
-      <parameters>
-        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
-        <paramText outputType="VALUE" param="#1">"{ \r\n}"</paramText>
-      </parameters>
-      <result>
-        <paramText outputType="VALUE" param="Result">"1"</paramText>
-      </result>
-      <error></error>
-    </traceStep>
-    <traceStep>
-      <description>
-        <paramText outputType="TEXT" param="Description">"getCountIf"</paramText>
-      </description>
-      <parameters>
-        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
-        <paramText outputType="VALUE" param="#1">"{ \r\n}"</paramText>
-      </parameters>
-      <result>
-        <paramText outputType="VALUE" param="Result">"4"</paramText>
       </result>
       <error></error>
     </traceStep>

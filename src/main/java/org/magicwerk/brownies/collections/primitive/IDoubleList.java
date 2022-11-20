@@ -151,6 +151,7 @@ public abstract class IDoubleList implements Cloneable, Serializable {
         assert (size() == len);
     }
 
+    // Do not remove - needed for generating primitive classes
     abstract public int size();
 
     /**
@@ -378,7 +379,7 @@ public abstract class IDoubleList implements Cloneable, Serializable {
      * @param elem	element to count
      * @return		count how many times the specified element is contained in the list
      */
-    public int getCount(double elem) {
+    public int count(double elem) {
         int count = 0;
         int size = size();
         for (int i = 0; i < size; i++) {
@@ -395,12 +396,11 @@ public abstract class IDoubleList implements Cloneable, Serializable {
      * @param predicate a predicate which returns {@code true} for elements to be counted
      * @return		count how many elements in the list match the predicate
      */
-    public int getCountIf(Predicate<Double> predicate) {
+    public int countIf(Predicate<Double> predicate) {
         int count = 0;
         int size = size();
         for (int i = 0; i < size; i++) {
-            double e = doGet(i);
-            if (predicate.test(e)) {
+            if (predicate.test(doGet(i))) {
                 count++;
             }
         }
@@ -426,7 +426,7 @@ public abstract class IDoubleList implements Cloneable, Serializable {
      *
      * @return	only element stored in the list
      */
-    public double getSingleOrEmpty() {
+    public double getSingleOrNull() {
         int size = size();
         if (size == 0) {
             return 0;
@@ -549,12 +549,6 @@ public abstract class IDoubleList implements Cloneable, Serializable {
         return set;
     }
 
-    /**
-     * Create a new list by applying the specified mapping function to all elements.
-     *
-     * @param func	mapping function
-     * @return		created list
-     */
     public <R> IList<R> mappedList(Function<Double, R> func) {
         int size = size();
         @SuppressWarnings("unchecked")

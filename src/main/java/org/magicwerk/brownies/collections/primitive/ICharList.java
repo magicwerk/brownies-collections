@@ -151,6 +151,7 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
         assert (size() == len);
     }
 
+    // Do not remove - needed for generating primitive classes
     abstract public int size();
 
     /**
@@ -367,7 +368,7 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
      * @param elem	element to count
      * @return		count how many times the specified element is contained in the list
      */
-    public int getCount(char elem) {
+    public int count(char elem) {
         int count = 0;
         int size = size();
         for (int i = 0; i < size; i++) {
@@ -384,12 +385,11 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
      * @param predicate a predicate which returns {@code true} for elements to be counted
      * @return		count how many elements in the list match the predicate
      */
-    public int getCountIf(Predicate<Character> predicate) {
+    public int countIf(Predicate<Character> predicate) {
         int count = 0;
         int size = size();
         for (int i = 0; i < size; i++) {
-            char e = doGet(i);
-            if (predicate.test(e)) {
+            if (predicate.test(doGet(i))) {
                 count++;
             }
         }
@@ -415,7 +415,7 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
      *
      * @return	only element stored in the list
      */
-    public char getSingleOrEmpty() {
+    public char getSingleOrNull() {
         int size = size();
         if (size == 0) {
             return (char) 0;
@@ -538,12 +538,6 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
         return set;
     }
 
-    /**
-     * Create a new list by applying the specified mapping function to all elements.
-     *
-     * @param func	mapping function
-     * @return		created list
-     */
     public <R> IList<R> mappedList(Function<Character, R> func) {
         int size = size();
         @SuppressWarnings("unchecked")

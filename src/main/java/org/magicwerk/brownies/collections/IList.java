@@ -164,6 +164,10 @@ public abstract class IList<E>
 		assert (size() == len);
 	}
 
+	// Do not remove - needed for generating primitive classes
+	@Override
+	abstract public int size();
+
 	/**
 	 * Returns capacity of this list.
 	 * Note that two lists are considered equal even if they have a distinct capacity.
@@ -449,6 +453,7 @@ public abstract class IList<E>
 	 *
 	 * @return	only element stored in the list
 	 */
+	@Override
 	public E getSingle() {
 		if (size() != 1) {
 			throw new NoSuchElementException();
@@ -462,6 +467,7 @@ public abstract class IList<E>
 	 *
 	 * @return	only element stored in the list
 	 */
+	@Override
 	public E getSingleOrNull() {
 		int size = size();
 		if (size == 0) {
