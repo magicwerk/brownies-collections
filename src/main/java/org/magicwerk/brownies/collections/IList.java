@@ -46,7 +46,6 @@ import java.util.function.UnaryOperator;
  * @see	    java.util.ArrayList
  * @see	    java.util.LinkedList
  */
-@SuppressWarnings("serial")
 public abstract class IList<E>
 		extends AbstractList<E> implements ICollection<E>,
 		// All interfaces of ArrayList
@@ -430,12 +429,7 @@ public abstract class IList<E>
 		return count;
 	}
 
-	/**
-	 * Counts how many elements in the list match the predicate.
-	 *
-	 * @param predicate a predicate which returns {@code true} for elements to be counted
-	 * @return		count how many elements in the list match the predicate
-	 */
+	@Override
 	public int countIf(Predicate<? super E> predicate) {
 		int count = 0;
 		int size = size();
@@ -447,12 +441,6 @@ public abstract class IList<E>
 		return count;
 	}
 
-	/**
-	 * Returns the only element stored in the list.
-	 * If the list's size is not 1, a <code>NoSuchElementException</code> is thrown.
-	 *
-	 * @return	only element stored in the list
-	 */
 	@Override
 	public E getSingle() {
 		if (size() != 1) {
@@ -461,12 +449,6 @@ public abstract class IList<E>
 		return doGet(0);
 	}
 
-	/**
-	 * Returns the only element stored in the list or null if the list is empty.
-	 * If the list's size is greater than 1, a <code>NoSuchElementException</code> is thrown.
-	 *
-	 * @return	only element stored in the list
-	 */
 	@Override
 	public E getSingleOrNull() {
 		int size = size();
@@ -774,6 +756,7 @@ public abstract class IList<E>
 	 * @param predicate		predicate used to search element
 	 * @return				true if the list contains a matching element, false otherwise
 	 */
+	@Override
 	public boolean containsIf(Predicate<? super E> predicate) {
 		return indexOfIf(predicate) != -1;
 	}

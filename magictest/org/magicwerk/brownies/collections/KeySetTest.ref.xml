@@ -1,0 +1,462 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testClass xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="org.magicwerk.brownies.collections.KeySetTest" xsi:noNamespaceSchemaLocation="testclass-v10.xsd">
+  <traceTest name="testContainsIf">
+    <runDate>2022-11-24T15:36:40.681+01:00</runDate>
+    <runDuration>0.0318721</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.KeySet</traceClass>
+    <traceMethod>containsIf</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"containsIf"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"{ \r\n}"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"false"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"containsIf"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"{ \r\n}"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"true"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"containsIf"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"{ \r\n}"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"true"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testCountIf">
+    <runDate>2022-11-24T15:36:40.782+01:00</runDate>
+    <runDuration>0.0041559</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.KeySet</traceClass>
+    <traceMethod>countIf</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"countIf"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"{ \r\n}"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"0"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"countIf"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"{ \r\n}"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"1"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"countIf"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"{ \r\n}"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"1"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"countIf"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"{ \r\n}"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"2"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"countIf"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"{ \r\n}"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"2"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testFilteredList">
+    <runDate>2022-11-24T15:36:40.831+01:00</runDate>
+    <runDuration>0.0111436</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.KeySet</traceClass>
+    <traceMethod>filteredList</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"filteredList"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"{ \r\n}"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"{ }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"filteredList"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"{ \r\n}"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"{ 0 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"filteredList"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"{ \r\n}"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"{ 0 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"filteredList"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"{ \r\n}"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"{ 0, 2 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"filteredList"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"{ \r\n}"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"{ 0, 2 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testGetFirst">
+    <runDate>2022-11-24T14:31:56.972+01:00</runDate>
+    <runDuration>0.0152707</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.KeySet</traceClass>
+    <traceMethod>getFirst</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"getFirst"</paramText>
+      </description>
+      <parameters></parameters>
+      <result></result>
+      <error>
+        <paramText outputType="VALUE" param="Error">"java.util.NoSuchElementException"</paramText>
+      </error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"getFirst"</paramText>
+      </description>
+      <parameters></parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"0"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"getFirst"</paramText>
+      </description>
+      <parameters></parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"0"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testGetFirstOrNull">
+    <runDate>2022-11-24T14:35:06.336+01:00</runDate>
+    <runDuration>2.987E-4</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.KeySet</traceClass>
+    <traceMethod>getFirstOrNull</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"getFirstOrNull"</paramText>
+      </description>
+      <parameters></parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"null"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"getFirstOrNull"</paramText>
+      </description>
+      <parameters></parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"0"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"getFirstOrNull"</paramText>
+      </description>
+      <parameters></parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"0"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testGetIf">
+    <runDate>2022-11-24T15:36:40.962+01:00</runDate>
+    <runDuration>0.002664</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.KeySet</traceClass>
+    <traceMethod>getIf</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"getIf"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"{ \r\n}"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"null"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"getIf"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"{ \r\n}"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"0"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"getIf"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"{ \r\n}"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"0"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"getIf"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"{ \r\n}"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"0"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"getIf"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"{ \r\n}"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"0"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testGetSingle">
+    <runDate>2022-11-24T14:57:09.239+01:00</runDate>
+    <runDuration>0.0011073</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.KeySet</traceClass>
+    <traceMethod>getSingle</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"getSingle"</paramText>
+      </description>
+      <parameters></parameters>
+      <result></result>
+      <error>
+        <paramText outputType="VALUE" param="Error">"java.util.NoSuchElementException"</paramText>
+      </error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"getSingle"</paramText>
+      </description>
+      <parameters></parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"0"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"getSingle"</paramText>
+      </description>
+      <parameters></parameters>
+      <result></result>
+      <error>
+        <paramText outputType="VALUE" param="Error">"java.util.NoSuchElementException"</paramText>
+      </error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testGetSingleOrNull">
+    <runDate>2022-11-24T14:57:09.282+01:00</runDate>
+    <runDuration>7.203E-4</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.KeySet</traceClass>
+    <traceMethod>getSingleOrNull</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"getSingleOrNull"</paramText>
+      </description>
+      <parameters></parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"null"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"getSingleOrNull"</paramText>
+      </description>
+      <parameters></parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"0"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"getSingleOrNull"</paramText>
+      </description>
+      <parameters></parameters>
+      <result></result>
+      <error>
+        <paramText outputType="VALUE" param="Error">"java.util.NoSuchElementException"</paramText>
+      </error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testMappedList">
+    <runDate>2022-11-24T15:36:41.088+01:00</runDate>
+    <runDuration>0.0045922</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.KeySet</traceClass>
+    <traceMethod>mappedList</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"mappedList"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"{ \r\n}"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"{ }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"mappedList"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"{ \r\n}"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"{ \"(0)\" }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"mappedList"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"{ \r\n}"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"{ \"(0)\", \"(1)\" }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"mappedList"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"{ \r\n}"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"{ \"(0)\", \"(1)\", \"(2)\" }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"mappedList"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"{ \r\n}"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"{ \"(0)\", \"(1)\", \"(2)\", \"(3)\" }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+  </traceTest>
+</testClass>

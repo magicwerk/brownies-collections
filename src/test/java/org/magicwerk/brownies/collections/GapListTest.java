@@ -8,7 +8,6 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -505,12 +504,7 @@ public class GapListTest {
 	@Capture
 	public static void testMappedList() {
 		IList<Integer> l1 = getSortedGapList(7);
-		IList<String> l2 = l1.mappedList(new Function<Integer, String>() {
-			@Override
-			public String apply(Integer v) {
-				return "(" + v + ")";
-			}
-		});
+		IList<String> l2 = l1.mappedList(i -> "(" + i + ")");
 		System.out.println(l2);
 	}
 

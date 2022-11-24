@@ -47,11 +47,12 @@ public class KeyListTest {
 	static final Logger LOG = LogbackTools.getConsoleLogger();
 
 	public static void main(String[] args) {
-		test();
+		new KeyListTest().run();
 	}
 
-	static void test() {
-		testUnwrap();
+	void run() {
+		testMappedList();
+		//testUnwrap();
 		//testCrop();
 		//testClone();
 		//testAdd();
@@ -776,6 +777,15 @@ public class KeyListTest {
 		list.add(null);
 		list.add(new ComparableName("d"));
 		return list;
+	}
+
+	@Trace(traceMethod = "/.*/")
+	public void testMappedList() {
+		KeyList<Integer> l1 = new KeyList.Builder<Integer>().withConstraint(i -> i % 2 == 0).build();
+		l1.add(0);
+		//l1.add(1);
+		l1.add(2);
+		IList<String> l2 = l1.mappedList(i -> "(" + i + ")");
 	}
 
 	//--

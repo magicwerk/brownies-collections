@@ -1962,6 +1962,61 @@
       <error></error>
     </traceStep>
   </traceTest>
+  <traceTest name="testMappedList">
+    <runDate>2022-11-24T15:53:20.821+01:00</runDate>
+    <runDuration>0.0433698</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.KeyList</traceClass>
+    <traceMethod>/.*/</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"add"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"0"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"true"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"add"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"1"</paramText>
+      </parameters>
+      <result></result>
+      <error>
+        <paramText outputType="VALUE" param="Error">"org.magicwerk.brownies.collections.exceptions.KeyException: Constraint violation: element not allowed"</paramText>
+      </error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"add"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"2"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"true"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"mappedList"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"{ \r\n}"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"{ \"(0)\", \"(2)\" }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+  </traceTest>
   <traceTest name="testPut">
     <runDate>2014-12-10T01:15:07.254+01:00</runDate>
     <runDuration>0.003060506</runDuration>

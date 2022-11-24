@@ -35,7 +35,6 @@ import java.util.function.Predicate;
  * @see	    java.util.ArrayList
  * @see	    java.util.LinkedList
  */
-@SuppressWarnings("serial")
 public interface ICollection<E> extends Collection<E> {
 
 	/**
@@ -89,7 +88,13 @@ public interface ICollection<E> extends Collection<E> {
 		}
 	}
 
-	public default E getIf(Predicate<? super E> predicate) {
+	/**
+	 * Returns the first element stored in the collection which matches the predicate.
+	 * If the collection is empty of no element matches, null is returned.
+	 *
+	 * @return	first element matching the predicate or null if not founds
+	 */
+	default E getIf(Predicate<? super E> predicate) {
 		for (Iterator<E> iter = iterator(); iter.hasNext();) {
 			E e = iter.next();
 			if (predicate.test(e)) {
@@ -100,20 +105,55 @@ public interface ICollection<E> extends Collection<E> {
 	}
 
 	/**
+	 * Determines whether the list contains a matching element.
+	 *
+	 * @param predicate		predicate used to search element
+	 * @return				true if the list contains a matching element, false otherwise
+	 */
+	default boolean containsIf(Predicate<? super E> predicate) {
+		for (Iterator<E> iter = iterator(); iter.hasNext();) {
+			E e = iter.next();
+			if (predicate.test(e)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Counts how many elements in the list match the predicate.
+	 *
+	 * @param predicate a predicate which returns {@code true} for elements to be counted
+	 * @return		count how many elements in the list match the predicate
+	 */
+	default int countIf(Predicate<? super E> predicate) {
+		int count = 0;
+		for (Iterator<E> iter = iterator(); iter.hasNext();) {
+			E e = iter.next();
+			if (predicate.test(e)) {
+				count++;
+			}
+		}
+		return count;
+	}
+
+	/**
 	 * Create a new collection by applying the specified filter to all elements.
 	 * Only element which are allowed by the predicate are copied to the new list.
+	 * The returned collection has the same type as the original one.
 	 *
 	 * @param predicate	predicate used for filtering
 	 * @return			created list
 	 */
-	public ICollection<E> filteredList(Predicate<? super E> predicate);
+	ICollection<E> filteredList(Predicate<? super E> predicate);
 
 	/**
 	 * Create a new list by applying the specified mapping function to all elements.
+	 * The returned list is of type {@link IList}, typically {@link GapList} unless the original type is {@link BigList}.
 	 *
 	 * @param func	mapping function
 	 * @return		created list
 	 */
-	public <R> IList<R> mappedList(Function<E, R> func);
+	<R> IList<R> mappedList(Function<E, R> func);
 
 }
