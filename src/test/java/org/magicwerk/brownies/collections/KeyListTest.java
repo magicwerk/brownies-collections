@@ -783,7 +783,7 @@ public class KeyListTest {
 	public void testMappedList() {
 		KeyList<Integer> l1 = new KeyList.Builder<Integer>().withConstraint(i -> i % 2 == 0).build();
 		l1.add(0);
-		//l1.add(1);
+		l1.add(1);
 		l1.add(2);
 		IList<String> l2 = l1.mappedList(i -> "(" + i + ")");
 	}
