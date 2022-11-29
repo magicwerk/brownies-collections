@@ -22,6 +22,7 @@ import org.magicwerk.brownies.core.MathTools;
 import org.magicwerk.brownies.core.ObjectTools;
 import org.magicwerk.brownies.core.StringTools;
 import org.magicwerk.brownies.core.collections.GridSelection;
+import org.magicwerk.brownies.core.files.FilePath;
 import org.magicwerk.brownies.core.files.FileTools;
 import org.magicwerk.brownies.core.function.IFormatter;
 import org.magicwerk.brownies.core.function.Predicates;
@@ -474,13 +475,22 @@ public class ListTestPerformance {
 	//
 
 	void showBenchmark() {
+		String classifier = "java8";
+		IList<String> names = GapList.create("ListTestPerformance", "ListTestCopyPerformance");
+		IList<FilePath> files = names.mappedList(n -> {
+			if (classifier != null) {
+				n = n + "-" + classifier;
+			}
+			return FilePath.of("output/" + n + ".json");
+		});
+
 		ShowBenchmark sb = new ShowBenchmark();
 		sb.benchmarks = benchmarks;
-		sb.classifier = "java8";
+		sb.files = files;
 		sb.showTables();
 	}
 
-	static class ShowBenchmark {
+	public static class ShowBenchmark {
 
 		static Type<Double> FactorNumberType = Type.builder(Double.class).with(new NumberFormatter<Double>(2)).toType();
 		static IFormatter<Double> timeFormatter = s -> DurationTools.formatSeconds(s);
@@ -512,7 +522,7 @@ public class ListTestPerformance {
 		}
 
 		// Configuration
-		String classifier;
+		IList<FilePath> files;
 
 		// State
 		IList<String> benchmarks;
@@ -522,7 +532,13 @@ public class ListTestPerformance {
 
 		//
 
-		void showTables() {
+		/** Setter for {@link #files} */
+		public ShowBenchmark setFiles(IList<FilePath> files) {
+			this.files = files;
+			return this;
+		}
+
+		public void showTables() {
 			IList<Result> rs = readBenchmarks();
 
 			HtmlReport report = new HtmlReport();
@@ -535,17 +551,12 @@ public class ListTestPerformance {
 			report.showHtml();
 		}
 
+		/**
+		 * Read benchmark files.
+		 */
 		IList<Result> readBenchmarks() {
-			IList<String> names = GapList.create("ListTestPerformance", "ListTestCopyPerformance");
-			IList<String> files = names.mappedList(n -> {
-				if (classifier != null) {
-					n = n + "-" + classifier;
-				}
-				return "output/" + n + ".json";
-			});
-
 			IList<BenchmarkTrial> brs = GapList.create();
-			for (String file : files) {
+			for (FilePath file : files) {
 				String text = FileTools.readFile().setFile(file).readText();
 				BenchmarkJsonResult br = new BenchmarkJsonParser().parse(text);
 				brs.addAll(br.getResults());
