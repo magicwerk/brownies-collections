@@ -22,18 +22,18 @@ import com.github.javaparser.ast.CompilationUnit;
 
 /**
  * Create Java source files for brownies-collections.
- * 
- * - Brownies-Collections:
- * collections\primitive\IBooleanList.java
- * collections\primitive\BooleanGapList.java
- * collections\primitive\BooleanObjGapList.java
- * collections\primitive\BooleanBigList.java
- * collections\helper\primitive\BooleanMergeSort.java
- * collections\helper\primitive\BooleanBinarySearch.java
- * collections\primitive\BooleanObjBigList.java
- * 
- * - Brownies-Collections-Test
- * collections\BigListGapListTest.java
+ * <p>
+ * - Brownies-Collections: <br>
+ * collections\primitive\IBooleanList.java <br>
+ * collections\primitive\BooleanGapList.java <br>
+ * collections\primitive\BooleanObjGapList.java <br>
+ * collections\primitive\BooleanBigList.java <br>
+ * collections\helper\primitive\BooleanMergeSort.java <br>
+ * collections\helper\primitive\BooleanBinarySearch.java <br>
+ * collections\primitive\BooleanObjBigList.java <br>
+ * <p>
+ * - Brownies-Collections-Test <br>
+ * collections\BigListGapListTest.java <br>
  *
  * @author Thomas Mauch
  */

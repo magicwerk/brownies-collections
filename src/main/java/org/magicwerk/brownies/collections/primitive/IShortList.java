@@ -48,7 +48,6 @@ import java.util.function.UnaryOperator;
  * @see	    java.util.ArrayList
  * @see	    java.util.LinkedList
  */
-@SuppressWarnings("serial")
 public abstract class IShortList implements Cloneable, Serializable {
 
     /**
@@ -389,12 +388,6 @@ public abstract class IShortList implements Cloneable, Serializable {
         return count;
     }
 
-    /**
-     * Counts how many elements in the list match the predicate.
-     *
-     * @param predicate a predicate which returns {@code true} for elements to be counted
-     * @return		count how many elements in the list match the predicate
-     */
     public int countIf(Predicate<Short> predicate) {
         int count = 0;
         int size = size();
@@ -406,12 +399,6 @@ public abstract class IShortList implements Cloneable, Serializable {
         return count;
     }
 
-    /**
-     * Returns the only element stored in the list.
-     * If the list's size is not 1, a <code>NoSuchElementException</code> is thrown.
-     *
-     * @return	only element stored in the list
-     */
     public short getSingle() {
         if (size() != 1) {
             throw new NoSuchElementException();
@@ -419,12 +406,6 @@ public abstract class IShortList implements Cloneable, Serializable {
         return doGet(0);
     }
 
-    /**
-     * Returns the only element stored in the list or null if the list is empty.
-     * If the list's size is greater than 1, a <code>NoSuchElementException</code> is thrown.
-     *
-     * @return	only element stored in the list
-     */
     public short getSingleOrNull() {
         int size = size();
         if (size == 0) {
