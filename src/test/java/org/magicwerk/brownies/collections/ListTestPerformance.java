@@ -74,8 +74,8 @@ public class ListTestPerformance {
 	}
 
 	void run() {
-		//runBenchmarks();
-		showBenchmark();
+		runBenchmarks();
+		//showBenchmark();
 	}
 
 	//
