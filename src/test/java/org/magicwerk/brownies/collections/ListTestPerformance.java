@@ -1,11 +1,13 @@
 package org.magicwerk.brownies.collections;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.function.BiConsumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
@@ -18,6 +20,8 @@ import org.magicwerk.brownies.collections.primitive.IntObjBigList;
 import org.magicwerk.brownies.collections.primitive.IntObjGapList;
 import org.magicwerk.brownies.core.CheckTools;
 import org.magicwerk.brownies.core.CollectionTools;
+import org.magicwerk.brownies.core.FuncTools;
+import org.magicwerk.brownies.core.FuncTools.MapMode;
 import org.magicwerk.brownies.core.MathTools;
 import org.magicwerk.brownies.core.ObjectTools;
 import org.magicwerk.brownies.core.StringTools;
@@ -74,8 +78,8 @@ public class ListTestPerformance {
 	}
 
 	void run() {
-		runBenchmarks();
-		//showBenchmark();
+		//runBenchmarks();
+		showBenchmark();
 	}
 
 	//
@@ -84,11 +88,12 @@ public class ListTestPerformance {
 	IList<String> jvmArgs = GapList.create("-Xmx4g", "-Xms4g", "-XX:+UseG1GC");
 
 	void runBenchmarks() {
-		boolean fast = false;
-		runBenchmarkOp(fast);
+		boolean fast = true;
+		//runBenchmarkOp(fast);
 		runBenchmarkCopy(fast);
 	}
 
+	/** Run benchmarks, results in ListTestPerformance.json / ListTestPerformance.log */
 	void runBenchmarkOp(boolean fast) {
 		Options opts = configure(fast);
 		opts.includeMethod(ListTest.class, "testGet");
@@ -97,11 +102,6 @@ public class ListTestPerformance {
 
 		opts.setResultFile("output/ListTestPerformance.json");
 		opts.setLogFile("output/ListTestPerformance.log");
-
-		opts.setJavaVersion(JavaVersion.JAVA_8);
-		//opts.setJavaVersion(JavaVersion.JAVA_11);
-
-		//opts.setUseGcProfiler(true);
 
 		JmhRunner runner = new JmhRunner();
 		runner.setVerbose(true);
@@ -120,9 +120,17 @@ public class ListTestPerformance {
 			opts.setRunTimeMillis(100);
 		}
 		opts.setJvmArgs(jvmArgs);
+
+		opts.setJavaVersion(JavaVersion.JAVA_8);
+		//opts.setJavaVersion(JavaVersion.JAVA_11);
+		//opts.setJavaVersion(JavaVersion.JAVA_17);
+
+		//opts.setUseGcProfiler(true);
+
 		return opts;
 	}
 
+	/** Run benchmarks, results in ListTestCopyPerformance.json / ListTestCopyPerformance.log */
 	void runBenchmarkCopy(boolean fast) {
 		Options opts = configure(fast);
 		opts.includeMethod(ListTest.class, "testCopy");
@@ -421,9 +429,6 @@ public class ListTestPerformance {
 		}
 
 		List<?> copy(List<?> list) {
-			if (type.equals("ArrayList") && size == 1000000) {
-				throw new RuntimeException();
-			}
 			return (List<?>) ((UnaryOperator) copyOp).apply(list);
 		}
 	}
@@ -475,19 +480,91 @@ public class ListTestPerformance {
 	//
 
 	void showBenchmark() {
-		String classifier = "java8";
-		IList<String> names = GapList.create("ListTestPerformance", "ListTestCopyPerformance");
-		IList<FilePath> files = names.mappedList(n -> {
-			if (classifier != null) {
-				n = n + "-" + classifier;
-			}
-			return FilePath.of("output/" + n + ".json");
-		});
-
-		ShowBenchmark sb = new ShowBenchmark();
-		sb.benchmarks = benchmarks;
-		sb.files = files;
+		ShowBenchmark sb = new MyShowBenchmark();
 		sb.showTables();
+	}
+
+	public static class MyShowBenchmark extends ShowBenchmark {
+
+		MyShowBenchmark() {
+			String classifier = null;
+			//String classifier = "java8";
+			IList<String> names = GapList.create("ListTestPerformance", "ListTestCopyPerformance");
+
+			files = names.mappedList(n -> {
+				if (classifier != null) {
+					n = n + "-" + classifier;
+				}
+				return FilePath.of("output/" + n + ".json");
+			});
+
+			Function<String, Integer> f = s -> FuncTools.map(s, MapMode.ERROR,
+					Predicates.is("Get"), 1,
+					Predicates.is("Add"), 2,
+					Predicates.is("Remove"), 3,
+					Predicates.is("Copy"), 4);
+			sortBenchmarks = Comparator.comparing(s -> f.apply(s));
+		}
+
+		@Override
+		public void showTables() {
+			report = createHtmlReport();
+
+			renderObjectSizeTable();
+
+			// 240 results: 3 sizes * 5 types * 16 operations
+			renderBenchmarkTables();
+
+			report.showHtml();
+		}
+
+		void renderObjectSizeTable() {
+			Table tab = getObjectSizeTable();
+			HtmlTable ht = renderTable(tab);
+			ht.setId("benchmark-memory");
+			report.add(ht);
+		}
+
+		/** Create a table containing the size in bytes of different collections per number of elements */
+		Table getObjectSizeTable() {
+			IList<String> types = GapList.create("ArrayList", "LinkedList", "GapList", "IntObjGapList", "BigList", "IntObjBigList", "TreeList");
+			IList<Integer> sizes = GapList.create(100, 100 * 100, 100 * 100 * 100);
+
+			Table tab = new Table();
+			tab.addCol("Size", Type.intType);
+			for (String type : types) {
+				tab.addCol(type, SizeNumberType); // e.g. "GapList"
+			}
+
+			for (int size : sizes) {
+				IList<Double> vals = GapList.create();
+				for (String type : types) {
+					Supplier newOp = getNewOperation(type);
+					List<Integer> list = (List<Integer>) newOp.get();
+					for (int i = 0; i < size; i++) {
+						list.add(i);
+					}
+					long objSize = ReflectTools.getObjectSize(list);
+					vals.add((double) objSize);
+				}
+
+				// Add row with sizes
+				IList<Object> row = GapList.create();
+				row.add(size);
+				row.addAll(vals);
+				tab.addRowElems(row);
+
+				// Add row with normalized factors
+				normalizeNumbers(vals);
+				row.clear();
+				row.add(size);
+				row.addAll(vals);
+				tab.addRowElems(row);
+			}
+
+			return tab;
+		}
+
 	}
 
 	public static class ShowBenchmark {
@@ -499,6 +576,7 @@ public class ListTestPerformance {
 		static IFormatter<Double> sizeFormatter = d -> byteSizeFormatter.format(d.longValue());
 		static Type<Double> SizeNumberType = Type.builder(Double.class).with(sizeFormatter).toType();
 
+		/** Result of benchmark run (representing one line of text in result output */
 		static class Result {
 			String benchmark;
 			double score;
@@ -523,8 +601,10 @@ public class ListTestPerformance {
 
 		// Configuration
 		IList<FilePath> files;
+		Comparator<String> sortBenchmarks;
 
 		// State
+		HtmlReport report;
 		IList<String> benchmarks;
 		IList<String> sizes;
 		IList<String> types;
@@ -538,17 +618,22 @@ public class ListTestPerformance {
 			return this;
 		}
 
-		public void showTables() {
-			IList<Result> rs = readBenchmarks();
-
+		HtmlReport createHtmlReport() {
 			HtmlReport report = new HtmlReport();
 			report.add(StyleResource.INSTANCE);
-
-			renderObjectSizeTable(report);
-			renderBenchmarkTables(report, rs);
-
 			report.setHtmlFile("output/tables.html");
+			return report;
+		}
+
+		public void showTables() {
+			report = createHtmlReport();
+			renderBenchmarkTables();
 			report.showHtml();
+		}
+
+		void renderBenchmarkTables() {
+			IList<Result> rs = readBenchmarks();
+			renderBenchmarkTables(report, rs);
 		}
 
 		/**
@@ -567,6 +652,8 @@ public class ListTestPerformance {
 
 		void renderBenchmarkTables(HtmlReport report, IList<Result> rs) {
 			benchmarks = CollectionTools.getDistinct(rs.mappedList(r -> r.benchmark));
+			benchmarks.sort(sortBenchmarks);
+
 			sizes = CollectionTools.getDistinct(rs.mappedList(r -> r.size));
 			types = CollectionTools.getDistinct(rs.mappedList(r -> r.type));
 			ops = CollectionTools.getDistinct(rs.mappedList(r -> r.op));
@@ -578,13 +665,6 @@ public class ListTestPerformance {
 				ht.setId("benchmark-performance-" + size);
 				report.add(ht);
 			}
-		}
-
-		void renderObjectSizeTable(HtmlReport report) {
-			Table tab = getObjectSizeTable();
-			HtmlTable ht = renderTable(tab);
-			ht.setId("benchmark-memory");
-			report.add(ht);
 		}
 
 		HtmlTable renderTable(Table tab) {
@@ -708,45 +788,6 @@ public class ListTestPerformance {
 			for (String type : types) {
 				tab.addCol(type, TimeNumberType); // e.g. "GapList"
 			}
-			return tab;
-		}
-
-		Table getObjectSizeTable() {
-			IList<String> types = GapList.create("ArrayList", "LinkedList", "GapList", "IntObjGapList", "BigList", "IntObjBigList", "TreeList");
-			IList<Integer> sizes = GapList.create(100, 100 * 100, 100 * 100 * 100);
-
-			Table tab = new Table();
-			tab.addCol("Size", Type.intType);
-			for (String type : types) {
-				tab.addCol(type, SizeNumberType); // e.g. "GapList"
-			}
-
-			for (int size : sizes) {
-				IList<Double> vals = GapList.create();
-				for (String type : types) {
-					Supplier newOp = getNewOperation(type);
-					List<Integer> list = (List<Integer>) newOp.get();
-					for (int i = 0; i < size; i++) {
-						list.add(i);
-					}
-					long objSize = ReflectTools.getObjectSize(list);
-					vals.add((double) objSize);
-				}
-
-				// Add row with sizes
-				IList<Object> row = GapList.create();
-				row.add(size);
-				row.addAll(vals);
-				tab.addRowElems(row);
-
-				// Add row with normalized factors
-				normalizeNumbers(vals);
-				row.clear();
-				row.add(size);
-				row.addAll(vals);
-				tab.addRowElems(row);
-			}
-
 			return tab;
 		}
 
