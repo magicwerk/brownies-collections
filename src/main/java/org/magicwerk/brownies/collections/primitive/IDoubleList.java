@@ -140,7 +140,7 @@ public abstract class IDoubleList implements Cloneable, Serializable {
         checkLength(len);
         int size = size();
         if (len < size) {
-            remove(len, size - len);
+            doRemoveAll(len, size - len);
         } else {
             doEnsureCapacity(len);
             for (int i = size; i < len; i++) {
@@ -454,75 +454,12 @@ public abstract class IDoubleList implements Cloneable, Serializable {
     }
 
     /**
-     * Removes all elements in the list which match the predicate.
-     *
-     * @param predicate a predicate which returns {@code true} for elements to be removed
-     * @return 			{@code true} if any elements were removed
-     */
-    public boolean removeIf(Predicate<Double> predicate) {
-        boolean removed = false;
-        int size = size();
-        for (int i = 0; i < size; i++) {
-            double e = doGet(i);
-            if (predicate.test(e)) {
-                doRemove(i);
-                size--;
-                i--;
-                removed = true;
-            }
-        }
-        return removed;
-    }
-
-    /**
-     * Retains all elements in the list which match the predicate.
-     *
-     * @param predicate a predicate which returns {@code true} for elements to be retained
-     * @return 			{@code true} if any elements were removed
-     */
-    public boolean retainIf(Predicate<Double> predicate) {
-        boolean modified = false;
-        int size = size();
-        for (int i = 0; i < size; i++) {
-            double e = doGet(i);
-            if (!predicate.test(e)) {
-                doRemove(i);
-                size--;
-                i--;
-                modified = true;
-            }
-        }
-        return modified;
-    }
-
-    /**
-     * Removes and returns all elements in the list which match the predicate.
-     *
-     * @param predicate	predicate
-     * @return			elements which have been removed from the list
-     */
-    public IDoubleList extractIf(Predicate<Double> predicate) {
-        IDoubleList list = doCreate(-1);
-        int size = size();
-        for (int i = 0; i < size; i++) {
-            double e = doGet(i);
-            if (predicate.test(e)) {
-                list.add(e);
-                doRemove(i);
-                size--;
-                i--;
-            }
-        }
-        return list;
-    }
-
-    /**
      * Returns distinct elements in the list.
      *
      * @return		distinct elements in the list
      */
-    public Set getDistinct() {
-        Set set = new HashSet();
+    public Set<Double> getDistinct() {
+        Set<Double> set = new HashSet();
         int size = size();
         for (int i = 0; i < size; i++) {
             set.add(doGet(i));
@@ -530,13 +467,41 @@ public abstract class IDoubleList implements Cloneable, Serializable {
         return set;
     }
 
-    public <R> IList<R> mappedList(Function<Double, R> func) {
+    public <R> IList<R> map(Function<Double, R> func) {
         int size = size();
         @SuppressWarnings("unchecked")
         IList<R> list = (IList<R>) new GapList<R>(size);
         for (int i = 0; i < size; i++) {
             double e = doGet(i);
             list.add(func.apply(e));
+        }
+        return list;
+    }
+
+    public <R> IList<R> mapFilter(Function<Double, R> func, Predicate<R> filter) {
+        int size = size();
+        @SuppressWarnings("unchecked")
+        IList<R> list = (IList<R>) new GapList<R>(size);
+        for (int i = 0; i < size; i++) {
+            double e = doGet(i);
+            R r = func.apply(e);
+            if (filter.test(r)) {
+                list.add(r);
+            }
+        }
+        return list;
+    }
+
+    public <R> IList<R> filterMap(Predicate<Double> filter, Function<Double, R> func) {
+        int size = size();
+        @SuppressWarnings("unchecked")
+        IList<R> list = (IList<R>) new GapList<R>(size);
+        for (int i = 0; i < size; i++) {
+            double e = doGet(i);
+            if (filter.test(e)) {
+                R r = func.apply(e);
+                list.add(r);
+            }
         }
         return list;
     }
@@ -578,7 +543,7 @@ public abstract class IDoubleList implements Cloneable, Serializable {
      * @param predicate	predicate used for filtering
      * @return			created list
      */
-    public IDoubleList filteredList(Predicate<Double> predicate) {
+    public IDoubleList filter(Predicate<Double> predicate) {
         IDoubleList list = doCreate(-1);
         int size = size();
         for (int i = 0; i < size; i++) {
@@ -591,16 +556,106 @@ public abstract class IDoubleList implements Cloneable, Serializable {
     }
 
     /**
-     * Filter the list using the specified predicate.
-     * Only elements which are allowed by the predicate remain in the list, the others are removed
+     * Retains all elements in the list which match the predicate.
      *
-     * @param predicate predicate used for filtering
+     * @param predicate a predicate which returns {@code true} for elements to be retained
+     * @return 			{@code true} if any elements were removed
      */
-    public void filter(Predicate<Double> predicate) {
-        // It is typically faster to copy the allowed elements in a new list
-        // than to remove the not allowed from the existing one
-        IDoubleList list = filteredList(predicate);
-        doAssign(list);
+    public boolean retainIf(Predicate<Double> predicate) {
+        // Design: no allocations needed
+        int dst = 0;
+        int size = size();
+        for (int src = 0; src < size; src++) {
+            double e = doGet(src);
+            if (predicate.test(e)) {
+                if (dst != src) {
+                    doSet(dst, e);
+                }
+                dst++;
+            }
+        }
+        if (dst < size) {
+            doRemoveAll(dst, size - dst);
+        }
+        return dst < size;
+    }
+
+    /**
+     * Retains all elements in the list which match the predicate.
+     *
+     * @param predicate a predicate which returns {@code true} for elements to be retained
+     * @return 			{@code true} if any elements were removed
+     */
+    public boolean removeIf(Predicate<Double> predicate) {
+        // Design: no allocations needed
+        int dst = 0;
+        int size = size();
+        for (int src = 0; src < size; src++) {
+            double e = doGet(src);
+            if (!predicate.test(e)) {
+                if (dst != src) {
+                    doSet(dst, e);
+                }
+                dst++;
+            }
+        }
+        if (dst < size) {
+            doRemoveAll(dst, size - dst);
+        }
+        return dst < size;
+    }
+
+    /**
+     * Removes and returns all elements in the list which match the predicate.
+     *
+     * @param predicate	predicate
+     * @return			elements which have been removed from the list
+     */
+    public IDoubleList extractIf(Predicate<Double> predicate) {
+        // Design: high performance if all or none elements are removed
+        // meaning of removed: ==this: all elements are removed, 0: none elements are removed, else: some elements are removed
+        IDoubleList removed = this;
+        int dst = 0;
+        int size = size();
+        for (int src = 0; src < size; src++) {
+            double e = doGet(src);
+            if (predicate.test(e)) {
+                // Remove element
+                if (removed == this) {
+                    // all elements removed so far
+                } else {
+                    if (removed == null) {
+                        removed = doCreate(-1);
+                    }
+                    removed.add(e);
+                }
+            } else {
+                // Retain element
+                if (src == 0) {
+                    removed = null;
+                } else if (removed == this) {
+                    removed = doCreate(-1);
+                    for (int i = 0; i < src; i++) {
+                        removed.add(doGet(i));
+                    }
+                }
+                if (dst != src) {
+                    doSet(dst, e);
+                }
+                dst++;
+            }
+        }
+        if (removed == null) {
+            removed = doCreate(-1);
+        } else if (removed == this) {
+            removed = copy();
+            doClear();
+        } else {
+            if (dst < size) {
+                doRemoveAll(dst, size - dst);
+            }
+        }
+        return removed;
     }
 
     public int indexOf(double elem) {
@@ -1847,7 +1902,7 @@ public abstract class IDoubleList implements Cloneable, Serializable {
                 doReSet(dstIndex + i, doGet(srcIndex + i));
             }
         }
-        // Set elements to 0 after the move operation
+        // Set<Double> elements to 0 after the move operation
         if (srcIndex < dstIndex) {
             int fill = Math.min(len, dstIndex - srcIndex);
             setMult(srcIndex, fill, 0);

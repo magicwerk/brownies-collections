@@ -535,8 +535,8 @@ public class ByteGapList extends IByteList {
     }
 
     @Override
-    public <R> GapList<R> mappedList(Function<Byte, R> mapper) {
-        return (GapList<R>) super.mappedList(mapper);
+    public <R> GapList<R> map(Function<Byte, R> mapper) {
+        return (GapList<R>) super.map(mapper);
     }
 
     /**

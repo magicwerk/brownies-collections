@@ -153,7 +153,7 @@ public abstract class IList<E>
 
 		int size = size();
 		if (len < size) {
-			remove(len, size - len);
+			doRemoveAll(len, size - len);
 		} else {
 			doEnsureCapacity(len);
 			for (int i = size; i < len; i++) {
@@ -498,70 +498,6 @@ public abstract class IList<E>
 	}
 
 	/**
-	 * Removes all elements in the list which match the predicate.
-	 *
-	 * @param predicate a predicate which returns {@code true} for elements to be removed
-	 * @return 			{@code true} if any elements were removed
-	 */
-	@Override
-	public boolean removeIf(Predicate<? super E> predicate) {
-		boolean removed = false;
-		int size = size();
-		for (int i = 0; i < size; i++) {
-			E e = doGet(i);
-			if (predicate.test(e)) {
-				doRemove(i);
-				size--;
-				i--;
-				removed = true;
-			}
-		}
-		return removed;
-	}
-
-	/**
-	 * Retains all elements in the list which match the predicate.
-	 *
-	 * @param predicate a predicate which returns {@code true} for elements to be retained
-	 * @return 			{@code true} if any elements were removed
-	 */
-	public boolean retainIf(Predicate<? super E> predicate) {
-		boolean modified = false;
-		int size = size();
-		for (int i = 0; i < size; i++) {
-			E e = doGet(i);
-			if (!predicate.test(e)) {
-				doRemove(i);
-				size--;
-				i--;
-				modified = true;
-			}
-		}
-		return modified;
-	}
-
-	/**
-	 * Removes and returns all elements in the list which match the predicate.
-	 *
-	 * @param predicate	predicate
-	 * @return			elements which have been removed from the list
-	 */
-	public IList<E> extractIf(Predicate<? super E> predicate) {
-		IList<E> list = doCreate(-1);
-		int size = size();
-		for (int i = 0; i < size; i++) {
-			E e = doGet(i);
-			if (predicate.test(e)) {
-				list.add(e);
-				doRemove(i);
-				size--;
-				i--;
-			}
-		}
-		return list;
-	}
-
-	/**
 	 * Returns distinct elements in the list.
 	 *
 	 * @return		distinct elements in the list
@@ -576,13 +512,43 @@ public abstract class IList<E>
 	}
 
 	@Override
-	public <R> IList<R> mappedList(Function<E, R> func) {
+	public <R> IList<R> map(Function<E, R> func) {
 		int size = size();
 		@SuppressWarnings("unchecked")
 		IList<R> list = (IList<R>) doCreate(size);
 		for (int i = 0; i < size; i++) {
 			E e = doGet(i);
 			list.add(func.apply(e));
+		}
+		return list;
+	}
+
+	@Override
+	public <R> IList<R> mapFilter(Function<E, R> func, Predicate<R> filter) {
+		int size = size();
+		@SuppressWarnings("unchecked")
+		IList<R> list = (IList<R>) doCreate(size);
+		for (int i = 0; i < size; i++) {
+			E e = doGet(i);
+			R r = func.apply(e);
+			if (filter.test(r)) {
+				list.add(r);
+			}
+		}
+		return list;
+	}
+
+	@Override
+	public <R> IList<R> filterMap(Predicate<E> filter, Function<E, R> func) {
+		int size = size();
+		@SuppressWarnings("unchecked")
+		IList<R> list = (IList<R>) doCreate(size);
+		for (int i = 0; i < size; i++) {
+			E e = doGet(i);
+			if (filter.test(e)) {
+				R r = func.apply(e);
+				list.add(r);
+			}
 		}
 		return list;
 	}
@@ -625,7 +591,7 @@ public abstract class IList<E>
 	 * @return			created list
 	 */
 	@Override
-	public IList<E> filteredList(Predicate<? super E> predicate) {
+	public IList<E> filter(Predicate<? super E> predicate) {
 		IList<E> list = doCreate(-1);
 		int size = size();
 		for (int i = 0; i < size; i++) {
@@ -638,16 +604,109 @@ public abstract class IList<E>
 	}
 
 	/**
-	 * Filter the list using the specified predicate.
-	 * Only elements which are allowed by the predicate remain in the list, the others are removed
+	 * Retains all elements in the list which match the predicate.
 	 *
-	 * @param predicate predicate used for filtering
+	 * @param predicate a predicate which returns {@code true} for elements to be retained
+	 * @return 			{@code true} if any elements were removed
 	 */
-	public void filter(Predicate<? super E> predicate) {
-		// It is typically faster to copy the allowed elements in a new list
-		// than to remove the not allowed from the existing one
-		IList<E> list = filteredList(predicate);
-		doAssign(list);
+	public boolean retainIf(Predicate<? super E> predicate) {
+		// Design: no allocations needed
+		int dst = 0;
+		int size = size();
+		for (int src = 0; src < size; src++) {
+			E e = doGet(src);
+			if (predicate.test(e)) {
+				if (dst != src) {
+					doSet(dst, e);
+				}
+				dst++;
+			}
+		}
+		if (dst < size) {
+			doRemoveAll(dst, size - dst);
+		}
+		return dst < size;
+	}
+
+	/**
+	 * Retains all elements in the list which match the predicate.
+	 *
+	 * @param predicate a predicate which returns {@code true} for elements to be retained
+	 * @return 			{@code true} if any elements were removed
+	 */
+	@Override
+	public boolean removeIf(Predicate<? super E> predicate) {
+		// Design: no allocations needed
+		int dst = 0;
+		int size = size();
+		for (int src = 0; src < size; src++) {
+			E e = doGet(src);
+			if (!predicate.test(e)) {
+				if (dst != src) {
+					doSet(dst, e);
+				}
+				dst++;
+			}
+		}
+		if (dst < size) {
+			doRemoveAll(dst, size - dst);
+		}
+		return dst < size;
+	}
+
+	/**
+	 * Removes and returns all elements in the list which match the predicate.
+	 *
+	 * @param predicate	predicate
+	 * @return			elements which have been removed from the list
+	 */
+	public IList<E> extractIf(Predicate<? super E> predicate) {
+		// Design: high performance if all or none elements are removed
+		// meaning of removed: ==this: all elements are removed, null: none elements are removed, else: some elements are removed
+		IList<E> removed = this;
+		int dst = 0;
+		int size = size();
+		for (int src = 0; src < size; src++) {
+			E e = doGet(src);
+			if (predicate.test(e)) {
+				// Remove element
+				if (removed == this) {
+					// all elements removed so far
+				} else {
+					if (removed == null) {
+						removed = doCreate(-1);
+					}
+					removed.add(e);
+				}
+
+			} else {
+				// Retain element
+				if (src == 0) {
+					removed = null;
+				} else if (removed == this) {
+					removed = doCreate(-1);
+					for (int i = 0; i < src; i++) {
+						removed.add(doGet(i));
+					}
+				}
+				if (dst != src) {
+					doSet(dst, e);
+				}
+				dst++;
+			}
+		}
+
+		if (removed == null) {
+			removed = doCreate(-1);
+		} else if (removed == this) {
+			removed = copy();
+			doClear();
+		} else {
+			if (dst < size) {
+				doRemoveAll(dst, size - dst);
+			}
+		}
+		return removed;
 	}
 
 	@Override

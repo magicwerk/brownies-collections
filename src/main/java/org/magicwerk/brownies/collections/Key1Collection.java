@@ -458,7 +458,7 @@ public class Key1Collection<E, K> extends KeyCollectionImpl<E> {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public Key1Collection<E, K> filteredList(Predicate<? super E> filter) {
-		return (Key1Collection<E, K>) super.filteredList(filter);
+	public Key1Collection<E, K> filter(Predicate<? super E> filter) {
+		return (Key1Collection<E, K>) super.filter(filter);
 	}
 }

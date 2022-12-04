@@ -149,7 +149,7 @@ public class GapListTestPerformance {
 
 		@Benchmark
 		public void testMethod2(BenchmarkState state) {
-			List<Integer> result = state.list.filteredList((i) -> i % 2 == 0);
+			List<Integer> result = state.list.filter((i) -> i % 2 == 0);
 		}
 
 		//
@@ -259,7 +259,7 @@ public class GapListTestPerformance {
 
 		@Benchmark
 		public List<Integer> testFilteredList(ListState state) {
-			return state.list.filteredList((i) -> i % 2 == 0);
+			return state.list.filter((i) -> i % 2 == 0);
 		}
 
 		@Benchmark
@@ -269,7 +269,7 @@ public class GapListTestPerformance {
 
 		@Benchmark
 		public List<Integer> testMappedList(ListState state) {
-			return state.list.mappedList(i -> i + 1);
+			return state.list.map(i -> i + 1);
 		}
 
 		@Benchmark
@@ -316,7 +316,7 @@ public class GapListTestPerformance {
 		}
 
 		@Benchmark
-		public int testFiltered(ListState state) {
+		public int testFilter(ListState state) {
 			state.list.filter(n -> state.num++ % state.mod == 0);
 			return 1;
 		}

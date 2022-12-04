@@ -535,8 +535,8 @@ public class DoubleGapList extends IDoubleList {
     }
 
     @Override
-    public <R> GapList<R> mappedList(Function<Double, R> mapper) {
-        return (GapList<R>) super.mappedList(mapper);
+    public <R> GapList<R> map(Function<Double, R> mapper) {
+        return (GapList<R>) super.map(mapper);
     }
 
     /**

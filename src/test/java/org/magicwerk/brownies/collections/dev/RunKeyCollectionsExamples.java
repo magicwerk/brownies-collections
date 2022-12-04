@@ -802,7 +802,7 @@ public class RunKeyCollectionsExamples {
 
 		String city = zipCities.getByKey1(5000).getCity();
 		// TODO do we need mappedCollection
-		List<Integer> zips = GapList.create(zipCities.getAllByKey2("Aarau")).mappedList(zipCities.getKey1Mapper());
+		List<Integer> zips = GapList.create(zipCities.getAllByKey2("Aarau")).map(zipCities.getKey1Mapper());
 
 		//@test:begin
 		System.out.println(allZips);

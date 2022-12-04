@@ -535,8 +535,8 @@ public class CharGapList extends ICharList {
     }
 
     @Override
-    public <R> GapList<R> mappedList(Function<Character, R> mapper) {
-        return (GapList<R>) super.mappedList(mapper);
+    public <R> GapList<R> map(Function<Character, R> mapper) {
+        return (GapList<R>) super.map(mapper);
     }
 
     /**

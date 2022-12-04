@@ -3005,7 +3005,7 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 	 * @return			created list
 	 */
 	@Override
-	public KeyCollectionImpl filteredList(Predicate<? super E> predicate) {
+	public KeyCollectionImpl filter(Predicate<? super E> predicate) {
 		KeyCollectionImpl list = crop();
 		int size = size();
 		for (E e : this) {
@@ -3017,11 +3017,36 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 	}
 
 	@Override
-	public <R> IList<R> mappedList(Function<E, R> func) {
+	public <R> IList<R> map(Function<E, R> func) {
 		int size = size();
 		IList<R> list = new GapList<>(size);
 		for (E e : this) {
 			list.add(func.apply(e));
+		}
+		return list;
+	}
+
+	@Override
+	public <R> IList<R> mapFilter(Function<E, R> func, Predicate<R> filter) {
+		int size = size();
+		IList<R> list = new GapList<>(size);
+		for (E e : this) {
+			R r = func.apply(e);
+			if (filter.test(r)) {
+				list.add(r);
+			}
+		}
+		return list;
+	}
+
+	@Override
+	public <R> IList<R> filterMap(Predicate<E> filter, Function<E, R> func) {
+		int size = size();
+		IList<R> list = new GapList<>(size);
+		for (E e : this) {
+			if (filter.test(e)) {
+				list.add(func.apply(e));
+			}
 		}
 		return list;
 	}

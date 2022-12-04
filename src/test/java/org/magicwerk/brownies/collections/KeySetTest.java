@@ -122,21 +122,21 @@ public class KeySetTest {
 	}
 
 	@Trace
-	public void testFilteredList() {
-		getKeySet(0).filteredList(filter);
-		getKeySet(1).filteredList(filter);
-		getKeySet(2).filteredList(filter);
-		getKeySet(3).filteredList(filter);
-		getKeySet(4).filteredList(filter);
+	public void testFilter() {
+		getKeySet(0).filter(filter);
+		getKeySet(1).filter(filter);
+		getKeySet(2).filter(filter);
+		getKeySet(3).filter(filter);
+		getKeySet(4).filter(filter);
 	}
 
 	@Trace
-	public void testMappedList() {
-		getKeySet(0).mappedList(map);
-		getKeySet(1).mappedList(map);
-		getKeySet(2).mappedList(map);
-		getKeySet(3).mappedList(map);
-		getKeySet(4).mappedList(map);
+	public void testMap() {
+		getKeySet(0).map(map);
+		getKeySet(1).map(map);
+		getKeySet(2).map(map);
+		getKeySet(3).map(map);
+		getKeySet(4).map(map);
 	}
 
 	//

@@ -679,8 +679,8 @@ public class Key2Collection<E, K1, K2> extends KeyCollectionImpl<E> {
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public Key2Collection<E, K1, K2> filteredList(Predicate<? super E> filter) {
-		return (Key2Collection<E, K1, K2>) super.filteredList(filter);
+	public Key2Collection<E, K1, K2> filter(Predicate<? super E> filter) {
+		return (Key2Collection<E, K1, K2>) super.filter(filter);
 	}
 
 }

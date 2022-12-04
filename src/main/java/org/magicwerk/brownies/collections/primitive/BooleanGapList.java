@@ -535,8 +535,8 @@ public class BooleanGapList extends IBooleanList {
     }
 
     @Override
-    public <R> GapList<R> mappedList(Function<Boolean, R> mapper) {
-        return (GapList<R>) super.mappedList(mapper);
+    public <R> GapList<R> map(Function<Boolean, R> mapper) {
+        return (GapList<R>) super.map(mapper);
     }
 
     /**

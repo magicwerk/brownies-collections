@@ -451,8 +451,8 @@ public class Key2Set<E, K1, K2> extends Key2Collection<E, K1, K2> implements Set
 	}
 
 	@Override
-	public Key2Set<E, K1, K2> filteredList(Predicate<? super E> filter) {
-		return (Key2Set<E, K1, K2>) super.filteredList(filter);
+	public Key2Set<E, K1, K2> filter(Predicate<? super E> filter) {
+		return (Key2Set<E, K1, K2>) super.filter(filter);
 	}
 
 }

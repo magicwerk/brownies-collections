@@ -535,8 +535,8 @@ public class IntGapList extends IIntList {
     }
 
     @Override
-    public <R> GapList<R> mappedList(Function<Integer, R> mapper) {
-        return (GapList<R>) super.mappedList(mapper);
+    public <R> GapList<R> map(Function<Integer, R> mapper) {
+        return (GapList<R>) super.map(mapper);
     }
 
     /**

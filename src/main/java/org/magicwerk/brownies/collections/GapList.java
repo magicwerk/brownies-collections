@@ -523,8 +523,8 @@ public class GapList<E> extends IList<E> {
 	}
 
 	@Override
-	public <R> GapList<R> mappedList(Function<E, R> mapper) {
-		return (GapList<R>) super.mappedList(mapper);
+	public <R> GapList<R> map(Function<E, R> mapper) {
+		return (GapList<R>) super.map(mapper);
 	}
 
 	/**

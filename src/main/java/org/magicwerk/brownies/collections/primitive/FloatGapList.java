@@ -535,8 +535,8 @@ public class FloatGapList extends IFloatList {
     }
 
     @Override
-    public <R> GapList<R> mappedList(Function<Float, R> mapper) {
-        return (GapList<R>) super.mappedList(mapper);
+    public <R> GapList<R> map(Function<Float, R> mapper) {
+        return (GapList<R>) super.map(mapper);
     }
 
     /**

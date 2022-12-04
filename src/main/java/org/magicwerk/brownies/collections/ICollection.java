@@ -145,7 +145,7 @@ public interface ICollection<E> extends Collection<E> {
 	 * @param predicate	predicate used for filtering
 	 * @return			created list
 	 */
-	ICollection<E> filteredList(Predicate<? super E> predicate);
+	ICollection<E> filter(Predicate<? super E> predicate);
 
 	/**
 	 * Create a new list by applying the specified mapping function to all elements.
@@ -154,6 +154,10 @@ public interface ICollection<E> extends Collection<E> {
 	 * @param func	mapping function
 	 * @return		created list
 	 */
-	<R> IList<R> mappedList(Function<E, R> func);
+	<R> IList<R> map(Function<E, R> func);
+
+	<R> IList<R> mapFilter(Function<E, R> func, Predicate<R> filter);
+
+	<R> IList<R> filterMap(Predicate<E> filter, Function<E, R> func);
 
 }

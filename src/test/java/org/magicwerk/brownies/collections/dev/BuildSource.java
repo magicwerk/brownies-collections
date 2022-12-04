@@ -109,6 +109,7 @@ public class BuildSource {
 				str = str.replace("{WRAPPER}", builder.getWrapperType());
 				str = str.replace("{NAME}", builder.getTypeName());
 				str = str.replace("{DEFAULT}", builder.getDefaultValue());
+				str = str.replace("{DEFAULT_REGEX}", RegexTools.regexForLiteral(builder.getDefaultValue()));
 			}
 			return str;
 		}

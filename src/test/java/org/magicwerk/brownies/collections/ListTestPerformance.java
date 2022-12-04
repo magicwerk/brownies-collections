@@ -4,57 +4,26 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
-import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
 import org.apache.commons.collections4.list.TreeList;
-import org.jdom2.Attribute;
-import org.jdom2.Element;
 import org.magicwerk.brownies.collections.primitive.IntBigList;
 import org.magicwerk.brownies.collections.primitive.IntGapList;
 import org.magicwerk.brownies.collections.primitive.IntObjBigList;
 import org.magicwerk.brownies.collections.primitive.IntObjGapList;
-import org.magicwerk.brownies.core.CheckTools;
-import org.magicwerk.brownies.core.CollectionTools;
 import org.magicwerk.brownies.core.FuncTools;
 import org.magicwerk.brownies.core.FuncTools.MapMode;
-import org.magicwerk.brownies.core.MathTools;
-import org.magicwerk.brownies.core.ObjectTools;
-import org.magicwerk.brownies.core.StringTools;
-import org.magicwerk.brownies.core.collections.GridSelection;
 import org.magicwerk.brownies.core.files.FilePath;
-import org.magicwerk.brownies.core.files.FileTools;
-import org.magicwerk.brownies.core.function.IFormatter;
 import org.magicwerk.brownies.core.function.Predicates;
 import org.magicwerk.brownies.core.logback.LogbackTools;
-import org.magicwerk.brownies.core.reflect.ClassTools;
 import org.magicwerk.brownies.core.reflect.ReflectTools;
-import org.magicwerk.brownies.core.time.DurationTools;
-import org.magicwerk.brownies.core.types.ByteSizeType.ByteSizeTypeFormatter;
 import org.magicwerk.brownies.core.types.Type;
-import org.magicwerk.brownies.core.validator.NumberFormatter;
 import org.magicwerk.brownies.core.values.Table;
-import org.magicwerk.brownies.html.CssStyle;
-import org.magicwerk.brownies.html.HtmlConst;
-import org.magicwerk.brownies.html.HtmlDoclet;
-import org.magicwerk.brownies.html.HtmlDocument;
-import org.magicwerk.brownies.html.HtmlReport;
 import org.magicwerk.brownies.html.HtmlTable;
-import org.magicwerk.brownies.html.HtmlTools;
-import org.magicwerk.brownies.html.StyleResource;
-import org.magicwerk.brownies.html.content.HtmlChartCreator;
-import org.magicwerk.brownies.html.content.HtmlChartCreator.ChartType;
-import org.magicwerk.brownies.html.content.HtmlFormatters;
-import org.magicwerk.brownies.html.content.HtmlFormatters.ConditionalFormatter;
-import org.magicwerk.brownies.html.content.HtmlTableFormatter;
 import org.magicwerk.brownies.test.JmhRunner;
-import org.magicwerk.brownies.test.JmhRunner.BenchmarkJsonParser;
-import org.magicwerk.brownies.test.JmhRunner.BenchmarkJsonResult;
-import org.magicwerk.brownies.test.JmhRunner.BenchmarkJsonResult.BenchmarkTrial;
 import org.magicwerk.brownies.test.JmhRunner.Options;
 import org.magicwerk.brownies.tools.dev.tools.JavaTools.JavaVersion;
 import org.openjdk.jmh.annotations.Benchmark;
@@ -480,18 +449,22 @@ public class ListTestPerformance {
 	//
 
 	void showBenchmark() {
-		ShowBenchmark sb = new MyShowBenchmark();
-		sb.showTables();
+		ListTestPerformanceReport sb = new MyListTestPerformanceReport();
+		sb.showCharts();
+		//sb.showTables();
 	}
 
-	public static class MyShowBenchmark extends ShowBenchmark {
+	/**
+	 * Add additional table with object size to report of ListTestPerformanceReport.
+	 */
+	public static class MyListTestPerformanceReport extends ListTestPerformanceReport {
 
-		MyShowBenchmark() {
+		MyListTestPerformanceReport() {
 			String classifier = null;
 			//String classifier = "java8";
 			IList<String> names = GapList.create("ListTestPerformance", "ListTestCopyPerformance");
 
-			files = names.mappedList(n -> {
+			files = names.map(n -> {
 				if (classifier != null) {
 					n = n + "-" + classifier;
 				}
@@ -507,15 +480,12 @@ public class ListTestPerformance {
 		}
 
 		@Override
-		public void showTables() {
-			report = createHtmlReport();
-
+		void renderTables() {
+			// object size table
 			renderObjectSizeTable();
 
-			// 240 results: 3 sizes * 5 types * 16 operations
-			renderBenchmarkTables();
-
-			report.showHtml();
+			// benchmark performance table: 240 results: 3 sizes * 5 types * 16 operations
+			super.renderTables();
 		}
 
 		void renderObjectSizeTable() {
@@ -563,261 +533,6 @@ public class ListTestPerformance {
 			}
 
 			return tab;
-		}
-
-	}
-
-	public static class ShowBenchmark {
-
-		static Type<Double> FactorNumberType = Type.builder(Double.class).with(new NumberFormatter<Double>(2)).toType();
-		static IFormatter<Double> timeFormatter = s -> DurationTools.formatSeconds(s);
-		static Type<Double> TimeNumberType = Type.builder(Double.class).with(timeFormatter).toType();
-		static ByteSizeTypeFormatter byteSizeFormatter = new ByteSizeTypeFormatter(false);
-		static IFormatter<Double> sizeFormatter = d -> byteSizeFormatter.format(d.longValue());
-		static Type<Double> SizeNumberType = Type.builder(Double.class).with(sizeFormatter).toType();
-
-		/** Result of benchmark run (representing one line of text in result output */
-		static class Result {
-			String benchmark;
-			double score;
-			String type;
-			String op;
-			String size;
-
-			Result(BenchmarkTrial bt) {
-				benchmark = convertBenchmark(bt.getBenchmark());
-				score = bt.getScore();
-				Map<String, String> p = bt.getParams();
-				type = p.get("type");
-				op = p.get("op");
-				size = p.get("size");
-			}
-
-			String convertBenchmark(String str) {
-				String n = ClassTools.getLocalNameByDot(str);
-				return StringTools.removeHead(n, "test");
-			}
-		}
-
-		// Configuration
-		IList<FilePath> files;
-		Comparator<String> sortBenchmarks;
-
-		// State
-		HtmlReport report;
-		IList<String> benchmarks;
-		IList<String> sizes;
-		IList<String> types;
-		IList<String> ops;
-
-		//
-
-		/** Setter for {@link #files} */
-		public ShowBenchmark setFiles(IList<FilePath> files) {
-			this.files = files;
-			return this;
-		}
-
-		HtmlReport createHtmlReport() {
-			HtmlReport report = new HtmlReport();
-			report.add(StyleResource.INSTANCE);
-			report.setHtmlFile("output/tables.html");
-			return report;
-		}
-
-		public void showTables() {
-			report = createHtmlReport();
-			renderBenchmarkTables();
-			report.showHtml();
-		}
-
-		void renderBenchmarkTables() {
-			IList<Result> rs = readBenchmarks();
-			renderBenchmarkTables(report, rs);
-		}
-
-		/**
-		 * Read benchmark files.
-		 */
-		IList<Result> readBenchmarks() {
-			IList<BenchmarkTrial> brs = GapList.create();
-			for (FilePath file : files) {
-				String text = FileTools.readFile().setFile(file).readText();
-				BenchmarkJsonResult br = new BenchmarkJsonParser().parse(text);
-				brs.addAll(br.getResults());
-			}
-			IList<Result> rs = brs.mappedList(Result::new);
-			return rs;
-		}
-
-		void renderBenchmarkTables(HtmlReport report, IList<Result> rs) {
-			benchmarks = CollectionTools.getDistinct(rs.mappedList(r -> r.benchmark));
-			benchmarks.sort(sortBenchmarks);
-
-			sizes = CollectionTools.getDistinct(rs.mappedList(r -> r.size));
-			types = CollectionTools.getDistinct(rs.mappedList(r -> r.type));
-			ops = CollectionTools.getDistinct(rs.mappedList(r -> r.op));
-
-			for (String size : sizes) {
-				IList<Result> rs2 = rs.filteredList(r -> r.size.equals(size));
-				Table tab = getTable(rs2);
-				HtmlTable ht = renderTable(tab);
-				ht.setId("benchmark-performance-" + size);
-				report.add(ht);
-			}
-		}
-
-		HtmlTable renderTable(Table tab) {
-			String colBest = "#99ff99";
-			String colGood = "#88aaff";
-			String colModerate = "#ffff99";
-			String colBad = "#ff9999";
-			double valRed = 10;
-			double valYellow = 2;
-			double valBlue = 1;
-
-			LOG.info("{}", tab);
-
-			ConditionalFormatter cf = new ConditionalFormatter();
-			cf.add(c -> (double) c.getValue() > valRed, t -> getCssStyle(colBad).getAttribute());
-			cf.add(c -> (double) c.getValue() > valYellow, t -> getCssStyle(colModerate).getAttribute());
-			cf.add(c -> (double) c.getValue() > valBlue, t -> getCssStyle(colGood).getAttribute());
-			cf.add(Predicates.allow(), t -> getCssStyle(colBest).getAttribute());
-
-			HtmlFormatters hf = new HtmlFormatters();
-			for (int r = 0; r < tab.getNumRows(); r += 2) {
-				hf.addFormatter(GridSelection.Region(r + 1, 1, r + 1, tab.getNumCols() - 1), cf);
-			}
-
-			HtmlTableFormatter htf = new HtmlTableFormatter();
-			htf.setFormatters(hf);
-			HtmlTable ht = htf.format(tab);
-
-			boolean removeFactorRows = true;
-			Element e = ht.getElement();
-			int rows = HtmlTools.getTableNumRows(e);
-			for (int r = 1; r < rows; r++) {
-				IList<Element> src = HtmlTools.getTableRowCells(e, r + 1);
-				IList<Element> dst = HtmlTools.getTableRowCells(e, r);
-				copyFormatting(src, dst);
-
-				if (removeFactorRows) {
-					HtmlTools.removeTableRow(e, r + 1);
-					rows--;
-				} else {
-					r++;
-				}
-			}
-
-			return ht;
-		}
-
-		CssStyle getCssStyle(String bgColor) {
-			String alignRight = "right";
-			return new CssStyle().setBackgroundColor(bgColor).setTextAlign(alignRight).set("width", "84px");
-		}
-
-		/** Apply formatting by copying the style attribute. */
-		void copyFormatting(IList<Element> srcElems, IList<Element> dstElems) {
-			BiConsumer<Element, Element> handler = (src, dst) -> {
-				Attribute attr = src.getAttribute(HtmlConst.ATTR_STYLE);
-				if (attr != null) {
-					dst.setAttribute(attr.clone());
-				}
-			};
-			copyFormatting(srcElems, dstElems, handler);
-		}
-
-		void copyFormatting(IList<Element> srcElems, IList<Element> dstElems, BiConsumer<Element, Element> handler) {
-			CheckTools.check(srcElems.size() == dstElems.size());
-			for (int i = 0; i < srcElems.size(); i++) {
-				handler.accept(srcElems.get(i), dstElems.get(i));
-			}
-		}
-
-		Table getTable(IList<Result> rs) {
-			Table tab = getTableHeader(rs);
-
-			for (String benchmark : benchmarks) {
-				for (String op : ops) {
-					IList<Double> times = GapList.create();
-					for (String type : types) {
-						Result r = rs.getIf(
-								n -> ObjectTools.equals(n.benchmark, benchmark) && ObjectTools.equals(n.op, op) && ObjectTools.equals(n.type, type));
-						if (r != null) {
-							double time = 1.0 / r.score;
-							times.add(time);
-						}
-					}
-					if (times.isEmpty()) {
-						continue;
-					}
-
-					String name = (op != null) ? benchmark + " " + op : benchmark;
-
-					// Add row with times
-					IList<Object> row = GapList.create();
-					row.add(name);
-					row.addAll(times);
-					tab.addRowElems(row);
-
-					// Add row with normalized factors
-					normalizeNumbers(times);
-					row.clear();
-					row.add(name);
-					row.addAll(times);
-					tab.addRowElems(row);
-				}
-			}
-			return tab;
-		}
-
-		static void normalizeNumbers(List<Double> vals) {
-			double min = MathTools.min(vals);
-			for (int i = 0; i < vals.size(); i++) {
-				vals.set(i, vals.get(i) / min);
-			}
-		}
-
-		Table getTableHeader(IList<Result> trs) {
-			Table tab = new Table();
-
-			Result tr = trs.getFirst();
-			tab.addCol("Size= " + tr.size, Type.STRING_TYPE);
-
-			for (String type : types) {
-				tab.addCol(type, TimeNumberType); // e.g. "GapList"
-			}
-			return tab;
-		}
-
-		// Charts - NOT USED
-
-		void showChart(IList<Result> trs) {
-			Table tab = getTable(trs);
-			LOG.info("{}", tab);
-
-			HtmlDocument doc = getChartDoc(tab);
-			HtmlReport report = new HtmlReport();
-			report.setDoc(doc);
-			report.showHtml();
-		}
-
-		HtmlDocument getChartDoc(Table tab) {
-			HtmlDocument doc = new HtmlDocument();
-			doc.getBody().addH1("Charts");
-
-			HtmlChartCreator creator = new HtmlChartCreator();
-			creator.setTitle("Chart");
-			creator.setWidth("800px");
-			creator.setHeight("400px");
-
-			creator.setTable(tab);
-			creator.setChartType(ChartType.LINE);
-			HtmlDoclet chart = creator.getChart();
-			doc.addResources(chart.getResources());
-			doc.getBody().addElem(chart.getElement());
-			return doc;
 		}
 
 	}

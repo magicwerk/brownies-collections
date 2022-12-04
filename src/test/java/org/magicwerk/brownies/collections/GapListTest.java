@@ -8,7 +8,6 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.magictest.client.Assert;
@@ -19,6 +18,8 @@ import org.magictest.client.Test;
 import org.magictest.client.Trace;
 import org.magicwerk.brownies.collections.helper.GapLists;
 import org.magicwerk.brownies.core.CheckTools;
+import org.magicwerk.brownies.core.function.Predicates;
+import org.magicwerk.brownies.core.function.Predicates.NamedPredicate;
 import org.magicwerk.brownies.core.print.PrintTools;
 import org.magicwerk.brownies.core.serialize.SerializeTools;
 import org.magicwerk.brownies.core.strings.StringFormatter;
@@ -40,8 +41,10 @@ public class GapListTest {
 	}
 
 	static void test() {
-		testStream();
-		testParallelStream();
+		testExtractIf();
+		//testRemoveIf();
+		//testStream();
+		//testParallelStream();
 		//testRetain();
 		//testGetAll();
 		//testSplit();
@@ -421,27 +424,36 @@ public class GapListTest {
 		getSortedGapList(4).getIf(i -> i % 2 == 0);
 	}
 
-	@Trace(parameters = Trace.THIS | Trace.ALL_PARAMS, result = Trace.RESULT, formats = { @Format(apply = Trace.PARAM0, printFormat = "i -> i%%2==0") })
-	public static void testFilteredList() {
-		getSortedGapList(4).filteredList(i -> i % 2 == 0);
+	@Trace(parameters = Trace.THIS | Trace.ALL_PARAMS, result = Trace.RESULT)
+	public static void testFilter() {
+		getSortedGapList(4).filter(new NamedPredicate<>("i%2==0", i -> i % 2 == 0));
+		getSortedGapList(4).filter(new NamedPredicate<>("i%2==1", i -> i % 2 == 1));
+		getSortedGapList(4).filter(Predicates.allow());
+		getSortedGapList(4).filter(Predicates.deny());
 	}
 
-	@Trace(parameters = Trace.THIS | Trace.ALL_PARAMS, result = Trace.THIS | Trace.RESULT, formats = {
-			@Format(apply = Trace.PARAM0, printFormat = "i -> i%%2==0") })
+	@Trace(parameters = Trace.THIS | Trace.ALL_PARAMS, result = Trace.THIS | Trace.RESULT)
 	public static void testRetainIf() {
-		getSortedGapList(4).retainIf(i -> i % 2 == 0);
+		getSortedGapList(4).retainIf(new NamedPredicate<>("i%2==0", i -> i % 2 == 0));
+		getSortedGapList(4).retainIf(new NamedPredicate<>("i%2==1", i -> i % 2 == 1));
+		getSortedGapList(4).retainIf(Predicates.allow());
+		getSortedGapList(4).retainIf(Predicates.deny());
 	}
 
-	@Trace(parameters = Trace.THIS | Trace.ALL_PARAMS, result = Trace.THIS | Trace.RESULT, formats = {
-			@Format(apply = Trace.PARAM0, printFormat = "i -> i%%2==0") })
+	@Trace(parameters = Trace.THIS | Trace.ALL_PARAMS, result = Trace.THIS | Trace.RESULT)
 	public static void testRemoveIf() {
-		getSortedGapList(4).removeIf(i -> i % 2 == 0);
+		getSortedGapList(4).removeIf(new NamedPredicate<>("i%2==0", i -> i % 2 == 0));
+		getSortedGapList(4).removeIf(new NamedPredicate<>("i%2==1", i -> i % 2 == 1));
+		getSortedGapList(4).removeIf(Predicates.allow());
+		getSortedGapList(4).removeIf(Predicates.deny());
 	}
 
-	@Trace(parameters = Trace.THIS | Trace.ALL_PARAMS, result = Trace.THIS | Trace.RESULT, formats = {
-			@Format(apply = Trace.PARAM0, printFormat = "i -> i%%2==0") })
+	@Trace(parameters = Trace.THIS | Trace.ALL_PARAMS, result = Trace.THIS | Trace.RESULT)
 	public static void testExtractIf() {
-		getSortedGapList(4).extractIf(i -> i % 2 == 0);
+		getSortedGapList(4).extractIf(new NamedPredicate<>("i%2==0", i -> i % 2 == 0));
+		getSortedGapList(4).extractIf(new NamedPredicate<>("i%2==1", i -> i % 2 == 1));
+		getSortedGapList(4).extractIf(Predicates.allow());
+		getSortedGapList(4).extractIf(Predicates.deny());
 	}
 
 	@Trace(parameters = Trace.THIS | Trace.ALL_PARAMS, result = Trace.THIS | Trace.RESULT)
@@ -504,7 +516,7 @@ public class GapListTest {
 	@Capture
 	public static void testMappedList() {
 		IList<Integer> l1 = getSortedGapList(7);
-		IList<String> l2 = l1.mappedList(i -> "(" + i + ")");
+		IList<String> l2 = l1.map(i -> "(" + i + ")");
 		System.out.println(l2);
 	}
 
@@ -531,18 +543,6 @@ public class GapListTest {
 		IList<Integer> l1 = getSortedGapList(7);
 		l1.countIf(i -> i == 1);
 		l1.countIf(i -> i % 2 == 0);
-	}
-
-	@Capture
-	public static void testFilter() {
-		IList<Integer> l1 = getSortedGapList(7);
-		l1.filter(new Predicate<Integer>() {
-			@Override
-			public boolean test(Integer elem) {
-				return elem % 2 == 0;
-			}
-		});
-		System.out.println(l1);
 	}
 
 	@Trace(parameters = Trace.THIS | Trace.ALL_PARAMS, result = Trace.PARAM0 | Trace.PARAM3)

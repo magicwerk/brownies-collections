@@ -110,15 +110,15 @@
       <error></error>
     </traceStep>
   </traceTest>
-  <traceTest name="testFilteredList">
-    <runDate>2022-11-24T15:36:40.831+01:00</runDate>
-    <runDuration>0.0111436</runDuration>
+  <traceTest name="testFilter">
+    <runDate>2022-12-05T00:39:05.136+01:00</runDate>
+    <runDuration>0.020376</runDuration>
     <exception></exception>
     <traceClass>org.magicwerk.brownies.collections.KeySet</traceClass>
-    <traceMethod>filteredList</traceMethod>
+    <traceMethod>filter</traceMethod>
     <traceStep>
       <description>
-        <paramText outputType="TEXT" param="Description">"filteredList"</paramText>
+        <paramText outputType="TEXT" param="Description">"filter"</paramText>
       </description>
       <parameters>
         <paramText outputType="VALUE" param="#1">"{ \r\n}"</paramText>
@@ -130,7 +130,7 @@
     </traceStep>
     <traceStep>
       <description>
-        <paramText outputType="TEXT" param="Description">"filteredList"</paramText>
+        <paramText outputType="TEXT" param="Description">"filter"</paramText>
       </description>
       <parameters>
         <paramText outputType="VALUE" param="#1">"{ \r\n}"</paramText>
@@ -142,7 +142,7 @@
     </traceStep>
     <traceStep>
       <description>
-        <paramText outputType="TEXT" param="Description">"filteredList"</paramText>
+        <paramText outputType="TEXT" param="Description">"filter"</paramText>
       </description>
       <parameters>
         <paramText outputType="VALUE" param="#1">"{ \r\n}"</paramText>
@@ -154,7 +154,7 @@
     </traceStep>
     <traceStep>
       <description>
-        <paramText outputType="TEXT" param="Description">"filteredList"</paramText>
+        <paramText outputType="TEXT" param="Description">"filter"</paramText>
       </description>
       <parameters>
         <paramText outputType="VALUE" param="#1">"{ \r\n}"</paramText>
@@ -166,7 +166,7 @@
     </traceStep>
     <traceStep>
       <description>
-        <paramText outputType="TEXT" param="Description">"filteredList"</paramText>
+        <paramText outputType="TEXT" param="Description">"filter"</paramText>
       </description>
       <parameters>
         <paramText outputType="VALUE" param="#1">"{ \r\n}"</paramText>
@@ -392,15 +392,15 @@
       </error>
     </traceStep>
   </traceTest>
-  <traceTest name="testMappedList">
-    <runDate>2022-11-24T15:36:41.088+01:00</runDate>
-    <runDuration>0.0045922</runDuration>
+  <traceTest name="testMap">
+    <runDate>2022-12-05T00:39:05.916+01:00</runDate>
+    <runDuration>0.0111366</runDuration>
     <exception></exception>
     <traceClass>org.magicwerk.brownies.collections.KeySet</traceClass>
-    <traceMethod>mappedList</traceMethod>
+    <traceMethod>map</traceMethod>
     <traceStep>
       <description>
-        <paramText outputType="TEXT" param="Description">"mappedList"</paramText>
+        <paramText outputType="TEXT" param="Description">"map"</paramText>
       </description>
       <parameters>
         <paramText outputType="VALUE" param="#1">"{ \r\n}"</paramText>
@@ -412,7 +412,7 @@
     </traceStep>
     <traceStep>
       <description>
-        <paramText outputType="TEXT" param="Description">"mappedList"</paramText>
+        <paramText outputType="TEXT" param="Description">"map"</paramText>
       </description>
       <parameters>
         <paramText outputType="VALUE" param="#1">"{ \r\n}"</paramText>
@@ -424,7 +424,7 @@
     </traceStep>
     <traceStep>
       <description>
-        <paramText outputType="TEXT" param="Description">"mappedList"</paramText>
+        <paramText outputType="TEXT" param="Description">"map"</paramText>
       </description>
       <parameters>
         <paramText outputType="VALUE" param="#1">"{ \r\n}"</paramText>
@@ -436,7 +436,7 @@
     </traceStep>
     <traceStep>
       <description>
-        <paramText outputType="TEXT" param="Description">"mappedList"</paramText>
+        <paramText outputType="TEXT" param="Description">"map"</paramText>
       </description>
       <parameters>
         <paramText outputType="VALUE" param="#1">"{ \r\n}"</paramText>
@@ -448,7 +448,7 @@
     </traceStep>
     <traceStep>
       <description>
-        <paramText outputType="TEXT" param="Description">"mappedList"</paramText>
+        <paramText outputType="TEXT" param="Description">"map"</paramText>
       </description>
       <parameters>
         <paramText outputType="VALUE" param="#1">"{ \r\n}"</paramText>

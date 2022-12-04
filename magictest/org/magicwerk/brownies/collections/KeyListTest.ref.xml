@@ -1962,9 +1962,9 @@
       <error></error>
     </traceStep>
   </traceTest>
-  <traceTest name="testMappedList">
-    <runDate>2022-11-24T15:53:20.821+01:00</runDate>
-    <runDuration>0.0433698</runDuration>
+  <traceTest name="testMap">
+    <runDate>2022-12-05T00:48:00.866+01:00</runDate>
+    <runDuration>0.0116796</runDuration>
     <exception></exception>
     <traceClass>org.magicwerk.brownies.collections.KeyList</traceClass>
     <traceMethod>/.*/</traceMethod>
@@ -2006,7 +2006,7 @@
     </traceStep>
     <traceStep>
       <description>
-        <paramText outputType="TEXT" param="Description">"mappedList"</paramText>
+        <paramText outputType="TEXT" param="Description">"map"</paramText>
       </description>
       <parameters>
         <paramText outputType="VALUE" param="#1">"{ \r\n}"</paramText>

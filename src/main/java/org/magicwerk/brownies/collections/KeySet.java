@@ -263,8 +263,8 @@ public class KeySet<E> extends KeyCollection<E> implements Set<E> {
 	}
 
 	@Override
-	public KeySet<E> filteredList(Predicate<? super E> filter) {
-		return (KeySet<E>) super.filteredList(filter);
+	public KeySet<E> filter(Predicate<? super E> filter) {
+		return (KeySet<E>) super.filter(filter);
 	}
 
 }
