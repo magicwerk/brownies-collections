@@ -1165,10 +1165,32 @@ public abstract class IList<E>
 	}
 
 	@Override
+	public E getFirstOrNull() {
+		if (size() == 0) {
+			return null;
+		}
+		return doGet(0);
+	}
+
+	@Override
 	public E getLast() {
 		int size = size();
 		if (size == 0) {
 			throw new NoSuchElementException();
+		}
+		return doGet(size - 1);
+	}
+
+	/**
+	 * Returns the last element stored in the list.
+	 * If the list is empty, null is returned.
+	 *
+	 * @return	last element stored in the list or null if empty
+	 */
+	public E getLastOrNull() {
+		int size = size();
+		if (size == 0) {
+			return null;
 		}
 		return doGet(size - 1);
 	}
