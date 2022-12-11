@@ -607,7 +607,7 @@ public abstract class IList<E>
 	 * Retains all elements in the list which match the predicate.
 	 *
 	 * @param predicate a predicate which returns {@code true} for elements to be retained
-	 * @return 			{@code true} if any elements were removed
+	 * @return 			{@code true} if the list was changed
 	 */
 	public boolean retainIf(Predicate<? super E> predicate) {
 		// Design: no allocations needed
@@ -629,10 +629,10 @@ public abstract class IList<E>
 	}
 
 	/**
-	 * Retains all elements in the list which match the predicate.
+	 * Removes all elements in the list which match the predicate.
 	 *
-	 * @param predicate a predicate which returns {@code true} for elements to be retained
-	 * @return 			{@code true} if any elements were removed
+	 * @param predicate a predicate which returns {@code true} for elements to be removed
+	 * @return 			{@code true} if the list was changed
 	 */
 	@Override
 	public boolean removeIf(Predicate<? super E> predicate) {
