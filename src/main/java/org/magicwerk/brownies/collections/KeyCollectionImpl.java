@@ -2997,23 +2997,16 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 		return (Set<E>) getDistinctKeys(0);
 	}
 
-	/**
-	 * Create a new list by applying the specified filter to all elements.
-	 * Only element which are allowed by the predicate are copied to the new list.
-	 *
-	 * @param predicate	predicate used for filtering
-	 * @return			created list
-	 */
 	@Override
 	public KeyCollectionImpl filter(Predicate<? super E> predicate) {
-		KeyCollectionImpl list = crop();
+		KeyCollectionImpl coll = crop();
 		int size = size();
 		for (E e : this) {
 			if (predicate.test(e)) {
-				list.add(e);
+				coll.add(e);
 			}
 		}
-		return list;
+		return coll;
 	}
 
 	@Override

@@ -156,8 +156,22 @@ public interface ICollection<E> extends Collection<E> {
 	 */
 	<R> IList<R> map(Function<E, R> func);
 
+	/**
+	 * Create a new list by applying the specified mapping function to all elements and then filtering it.
+	 * The returned list is of type {@link IList}, typically {@link GapList} unless the original type is {@link BigList}.
+	 *
+	 * @param func	mapping function
+	 * @return		created list
+	 */
 	<R> IList<R> mapFilter(Function<E, R> func, Predicate<R> filter);
 
+	/**
+	 * Create a new list by applying the specified filter first and then the mapping function to all elements selected.
+	 * The returned list is of type {@link IList}, typically {@link GapList} unless the original type is {@link BigList}.
+	 *
+	 * @param func	mapping function
+	 * @return		created list
+	 */
 	<R> IList<R> filterMap(Predicate<E> filter, Function<E, R> func);
 
 }
