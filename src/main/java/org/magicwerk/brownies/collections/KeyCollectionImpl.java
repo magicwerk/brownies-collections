@@ -44,6 +44,7 @@ import org.magicwerk.brownies.collections.helper.NaturalComparator;
 import org.magicwerk.brownies.collections.helper.NullComparator;
 import org.magicwerk.brownies.collections.helper.Option;
 import org.magicwerk.brownies.collections.helper.SortedLists;
+import org.magicwerk.brownies.core.ObjectTools;
 
 /**
  * Add:
@@ -2933,13 +2934,17 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 		if (c.size() != size()) {
 			return false;
 		}
-		try {
-			return containsAll(c);
-		} catch (ClassCastException unused) {
-			return false;
-		} catch (NullPointerException unused) {
-			return false;
+
+		Iterator<E> iter = iterator();
+		Iterator<E> iter2 = c.iterator();
+		while (iter.hasNext()) {
+			E obj = iter.next();
+			E obj2 = iter2.next();
+			if (!ObjectTools.equals(obj, obj2)) {
+				return false;
+			}
 		}
+		return true;
 	}
 
 	// As in AbstractCollection
