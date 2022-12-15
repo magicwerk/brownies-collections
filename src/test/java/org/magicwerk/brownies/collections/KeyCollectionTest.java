@@ -98,10 +98,12 @@ public class KeyCollectionTest {
 	@Capture
 	public static void testEquals() {
 		testElemCountEquals(false, GapList.create("a", "b"), GapList.create("a", "b"));
+		testElemCountEquals(false, GapList.create("a", "b"), GapList.create("b", "a"));
 		testElemCountEquals(false, GapList.create("a"), GapList.create("a", "a"));
 		testElemCountEquals(false, GapList.create("a", "a", "b"), GapList.create("a", "b", "b"));
 
 		testElemCountEquals(true, GapList.create("a", "b"), GapList.create("a", "b"));
+		testElemCountEquals(true, GapList.create("a", "b"), GapList.create("b", "a"));
 		testElemCountEquals(true, GapList.create("a"), GapList.create("a", "a"));
 		testElemCountEquals(true, GapList.create("a", "a", "b"), GapList.create("a", "b", "b"));
 	}
@@ -111,7 +113,7 @@ public class KeyCollectionTest {
 		c0.addAll(coll0);
 		KeyCollection<String> c1 = new KeyCollection.Builder<String>().withElemCount(elemCount).build();
 		c1.addAll(coll1);
-		LOG.info("equals({}, {}): {}", c0, c1, c0.equals(c1));
+		LOG.info("equals({}, {}): {}", coll0, coll1, c0.equals(c1));
 	}
 
 	//	static void testPerformanceSortedList() {

@@ -869,11 +869,11 @@
     </captureStep>
   </captureTest>
   <captureTest name="testEquals">
-    <runDate>2022-12-15T17:10:36.862+01:00</runDate>
-    <runDuration>5.08E-4</runDuration>
+    <runDate>2022-12-15T17:17:17.755+01:00</runDate>
+    <runDuration>6.289E-4</runDuration>
     <exception></exception>
     <captureStep>
-      <text outputType="TEXT">"equals([a, b], [a, b]): true\r\nequals([a], [a, a]): false\r\nequals([a, a, b], [a, b, b]): false\r\nequals([a, b], [a, b]): true\r\nequals([a], [a, a]): false\r\nequals([a, a, b], [a, b, b]): false\r\n"</text>
+      <text outputType="TEXT">"equals([a, b], [a, b]): true\r\nequals([a, b], [b, a]): true\r\nequals([a], [a, a]): false\r\nequals([a, a, b], [a, b, b]): false\r\nequals([a, b], [a, b]): true\r\nequals([a, b], [b, a]): true\r\nequals([a], [a, a]): false\r\nequals([a, a, b], [a, b, b]): false\r\n"</text>
     </captureStep>
   </captureTest>
   <traceTest name="testIterator">
