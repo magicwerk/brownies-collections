@@ -548,7 +548,7 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
      * Retains all elements in the list which match the predicate.
      *
      * @param predicate a predicate which returns {@code true} for elements to be retained
-     * @return 			{@code true} if any elements were removed
+     * @return 			{@code true} if the list was changed
      */
     public boolean retainIf(Predicate<Character> predicate) {
         // Design: no allocations needed
@@ -570,10 +570,10 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
     }
 
     /**
-     * Retains all elements in the list which match the predicate.
+     * Removes all elements in the list which match the predicate.
      *
-     * @param predicate a predicate which returns {@code true} for elements to be retained
-     * @return 			{@code true} if any elements were removed
+     * @param predicate a predicate which returns {@code true} for elements to be removed
+     * @return 			{@code true} if the list was changed
      */
     public boolean removeIf(Predicate<Character> predicate) {
         // Design: no allocations needed
@@ -1052,10 +1052,31 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
         return doGet(0);
     }
 
+    public char getFirstOrNull() {
+        if (size() == 0) {
+            return (char) 0;
+        }
+        return doGet(0);
+    }
+
     public char getLast() {
         int size = size();
         if (size == 0) {
             throw new NoSuchElementException();
+        }
+        return doGet(size - 1);
+    }
+
+    /**
+     * Returns the last element stored in the list.
+     * If the list is empty, null is returned.
+     *
+     * @return	last element stored in the list or null if empty
+     */
+    public char getLastOrNull() {
+        int size = size();
+        if (size == 0) {
+            return (char) 0;
         }
         return doGet(size - 1);
     }

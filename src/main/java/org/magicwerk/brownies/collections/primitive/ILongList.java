@@ -558,7 +558,7 @@ public abstract class ILongList implements Cloneable, Serializable {
      * Retains all elements in the list which match the predicate.
      *
      * @param predicate a predicate which returns {@code true} for elements to be retained
-     * @return 			{@code true} if any elements were removed
+     * @return 			{@code true} if the list was changed
      */
     public boolean retainIf(Predicate<Long> predicate) {
         // Design: no allocations needed
@@ -580,10 +580,10 @@ public abstract class ILongList implements Cloneable, Serializable {
     }
 
     /**
-     * Retains all elements in the list which match the predicate.
+     * Removes all elements in the list which match the predicate.
      *
-     * @param predicate a predicate which returns {@code true} for elements to be retained
-     * @return 			{@code true} if any elements were removed
+     * @param predicate a predicate which returns {@code true} for elements to be removed
+     * @return 			{@code true} if the list was changed
      */
     public boolean removeIf(Predicate<Long> predicate) {
         // Design: no allocations needed
@@ -1062,10 +1062,31 @@ public abstract class ILongList implements Cloneable, Serializable {
         return doGet(0);
     }
 
+    public long getFirstOrNull() {
+        if (size() == 0) {
+            return 0;
+        }
+        return doGet(0);
+    }
+
     public long getLast() {
         int size = size();
         if (size == 0) {
             throw new NoSuchElementException();
+        }
+        return doGet(size - 1);
+    }
+
+    /**
+     * Returns the last element stored in the list.
+     * If the list is empty, null is returned.
+     *
+     * @return	last element stored in the list or null if empty
+     */
+    public long getLastOrNull() {
+        int size = size();
+        if (size == 0) {
+            return 0;
         }
         return doGet(size - 1);
     }

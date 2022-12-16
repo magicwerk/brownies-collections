@@ -2934,16 +2934,20 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 			return false;
 		}
 
-		Iterator<E> iter = iterator();
-		Iterator<E> iter2 = c.iterator();
-		while (iter.hasNext()) {
-			E obj = iter.next();
-			E obj2 = iter2.next();
-			if (!Objects.equals(obj, obj2)) {
-				return false;
+		if (setBehavior) {
+			return containsAll(c);
+		} else {
+			Iterator<E> iter = iterator();
+			Iterator<E> iter2 = c.iterator();
+			while (iter.hasNext()) {
+				E obj = iter.next();
+				E obj2 = iter2.next();
+				if (!Objects.equals(obj, obj2)) {
+					return false;
+				}
 			}
+			return true;
 		}
-		return true;
 	}
 
 	// As in AbstractCollection
