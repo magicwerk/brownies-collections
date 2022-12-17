@@ -14,10 +14,9 @@ import org.magicwerk.brownies.core.strings.StringFormatParsers;
 import org.magicwerk.brownies.core.strings.StringFormatter;
 import org.magicwerk.brownies.core.strings.matcher.NestedStringMatcher;
 import org.magicwerk.brownies.core.strings.matcher.RegexStringMatcher;
-import org.magicwerk.brownies.javassist.sources.JavaParserTools;
+import org.magicwerk.brownies.javassist.sources.JavaParserReader;
 import org.slf4j.Logger;
 
-import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 
 /**
@@ -38,6 +37,8 @@ import com.github.javaparser.ast.CompilationUnit;
  * @author Thomas Mauch
  */
 public class BuildSource {
+
+	static final JavaParserReader javaParserReader = new JavaParserReader();
 
 	static abstract class FileBuilder {
 		String srcDir;
@@ -164,8 +165,7 @@ public class BuildSource {
 		}
 
 		CompilationUnit parseJavaSource(String src) {
-			JavaParser javaParser = JavaParserTools.getParser();
-			CompilationUnit cu = JavaParserTools.parseCompilationUnit(javaParser, src);
+			CompilationUnit cu = javaParserReader.parseCompilationUnit(src);
 			return cu;
 		}
 
@@ -281,7 +281,8 @@ public class BuildSource {
 
 	static void writeFile(String file, String src) {
 		LOG.info("Write file {}", file);
-		src = JavaParserTools.printPretty(src);
+		CompilationUnit cu = javaParserReader.parseCompilationUnit(src);
+		src = javaParserReader.print(cu);
 		FileTools.writeFile().setFile(file).setText(src).write();
 	}
 
