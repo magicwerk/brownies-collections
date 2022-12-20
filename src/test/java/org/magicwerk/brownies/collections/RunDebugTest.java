@@ -76,7 +76,7 @@ public class RunDebugTest {
 
 	void prepareBuild() {
 		FileTools.cleanDir().setDir(buildDir).setCreateDirs(true).clean();
-		FileTools.copyFile().copyDirIntoDir("src", buildDir.getPath());
+		FileTools.copyFile().copyDirIntoDir(FilePath.of("src"), buildDir);
 		FileTools.writeFile().setFile(buildDir.get("build.gradle")).setText(buildGradle).write();
 		FileTools.writeFile().setFile(buildDir.get("settings.gradle")).setText("").write();
 	}
