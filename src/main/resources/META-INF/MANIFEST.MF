@@ -1,0 +1,18 @@
+Manifest-Version: 1.0
+Bundle-Description: Brownies Collections contains high-performance col
+ lections complementing the Java Collections Framework.
+Automatic-Module-Name: org.magicwerk.brownies.collections
+Bundle-License: https://www.apache.org/licenses/LICENSE-2.0.txt
+Bundle-SymbolicName: org.magicwerk.brownies.collections
+Export-Package: org.magicwerk.brownies.collections;version="0.9.20-SNA
+ PSHOT",org.magicwerk.brownies.collections.exceptions;version="0.9.20-
+ SNAPSHOT",org.magicwerk.brownies.collections.helper;version="0.9.20-S
+ NAPSHOT",org.magicwerk.brownies.collections.helper.primitive;version=
+ "0.9.20-SNAPSHOT",org.magicwerk.brownies.collections.primitive;versio
+ n="0.9.20-SNAPSHOT"
+Bundle-Name: Brownies-Collections
+Bundle-Version: 0.9.20-SNAPSHOT
+Bundle-ManifestVersion: 2
+Specification-Title: magicwerk.org
+Bundle-DocURL: http://www.magicwerk.org/collections
+

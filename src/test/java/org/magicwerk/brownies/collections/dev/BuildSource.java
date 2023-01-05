@@ -251,13 +251,20 @@ public class BuildSource {
 	static final Logger LOG = LogbackTools.getConsoleLogger();
 
 	public static void main(String[] args) {
-		run();
+		new BuildSource().run();
+	}
+
+	void run() {
+		// Generate in src/main/java
+		buildSource();
+		// Generate in src/main/resources
+		new BuildManifest().run();
 	}
 
 	/**
 	 * Generate Java source files for primitive types.
 	 */
-	static void run() {
+	void buildSource() {
 		// Generate source files
 		for (String primitiveType : ReflectTypes.VALUE_TYPES) {
 			Class<?> primitiveClass = ReflectTypes.getPrimitiveClass(primitiveType);
