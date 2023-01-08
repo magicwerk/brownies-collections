@@ -477,12 +477,10 @@ public class Key1List<E, K> extends KeyListImpl<E> {
 	 * If there is such an element, the element is replaced.
 	 * So said simply, it is a shortcut for the following code:
 	 * <pre>
-	 * index = indexOfKey1(elemKey)
-	 * if (index != -1) {
-	 *   putByKey1(elem);
-	 * } else {
-	 *   add(elem);
+	 * if (containsKey1(elem)) {
+	 *   removeByKey1(elem);
 	 * }
+	 * add(elem);
 	 * </pre>
 	 * However the method is atomic in the sense that all or none operations are executed.
 	 * So if there is already such an element, but adding the new one fails due to a constraint violation,
@@ -495,6 +493,23 @@ public class Key1List<E, K> extends KeyListImpl<E> {
 		return putByKey(1, elem, true);
 	}
 
+	/**
+	 * Adds or replaces element by key.
+	 * If there is no such element, the element is added.
+	 * If there is such an element, the element is left unchanged.
+	 * So said simply, it is a shortcut for the following code:
+	 * <pre>
+	 * if (!containsKey1(elem)) {
+	 *   add(elem);
+	 * }
+	 * </pre>
+	 * However the method is atomic in the sense that all or none operations are executed.
+	 * So if there is already such an element, but adding the new one fails due to a constraint violation,
+	 * the old element remains in the list.
+	 *
+	 * @param elem	element
+	 * @return		element which has been replaced or null otherwise
+	 */
 	public E putIfAbsentByKey1(E elem) {
 		return putByKey(1, elem, false);
 	}
