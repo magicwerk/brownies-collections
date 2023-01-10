@@ -2066,9 +2066,7 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 	 * If there is such an element, the element is replaced.
 	 * So said simply, it is a shortcut for the following code:
 	 * <pre>
-	 * if (contains(elem)) {
-	 *   remove(elem);
-	 * }
+	 * remove(elem);
 	 * add(elem);
 	 * </pre>
 	 * However the method is atomic in the sense that all or none operations are executed.
@@ -2079,7 +2077,7 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 	 * @return		element which has been replaced or null otherwise
 	 */
 	protected E put(E elem) {
-		return putByKey(0, elem);
+		return putByKey(0, elem, true);
 	}
 
 	@Override
@@ -2863,27 +2861,42 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 			debugCheck();
 	}
 
-	protected E putByKey(int keyIndex, E elem) {
-		// Try to remove element
+	protected E putByKey(int keyIndex, E elem, boolean replace) {
 		Option<E> removed;
-		if (keyIndex == 0) {
-			removed = doRemove(elem, null);
+
+		if (replace) {
+			// Try to remove element
+			if (keyIndex == 0) {
+				removed = doRemove(elem, null);
+				if (removed.hasValue()) {
+					size--;
+				}
+			} else {
+				Object key = getKey(keyIndex, elem);
+				removed = doRemoveByKey(keyIndex, key);
+			}
+
 			if (removed.hasValue()) {
-				size--;
+				try {
+					beforeDelete(removed.getValue());
+				} catch (RuntimeException e) {
+					doAddThrow(removed.getValue(), null);
+					throw e;
+				}
 			}
+
 		} else {
+			// Try to find element
 			Object key = getKey(keyIndex, elem);
-			removed = doRemoveByKey(keyIndex, key);
-		}
-		if (removed.hasValue()) {
-			try {
-				beforeDelete(removed.getValue());
-			} catch (RuntimeException e) {
-				doAddThrow(removed.getValue(), null);
-				throw e;
+			E oldElem = getByKey(keyIndex, key);
+			if (oldElem != null) {
+				return oldElem;
 			}
+
+			removed = Option.empty();
 		}
 
+		// Call before triggers
 		try {
 			beforeInsert(elem);
 		} catch (RuntimeException e) {

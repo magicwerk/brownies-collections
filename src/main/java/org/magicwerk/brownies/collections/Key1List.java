@@ -472,14 +472,12 @@ public class Key1List<E, K> extends KeyListImpl<E> {
 	}
 
 	/**
-	 * Adds or replaces element by key.
+	 * Adds element by key.
 	 * If there is no such element, the element is added.
 	 * If there is such an element, the element is replaced.
 	 * So said simply, it is a shortcut for the following code:
 	 * <pre>
-	 * if (containsKey1(elem)) {
-	 *   removeByKey1(elem);
-	 * }
+	 * removeByKey1(elem.getKey1());
 	 * add(elem);
 	 * </pre>
 	 * However the method is atomic in the sense that all or none operations are executed.
@@ -487,7 +485,7 @@ public class Key1List<E, K> extends KeyListImpl<E> {
 	 * the old element remains in the list.
 	 *
 	 * @param elem	element
-	 * @return		element which has been replaced or null otherwise
+	 * @return		element with the same key which has been replaced or null otherwise
 	 */
 	public E putByKey1(E elem) {
 		return putByKey(1, elem, true);
@@ -499,7 +497,7 @@ public class Key1List<E, K> extends KeyListImpl<E> {
 	 * If there is such an element, the element is left unchanged.
 	 * So said simply, it is a shortcut for the following code:
 	 * <pre>
-	 * if (!containsKey1(elem)) {
+	 * if (!containsKey1(elem.getKey1())) {
 	 *   add(elem);
 	 * }
 	 * </pre>
@@ -508,7 +506,7 @@ public class Key1List<E, K> extends KeyListImpl<E> {
 	 * the old element remains in the list.
 	 *
 	 * @param elem	element
-	 * @return		element which has been replaced or null otherwise
+	 * @return		element with the same key which has been left unchanged or null otherwise
 	 */
 	public E putIfAbsentByKey1(E elem) {
 		return putByKey(1, elem, false);

@@ -577,7 +577,8 @@ public abstract class KeyListImpl<E> extends IList<E> {
 	 * @param keyIndex	key index
 	 * @param elem		element to put
 	 * @param replace	true to replace an existing element with the same key, false to let the element unchanged
-	 * @return			replaced element or null if no element has been replaced
+	 * @return			element with the same key (i.e. element which was replaced if replace is true / which was left unchanged if false),
+	 * 					null if no element with the same key has been found
 	 */
 	protected E putByKey(int keyIndex, E elem, boolean replace) {
 		int index;
@@ -593,6 +594,8 @@ public abstract class KeyListImpl<E> extends IList<E> {
 		} else {
 			if (replace) {
 				replaced = doSet(index, elem);
+			} else {
+				replaced = doGet(index);
 			}
 		}
 		if (DEBUG_CHECK)
@@ -730,7 +733,7 @@ public abstract class KeyListImpl<E> extends IList<E> {
 	 */
 	protected E put(E elem) {
 		// If contains() is fast but indexOf() slow, we check first whether the element is contained and then call
-		// add if it not (we do not use the index for adding, so we can skip this costly operation)
+		// add if it is not (we do not use the index for adding, so we can skip this costly operation)
 		if (!isIndexOfFast() && isContainsFast()) {
 			if (!contains(elem)) {
 				add(elem);
