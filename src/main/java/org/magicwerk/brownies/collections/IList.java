@@ -321,8 +321,7 @@ public abstract class IList<E>
 	/**
 	 * An application can use this operation to minimize the storage of an instance.
 	 */
-	// Note: Provide this method to make transition from ArrayList as
-	//       smooth as possible
+	// Note: Provide this method to make transition from ArrayList as smooth as possible
 	abstract public void trimToSize();
 
 	@Override
