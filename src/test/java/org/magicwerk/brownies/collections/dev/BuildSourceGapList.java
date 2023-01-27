@@ -83,7 +83,7 @@ public class BuildSourceGapList extends FileBuilder {
 
 		String dstFile = PathTools.getPath(
 				srcDir,
-				ClassTools.getPathFromClass(ClassTools.getPackageName(srcClass)),
+				ClassTools.getPathFromClass(ClassTools.getParentPackage(srcClass)),
 				"primitive",
 				javaFile);
 

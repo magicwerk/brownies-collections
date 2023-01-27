@@ -170,7 +170,7 @@ public class BuildSourceIList extends FileBuilder {
 		src = applyTemplate(src);
 		String javaFile = applyTemplate("I{NAME}List.java");
 
-		String dstFile = PathTools.getPath(srcDir, ClassTools.getPathFromClass(ClassTools.getPackageName(srcClass)), "primitive", javaFile);
+		String dstFile = PathTools.getPath(srcDir, ClassTools.getPathFromClass(ClassTools.getParentPackage(srcClass)), "primitive", javaFile);
 
 		setFile(dstFile);
 		setFileContent(src);
