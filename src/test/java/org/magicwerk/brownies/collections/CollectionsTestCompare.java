@@ -27,7 +27,7 @@ import org.magicwerk.brownies.core.ObjectTools;
 import org.magicwerk.brownies.core.logback.LogbackTools;
 import org.magicwerk.brownies.core.objects.Result;
 import org.magicwerk.brownies.core.reflect.Access;
-import org.magicwerk.brownies.core.reflect.ReflectImpl;
+import org.magicwerk.brownies.core.reflect.ReflectReflection;
 import org.magicwerk.brownies.core.reflect.ReflectTools;
 import org.magicwerk.brownies.core.regex.RegexTools;
 import org.magicwerk.brownies.core.strings.StringFormatter;
@@ -42,7 +42,7 @@ import ch.qos.logback.classic.Logger;
  */
 public class CollectionsTestCompare {
 
-	static final ReflectImpl REFLECT = new ReflectImpl();
+	static final ReflectReflection REFLECT = new ReflectReflection();
 
 	static final Logger LOG = LogbackTools.getConsoleLogger();
 
