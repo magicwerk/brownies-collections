@@ -18,8 +18,6 @@
 package org.magicwerk.brownies.collections;
 
 import java.util.Collection;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -44,7 +42,7 @@ public interface ICollection<E> extends Collection<E> {
 	 * @return	first element stored in the collection
 	 */
 	default E getFirst() {
-		return iterator().next();
+		return ICollectionTools.getFirst(this);
 	}
 
 	/**
@@ -54,8 +52,7 @@ public interface ICollection<E> extends Collection<E> {
 	 * @return	first element stored in the collection or null if empty
 	 */
 	default E getFirstOrNull() {
-		Iterator<E> iter = iterator();
-		return iter.hasNext() ? iter.next() : null;
+		return ICollectionTools.getFirstOrNull(this);
 	}
 
 	/**
@@ -65,10 +62,7 @@ public interface ICollection<E> extends Collection<E> {
 	 * @return	only element stored in the collection
 	 */
 	default E getSingle() {
-		if (size() != 1) {
-			throw new NoSuchElementException();
-		}
-		return getFirst();
+		return ICollectionTools.getSingle(this);
 	}
 
 	/**
@@ -78,14 +72,7 @@ public interface ICollection<E> extends Collection<E> {
 	 * @return	only element stored in the collection or null if empty
 	 */
 	default E getSingleOrNull() {
-		int size = size();
-		if (size == 0) {
-			return null;
-		} else if (size == 1) {
-			return getFirst();
-		} else {
-			throw new NoSuchElementException();
-		}
+		return ICollectionTools.getSingleOrNull(this);
 	}
 
 	/**
@@ -95,13 +82,7 @@ public interface ICollection<E> extends Collection<E> {
 	 * @return	first element matching the predicate or null if not founds
 	 */
 	default E getIf(Predicate<? super E> predicate) {
-		for (Iterator<E> iter = iterator(); iter.hasNext();) {
-			E e = iter.next();
-			if (predicate.test(e)) {
-				return e;
-			}
-		}
-		return null;
+		return ICollectionTools.getIf(this, predicate);
 	}
 
 	/**
@@ -111,13 +92,7 @@ public interface ICollection<E> extends Collection<E> {
 	 * @return				true if the list contains a matching element, false otherwise
 	 */
 	default boolean containsIf(Predicate<? super E> predicate) {
-		for (Iterator<E> iter = iterator(); iter.hasNext();) {
-			E e = iter.next();
-			if (predicate.test(e)) {
-				return true;
-			}
-		}
-		return false;
+		return ICollectionTools.containsIf(this, predicate);
 	}
 
 	/**
@@ -127,14 +102,7 @@ public interface ICollection<E> extends Collection<E> {
 	 * @return		count how many elements in the list match the predicate
 	 */
 	default int countIf(Predicate<? super E> predicate) {
-		int count = 0;
-		for (Iterator<E> iter = iterator(); iter.hasNext();) {
-			E e = iter.next();
-			if (predicate.test(e)) {
-				count++;
-			}
-		}
-		return count;
+		return ICollectionTools.countIf(this, predicate);
 	}
 
 	/**
