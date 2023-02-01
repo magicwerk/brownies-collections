@@ -20,7 +20,7 @@ import org.magicwerk.brownies.core.ThreadTools;
 import org.magicwerk.brownies.core.Timer;
 import org.magicwerk.brownies.core.files.FilePath;
 import org.magicwerk.brownies.core.logback.LogbackTools;
-import org.magicwerk.brownies.core.reflect.ClassTools;
+import org.magicwerk.brownies.core.reflect.ReflectTools;
 import org.slf4j.Logger;
 
 /**
@@ -110,7 +110,7 @@ public class RunAllTest {
 	}
 
 	static boolean runMagicTests() {
-		return MagicTest.runPackage(ClassTools.getPackageName(ThreadTools.getCurrentClass()));
+		return MagicTest.runPackage(ReflectTools.getPackageName(ThreadTools.getCurrentClass()));
 	}
 
 	/**
