@@ -15,10 +15,10 @@ import org.magicwerk.brownies.core.files.FilePath;
 import org.magicwerk.brownies.core.files.FileTools;
 import org.magicwerk.brownies.core.logback.LogbackTools;
 import org.magicwerk.brownies.core.reflect.ClassTools;
-import org.magicwerk.brownies.core.reflect.JavaBuildConst;
 import org.magicwerk.brownies.core.regex.RegexTools;
 import org.magicwerk.brownies.core.strings.StringPrinter;
 import org.magicwerk.brownies.core.types.ManifestValues;
+import org.magicwerk.brownies.javassist.helper.JavaModuleConst;
 
 import ch.qos.logback.classic.Logger;
 
@@ -72,7 +72,7 @@ public class BuildManifest {
 		String vendor = "magicwerk.org";
 		String license = "https://www.apache.org/licenses/LICENSE-2.0.txt";
 
-		FilePath dir = FilePath.of(JavaBuildConst.JAVA_SOURCE_DIR);
+		FilePath dir = FilePath.of(JavaModuleConst.JAVA_SOURCE_DIR);
 		IList<String> pkgs = getNonEmptyPackages(dir);
 		String exportPackage = getExportPackage(pkgs, version);
 		ManifestValues mv = new ManifestValues();
@@ -97,7 +97,7 @@ public class BuildManifest {
 		mv.write(Export_Package, exportPackage);
 		String text = mv.write();
 
-		FilePath file = FilePath.of(JavaBuildConst.JAVA_RESOURCE_DIR).get(META_INF).get(MANIFEST_MF);
+		FilePath file = FilePath.of(JavaModuleConst.JAVA_RESOURCE_DIR).get(META_INF).get(MANIFEST_MF);
 		FileTools.writeFile().setFile(file).setText(text).write();
 	}
 
