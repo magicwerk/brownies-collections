@@ -20,6 +20,7 @@ package org.magicwerk.brownies.collections;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
@@ -128,6 +129,71 @@ public interface ICollectionTools {
 			}
 		}
 		return count;
+	}
+
+	/**
+	 * Create a new list by applying the specified filter to all elements.
+	 *
+	 * @param predicate	filter predicate
+	 * @return			created list
+	 */
+	public static <E> IList<E> filter(Collection<E> coll, Predicate<? super E> predicate) {
+		IList<E> list = GapList.create();
+		for (E e : coll) {
+			if (predicate.test(e)) {
+				list.add(e);
+			}
+		}
+		return list;
+	}
+
+	/**
+	 * Create a new list by applying the specified mapping function to all elements.
+	 *
+	 * @param func	mapping function
+	 * @return		created list
+	 */
+	public static <E, R> IList<R> map(Collection<E> coll, Function<E, R> func) {
+		IList<R> list = GapList.create();
+		for (E e : coll) {
+			list.add(func.apply(e));
+		}
+		return list;
+	}
+
+	/**
+	 * Create a new list by applying the specified mapping function to all elements and then filtering it.
+	 *
+	 * @param func		mapping function
+	 * @param filter	filter predicate
+	 * @return			created list
+	 */
+	public static <E, R> IList<R> mapFilter(Collection<E> coll, Function<E, R> func, Predicate<R> filter) {
+		IList<R> list = GapList.create();
+		for (E e : coll) {
+			R r = func.apply(e);
+			if (filter.test(r)) {
+				list.add(r);
+			}
+		}
+		return list;
+	}
+
+	/**
+	 * Create a new list by applying the specified filter first and then the mapping function to all elements selected.
+	 *
+	 * @param filter	filter predicate
+	 * @param func		mapping function
+	 * @return			created list
+	 */
+	public static <E, R> IList<R> filterMap(Collection<E> coll, Predicate<E> filter, Function<E, R> func) {
+		IList<R> list = GapList.create();
+		for (E e : coll) {
+			if (filter.test(e)) {
+				list.add(func.apply(e));
+			}
+		}
+		return list;
 	}
 
 }

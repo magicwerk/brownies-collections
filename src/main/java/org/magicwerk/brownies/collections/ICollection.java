@@ -107,10 +107,9 @@ public interface ICollection<E> extends Collection<E> {
 
 	/**
 	 * Create a new collection by applying the specified filter to all elements.
-	 * Only element which are allowed by the predicate are copied to the new list.
 	 * The returned collection has the same type as the original one.
 	 *
-	 * @param predicate	predicate used for filtering
+	 * @param predicate	filter predicate
 	 * @return			created list
 	 */
 	ICollection<E> filter(Predicate<? super E> predicate);
@@ -128,8 +127,9 @@ public interface ICollection<E> extends Collection<E> {
 	 * Create a new list by applying the specified mapping function to all elements and then filtering it.
 	 * The returned list is of type {@link IList}, typically {@link GapList} unless the original type is {@link BigList}.
 	 *
-	 * @param func	mapping function
-	 * @return		created list
+	 * @param func		mapping function
+	 * @param filter	filter predicate
+	 * @return			created list
 	 */
 	<R> IList<R> mapFilter(Function<E, R> func, Predicate<R> filter);
 
@@ -137,8 +137,9 @@ public interface ICollection<E> extends Collection<E> {
 	 * Create a new list by applying the specified filter first and then the mapping function to all elements selected.
 	 * The returned list is of type {@link IList}, typically {@link GapList} unless the original type is {@link BigList}.
 	 *
-	 * @param func	mapping function
-	 * @return		created list
+	 * @param filter	filter predicate
+	 * @param func		mapping function
+	 * @return			created list
 	 */
 	<R> IList<R> filterMap(Predicate<E> filter, Function<E, R> func);
 
