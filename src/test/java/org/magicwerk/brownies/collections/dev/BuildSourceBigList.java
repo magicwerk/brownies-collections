@@ -7,7 +7,7 @@ import org.magicwerk.brownies.collections.dev.RefactorVisitor.RefactorMethod;
 import org.magicwerk.brownies.core.files.FileTools;
 import org.magicwerk.brownies.core.files.PathTools;
 import org.magicwerk.brownies.core.reflect.ClassTools;
-import org.magicwerk.brownies.core.regex.RegexTools;
+import org.magicwerk.brownies.core.regex.RegexBuilder;
 
 import com.github.javaparser.ast.CompilationUnit;
 
@@ -45,8 +45,8 @@ public class BuildSourceBigList extends FileBuilder {
 			public boolean refactor(MethodSource method) {
 				String src = method.getSource();
 				src = substitute("new Object", src, "new {PRIMITIVE}");
-				src = substitute(RegexTools.regexForLiteral("(E) ois.readObject()"), src, "ois.read{NAME}()");
-				src = substitute(RegexTools.regexForLiteral("(E)"), src, "(int)");
+				src = substitute(RegexBuilder.regexForLiteral("(E) ois.readObject()"), src, "ois.read{NAME}()");
+				src = substitute(RegexBuilder.regexForLiteral("(E)"), src, "(int)");
 				method.setSource(src);
 				return false;
 			}
@@ -60,7 +60,7 @@ public class BuildSourceBigList extends FileBuilder {
 			@Override
 			public boolean refactor(MethodSource method) {
 				String src = method.getSource();
-				src = substitute(RegexTools.regexForLiteral("oos.writeObject"), src, "oos.write{NAME}");
+				src = substitute(RegexBuilder.regexForLiteral("oos.writeObject"), src, "oos.write{NAME}");
 				method.setSource(src);
 				return false;
 			}

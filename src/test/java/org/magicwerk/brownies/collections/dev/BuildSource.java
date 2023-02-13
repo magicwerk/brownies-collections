@@ -7,6 +7,7 @@ import org.magicwerk.brownies.core.files.PathTools;
 import org.magicwerk.brownies.core.logback.LogbackTools;
 import org.magicwerk.brownies.core.reflect.ClassTools;
 import org.magicwerk.brownies.core.reflect.ReflectTypes;
+import org.magicwerk.brownies.core.regex.RegexBuilder;
 import org.magicwerk.brownies.core.regex.RegexReplacer;
 import org.magicwerk.brownies.core.regex.RegexTools;
 import org.magicwerk.brownies.core.strings.StringFormat;
@@ -110,7 +111,7 @@ public class BuildSource {
 				str = str.replace("{WRAPPER}", builder.getWrapperType());
 				str = str.replace("{NAME}", builder.getTypeName());
 				str = str.replace("{DEFAULT}", builder.getDefaultValue());
-				str = str.replace("{DEFAULT_REGEX}", RegexTools.regexForLiteral(builder.getDefaultValue()));
+				str = str.replace("{DEFAULT_REGEX}", RegexBuilder.regexForLiteral(builder.getDefaultValue()));
 			}
 			return str;
 		}

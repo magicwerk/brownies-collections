@@ -7,8 +7,8 @@ import org.magicwerk.brownies.collections.dev.BuildSource.FileBuilder;
 import org.magicwerk.brownies.collections.dev.RefactorVisitor.RefactorMethod;
 import org.magicwerk.brownies.core.files.PathTools;
 import org.magicwerk.brownies.core.reflect.ClassTools;
+import org.magicwerk.brownies.core.regex.RegexBuilder;
 import org.magicwerk.brownies.core.regex.RegexReplacer;
-import org.magicwerk.brownies.core.regex.RegexTools;
 
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Modifier;
@@ -254,7 +254,7 @@ public class BuildSourceIList extends FileBuilder {
 		src = substitute("\\? super E\\> dst", src, "{WRAPPER}> dst");
 		src = substitute("\\? super E\\> predicate", src, "{WRAPPER}> predicate");
 		src = substitute("null", src, "{DEFAULT}");
-		src = substitute("list == " + RegexTools.regexForLiteral(src), src, "list == null");
+		src = substitute("list == " + RegexBuilder.regexForLiteral(src), src, "list == null");
 		src = substitute("list = {DEFAULT}", src, "list = null");
 		src = substitute("removed == {DEFAULT_REGEX}", src, "removed == null");
 		src = substitute("removed = {DEFAULT_REGEX}", src, "removed = null");
