@@ -477,10 +477,6 @@ public class GapList<E> extends IList<E> {
 	}
 
 	@Override
-	protected void doRelease(int index) {
-	}
-
-	@Override
 	protected E doReSet(int index, E elem) {
 		assert (index >= 0 && index < size);
 

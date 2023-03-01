@@ -1089,10 +1089,6 @@ public class FloatBigList extends IFloatList {
     }
 
     @Override
-    protected void doRelease(int index) {
-    }
-
-    @Override
     protected float doRemove(int index) {
         int pos = getFloatBlockIndex(index, true, -1);
         float oldElem = currNode.block.doRemove(pos);

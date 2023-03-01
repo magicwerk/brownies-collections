@@ -491,10 +491,6 @@ public class BooleanGapList extends IBooleanList {
     }
 
     @Override
-    protected void doRelease(int index) {
-    }
-
-    @Override
     protected boolean doReSet(int index, boolean elem) {
         assert (index >= 0 && index < size);
         int physIdx = physIndex(index);

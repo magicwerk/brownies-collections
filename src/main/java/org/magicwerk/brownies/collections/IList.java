@@ -203,8 +203,6 @@ public abstract class IList<E>
 	 */
 	abstract protected E doSet(int index, E elem);
 
-	abstract protected void doRelease(int index);
-
 	@Override
 	public E set(int index, E elem) {
 		checkIndex(index);
@@ -644,7 +642,8 @@ public abstract class IList<E>
 			E e = doGet(src);
 			if (!predicate.test(e)) {
 				if (dst != src) {
-					doRelease(dst);
+					E e2 = doGet(dst);
+					doReSet(src, e2);
 					doReSet(dst, e);
 				}
 				dst++;
@@ -2683,11 +2682,6 @@ public abstract class IList<E>
 		protected E doRemove(int index) {
 			error();
 			return null;
-		}
-
-		@Override
-		protected void doRelease(int index) {
-			error();
 		}
 
 		@Override

@@ -188,8 +188,6 @@ public abstract class IByteList implements Cloneable, Serializable {
      */
     abstract protected byte doSet(int index, byte elem);
 
-    abstract protected void doRelease(int index);
-
     public byte set(int index, byte elem) {
         checkIndex(index);
         return doSet(index, elem);
@@ -594,7 +592,8 @@ public abstract class IByteList implements Cloneable, Serializable {
             byte e = doGet(src);
             if (!predicate.test(e)) {
                 if (dst != src) {
-                    doRelease(dst);
+                    byte e2 = doGet(dst);
+                    doReSet(src, e2);
                     doReSet(dst, e);
                 }
                 dst++;
@@ -2283,10 +2282,6 @@ public abstract class IByteList implements Cloneable, Serializable {
         protected byte doRemove(int index) {
             error();
             return (byte) 0;
-        }
-
-        protected void doRelease(int index) {
-            error();
         }
 
         protected void doEnsureCapacity(int minCapacity) {

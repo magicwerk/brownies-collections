@@ -188,8 +188,6 @@ public abstract class IIntList implements Cloneable, Serializable {
      */
     abstract protected int doSet(int index, int elem);
 
-    abstract protected void doRelease(int index);
-
     public int set(int index, int elem) {
         checkIndex(index);
         return doSet(index, elem);
@@ -594,7 +592,8 @@ public abstract class IIntList implements Cloneable, Serializable {
             int e = doGet(src);
             if (!predicate.test(e)) {
                 if (dst != src) {
-                    doRelease(dst);
+                    int e2 = doGet(dst);
+                    doReSet(src, e2);
                     doReSet(dst, e);
                 }
                 dst++;
@@ -2283,10 +2282,6 @@ public abstract class IIntList implements Cloneable, Serializable {
         protected int doRemove(int index) {
             error();
             return 0;
-        }
-
-        protected void doRelease(int index) {
-            error();
         }
 
         protected void doEnsureCapacity(int minCapacity) {

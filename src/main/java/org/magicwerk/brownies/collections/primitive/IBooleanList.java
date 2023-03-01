@@ -188,8 +188,6 @@ public abstract class IBooleanList implements Cloneable, Serializable {
      */
     abstract protected boolean doSet(int index, boolean elem);
 
-    abstract protected void doRelease(int index);
-
     public boolean set(int index, boolean elem) {
         checkIndex(index);
         return doSet(index, elem);
@@ -595,7 +593,8 @@ public abstract class IBooleanList implements Cloneable, Serializable {
             boolean e = doGet(src);
             if (!predicate.test(e)) {
                 if (dst != src) {
-                    doRelease(dst);
+                    boolean e2 = doGet(dst);
+                    doReSet(src, e2);
                     doReSet(dst, e);
                 }
                 dst++;
@@ -2284,10 +2283,6 @@ public abstract class IBooleanList implements Cloneable, Serializable {
         protected boolean doRemove(int index) {
             error();
             return false;
-        }
-
-        protected void doRelease(int index) {
-            error();
         }
 
         protected void doEnsureCapacity(int minCapacity) {

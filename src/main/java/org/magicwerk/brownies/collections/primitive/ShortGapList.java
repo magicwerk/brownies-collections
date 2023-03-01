@@ -491,10 +491,6 @@ public class ShortGapList extends IShortList {
     }
 
     @Override
-    protected void doRelease(int index) {
-    }
-
-    @Override
     protected short doReSet(int index, short elem) {
         assert (index >= 0 && index < size);
         int physIdx = physIndex(index);

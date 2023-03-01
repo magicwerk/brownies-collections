@@ -491,10 +491,6 @@ public class FloatGapList extends IFloatList {
     }
 
     @Override
-    protected void doRelease(int index) {
-    }
-
-    @Override
     protected float doReSet(int index, float elem) {
         assert (index >= 0 && index < size);
         int physIdx = physIndex(index);

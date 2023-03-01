@@ -1089,10 +1089,6 @@ public class DoubleBigList extends IDoubleList {
     }
 
     @Override
-    protected void doRelease(int index) {
-    }
-
-    @Override
     protected double doRemove(int index) {
         int pos = getDoubleBlockIndex(index, true, -1);
         double oldElem = currNode.block.doRemove(pos);

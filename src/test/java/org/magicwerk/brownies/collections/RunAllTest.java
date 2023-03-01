@@ -32,9 +32,7 @@ import org.slf4j.Logger;
  * <br>
  * Depending on the execution environment, the number of tests differ:
  * - If run as main application, all tests are executed, including the tests typically run by MagicTest
- * - If run as MagicTest,  
- * If run
- * Execute this test class with JUnit to run <br>
+ * - If run as MagicTest, only the tests not executed by MagicTest are executed
  *
  * @author Thomas Mauch
  */

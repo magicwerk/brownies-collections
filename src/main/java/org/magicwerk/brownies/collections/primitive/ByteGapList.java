@@ -491,10 +491,6 @@ public class ByteGapList extends IByteList {
     }
 
     @Override
-    protected void doRelease(int index) {
-    }
-
-    @Override
     protected byte doReSet(int index, byte elem) {
         assert (index >= 0 && index < size);
         int physIdx = physIndex(index);

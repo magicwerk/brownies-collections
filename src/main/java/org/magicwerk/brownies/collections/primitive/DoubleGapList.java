@@ -491,10 +491,6 @@ public class DoubleGapList extends IDoubleList {
     }
 
     @Override
-    protected void doRelease(int index) {
-    }
-
-    @Override
     protected double doReSet(int index, double elem) {
         assert (index >= 0 && index < size);
         int physIdx = physIndex(index);

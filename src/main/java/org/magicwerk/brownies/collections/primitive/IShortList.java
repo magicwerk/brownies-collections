@@ -188,8 +188,6 @@ public abstract class IShortList implements Cloneable, Serializable {
      */
     abstract protected short doSet(int index, short elem);
 
-    abstract protected void doRelease(int index);
-
     public short set(int index, short elem) {
         checkIndex(index);
         return doSet(index, elem);
@@ -594,7 +592,8 @@ public abstract class IShortList implements Cloneable, Serializable {
             short e = doGet(src);
             if (!predicate.test(e)) {
                 if (dst != src) {
-                    doRelease(dst);
+                    short e2 = doGet(dst);
+                    doReSet(src, e2);
                     doReSet(dst, e);
                 }
                 dst++;
@@ -2283,10 +2282,6 @@ public abstract class IShortList implements Cloneable, Serializable {
         protected short doRemove(int index) {
             error();
             return (short) 0;
-        }
-
-        protected void doRelease(int index) {
-            error();
         }
 
         protected void doEnsureCapacity(int minCapacity) {

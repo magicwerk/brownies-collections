@@ -491,10 +491,6 @@ public class IntGapList extends IIntList {
     }
 
     @Override
-    protected void doRelease(int index) {
-    }
-
-    @Override
     protected int doReSet(int index, int elem) {
         assert (index >= 0 && index < size);
         int physIdx = physIndex(index);

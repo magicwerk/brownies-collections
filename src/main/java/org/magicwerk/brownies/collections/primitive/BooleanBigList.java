@@ -1089,10 +1089,6 @@ public class BooleanBigList extends IBooleanList {
     }
 
     @Override
-    protected void doRelease(int index) {
-    }
-
-    @Override
     protected boolean doRemove(int index) {
         int pos = getBooleanBlockIndex(index, true, -1);
         boolean oldElem = currNode.block.doRemove(pos);

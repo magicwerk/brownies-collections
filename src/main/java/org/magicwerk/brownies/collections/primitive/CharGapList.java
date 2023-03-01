@@ -491,10 +491,6 @@ public class CharGapList extends ICharList {
     }
 
     @Override
-    protected void doRelease(int index) {
-    }
-
-    @Override
     protected char doReSet(int index, char elem) {
         assert (index >= 0 && index < size);
         int physIdx = physIndex(index);

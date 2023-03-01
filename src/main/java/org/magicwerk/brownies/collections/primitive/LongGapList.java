@@ -491,10 +491,6 @@ public class LongGapList extends ILongList {
     }
 
     @Override
-    protected void doRelease(int index) {
-    }
-
-    @Override
     protected long doReSet(int index, long elem) {
         assert (index >= 0 && index < size);
         int physIdx = physIndex(index);

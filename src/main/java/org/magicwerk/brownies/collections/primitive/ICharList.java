@@ -188,8 +188,6 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
      */
     abstract protected char doSet(int index, char elem);
 
-    abstract protected void doRelease(int index);
-
     public char set(int index, char elem) {
         checkIndex(index);
         return doSet(index, elem);
@@ -584,7 +582,8 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
             char e = doGet(src);
             if (!predicate.test(e)) {
                 if (dst != src) {
-                    doRelease(dst);
+                    char e2 = doGet(dst);
+                    doReSet(src, e2);
                     doReSet(dst, e);
                 }
                 dst++;
@@ -2273,10 +2272,6 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
         protected char doRemove(int index) {
             error();
             return (char) 0;
-        }
-
-        protected void doRelease(int index) {
-            error();
         }
 
         protected void doEnsureCapacity(int minCapacity) {

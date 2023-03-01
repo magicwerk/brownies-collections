@@ -188,8 +188,6 @@ public abstract class ILongList implements Cloneable, Serializable {
      */
     abstract protected long doSet(int index, long elem);
 
-    abstract protected void doRelease(int index);
-
     public long set(int index, long elem) {
         checkIndex(index);
         return doSet(index, elem);
@@ -594,7 +592,8 @@ public abstract class ILongList implements Cloneable, Serializable {
             long e = doGet(src);
             if (!predicate.test(e)) {
                 if (dst != src) {
-                    doRelease(dst);
+                    long e2 = doGet(dst);
+                    doReSet(src, e2);
                     doReSet(dst, e);
                 }
                 dst++;
@@ -2283,10 +2282,6 @@ public abstract class ILongList implements Cloneable, Serializable {
         protected long doRemove(int index) {
             error();
             return 0;
-        }
-
-        protected void doRelease(int index) {
-            error();
         }
 
         protected void doEnsureCapacity(int minCapacity) {

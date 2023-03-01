@@ -188,8 +188,6 @@ public abstract class IDoubleList implements Cloneable, Serializable {
      */
     abstract protected double doSet(int index, double elem);
 
-    abstract protected void doRelease(int index);
-
     public double set(int index, double elem) {
         checkIndex(index);
         return doSet(index, elem);
@@ -595,7 +593,8 @@ public abstract class IDoubleList implements Cloneable, Serializable {
             double e = doGet(src);
             if (!predicate.test(e)) {
                 if (dst != src) {
-                    doRelease(dst);
+                    double e2 = doGet(dst);
+                    doReSet(src, e2);
                     doReSet(dst, e);
                 }
                 dst++;
@@ -2284,10 +2283,6 @@ public abstract class IDoubleList implements Cloneable, Serializable {
         protected double doRemove(int index) {
             error();
             return 0;
-        }
-
-        protected void doRelease(int index) {
-            error();
         }
 
         protected void doEnsureCapacity(int minCapacity) {

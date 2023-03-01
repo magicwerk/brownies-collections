@@ -1089,10 +1089,6 @@ public class IntBigList extends IIntList {
     }
 
     @Override
-    protected void doRelease(int index) {
-    }
-
-    @Override
     protected int doRemove(int index) {
         int pos = getIntBlockIndex(index, true, -1);
         int oldElem = currNode.block.doRemove(pos);
