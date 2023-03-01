@@ -51,6 +51,7 @@ public class KeyListTest {
 	}
 
 	void run() {
+		testRemoveIf();
 		//testUnwrap();
 		//testCrop();
 		//testClone();
@@ -511,6 +512,16 @@ public class KeyListTest {
 		list.add(new ComparableName("b", 3));
 		list.add(null);
 		LOG.info("TableList: {}", list);
+	}
+
+	@Trace(parameters = Trace.THIS, result = Trace.THIS)
+	public static void testRemoveIf() {
+		KeyList<Integer> list = new KeyList.Builder<Integer>().withPrimaryElem().build();
+		list.add(0);
+		list.add(1);
+		list.add(2);
+		list.add(3);
+		list.removeIf(n -> n % 2 == 1);
 	}
 
 	// The columns in a table must have a unique key, null is not allowed.

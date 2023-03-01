@@ -2185,6 +2185,25 @@
       <error></error>
     </traceStep>
   </traceTest>
+  <traceTest name="testRemoveIf">
+    <runDate>2023-03-01T18:09:35.045+01:00</runDate>
+    <runDuration>0.033701</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.KeyList</traceClass>
+    <traceMethod>removeIf</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"removeIf"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, 2 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+  </traceTest>
   <traceTest name="testSet">
     <runDate>2015-10-22T01:47:07.598+02:00</runDate>
     <runDuration>0.073252347</runDuration>
