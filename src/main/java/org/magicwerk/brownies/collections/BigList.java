@@ -1134,6 +1134,10 @@ public class BigList<E> extends IList<E> {
 	}
 
 	@Override
+	protected void doRelease(int index) {
+	}
+
+	@Override
 	protected E doRemove(int index) {
 		int pos = getBlockIndex(index, true, -1);
 		E oldElem = currNode.block.doRemove(pos);

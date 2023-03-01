@@ -1089,6 +1089,10 @@ public class LongBigList extends ILongList {
     }
 
     @Override
+    protected void doRelease(int index) {
+    }
+
+    @Override
     protected long doRemove(int index) {
         int pos = getLongBlockIndex(index, true, -1);
         long oldElem = currNode.block.doRemove(pos);

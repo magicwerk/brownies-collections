@@ -403,8 +403,7 @@ public abstract class KeyListImpl<E> extends IList<E> {
 
 	@Override
 	protected E doRemove(int index) {
-		E removed = list.get(index);
-		keyColl.remove(removed);
+		E removed = doGetRelease(index);
 		if (!keyColl.isSortedByElem()) {
 			list.remove(index);
 		}
@@ -417,18 +416,28 @@ public abstract class KeyListImpl<E> extends IList<E> {
 	protected void doRemoveAll(int index, int len) {
 		if (keyColl.isSortedByElem()) {
 			for (int i = 0; i < len; i++) {
-				E removed = list.get(index);
-				keyColl.remove(removed);
+				doRelease(index);
 			}
 		} else {
 			for (int i = 0; i < len; i++) {
-				E removed = list.get(index + i);
-				keyColl.remove(removed);
+				doRelease(index + i);
 			}
 			list.doRemoveAll(index, len);
 		}
 		if (DEBUG_CHECK)
 			debugCheck();
+	}
+
+	@Override
+	protected void doRelease(int index) {
+		E removed = list.get(index);
+		keyColl.remove(removed);
+	}
+
+	protected E doGetRelease(int index) {
+		E removed = list.get(index);
+		keyColl.remove(removed);
+		return removed;
 	}
 
 	@Override

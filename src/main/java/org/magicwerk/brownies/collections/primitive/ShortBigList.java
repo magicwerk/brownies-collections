@@ -1089,6 +1089,10 @@ public class ShortBigList extends IShortList {
     }
 
     @Override
+    protected void doRelease(int index) {
+    }
+
+    @Override
     protected short doRemove(int index) {
         int pos = getShortBlockIndex(index, true, -1);
         short oldElem = currNode.block.doRemove(pos);

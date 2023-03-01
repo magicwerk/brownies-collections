@@ -491,6 +491,10 @@ public class IntGapList extends IIntList {
     }
 
     @Override
+    protected void doRelease(int index) {
+    }
+
+    @Override
     protected int doReSet(int index, int elem) {
         assert (index >= 0 && index < size);
         int physIdx = physIndex(index);
@@ -1372,7 +1376,7 @@ public class IntGapList extends IIntList {
                 if (start == 0) {
                     return 10;
                 } else if (gapStart < start) {
-                    // 
+                    //
                     return 14;
                 } else if (gapStart > start) {
                     int gapEnd = (gapStart + gapSize) % values.length;

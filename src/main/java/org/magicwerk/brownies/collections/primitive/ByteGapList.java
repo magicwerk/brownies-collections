@@ -491,6 +491,10 @@ public class ByteGapList extends IByteList {
     }
 
     @Override
+    protected void doRelease(int index) {
+    }
+
+    @Override
     protected byte doReSet(int index, byte elem) {
         assert (index >= 0 && index < size);
         int physIdx = physIndex(index);
@@ -1372,7 +1376,7 @@ public class ByteGapList extends IByteList {
                 if (start == 0) {
                     return 10;
                 } else if (gapStart < start) {
-                    // 
+                    //
                     return 14;
                 } else if (gapStart > start) {
                     int gapEnd = (gapStart + gapSize) % values.length;

@@ -1089,6 +1089,10 @@ public class CharBigList extends ICharList {
     }
 
     @Override
+    protected void doRelease(int index) {
+    }
+
+    @Override
     protected char doRemove(int index) {
         int pos = getCharBlockIndex(index, true, -1);
         char oldElem = currNode.block.doRemove(pos);

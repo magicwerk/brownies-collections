@@ -207,6 +207,11 @@ public class LongObjGapList extends IList<Long> {
     }
 
     @Override
+    protected void doRelease(int index) {
+        list.doRelease(index);
+    }
+
+    @Override
     public void move(int srcIndex, int dstIndex, int len) {
         // Use correct default value
         list.move(srcIndex, dstIndex, len);

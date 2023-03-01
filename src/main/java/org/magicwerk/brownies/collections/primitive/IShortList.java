@@ -188,6 +188,8 @@ public abstract class IShortList implements Cloneable, Serializable {
      */
     abstract protected short doSet(int index, short elem);
 
+    abstract protected void doRelease(int index);
+
     public short set(int index, short elem) {
         checkIndex(index);
         return doSet(index, elem);
@@ -292,9 +294,8 @@ public abstract class IShortList implements Cloneable, Serializable {
      */
     abstract protected void doEnsureCapacity(int minCapacity);
 
-    // smooth as possible
-    abstract public // Note: Provide this method to make transition from ArrayList as
-    void trimToSize();
+    // Note: Provide this method to make transition from ArrayList as smooth as possible
+    abstract public void trimToSize();
 
     public boolean equals(Object obj) {
         if (obj == this) {
@@ -593,7 +594,8 @@ public abstract class IShortList implements Cloneable, Serializable {
             short e = doGet(src);
             if (!predicate.test(e)) {
                 if (dst != src) {
-                    doSet(dst, e);
+                    doRelease(dst);
+                    doReSet(dst, e);
                 }
                 dst++;
             }
@@ -2281,6 +2283,10 @@ public abstract class IShortList implements Cloneable, Serializable {
         protected short doRemove(int index) {
             error();
             return (short) 0;
+        }
+
+        protected void doRelease(int index) {
+            error();
         }
 
         protected void doEnsureCapacity(int minCapacity) {

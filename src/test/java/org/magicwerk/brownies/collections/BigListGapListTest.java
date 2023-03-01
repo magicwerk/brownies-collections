@@ -45,17 +45,17 @@ public class BigListGapListTest {
 
     static void test() {
         testExtractIf();
-        // testRemoveIf();
-        // testStream();
-        // testParallelStream();
-        // testRetain();
-        // testGetAll();
-        // testSplit();
-        // testRemove();
-        // testBug20151113();
-        // testRetainAll();
-        // testInitMult();
-        // testPutAll();
+        //testRemoveIf();
+        //testStream();
+        //testParallelStream();
+        //testRetain();
+        //testGetAll();
+        //testSplit();
+        //testRemove();
+        //testBug20151113();
+        //testRetainAll();
+        //testInitMult();
+        //testPutAll();
     }
 
     static void testSplit() {
@@ -64,7 +64,7 @@ public class BigListGapListTest {
         System.out.println(split2[0] + " - " + split2[1]);
         gl.remove(1);
         System.out.println(split2[0] + " - " + split2[1]);
-        // BigList<Integer> gl = BigList.create(1, 2, 3, 4);
+        //BigList<Integer> gl = BigList.create(1, 2, 3, 4);
         List<Integer>[] split = split1(gl);
         System.out.println(split[0] + " - " + split[1]);
         gl.remove(1);
@@ -100,14 +100,14 @@ public class BigListGapListTest {
         list.add(2);
         list.remove(0);
         list.remove(0);
-        // int state0 = list.debugState();
+        //		int state0 = list.debugState();
         list.ensureCapacity(10);
-        // int state1 = list.debugState();
+        //		int state1 = list.debugState();
         list.addMult(4, 9);
-        // list.add(9);
-        // System.out.println(state0 + " - " + state1);
+        //list.add(9);
+        //		System.out.println(state0 + " - " + state1);
         System.out.println(list);
-        // Assert.assertTrue(list.equals(BigList.create(9, 9, 9, 9)));
+        //Assert.assertTrue(list.equals(BigList.create(9, 9, 9, 9)));
     }
 
     static void test2() {
@@ -127,20 +127,20 @@ public class BigListGapListTest {
     static IList<Integer> create(Integer... args) {
         if (args.length == 0) {
             return BigList.create();
-            // return IntObjBigList.create();
-            // return new BigList(BIGLIST_SIZE);
+            //return IntObjBigList.create();
+            //return new BigList(BIGLIST_SIZE);
         } else {
             return BigList.create(args);
-            // return IntObjBigList.create(args);
-            // IBigList list = new BigList(BIGLIST_SIZE);
-            // list.addAll(args);
-            // return list;
+            //return IntObjBigList.create(args);
+            //IBigList list = new BigList(BIGLIST_SIZE);
+            //list.addAll(args);
+            //return list;
         }
     }
 
     static IList<Integer> getBigList(int size) {
-        // BigList<Integer> list = new BigList<Integer>(size);
-        // IntObjBigList list = new IntObjBigList(size);
+        //BigList<Integer> list = new BigList<Integer>(size);
+        //IntObjBigList list = new IntObjBigList(size);
         BigList<Integer> list = new BigList<Integer>();
         list.ensureCapacity(size);
         return list;
@@ -148,7 +148,7 @@ public class BigListGapListTest {
 
     static Integer getDefaultElem() {
         return null;
-        // return 0;
+        //return 0;
     }
 
     /**
@@ -178,7 +178,7 @@ public class BigListGapListTest {
     }
 
     // -- Test BigList
-    // 
+    //
     @Trace(parameters = Trace.THIS | Trace.ALL_PARAMS, formats = { @Format(apply = Trace.RESULT, formatter = "formatBigList") })
     public static void testCreate() {
         BigList.create();
@@ -922,7 +922,7 @@ public class BigListGapListTest {
     public static void testListIterator2() {
         List<Integer> list = getSortedBigList(0);
         // ArrayList also throws an exception
-        // list = new ArrayList<Integer>(list);
+        //list = new ArrayList<Integer>(list);
         ListIterator<Integer> iter = list.listIterator();
         iter.add(1);
         iter.previous();

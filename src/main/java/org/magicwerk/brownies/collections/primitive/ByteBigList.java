@@ -1089,6 +1089,10 @@ public class ByteBigList extends IByteList {
     }
 
     @Override
+    protected void doRelease(int index) {
+    }
+
+    @Override
     protected byte doRemove(int index) {
         int pos = getByteBlockIndex(index, true, -1);
         byte oldElem = currNode.block.doRemove(pos);
