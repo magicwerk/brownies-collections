@@ -222,13 +222,13 @@ public class KeyListTest {
 
 		// Add
 		KeyList<Name> list2 = new KeyList.Builder<Name>().withElemDuplicates(false).build();
-		list2.addIf(new Name("a", 0));
-		list2.addIf(new Name("b", 1));
+		list2.addIfAbsent(new Name("a", 0));
+		list2.addIfAbsent(new Name("b", 1));
 		// No duplicate value allowed (existing is preserved)
-		list2.addIf(new Name("a", 2));
+		list2.addIfAbsent(new Name("a", 2));
 		// Only one null value allowed
-		list2.addIf(null);
-		list2.addIf(null);
+		list2.addIfAbsent(null);
+		list2.addIfAbsent(null);
 		LOG.info("SetList: {}", list2);
 	}
 

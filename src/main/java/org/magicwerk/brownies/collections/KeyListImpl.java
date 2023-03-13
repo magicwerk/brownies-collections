@@ -273,21 +273,6 @@ public abstract class KeyListImpl<E> extends IList<E> {
 	}
 
 	/**
-	 * Adds element if allowed and returns true.
-	 * If the element cannot be added (constraint violation like duplicated key), false is returned.
-	 *
-	 * @param elem 	element to add
-	 * @return		true if element has been added, false otherwise
-	 */
-	public boolean addIf(E elem) {
-		try {
-			return super.add(elem);
-		} catch (Exception e) {
-			return false;
-		}
-	}
-
-	/**
 	 * {@inheritDoc}
 	 * <p><i>
 	 * Note that the behavior of the operation depends on the defined constraints.
