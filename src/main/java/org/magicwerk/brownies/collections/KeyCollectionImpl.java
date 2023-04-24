@@ -60,7 +60,7 @@ import org.magicwerk.brownies.collections.helper.SortedLists;
  * @param <E> type of elements stored in the list
  */
 @SuppressWarnings("serial")
-public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Cloneable {
+public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Cloneable {
 
 	/**
 	 * Implementation of builder.
@@ -2066,9 +2066,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	 * If there is such an element, the element is replaced.
 	 * So said simply, it is a shortcut for the following code:
 	 * <pre>
-	 * if (contains(elem)) {
-	 *   remove(elem);
-	 * }
+	 * remove(elem);
 	 * add(elem);
 	 * </pre>
 	 * However the method is atomic in the sense that all or none operations are executed.
@@ -2079,7 +2077,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	 * @return		element which has been replaced or null otherwise
 	 */
 	protected E put(E elem) {
-		return putByKey(0, elem);
+		return putByKey(0, elem, true);
 	}
 
 	@Override
@@ -2095,6 +2093,7 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	@Override
 	public boolean contains(Object o) {
 		if (keyMaps[0] != null) {
+			// Use containsKey (fast)
 			return keyMaps[0].containsKey(o);
 		} else {
 			// Try to use containsKey if a map is defined (fast)
@@ -2117,6 +2116,25 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 			// Otherwise use containsValue (slow)
 			return keyMaps[1].containsValue(o);
 		}
+	}
+
+	/**
+	 * Determines whether calling contains() will be fast, i.e. it can use some sort of key lookup instead of traversing through all elements.
+	 *
+	 * @return	true if calling contains() will be fast, otherwise false
+	 */
+	boolean isContainsFast() {
+		if (keyMaps[0] != null) {
+			return true;
+		} else {
+			for (int i = 1; i < keyMaps.length; i++) {
+				KeyMap<E, Object> km = keyMaps[i];
+				if (km != null && km.isPrimaryMap()) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	@Override
@@ -2843,27 +2861,42 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 			debugCheck();
 	}
 
-	protected E putByKey(int keyIndex, E elem) {
-		// Try to remove element
+	protected E putByKey(int keyIndex, E elem, boolean replace) {
 		Option<E> removed;
-		if (keyIndex == 0) {
-			removed = doRemove(elem, null);
+
+		if (replace) {
+			// Try to remove element
+			if (keyIndex == 0) {
+				removed = doRemove(elem, null);
+				if (removed.hasValue()) {
+					size--;
+				}
+			} else {
+				Object key = getKey(keyIndex, elem);
+				removed = doRemoveByKey(keyIndex, key);
+			}
+
 			if (removed.hasValue()) {
-				size--;
+				try {
+					beforeDelete(removed.getValue());
+				} catch (RuntimeException e) {
+					doAddThrow(removed.getValue(), null);
+					throw e;
+				}
 			}
+
 		} else {
+			// Try to find element
 			Object key = getKey(keyIndex, elem);
-			removed = doRemoveByKey(keyIndex, key);
-		}
-		if (removed.hasValue()) {
-			try {
-				beforeDelete(removed.getValue());
-			} catch (RuntimeException e) {
-				doAddThrow(removed.getValue(), null);
-				throw e;
+			E oldElem = getByKey(keyIndex, key);
+			if (oldElem != null) {
+				return oldElem;
 			}
+
+			removed = Option.empty();
 		}
 
+		// Call before triggers
 		try {
 			beforeInsert(elem);
 		} catch (RuntimeException e) {
@@ -2913,12 +2946,20 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 		if (c.size() != size()) {
 			return false;
 		}
-		try {
+
+		if (setBehavior) {
 			return containsAll(c);
-		} catch (ClassCastException unused) {
-			return false;
-		} catch (NullPointerException unused) {
-			return false;
+		} else {
+			Iterator<E> iter = iterator();
+			Iterator<E> iter2 = c.iterator();
+			while (iter.hasNext()) {
+				E obj = iter.next();
+				E obj2 = iter2.next();
+				if (!Objects.equals(obj, obj2)) {
+					return false;
+				}
+			}
+			return true;
 		}
 	}
 
@@ -2975,6 +3016,53 @@ public class KeyCollectionImpl<E> implements Collection<E>, Serializable, Clonea
 	 */
 	public Set<E> getDistinct() {
 		return (Set<E>) getDistinctKeys(0);
+	}
+
+	@Override
+	public KeyCollectionImpl filter(Predicate<? super E> predicate) {
+		KeyCollectionImpl coll = crop();
+		int size = size();
+		for (E e : this) {
+			if (predicate.test(e)) {
+				coll.add(e);
+			}
+		}
+		return coll;
+	}
+
+	@Override
+	public <R> IList<R> map(Function<E, R> func) {
+		int size = size();
+		IList<R> list = new GapList<>(size);
+		for (E e : this) {
+			list.add(func.apply(e));
+		}
+		return list;
+	}
+
+	@Override
+	public <R> IList<R> mapFilter(Function<E, R> func, Predicate<R> filter) {
+		int size = size();
+		IList<R> list = new GapList<>(size);
+		for (E e : this) {
+			R r = func.apply(e);
+			if (filter.test(r)) {
+				list.add(r);
+			}
+		}
+		return list;
+	}
+
+	@Override
+	public <R> IList<R> filterMap(Predicate<E> filter, Function<E, R> func) {
+		int size = size();
+		IList<R> list = new GapList<>(size);
+		for (E e : this) {
+			if (filter.test(e)) {
+				list.add(func.apply(e));
+			}
+		}
+		return list;
 	}
 
 	//-- Key methods

@@ -19,6 +19,7 @@ package org.magicwerk.brownies.collections;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -53,7 +54,8 @@ public class KeyCollectionTest {
 	static void test() {
 		//testIterator();
 		//testPut();
-		testElemCount();
+		//testElemCount();
+		testEquals();
 	}
 
 	@Capture
@@ -91,6 +93,27 @@ public class KeyCollectionTest {
 		LOG.info("removed(d): {}", coll);
 		coll.remove(new ComparableName("d", 1));
 		LOG.info("removed(d): {}", coll);
+	}
+
+	@Capture
+	public static void testEquals() {
+		testElemCountEquals(false, GapList.create("a", "b"), GapList.create("a", "b"));
+		testElemCountEquals(false, GapList.create("a", "b"), GapList.create("b", "a"));
+		testElemCountEquals(false, GapList.create("a"), GapList.create("a", "a"));
+		testElemCountEquals(false, GapList.create("a", "a", "b"), GapList.create("a", "b", "b"));
+
+		testElemCountEquals(true, GapList.create("a", "b"), GapList.create("a", "b"));
+		testElemCountEquals(true, GapList.create("a", "b"), GapList.create("b", "a"));
+		testElemCountEquals(true, GapList.create("a"), GapList.create("a", "a"));
+		testElemCountEquals(true, GapList.create("a", "a", "b"), GapList.create("a", "b", "b"));
+	}
+
+	static void testElemCountEquals(boolean elemCount, Collection<String> coll0, Collection<String> coll1) {
+		KeyCollection<String> c0 = new KeyCollection.Builder<String>().withElemCount(elemCount).build();
+		c0.addAll(coll0);
+		KeyCollection<String> c1 = new KeyCollection.Builder<String>().withElemCount(elemCount).build();
+		c1.addAll(coll1);
+		LOG.info("equals({}, {}): {}", coll0, coll1, c0.equals(c1));
 	}
 
 	//	static void testPerformanceSortedList() {

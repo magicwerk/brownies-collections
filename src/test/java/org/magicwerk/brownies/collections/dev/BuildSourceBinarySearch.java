@@ -34,7 +34,7 @@ public class BuildSourceBinarySearch extends FileBuilder {
 
 		String dstFile = PathTools.getPath(
 				srcDir,
-				ClassTools.getPathFromClass(ClassTools.getPackageName(dstClass)),
+				ClassTools.getPathFromClass(ClassTools.getParentPackage(dstClass)),
 				javaFile);
 
 		setFile(dstFile);

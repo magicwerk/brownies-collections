@@ -275,7 +275,7 @@ public class KeyCollectionsExamples {
 		Set<String> allCities = zipCities.asMap2().keySet();
 
 		String city = zipCities.getByKey1(5000).getCity();
-		List<Integer> zips = GapList.create(zipCities.getAllByKey2("Aarau")).mappedList(zipCities.getKey1Mapper());
+		List<Integer> zips = GapList.create(zipCities.getAllByKey2("Aarau")).map(zipCities.getKey1Mapper());
 	}
 
 	// KeySet
@@ -308,7 +308,7 @@ public class KeyCollectionsExamples {
 		Set<String> allCities = zipCities.asMap2().keySet();
 
 		String city = zipCities.getByKey1(5000).getCity();
-		List<Integer> zips = GapList.create(zipCities.getAllByKey2("Aarau")).mappedList(zipCities.getKey1Mapper());
+		List<Integer> zips = GapList.create(zipCities.getAllByKey2("Aarau")).map(zipCities.getKey1Mapper());
 	}
 
 	// AsSet / AsMap

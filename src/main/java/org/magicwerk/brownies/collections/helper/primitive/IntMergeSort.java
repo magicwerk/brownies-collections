@@ -1,7 +1,7 @@
-// 
+//
 // This file has been copied from
 // http://thomas.baudel.name/Visualisation/VisuTri/inplacestablesort.html
-// 
+//
 package org.magicwerk.brownies.collections.helper.primitive;
 
 import org.magicwerk.brownies.collections.primitive.IIntList;

@@ -47,11 +47,12 @@ public class KeyListTest {
 	static final Logger LOG = LogbackTools.getConsoleLogger();
 
 	public static void main(String[] args) {
-		test();
+		new KeyListTest().run();
 	}
 
-	static void test() {
-		testUnwrap();
+	void run() {
+		testRemoveIf();
+		//testUnwrap();
 		//testCrop();
 		//testClone();
 		//testAdd();
@@ -221,13 +222,13 @@ public class KeyListTest {
 
 		// Add
 		KeyList<Name> list2 = new KeyList.Builder<Name>().withElemDuplicates(false).build();
-		list2.addIf(new Name("a", 0));
-		list2.addIf(new Name("b", 1));
+		list2.addIfAbsent(new Name("a", 0));
+		list2.addIfAbsent(new Name("b", 1));
 		// No duplicate value allowed (existing is preserved)
-		list2.addIf(new Name("a", 2));
+		list2.addIfAbsent(new Name("a", 2));
 		// Only one null value allowed
-		list2.addIf(null);
-		list2.addIf(null);
+		list2.addIfAbsent(null);
+		list2.addIfAbsent(null);
 		LOG.info("SetList: {}", list2);
 	}
 
@@ -256,7 +257,7 @@ public class KeyListTest {
 		list.remove(new ComparableName("c", -1));
 	}
 
-	@Trace(traceMethod = "/contains|getCount|getAll|getDistinct|removeAll/", parameters = Trace.ALL_PARAMS | Trace.THIS, result = Trace.THIS | Trace.RESULT)
+	@Trace(traceMethod = "/contains|count|getAll|getDistinct|removeAll/", parameters = Trace.ALL_PARAMS | Trace.THIS, result = Trace.THIS | Trace.RESULT)
 	public static void testElemSet() {
 		KeyList<String> list = new KeyList.Builder<String>().build();
 
@@ -266,7 +267,7 @@ public class KeyListTest {
 		list.add("abc");
 
 		System.out.println(list.contains("abc"));
-		System.out.println(list.getCount("abc"));
+		System.out.println(list.count("abc"));
 		System.out.println(list.getAll("abc"));
 		System.out.println(list.getDistinct());
 		list.removeAll("abc");
@@ -513,6 +514,16 @@ public class KeyListTest {
 		LOG.info("TableList: {}", list);
 	}
 
+	@Trace(parameters = Trace.THIS, result = Trace.THIS)
+	public static void testRemoveIf() {
+		KeyList<Integer> list = new KeyList.Builder<Integer>().withPrimaryElem().build();
+		list.add(0);
+		list.add(1);
+		list.add(2);
+		list.add(3);
+		list.removeIf(n -> n % 2 == 1);
+	}
+
 	// The columns in a table must have a unique key, null is not allowed.
 	// If an attempt is made to insert a duplicate, an error should be raised.
 	@Trace(traceMethod = "add", result = Trace.THIS)
@@ -685,16 +696,16 @@ public class KeyListTest {
 
 		list = getList();
 		list.getAll(d);
-		list.getCount(d);
+		list.count(d);
 		list.getDistinct();
 
 		list.getAll(x);
-		list.getCount(x);
+		list.count(x);
 		list.remove(x);
 		list.removeAll(x);
 
 		list.getAll(n);
-		list.getCount(n);
+		list.count(n);
 		list.remove(n);
 		list.removeAll(n);
 
@@ -706,16 +717,16 @@ public class KeyListTest {
 
 		list = getListSort();
 		list.getAll(d);
-		list.getCount(d);
+		list.count(d);
 		list.getDistinct();
 
 		list.getAll(x);
-		list.getCount(x);
+		list.count(x);
 		list.remove(x);
 		list.removeAll(x);
 
 		list.getAll(n);
-		list.getCount(n);
+		list.count(n);
 		list.remove(n);
 		list.removeAll(n);
 
@@ -725,14 +736,14 @@ public class KeyListTest {
 		// Null
 		list = getListNull();
 		list.getAll(n);
-		list.getCount(n);
+		list.count(n);
 
 		list.remove(n);
 		list.removeAll(n);
 
 		list = getListNullSort();
 		list.getAll(n);
-		list.getCount(n);
+		list.count(n);
 
 		list.remove(n);
 		list.removeAll(n);
@@ -776,6 +787,15 @@ public class KeyListTest {
 		list.add(null);
 		list.add(new ComparableName("d"));
 		return list;
+	}
+
+	@Trace(traceMethod = "/.*/")
+	public void testMap() {
+		KeyList<Integer> l1 = new KeyList.Builder<Integer>().withConstraint(i -> i % 2 == 0).build();
+		l1.add(0);
+		l1.add(1);
+		l1.add(2);
+		IList<String> l2 = l1.map(i -> "(" + i + ")");
 	}
 
 	//--

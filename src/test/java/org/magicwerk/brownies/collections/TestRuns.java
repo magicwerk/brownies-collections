@@ -1200,7 +1200,7 @@ public class TestRuns {
 
 		@Override
 		public Object run() {
-			List<Integer> result = list.filteredList((i) -> i % 2 == 0);
+			List<Integer> result = list.filter((i) -> i % 2 == 0);
 			return list;
 		}
 	}

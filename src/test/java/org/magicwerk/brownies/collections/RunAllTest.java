@@ -20,7 +20,7 @@ import org.magicwerk.brownies.core.ThreadTools;
 import org.magicwerk.brownies.core.Timer;
 import org.magicwerk.brownies.core.files.FilePath;
 import org.magicwerk.brownies.core.logback.LogbackTools;
-import org.magicwerk.brownies.core.reflect.ClassTools;
+import org.magicwerk.brownies.core.reflect.ReflectTools;
 import org.slf4j.Logger;
 
 /**
@@ -32,9 +32,7 @@ import org.slf4j.Logger;
  * <br>
  * Depending on the execution environment, the number of tests differ:
  * - If run as main application, all tests are executed, including the tests typically run by MagicTest
- * - If run as MagicTest,  
- * If run
- * Execute this test class with JUnit to run <br>
+ * - If run as MagicTest, only the tests not executed by MagicTest are executed
  *
  * @author Thomas Mauch
  */
@@ -110,7 +108,7 @@ public class RunAllTest {
 	}
 
 	static boolean runMagicTests() {
-		return MagicTest.runPackage(ClassTools.getPackageName(ThreadTools.getCurrentClass()));
+		return MagicTest.runPackage(ReflectTools.getPackageName(ThreadTools.getCurrentClass()));
 	}
 
 	/**

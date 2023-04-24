@@ -21,9 +21,12 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 import org.magictest.client.Assert;
 import org.magictest.client.Test;
+import org.magictest.client.Trace;
 import org.magicwerk.brownies.core.logback.LogbackTools;
 import org.magicwerk.brownies.test.JmhRunner;
 import org.magicwerk.brownies.test.JmhRunner.Options;
@@ -51,6 +54,92 @@ public class KeySetTest {
 		//testEquals();
 		testAddPerformanceJmh();
 	}
+
+	KeySet<Integer> getKeySet(int num) {
+		KeySet<Integer> set = new KeySet.Builder<Integer>().build();
+		for (int i = 0; i < num; i++) {
+			set.add(i);
+		}
+		return set;
+	}
+
+	// ICollection
+
+	@Trace
+	public void testGetFirst() {
+		getKeySet(0).getFirst();
+		getKeySet(1).getFirst();
+		getKeySet(2).getFirst();
+	}
+
+	@Trace
+	public void testGetFirstOrNull() {
+		getKeySet(0).getFirstOrNull();
+		getKeySet(1).getFirstOrNull();
+		getKeySet(2).getFirstOrNull();
+	}
+
+	@Trace
+	public void testGetSingle() {
+		getKeySet(0).getSingle();
+		getKeySet(1).getSingle();
+		getKeySet(2).getSingle();
+	}
+
+	@Trace
+	public void testGetSingleOrNull() {
+		getKeySet(0).getSingleOrNull();
+		getKeySet(1).getSingleOrNull();
+		getKeySet(2).getSingleOrNull();
+	}
+
+	Predicate<Integer> filter = i -> i % 2 == 0;
+	Function<Integer, String> map = i -> "(" + i + ")";
+
+	@Trace
+	public void testContainsIf() {
+		getKeySet(0).containsIf(filter);
+		getKeySet(1).containsIf(filter);
+		getKeySet(2).containsIf(filter);
+	}
+
+	@Trace
+	public void testCountIf() {
+		getKeySet(0).countIf(filter);
+		getKeySet(1).countIf(filter);
+		getKeySet(2).countIf(filter);
+		getKeySet(3).countIf(filter);
+		getKeySet(4).countIf(filter);
+	}
+
+	@Trace
+	public void testGetIf() {
+		getKeySet(0).getIf(filter);
+		getKeySet(1).getIf(filter);
+		getKeySet(2).getIf(filter);
+		getKeySet(3).getIf(filter);
+		getKeySet(4).getIf(filter);
+	}
+
+	@Trace
+	public void testFilter() {
+		getKeySet(0).filter(filter);
+		getKeySet(1).filter(filter);
+		getKeySet(2).filter(filter);
+		getKeySet(3).filter(filter);
+		getKeySet(4).filter(filter);
+	}
+
+	@Trace
+	public void testMap() {
+		getKeySet(0).map(map);
+		getKeySet(1).map(map);
+		getKeySet(2).map(map);
+		getKeySet(3).map(map);
+		getKeySet(4).map(map);
+	}
+
+	//
 
 	@Test
 	public static void testEquals() {

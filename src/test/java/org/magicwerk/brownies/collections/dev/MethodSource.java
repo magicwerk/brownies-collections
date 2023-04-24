@@ -3,7 +3,7 @@ package org.magicwerk.brownies.collections.dev;
 import org.magicwerk.brownies.core.CheckTools;
 import org.magicwerk.brownies.core.objects.Single;
 import org.magicwerk.brownies.core.strings.StringPrinter;
-import org.magicwerk.brownies.javassist.sources.JavaParserTools;
+import org.magicwerk.brownies.javassist.sources.JavaParserReader;
 
 import com.github.javaparser.ast.body.BodyDeclaration;
 import com.github.javaparser.ast.body.ConstructorDeclaration;
@@ -11,10 +11,12 @@ import com.github.javaparser.ast.body.MethodDeclaration;
 
 public class MethodSource {
 
+	static final JavaParserReader javaParserReader = new JavaParserReader();
+
 	public static MethodSource parseMethod(String src) {
 		Single<MethodSource> method = new Single<>();
 		Single<Boolean> visiting = new Single<>(false);
-		BodyDeclaration<?> md = JavaParserTools.parseBodyDeclaration(src);
+		BodyDeclaration<?> md = javaParserReader.parseBodyDeclaration(src);
 		RefactorVisitor visitor = new RefactorVisitor() {
 			@Override
 			public void visit(final MethodDeclaration md, final Void arg) {

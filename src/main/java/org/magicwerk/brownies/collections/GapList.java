@@ -523,8 +523,8 @@ public class GapList<E> extends IList<E> {
 	}
 
 	@Override
-	public <R> GapList<R> mappedList(Function<E, R> mapper) {
-		return (GapList<R>) super.mappedList(mapper);
+	public <R> GapList<R> map(Function<E, R> mapper) {
+		return (GapList<R>) super.map(mapper);
 	}
 
 	/**
@@ -1281,7 +1281,7 @@ public class GapList<E> extends IList<E> {
 
 	/**
 	 * Remove specified range of elements from list as specialized fast operation.
-	*
+	 *
 	 * @param index index of first element to remove
 	 * @param len number of elements to remove
 	 * @return	true if removal could be done, false otherwise

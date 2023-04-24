@@ -535,8 +535,8 @@ public class CharGapList extends ICharList {
     }
 
     @Override
-    public <R> GapList<R> mappedList(Function<Character, R> mapper) {
-        return (GapList<R>) super.mappedList(mapper);
+    public <R> GapList<R> map(Function<Character, R> mapper) {
+        return (GapList<R>) super.map(mapper);
     }
 
     /**
@@ -1372,7 +1372,7 @@ public class CharGapList extends ICharList {
                 if (start == 0) {
                     return 10;
                 } else if (gapStart < start) {
-                    // 
+                    //
                     return 14;
                 } else if (gapStart > start) {
                     int gapEnd = (gapStart + gapSize) % values.length;

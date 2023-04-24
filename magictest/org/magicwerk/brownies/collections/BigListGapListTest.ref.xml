@@ -577,6 +577,85 @@
       <error></error>
     </traceStep>
   </traceTest>
+  <traceTest name="testCount">
+    <runDate>2022-11-21T00:08:28.707+01:00</runDate>
+    <runDuration>0.0038765</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.BigList</traceClass>
+    <traceMethod>count</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"count"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6, 0, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"0"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"2"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"count"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6, 0, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"1"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"1"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"count"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6, 0, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"9"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"0"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testCountIf">
+    <runDate>2022-11-21T00:08:28.809+01:00</runDate>
+    <runDuration>0.0022134</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.BigList</traceClass>
+    <traceMethod>countIf</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"countIf"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"{ \r\n}"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"1"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"countIf"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"{ \r\n}"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"4"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+  </traceTest>
   <traceTest name="testCreate">
     <runDate>2020-11-18T00:57:14.153+01:00</runDate>
     <runDuration>7.406E-4</runDuration>
@@ -776,8 +855,8 @@
     </traceStep>
   </traceTest>
   <traceTest name="testExtractIf">
-    <runDate>2018-02-13T13:11:56.9+01:00</runDate>
-    <runDuration>8.65777E-4</runDuration>
+    <runDate>2022-12-05T00:32:47.629+01:00</runDate>
+    <runDuration>0.0123419</runDuration>
     <exception></exception>
     <traceClass>org.magicwerk.brownies.collections.BigList</traceClass>
     <traceMethod>extractIf</traceMethod>
@@ -787,11 +866,53 @@
       </description>
       <parameters>
         <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3 }"</paramText>
-        <paramText outputType="VALUE" param="#1">"i -&gt; i%2==0"</paramText>
+        <paramText outputType="VALUE" param="#1">"i%2==0"</paramText>
       </parameters>
       <result>
         <paramText outputType="VALUE" param="This">"{ 1, 3 }"</paramText>
         <paramText outputType="VALUE" param="Result">"{ 0, 2 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"extractIf"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"i%2==1"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, 2 }"</paramText>
+        <paramText outputType="VALUE" param="Result">"{ 1, 3 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"extractIf"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"AllowPredicate"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ }"</paramText>
+        <paramText outputType="VALUE" param="Result">"{ 0, 1, 2, 3 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"extractIf"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"DenyPredicate"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3 }"</paramText>
+        <paramText outputType="VALUE" param="Result">"{ }"</paramText>
       </result>
       <error></error>
     </traceStep>
@@ -816,30 +937,61 @@
       <error></error>
     </traceStep>
   </traceTest>
-  <captureTest name="testFilter">
-    <runDate>2014-03-24T23:20:56.862+01:00</runDate>
-    <runDuration>0.002264896</runDuration>
-    <exception></exception>
-    <captureStep>
-      <text outputType="TEXT">"[0, 2, 4, 6]\r\n"</text>
-    </captureStep>
-  </captureTest>
-  <traceTest name="testFilteredList">
-    <runDate>2021-01-07T16:06:43.497+01:00</runDate>
-    <runDuration>0.0314265</runDuration>
+  <traceTest name="testFilter">
+    <runDate>2022-12-05T00:45:54.96+01:00</runDate>
+    <runDuration>0.0016595</runDuration>
     <exception></exception>
     <traceClass>org.magicwerk.brownies.collections.BigList</traceClass>
-    <traceMethod>filteredList</traceMethod>
+    <traceMethod>filter</traceMethod>
     <traceStep>
       <description>
-        <paramText outputType="TEXT" param="Description">"filteredList"</paramText>
+        <paramText outputType="TEXT" param="Description">"filter"</paramText>
       </description>
       <parameters>
         <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3 }"</paramText>
-        <paramText outputType="VALUE" param="#1">"i -&gt; i%2==0"</paramText>
+        <paramText outputType="VALUE" param="#1">"i%2==0"</paramText>
       </parameters>
       <result>
         <paramText outputType="VALUE" param="Result">"{ 0, 2 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"filter"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"i%2==1"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"{ 1, 3 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"filter"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"AllowPredicate"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"{ 0, 1, 2, 3 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"filter"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"DenyPredicate"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"{ }"</paramText>
       </result>
       <error></error>
     </traceStep>
@@ -907,85 +1059,6 @@
       </parameters>
       <result>
         <paramText outputType="VALUE" param="Result">"{ 1, 2, 3, 4, 5 }"</paramText>
-      </result>
-      <error></error>
-    </traceStep>
-  </traceTest>
-  <traceTest name="testGetCount">
-    <runDate>2014-03-24T23:25:43.889+01:00</runDate>
-    <runDuration>0.016983234</runDuration>
-    <exception></exception>
-    <traceClass>org.magicwerk.brownies.collections.BigList</traceClass>
-    <traceMethod>getCount</traceMethod>
-    <traceStep>
-      <description>
-        <paramText outputType="TEXT" param="Description">"getCount"</paramText>
-      </description>
-      <parameters>
-        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6, 0, 6 }"</paramText>
-        <paramText outputType="VALUE" param="#1">"0"</paramText>
-      </parameters>
-      <result>
-        <paramText outputType="VALUE" param="Result">"2"</paramText>
-      </result>
-      <error></error>
-    </traceStep>
-    <traceStep>
-      <description>
-        <paramText outputType="TEXT" param="Description">"getCount"</paramText>
-      </description>
-      <parameters>
-        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6, 0, 6 }"</paramText>
-        <paramText outputType="VALUE" param="#1">"1"</paramText>
-      </parameters>
-      <result>
-        <paramText outputType="VALUE" param="Result">"1"</paramText>
-      </result>
-      <error></error>
-    </traceStep>
-    <traceStep>
-      <description>
-        <paramText outputType="TEXT" param="Description">"getCount"</paramText>
-      </description>
-      <parameters>
-        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6, 0, 6 }"</paramText>
-        <paramText outputType="VALUE" param="#1">"9"</paramText>
-      </parameters>
-      <result>
-        <paramText outputType="VALUE" param="Result">"0"</paramText>
-      </result>
-      <error></error>
-    </traceStep>
-  </traceTest>
-  <traceTest name="testGetCountIf">
-    <runDate>2022-02-02T13:53:43.407+01:00</runDate>
-    <runDuration>8.293E-4</runDuration>
-    <exception></exception>
-    <traceClass>org.magicwerk.brownies.collections.BigList</traceClass>
-    <traceMethod>getCountIf</traceMethod>
-    <traceStep>
-      <description>
-        <paramText outputType="TEXT" param="Description">"getCountIf"</paramText>
-      </description>
-      <parameters>
-        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
-        <paramText outputType="VALUE" param="#1">"{ \r\n}"</paramText>
-      </parameters>
-      <result>
-        <paramText outputType="VALUE" param="Result">"1"</paramText>
-      </result>
-      <error></error>
-    </traceStep>
-    <traceStep>
-      <description>
-        <paramText outputType="TEXT" param="Description">"getCountIf"</paramText>
-      </description>
-      <parameters>
-        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
-        <paramText outputType="VALUE" param="#1">"{ \r\n}"</paramText>
-      </parameters>
-      <result>
-        <paramText outputType="VALUE" param="Result">"4"</paramText>
       </result>
       <error></error>
     </traceStep>
@@ -2404,8 +2477,8 @@
     </traceStep>
   </traceTest>
   <traceTest name="testRemoveIf">
-    <runDate>2018-02-13T13:12:08.101+01:00</runDate>
-    <runDuration>8.01778E-4</runDuration>
+    <runDate>2022-12-05T00:32:51.396+01:00</runDate>
+    <runDuration>0.0026654</runDuration>
     <exception></exception>
     <traceClass>org.magicwerk.brownies.collections.BigList</traceClass>
     <traceMethod>removeIf</traceMethod>
@@ -2415,11 +2488,53 @@
       </description>
       <parameters>
         <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3 }"</paramText>
-        <paramText outputType="VALUE" param="#1">"i -&gt; i%2==0"</paramText>
+        <paramText outputType="VALUE" param="#1">"i%2==0"</paramText>
       </parameters>
       <result>
         <paramText outputType="VALUE" param="This">"{ 1, 3 }"</paramText>
         <paramText outputType="VALUE" param="Result">"true"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"removeIf"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"i%2==1"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, 2 }"</paramText>
+        <paramText outputType="VALUE" param="Result">"true"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"removeIf"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"AllowPredicate"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ }"</paramText>
+        <paramText outputType="VALUE" param="Result">"true"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"removeIf"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"DenyPredicate"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3 }"</paramText>
+        <paramText outputType="VALUE" param="Result">"false"</paramText>
       </result>
       <error></error>
     </traceStep>
@@ -2750,8 +2865,8 @@
     </traceStep>
   </traceTest>
   <traceTest name="testRetainIf">
-    <runDate>2018-02-13T13:12:10.552+01:00</runDate>
-    <runDuration>8.18222E-4</runDuration>
+    <runDate>2022-12-05T00:32:52.27+01:00</runDate>
+    <runDuration>0.0028879</runDuration>
     <exception></exception>
     <traceClass>org.magicwerk.brownies.collections.BigList</traceClass>
     <traceMethod>retainIf</traceMethod>
@@ -2761,10 +2876,52 @@
       </description>
       <parameters>
         <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3 }"</paramText>
-        <paramText outputType="VALUE" param="#1">"i -&gt; i%2==0"</paramText>
+        <paramText outputType="VALUE" param="#1">"i%2==0"</paramText>
       </parameters>
       <result>
         <paramText outputType="VALUE" param="This">"{ 0, 2 }"</paramText>
+        <paramText outputType="VALUE" param="Result">"true"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"retainIf"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"i%2==1"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 1, 3 }"</paramText>
+        <paramText outputType="VALUE" param="Result">"true"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"retainIf"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"AllowPredicate"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3 }"</paramText>
+        <paramText outputType="VALUE" param="Result">"false"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"retainIf"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"DenyPredicate"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"{ }"</paramText>
         <paramText outputType="VALUE" param="Result">"true"</paramText>
       </result>
       <error></error>

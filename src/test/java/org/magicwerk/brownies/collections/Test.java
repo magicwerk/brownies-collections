@@ -27,7 +27,7 @@ public class Test {
 		mtr.setShowActualReport(true);
 		mtr.setShowReferenceReport(false);
 
-		String clazz = "org.magicwerk.brownies.collections.RunAllTest";
+		String clazz = "org.magicwerk.brownies.collections.KeyCollectionTest";
 
 		// MagicTest
 

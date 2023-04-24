@@ -7,6 +7,7 @@ import org.magicwerk.brownies.core.files.PathTools;
 import org.magicwerk.brownies.core.logback.LogbackTools;
 import org.magicwerk.brownies.core.reflect.ClassTools;
 import org.magicwerk.brownies.core.reflect.ReflectTypes;
+import org.magicwerk.brownies.core.regex.RegexBuilder;
 import org.magicwerk.brownies.core.regex.RegexReplacer;
 import org.magicwerk.brownies.core.regex.RegexTools;
 import org.magicwerk.brownies.core.strings.StringFormat;
@@ -14,30 +15,31 @@ import org.magicwerk.brownies.core.strings.StringFormatParsers;
 import org.magicwerk.brownies.core.strings.StringFormatter;
 import org.magicwerk.brownies.core.strings.matcher.NestedStringMatcher;
 import org.magicwerk.brownies.core.strings.matcher.RegexStringMatcher;
-import org.magicwerk.brownies.javassist.sources.JavaParserTools;
+import org.magicwerk.brownies.javassist.sources.JavaParserReader;
 import org.slf4j.Logger;
 
-import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 
 /**
  * Create Java source files for brownies-collections.
- * 
- * - Brownies-Collections:
- * collections\primitive\IBooleanList.java
- * collections\primitive\BooleanGapList.java
- * collections\primitive\BooleanObjGapList.java
- * collections\primitive\BooleanBigList.java
- * collections\helper\primitive\BooleanMergeSort.java
- * collections\helper\primitive\BooleanBinarySearch.java
- * collections\primitive\BooleanObjBigList.java
- * 
- * - Brownies-Collections-Test
- * collections\BigListGapListTest.java
+ * <p>
+ * - Brownies-Collections: <br>
+ * collections\primitive\IBooleanList.java <br>
+ * collections\primitive\BooleanGapList.java <br>
+ * collections\primitive\BooleanObjGapList.java <br>
+ * collections\primitive\BooleanBigList.java <br>
+ * collections\helper\primitive\BooleanMergeSort.java <br>
+ * collections\helper\primitive\BooleanBinarySearch.java <br>
+ * collections\primitive\BooleanObjBigList.java <br>
+ * <p>
+ * - Brownies-Collections-Test <br>
+ * collections\BigListGapListTest.java <br>
  *
  * @author Thomas Mauch
  */
 public class BuildSource {
+
+	static final JavaParserReader javaParserReader = new JavaParserReader();
 
 	static abstract class FileBuilder {
 		String srcDir;
@@ -109,6 +111,7 @@ public class BuildSource {
 				str = str.replace("{WRAPPER}", builder.getWrapperType());
 				str = str.replace("{NAME}", builder.getTypeName());
 				str = str.replace("{DEFAULT}", builder.getDefaultValue());
+				str = str.replace("{DEFAULT_REGEX}", RegexBuilder.regexForLiteral(builder.getDefaultValue()));
 			}
 			return str;
 		}
@@ -163,8 +166,7 @@ public class BuildSource {
 		}
 
 		CompilationUnit parseJavaSource(String src) {
-			JavaParser javaParser = JavaParserTools.getParser();
-			CompilationUnit cu = JavaParserTools.parseCompilationUnit(javaParser, src);
+			CompilationUnit cu = javaParserReader.parseCompilationUnit(src);
 			return cu;
 		}
 
@@ -250,13 +252,20 @@ public class BuildSource {
 	static final Logger LOG = LogbackTools.getConsoleLogger();
 
 	public static void main(String[] args) {
-		run();
+		new BuildSource().run();
+	}
+
+	void run() {
+		// Generate in src/main/java
+		buildSource();
+		// Generate in src/main/resources
+		new BuildManifest().run();
 	}
 
 	/**
 	 * Generate Java source files for primitive types.
 	 */
-	static void run() {
+	void buildSource() {
 		// Generate source files
 		for (String primitiveType : ReflectTypes.VALUE_TYPES) {
 			Class<?> primitiveClass = ReflectTypes.getPrimitiveClass(primitiveType);
@@ -280,7 +289,8 @@ public class BuildSource {
 
 	static void writeFile(String file, String src) {
 		LOG.info("Write file {}", file);
-		src = JavaParserTools.printPretty(src);
+		CompilationUnit cu = javaParserReader.parseCompilationUnit(src);
+		src = javaParserReader.print(cu);
 		FileTools.writeFile().setFile(file).setText(src).write();
 	}
 
