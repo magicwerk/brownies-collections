@@ -423,25 +423,23 @@ public class Key1Collection<E, K> extends KeyCollectionImpl<E> {
 	}
 
 	/**
-	 * Adds or replaces element by key.
+	 * Adds element by key.
 	 * If there is no such element, the element is added.
 	 * If there is such an element, the element is replaced.
 	 * So said simply, it is a shortcut for the following code:
 	 * <pre>
-	 * if (containsKey1(elem)) {
-	 *   removeByKey1(elem);
-	 * }
+	 * removeByKey1(elem.getKey1());
 	 * add(elem);
 	 * </pre>
 	 * However the method is atomic in the sense that all or none operations are executed.
 	 * So if there is already such an element, but adding the new one fails due to a constraint violation,
 	 * the old element remains in the list.
 	 *
-	 * @param elem		element
-	 * @return			element which has been replaced or null otherwise
+	 * @param elem	element
+	 * @return		element with the same key which has been replaced or null otherwise
 	 */
 	public E putByKey1(E elem) {
-		return super.putByKey(1, elem);
+		return super.putByKey(1, elem, true);
 	}
 
 	/**
@@ -456,4 +454,9 @@ public class Key1Collection<E, K> extends KeyCollectionImpl<E> {
 		super.invalidateKey(1, oldKey, newKey, elem);
 	}
 
+	@Override
+	@SuppressWarnings("unchecked")
+	public Key1Collection<E, K> filter(Predicate<? super E> filter) {
+		return (Key1Collection<E, K>) super.filter(filter);
+	}
 }

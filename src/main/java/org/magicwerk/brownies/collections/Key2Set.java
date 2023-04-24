@@ -439,13 +439,20 @@ public class Key2Set<E, K1, K2> extends Key2Collection<E, K1, K2> implements Set
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public Key2Set<E, K1, K2> getAllByKey1(K1 key) {
 		return (Key2Set<E, K1, K2>) super.getAllByKey(1, key);
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public Key2Set<E, K1, K2> getAllByKey2(K2 key) {
 		return (Key2Set<E, K1, K2>) super.getAllByKey(2, key);
+	}
+
+	@Override
+	public Key2Set<E, K1, K2> filter(Predicate<? super E> filter) {
+		return (Key2Set<E, K1, K2>) super.filter(filter);
 	}
 
 }

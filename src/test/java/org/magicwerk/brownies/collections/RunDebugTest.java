@@ -10,6 +10,8 @@ import org.magicwerk.brownies.core.files.TextData;
 import org.magicwerk.brownies.core.files.TextData.Type;
 import org.magicwerk.brownies.core.logback.LogbackTools;
 import org.magicwerk.brownies.core.regex.RegexReplacer;
+import org.magicwerk.brownies.core.strings.StringPrinter;
+import org.magicwerk.brownies.tools.dev.tools.GradleTool;
 import org.magicwerk.brownies.tools.dev.tools.JavaOptions;
 import org.magicwerk.brownies.tools.dev.tools.JavaTool;
 
@@ -35,11 +37,19 @@ public class RunDebugTest {
 	FilePath testAllJar = buildDir.get("build/libs/runDebugTest-test-all.jar");
 
 	void run() {
+		checkDependencies();
 		prepareBuild();
 		enableDebugCheck();
 		build();
 		assertDebugTestFails();
 		runTests();
+	}
+
+	void checkDependencies() {
+		GradleTool gradleTool = new GradleTool();
+		IList<String> deps = gradleTool.getDependencies("testCompileClasspath");
+		// TODO check dependencies against text in buildGradle
+		LOG.info("Check that dependencies are still up-to-date:\n{}", StringPrinter.formatLines(deps));
 	}
 
 	void assertDebugTestFails() {
@@ -66,7 +76,7 @@ public class RunDebugTest {
 
 	void prepareBuild() {
 		FileTools.cleanDir().setDir(buildDir).setCreateDirs(true).clean();
-		FileTools.copyDir("src", buildDir.getPath());
+		FileTools.copyFile().copyDirIntoDir(FilePath.of("src"), buildDir);
 		FileTools.writeFile().setFile(buildDir.get("build.gradle")).setText(buildGradle).write();
 		FileTools.writeFile().setFile(buildDir.get("settings.gradle")).setText("").write();
 	}
@@ -121,23 +131,23 @@ public class RunDebugTest {
 			+ " \r\n"
 			+ " testImplementation \"junit:junit:4.8.2\"\r\n"
 			+ " testImplementation \"com.google.guava:guava-testlib:31.1-jre\"\r\n"
-			+ "	testImplementation \"com.github.javaparser:javaparser-core:3.24.0\"	\r\n"
+			+ "	testImplementation \"com.github.javaparser:javaparser-core:3.24.8\"	\r\n"
 			+ "	\r\n"
 			+ "	testImplementation 'com.melloware:jintellitype:1.3.9:dll-x64' \r\n"
 			+ "	testImplementation 'org.apache.commons:commons-collections4:4.0'\r\n"
 			+ "	testImplementation 'org.javolution:javolution-core-java:6.0.0'\r\n"
 			+ "	testImplementation 'it.unimi.dsi:fastutil:7.0.9'\r\n"
 			+ "	\r\n"
-			+ "	testImplementation 'org.slf4j:slf4j-api:1.7.4'\r\n"
-			+ " testImplementation 'ch.qos.logback:logback-classic:1.0.11'\r\n"
-			+ " testImplementation 'ch.qos.logback:logback-core:1.0.11'\r\n"
+			+ "	testImplementation 'org.slf4j:slf4j-api:1.7.36'\r\n"
+			+ " testImplementation 'ch.qos.logback:logback-classic:1.2.11'\r\n"
+			+ " testImplementation 'ch.qos.logback:logback-core:1.2.11'\r\n"
 			+ "	testImplementation 'org.apache.commons:commons-lang3:3.12.0'\r\n"
 			+ "	testImplementation 'de.schlichtherle.truezip:truezip-file:7.7.10'\r\n"
 			+ "	testImplementation 'de.schlichtherle.truezip:truezip-path:7.7.10'\r\n"
 			+ "	testImplementation 'de.schlichtherle.truezip:truezip-driver-zip:7.7.10'\r\n"
-			+ "	testImplementation 'org.javassist:javassist:3.28.0-GA'\r\n"
+			+ "	testImplementation 'org.javassist:javassist:3.29.2-GA'\r\n"
 			+ "	testImplementation 'org.jdom:jdom2:2.0.6' \r\n"
-			+ "	testImplementation 'org.openjdk.jmh:jmh-core:1.33'\r\n"
+			+ "	testImplementation 'org.openjdk.jmh:jmh-core:1.36'\r\n"
 			+ "}\r\n"
 			+ "\r\n"
 			+ "	shadowJar {\r\n"

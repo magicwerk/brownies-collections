@@ -24,8 +24,8 @@ import java.util.function.Function;
 import org.magictest.client.Assert;
 import org.magictest.client.Capture;
 import org.magictest.client.Trace;
-import org.magicwerk.brownies.core.PrintTools;
 import org.magicwerk.brownies.core.logback.LogbackTools;
+import org.magicwerk.brownies.core.print.PrintTools;
 import org.slf4j.Logger;
 
 /**

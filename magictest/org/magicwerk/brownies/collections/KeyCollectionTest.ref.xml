@@ -868,6 +868,14 @@
       <text outputType="TEXT">"withElemCount(false): [aa (3), b (2), d (0), d (1)]\r\nwithElemCount(true): [b (2), d (0), d (0), aa (3)]\r\ncountedElems: {aa (3)=1, b (2)=1, d (0)=2}\r\nremoved(d): [b (2), d (0), aa (3)]\r\nremoved(d): [b (2), aa (3)]\r\nremoved(d): [b (2), aa (3)]\r\n"</text>
     </captureStep>
   </captureTest>
+  <captureTest name="testEquals">
+    <runDate>2022-12-15T17:17:17.755+01:00</runDate>
+    <runDuration>6.289E-4</runDuration>
+    <exception></exception>
+    <captureStep>
+      <text outputType="TEXT">"equals([a, b], [a, b]): true\r\nequals([a, b], [b, a]): true\r\nequals([a], [a, a]): false\r\nequals([a, a, b], [a, b, b]): false\r\nequals([a, b], [a, b]): true\r\nequals([a, b], [b, a]): true\r\nequals([a], [a, a]): false\r\nequals([a, a, b], [a, b, b]): false\r\n"</text>
+    </captureStep>
+  </captureTest>
   <traceTest name="testIterator">
     <runDate>2019-01-05T14:21:22.519+01:00</runDate>
     <runDuration>0.028603556</runDuration>

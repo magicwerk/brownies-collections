@@ -7,6 +7,7 @@ import org.magicwerk.brownies.collections.dev.BuildSource.FileBuilder;
 import org.magicwerk.brownies.collections.dev.RefactorVisitor.RefactorMethod;
 import org.magicwerk.brownies.core.files.PathTools;
 import org.magicwerk.brownies.core.reflect.ClassTools;
+import org.magicwerk.brownies.core.regex.RegexBuilder;
 import org.magicwerk.brownies.core.regex.RegexReplacer;
 
 import com.github.javaparser.ast.CompilationUnit;
@@ -169,7 +170,7 @@ public class BuildSourceIList extends FileBuilder {
 		src = applyTemplate(src);
 		String javaFile = applyTemplate("I{NAME}List.java");
 
-		String dstFile = PathTools.getPath(srcDir, ClassTools.getPathFromClass(ClassTools.getPackageName(srcClass)), "primitive", javaFile);
+		String dstFile = PathTools.getPath(srcDir, ClassTools.getPathFromClass(ClassTools.getParentPackage(srcClass)), "primitive", javaFile);
 
 		setFile(dstFile);
 		setFileContent(src);
@@ -230,8 +231,17 @@ public class BuildSourceIList extends FileBuilder {
 		src = substitute("mappedList = doCreate", src, "mappedList = new GapList");
 		src = substitute("IList\\<\\? extends E\\>", src, "I{NAME}List");
 		src = substitute("IList\\<E\\>", src, "I{NAME}List");
-		src = substitute("<R> IList\\<R\\> mappedList\\(Function\\<E, R\\> func", src, "<R> IList<RR> mappedList(Function<{WRAPPER},R> func");
-		src = substitute("map\\(UnaryOperator\\<E\\> op", src, "map(UnaryOperator<{WRAPPER}> op");
+
+		src = substitute("<R> IList\\<R\\> map\\(Function\\<E, R\\> func", src, "<R> IList<RR> map(Function<{WRAPPER},R> func");
+
+		src = substitute("<R> IList\\<R\\> mapFilter\\(Function\\<E, R\\> func, Predicate\\<R\\> filter", src,
+				"<R> IList<RR> mapFilter(Function<{WRAPPER},R> func, Predicate<R> filter");
+
+		src = substitute("<R> IList\\<R\\> filterMap\\(Predicate\\<E\\> filter, Function\\<E, R\\> func", src,
+				"<R> IList<RR> filterMap(Predicate<{WRAPPER}> filter, Function<{WRAPPER},R> func");
+
+		//src = substitute("map\\(UnaryOperator\\<E\\> op", src, "map(UnaryOperator<{WRAPPER}> op");
+
 		src = substitute("E ", src, "{PRIMITIVE} ");
 		src = substitute("E\\[", src, "{PRIMITIVE}[");
 		src = substitute("E\\.\\.\\.", src, "{PRIMITIVE}...");
@@ -244,6 +254,10 @@ public class BuildSourceIList extends FileBuilder {
 		src = substitute("\\? super E\\> dst", src, "{WRAPPER}> dst");
 		src = substitute("\\? super E\\> predicate", src, "{WRAPPER}> predicate");
 		src = substitute("null", src, "{DEFAULT}");
+		src = substitute("list == " + RegexBuilder.regexForLiteral(src), src, "list == null");
+		src = substitute("list = {DEFAULT}", src, "list = null");
+		src = substitute("removed == {DEFAULT_REGEX}", src, "removed == null");
+		src = substitute("removed = {DEFAULT_REGEX}", src, "removed = null");
 		src = substitute("if \\(list != {DEFAULT}\\)", src, "if (list != null)");
 		src = substitute("if \\(list != \\({PRIMITIVE}\\) 0\\)", src, "if (list != null)");
 		src = substitute("Object", src, "{PRIMITIVE}");
@@ -256,6 +270,7 @@ public class BuildSourceIList extends FileBuilder {
 		src = substitute("\\<K\\>", src, "");
 		src = substitute("K key", src, "{PRIMITIVE} key");
 		src = substitute("UnaryOperator", src, "UnaryOperator<{WRAPPER}>");
+		src = substitute("Set ", src, "Set<{WRAPPER}> ");
 
 		// for IReadOnlyList
 		//src = substituteNested("(?s)class IReadOnly.*?unmodifiableList.*?\\}", "return (.*?);", src, "return null;");

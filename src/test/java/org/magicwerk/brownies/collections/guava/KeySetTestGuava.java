@@ -72,8 +72,7 @@ public class KeySetTestGuava extends TestCase {
 				new TestStringSetGenerator() {
 					@Override
 					protected Set<String> create(String[] elements) {
-						// Note that you should not add elements with withElements(elements)
-						// as duplicated could be added
+						// Note that you should not add elements with withElements(elements) as duplicated could be added
 						Key1Set<String, Integer> set = new Key1Set.Builder<String, Integer>()
 								.withKey1Map((Function<String, Integer> & Serializable) (s) -> s.length())
 								.build();
@@ -96,8 +95,7 @@ public class KeySetTestGuava extends TestCase {
 				new TestStringSetGenerator() {
 					@Override
 					protected Set<String> create(String[] elements) {
-						// Note that you should not add elements with withElements(elements)
-						// as duplicated could be added
+						// Note that you should not add elements with withElements(elements) as duplicated could be added
 						Key2Set<String, Integer, Integer> set = new Key2Set.Builder<String, Integer, Integer>()
 								.withKey1Map((Function<String, Integer> & Serializable) (s) -> s.length())
 								.withKey1Map((Function<String, Integer> & Serializable) (s) -> s.length())

@@ -251,7 +251,7 @@ public class KeyCollectionAsMap<K, E> implements Map<K, E>, Serializable {
 			if (!GapList.equalsElem(key, coll.getKey(keyIndex, elem))) {
 				KeyCollectionImpl.errorInvalidData();
 			}
-			return coll.putByKey(keyIndex, elem);
+			return coll.putByKey(keyIndex, elem, true);
 		} else {
 			if (!GapList.equalsElem(key, list.keyColl.getKey(keyIndex, elem))) {
 				KeyCollectionImpl.errorInvalidData();

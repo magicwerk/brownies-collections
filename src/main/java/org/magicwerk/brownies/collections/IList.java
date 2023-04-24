@@ -46,9 +46,8 @@ import java.util.function.UnaryOperator;
  * @see	    java.util.ArrayList
  * @see	    java.util.LinkedList
  */
-@SuppressWarnings("serial")
 public abstract class IList<E>
-		extends AbstractList<E> implements
+		extends AbstractList<E> implements ICollection<E>,
 		// All interfaces of ArrayList
 		List<E>, RandomAccess, Cloneable, Serializable,
 		// Additional interfaces of LinkedList and ArrayDeque
@@ -154,7 +153,7 @@ public abstract class IList<E>
 
 		int size = size();
 		if (len < size) {
-			remove(len, size - len);
+			doRemoveAll(len, size - len);
 		} else {
 			doEnsureCapacity(len);
 			for (int i = size; i < len; i++) {
@@ -164,6 +163,7 @@ public abstract class IList<E>
 		assert (size() == len);
 	}
 
+	// Do not remove - needed for generating primitive classes
 	@Override
 	abstract public int size();
 
@@ -321,8 +321,7 @@ public abstract class IList<E>
 	/**
 	 * An application can use this operation to minimize the storage of an instance.
 	 */
-	// Note: Provide this method to make transition from ArrayList as
-	//       smooth as possible
+	// Note: Provide this method to make transition from ArrayList as smooth as possible
 	abstract public void trimToSize();
 
 	@Override
@@ -418,7 +417,7 @@ public abstract class IList<E>
 	 * @param elem	element to count
 	 * @return		count how many times the specified element is contained in the list
 	 */
-	public int getCount(E elem) {
+	public int count(E elem) {
 		int count = 0;
 		int size = size();
 		for (int i = 0; i < size; i++) {
@@ -429,30 +428,19 @@ public abstract class IList<E>
 		return count;
 	}
 
-	/**
-	 * Counts how many elements in the list match the predicate.
-	 *
-	 * @param predicate a predicate which returns {@code true} for elements to be counted
-	 * @return		count how many elements in the list match the predicate
-	 */
-	public int getCountIf(Predicate<? super E> predicate) {
+	@Override
+	public int countIf(Predicate<? super E> predicate) {
 		int count = 0;
 		int size = size();
 		for (int i = 0; i < size; i++) {
-			E e = doGet(i);
-			if (predicate.test(e)) {
+			if (predicate.test(doGet(i))) {
 				count++;
 			}
 		}
 		return count;
 	}
 
-	/**
-	 * Returns the only element stored in the list.
-	 * If the list's size is not 1, a <code>NoSuchElementException</code> is thrown.
-	 *
-	 * @return	only element stored in the list
-	 */
+	@Override
 	public E getSingle() {
 		if (size() != 1) {
 			throw new NoSuchElementException();
@@ -460,13 +448,8 @@ public abstract class IList<E>
 		return doGet(0);
 	}
 
-	/**
-	 * Returns the only element stored in the list or null if the list is empty.
-	 * If the list's size is greater than 1, a <code>NoSuchElementException</code> is thrown.
-	 *
-	 * @return	only element stored in the list
-	 */
-	public E getSingleOrEmpty() {
+	@Override
+	public E getSingleOrNull() {
 		int size = size();
 		if (size == 0) {
 			return null;
@@ -501,6 +484,7 @@ public abstract class IList<E>
 	 * @param predicate a predicate which returns {@code true} for elements to be selected
 	 * @return 			first element matching the predicate, null otherwise
 	 */
+	@Override
 	public E getIf(Predicate<? super E> predicate) {
 		int size = size();
 		for (int i = 0; i < size; i++) {
@@ -510,70 +494,6 @@ public abstract class IList<E>
 			}
 		}
 		return null;
-	}
-
-	/**
-	 * Removes all elements in the list which match the predicate.
-	 *
-	 * @param predicate a predicate which returns {@code true} for elements to be removed
-	 * @return 			{@code true} if any elements were removed
-	 */
-	@Override
-	public boolean removeIf(Predicate<? super E> predicate) {
-		boolean removed = false;
-		int size = size();
-		for (int i = 0; i < size; i++) {
-			E e = doGet(i);
-			if (predicate.test(e)) {
-				doRemove(i);
-				size--;
-				i--;
-				removed = true;
-			}
-		}
-		return removed;
-	}
-
-	/**
-	 * Retains all elements in the list which match the predicate.
-	 *
-	 * @param predicate a predicate which returns {@code true} for elements to be retained
-	 * @return 			{@code true} if any elements were removed
-	 */
-	public boolean retainIf(Predicate<? super E> predicate) {
-		boolean modified = false;
-		int size = size();
-		for (int i = 0; i < size; i++) {
-			E e = doGet(i);
-			if (!predicate.test(e)) {
-				doRemove(i);
-				size--;
-				i--;
-				modified = true;
-			}
-		}
-		return modified;
-	}
-
-	/**
-	 * Removes and returns all elements in the list which match the predicate.
-	 *
-	 * @param predicate	predicate
-	 * @return			elements which have been removed from the list
-	 */
-	public IList<E> extractIf(Predicate<? super E> predicate) {
-		IList<E> list = doCreate(-1);
-		int size = size();
-		for (int i = 0; i < size; i++) {
-			E e = doGet(i);
-			if (predicate.test(e)) {
-				list.add(e);
-				doRemove(i);
-				size--;
-				i--;
-			}
-		}
-		return list;
 	}
 
 	/**
@@ -590,19 +510,44 @@ public abstract class IList<E>
 		return set;
 	}
 
-	/**
-	 * Create a new list by applying the specified mapping function to all elements.
-	 *
-	 * @param func	mapping function
-	 * @return		created list
-	 */
-	public <R> IList<R> mappedList(Function<E, R> func) {
+	@Override
+	public <R> IList<R> map(Function<E, R> func) {
 		int size = size();
 		@SuppressWarnings("unchecked")
 		IList<R> list = (IList<R>) doCreate(size);
 		for (int i = 0; i < size; i++) {
 			E e = doGet(i);
 			list.add(func.apply(e));
+		}
+		return list;
+	}
+
+	@Override
+	public <R> IList<R> mapFilter(Function<E, R> func, Predicate<R> filter) {
+		int size = size();
+		@SuppressWarnings("unchecked")
+		IList<R> list = (IList<R>) doCreate(size);
+		for (int i = 0; i < size; i++) {
+			E e = doGet(i);
+			R r = func.apply(e);
+			if (filter.test(r)) {
+				list.add(r);
+			}
+		}
+		return list;
+	}
+
+	@Override
+	public <R> IList<R> filterMap(Predicate<E> filter, Function<E, R> func) {
+		int size = size();
+		@SuppressWarnings("unchecked")
+		IList<R> list = (IList<R>) doCreate(size);
+		for (int i = 0; i < size; i++) {
+			E e = doGet(i);
+			if (filter.test(e)) {
+				R r = func.apply(e);
+				list.add(r);
+			}
 		}
 		return list;
 	}
@@ -644,7 +589,8 @@ public abstract class IList<E>
 	 * @param predicate	predicate used for filtering
 	 * @return			created list
 	 */
-	public IList<E> filteredList(Predicate<? super E> predicate) {
+	@Override
+	public IList<E> filter(Predicate<? super E> predicate) {
 		IList<E> list = doCreate(-1);
 		int size = size();
 		for (int i = 0; i < size; i++) {
@@ -657,16 +603,111 @@ public abstract class IList<E>
 	}
 
 	/**
-	 * Filter the list using the specified predicate.
-	 * Only elements which are allowed by the predicate remain in the list, the others are removed
+	 * Retains all elements in the list which match the predicate.
 	 *
-	 * @param predicate predicate used for filtering
+	 * @param predicate a predicate which returns {@code true} for elements to be retained
+	 * @return 			{@code true} if the list was changed
 	 */
-	public void filter(Predicate<? super E> predicate) {
-		// It is typically faster to copy the allowed elements in a new list
-		// than to remove the not allowed from the existing one
-		IList<E> list = filteredList(predicate);
-		doAssign(list);
+	public boolean retainIf(Predicate<? super E> predicate) {
+		// Design: no allocations needed
+		int dst = 0;
+		int size = size();
+		for (int src = 0; src < size; src++) {
+			E e = doGet(src);
+			if (predicate.test(e)) {
+				if (dst != src) {
+					doSet(dst, e);
+				}
+				dst++;
+			}
+		}
+		if (dst < size) {
+			doRemoveAll(dst, size - dst);
+		}
+		return dst < size;
+	}
+
+	/**
+	 * Removes all elements in the list which match the predicate.
+	 *
+	 * @param predicate a predicate which returns {@code true} for elements to be removed
+	 * @return 			{@code true} if the list was changed
+	 */
+	@Override
+	public boolean removeIf(Predicate<? super E> predicate) {
+		// Design: no allocations needed
+		int dst = 0;
+		int size = size();
+		for (int src = 0; src < size; src++) {
+			E e = doGet(src);
+			if (!predicate.test(e)) {
+				if (dst != src) {
+					E e2 = doGet(dst);
+					doReSet(src, e2);
+					doReSet(dst, e);
+				}
+				dst++;
+			}
+		}
+		if (dst < size) {
+			doRemoveAll(dst, size - dst);
+		}
+		return dst < size;
+	}
+
+	/**
+	 * Removes and returns all elements in the list which match the predicate.
+	 *
+	 * @param predicate	predicate
+	 * @return			elements which have been removed from the list
+	 */
+	public IList<E> extractIf(Predicate<? super E> predicate) {
+		// Design: high performance if all or none elements are removed
+		// meaning of removed: ==this: all elements are removed, null: none elements are removed, else: some elements are removed
+		IList<E> removed = this;
+		int dst = 0;
+		int size = size();
+		for (int src = 0; src < size; src++) {
+			E e = doGet(src);
+			if (predicate.test(e)) {
+				// Remove element
+				if (removed == this) {
+					// all elements removed so far
+				} else {
+					if (removed == null) {
+						removed = doCreate(-1);
+					}
+					removed.add(e);
+				}
+
+			} else {
+				// Retain element
+				if (src == 0) {
+					removed = null;
+				} else if (removed == this) {
+					removed = doCreate(-1);
+					for (int i = 0; i < src; i++) {
+						removed.add(doGet(i));
+					}
+				}
+				if (dst != src) {
+					doSet(dst, e);
+				}
+				dst++;
+			}
+		}
+
+		if (removed == null) {
+			removed = doCreate(-1);
+		} else if (removed == this) {
+			removed = copy();
+			doClear();
+		} else {
+			if (dst < size) {
+				doRemoveAll(dst, size - dst);
+			}
+		}
+		return removed;
 	}
 
 	@Override
@@ -775,6 +816,7 @@ public abstract class IList<E>
 	 * @param predicate		predicate used to search element
 	 * @return				true if the list contains a matching element, false otherwise
 	 */
+	@Override
 	public boolean containsIf(Predicate<? super E> predicate) {
 		return indexOfIf(predicate) != -1;
 	}
@@ -1124,10 +1166,32 @@ public abstract class IList<E>
 	}
 
 	@Override
+	public E getFirstOrNull() {
+		if (size() == 0) {
+			return null;
+		}
+		return doGet(0);
+	}
+
+	@Override
 	public E getLast() {
 		int size = size();
 		if (size == 0) {
 			throw new NoSuchElementException();
+		}
+		return doGet(size - 1);
+	}
+
+	/**
+	 * Returns the last element stored in the list.
+	 * If the list is empty, null is returned.
+	 *
+	 * @return	last element stored in the list or null if empty
+	 */
+	public E getLastOrNull() {
+		int size = size();
+		if (size == 0) {
+			return null;
 		}
 		return doGet(size - 1);
 	}

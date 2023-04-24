@@ -535,8 +535,8 @@ public class LongGapList extends ILongList {
     }
 
     @Override
-    public <R> GapList<R> mappedList(Function<Long, R> mapper) {
-        return (GapList<R>) super.mappedList(mapper);
+    public <R> GapList<R> map(Function<Long, R> mapper) {
+        return (GapList<R>) super.map(mapper);
     }
 
     /**
@@ -1372,7 +1372,7 @@ public class LongGapList extends ILongList {
                 if (start == 0) {
                     return 10;
                 } else if (gapStart < start) {
-                    // 
+                    //
                     return 14;
                 } else if (gapStart > start) {
                     int gapEnd = (gapStart + gapSize) % values.length;

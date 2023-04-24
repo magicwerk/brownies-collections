@@ -48,7 +48,6 @@ import java.util.function.UnaryOperator;
  * @see	    java.util.ArrayList
  * @see	    java.util.LinkedList
  */
-@SuppressWarnings("serial")
 public abstract class ICharList implements Cloneable, Serializable, CharSequence {
 
     /**
@@ -141,7 +140,7 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
         checkLength(len);
         int size = size();
         if (len < size) {
-            remove(len, size - len);
+            doRemoveAll(len, size - len);
         } else {
             doEnsureCapacity(len);
             for (int i = size; i < len; i++) {
@@ -151,6 +150,7 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
         assert (size() == len);
     }
 
+    // Do not remove - needed for generating primitive classes
     abstract public int size();
 
     /**
@@ -292,9 +292,8 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
      */
     abstract protected void doEnsureCapacity(int minCapacity);
 
-    // smooth as possible
-    abstract public // Note: Provide this method to make transition from ArrayList as
-    void trimToSize();
+    // Note: Provide this method to make transition from ArrayList as smooth as possible
+    abstract public void trimToSize();
 
     public boolean equals(Object obj) {
         if (obj == this) {
@@ -367,7 +366,7 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
      * @param elem	element to count
      * @return		count how many times the specified element is contained in the list
      */
-    public int getCount(char elem) {
+    public int count(char elem) {
         int count = 0;
         int size = size();
         for (int i = 0; i < size; i++) {
@@ -378,30 +377,17 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
         return count;
     }
 
-    /**
-     * Counts how many elements in the list match the predicate.
-     *
-     * @param predicate a predicate which returns {@code true} for elements to be counted
-     * @return		count how many elements in the list match the predicate
-     */
-    public int getCountIf(Predicate<Character> predicate) {
+    public int countIf(Predicate<Character> predicate) {
         int count = 0;
         int size = size();
         for (int i = 0; i < size; i++) {
-            char e = doGet(i);
-            if (predicate.test(e)) {
+            if (predicate.test(doGet(i))) {
                 count++;
             }
         }
         return count;
     }
 
-    /**
-     * Returns the only element stored in the list.
-     * If the list's size is not 1, a <code>NoSuchElementException</code> is thrown.
-     *
-     * @return	only element stored in the list
-     */
     public char getSingle() {
         if (size() != 1) {
             throw new NoSuchElementException();
@@ -409,13 +395,7 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
         return doGet(0);
     }
 
-    /**
-     * Returns the only element stored in the list or null if the list is empty.
-     * If the list's size is greater than 1, a <code>NoSuchElementException</code> is thrown.
-     *
-     * @return	only element stored in the list
-     */
-    public char getSingleOrEmpty() {
+    public char getSingleOrNull() {
         int size = size();
         if (size == 0) {
             return (char) 0;
@@ -462,75 +442,12 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
     }
 
     /**
-     * Removes all elements in the list which match the predicate.
-     *
-     * @param predicate a predicate which returns {@code true} for elements to be removed
-     * @return 			{@code true} if any elements were removed
-     */
-    public boolean removeIf(Predicate<Character> predicate) {
-        boolean removed = false;
-        int size = size();
-        for (int i = 0; i < size; i++) {
-            char e = doGet(i);
-            if (predicate.test(e)) {
-                doRemove(i);
-                size--;
-                i--;
-                removed = true;
-            }
-        }
-        return removed;
-    }
-
-    /**
-     * Retains all elements in the list which match the predicate.
-     *
-     * @param predicate a predicate which returns {@code true} for elements to be retained
-     * @return 			{@code true} if any elements were removed
-     */
-    public boolean retainIf(Predicate<Character> predicate) {
-        boolean modified = false;
-        int size = size();
-        for (int i = 0; i < size; i++) {
-            char e = doGet(i);
-            if (!predicate.test(e)) {
-                doRemove(i);
-                size--;
-                i--;
-                modified = true;
-            }
-        }
-        return modified;
-    }
-
-    /**
-     * Removes and returns all elements in the list which match the predicate.
-     *
-     * @param predicate	predicate
-     * @return			elements which have been removed from the list
-     */
-    public ICharList extractIf(Predicate<Character> predicate) {
-        ICharList list = doCreate(-1);
-        int size = size();
-        for (int i = 0; i < size; i++) {
-            char e = doGet(i);
-            if (predicate.test(e)) {
-                list.add(e);
-                doRemove(i);
-                size--;
-                i--;
-            }
-        }
-        return list;
-    }
-
-    /**
      * Returns distinct elements in the list.
      *
      * @return		distinct elements in the list
      */
-    public Set getDistinct() {
-        Set set = new HashSet();
+    public Set<Character> getDistinct() {
+        Set<Character> set = new HashSet();
         int size = size();
         for (int i = 0; i < size; i++) {
             set.add(doGet(i));
@@ -538,19 +455,41 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
         return set;
     }
 
-    /**
-     * Create a new list by applying the specified mapping function to all elements.
-     *
-     * @param func	mapping function
-     * @return		created list
-     */
-    public <R> IList<R> mappedList(Function<Character, R> func) {
+    public <R> IList<R> map(Function<Character, R> func) {
         int size = size();
         @SuppressWarnings("unchecked")
         IList<R> list = (IList<R>) new GapList<R>(size);
         for (int i = 0; i < size; i++) {
             char e = doGet(i);
             list.add(func.apply(e));
+        }
+        return list;
+    }
+
+    public <R> IList<R> mapFilter(Function<Character, R> func, Predicate<R> filter) {
+        int size = size();
+        @SuppressWarnings("unchecked")
+        IList<R> list = (IList<R>) new GapList<R>(size);
+        for (int i = 0; i < size; i++) {
+            char e = doGet(i);
+            R r = func.apply(e);
+            if (filter.test(r)) {
+                list.add(r);
+            }
+        }
+        return list;
+    }
+
+    public <R> IList<R> filterMap(Predicate<Character> filter, Function<Character, R> func) {
+        int size = size();
+        @SuppressWarnings("unchecked")
+        IList<R> list = (IList<R>) new GapList<R>(size);
+        for (int i = 0; i < size; i++) {
+            char e = doGet(i);
+            if (filter.test(e)) {
+                R r = func.apply(e);
+                list.add(r);
+            }
         }
         return list;
     }
@@ -592,7 +531,7 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
      * @param predicate	predicate used for filtering
      * @return			created list
      */
-    public ICharList filteredList(Predicate<Character> predicate) {
+    public ICharList filter(Predicate<Character> predicate) {
         ICharList list = doCreate(-1);
         int size = size();
         for (int i = 0; i < size; i++) {
@@ -605,16 +544,108 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
     }
 
     /**
-     * Filter the list using the specified predicate.
-     * Only elements which are allowed by the predicate remain in the list, the others are removed
+     * Retains all elements in the list which match the predicate.
      *
-     * @param predicate predicate used for filtering
+     * @param predicate a predicate which returns {@code true} for elements to be retained
+     * @return 			{@code true} if the list was changed
      */
-    public void filter(Predicate<Character> predicate) {
-        // It is typically faster to copy the allowed elements in a new list
-        // than to remove the not allowed from the existing one
-        ICharList list = filteredList(predicate);
-        doAssign(list);
+    public boolean retainIf(Predicate<Character> predicate) {
+        // Design: no allocations needed
+        int dst = 0;
+        int size = size();
+        for (int src = 0; src < size; src++) {
+            char e = doGet(src);
+            if (predicate.test(e)) {
+                if (dst != src) {
+                    doSet(dst, e);
+                }
+                dst++;
+            }
+        }
+        if (dst < size) {
+            doRemoveAll(dst, size - dst);
+        }
+        return dst < size;
+    }
+
+    /**
+     * Removes all elements in the list which match the predicate.
+     *
+     * @param predicate a predicate which returns {@code true} for elements to be removed
+     * @return 			{@code true} if the list was changed
+     */
+    public boolean removeIf(Predicate<Character> predicate) {
+        // Design: no allocations needed
+        int dst = 0;
+        int size = size();
+        for (int src = 0; src < size; src++) {
+            char e = doGet(src);
+            if (!predicate.test(e)) {
+                if (dst != src) {
+                    char e2 = doGet(dst);
+                    doReSet(src, e2);
+                    doReSet(dst, e);
+                }
+                dst++;
+            }
+        }
+        if (dst < size) {
+            doRemoveAll(dst, size - dst);
+        }
+        return dst < size;
+    }
+
+    /**
+     * Removes and returns all elements in the list which match the predicate.
+     *
+     * @param predicate	predicate
+     * @return			elements which have been removed from the list
+     */
+    public ICharList extractIf(Predicate<Character> predicate) {
+        // Design: high performance if all or none elements are removed
+        // meaning of removed: ==this: all elements are removed, (char) 0: none elements are removed, else: some elements are removed
+        ICharList removed = this;
+        int dst = 0;
+        int size = size();
+        for (int src = 0; src < size; src++) {
+            char e = doGet(src);
+            if (predicate.test(e)) {
+                // Remove element
+                if (removed == this) {
+                    // all elements removed so far
+                } else {
+                    if (removed == null) {
+                        removed = doCreate(-1);
+                    }
+                    removed.add(e);
+                }
+            } else {
+                // Retain element
+                if (src == 0) {
+                    removed = null;
+                } else if (removed == this) {
+                    removed = doCreate(-1);
+                    for (int i = 0; i < src; i++) {
+                        removed.add(doGet(i));
+                    }
+                }
+                if (dst != src) {
+                    doSet(dst, e);
+                }
+                dst++;
+            }
+        }
+        if (removed == null) {
+            removed = doCreate(-1);
+        } else if (removed == this) {
+            removed = copy();
+            doClear();
+        } else {
+            if (dst < size) {
+                doRemoveAll(dst, size - dst);
+            }
+        }
+        return removed;
     }
 
     public int indexOf(char elem) {
@@ -1022,10 +1053,31 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
         return doGet(0);
     }
 
+    public char getFirstOrNull() {
+        if (size() == 0) {
+            return (char) 0;
+        }
+        return doGet(0);
+    }
+
     public char getLast() {
         int size = size();
         if (size == 0) {
             throw new NoSuchElementException();
+        }
+        return doGet(size - 1);
+    }
+
+    /**
+     * Returns the last element stored in the list.
+     * If the list is empty, null is returned.
+     *
+     * @return	last element stored in the list or null if empty
+     */
+    public char getLastOrNull() {
+        int size = size();
+        if (size == 0) {
+            return (char) 0;
         }
         return doGet(size - 1);
     }
@@ -1861,7 +1913,7 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
                 doReSet(dstIndex + i, doGet(srcIndex + i));
             }
         }
-        // Set elements to (char) 0 after the move operation
+        // Set<Character> elements to (char) 0 after the move operation
         if (srcIndex < dstIndex) {
             int fill = Math.min(len, dstIndex - srcIndex);
             setMult(srcIndex, fill, (char) 0);

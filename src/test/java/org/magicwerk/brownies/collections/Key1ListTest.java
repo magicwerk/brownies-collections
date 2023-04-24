@@ -34,6 +34,7 @@ import org.magicwerk.brownies.collections.TestHelper.ComparableName;
 import org.magicwerk.brownies.collections.TestHelper.Name;
 import org.magicwerk.brownies.collections.TestHelper.Ticket;
 import org.magicwerk.brownies.core.CheckTools;
+import org.magicwerk.brownies.core.Timer;
 import org.magicwerk.brownies.core.TypeTools;
 import org.magicwerk.brownies.core.logback.LogbackTools;
 import org.magicwerk.brownies.core.reflect.ReflectTools;
@@ -54,11 +55,12 @@ public class Key1ListTest {
 	}
 
 	static void test() {
+		testPutPerformance();
+		//testContains();
 		//testImmutableList();
 		//testInitAll();
-		//testContains();
 		//testRemoveAllByKey1();
-		testMemorySize();
+		//testMemorySize();
 		//testPut();
 		//testAsMap();
 		//testKeys();
@@ -144,6 +146,44 @@ public class Key1ListTest {
 				.withKey1Duplicates(true).build();
 		list.add(elem);
 		list.contains(elem);
+	}
+
+	public static void testPutPerformance() {
+		Key1List<Name, String> listTpl = new Key1List.Builder<Name, String>().withPrimaryKey1Map(Name.Mapper).build();
+		int num = 100 * 1000;
+
+		{
+			Key1List<Name, String> list = listTpl.crop();
+			Timer t = new Timer();
+			for (int i = 0; i < num; i++) {
+				ComparableName cn = new ComparableName("" + i, i);
+				list.add(cn);
+			}
+			CheckTools.check(list.size() == num);
+			LOG.info("add: {}", t.elapsedString());
+		}
+		{
+			Key1List<Name, String> list = listTpl.crop();
+			Timer t = new Timer();
+			for (int i = 0; i < num; i++) {
+				ComparableName cn = new ComparableName("" + i, i);
+				list.put(cn);
+			}
+			CheckTools.check(list.size() == num);
+			LOG.info("put: {}", t.elapsedString());
+		}
+		{
+			Key1List<Name, String> list = listTpl.crop();
+			Timer t = new Timer();
+			for (int i = 0; i < num; i++) {
+				ComparableName cn = new ComparableName("" + i, i);
+				if (!list.contains(cn)) {
+					list.add(cn);
+				}
+			}
+			CheckTools.check(list.size() == num);
+			LOG.info("contains/add: {}", t.elapsedString());
+		}
 	}
 
 	public static void testMove() {

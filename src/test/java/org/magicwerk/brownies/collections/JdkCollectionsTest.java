@@ -36,8 +36,8 @@ import org.magicwerk.brownies.collections.TestHelper.ComparableName;
 import org.magicwerk.brownies.collections.TestHelper.Name;
 import org.magicwerk.brownies.collections.helper.NaturalComparator;
 import org.magicwerk.brownies.collections.helper.NullComparator;
-import org.magicwerk.brownies.core.PrintTools;
 import org.magicwerk.brownies.core.logback.LogbackTools;
+import org.magicwerk.brownies.core.print.PrintTools;
 import org.slf4j.Logger;
 
 import com.google.common.collect.BiMap;
