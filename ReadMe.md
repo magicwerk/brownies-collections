@@ -30,7 +30,7 @@ Get the library from Maven Central.
 Gradle:
 
 ```
-api 'org.magicwerk.brownies:brownies-collections:0.9.19' 
+api 'org.magicwerk.brownies:brownies-collections:0.9.20' 
 ```
 
 Maven:
@@ -39,6 +39,6 @@ Maven:
 <dependency>
 	<groupId>org.magicwerk.brownies</groupId>
 	<artifactId>brownies-collections</artifactId>
-	<version>0.9.19</version>
+	<version>0.9.20</version>
 </dependency>
 ```
