@@ -42,6 +42,10 @@ import org.magicwerk.brownies.test.JmhRunner.BenchmarkJsonResult;
 import org.magicwerk.brownies.test.JmhRunner.BenchmarkJsonResult.BenchmarkTrial;
 import org.slf4j.Logger;
 
+/**
+ * Class {@link ListTestPerformance} provides a report for the benchmark results created by {@link ListTestPerformance.ListTest}. 
+ * It therefore specially supports the params "op", "type", "size".
+ */
 public class ListTestPerformanceReport {
 
 	static final Logger LOG = LogbackTools.getLogger();
