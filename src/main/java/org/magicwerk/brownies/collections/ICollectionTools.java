@@ -22,6 +22,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 /**
  * ICollectionTools offers default implementations of Collection functionality.
@@ -137,8 +138,8 @@ public interface ICollectionTools {
 	 * @param predicate	filter predicate
 	 * @return			created list
 	 */
-	public static <E> IList<E> filter(Collection<E> coll, Predicate<? super E> predicate) {
-		IList<E> list = GapList.create();
+	public static <E, C extends Collection<E>> C filter(Collection<E> coll, Predicate<? super E> predicate, Supplier<C> factory) {
+		C list = factory.get();
 		for (E e : coll) {
 			if (predicate.test(e)) {
 				list.add(e);
@@ -153,8 +154,8 @@ public interface ICollectionTools {
 	 * @param func	mapping function
 	 * @return		created list
 	 */
-	public static <E, R> IList<R> map(Collection<E> coll, Function<E, R> func) {
-		IList<R> list = GapList.create();
+	public static <E, R, C extends Collection<R>> C map(Collection<E> coll, Function<E, R> func, Supplier<C> factory) {
+		C list = factory.get();
 		for (E e : coll) {
 			list.add(func.apply(e));
 		}
