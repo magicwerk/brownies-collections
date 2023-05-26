@@ -2864,8 +2864,8 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 			afterDelete(elem);
 			size--;
 		}
-		//if (DEBUG_CHECK)
-		debugCheck();
+		if (DEBUG_CHECK)
+			debugCheck();
 	}
 
 	protected E putByKey(int keyIndex, E elem, boolean replace) {
