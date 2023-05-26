@@ -622,4 +622,23 @@
       <error></error>
     </traceStep>
   </traceTest>
+  <traceTest name="testRemoveAllByKey1">
+    <runDate>2023-05-26T14:11:17.469+02:00</runDate>
+    <runDuration>0.0065287</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.Key2List</traceClass>
+    <traceMethod>removeAllByKey1</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"removeAllByKey1"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="#1">"\"A\""</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"{ \r\n   [A, B1], \r\n   [A, B2] \r\n}"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+  </traceTest>
 </testClass>

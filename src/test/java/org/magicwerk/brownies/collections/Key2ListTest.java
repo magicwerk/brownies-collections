@@ -19,12 +19,15 @@ package org.magicwerk.brownies.collections;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.magictest.client.Assert;
 import org.magictest.client.Capture;
 import org.magictest.client.Trace;
 import org.magicwerk.brownies.collections.TestHelper.Ticket;
+import org.magicwerk.brownies.core.CheckTools;
 import org.magicwerk.brownies.core.logback.LogbackTools;
+import org.magicwerk.brownies.core.objects.Pair;
 import org.magicwerk.brownies.core.strings.StringPrinter;
 import org.slf4j.Logger;
 
@@ -42,7 +45,8 @@ public class Key2ListTest {
 	}
 
 	static void test() {
-		testAsMap();
+		testRemoveAllByKey1();
+		//testAsMap();
 		//testInvalidate();
 		//testKey2List();
 	}
@@ -50,6 +54,36 @@ public class Key2ListTest {
 	static class TicketList extends Key2List<Ticket, Integer, String> {
 		public TicketList() {
 			getBuilder().withPrimaryKey1Map(Ticket.IdMapper).withUniqueKey2Map(Ticket.ExtIdMapper).build();
+		}
+	}
+
+	@Trace
+	public static void testRemoveAllByKey1() {
+		Key2List<Pair<String>, String, String> pairs = new Key2List.Builder<Pair<String>, String, String>()
+				.withKey1Map(Pair::getFirst).withKey2Map(Pair::getLast).build();
+		pairs.add(Pair.of("A", "B1"));
+		pairs.add(Pair.of("A", "B2"));
+		pairs.add(Pair.of("B1", "B2"));
+		check(pairs);
+
+		pairs.removeAllByKey1("A");
+		check(pairs);
+	}
+
+	static <E> void check(KeyListImpl<E> list) {
+		IList<E> elems = GapList.create(list);
+
+		int numKeys = list.keyColl.keyMaps.length;
+		for (int i = 1; i < numKeys; i++) {
+			IList<E> e1s = GapList.create();
+			@SuppressWarnings("unchecked")
+			Set<Object> k1s = (Set<Object>) list.getDistinctKeys(i);
+			for (Object k1 : k1s) {
+				e1s.addAll(list.getAllByKey(i, k1));
+			}
+			CheckTools.check(e1s.size() == elems.size());
+			e1s.removeAll(elems);
+			CheckTools.check(e1s.isEmpty());
 		}
 	}
 

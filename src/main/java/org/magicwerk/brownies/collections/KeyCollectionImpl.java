@@ -989,7 +989,7 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 		 * Note that we cannot use TreeMap as K may not be comparable. One of keysMap or keysList is used.
 		 */
 		Map<K, Object> keysMap;
-		/** Key storage if this is a KeyListImpl sorted by this key map, otherwise null */
+		/** Key storage if this is a KeyListImpl sorted by this key map, otherwise null. One of keysMap or keysList is used. */
 		IList<K> keysList;
 		/** True to count only number of occurrences of equal elements (can only be set on keyMap[0] storing the elements) */
 		boolean count;
@@ -1543,6 +1543,11 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 				}
 				return set;
 			}
+		}
+
+		@Override
+		public String toString() {
+			return (keysMap != null) ? keysMap.toString() : keysList.toString();
 		}
 	}
 
@@ -2287,6 +2292,7 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 	 *
 	 * @return  a copy of this collection
 	 */
+	@Override
 	public KeyCollectionImpl copy() {
 		try {
 			KeyCollectionImpl copy = (KeyCollectionImpl) super.clone();
@@ -2306,6 +2312,7 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 	 *
 	 * @return  an empty copy of this collection
 	 */
+	@Override
 	public KeyCollectionImpl crop() {
 		try {
 			KeyCollectionImpl copy = (KeyCollectionImpl) super.clone();
@@ -2851,14 +2858,14 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 			for (int i = 0; i < keyMaps.length; i++) {
 				if (i != keyIndex && keyMaps[i] != null) {
 					Object k = keyMaps[i].getKey(elem);
-					keyMaps[i].doRemoveAllByKey(k, this, null);
+					keyMaps[i].remove(k, true, elem, this);
 				}
 			}
 			afterDelete(elem);
 			size--;
 		}
-		if (DEBUG_CHECK)
-			debugCheck();
+		//if (DEBUG_CHECK)
+		debugCheck();
 	}
 
 	protected E putByKey(int keyIndex, E elem, boolean replace) {
