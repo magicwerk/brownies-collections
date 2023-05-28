@@ -2662,7 +2662,7 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 			} else {
 				Object obj = keyMap.keysMap.get(key);
 				if (obj == null) {
-					return 0;
+					return (keyMap.keysMap.containsKey(key)) ? 1 : 0;
 				} else if (obj instanceof KeyMapList) {
 					GapList<E> list = (GapList<E>) obj;
 					return list.size();
