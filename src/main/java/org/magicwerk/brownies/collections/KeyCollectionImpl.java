@@ -2636,7 +2636,7 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 	 *
 	 * @param keyIndex 	key index
 	 * @param key   	key which elements must have
-	 * @return      	number of elements with key (-1 if key is null)
+	 * @return      	number of elements with key
 	 */
 	protected int getCountByKey(int keyIndex, Object key) {
 		return getCountByKey(getKeyMap(keyIndex), key);
