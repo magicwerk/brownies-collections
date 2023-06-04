@@ -77,6 +77,7 @@ public abstract class IList<E>
 	 *
 	 * @return a modifiable copy of this list
 	 */
+	@Override
 	@SuppressWarnings("unchecked")
 	public IList<E> copy() {
 		return (IList<E>) clone();
@@ -110,6 +111,7 @@ public abstract class IList<E>
 	 *
 	 * @return  an empty copy of this list
 	 */
+	@Override
 	public IList<E> crop() {
 		return doCreate(0);
 	}
