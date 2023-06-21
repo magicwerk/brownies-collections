@@ -419,6 +419,7 @@ public abstract class IList<E>
 	 * @param elem	element to count
 	 * @return		count how many times the specified element is contained in the list
 	 */
+	// See java.util.Collections.frequency(Collection<?>, Object)
 	public int count(E elem) {
 		int count = 0;
 		int size = size();
