@@ -143,9 +143,7 @@ public class GapList<E> extends IList<E> {
 	public static <E> GapList<E> create(E... elems) {
 		GapList<E> list = new GapList<E>();
 		if (elems != null) {
-			if (elems != null) {
-				list.init(elems);
-			}
+			list.init(elems);
 		}
 		return list;
 	}
@@ -400,12 +398,14 @@ public class GapList<E> extends IList<E> {
 	 */
 	@SuppressWarnings("unchecked")
 	void init(Object[] values, int size) {
+		assert (size <= values.length);
+
 		this.values = (E[]) values;
 		this.size = size;
 
 		start = 0;
 		end = size;
-		if (end >= values.length) {
+		if (end == values.length) {
 			end -= values.length;
 		}
 		gapSize = 0;

@@ -1652,6 +1652,7 @@ public abstract class IList<E>
 	 * @param elems elements to be added to this list
 	 * @return <tt>true</tt> if this list changed as a result of the call
 	 */
+	@SuppressWarnings("unchecked")
 	public boolean addArray(E... elems) {
 		return doAddAll(-1, new IReadOnlyListFromArray<E>(elems));
 	}
@@ -1676,7 +1677,7 @@ public abstract class IList<E>
 	 * @return <tt>true</tt> if this list changed as a result of the call
 	 * @throws IndexOutOfBoundsException if the index is invalid
 	 */
-	public boolean addArray(int index, E... elems) {
+	public boolean addArray(int index, @SuppressWarnings("unchecked") E... elems) {
 		checkIndexAdd(index);
 
 		return doAddAll(index, new IReadOnlyListFromArray<E>(elems));
@@ -1749,6 +1750,7 @@ public abstract class IList<E>
 	 * @param elems	array with elements to set
 	 * @throws 		IndexOutOfBoundsException if the range is invalid
 	 */
+	@SuppressWarnings("unchecked")
 	public void setArray(int index, E... elems) {
 		int arrayLen = elems.length;
 		checkRange(index, arrayLen);
@@ -1824,6 +1826,7 @@ public abstract class IList<E>
 	 * @param index index of first element to set or add
 	 * @param elems	array with elements to set or add
 	 */
+	@SuppressWarnings("unchecked")
 	public void putArray(int index, E... elems) {
 		putAll(index, new IReadOnlyListFromArray<E>(elems));
 	}
@@ -1879,6 +1882,7 @@ public abstract class IList<E>
 	 * @param elems array with elements
 	 * @throws 		IndexOutOfBoundsException if the length is invalid
 	 */
+	@SuppressWarnings("unchecked")
 	public void initArray(E... elems) {
 		initAll(new IReadOnlyListFromArray<E>(elems));
 	}
@@ -1940,6 +1944,7 @@ public abstract class IList<E>
 	 * @param elems array with elements which replace the old elements, use null if elements should only be removed
 	 * @throws 		IndexOutOfBoundsException if the range is invalid
 	 */
+	@SuppressWarnings("unchecked")
 	public void replaceArray(int index, int len, E... elems) {
 		replaceAll(index, len, new IReadOnlyListFromArray<E>(elems));
 	}
