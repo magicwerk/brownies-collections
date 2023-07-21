@@ -33,7 +33,6 @@ import java.util.function.Predicate;
  * @see Key2Collection
  * @param <E> type of elements stored in the set
  */
-@SuppressWarnings("serial")
 public class Key2Set<E, K1, K2> extends Key2Collection<E, K1, K2> implements Set<E> {
 
 	/**
@@ -163,6 +162,7 @@ public class Key2Set<E, K1, K2> extends Key2Collection<E, K1, K2> implements Set
 			return (Builder<E, K1, K2>) super.withContent(elements);
 		}
 
+		@SuppressWarnings("unchecked")
 		@Override
 		public Builder<E, K1, K2> withContent(E... elements) {
 			return (Builder<E, K1, K2>) super.withContent(elements);
@@ -175,6 +175,7 @@ public class Key2Set<E, K1, K2> extends Key2Collection<E, K1, K2> implements Set
 
 		//-- Element key
 
+		@SuppressWarnings("unchecked")
 		/**
 		 * {@inheritDoc}
 		 * <p>
@@ -252,6 +253,7 @@ public class Key2Set<E, K1, K2> extends Key2Collection<E, K1, K2> implements Set
 		 * @param mapper	mapper to use
 		 * @return			this (fluent interface)
 		 */
+		@SuppressWarnings("unchecked")
 		@Override
 		public Builder<E, K1, K2> withKey1Map(Function<? super E, K1> mapper) {
 			return (Builder<E, K1, K2>) super.withKeyMap(1, mapper);
@@ -259,11 +261,12 @@ public class Key2Set<E, K1, K2> extends Key2Collection<E, K1, K2> implements Set
 
 		/**
 		 * Specify this key to be a primary key.
-		 * This is identical to calling withKey1Map(mapper), withKey1Null(false), and withKey1Duplicates(false).
+		 * This is identical to calling {@code withKey1Map(mapper), withKey1Null(false), and withKey1Duplicates(false)}.
 		 *
 		 * @param mapper	mapper to use
 		 * @return			this (fluent interface)
 		 */
+		@SuppressWarnings("unchecked")
 		@Override
 		public Builder<E, K1, K2> withPrimaryKey1Map(Function<? super E, K1> mapper) {
 			return (Builder<E, K1, K2>) super.withPrimaryKeyMap(1, mapper);
@@ -271,11 +274,12 @@ public class Key2Set<E, K1, K2> extends Key2Collection<E, K1, K2> implements Set
 
 		/**
 		 * Specify this key to be a unique key.
-		 * This is identical to calling withKey1Map(mapper), withKey1Null(true), and withKey1Duplicates(false, true).
+		 * This is identical to calling {@code withKey1Map(mapper), withKey1Null(true), and withKey1Duplicates(false, true)}.
 		 *
 		 * @param mapper	mapper to use
 		 * @return			this (fluent interface)
 		 */
+		@SuppressWarnings("unchecked")
 		@Override
 		public Builder<E, K1, K2> withUniqueKey1Map(Function<? super E, K1> mapper) {
 			return (Builder<E, K1, K2>) super.withUniqueKeyMap(1, mapper);
@@ -313,6 +317,7 @@ public class Key2Set<E, K1, K2> extends Key2Collection<E, K1, K2> implements Set
 		 * @param comparator    comparator to use for sorting
 		 * @return              this (fluent interface)
 		 */
+		@SuppressWarnings("unchecked")
 		@Override
 		public Builder<E, K1, K2> withKey1Sort(Comparator<? super K1> comparator) {
 			return (Builder<E, K1, K2>) super.withKeySort(1, comparator);
@@ -326,6 +331,7 @@ public class Key2Set<E, K1, K2> extends Key2Collection<E, K1, K2> implements Set
 		 * @param sortNullsFirst   		true if null will be sorted first, false for last
 		 * @return                      this (fluent interface)
 		 */
+		@SuppressWarnings("unchecked")
 		@Override
 		public Builder<E, K1, K2> withKey1Sort(Comparator<? super K1> comparator, boolean sortNullsFirst) {
 			return (Builder<E, K1, K2>) super.withKeySort(1, comparator, sortNullsFirst);
@@ -339,6 +345,7 @@ public class Key2Set<E, K1, K2> extends Key2Collection<E, K1, K2> implements Set
 		 * @param mapper	mapper to use
 		 * @return			this (fluent interface)
 		 */
+		@SuppressWarnings("unchecked")
 		@Override
 		public Builder<E, K1, K2> withKey2Map(Function<? super E, K2> mapper) {
 			return (Builder<E, K1, K2>) super.withKeyMap(2, mapper);
@@ -346,11 +353,12 @@ public class Key2Set<E, K1, K2> extends Key2Collection<E, K1, K2> implements Set
 
 		/**
 		 * Specify this key to be a primary key.
-		 * This is identical to calling withKey2Map(mapper), withKey2Null(false), and withKey2Duplicates(false).
+		 * This is identical to calling {@code withKey2Map(mapper), withKey2Null(false), and withKey2Duplicates(false)}.
 		 *
 		 * @param mapper	mapper to use
 		 * @return			this (fluent interface)
 		 */
+		@SuppressWarnings("unchecked")
 		@Override
 		public Builder<E, K1, K2> withPrimaryKey2Map(Function<? super E, K2> mapper) {
 			return (Builder<E, K1, K2>) super.withPrimaryKeyMap(2, mapper);
@@ -358,11 +366,12 @@ public class Key2Set<E, K1, K2> extends Key2Collection<E, K1, K2> implements Set
 
 		/**
 		 * Specify this key to be a unique key.
-		 * This is identical to calling withKey2Map(mapper), withKey2Null(true), and withKey2Duplicates(false, true).
+		 * This is identical to calling {@code withKey2Map(mapper), withKey2Null(true), and withKey2Duplicates(false, true)}.
 		 *
 		 * @param mapper	mapper to use
 		 * @return			this (fluent interface)
 		 */
+		@SuppressWarnings("unchecked")
 		@Override
 		public Builder<E, K1, K2> withUniqueKey2Map(Function<? super E, K2> mapper) {
 			return (Builder<E, K1, K2>) super.withUniqueKeyMap(2, mapper);
@@ -400,6 +409,7 @@ public class Key2Set<E, K1, K2> extends Key2Collection<E, K1, K2> implements Set
 		 * @param comparator    comparator to use for sorting
 		 * @return              this (fluent interface)
 		 */
+		@SuppressWarnings("unchecked")
 		@Override
 		public Builder<E, K1, K2> withKey2Sort(Comparator<? super K2> comparator) {
 			return (Builder<E, K1, K2>) super.withKeySort(2, comparator);
@@ -413,6 +423,7 @@ public class Key2Set<E, K1, K2> extends Key2Collection<E, K1, K2> implements Set
 		 * @param sortNullsFirst   		true if null will be sorted first, false for last
 		 * @return                      this (fluent interface)
 		 */
+		@SuppressWarnings("unchecked")
 		@Override
 		public Builder<E, K1, K2> withKey2Sort(Comparator<? super K2> comparator, boolean sortNullsFirst) {
 			return (Builder<E, K1, K2>) super.withKeySort(2, comparator, sortNullsFirst);

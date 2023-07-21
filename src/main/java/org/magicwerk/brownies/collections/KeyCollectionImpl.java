@@ -225,6 +225,7 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 		 * @param elements	initial elements
 		 * @return			this (fluent interface)
 		 */
+		@SuppressWarnings("unchecked")
 		protected BuilderImpl<E> withContent(E... elements) {
 			this.array = elements;
 			return this;
@@ -405,8 +406,7 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 
 		/**
 		 * Specify the element to be a primary key.
-		 * This is identical to calling
-		 * withElemNull(false) and withElemDuplicates(false).
+		 * This is identical to calling {@code withElemNull(false) and withElemDuplicates(false)}.
 		 *
 		 * @return	this (fluent interface)
 		 */
@@ -416,8 +416,7 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 
 		/**
 		 * Specify the element to be a unique key.
-		 * This is identical to calling
-		 * withElemNull(true) and withElemDuplicates(false, true).
+		 * This is identical to calling {@code withElemNull(true) and withElemDuplicates(false, true)}.
 		 *
 		 * @return	this (fluent interface)
 		 */
@@ -1085,6 +1084,7 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 			}
 
 			if (obj instanceof KeyMapList) {
+				@SuppressWarnings("unchecked")
 				GapList<E> list = (GapList<E>) obj;
 				if (list.contains(value)) {
 					return true;
@@ -1105,6 +1105,7 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 			assert (count == false);
 			for (Object obj : keysMap.values()) {
 				if (obj instanceof KeyMapList) {
+					@SuppressWarnings("unchecked")
 					GapList<E> list = (GapList<E>) obj;
 					if (list.contains(value)) {
 						return true;
