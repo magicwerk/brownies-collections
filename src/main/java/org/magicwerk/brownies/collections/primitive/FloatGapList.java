@@ -176,9 +176,7 @@ public class FloatGapList extends IFloatList {
     public static FloatGapList create(float... elems) {
         FloatGapList list = new FloatGapList();
         if (elems != null) {
-            if (elems != null) {
-                list.init(elems);
-            }
+            list.init(elems);
         }
         return list;
     }
@@ -419,11 +417,12 @@ public class FloatGapList extends IFloatList {
      * @param size		new size
      */
     void init(float[] values, int size) {
+        assert (size <= values.length);
         this.values = (float[]) values;
         this.size = size;
         start = 0;
         end = size;
-        if (end >= values.length) {
+        if (end == values.length) {
             end -= values.length;
         }
         gapSize = 0;

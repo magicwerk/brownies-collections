@@ -176,9 +176,7 @@ public class LongGapList extends ILongList {
     public static LongGapList create(long... elems) {
         LongGapList list = new LongGapList();
         if (elems != null) {
-            if (elems != null) {
-                list.init(elems);
-            }
+            list.init(elems);
         }
         return list;
     }
@@ -419,11 +417,12 @@ public class LongGapList extends ILongList {
      * @param size		new size
      */
     void init(long[] values, int size) {
+        assert (size <= values.length);
         this.values = (long[]) values;
         this.size = size;
         start = 0;
         end = size;
-        if (end >= values.length) {
+        if (end == values.length) {
             end -= values.length;
         }
         gapSize = 0;
