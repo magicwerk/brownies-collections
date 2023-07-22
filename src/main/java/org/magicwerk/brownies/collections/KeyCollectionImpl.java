@@ -225,6 +225,7 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 		 * @param elements	initial elements
 		 * @return			this (fluent interface)
 		 */
+		@SuppressWarnings("unchecked")
 		protected BuilderImpl<E> withContent(E... elements) {
 			this.array = elements;
 			return this;
@@ -405,8 +406,7 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 
 		/**
 		 * Specify the element to be a primary key.
-		 * This is identical to calling
-		 * withElemNull(false) and withElemDuplicates(false).
+		 * This is identical to calling {@code withElemNull(false) and withElemDuplicates(false)}.
 		 *
 		 * @return	this (fluent interface)
 		 */
@@ -416,8 +416,7 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 
 		/**
 		 * Specify the element to be a unique key.
-		 * This is identical to calling
-		 * withElemNull(true) and withElemDuplicates(false, true).
+		 * This is identical to calling {@code withElemNull(true) and withElemDuplicates(false, true)}.
 		 *
 		 * @return	this (fluent interface)
 		 */
@@ -989,7 +988,7 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 		 * Note that we cannot use TreeMap as K may not be comparable. One of keysMap or keysList is used.
 		 */
 		Map<K, Object> keysMap;
-		/** Key storage if this is a KeyListImpl sorted by this key map, otherwise null */
+		/** Key storage if this is a KeyListImpl sorted by this key map, otherwise null. One of keysMap or keysList is used. */
 		IList<K> keysList;
 		/** True to count only number of occurrences of equal elements (can only be set on keyMap[0] storing the elements) */
 		boolean count;
@@ -1085,6 +1084,7 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 			}
 
 			if (obj instanceof KeyMapList) {
+				@SuppressWarnings("unchecked")
 				GapList<E> list = (GapList<E>) obj;
 				if (list.contains(value)) {
 					return true;
@@ -1105,6 +1105,7 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 			assert (count == false);
 			for (Object obj : keysMap.values()) {
 				if (obj instanceof KeyMapList) {
+					@SuppressWarnings("unchecked")
 					GapList<E> list = (GapList<E>) obj;
 					if (list.contains(value)) {
 						return true;
@@ -1543,6 +1544,11 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 				}
 				return set;
 			}
+		}
+
+		@Override
+		public String toString() {
+			return (keysMap != null) ? keysMap.toString() : keysList.toString();
 		}
 	}
 
@@ -2287,6 +2293,7 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 	 *
 	 * @return  a copy of this collection
 	 */
+	@Override
 	public KeyCollectionImpl copy() {
 		try {
 			KeyCollectionImpl copy = (KeyCollectionImpl) super.clone();
@@ -2306,6 +2313,7 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 	 *
 	 * @return  an empty copy of this collection
 	 */
+	@Override
 	public KeyCollectionImpl crop() {
 		try {
 			KeyCollectionImpl copy = (KeyCollectionImpl) super.clone();
@@ -2629,7 +2637,7 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 	 *
 	 * @param keyIndex 	key index
 	 * @param key   	key which elements must have
-	 * @return      	number of elements with key (-1 if key is null)
+	 * @return      	number of elements with key
 	 */
 	protected int getCountByKey(int keyIndex, Object key) {
 		return getCountByKey(getKeyMap(keyIndex), key);
@@ -2655,7 +2663,7 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 			} else {
 				Object obj = keyMap.keysMap.get(key);
 				if (obj == null) {
-					return 0;
+					return (keyMap.keysMap.containsKey(key)) ? 1 : 0;
 				} else if (obj instanceof KeyMapList) {
 					GapList<E> list = (GapList<E>) obj;
 					return list.size();
@@ -2851,7 +2859,7 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 			for (int i = 0; i < keyMaps.length; i++) {
 				if (i != keyIndex && keyMaps[i] != null) {
 					Object k = keyMaps[i].getKey(elem);
-					keyMaps[i].doRemoveAllByKey(k, this, null);
+					keyMaps[i].remove(k, true, elem, this);
 				}
 			}
 			afterDelete(elem);

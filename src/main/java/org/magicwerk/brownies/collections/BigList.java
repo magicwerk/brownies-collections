@@ -149,6 +149,7 @@ public class BigList<E> extends IList<E> {
 	 * @return 			created list
 	 * @param <E> 		type of elements stored in the list
 	 */
+	@SuppressWarnings("unchecked")
 	public static <E> BigList<E> create(E... elems) {
 		BigList<E> list = new BigList<E>();
 		if (elems != null) {

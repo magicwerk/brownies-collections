@@ -176,9 +176,7 @@ public class IntGapList extends IIntList {
     public static IntGapList create(int... elems) {
         IntGapList list = new IntGapList();
         if (elems != null) {
-            if (elems != null) {
-                list.init(elems);
-            }
+            list.init(elems);
         }
         return list;
     }
@@ -419,11 +417,12 @@ public class IntGapList extends IIntList {
      * @param size		new size
      */
     void init(int[] values, int size) {
+        assert (size <= values.length);
         this.values = (int[]) values;
         this.size = size;
         start = 0;
         end = size;
-        if (end >= values.length) {
+        if (end == values.length) {
             end -= values.length;
         }
         gapSize = 0;

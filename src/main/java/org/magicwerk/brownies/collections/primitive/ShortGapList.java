@@ -176,9 +176,7 @@ public class ShortGapList extends IShortList {
     public static ShortGapList create(short... elems) {
         ShortGapList list = new ShortGapList();
         if (elems != null) {
-            if (elems != null) {
-                list.init(elems);
-            }
+            list.init(elems);
         }
         return list;
     }
@@ -419,11 +417,12 @@ public class ShortGapList extends IShortList {
      * @param size		new size
      */
     void init(short[] values, int size) {
+        assert (size <= values.length);
         this.values = (short[]) values;
         this.size = size;
         start = 0;
         end = size;
-        if (end >= values.length) {
+        if (end == values.length) {
             end -= values.length;
         }
         gapSize = 0;

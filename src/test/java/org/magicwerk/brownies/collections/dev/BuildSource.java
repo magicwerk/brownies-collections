@@ -23,7 +23,7 @@ import com.github.javaparser.ast.CompilationUnit;
 /**
  * Create Java source files for brownies-collections.
  * <p>
- * - Brownies-Collections: <br>
+ * - Brownies-Collections (src/main/java): <br>
  * collections\primitive\IBooleanList.java <br>
  * collections\primitive\BooleanGapList.java <br>
  * collections\primitive\BooleanObjGapList.java <br>
@@ -32,8 +32,11 @@ import com.github.javaparser.ast.CompilationUnit;
  * collections\helper\primitive\BooleanBinarySearch.java <br>
  * collections\primitive\BooleanObjBigList.java <br>
  * <p>
- * - Brownies-Collections-Test <br>
+ * - Brownies-Collections-Test (src/test/java): <br>
  * collections\BigListGapListTest.java <br>
+ * <p>
+ * - Manifest (src/main/resources): <br>
+ * META-INF/MANIFEST.MF <br>
  *
  * @author Thomas Mauch
  */
@@ -256,9 +259,9 @@ public class BuildSource {
 	}
 
 	void run() {
-		// Generate in src/main/java
+		// Generate source in in src/main/java, src/test/java
 		buildSource();
-		// Generate in src/main/resources
+		// Generate manifest in src/main/resources
 		new BuildManifest().run();
 	}
 
@@ -280,7 +283,7 @@ public class BuildSource {
 
 		//		buildTest = new BuildSourceTest("IntObjGapList");
 		//		buildTest.build();
-		//		FileTools.writeFile(buildTest.getFile(), buildTest.getFileContent());
+		//		writeFile(buildTest.getFile(), buildTest.getFileContent());
 
 		buildTest = new BuildSourceTest("BigList");
 		buildTest.build();

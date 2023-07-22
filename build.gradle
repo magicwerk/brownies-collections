@@ -8,34 +8,33 @@ repositories {
 }
 
 dependencies {
-	testImplementation "org.magicwerk.brownies:brownies-collections:0.9.19"
-	testImplementation "org.magicwerk.brownies:brownies-core:0.9.9"
-    testImplementation "org.magicwerk.brownies:brownies-javassist:0.9.9"
-    testImplementation "org.magicwerk.brownies:brownies-jdom:0.9.9"
-    testImplementation "org.magicwerk.brownies:brownies-html:0.9.9"
-    testImplementation "org.magicwerk.brownies:brownies-test:0.9.9"
-    testImplementation "org.magicwerk.brownies:brownies-tools:0.9.9"
-    testImplementation "org.magicwerk.magictest:magictest:0.9.9"
-    testImplementation "org.magicwerk.magictest:magictest-ng:0.9.9"
+	testImplementation "org.magicwerk.brownies:brownies-core:0.9.11"
+    testImplementation "org.magicwerk.brownies:brownies-javassist:0.9.11"
+    testImplementation "org.magicwerk.brownies:brownies-jdom:0.9.11"
+    testImplementation "org.magicwerk.brownies:brownies-html:0.9.11"
+    testImplementation "org.magicwerk.brownies:brownies-test:0.9.11"
+    testImplementation "org.magicwerk.brownies:brownies-tools:0.9.11"
+    testImplementation "org.magicwerk.magictest:magictest:0.9.11"
+    testImplementation "org.magicwerk.magictest:magictest-ng:0.9.11"
  
-	testImplementation "junit:junit:4.8.2"
+	testImplementation "junit:junit:4.13.2"
 	testImplementation "com.google.guava:guava-testlib:31.1-jre"
-	testImplementation "com.github.javaparser:javaparser-core:3.24.0"	
+	testImplementation "com.github.javaparser:javaparser-core:3.25.1"
 	
 	testImplementation 'org.apache.commons:commons-collections4:4.0'
 	testImplementation 'org.javolution:javolution-core-java:6.0.0'
 	testImplementation 'it.unimi.dsi:fastutil:7.0.9'
 	
-	testImplementation 'org.slf4j:slf4j-api:1.7.4'
-	testImplementation 'ch.qos.logback:logback-classic:1.0.11'
-	testImplementation 'ch.qos.logback:logback-core:1.0.11'
+	testImplementation 'org.slf4j:slf4j-api:1.7.36'
+	testImplementation 'ch.qos.logback:logback-classic:1.2.11'
+	testImplementation 'ch.qos.logback:logback-core:1.2.11'
 	testImplementation 'org.apache.commons:commons-lang3:3.12.0'
 	testImplementation 'de.schlichtherle.truezip:truezip-file:7.7.10'
 	testImplementation 'de.schlichtherle.truezip:truezip-path:7.7.10'
 	testImplementation 'de.schlichtherle.truezip:truezip-driver-zip:7.7.10'
-	testImplementation 'org.javassist:javassist:3.28.0-GA'
-	testImplementation 'org.jdom:jdom2:2.0.6' 
-	testImplementation 'org.openjdk.jmh:jmh-core:1.33'
+	testImplementation 'org.javassist:javassist:3.29.2-GA'
+	testImplementation 'org.jdom:jdom2:2.0.6.1' 
+	testImplementation 'org.openjdk.jmh:jmh-core:1.36'
 }
 
 

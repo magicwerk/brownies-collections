@@ -541,6 +541,12 @@ public class KeyCollectionTest {
 		coll.add(a);
 		coll.removeAll(a);
 
+		coll.add(n);
+		coll.getCount(n);
+
+		coll.add(n);
+		coll.getCount(n);
+
 		Report.printStep("-- Sort --");
 		coll = getCollectionSort();
 		coll.getAll(d);
