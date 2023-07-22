@@ -37,11 +37,15 @@ import org.magicwerk.brownies.html.content.HtmlChartCreator.ChartType;
 import org.magicwerk.brownies.html.content.HtmlFormatters;
 import org.magicwerk.brownies.html.content.HtmlFormatters.ConditionalFormatter;
 import org.magicwerk.brownies.html.content.HtmlTableFormatter;
+import org.magicwerk.brownies.test.JmhRunner.BenchmarkFileResult;
 import org.magicwerk.brownies.test.JmhRunner.BenchmarkJsonParser;
-import org.magicwerk.brownies.test.JmhRunner.BenchmarkJsonResult;
-import org.magicwerk.brownies.test.JmhRunner.BenchmarkJsonResult.BenchmarkTrial;
+import org.magicwerk.brownies.test.JmhRunner.BenchmarkResult;
 import org.slf4j.Logger;
 
+/**
+ * Class {@link ListTestPerformance} provides a report for the benchmark results created by {@link ListTestPerformance.ListTest}. 
+ * It therefore specially supports the params "op", "type", "size".
+ */
 public class ListTestPerformanceReport {
 
 	static final Logger LOG = LogbackTools.getLogger();
@@ -64,7 +68,7 @@ public class ListTestPerformanceReport {
 		/** Benchmark value {@literal @Param} size */
 		String size;
 
-		Result(BenchmarkTrial bt) {
+		Result(BenchmarkResult bt) {
 			benchmark = convertBenchmark(bt.getBenchmark());
 			score = bt.getScore();
 			Map<String, String> p = bt.getParams();
@@ -312,10 +316,10 @@ public class ListTestPerformanceReport {
 	}
 
 	IList<ListTestPerformanceReport.Result> doReadBenchmarks() {
-		IList<BenchmarkTrial> brs = GapList.create();
+		IList<BenchmarkResult> brs = GapList.create();
 		for (FilePath file : files) {
 			String text = FileTools.readFile().setFile(file).readText();
-			BenchmarkJsonResult br = new BenchmarkJsonParser().parse(text);
+			BenchmarkFileResult br = new BenchmarkJsonParser().parse(text);
 			brs.addAll(br.getResults());
 		}
 		IList<ListTestPerformanceReport.Result> rs = brs.map(ListTestPerformanceReport.Result::new);

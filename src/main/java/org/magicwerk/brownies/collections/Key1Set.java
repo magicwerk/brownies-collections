@@ -225,14 +225,25 @@ public class Key1Set<E, K> extends Key1Collection<E, K> implements Set<E> {
 			return (Builder<E, K>) super.withElemSort(comparator, sortNullsFirst);
 		}
 
+		/**
+		 * {@inheritDoc}
+		 * <p>
+		 * Note that a {@link Key1Set} always has an element set, so this call is not necessary.
+		 */
 		@Override
 		public Builder<E, K> withPrimaryElem() {
-			return (Builder<E, K>) super.withPrimaryElem();
+			return this;
 		}
 
+		/**
+		 * {@inheritDoc}
+		 * <p>
+		 * Note that a {@link Key1Set} always has an element set, so an exception is thrown.
+		 */
 		@Override
 		public Builder<E, K> withUniqueElem() {
-			return (Builder<E, K>) super.withUniqueElem();
+			KeyCollectionImpl.errorInvalidSetBehavior();
+			return this;
 		}
 
 		// -- Key1
@@ -251,7 +262,7 @@ public class Key1Set<E, K> extends Key1Collection<E, K> implements Set<E> {
 
 		/**
 		 * Specify this key to be a primary key.
-		 * This is identical to calling withKey1Map(mapper), withKey1Null(false), and withKey1Duplicates(false).
+		 * This is identical to calling {@code withKey1Map(mapper), withKey1Null(false), and withKey1Duplicates(false)}.
 		 *
 		 * @param mapper	mapper to use
 		 * @return			this (fluent interface)
@@ -264,7 +275,7 @@ public class Key1Set<E, K> extends Key1Collection<E, K> implements Set<E> {
 
 		/**
 		 * Specify this key to be a unique key.
-		 * This is identical to calling withKey1Map(mapper), withKey1Null(true), and withKey1Duplicates(false, true).
+		 * This is identical to calling {@code withKey1Map(mapper), withKey1Null(true), and withKey1Duplicates(false, true)}.
 		 *
 		 * @param mapper	mapper to use
 		 * @return			this (fluent interface)

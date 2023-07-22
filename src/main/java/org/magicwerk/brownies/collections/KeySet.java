@@ -222,14 +222,25 @@ public class KeySet<E> extends KeyCollection<E> implements Set<E> {
 			return (Builder<E>) super.withElemSort(comparator, sortNullsFirst);
 		}
 
+		/**
+		 * {@inheritDoc}
+		 * <p>
+		 * Note that a {@link Key2Set} always has an element set, so this call is not necessary.
+		 */
 		@Override
 		public Builder<E> withPrimaryElem() {
-			return (Builder<E>) super.withPrimaryElem();
+			return this;
 		}
 
+		/**
+		 * {@inheritDoc}
+		 * <p>
+		 * Note that a {@link KeySet} always has an element set, so an exception is thrown.
+		 */
 		@Override
 		public Builder<E> withUniqueElem() {
-			return (Builder<E>) super.withUniqueElem();
+			KeyCollectionImpl.errorInvalidSetBehavior();
+			return this;
 		}
 	}
 

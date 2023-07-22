@@ -22,6 +22,7 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 /**
  * ICollectionTools offers default implementations of Collection functionality.
@@ -137,8 +138,8 @@ public interface ICollectionTools {
 	 * @param predicate	filter predicate
 	 * @return			created list
 	 */
-	public static <E> IList<E> filter(Collection<E> coll, Predicate<? super E> predicate) {
-		IList<E> list = GapList.create();
+	public static <E, C extends Collection<E>> C filter(Collection<E> coll, Predicate<? super E> predicate, Supplier<C> factory) {
+		C list = factory.get();
 		for (E e : coll) {
 			if (predicate.test(e)) {
 				list.add(e);
@@ -153,8 +154,8 @@ public interface ICollectionTools {
 	 * @param func	mapping function
 	 * @return		created list
 	 */
-	public static <E, R> IList<R> map(Collection<E> coll, Function<E, R> func) {
-		IList<R> list = GapList.create();
+	public static <E, R, C extends Collection<R>> C map(Collection<E> coll, Function<E, R> func, Supplier<C> factory) {
+		C list = factory.get();
 		for (E e : coll) {
 			list.add(func.apply(e));
 		}
@@ -169,7 +170,19 @@ public interface ICollectionTools {
 	 * @return			created list
 	 */
 	public static <E, R> IList<R> mapFilter(Collection<E> coll, Function<E, R> func, Predicate<R> filter) {
-		IList<R> list = GapList.create();
+		return mapFilter(coll, func, filter, GapList::new);
+	}
+
+	/**
+	 * Create a new collection by applying the specified mapping function to all elements and then filtering it.
+	 *
+	 * @param func		mapping function
+	 * @param filter	filter predicate
+	 * @param factory	factory to create collection
+	 * @return			created list
+	 */
+	public static <E, R, C extends Collection<R>> C mapFilter(Collection<E> coll, Function<E, R> func, Predicate<R> filter, Supplier<C> factory) {
+		C list = factory.get();
 		for (E e : coll) {
 			R r = func.apply(e);
 			if (filter.test(r)) {
@@ -186,8 +199,20 @@ public interface ICollectionTools {
 	 * @param func		mapping function
 	 * @return			created list
 	 */
-	public static <E, R> IList<R> filterMap(Collection<E> coll, Predicate<E> filter, Function<E, R> func) {
-		IList<R> list = GapList.create();
+	public static <E, R, C extends Collection<R>> IList<R> filterMap(Collection<E> coll, Predicate<E> filter, Function<E, R> func) {
+		return filterMap(coll, filter, func, GapList::new);
+	}
+
+	/**
+	 * Create a new collection by applying the specified filter first and then the mapping function to all elements selected.
+	 *
+	 * @param filter	filter predicate
+	 * @param func		mapping function
+	 * @param factory	factory to create collection
+	 * @return			created list
+	 */
+	public static <E, R, C extends Collection<R>> C filterMap(Collection<E> coll, Predicate<E> filter, Function<E, R> func, Supplier<C> factory) {
+		C list = factory.get();
 		for (E e : coll) {
 			if (filter.test(e)) {
 				list.add(func.apply(e));

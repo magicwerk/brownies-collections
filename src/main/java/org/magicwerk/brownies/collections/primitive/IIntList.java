@@ -370,12 +370,7 @@ public abstract class IIntList implements Cloneable, Serializable {
         return (int) elem;
     }
 
-    /**
-     * Counts how many times the specified element is contained in the list.
-     *
-     * @param elem	element to count
-     * @return		count how many times the specified element is contained in the list
-     */
+    // See java.util.Collections.frequency(Collection<?>, Object)
     public int count(int elem) {
         int count = 0;
         int size = size();
@@ -1512,6 +1507,7 @@ public abstract class IIntList implements Cloneable, Serializable {
      * @param elems elements to be added to this list
      * @return <tt>true</tt> if this list changed as a result of the call
      */
+    @SuppressWarnings("unchecked")
     public boolean addArray(int... elems) {
         return doAddAll(-1, new IReadOnlyIntListFromArray(elems));
     }
@@ -1536,7 +1532,7 @@ public abstract class IIntList implements Cloneable, Serializable {
      * @return <tt>true</tt> if this list changed as a result of the call
      * @throws IndexOutOfBoundsException if the index is invalid
      */
-    public boolean addArray(int index, int... elems) {
+    public boolean addArray(int index, @SuppressWarnings("unchecked") int... elems) {
         checkIndexAdd(index);
         return doAddAll(index, new IReadOnlyIntListFromArray(elems));
     }
@@ -1603,6 +1599,7 @@ public abstract class IIntList implements Cloneable, Serializable {
      * @param elems	array with elements to set
      * @throws 		IndexOutOfBoundsException if the range is invalid
      */
+    @SuppressWarnings("unchecked")
     public void setArray(int index, int... elems) {
         int arrayLen = elems.length;
         checkRange(index, arrayLen);
@@ -1671,6 +1668,7 @@ public abstract class IIntList implements Cloneable, Serializable {
      * @param index index of first element to set or add
      * @param elems	array with elements to set or add
      */
+    @SuppressWarnings("unchecked")
     public void putArray(int index, int... elems) {
         putAll(index, new IReadOnlyIntListFromArray(elems));
     }
@@ -1724,6 +1722,7 @@ public abstract class IIntList implements Cloneable, Serializable {
      * @param elems array with elements
      * @throws 		IndexOutOfBoundsException if the length is invalid
      */
+    @SuppressWarnings("unchecked")
     public void initArray(int... elems) {
         initAll(new IReadOnlyIntListFromArray(elems));
     }
@@ -1782,6 +1781,7 @@ public abstract class IIntList implements Cloneable, Serializable {
      * @param elems array with elements which replace the old elements, use null if elements should only be removed
      * @throws 		IndexOutOfBoundsException if the range is invalid
      */
+    @SuppressWarnings("unchecked")
     public void replaceArray(int index, int len, int... elems) {
         replaceAll(index, len, new IReadOnlyIntListFromArray(elems));
     }

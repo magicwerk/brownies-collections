@@ -20,6 +20,8 @@ import ch.qos.logback.classic.Logger;
 /**
  * Run tests with DEBUG_CHECK enabled.
  * <p>
+ * Before running, make sure that you executed 'gradle compileJava' as the class files are referenced (e.g. Brownies-Core/build/classes/java/main)
+ * <p>
  * - Copy current sources from "src" into "build/tmp/runDebugTest" <br>
  * - Set constant DEBUG_CHECK to true <br>
  * - Check that assertions would fail on problems by running RunDebugTestCheck (expected to fail) <br>
@@ -49,7 +51,7 @@ public class RunDebugTest {
 		GradleTool gradleTool = new GradleTool();
 		IList<String> deps = gradleTool.getDependencies("testCompileClasspath");
 		// TODO check dependencies against text in buildGradle
-		LOG.info("Check that dependencies are still up-to-date:\n{}", StringPrinter.formatLines(deps));
+		LOG.info("Check that class files are built (gradle compileJava) and dependencies are still up-to-date:\n{}", StringPrinter.formatLines(deps));
 	}
 
 	void assertDebugTestFails() {

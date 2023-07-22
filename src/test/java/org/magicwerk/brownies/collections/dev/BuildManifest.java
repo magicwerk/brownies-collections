@@ -104,11 +104,14 @@ public class BuildManifest {
 	static final Pattern MAVEN_REFERENCE_PATTERN = Pattern.compile("(?m)(?<=^mavenReference: )(.*)(?=\\R)");
 	static final Pattern MAVEN_VERSION_PATTERN = Pattern.compile(".*:(.*)");
 
+	/** Returns current project version, e.g. "0.9.21-SNAPSHOT" */
 	String getMavenVersion() {
 		String cmd = "gradle printMavenReference";
 		ExecStatus status = new Exec().setUseShell(true).setPrintOutput(true).setArgLine(cmd).setThrowOnError(true).execute();
 		String out = status.getMessage();
+		// out: several lines, one being "mavenReference: org.magicwerk.brownies:brownies-collections:0.9.21-SNAPSHOT"
 		String ref = RegexTools.get(MAVEN_REFERENCE_PATTERN, out);
+		// ref: org.magicwerk.brownies:brownies-collections:0.9.21-SNAPSHOT
 		return RegexTools.get(MAVEN_VERSION_PATTERN, ref);
 	}
 

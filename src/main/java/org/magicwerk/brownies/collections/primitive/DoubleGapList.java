@@ -176,9 +176,7 @@ public class DoubleGapList extends IDoubleList {
     public static DoubleGapList create(double... elems) {
         DoubleGapList list = new DoubleGapList();
         if (elems != null) {
-            if (elems != null) {
-                list.init(elems);
-            }
+            list.init(elems);
         }
         return list;
     }
@@ -419,11 +417,12 @@ public class DoubleGapList extends IDoubleList {
      * @param size		new size
      */
     void init(double[] values, int size) {
+        assert (size <= values.length);
         this.values = (double[]) values;
         this.size = size;
         start = 0;
         end = size;
-        if (end >= values.length) {
+        if (end == values.length) {
             end -= values.length;
         }
         gapSize = 0;

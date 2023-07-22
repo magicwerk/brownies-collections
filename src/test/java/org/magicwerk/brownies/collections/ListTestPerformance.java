@@ -24,8 +24,8 @@ import org.magicwerk.brownies.core.types.Type;
 import org.magicwerk.brownies.core.values.Table;
 import org.magicwerk.brownies.html.HtmlTable;
 import org.magicwerk.brownies.test.JmhRunner;
+import org.magicwerk.brownies.test.JavaEnvironment.JavaVersion;
 import org.magicwerk.brownies.test.JmhRunner.Options;
-import org.magicwerk.brownies.tools.dev.tools.JavaTools.JavaVersion;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Level;
 import org.openjdk.jmh.annotations.Param;
@@ -64,7 +64,7 @@ public class ListTestPerformance {
 
 	/** Run benchmarks, results in ListTestPerformance.json / ListTestPerformance.log */
 	void runBenchmarkOp(boolean fast) {
-		Options opts = configure(fast);
+		Options opts = configure();
 		opts.includeMethod(ListTest.class, "testGet");
 		opts.includeMethod(ListTest.class, "testAdd");
 		opts.includeMethod(ListTest.class, "testRemove");
@@ -77,17 +77,11 @@ public class ListTestPerformance {
 		runner.runJmh(opts);
 	}
 
-	Options configure(boolean fast) {
+	Options configure() {
 		Options opts = new Options();
-		if (fast) {
-			opts.setWarmupIterations(0);
-			opts.setMeasurementIterations(1);
-			opts.setRunTimeMillis(100);
-		} else {
-			opts.setWarmupIterations(25);
-			opts.setMeasurementIterations(25);
-			opts.setRunTimeMillis(100);
-		}
+		opts.setWarmupIterations(25);
+		opts.setMeasurementIterations(25);
+		opts.setRunTimeMillis(100);
 		opts.setJvmArgs(jvmArgs);
 
 		opts.setJavaVersion(JavaVersion.JAVA_8);
@@ -101,18 +95,21 @@ public class ListTestPerformance {
 
 	/** Run benchmarks, results in ListTestCopyPerformance.json / ListTestCopyPerformance.log */
 	void runBenchmarkCopy(boolean fast) {
-		Options opts = configure(fast);
+		Options opts = configure();
 		opts.includeMethod(ListTest.class, "testCopy");
 
 		opts.setResultFile("output/ListTestCopyPerformance.json");
 		opts.setLogFile("output/ListTestCopyPerformance.log");
 		JmhRunner runner = new JmhRunner();
+		runner.setFastMode(fast);
 		runner.runJmh(opts);
 	}
 
 	// Benchmarks
 
 	public static class ListTest {
+
+		// Benchmarks executed by runBenchmarkOp() (with params "op", "type", "size")
 
 		@Benchmark
 		public Object testGet(GetListState state) {
@@ -140,6 +137,8 @@ public class ListTestPerformance {
 			list.remove(pos);
 			return state;
 		}
+
+		// Benchmarks executed by runBenchmarkCopy() (with params "type", "size")
 
 		@Benchmark
 		public Object testCopy(CopyListState state) {
@@ -450,8 +449,11 @@ public class ListTestPerformance {
 
 	void showBenchmark() {
 		ListTestPerformanceReport sb = new MyListTestPerformanceReport();
-		sb.showCharts();
-		//sb.showTables();
+
+		//sb.showCharts();
+
+		// Create tables as shown on http://www.magicwerk.org/page-collections-documentation.html
+		sb.showTables();
 	}
 
 	/**

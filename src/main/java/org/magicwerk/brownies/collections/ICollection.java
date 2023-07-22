@@ -143,4 +143,18 @@ public interface ICollection<E> extends Collection<E> {
 	 */
 	<R> IList<R> filterMap(Predicate<E> filter, Function<E, R> func);
 
+	/**
+	 * Returns a copy of this collection with all its elements.
+	 *
+	 * @return  a copy of this collection
+	 */
+	ICollection<E> copy();
+
+	/**
+	 * Returns an empty copy of this collection.
+	 *
+	 * @return  an empty copy of this collection
+	 */
+	ICollection<E> crop();
+
 }
