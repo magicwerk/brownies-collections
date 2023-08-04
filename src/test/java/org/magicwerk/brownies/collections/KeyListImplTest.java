@@ -32,8 +32,8 @@ import org.magicwerk.brownies.collections.TestHelper.ComparableName;
 import org.magicwerk.brownies.collections.TestHelper.Name;
 import org.magicwerk.brownies.collections.TestHelper.Ticket;
 import org.magicwerk.brownies.core.CheckTools;
-import org.magicwerk.brownies.core.ThreadTools;
 import org.magicwerk.brownies.core.Timer;
+import org.magicwerk.brownies.core.concurrent.ThreadTools;
 import org.magicwerk.brownies.core.logback.LogbackTools;
 import org.slf4j.Logger;
 
