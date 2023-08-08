@@ -747,9 +747,9 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 			for (int i = size; i <= index; i++) {
 				keyMapBuilders.add(i, null);
 			}
-			KeyMapBuilder kmb = keyMapBuilders.get(index);
+			KeyMapBuilder<E, Object> kmb = keyMapBuilders.get(index);
 			if (kmb == null) {
-				kmb = new KeyMapBuilder();
+				kmb = new KeyMapBuilder<>();
 				keyMapBuilders.set(index, kmb);
 			}
 			return kmb;
@@ -814,9 +814,9 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 					}
 				}
 			} else if (keyMap.comparator != null) {
-				keyMap.keysMap = new TreeMap(keyMap.comparator);
+				keyMap.keysMap = new TreeMap<>(keyMap.comparator);
 			} else {
-				keyMap.keysMap = new HashMap();
+				keyMap.keysMap = new HashMap<>();
 			}
 
 			return keyMap;
@@ -842,7 +842,7 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 			int orderByKey = -1;
 			int size = keyMapBuilders.size();
 			if (size == 1) {
-				KeyMapBuilder kmb = keyMapBuilders.get(0);
+				KeyMapBuilder<?, ?> kmb = keyMapBuilders.get(0);
 				if (kmb == null) {
 					if (!list) {
 						withElemSet();
@@ -860,7 +860,7 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 			if (size > 0) {
 				keyColl.keyMaps = new KeyMap[size];
 				for (int i = 0; i < size; i++) {
-					KeyMapBuilder kmb = keyMapBuilders.get(i);
+					KeyMapBuilder<?, ?> kmb = keyMapBuilders.get(i);
 					if (kmb == null) {
 						if (i != 0) {
 							throw new IllegalArgumentException("Key " + i + " is not defined");
@@ -1516,11 +1516,11 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 			if (keysMap != null) {
 				Set<K> set = keysMap.keySet();
 				if (comparator != null) {
-					TreeSet treeSet = new TreeSet(comparator);
+					TreeSet<K> treeSet = new TreeSet<>(comparator);
 					treeSet.addAll(set);
 					return treeSet;
 				} else {
-					return new HashSet(set);
+					return new HashSet<>(set);
 				}
 			} else {
 				K lastKey = null;
@@ -1562,7 +1562,7 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 			super();
 		}
 
-		public KeyMapList(KeyMapList that) {
+		public KeyMapList(KeyMapList<E> that) {
 			super(that);
 		}
 	}
@@ -1747,8 +1747,8 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 		return orderByKey == 0;
 	}
 
-	Comparator getElemSortComparator() {
-		Comparator comparator = keyMaps[orderByKey].comparator;
+	Comparator<Object> getElemSortComparator() {
+		Comparator<Object> comparator = keyMaps[orderByKey].comparator;
 		if (comparator instanceof NaturalComparator) {
 			return null;
 		}
