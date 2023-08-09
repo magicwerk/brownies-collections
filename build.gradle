@@ -78,6 +78,7 @@ The key collection classes offer support for keys and constraints for lists and 
 
 dependencies {
     testImplementation project(':Brownies-Core')
+    testImplementation project(':Brownies-Javassist')
     testImplementation project(':Brownies-Html')
     testImplementation project(':Brownies-Swt')
     testImplementation project(':Brownies-Test')
@@ -86,7 +87,7 @@ dependencies {
     
     testImplementation libraries.junit
     testImplementation libraries.guava_testlib
-	testImplementation libraries.javaparser
+
 	testImplementation 'com.melloware:jintellitype:1.3.9:dll-x64' 
 
 	testImplementation 'org.apache.commons:commons-collections4:4.0'
