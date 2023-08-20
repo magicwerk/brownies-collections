@@ -149,6 +149,18 @@ public class GapList<E> extends IList<E> {
 	}
 
 	/**
+	 * Create new immutable list with specified elements.
+	 *
+	 * @param elems 	array with elements
+	 * @return 			created list
+	 * @param <E> 		type of elements stored in the list
+	 */
+	@SafeVarargs
+	public static <E> GapList<E> immutable(E... elems) {
+		return create(elems).unmodifiableList();
+	}
+
+	/**
 	 * Calculate index for physical access to an element.
 	 *
 	 * @param idx	logical index of element
