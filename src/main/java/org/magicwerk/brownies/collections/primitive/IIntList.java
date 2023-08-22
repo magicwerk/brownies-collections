@@ -654,45 +654,12 @@ public abstract class IIntList implements Cloneable, Serializable {
     }
 
     public int indexOf(int elem) {
-        int size = size();
-        for (int i = 0; i < size; i++) {
-            if (equalsElem(doGet(i), elem)) {
-                return i;
-            }
-        }
-        return -1;
+        return doIndexOf(elem, 0);
     }
 
     /**
-     * Returns the index of the first element which matches the specified element in this list.
-     *
-     * @param predicate		predicate used to search element
-     * @return				the index of the first element which matches the specified element,
-     * 						or -1 if this list does not contain the element
-     * @see #indexOf(Object)
-     */
-    public int indexOfIf(Predicate<Integer> predicate) {
-        int size = size();
-        for (int i = 0; i < size; i++) {
-            if (predicate.test(doGet(i))) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    public int lastIndexOf(int elem) {
-        for (int i = size() - 1; i >= 0; i--) {
-            if (equalsElem(doGet(i), elem)) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    /**
-     * Returns the index of the first occurrence of the specified element in this list, starting the search at the specified position.
-     * If the element is not found, -1 is returned.
+     * Returns the index of the first occurrence of the specified element in this list,
+     * starting the search at the specified position. If the element is not found, -1 is returned.
      *
      * @param elem			element to search for
      * @param fromIndex		start index for search
@@ -704,6 +671,14 @@ public abstract class IIntList implements Cloneable, Serializable {
         if (fromIndex < 0) {
             fromIndex = 0;
         }
+        return doIndexOf(elem, fromIndex);
+    }
+
+    /**
+     * Returns the index of the first occurrence of the specified element in this list,
+     * starting the search at the specified position. If the element is not found, -1 is returned.
+     */
+    protected int doIndexOf(int elem, int fromIndex) {
         int size = size();
         for (int i = fromIndex; i < size; i++) {
             if (equalsElem(doGet(i), elem)) {
@@ -714,8 +689,55 @@ public abstract class IIntList implements Cloneable, Serializable {
     }
 
     /**
-     * Returns the index of the last occurrence of the specified element in this list, starting the search at the specified position.
-     * If the element is not found, -1 is returned.
+     * Returns the index of the first element which matches the specified predicate in this list.
+     * If no such element is not found, -1 is returned.
+     *
+     * @param predicate		predicate used to search for the element
+     * @return				the index of the first element which matches the specified predicate,
+     * 						or -1 if not found
+     * @see #indexOf(Object)
+     */
+    public int indexOfIf(Predicate<Integer> predicate) {
+        return doIndexOfIf(predicate, 0);
+    }
+
+    /**
+     * Returns the index of the first element which matches the specified predicate in this list,
+     * starting the search at the specified position. If no such element is not found, -1 is returned.
+     *
+     * @param predicate		predicate used to search for the element
+     * @return				the index of the first element which matches the specified predicate,
+     * 						or -1 if not found
+     * @see #indexOf(Object)
+     */
+    public int indexOf(Predicate<Integer> predicate, int fromIndex) {
+        if (fromIndex < 0) {
+            fromIndex = 0;
+        }
+        return doIndexOfIf(predicate, fromIndex);
+    }
+
+    /**
+     * Returns the index of the first element which matches the specified predicate in this list,
+     * starting the search at the specified position. If no such element is not found, -1 is returned.
+     */
+    protected int doIndexOfIf(Predicate<Integer> predicate, int fromIndex) {
+        int size = size();
+        for (int i = fromIndex; i < size; i++) {
+            if (predicate.test(doGet(i))) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    public int lastIndexOf(int elem) {
+        return doLastIndexOf(elem, 0);
+    }
+
+    /**
+     * Returns the index of the last occurrence of the specified element in this list,
+     * starting the search at the specified position. If the element is not found, -1 is returned.
      *
      * @param elem			element to search for
      * @param fromIndex		start index for search
@@ -728,8 +750,60 @@ public abstract class IIntList implements Cloneable, Serializable {
         if (fromIndex >= size) {
             fromIndex = size - 1;
         }
+        return doLastIndexOf(elem, fromIndex);
+    }
+
+    /**
+     * Returns the index of the last occurrence of the specified element in this list,
+     * starting the search at the specified position. If the element is not found, -1 is returned.
+     */
+    protected int doLastIndexOf(int elem, int fromIndex) {
         for (int i = fromIndex; i >= 0; i--) {
             if (equalsElem(doGet(i), elem)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * Returns the index of the last element which matches the specified predicate in this list.
+     * If no such element is not found, -1 is returned.
+     *
+     * @param predicate		predicate used to search for the element
+     * @return				the index of the last element which matches the specified predicate,
+     * 						or -1 if not found
+     * @see #lastIndexOf(Object)
+     */
+    public int lastIndexOfIf(Predicate<Integer> predicate) {
+        return doLastIndexOfIf(predicate, 0);
+    }
+
+    /**
+     * Returns the index of the last occurrence of the specified element in this list,
+     * starting the search at the specified position. If the element is not found, -1 is returned.
+     *
+     * @param predicate		predicate used to search for the element
+     * @param fromIndex		start index for search
+     * @return				the index of the last occurrence of the specified element in this list that is less than or equal to fromIndex,
+     * 						or -1 if this list does not contain the element
+     * @see #lastIndexOf(Object)
+     */
+    public int lastIndexOfIf(Predicate<Integer> predicate, int fromIndex) {
+        int size = size();
+        if (fromIndex >= size) {
+            fromIndex = size - 1;
+        }
+        return doLastIndexOfIf(predicate, fromIndex);
+    }
+
+    /**
+     * Returns the index of the last occurrence of the specified element in this list,
+     * starting the search at the specified position. If the element is not found, -1 is returned.
+     */
+    protected int doLastIndexOfIf(Predicate<Integer> predicate, int fromIndex) {
+        for (int i = fromIndex; i >= 0; i--) {
+            if (predicate.test(doGet(i))) {
                 return i;
             }
         }

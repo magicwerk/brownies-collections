@@ -182,6 +182,18 @@ public class CharGapList extends ICharList {
     }
 
     /**
+     * Create new immutable list with specified elements.
+     *
+     * @param elems 	array with elements
+     * @return 			created list
+     * @param  		type of elements stored in the list
+     */
+    @SafeVarargs
+    public static CharGapList immutable(char... elems) {
+        return create(elems).unmodifiableList();
+    }
+
+    /**
      * Calculate index for physical access to an element.
      *
      * @param idx	logical index of element

@@ -721,8 +721,8 @@ public abstract class IList<E>
 	}
 
 	/**
-	 * Returns the index of the first occurrence of the specified element in this list, starting the search at the specified position.
-	 * If the element is not found, -1 is returned.
+	 * Returns the index of the first occurrence of the specified element in this list, 
+	 * starting the search at the specified position. If the element is not found, -1 is returned.
 	 *
 	 * @param elem			element to search for
 	 * @param fromIndex		start index for search
@@ -737,6 +737,10 @@ public abstract class IList<E>
 		return doIndexOf(elem, fromIndex);
 	}
 
+	/**
+	 * Returns the index of the first occurrence of the specified element in this list, 
+	 * starting the search at the specified position. If the element is not found, -1 is returned.
+	 */
 	protected int doIndexOf(Object elem, int fromIndex) {
 		int size = size();
 		for (int i = fromIndex; i < size; i++) {
@@ -748,17 +752,27 @@ public abstract class IList<E>
 	}
 
 	/**
-	 * Returns the index of the first element which matches the specified element in this list.
+	 * Returns the index of the first element which matches the specified predicate in this list.
+	 * If no such element is not found, -1 is returned.
 	 *
-	 * @param predicate		predicate used to search element
-	 * @return				the index of the first element which matches the specified element,
-	 * 						or -1 if this list does not contain the element
+	 * @param predicate		predicate used to search for the element
+	 * @return				the index of the first element which matches the specified predicate,
+	 * 						or -1 if not found
 	 * @see #indexOf(Object)
 	 */
 	public int indexOfIf(Predicate<? super E> predicate) {
 		return doIndexOfIf(predicate, 0);
 	}
 
+	/**
+	 * Returns the index of the first element which matches the specified predicate in this list, 
+	 * starting the search at the specified position. If no such element is not found, -1 is returned.
+	 *
+	 * @param predicate		predicate used to search for the element
+	 * @return				the index of the first element which matches the specified predicate,
+	 * 						or -1 if not found
+	 * @see #indexOf(Object)
+	 */
 	public int indexOf(Predicate<? super E> predicate, int fromIndex) {
 		if (fromIndex < 0) {
 			fromIndex = 0;
@@ -766,6 +780,10 @@ public abstract class IList<E>
 		return doIndexOfIf(predicate, fromIndex);
 	}
 
+	/**
+	 * Returns the index of the first element which matches the specified predicate in this list, 
+	 * starting the search at the specified position. If no such element is not found, -1 is returned.
+	 */
 	protected int doIndexOfIf(Predicate<? super E> predicate, int fromIndex) {
 		int size = size();
 		for (int i = fromIndex; i < size; i++) {
@@ -784,8 +802,8 @@ public abstract class IList<E>
 	}
 
 	/**
-	 * Returns the index of the last occurrence of the specified element in this list, starting the search at the specified position.
-	 * If the element is not found, -1 is returned.
+	 * Returns the index of the last occurrence of the specified element in this list, 
+	 * starting the search at the specified position. If the element is not found, -1 is returned.
 	 *
 	 * @param elem			element to search for
 	 * @param fromIndex		start index for search
@@ -801,6 +819,10 @@ public abstract class IList<E>
 		return doLastIndexOf(elem, fromIndex);
 	}
 
+	/**
+	 * Returns the index of the last occurrence of the specified element in this list, 
+	 * starting the search at the specified position. If the element is not found, -1 is returned.
+	 */
 	protected int doLastIndexOf(Object elem, int fromIndex) {
 		for (int i = fromIndex; i >= 0; i--) {
 			if (equalsElem(doGet(i), elem)) {
@@ -810,15 +832,24 @@ public abstract class IList<E>
 		return -1;
 	}
 
+	/**
+	 * Returns the index of the last element which matches the specified predicate in this list.
+	 * If no such element is not found, -1 is returned.
+	 *
+	 * @param predicate		predicate used to search for the element
+	 * @return				the index of the last element which matches the specified predicate,
+	 * 						or -1 if not found
+	 * @see #lastIndexOf(Object)
+	 */
 	public int lastIndexOfIf(Predicate<? super E> predicate) {
 		return doLastIndexOfIf(predicate, 0);
 	}
 
 	/**
-	 * Returns the index of the last occurrence of the specified element in this list, starting the search at the specified position.
-	 * If the element is not found, -1 is returned.
+	 * Returns the index of the last occurrence of the specified element in this list, 
+	 * starting the search at the specified position. If the element is not found, -1 is returned.
 	 *
-	 * @param elem			element to search for
+	 * @param predicate		predicate used to search for the element
 	 * @param fromIndex		start index for search
 	 * @return				the index of the last occurrence of the specified element in this list that is less than or equal to fromIndex,
 	 * 						or -1 if this list does not contain the element
@@ -832,6 +863,10 @@ public abstract class IList<E>
 		return doLastIndexOfIf(predicate, fromIndex);
 	}
 
+	/**
+	 * Returns the index of the last occurrence of the specified element in this list, 
+	 * starting the search at the specified position. If the element is not found, -1 is returned.
+	 */
 	protected int doLastIndexOfIf(Predicate<? super E> predicate, int fromIndex) {
 		for (int i = fromIndex; i >= 0; i--) {
 			if (predicate.test(doGet(i))) {
