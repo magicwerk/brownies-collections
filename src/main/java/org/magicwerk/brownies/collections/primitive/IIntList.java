@@ -710,7 +710,7 @@ public abstract class IIntList implements Cloneable, Serializable {
      * 						or -1 if not found
      * @see #indexOf(Object)
      */
-    public int indexOf(Predicate<Integer> predicate, int fromIndex) {
+    public int indexOfIf(Predicate<Integer> predicate, int fromIndex) {
         if (fromIndex < 0) {
             fromIndex = 0;
         }
@@ -732,7 +732,7 @@ public abstract class IIntList implements Cloneable, Serializable {
     }
 
     public int lastIndexOf(int elem) {
-        return doLastIndexOf(elem, 0);
+        return doLastIndexOf(elem, size() - 1);
     }
 
     /**
@@ -776,7 +776,7 @@ public abstract class IIntList implements Cloneable, Serializable {
      * @see #lastIndexOf(Object)
      */
     public int lastIndexOfIf(Predicate<Integer> predicate) {
-        return doLastIndexOfIf(predicate, 0);
+        return doLastIndexOfIf(predicate, size() - 1);
     }
 
     /**

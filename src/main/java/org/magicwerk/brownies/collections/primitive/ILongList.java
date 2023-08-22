@@ -710,7 +710,7 @@ public abstract class ILongList implements Cloneable, Serializable {
      * 						or -1 if not found
      * @see #indexOf(Object)
      */
-    public int indexOf(Predicate<Long> predicate, int fromIndex) {
+    public int indexOfIf(Predicate<Long> predicate, int fromIndex) {
         if (fromIndex < 0) {
             fromIndex = 0;
         }
@@ -732,7 +732,7 @@ public abstract class ILongList implements Cloneable, Serializable {
     }
 
     public int lastIndexOf(long elem) {
-        return doLastIndexOf(elem, 0);
+        return doLastIndexOf(elem, size() - 1);
     }
 
     /**
@@ -776,7 +776,7 @@ public abstract class ILongList implements Cloneable, Serializable {
      * @see #lastIndexOf(Object)
      */
     public int lastIndexOfIf(Predicate<Long> predicate) {
-        return doLastIndexOfIf(predicate, 0);
+        return doLastIndexOfIf(predicate, size() - 1);
     }
 
     /**

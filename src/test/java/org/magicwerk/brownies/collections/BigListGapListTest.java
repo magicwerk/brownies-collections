@@ -44,7 +44,8 @@ public class BigListGapListTest {
     }
 
     static void test() {
-        testExtractIf();
+        testPeekPoll();
+        //testExtractIf();
         //testRemoveIf();
         //testStream();
         //testParallelStream();
@@ -785,6 +786,13 @@ public class BigListGapListTest {
     }
 
     @Trace(parameters = Trace.THIS | Trace.ALL_PARAMS, result = Trace.RESULT)
+    public static void testIndexOfIf() {
+        getSortedBigList(7).indexOfIf(n -> n == 3);
+        getSortedBigList(7).indexOfIf(n -> n == 3, 1);
+        getSortedBigList(7).indexOfIf(n -> n == 3, 5);
+    }
+
+    @Trace(parameters = Trace.THIS | Trace.ALL_PARAMS, result = Trace.RESULT)
     public static void testLastIndexOf() {
         getSortedBigList(7).lastIndexOf(1);
         getSortedBigList(7).lastIndexOf(8);
@@ -798,6 +806,13 @@ public class BigListGapListTest {
         getSortedBigList(7).lastIndexOf(2, -1);
         getSortedBigList(7).lastIndexOf(2, 2);
         getSortedBigList(7).lastIndexOf(2, 10);
+    }
+
+    @Trace(parameters = Trace.THIS | Trace.ALL_PARAMS, result = Trace.RESULT)
+    public static void testLastIndexOfIf() {
+        getSortedBigList(7).lastIndexOfIf(n -> n == 3);
+        getSortedBigList(7).lastIndexOfIf(n -> n == 3, 5);
+        getSortedBigList(7).lastIndexOfIf(n -> n == 3, 1);
     }
 
     @Trace(parameters = Trace.THIS | Trace.ALL_PARAMS, result = Trace.RESULT)

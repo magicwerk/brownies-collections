@@ -773,7 +773,7 @@ public abstract class IList<E>
 	 * 						or -1 if not found
 	 * @see #indexOf(Object)
 	 */
-	public int indexOf(Predicate<? super E> predicate, int fromIndex) {
+	public int indexOfIf(Predicate<? super E> predicate, int fromIndex) {
 		if (fromIndex < 0) {
 			fromIndex = 0;
 		}
@@ -798,7 +798,7 @@ public abstract class IList<E>
 
 	@Override
 	public int lastIndexOf(Object elem) {
-		return doLastIndexOf(elem, 0);
+		return doLastIndexOf(elem, size() - 1);
 	}
 
 	/**
@@ -842,7 +842,7 @@ public abstract class IList<E>
 	 * @see #lastIndexOf(Object)
 	 */
 	public int lastIndexOfIf(Predicate<? super E> predicate) {
-		return doLastIndexOfIf(predicate, 0);
+		return doLastIndexOfIf(predicate, size() - 1);
 	}
 
 	/**

@@ -41,7 +41,8 @@ public class GapListTest {
 	}
 
 	static void test() {
-		testExtractIf();
+		testPeekPoll();
+		//testExtractIf();
 		//testRemoveIf();
 		//testStream();
 		//testParallelStream();
@@ -874,6 +875,13 @@ public class GapListTest {
 	}
 
 	@Trace(parameters = Trace.THIS | Trace.ALL_PARAMS, result = Trace.RESULT)
+	public static void testIndexOfIf() {
+		getSortedGapList(7).indexOfIf(n -> n == 3);
+		getSortedGapList(7).indexOfIf(n -> n == 3, 1);
+		getSortedGapList(7).indexOfIf(n -> n == 3, 5);
+	}
+
+	@Trace(parameters = Trace.THIS | Trace.ALL_PARAMS, result = Trace.RESULT)
 	public static void testLastIndexOf() {
 		getSortedGapList(7).lastIndexOf(1);
 		getSortedGapList(7).lastIndexOf(8);
@@ -889,6 +897,13 @@ public class GapListTest {
 		getSortedGapList(7).lastIndexOf(2, -1);
 		getSortedGapList(7).lastIndexOf(2, 2);
 		getSortedGapList(7).lastIndexOf(2, 10);
+	}
+
+	@Trace(parameters = Trace.THIS | Trace.ALL_PARAMS, result = Trace.RESULT)
+	public static void testLastIndexOfIf() {
+		getSortedGapList(7).lastIndexOfIf(n -> n == 3);
+		getSortedGapList(7).lastIndexOfIf(n -> n == 3, 5);
+		getSortedGapList(7).lastIndexOfIf(n -> n == 3, 1);
 	}
 
 	@Trace(parameters = Trace.THIS | Trace.ALL_PARAMS, result = Trace.RESULT)

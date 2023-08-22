@@ -700,7 +700,7 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
      * 						or -1 if not found
      * @see #indexOf(Object)
      */
-    public int indexOf(Predicate<Character> predicate, int fromIndex) {
+    public int indexOfIf(Predicate<Character> predicate, int fromIndex) {
         if (fromIndex < 0) {
             fromIndex = 0;
         }
@@ -722,7 +722,7 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
     }
 
     public int lastIndexOf(char elem) {
-        return doLastIndexOf(elem, 0);
+        return doLastIndexOf(elem, size() - 1);
     }
 
     /**
@@ -766,7 +766,7 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
      * @see #lastIndexOf(Object)
      */
     public int lastIndexOfIf(Predicate<Character> predicate) {
-        return doLastIndexOfIf(predicate, 0);
+        return doLastIndexOfIf(predicate, size() - 1);
     }
 
     /**

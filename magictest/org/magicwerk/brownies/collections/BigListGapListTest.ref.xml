@@ -1247,6 +1247,54 @@
       <error></error>
     </traceStep>
   </traceTest>
+  <traceTest name="testIndexOfIf">
+    <runDate>2023-08-22T17:17:22.974+02:00</runDate>
+    <runDuration>0.0041097</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.BigList</traceClass>
+    <traceMethod>indexOfIf</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"indexOfIf"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"{ \r\n}"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"3"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"indexOfIf"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"{ \r\n}"</paramText>
+        <paramText outputType="VALUE" param="#2">"1"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"3"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"indexOfIf"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"{ \r\n}"</paramText>
+        <paramText outputType="VALUE" param="#2">"5"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"-1"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+  </traceTest>
   <traceTest name="testInitAll">
     <runDate>2015-03-01T17:55:26.421+01:00</runDate>
     <runDuration>0.002791199</runDuration>
@@ -1520,6 +1568,54 @@
       </parameters>
       <result>
         <paramText outputType="VALUE" param="Result">"2"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testLastIndexOfIf">
+    <runDate>2023-08-22T17:17:23.184+02:00</runDate>
+    <runDuration>0.0031048</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.BigList</traceClass>
+    <traceMethod>lastIndexOfIf</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"lastIndexOfIf"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"{ \r\n}"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"3"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"lastIndexOfIf"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"{ \r\n}"</paramText>
+        <paramText outputType="VALUE" param="#2">"5"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"3"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"lastIndexOfIf"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+        <paramText outputType="VALUE" param="#1">"{ \r\n}"</paramText>
+        <paramText outputType="VALUE" param="#2">"1"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"-1"</paramText>
       </result>
       <error></error>
     </traceStep>

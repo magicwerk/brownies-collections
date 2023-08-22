@@ -710,7 +710,7 @@ public abstract class IShortList implements Cloneable, Serializable {
      * 						or -1 if not found
      * @see #indexOf(Object)
      */
-    public int indexOf(Predicate<Short> predicate, int fromIndex) {
+    public int indexOfIf(Predicate<Short> predicate, int fromIndex) {
         if (fromIndex < 0) {
             fromIndex = 0;
         }
@@ -732,7 +732,7 @@ public abstract class IShortList implements Cloneable, Serializable {
     }
 
     public int lastIndexOf(short elem) {
-        return doLastIndexOf(elem, 0);
+        return doLastIndexOf(elem, size() - 1);
     }
 
     /**
@@ -776,7 +776,7 @@ public abstract class IShortList implements Cloneable, Serializable {
      * @see #lastIndexOf(Object)
      */
     public int lastIndexOfIf(Predicate<Short> predicate) {
-        return doLastIndexOfIf(predicate, 0);
+        return doLastIndexOfIf(predicate, size() - 1);
     }
 
     /**
