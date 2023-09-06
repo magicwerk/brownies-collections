@@ -22,6 +22,7 @@ import org.magicwerk.brownies.core.logback.LogbackTools;
 import org.magicwerk.brownies.core.stat.NumberStat;
 import org.magicwerk.brownies.core.stat.StatValues.StoreValues;
 import org.magicwerk.brownies.test.JavaEnvironment;
+import org.magicwerk.brownies.test.JavaEnvironment.JavaVersion;
 import org.magicwerk.brownies.test.JmhRunner;
 import org.magicwerk.brownies.test.JmhRunner.Options;
 import org.magicwerk.brownies.tools.runner.JvmRunner;
@@ -492,8 +493,8 @@ public class GapListTestPerformance {
 		String[] jvmArgs = new String[] { "-Xms1024m", "-Xmx1024m" };
 
 		JavaEnvironment bh = new JavaEnvironment();
-		runner.addJavaArgsRun(bh.getJava8Exe(), jvmArgs);
-		//runner.addJavaArgsRun(bh.getJava11Exe(), jvmArgs);
+		runner.addJavaArgsRun(bh.getJavaExe(JavaVersion.JAVA_8), jvmArgs);
+		//runner.addJavaArgsRun(bh.getJavaExe(JavaVersion.JAVA_11), jvmArgs);
 
 		LogbackTools.setAllLevels(Level.INFO);
 		LogbackTools.setLogLevel("org.magicwerk.brownies.test.runner.JvmTester", Level.DEBUG);
