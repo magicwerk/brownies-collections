@@ -7,7 +7,6 @@ import java.util.Random;
 
 import org.magictest.client.Assert;
 import org.magictest.client.Test;
-import org.magicwerk.brownies.core.CheckTools;
 import org.magicwerk.brownies.core.Timer;
 import org.magicwerk.brownies.core.concurrent.ThreadTools;
 import org.magicwerk.brownies.core.reflect.ReflectEl;
@@ -71,7 +70,7 @@ public class BigListTest {
 		BigList<Integer> list2 = list.copy();
 		list.trimToSize();
 		System.out.println(ReflectTools.getObjectSize(list));
-		CheckTools.checkEq(list, list2);
+		Assert.assertTrue(list.equals(list2));
 	}
 
 	/**
