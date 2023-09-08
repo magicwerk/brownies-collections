@@ -60,11 +60,11 @@ public class MethodSource {
 	}
 
 	public ConstructorDeclaration getConstructorDecl() {
-		return (ConstructorDeclaration) CheckTools.checkGet(bodyDecl, bodyDecl instanceof ConstructorDeclaration, "Not a constructor");
+		return (ConstructorDeclaration) CheckTools.checkValid(bodyDecl, bodyDecl instanceof ConstructorDeclaration, "Not a constructor");
 	}
 
 	public MethodDeclaration getMethodDecl() {
-		return (MethodDeclaration) CheckTools.checkGet(bodyDecl, bodyDecl instanceof MethodDeclaration, "Not a method");
+		return (MethodDeclaration) CheckTools.checkValid(bodyDecl, bodyDecl instanceof MethodDeclaration, "Not a method");
 	}
 
 	public boolean isDelete() {
