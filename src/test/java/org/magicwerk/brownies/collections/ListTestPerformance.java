@@ -23,8 +23,8 @@ import org.magicwerk.brownies.core.reflect.ReflectTools;
 import org.magicwerk.brownies.core.types.Type;
 import org.magicwerk.brownies.core.values.Table;
 import org.magicwerk.brownies.html.HtmlTable;
-import org.magicwerk.brownies.test.JmhRunner;
 import org.magicwerk.brownies.test.JavaEnvironment.JavaVersion;
+import org.magicwerk.brownies.test.JmhRunner;
 import org.magicwerk.brownies.test.JmhRunner.Options;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.Level;
@@ -69,8 +69,8 @@ public class ListTestPerformance {
 		opts.includeMethod(ListTest.class, "testAdd");
 		opts.includeMethod(ListTest.class, "testRemove");
 
-		opts.setResultFile("output/ListTestPerformance.json");
-		opts.setLogFile("output/ListTestPerformance.log");
+		opts.setResultFile(FilePath.of("output/ListTestPerformance.json"));
+		opts.setLogFile(FilePath.of("output/ListTestPerformance.log"));
 
 		JmhRunner runner = new JmhRunner();
 		runner.setVerbose(true);
@@ -98,8 +98,8 @@ public class ListTestPerformance {
 		Options opts = configure();
 		opts.includeMethod(ListTest.class, "testCopy");
 
-		opts.setResultFile("output/ListTestCopyPerformance.json");
-		opts.setLogFile("output/ListTestCopyPerformance.log");
+		opts.setResultFile(FilePath.of("output/ListTestCopyPerformance.json"));
+		opts.setLogFile(FilePath.of("output/ListTestCopyPerformance.log"));
 		JmhRunner runner = new JmhRunner();
 		runner.setFastMode(fast);
 		runner.runJmh(opts);
