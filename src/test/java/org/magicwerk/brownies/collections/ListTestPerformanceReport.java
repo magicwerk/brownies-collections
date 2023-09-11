@@ -36,10 +36,10 @@ import org.magicwerk.brownies.html.content.HtmlChartCreator;
 import org.magicwerk.brownies.html.content.HtmlChartCreator.ChartType;
 import org.magicwerk.brownies.html.content.HtmlFormatters;
 import org.magicwerk.brownies.html.content.HtmlFormatters.ConditionalFormatter;
+import org.magicwerk.brownies.test.jvm.JmhRunner.BenchmarkFileResult;
+import org.magicwerk.brownies.test.jvm.JmhRunner.BenchmarkJsonParser;
+import org.magicwerk.brownies.test.jvm.JmhRunner.BenchmarkResult;
 import org.magicwerk.brownies.html.content.HtmlTableFormatter;
-import org.magicwerk.brownies.test.JmhRunner.BenchmarkFileResult;
-import org.magicwerk.brownies.test.JmhRunner.BenchmarkJsonParser;
-import org.magicwerk.brownies.test.JmhRunner.BenchmarkResult;
 import org.slf4j.Logger;
 
 /**
