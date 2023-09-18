@@ -19,7 +19,9 @@ package org.magicwerk.brownies.collections.primitive;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Reader;
+import java.io.Writer;
 
 import org.magicwerk.brownies.collections.helper.GapLists;
 
@@ -52,6 +54,20 @@ public class GapListPrimitives {
 	}
 
 	/**
+	 * Write specified number of bytes from ByteGapList into OutputStream.
+	 * 
+	 * @param ostream	output stream (target)
+	 * @param list		list (source)
+	 * @param off		offset of first byte to write
+	 * @param len		number of bytes to write
+	 */
+	protected static void write(OutputStream ostream, ByteGapList list, int off, int len) throws IOException {
+		int index = list.size();
+		byte[] buf = list.prepareAddBuffer(index, 0);
+		ostream.write(buf, off, len);
+	}
+
+	/**
 	 * Read specified number of chars from Reader into CharGapList.
 	 * 
 	 * @param reader	reader (source)
@@ -69,6 +85,20 @@ public class GapListPrimitives {
 		}
 		list.releaseAddBuffer(index, (read >= -0) ? read : 0);
 		return read;
+	}
+
+	/**
+	 * Write specified number of chars from CharGapList into Writer.
+	 * 
+	 * @param writer	writer (target)
+	 * @param list		list (source)
+	 * @param off		offset of first char to write
+	 * @param len		number of chars to write
+	 */
+	protected static void write(Writer writer, CharGapList list, int off, int len) throws IOException {
+		int index = list.size();
+		char[] buf = list.prepareAddBuffer(index, 0);
+		writer.write(buf, off, len);
 	}
 
 	/**
