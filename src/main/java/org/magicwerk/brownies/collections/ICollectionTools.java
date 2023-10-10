@@ -163,6 +163,20 @@ public interface ICollectionTools {
 	}
 
 	/**
+	 * Create a new list by applying the specified mapping function to all elements.
+	 *
+	 * @param func	mapping function
+	 * @return		created list
+	 */
+	public static <E, R, RC extends Collection<R>, C extends Collection<R>> C flatMap(Collection<E> coll, Function<E, RC> func, Supplier<C> factory) {
+		C list = factory.get();
+		for (E e : coll) {
+			list.addAll(func.apply(e));
+		}
+		return list;
+	}
+
+	/**
 	 * Create a new list by applying the specified mapping function to all elements and then filtering it.
 	 *
 	 * @param func		mapping function

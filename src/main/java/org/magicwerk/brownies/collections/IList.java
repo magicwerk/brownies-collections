@@ -526,6 +526,18 @@ public abstract class IList<E>
 	}
 
 	@Override
+	public <R, C extends Collection<R>> IList<R> flatMap(Function<E, C> func) {
+		int size = size();
+		@SuppressWarnings("unchecked")
+		IList<R> list = (IList<R>) doCreate(size);
+		for (int i = 0; i < size; i++) {
+			E e = doGet(i);
+			list.addAll(func.apply(e));
+		}
+		return list;
+	}
+
+	@Override
 	public <R> IList<R> mapFilter(Function<E, R> func, Predicate<R> filter) {
 		int size = size();
 		@SuppressWarnings("unchecked")

@@ -3049,6 +3049,16 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 	}
 
 	@Override
+	public <R, C extends Collection<R>> IList<R> flatMap(Function<E, C> func) {
+		int size = size();
+		IList<R> list = new GapList<>(size);
+		for (E e : this) {
+			list.addAll(func.apply(e));
+		}
+		return list;
+	}
+
+	@Override
 	public <R> IList<R> mapFilter(Function<E, R> func, Predicate<R> filter) {
 		int size = size();
 		IList<R> list = new GapList<>(size);
