@@ -229,6 +229,7 @@ public class GapListTest {
 		GapList.create(Arrays.asList("a", "b", "c"));
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Trace(traceMethod = "GapList", parameters = Trace.THIS | Trace.ALL_PARAMS, formats = { @Format(apply = Trace.RESULT, formatter = "formatGapList") })
 	public static void testNew() {
 		new GapList();
@@ -322,6 +323,7 @@ public class GapListTest {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@Trace(parameters = Trace.THIS | Trace.ALL_PARAMS, result = Trace.THIS | Trace.RESULT, formats = {
 			@Format(apply = Trace.THIS | Trace.RESULT, formatter = "formatGapList") })
 	public static void testClone() {
@@ -479,6 +481,7 @@ public class GapListTest {
 		getSortedGapList(7).rotate(0, 5, 3);
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Capture
 	public static void testSerialization() {
 		IList list1 = getSortedGapList(7);
