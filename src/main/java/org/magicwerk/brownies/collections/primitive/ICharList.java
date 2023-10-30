@@ -461,6 +461,17 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
         return list;
     }
 
+    public <R, C extends Collection<R>> IList<R> flatMap(Function<Character, C> func) {
+        int size = size();
+        @SuppressWarnings("unchecked")
+        IList<R> list = (IList<R>) new GapList<R>(size);
+        for (int i = 0; i < size; i++) {
+            char e = doGet(i);
+            list.addAll(func.apply(e));
+        }
+        return list;
+    }
+
     public <R> IList<R> mapFilter(Function<Character, R> func, Predicate<R> filter) {
         int size = size();
         @SuppressWarnings("unchecked")

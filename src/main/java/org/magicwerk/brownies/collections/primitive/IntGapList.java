@@ -24,7 +24,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.function.Function;
 
@@ -157,12 +156,12 @@ public class IntGapList extends IIntList {
     /**
      * Create new list with specified elements.
      *
-     * @param coll      collection with element
+     * @param coll      collection with elements
      * @return          created list
      * @param        type of elements stored in the list
      */
     public static IntGapList create(Collection<Integer> coll) {
-        return new IntGapList(((coll != null)) ? coll : Collections.emptyList());
+        return new IntGapList(coll);
     }
 
     /**
@@ -175,14 +174,27 @@ public class IntGapList extends IIntList {
     @SafeVarargs
     public static IntGapList create(int... elems) {
         IntGapList list = new IntGapList();
-        if (elems != null) {
-            list.init(elems);
-        }
+        list.init(elems);
         return list;
     }
 
     /**
      * Create new immutable list with specified elements.
+     * To reduce the needed memory, the list's capacity will be equal to its size.
+     *
+     * @param coll      collection with elements
+     * @return          created list
+     * @param        type of elements stored in the list
+     */
+    public static IntGapList immutable(Collection<Integer> coll) {
+        IntGapList list = new IntGapList(coll.size());
+        list.init(coll);
+        return list.unmodifiableList();
+    }
+
+    /**
+     * Create new immutable list with specified elements.
+     * To reduce the needed memory, the list's capacity will be equal to its size.
      *
      * @param elems 	array with elements
      * @return 			created list
@@ -190,7 +202,9 @@ public class IntGapList extends IIntList {
      */
     @SafeVarargs
     public static IntGapList immutable(int... elems) {
-        return create(elems).unmodifiableList();
+        IntGapList list = new IntGapList(elems.length);
+        list.init(elems);
+        return list.unmodifiableList();
     }
 
     /**

@@ -24,7 +24,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.function.Function;
 
@@ -157,12 +156,12 @@ public class ByteGapList extends IByteList {
     /**
      * Create new list with specified elements.
      *
-     * @param coll      collection with element
+     * @param coll      collection with elements
      * @return          created list
      * @param        type of elements stored in the list
      */
     public static ByteGapList create(Collection<Byte> coll) {
-        return new ByteGapList(((coll != null)) ? coll : Collections.emptyList());
+        return new ByteGapList(coll);
     }
 
     /**
@@ -175,14 +174,27 @@ public class ByteGapList extends IByteList {
     @SafeVarargs
     public static ByteGapList create(byte... elems) {
         ByteGapList list = new ByteGapList();
-        if (elems != null) {
-            list.init(elems);
-        }
+        list.init(elems);
         return list;
     }
 
     /**
      * Create new immutable list with specified elements.
+     * To reduce the needed memory, the list's capacity will be equal to its size.
+     *
+     * @param coll      collection with elements
+     * @return          created list
+     * @param        type of elements stored in the list
+     */
+    public static ByteGapList immutable(Collection<Byte> coll) {
+        ByteGapList list = new ByteGapList(coll.size());
+        list.init(coll);
+        return list.unmodifiableList();
+    }
+
+    /**
+     * Create new immutable list with specified elements.
+     * To reduce the needed memory, the list's capacity will be equal to its size.
      *
      * @param elems 	array with elements
      * @return 			created list
@@ -190,7 +202,9 @@ public class ByteGapList extends IByteList {
      */
     @SafeVarargs
     public static ByteGapList immutable(byte... elems) {
-        return create(elems).unmodifiableList();
+        ByteGapList list = new ByteGapList(elems.length);
+        list.init(elems);
+        return list.unmodifiableList();
     }
 
     /**

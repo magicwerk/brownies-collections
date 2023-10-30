@@ -472,6 +472,17 @@ public abstract class IDoubleList implements Cloneable, Serializable {
         return list;
     }
 
+    public <R, C extends Collection<R>> IList<R> flatMap(Function<Double, C> func) {
+        int size = size();
+        @SuppressWarnings("unchecked")
+        IList<R> list = (IList<R>) new GapList<R>(size);
+        for (int i = 0; i < size; i++) {
+            double e = doGet(i);
+            list.addAll(func.apply(e));
+        }
+        return list;
+    }
+
     public <R> IList<R> mapFilter(Function<Double, R> func, Predicate<R> filter) {
         int size = size();
         @SuppressWarnings("unchecked")

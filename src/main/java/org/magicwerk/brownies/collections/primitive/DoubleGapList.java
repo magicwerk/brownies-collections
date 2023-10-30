@@ -24,7 +24,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.function.Function;
 
@@ -157,12 +156,12 @@ public class DoubleGapList extends IDoubleList {
     /**
      * Create new list with specified elements.
      *
-     * @param coll      collection with element
+     * @param coll      collection with elements
      * @return          created list
      * @param        type of elements stored in the list
      */
     public static DoubleGapList create(Collection<Double> coll) {
-        return new DoubleGapList(((coll != null)) ? coll : Collections.emptyList());
+        return new DoubleGapList(coll);
     }
 
     /**
@@ -175,14 +174,27 @@ public class DoubleGapList extends IDoubleList {
     @SafeVarargs
     public static DoubleGapList create(double... elems) {
         DoubleGapList list = new DoubleGapList();
-        if (elems != null) {
-            list.init(elems);
-        }
+        list.init(elems);
         return list;
     }
 
     /**
      * Create new immutable list with specified elements.
+     * To reduce the needed memory, the list's capacity will be equal to its size.
+     *
+     * @param coll      collection with elements
+     * @return          created list
+     * @param        type of elements stored in the list
+     */
+    public static DoubleGapList immutable(Collection<Double> coll) {
+        DoubleGapList list = new DoubleGapList(coll.size());
+        list.init(coll);
+        return list.unmodifiableList();
+    }
+
+    /**
+     * Create new immutable list with specified elements.
+     * To reduce the needed memory, the list's capacity will be equal to its size.
      *
      * @param elems 	array with elements
      * @return 			created list
@@ -190,7 +202,9 @@ public class DoubleGapList extends IDoubleList {
      */
     @SafeVarargs
     public static DoubleGapList immutable(double... elems) {
-        return create(elems).unmodifiableList();
+        DoubleGapList list = new DoubleGapList(elems.length);
+        list.init(elems);
+        return list.unmodifiableList();
     }
 
     /**

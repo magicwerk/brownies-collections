@@ -187,6 +187,7 @@ public class BigListGapListTest {
         BigList.create(Arrays.asList("a", "b", "c"));
     }
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Trace(traceMethod = "BigList", parameters = Trace.THIS | Trace.ALL_PARAMS, formats = { @Format(apply = Trace.RESULT, formatter = "formatBigList") })
     public static void testNew() {
         new BigList();
@@ -281,6 +282,7 @@ public class BigListGapListTest {
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Trace(parameters = Trace.THIS | Trace.ALL_PARAMS, result = Trace.THIS | Trace.RESULT, formats = { @Format(apply = Trace.THIS | Trace.RESULT, formatter = "formatBigList") })
     public static void testClone() {
         IList<Integer> list = getSortedBigList(7);
@@ -432,6 +434,7 @@ public class BigListGapListTest {
         getSortedBigList(7).rotate(0, 5, 3);
     }
 
+    @SuppressWarnings("rawtypes")
     @Capture
     public static void testSerialization() {
         IList list1 = getSortedBigList(7);

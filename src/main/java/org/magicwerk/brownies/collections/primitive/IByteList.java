@@ -471,6 +471,17 @@ public abstract class IByteList implements Cloneable, Serializable {
         return list;
     }
 
+    public <R, C extends Collection<R>> IList<R> flatMap(Function<Byte, C> func) {
+        int size = size();
+        @SuppressWarnings("unchecked")
+        IList<R> list = (IList<R>) new GapList<R>(size);
+        for (int i = 0; i < size; i++) {
+            byte e = doGet(i);
+            list.addAll(func.apply(e));
+        }
+        return list;
+    }
+
     public <R> IList<R> mapFilter(Function<Byte, R> func, Predicate<R> filter) {
         int size = size();
         @SuppressWarnings("unchecked")

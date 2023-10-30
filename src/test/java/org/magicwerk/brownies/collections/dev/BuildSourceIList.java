@@ -232,7 +232,11 @@ public class BuildSourceIList extends FileBuilder {
 		src = substitute("IList\\<\\? extends E\\>", src, "I{NAME}List");
 		src = substitute("IList\\<E\\>", src, "I{NAME}List");
 
-		src = substitute("<R> IList\\<R\\> map\\(Function\\<E, R\\> func", src, "<R> IList<RR> map(Function<{WRAPPER},R> func");
+		src = substitute("<R> IList\\<R\\> map\\(Function\\<E, R\\> func", src,
+				"<R> IList<RR> map(Function<{WRAPPER},R> func");
+
+		src = substitute("<R, C extends Collection<R>> IList\\<R\\> flatMap\\(Function\\<E, C\\> func", src,
+				"<R, C extends Collection<R>> IList<RR> flatMap(Function<{WRAPPER}, C> func");
 
 		src = substitute("<R> IList\\<R\\> mapFilter\\(Function\\<E, R\\> func, Predicate\\<R\\> filter", src,
 				"<R> IList<RR> mapFilter(Function<{WRAPPER},R> func, Predicate<R> filter");

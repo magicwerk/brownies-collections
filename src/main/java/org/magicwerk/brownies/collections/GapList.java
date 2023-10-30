@@ -22,7 +22,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.function.Function;
 
@@ -124,12 +123,12 @@ public class GapList<E> extends IList<E> {
 	/**
 	 * Create new list with specified elements.
 	 *
-	 * @param coll      collection with element
+	 * @param coll      collection with elements
 	 * @return          created list
 	 * @param <E>       type of elements stored in the list
 	 */
 	public static <E> GapList<E> create(Collection<? extends E> coll) {
-		return new GapList<E>((coll != null) ? coll : Collections.emptyList());
+		return new GapList<E>(coll);
 	}
 
 	/**
@@ -142,14 +141,27 @@ public class GapList<E> extends IList<E> {
 	@SafeVarargs
 	public static <E> GapList<E> create(E... elems) {
 		GapList<E> list = new GapList<E>();
-		if (elems != null) {
-			list.init(elems);
-		}
+		list.init(elems);
 		return list;
 	}
 
 	/**
 	 * Create new immutable list with specified elements.
+	 * To reduce the needed memory, the list's capacity will be equal to its size.
+	 *
+	 * @param coll      collection with elements
+	 * @return          created list
+	 * @param <E>       type of elements stored in the list
+	 */
+	public static <E> GapList<E> immutable(Collection<? extends E> coll) {
+		GapList<E> list = new GapList<E>(coll.size());
+		list.init(coll);
+		return list.unmodifiableList();
+	}
+
+	/**
+	 * Create new immutable list with specified elements.
+	 * To reduce the needed memory, the list's capacity will be equal to its size.
 	 *
 	 * @param elems 	array with elements
 	 * @return 			created list
@@ -157,7 +169,9 @@ public class GapList<E> extends IList<E> {
 	 */
 	@SafeVarargs
 	public static <E> GapList<E> immutable(E... elems) {
-		return create(elems).unmodifiableList();
+		GapList<E> list = new GapList<E>(elems.length);
+		list.init(elems);
+		return list.unmodifiableList();
 	}
 
 	/**

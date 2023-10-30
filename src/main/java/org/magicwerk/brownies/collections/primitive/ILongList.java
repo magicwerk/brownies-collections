@@ -471,6 +471,17 @@ public abstract class ILongList implements Cloneable, Serializable {
         return list;
     }
 
+    public <R, C extends Collection<R>> IList<R> flatMap(Function<Long, C> func) {
+        int size = size();
+        @SuppressWarnings("unchecked")
+        IList<R> list = (IList<R>) new GapList<R>(size);
+        for (int i = 0; i < size; i++) {
+            long e = doGet(i);
+            list.addAll(func.apply(e));
+        }
+        return list;
+    }
+
     public <R> IList<R> mapFilter(Function<Long, R> func, Predicate<R> filter) {
         int size = size();
         @SuppressWarnings("unchecked")
