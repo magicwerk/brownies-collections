@@ -185,7 +185,7 @@ public class Key1Set<E, K> extends Key1Collection<E, K> implements Set<E> {
 		@SuppressWarnings("unchecked")
 		public Builder<E, K> withElemCount(boolean count) {
 			if (count) {
-				KeyCollectionImpl.errorInvalidSetBehavior();
+				KeyCollectionImpl.errorInvaliDuplicates();
 			}
 			return (Builder<E, K>) super.withElemCount(count);
 		}

@@ -182,7 +182,7 @@ public class KeySet<E> extends KeyCollection<E> implements Set<E> {
 		@Override
 		public Builder<E> withElemCount(boolean count) {
 			if (count) {
-				KeyCollectionImpl.errorInvalidSetBehavior();
+				KeyCollectionImpl.errorInvaliDuplicates();
 			}
 			return (Builder<E>) super.withElemCount(count);
 		}
