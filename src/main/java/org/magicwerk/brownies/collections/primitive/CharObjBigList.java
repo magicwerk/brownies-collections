@@ -456,7 +456,19 @@ public class CharObjBigList extends IList<Character> {
     }
 
     public CharObjBigList unmodifiableList() {
-        return new ImmutableCharObjBigList(this);
+        if (this instanceof ImmutableCharObjBigList) {
+            return this;
+        } else {
+            return new ImmutableCharObjBigList(this);
+        }
+    }
+
+    public CharObjBigList immutableList() {
+        if (this instanceof ImmutableCharObjBigList) {
+            return this;
+        } else {
+            return new ImmutableCharObjBigList(this);
+        }
     }
 
     /**

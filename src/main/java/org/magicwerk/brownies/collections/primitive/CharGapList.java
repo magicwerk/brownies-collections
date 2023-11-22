@@ -407,6 +407,15 @@ public class CharGapList extends ICharList {
     }
 
     @Override
+    public CharGapList immutableList() {
+        if (this instanceof ImmutableCharGapList) {
+            return this;
+        } else {
+            return new ImmutableCharGapList(copy());
+        }
+    }
+
+    @Override
     protected void doClone(ICharList that) {
         // Do not simply clone the array, but make sure its capacity is equal to the size (as in ArrayList)
         init(that.toArray(), that.size());

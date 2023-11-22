@@ -456,7 +456,19 @@ public class LongObjBigList extends IList<Long> {
     }
 
     public LongObjBigList unmodifiableList() {
-        return new ImmutableLongObjBigList(this);
+        if (this instanceof ImmutableLongObjBigList) {
+            return this;
+        } else {
+            return new ImmutableLongObjBigList(this);
+        }
+    }
+
+    public LongObjBigList immutableList() {
+        if (this instanceof ImmutableLongObjBigList) {
+            return this;
+        } else {
+            return new ImmutableLongObjBigList(this);
+        }
     }
 
     /**

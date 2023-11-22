@@ -385,6 +385,15 @@ public class GapList<E> extends IList<E> {
 	}
 
 	@Override
+	public GapList<E> immutableList() {
+		if (this instanceof ImmutableGapList) {
+			return this;
+		} else {
+			return new ImmutableGapList<E>(copy());
+		}
+	}
+
+	@Override
 	protected void doClone(IList<E> that) {
 		// Do not simply clone the array, but make sure its capacity is equal to the size (as in ArrayList)
 		init(that.toArray(), that.size());

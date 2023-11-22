@@ -1163,11 +1163,19 @@ public class BigList<E> extends IList<E> {
 
 	@Override
 	public BigList<E> unmodifiableList() {
-		// Naming as in java.util.Collections#unmodifiableList
 		if (this instanceof ImmutableBigList) {
 			return this;
 		} else {
 			return new ImmutableBigList<E>(this);
+		}
+	}
+
+	@Override
+	public BigList<E> immutableList() {
+		if (this instanceof ImmutableBigList) {
+			return this;
+		} else {
+			return new ImmutableBigList<E>(copy());
 		}
 	}
 

@@ -459,7 +459,19 @@ public class ByteObjGapList extends IList<Byte> {
     }
 
     public ByteObjGapList unmodifiableList() {
-        return new ImmutableByteObjGapList(this);
+        if (this instanceof ImmutableByteObjGapList) {
+            return this;
+        } else {
+            return new ImmutableByteObjGapList(this);
+        }
+    }
+
+    public ByteObjGapList immutableList() {
+        if (this instanceof ImmutableByteObjGapList) {
+            return this;
+        } else {
+            return new ImmutableByteObjGapList(this);
+        }
     }
 
     /**

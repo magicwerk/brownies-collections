@@ -113,6 +113,8 @@ public abstract class IShortList implements Cloneable, Serializable {
     // Naming as in java.util.Collections#unmodifiableList
     abstract public IShortList unmodifiableList();
 
+    abstract public IShortList immutableList();
+
     /**
      * Initialize this object after the bitwise copy has been made by Object.clone().
      *
@@ -2331,6 +2333,11 @@ public abstract class IShortList implements Cloneable, Serializable {
     protected static abstract class IReadOnlyShortList extends IShortList {
 
         public IShortList unmodifiableList() {
+            error();
+            return null;
+        }
+
+        public IShortList immutableList() {
             error();
             return null;
         }

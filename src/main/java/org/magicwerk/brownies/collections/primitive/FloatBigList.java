@@ -1115,11 +1115,19 @@ public class FloatBigList extends IFloatList {
 
     @Override
     public FloatBigList unmodifiableList() {
-        // Naming as in java.util.Collections#unmodifiableList
         if (this instanceof ImmutableFloatBigList) {
             return this;
         } else {
             return new ImmutableFloatBigList(this);
+        }
+    }
+
+    @Override
+    public FloatBigList immutableList() {
+        if (this instanceof ImmutableFloatBigList) {
+            return this;
+        } else {
+            return new ImmutableFloatBigList(copy());
         }
     }
 

@@ -407,6 +407,15 @@ public class FloatGapList extends IFloatList {
     }
 
     @Override
+    public FloatGapList immutableList() {
+        if (this instanceof ImmutableFloatGapList) {
+            return this;
+        } else {
+            return new ImmutableFloatGapList(copy());
+        }
+    }
+
+    @Override
     protected void doClone(IFloatList that) {
         // Do not simply clone the array, but make sure its capacity is equal to the size (as in ArrayList)
         init(that.toArray(), that.size());

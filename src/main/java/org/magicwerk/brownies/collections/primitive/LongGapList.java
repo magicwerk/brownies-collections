@@ -407,6 +407,15 @@ public class LongGapList extends ILongList {
     }
 
     @Override
+    public LongGapList immutableList() {
+        if (this instanceof ImmutableLongGapList) {
+            return this;
+        } else {
+            return new ImmutableLongGapList(copy());
+        }
+    }
+
+    @Override
     protected void doClone(ILongList that) {
         // Do not simply clone the array, but make sure its capacity is equal to the size (as in ArrayList)
         init(that.toArray(), that.size());

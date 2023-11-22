@@ -1115,11 +1115,19 @@ public class BooleanBigList extends IBooleanList {
 
     @Override
     public BooleanBigList unmodifiableList() {
-        // Naming as in java.util.Collections#unmodifiableList
         if (this instanceof ImmutableBooleanBigList) {
             return this;
         } else {
             return new ImmutableBooleanBigList(this);
+        }
+    }
+
+    @Override
+    public BooleanBigList immutableList() {
+        if (this instanceof ImmutableBooleanBigList) {
+            return this;
+        } else {
+            return new ImmutableBooleanBigList(copy());
         }
     }
 

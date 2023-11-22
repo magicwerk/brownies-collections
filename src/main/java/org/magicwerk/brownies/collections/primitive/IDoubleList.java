@@ -113,6 +113,8 @@ public abstract class IDoubleList implements Cloneable, Serializable {
     // Naming as in java.util.Collections#unmodifiableList
     abstract public IDoubleList unmodifiableList();
 
+    abstract public IDoubleList immutableList();
+
     /**
      * Initialize this object after the bitwise copy has been made by Object.clone().
      *
@@ -2332,6 +2334,11 @@ public abstract class IDoubleList implements Cloneable, Serializable {
     protected static abstract class IReadOnlyDoubleList extends IDoubleList {
 
         public IDoubleList unmodifiableList() {
+            error();
+            return null;
+        }
+
+        public IDoubleList immutableList() {
             error();
             return null;
         }

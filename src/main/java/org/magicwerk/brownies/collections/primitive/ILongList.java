@@ -113,6 +113,8 @@ public abstract class ILongList implements Cloneable, Serializable {
     // Naming as in java.util.Collections#unmodifiableList
     abstract public ILongList unmodifiableList();
 
+    abstract public ILongList immutableList();
+
     /**
      * Initialize this object after the bitwise copy has been made by Object.clone().
      *
@@ -2331,6 +2333,11 @@ public abstract class ILongList implements Cloneable, Serializable {
     protected static abstract class IReadOnlyLongList extends ILongList {
 
         public ILongList unmodifiableList() {
+            error();
+            return null;
+        }
+
+        public ILongList immutableList() {
             error();
             return null;
         }

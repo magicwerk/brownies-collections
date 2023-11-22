@@ -1115,11 +1115,19 @@ public class ByteBigList extends IByteList {
 
     @Override
     public ByteBigList unmodifiableList() {
-        // Naming as in java.util.Collections#unmodifiableList
         if (this instanceof ImmutableByteBigList) {
             return this;
         } else {
             return new ImmutableByteBigList(this);
+        }
+    }
+
+    @Override
+    public ByteBigList immutableList() {
+        if (this instanceof ImmutableByteBigList) {
+            return this;
+        } else {
+            return new ImmutableByteBigList(copy());
         }
     }
 

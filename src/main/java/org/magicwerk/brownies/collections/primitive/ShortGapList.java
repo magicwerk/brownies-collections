@@ -407,6 +407,15 @@ public class ShortGapList extends IShortList {
     }
 
     @Override
+    public ShortGapList immutableList() {
+        if (this instanceof ImmutableShortGapList) {
+            return this;
+        } else {
+            return new ImmutableShortGapList(copy());
+        }
+    }
+
+    @Override
     protected void doClone(IShortList that) {
         // Do not simply clone the array, but make sure its capacity is equal to the size (as in ArrayList)
         init(that.toArray(), that.size());

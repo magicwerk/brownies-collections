@@ -407,6 +407,15 @@ public class DoubleGapList extends IDoubleList {
     }
 
     @Override
+    public DoubleGapList immutableList() {
+        if (this instanceof ImmutableDoubleGapList) {
+            return this;
+        } else {
+            return new ImmutableDoubleGapList(copy());
+        }
+    }
+
+    @Override
     protected void doClone(IDoubleList that) {
         // Do not simply clone the array, but make sure its capacity is equal to the size (as in ArrayList)
         init(that.toArray(), that.size());

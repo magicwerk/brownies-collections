@@ -113,6 +113,8 @@ public abstract class IByteList implements Cloneable, Serializable {
     // Naming as in java.util.Collections#unmodifiableList
     abstract public IByteList unmodifiableList();
 
+    abstract public IByteList immutableList();
+
     /**
      * Initialize this object after the bitwise copy has been made by Object.clone().
      *
@@ -2331,6 +2333,11 @@ public abstract class IByteList implements Cloneable, Serializable {
     protected static abstract class IReadOnlyByteList extends IByteList {
 
         public IByteList unmodifiableList() {
+            error();
+            return null;
+        }
+
+        public IByteList immutableList() {
             error();
             return null;
         }

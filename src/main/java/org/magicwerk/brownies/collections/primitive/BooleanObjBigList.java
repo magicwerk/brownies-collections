@@ -456,7 +456,19 @@ public class BooleanObjBigList extends IList<Boolean> {
     }
 
     public BooleanObjBigList unmodifiableList() {
-        return new ImmutableBooleanObjBigList(this);
+        if (this instanceof ImmutableBooleanObjBigList) {
+            return this;
+        } else {
+            return new ImmutableBooleanObjBigList(this);
+        }
+    }
+
+    public BooleanObjBigList immutableList() {
+        if (this instanceof ImmutableBooleanObjBigList) {
+            return this;
+        } else {
+            return new ImmutableBooleanObjBigList(this);
+        }
     }
 
     /**

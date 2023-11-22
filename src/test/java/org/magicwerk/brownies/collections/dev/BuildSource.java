@@ -37,8 +37,6 @@ import com.github.javaparser.ast.CompilationUnit;
  * <p>
  * - Manifest (src/main/resources): <br>
  * META-INF/MANIFEST.MF <br>
- *
- * @author Thomas Mauch
  */
 public class BuildSource {
 

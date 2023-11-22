@@ -459,7 +459,19 @@ public class IntObjGapList extends IList<Integer> {
     }
 
     public IntObjGapList unmodifiableList() {
-        return new ImmutableIntObjGapList(this);
+        if (this instanceof ImmutableIntObjGapList) {
+            return this;
+        } else {
+            return new ImmutableIntObjGapList(this);
+        }
+    }
+
+    public IntObjGapList immutableList() {
+        if (this instanceof ImmutableIntObjGapList) {
+            return this;
+        } else {
+            return new ImmutableIntObjGapList(this);
+        }
     }
 
     /**

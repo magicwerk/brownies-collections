@@ -456,7 +456,19 @@ public class ByteObjBigList extends IList<Byte> {
     }
 
     public ByteObjBigList unmodifiableList() {
-        return new ImmutableByteObjBigList(this);
+        if (this instanceof ImmutableByteObjBigList) {
+            return this;
+        } else {
+            return new ImmutableByteObjBigList(this);
+        }
+    }
+
+    public ByteObjBigList immutableList() {
+        if (this instanceof ImmutableByteObjBigList) {
+            return this;
+        } else {
+            return new ImmutableByteObjBigList(this);
+        }
     }
 
     /**

@@ -459,7 +459,19 @@ public class BooleanObjGapList extends IList<Boolean> {
     }
 
     public BooleanObjGapList unmodifiableList() {
-        return new ImmutableBooleanObjGapList(this);
+        if (this instanceof ImmutableBooleanObjGapList) {
+            return this;
+        } else {
+            return new ImmutableBooleanObjGapList(this);
+        }
+    }
+
+    public BooleanObjGapList immutableList() {
+        if (this instanceof ImmutableBooleanObjGapList) {
+            return this;
+        } else {
+            return new ImmutableBooleanObjGapList(this);
+        }
     }
 
     /**

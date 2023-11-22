@@ -456,7 +456,19 @@ public class ShortObjBigList extends IList<Short> {
     }
 
     public ShortObjBigList unmodifiableList() {
-        return new ImmutableShortObjBigList(this);
+        if (this instanceof ImmutableShortObjBigList) {
+            return this;
+        } else {
+            return new ImmutableShortObjBigList(this);
+        }
+    }
+
+    public ShortObjBigList immutableList() {
+        if (this instanceof ImmutableShortObjBigList) {
+            return this;
+        } else {
+            return new ImmutableShortObjBigList(this);
+        }
     }
 
     /**

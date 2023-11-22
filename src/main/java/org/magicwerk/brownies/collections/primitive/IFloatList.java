@@ -113,6 +113,8 @@ public abstract class IFloatList implements Cloneable, Serializable {
     // Naming as in java.util.Collections#unmodifiableList
     abstract public IFloatList unmodifiableList();
 
+    abstract public IFloatList immutableList();
+
     /**
      * Initialize this object after the bitwise copy has been made by Object.clone().
      *
@@ -2332,6 +2334,11 @@ public abstract class IFloatList implements Cloneable, Serializable {
     protected static abstract class IReadOnlyFloatList extends IFloatList {
 
         public IFloatList unmodifiableList() {
+            error();
+            return null;
+        }
+
+        public IFloatList immutableList() {
             error();
             return null;
         }

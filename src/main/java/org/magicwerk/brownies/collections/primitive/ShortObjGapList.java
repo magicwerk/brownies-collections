@@ -459,7 +459,19 @@ public class ShortObjGapList extends IList<Short> {
     }
 
     public ShortObjGapList unmodifiableList() {
-        return new ImmutableShortObjGapList(this);
+        if (this instanceof ImmutableShortObjGapList) {
+            return this;
+        } else {
+            return new ImmutableShortObjGapList(this);
+        }
+    }
+
+    public ShortObjGapList immutableList() {
+        if (this instanceof ImmutableShortObjGapList) {
+            return this;
+        } else {
+            return new ImmutableShortObjGapList(this);
+        }
     }
 
     /**

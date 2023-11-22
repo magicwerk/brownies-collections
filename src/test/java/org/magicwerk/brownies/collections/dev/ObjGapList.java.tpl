@@ -460,7 +460,19 @@ public class {NAME}ObjGapList extends IList<{WRAPPER}> {
 	}
 
     public {NAME}ObjGapList unmodifiableList() {
-        return new Immutable{NAME}ObjGapList(this);
+		if (this instanceof Immutable{NAME}ObjGapList) {
+			return this;
+		} else {
+	        return new Immutable{NAME}ObjGapList(this);
+	    }
+    }
+
+    public {NAME}ObjGapList immutableList() {
+		if (this instanceof Immutable{NAME}ObjGapList) {
+			return this;
+		} else {
+	        return new Immutable{NAME}ObjGapList(this);
+	    }
     }
 
     /**

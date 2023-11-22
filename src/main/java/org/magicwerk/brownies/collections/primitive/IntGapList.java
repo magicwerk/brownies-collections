@@ -407,6 +407,15 @@ public class IntGapList extends IIntList {
     }
 
     @Override
+    public IntGapList immutableList() {
+        if (this instanceof ImmutableIntGapList) {
+            return this;
+        } else {
+            return new ImmutableIntGapList(copy());
+        }
+    }
+
+    @Override
     protected void doClone(IIntList that) {
         // Do not simply clone the array, but make sure its capacity is equal to the size (as in ArrayList)
         init(that.toArray(), that.size());

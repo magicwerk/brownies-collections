@@ -1115,11 +1115,19 @@ public class CharBigList extends ICharList {
 
     @Override
     public CharBigList unmodifiableList() {
-        // Naming as in java.util.Collections#unmodifiableList
         if (this instanceof ImmutableCharBigList) {
             return this;
         } else {
             return new ImmutableCharBigList(this);
+        }
+    }
+
+    @Override
+    public CharBigList immutableList() {
+        if (this instanceof ImmutableCharBigList) {
+            return this;
+        } else {
+            return new ImmutableCharBigList(copy());
         }
     }
 

@@ -459,7 +459,19 @@ public class CharObjGapList extends IList<Character> {
     }
 
     public CharObjGapList unmodifiableList() {
-        return new ImmutableCharObjGapList(this);
+        if (this instanceof ImmutableCharObjGapList) {
+            return this;
+        } else {
+            return new ImmutableCharObjGapList(this);
+        }
+    }
+
+    public CharObjGapList immutableList() {
+        if (this instanceof ImmutableCharObjGapList) {
+            return this;
+        } else {
+            return new ImmutableCharObjGapList(this);
+        }
     }
 
     /**

@@ -459,7 +459,19 @@ public class FloatObjGapList extends IList<Float> {
     }
 
     public FloatObjGapList unmodifiableList() {
-        return new ImmutableFloatObjGapList(this);
+        if (this instanceof ImmutableFloatObjGapList) {
+            return this;
+        } else {
+            return new ImmutableFloatObjGapList(this);
+        }
+    }
+
+    public FloatObjGapList immutableList() {
+        if (this instanceof ImmutableFloatObjGapList) {
+            return this;
+        } else {
+            return new ImmutableFloatObjGapList(this);
+        }
     }
 
     /**

@@ -1115,11 +1115,19 @@ public class ShortBigList extends IShortList {
 
     @Override
     public ShortBigList unmodifiableList() {
-        // Naming as in java.util.Collections#unmodifiableList
         if (this instanceof ImmutableShortBigList) {
             return this;
         } else {
             return new ImmutableShortBigList(this);
+        }
+    }
+
+    @Override
+    public ShortBigList immutableList() {
+        if (this instanceof ImmutableShortBigList) {
+            return this;
+        } else {
+            return new ImmutableShortBigList(copy());
         }
     }
 

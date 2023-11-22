@@ -113,6 +113,8 @@ public abstract class IBooleanList implements Cloneable, Serializable {
     // Naming as in java.util.Collections#unmodifiableList
     abstract public IBooleanList unmodifiableList();
 
+    abstract public IBooleanList immutableList();
+
     /**
      * Initialize this object after the bitwise copy has been made by Object.clone().
      *
@@ -2332,6 +2334,11 @@ public abstract class IBooleanList implements Cloneable, Serializable {
     protected static abstract class IReadOnlyBooleanList extends IBooleanList {
 
         public IBooleanList unmodifiableList() {
+            error();
+            return null;
+        }
+
+        public IBooleanList immutableList() {
             error();
             return null;
         }

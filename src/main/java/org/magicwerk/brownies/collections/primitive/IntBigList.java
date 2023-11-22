@@ -1115,11 +1115,19 @@ public class IntBigList extends IIntList {
 
     @Override
     public IntBigList unmodifiableList() {
-        // Naming as in java.util.Collections#unmodifiableList
         if (this instanceof ImmutableIntBigList) {
             return this;
         } else {
             return new ImmutableIntBigList(this);
+        }
+    }
+
+    @Override
+    public IntBigList immutableList() {
+        if (this instanceof ImmutableIntBigList) {
+            return this;
+        } else {
+            return new ImmutableIntBigList(copy());
         }
     }
 

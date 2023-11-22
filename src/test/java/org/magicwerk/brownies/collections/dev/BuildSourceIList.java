@@ -279,7 +279,7 @@ public class BuildSourceIList extends FileBuilder {
 		// for IReadOnlyList
 		//src = substituteNested("(?s)class IReadOnly.*?unmodifiableList.*?\\}", "return (.*?);", src, "return null;");
 		//src = substituteNested("(?s)class IReadOnly.*?doCreate.*?\\}", "return (.*?);", src, "return null;");
-		src = substituteNested("(?s)(unmodifiableList|doCreate).*error.*?\\}", "return .*?;", src, "return null;");
+		src = substituteNested("(?s)(unmodifiableList|immutableList|doCreate).*error.*?\\}", "return .*?;", src, "return null;");
 		src = substitute("coll.toArray\\(\\)", src, "toArray(coll)");
 		src = substitute("\\(E\\)", src, "");
 

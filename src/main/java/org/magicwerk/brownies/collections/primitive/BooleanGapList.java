@@ -407,6 +407,15 @@ public class BooleanGapList extends IBooleanList {
     }
 
     @Override
+    public BooleanGapList immutableList() {
+        if (this instanceof ImmutableBooleanGapList) {
+            return this;
+        } else {
+            return new ImmutableBooleanGapList(copy());
+        }
+    }
+
+    @Override
     protected void doClone(IBooleanList that) {
         // Do not simply clone the array, but make sure its capacity is equal to the size (as in ArrayList)
         init(that.toArray(), that.size());

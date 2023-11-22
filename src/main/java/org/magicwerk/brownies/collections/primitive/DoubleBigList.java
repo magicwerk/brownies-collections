@@ -1115,11 +1115,19 @@ public class DoubleBigList extends IDoubleList {
 
     @Override
     public DoubleBigList unmodifiableList() {
-        // Naming as in java.util.Collections#unmodifiableList
         if (this instanceof ImmutableDoubleBigList) {
             return this;
         } else {
             return new ImmutableDoubleBigList(this);
+        }
+    }
+
+    @Override
+    public DoubleBigList immutableList() {
+        if (this instanceof ImmutableDoubleBigList) {
+            return this;
+        } else {
+            return new ImmutableDoubleBigList(copy());
         }
     }
 

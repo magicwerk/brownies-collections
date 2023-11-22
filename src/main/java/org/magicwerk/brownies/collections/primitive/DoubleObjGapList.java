@@ -459,7 +459,19 @@ public class DoubleObjGapList extends IList<Double> {
     }
 
     public DoubleObjGapList unmodifiableList() {
-        return new ImmutableDoubleObjGapList(this);
+        if (this instanceof ImmutableDoubleObjGapList) {
+            return this;
+        } else {
+            return new ImmutableDoubleObjGapList(this);
+        }
+    }
+
+    public DoubleObjGapList immutableList() {
+        if (this instanceof ImmutableDoubleObjGapList) {
+            return this;
+        } else {
+            return new ImmutableDoubleObjGapList(this);
+        }
     }
 
     /**

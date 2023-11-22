@@ -456,7 +456,19 @@ public class IntObjBigList extends IList<Integer> {
     }
 
     public IntObjBigList unmodifiableList() {
-        return new ImmutableIntObjBigList(this);
+        if (this instanceof ImmutableIntObjBigList) {
+            return this;
+        } else {
+            return new ImmutableIntObjBigList(this);
+        }
+    }
+
+    public IntObjBigList immutableList() {
+        if (this instanceof ImmutableIntObjBigList) {
+            return this;
+        } else {
+            return new ImmutableIntObjBigList(this);
+        }
     }
 
     /**

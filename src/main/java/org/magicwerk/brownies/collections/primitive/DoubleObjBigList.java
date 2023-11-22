@@ -456,7 +456,19 @@ public class DoubleObjBigList extends IList<Double> {
     }
 
     public DoubleObjBigList unmodifiableList() {
-        return new ImmutableDoubleObjBigList(this);
+        if (this instanceof ImmutableDoubleObjBigList) {
+            return this;
+        } else {
+            return new ImmutableDoubleObjBigList(this);
+        }
+    }
+
+    public DoubleObjBigList immutableList() {
+        if (this instanceof ImmutableDoubleObjBigList) {
+            return this;
+        } else {
+            return new ImmutableDoubleObjBigList(this);
+        }
     }
 
     /**

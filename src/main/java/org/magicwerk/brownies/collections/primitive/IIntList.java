@@ -113,6 +113,8 @@ public abstract class IIntList implements Cloneable, Serializable {
     // Naming as in java.util.Collections#unmodifiableList
     abstract public IIntList unmodifiableList();
 
+    abstract public IIntList immutableList();
+
     /**
      * Initialize this object after the bitwise copy has been made by Object.clone().
      *
@@ -2331,6 +2333,11 @@ public abstract class IIntList implements Cloneable, Serializable {
     protected static abstract class IReadOnlyIntList extends IIntList {
 
         public IIntList unmodifiableList() {
+            error();
+            return null;
+        }
+
+        public IIntList immutableList() {
             error();
             return null;
         }

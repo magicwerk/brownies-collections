@@ -126,6 +126,8 @@ public abstract class IList<E>
 	// Naming as in java.util.Collections#unmodifiableList
 	abstract public IList<E> unmodifiableList();
 
+	abstract public IList<E> immutableList();
+
 	/**
 	 * Initialize this object after the bitwise copy has been made by Object.clone().
 	 *
@@ -2739,6 +2741,12 @@ public abstract class IList<E>
 
 		@Override
 		public IList<E> unmodifiableList() {
+			error();
+			return null;
+		}
+
+		@Override
+		public IList<E> immutableList() {
 			error();
 			return null;
 		}

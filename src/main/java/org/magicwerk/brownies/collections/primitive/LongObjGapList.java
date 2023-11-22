@@ -459,7 +459,19 @@ public class LongObjGapList extends IList<Long> {
     }
 
     public LongObjGapList unmodifiableList() {
-        return new ImmutableLongObjGapList(this);
+        if (this instanceof ImmutableLongObjGapList) {
+            return this;
+        } else {
+            return new ImmutableLongObjGapList(this);
+        }
+    }
+
+    public LongObjGapList immutableList() {
+        if (this instanceof ImmutableLongObjGapList) {
+            return this;
+        } else {
+            return new ImmutableLongObjGapList(this);
+        }
     }
 
     /**

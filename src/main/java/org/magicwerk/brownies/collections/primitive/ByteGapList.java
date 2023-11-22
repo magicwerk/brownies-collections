@@ -407,6 +407,15 @@ public class ByteGapList extends IByteList {
     }
 
     @Override
+    public ByteGapList immutableList() {
+        if (this instanceof ImmutableByteGapList) {
+            return this;
+        } else {
+            return new ImmutableByteGapList(copy());
+        }
+    }
+
+    @Override
     protected void doClone(IByteList that) {
         // Do not simply clone the array, but make sure its capacity is equal to the size (as in ArrayList)
         init(that.toArray(), that.size());

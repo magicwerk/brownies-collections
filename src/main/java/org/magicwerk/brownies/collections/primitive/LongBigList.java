@@ -1115,11 +1115,19 @@ public class LongBigList extends ILongList {
 
     @Override
     public LongBigList unmodifiableList() {
-        // Naming as in java.util.Collections#unmodifiableList
         if (this instanceof ImmutableLongBigList) {
             return this;
         } else {
             return new ImmutableLongBigList(this);
+        }
+    }
+
+    @Override
+    public LongBigList immutableList() {
+        if (this instanceof ImmutableLongBigList) {
+            return this;
+        } else {
+            return new ImmutableLongBigList(copy());
         }
     }
 

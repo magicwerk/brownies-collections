@@ -456,7 +456,19 @@ public class FloatObjBigList extends IList<Float> {
     }
 
     public FloatObjBigList unmodifiableList() {
-        return new ImmutableFloatObjBigList(this);
+        if (this instanceof ImmutableFloatObjBigList) {
+            return this;
+        } else {
+            return new ImmutableFloatObjBigList(this);
+        }
+    }
+
+    public FloatObjBigList immutableList() {
+        if (this instanceof ImmutableFloatObjBigList) {
+            return this;
+        } else {
+            return new ImmutableFloatObjBigList(this);
+        }
     }
 
     /**

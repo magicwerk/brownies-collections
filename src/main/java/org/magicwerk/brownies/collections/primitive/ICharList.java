@@ -113,6 +113,8 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
     // Naming as in java.util.Collections#unmodifiableList
     abstract public ICharList unmodifiableList();
 
+    abstract public ICharList immutableList();
+
     /**
      * Initialize this object after the bitwise copy has been made by Object.clone().
      *
@@ -2321,6 +2323,11 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
     protected static abstract class IReadOnlyCharList extends ICharList {
 
         public ICharList unmodifiableList() {
+            error();
+            return null;
+        }
+
+        public ICharList immutableList() {
             error();
             return null;
         }

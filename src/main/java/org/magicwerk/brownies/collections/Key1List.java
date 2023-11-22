@@ -566,6 +566,15 @@ public class Key1List<E, K> extends KeyListImpl<E> {
 		}
 	}
 
+	@Override
+	public Key1List<E, K> immutableList() {
+		if (this instanceof ImmutableKey1List) {
+			return this;
+		} else {
+			return new ImmutableKey1List<E, K>(copy());
+		}
+	}
+
 	protected Key1List(boolean copy, Key1List<E, K> that) {
 		if (copy) {
 			doAssign(that);
