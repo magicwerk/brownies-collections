@@ -210,7 +210,7 @@ public class PerformanceReport {
 			tr.setInputFile(file);
 			table = tr.readTable();
 			int col = table.indexOfCol("Time");
-			table = TableTools.convertCol(table, col, Type.DOUBLE_TYPE);
+			TableTools.convertCol(table, col, Type.DOUBLE_TYPE);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
