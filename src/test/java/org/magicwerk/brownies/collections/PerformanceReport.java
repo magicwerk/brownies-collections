@@ -180,7 +180,7 @@ public class PerformanceReport {
 		addToTable(t, Release_090_J160_Published, JAVA_PUB, RELEASE_PUB);
 		addToTable(t, Release_090_J160_45, JAVA_160_45, RELEASE_090);
 		addToTable(t, Release_090_J170_40, JAVA_170_40, RELEASE_090);
-		TableTools.addTable(t, table, false);
+		TableMapper.addTable(t, table, ColMappingBuilder.equal());
 		table = t;
 	}
 
