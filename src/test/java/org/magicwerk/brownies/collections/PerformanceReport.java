@@ -19,6 +19,8 @@ import org.magicwerk.brownies.core.stat.MultiplyGenerator;
 import org.magicwerk.brownies.core.types.Type;
 import org.magicwerk.brownies.core.values.Record;
 import org.magicwerk.brownies.core.values.Table;
+import org.magicwerk.brownies.core.values.TableMapper;
+import org.magicwerk.brownies.core.values.TableMapper.ColMappingBuilder;
 import org.magicwerk.brownies.core.values.TableTools;
 import org.magicwerk.brownies.core.values.io.FieldDelimTableReader;
 import org.magicwerk.brownies.core.values.io.FieldDelimTableWriter;
@@ -194,14 +196,14 @@ public class PerformanceReport {
 		for (int i = 0; i < result.size(); i++) {
 			List<String> l = result.get(i);
 			Record rec = Record.create(JAVA, java, RELEASE, release, RUN, l.get(0), TYPE, l.get(1), TIME, vals.get(i));
-			TableTools.addRecord(table, rec, true);
+			TableMapper.addRecord(table, rec, ColMappingBuilder.add());
 		}
 	}
 
 	public void addRun(RunInfo runInfo) {
 		Record rec = Record.create(JAVA, runInfo.getJava(), VMARGS, runInfo.getVmArgs(), RUN, runInfo.getRun(), RELEASE, runInfo.getRelease(), TYPE,
 				runInfo.getType(), TIME, 1000 * runInfo.getTime());
-		TableTools.addRecord(table, rec, true);
+		TableMapper.addRecord(table, rec, ColMappingBuilder.add());
 	}
 
 	void load() {
