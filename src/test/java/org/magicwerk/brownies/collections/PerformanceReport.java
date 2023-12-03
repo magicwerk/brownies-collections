@@ -19,12 +19,11 @@ import org.magicwerk.brownies.core.stat.MultiplyGenerator;
 import org.magicwerk.brownies.core.types.Type;
 import org.magicwerk.brownies.core.values.Record;
 import org.magicwerk.brownies.core.values.Table;
-import org.magicwerk.brownies.core.values.TableMapper;
-import org.magicwerk.brownies.core.values.TableMapper.ColMappingBuilder;
 import org.magicwerk.brownies.core.values.TableTools;
 import org.magicwerk.brownies.core.values.io.FieldDelimTableReader;
 import org.magicwerk.brownies.core.values.io.FieldDelimTableWriter;
 import org.magicwerk.brownies.core.values.io.TableWriter;
+import org.magicwerk.brownies.core.values.typediff.ColMappingOptions;
 import org.magicwerk.brownies.html.CssColor;
 import org.magicwerk.brownies.html.HtmlBlock;
 import org.magicwerk.brownies.html.HtmlDiv;
@@ -180,7 +179,7 @@ public class PerformanceReport {
 		addToTable(t, Release_090_J160_Published, JAVA_PUB, RELEASE_PUB);
 		addToTable(t, Release_090_J160_45, JAVA_160_45, RELEASE_090);
 		addToTable(t, Release_090_J170_40, JAVA_170_40, RELEASE_090);
-		TableMapper.addTable(t, table, ColMappingBuilder.equal());
+		TableTools.addTable(t, table, ColMappingOptions.equal());
 		table = t;
 	}
 
@@ -196,14 +195,14 @@ public class PerformanceReport {
 		for (int i = 0; i < result.size(); i++) {
 			List<String> l = result.get(i);
 			Record rec = Record.create(JAVA, java, RELEASE, release, RUN, l.get(0), TYPE, l.get(1), TIME, vals.get(i));
-			TableMapper.addRecord(table, rec, ColMappingBuilder.add());
+			TableTools.addRecord(table, rec, ColMappingOptions.add());
 		}
 	}
 
 	public void addRun(RunInfo runInfo) {
 		Record rec = Record.create(JAVA, runInfo.getJava(), VMARGS, runInfo.getVmArgs(), RUN, runInfo.getRun(), RELEASE, runInfo.getRelease(), TYPE,
 				runInfo.getType(), TIME, 1000 * runInfo.getTime());
-		TableMapper.addRecord(table, rec, ColMappingBuilder.add());
+		TableTools.addRecord(table, rec, ColMappingOptions.add());
 	}
 
 	void load() {
