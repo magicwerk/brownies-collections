@@ -21,8 +21,6 @@ package org.magicwerk.brownies.collections.helper;
  * The NaturalComparator will compare object using their natural order.
  *
  * @param <T>	element type
- *
- * @author Thomas Mauch
  */
 public class NaturalComparator<T> extends SingletonComparator<T> {
 
