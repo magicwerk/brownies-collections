@@ -17,12 +17,28 @@
  */
 package org.magicwerk.brownies.collections.helper;
 
+import java.util.Comparator;
+
 /**
  * The NaturalComparator will compare object using their natural order.
  *
  * @param <T>	element type
  */
 public class NaturalComparator<T> extends SingletonComparator<T> {
+
+	/**
+	 * Return the natural comparator for the class if it implements
+	 * Comparable, otherwise null is returned.
+	 *
+	 * @param clazz	class to get comparator for
+	 * @return		comparator for class, null if not available
+	 */
+	public static <T> Comparator<T> getComparator(Class<T> clazz) {
+		if (Comparable.class.isAssignableFrom(clazz)) {
+			return NaturalComparator.INSTANCE(clazz);
+		}
+		return null;
+	}
 
 	/**
 	 * Singleton instance.
