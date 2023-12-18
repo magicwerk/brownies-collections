@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Deque;
 import java.util.List;
+import java.util.Map;
 import java.util.RandomAccess;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -16,14 +17,17 @@ import org.magicwerk.brownies.collections.TestRuns.FilterLambdaRun;
 import org.magicwerk.brownies.collections.ext.TList;
 import org.magicwerk.brownies.collections.primitive.IntGapList;
 import org.magicwerk.brownies.core.ArrayTools;
+import org.magicwerk.brownies.core.CollectionTools;
 import org.magicwerk.brownies.core.SystemTools;
 import org.magicwerk.brownies.core.Timer;
+import org.magicwerk.brownies.core.files.FilePath;
 import org.magicwerk.brownies.core.logback.LogbackTools;
 import org.magicwerk.brownies.core.stat.NumberStat;
 import org.magicwerk.brownies.core.stat.StatValues.StoreValues;
 import org.magicwerk.brownies.tools.dev.jvm.JavaEnvironment;
-import org.magicwerk.brownies.tools.dev.jvm.JmhRunner;
 import org.magicwerk.brownies.tools.dev.jvm.JavaEnvironment.JavaVersion;
+import org.magicwerk.brownies.tools.dev.jvm.JmhReporter;
+import org.magicwerk.brownies.tools.dev.jvm.JmhRunner;
 import org.magicwerk.brownies.tools.dev.jvm.JmhRunner.Options;
 import org.magicwerk.brownies.tools.runner.JvmRunner;
 import org.magicwerk.brownies.tools.runner.Runner;
@@ -47,7 +51,7 @@ public class GapListTestPerformance {
 	public static void main(String[] args) {
 		//run(args);
 
-		testPerformanceRetainJmh();
+		SetReplaceAllJmhTest.show();
 		//testPerformanceJmh();
 		//testPerformanceFilterJmh();
 		//testPerfFilter();
@@ -55,6 +59,101 @@ public class GapListTestPerformance {
 		//testPerfRemoveRetainAll();
 		//testPerfCalls();
 		//testPerfExtend();
+	}
+
+	//
+
+	public static class SetReplaceAllJmhTest {
+
+		static void show() {
+			IList<FilePath> files = GapList.create(
+					FilePath.of("output/SetReplaceAllJmhTest-fast.json") //
+					, FilePath.of("output/SetReplaceAllJmhTest-slow.json") //
+			);
+
+			JmhReporter sb = new JmhReporter();
+			sb.setFiles(files);
+			sb.setConfigHtmlChartCreator(hcc -> {
+				hcc.setAddPercentageDiff(true);
+				hcc.setAddPercentageDiffRound(2);
+			});
+			//sb.showTables();
+			sb.showCharts();
+		}
+
+		static void test() {
+			Class<?> clazz = SetReplaceAllJmhTest.class;
+			Options opts = new Options().includeClass(clazz);
+			//opts.setJavaVersion(JavaVersion.JAVA_8);
+			//opts.setJavaVersion(JavaVersion.JAVA_11);
+			//opts.setJavaVersion(JavaVersion.JAVA_17);
+			opts.setJavaVersion(JavaVersion.JAVA_21);
+
+			JmhRunner runner = new JmhRunner();
+			//runner.runJmhMethod(SetReplaceAllJmhTest.class, "testSetArray");
+
+			runner.setFastMode(true);
+			opts.setUseGcProfiler(true);
+			opts.setResultFile(FilePath.of("output/SetReplaceAllJmhTest-slow.json"));
+			Map<String, String> jmhParams = CollectionTools.createHashMap("java", "slow");
+			opts.setJmhParams(jmhParams);
+			runner.runJmh(opts);
+
+			//boolean allocFree = JmhRunner.runForAllAllocationFreeResult(opts);
+			//LOG.info("All benchmarks in {} are allocation free: {}", clazz.getName(), allocFree);
+			//CheckTools.check(allocFree);
+		}
+
+		@State(Scope.Benchmark)
+		public static class CheckState {
+			final int size = 1000;
+			Integer val = 10;
+			IList<Integer> srcList = new GapList<>(size);
+			Integer[] srcArray = new Integer[size];
+			IList<Integer> list;
+
+			public CheckState() {
+				for (int i = 0; i < size; i++) {
+					srcList.add(i);
+					srcArray[i] = i;
+				}
+				list = CollectionTools.concat(srcList, srcList);
+			}
+		}
+
+		@Benchmark
+		public void testSetAll(CheckState state) {
+			state.list.setAll(10, state.srcList);
+		}
+
+		@Benchmark
+		public void testSetArray(CheckState state) {
+			state.list.setArray(10, state.srcArray);
+		}
+
+		@Benchmark
+		public void testSetMult(CheckState state) {
+			state.list.setMult(10, state.size, state.val);
+		}
+
+		@Benchmark
+		public void testAddAll(CheckState state) {
+			state.list.remove(10, state.srcList.size());
+			state.list.addAll(10, state.srcList);
+		}
+
+		@Benchmark
+		public void testAddArray(CheckState state) {
+			state.list.remove(10, state.srcArray.length);
+			state.list.addArray(10, state.srcArray);
+		}
+
+		@Benchmark
+		public void testAddMult(CheckState state) {
+			state.list.remove(10, state.size);
+			state.list.addMult(10, state.size, state.val);
+		}
+
 	}
 
 	//
