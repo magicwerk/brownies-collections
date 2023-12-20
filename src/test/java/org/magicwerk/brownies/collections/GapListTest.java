@@ -8,6 +8,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.magictest.client.Assert;
@@ -18,6 +19,7 @@ import org.magictest.client.Test;
 import org.magictest.client.Trace;
 import org.magicwerk.brownies.collections.helper.GapLists;
 import org.magicwerk.brownies.core.CheckTools;
+import org.magicwerk.brownies.core.ObjectTools;
 import org.magicwerk.brownies.core.function.Predicates;
 import org.magicwerk.brownies.core.function.Predicates.NamedPredicate;
 import org.magicwerk.brownies.core.print.PrintTools;
@@ -41,7 +43,7 @@ public class GapListTest {
 	}
 
 	static void test() {
-		testPeekPoll();
+		//testPeekPoll();
 		//testExtractIf();
 		//testRemoveIf();
 		//testStream();
@@ -54,6 +56,7 @@ public class GapListTest {
 		//testRetainAll();
 		//testInitMult();
 		//testPutAll();
+		testReplaceAll();
 	}
 
 	static void testSplit() {
@@ -797,6 +800,19 @@ public class GapListTest {
 		getSortedGapList(4).replaceMult(1, 1, 2, 9);
 		getSortedGapList(4).replaceMult(1, 2, 2, 9);
 		getSortedGapList(4).replaceMult(1, 3, 2, 9);
+
+		checkEquivalence(getSortedGapList(4), l -> l.replaceAll(-1, 0, list), l -> l.addAll(list));
+		checkEquivalence(getSortedGapList(4), l -> l.replaceAll(2, 0, list), l -> l.addAll(2, list));
+	}
+
+	static void checkEquivalence(IList<Integer> list, Consumer<IList<Integer>> c1, Consumer<IList<Integer>> c2) {
+		IList<Integer> l1 = list.copy();
+		c1.accept(l1);
+
+		IList<Integer> l2 = list.copy();
+		c2.accept(l2);
+
+		CheckTools.check(ObjectTools.equals(l1, l2));
 	}
 
 	@Trace(parameters = Trace.THIS | Trace.ALL_PARAMS, result = Trace.THIS)

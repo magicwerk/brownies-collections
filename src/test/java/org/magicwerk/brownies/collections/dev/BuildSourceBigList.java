@@ -8,6 +8,7 @@ import org.magicwerk.brownies.core.files.FileTools;
 import org.magicwerk.brownies.core.files.PathTools;
 import org.magicwerk.brownies.core.reflect.ClassTools;
 import org.magicwerk.brownies.core.regex.RegexBuilder;
+import org.magicwerk.brownies.core.strings.StringFormatter;
 
 import com.github.javaparser.ast.CompilationUnit;
 
@@ -138,6 +139,11 @@ public class BuildSourceBigList extends FileBuilder {
 		src = substitute("add\\(0, null\\)", src, "add(0, {DEFAULT})");
 		src = substitute("BlockLen, null", src, "BlockLen, {DEFAULT}");
 
+		// for IListable
+		String base = StringFormatter.format("I{}Listable", builder.getTypeName());
+		String type = StringFormatter.format("<{}>", builder.getWrapperType());
+		src = substitute(base + type, src, base);
+
 		src = substituteNested("(?s)doRemoveSelf.*?\\}", "return .*?;", src, "return null;");
 
 		src = substitute("package org.magicwerk.brownies.collections;", src,
@@ -179,7 +185,6 @@ public class BuildSourceBigList extends FileBuilder {
 		src = substitute("T\\[", src, "{PRIMITIVE}[");
 		src = substitute("Collection\\<\\?\\>", src, "Collection<{WRAPPER}>");
 		src = substitute("\\? extends E", src, "{WRAPPER}");
-		//src = substitute("(?<!alues ==? )null", src, "{DEFAULT}");
 		src = substitute("Object", src, "{PRIMITIVE}");
 		src = substitute("{PRIMITIVE} clone", src, "Object clone");
 		src = substitute("int clone", src, "Object clone");

@@ -51,7 +51,7 @@ public class GapListTestPerformance {
 	public static void main(String[] args) {
 		//run(args);
 
-		SetReplaceAllJmhTest.show();
+		SetReplaceAllJmhTest.test();
 		//testPerformanceJmh();
 		//testPerformanceFilterJmh();
 		//testPerfFilter();
@@ -92,7 +92,7 @@ public class GapListTestPerformance {
 			JmhRunner runner = new JmhRunner();
 			//runner.runJmhMethod(SetReplaceAllJmhTest.class, "testSetArray");
 
-			runner.setFastMode(true);
+			//runner.setFastMode(true);
 			opts.setUseGcProfiler(true);
 			opts.setResultFile(FilePath.of("output/SetReplaceAllJmhTest-slow.json"));
 			Map<String, String> jmhParams = CollectionTools.createHashMap("java", "slow");

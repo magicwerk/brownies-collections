@@ -48,7 +48,7 @@ import java.util.function.UnaryOperator;
  * @see	    java.util.ArrayList
  * @see	    java.util.LinkedList
  */
-public abstract class IDoubleList implements Cloneable, Serializable {
+public abstract class IDoubleList implements IDoubleListable, Cloneable, Serializable {
 
     /**
      * Copies the collection values into an array.
@@ -1081,11 +1081,14 @@ public abstract class IDoubleList implements Cloneable, Serializable {
      * @param list	list with elements to add
      * @return      true if elements have been added, false otherwise
      */
-    protected boolean doAddAll(int index, IDoubleList list) {
+    protected boolean doAddAll(int index, IDoubleListable list) {
         int listSize = list.size();
-        doEnsureCapacity(size() + listSize);
         if (listSize == 0) {
             return false;
+        }
+        int size = size();
+        if (size + listSize > capacity()) {
+            doEnsureCapacity(size + listSize);
         }
         boolean changed = false;
         int prevSize = size();
@@ -1558,11 +1561,7 @@ public abstract class IDoubleList implements Cloneable, Serializable {
      * @throws NullPointerException if the specified collection is null
      */
     public boolean addAll(Collection<Double> coll) {
-        if (coll instanceof List) {
-            return doAddAll(-1, new IReadOnlyDoubleListFromList((List<Double>) coll));
-        } else {
-            return doAddAll(-1, new IReadOnlyDoubleListFromCollection(coll));
-        }
+        return doAddAll(-1, getReadOnlyList(coll));
     }
 
     /**
@@ -1582,11 +1581,7 @@ public abstract class IDoubleList implements Cloneable, Serializable {
      */
     public boolean addAll(int index, Collection<Double> coll) {
         checkIndexAdd(index);
-        if (coll instanceof List) {
-            return doAddAll(index, new IReadOnlyDoubleListFromList((List<Double>) coll));
-        } else {
-            return doAddAll(index, new IReadOnlyDoubleListFromCollection(coll));
-        }
+        return doAddAll(index, getReadOnlyList(coll));
     }
 
     /**
@@ -1597,15 +1592,15 @@ public abstract class IDoubleList implements Cloneable, Serializable {
      */
     @SuppressWarnings("unchecked")
     public boolean addArray(double... elems) {
-        return doAddAll(-1, new IReadOnlyDoubleListFromArray(elems));
+        return doAddAll(-1, new IReadOnlyListFromArray(elems));
     }
 
     public boolean addArray(double[] elems, int offset, int length) {
-        return doAddAll(-1, new IReadOnlyDoubleListFromArray(elems, offset, length));
+        return doAddAll(-1, new IReadOnlyListFromArray(elems, offset, length));
     }
 
     public boolean addArray(int index, double[] elems, int offset, int length) {
-        return doAddAll(index, new IReadOnlyDoubleListFromArray(elems, offset, length));
+        return doAddAll(index, new IReadOnlyListFromArray(elems, offset, length));
     }
 
     /**
@@ -1622,7 +1617,7 @@ public abstract class IDoubleList implements Cloneable, Serializable {
      */
     public boolean addArray(int index, @SuppressWarnings("unchecked") double... elems) {
         checkIndexAdd(index);
-        return doAddAll(index, new IReadOnlyDoubleListFromArray(elems));
+        return doAddAll(index, new IReadOnlyListFromArray(elems));
     }
 
     /**
@@ -1632,7 +1627,7 @@ public abstract class IDoubleList implements Cloneable, Serializable {
      * @return <tt>true</tt> if this list changed as a result of the call
      */
     public boolean addMult(int len, double elem) {
-        return doAddAll(-1, new IReadOnlyDoubleListFromMult(len, elem));
+        return doAddAll(-1, new IReadOnlyListFromMult(len, elem));
     }
 
     /**
@@ -1648,7 +1643,7 @@ public abstract class IDoubleList implements Cloneable, Serializable {
      */
     public boolean addMult(int index, int len, double elem) {
         checkIndexAdd(index);
-        return doAddAll(index, new IReadOnlyDoubleListFromMult(len, elem));
+        return doAddAll(index, new IReadOnlyListFromMult(len, elem));
     }
 
     /**
@@ -1656,12 +1651,11 @@ public abstract class IDoubleList implements Cloneable, Serializable {
      *
      * @param index index of first element to set
      * @param list  list with elements to set
-     * @throws 		IndexOutOfBoundsException if the range is invalid
      */
     public void setAll(int index, IDoubleList list) {
         int listSize = list.size();
         checkRange(index, listSize);
-        doReplaceAll(index, listSize, list);
+        doReplace(index, listSize, list);
     }
 
     /**
@@ -1669,15 +1663,12 @@ public abstract class IDoubleList implements Cloneable, Serializable {
      *
      * @param index index of first element to set
      * @param coll  collection with elements to set
+     * @throws 		IndexOutOfBoundsException if the range is invalid
      */
     public void setAll(int index, Collection<Double> coll) {
         int collSize = coll.size();
         checkRange(index, collSize);
-        if (coll instanceof List) {
-            doReplaceAll(index, collSize, new IReadOnlyDoubleListFromList((List<Double>) coll));
-        } else {
-            doReplaceAll(index, collSize, new IReadOnlyDoubleListFromCollection(coll));
-        }
+        doReplace(index, collSize, getReadOnlyList(coll));
     }
 
     /**
@@ -1691,13 +1682,13 @@ public abstract class IDoubleList implements Cloneable, Serializable {
     public void setArray(int index, double... elems) {
         int arrayLen = elems.length;
         checkRange(index, arrayLen);
-        doReplaceAll(index, arrayLen, new IReadOnlyDoubleListFromArray(elems));
+        doReplace(index, arrayLen, new IReadOnlyListFromArray(elems));
     }
 
     public void setArray(int index, double[] elems, int offset, int length) {
         int arrayLen = elems.length;
         checkRange(index, arrayLen);
-        doReplaceAll(index, arrayLen, new IReadOnlyDoubleListFromArray(elems, offset, length));
+        doReplace(index, arrayLen, new IReadOnlyListFromArray(elems, offset, length));
     }
 
     /**
@@ -1708,7 +1699,7 @@ public abstract class IDoubleList implements Cloneable, Serializable {
      */
     public void setMult(int index, int len, double elem) {
         checkRange(index, len);
-        doReplaceAll(index, len, new IReadOnlyDoubleListFromMult(len, elem));
+        doReplace(index, len, new IReadOnlyListFromMult(len, elem));
     }
 
     /**
@@ -1718,16 +1709,7 @@ public abstract class IDoubleList implements Cloneable, Serializable {
      * @param list  list with elements to set or add
      */
     public void putAll(int index, IDoubleList list) {
-        checkIndexAdd(index);
-        checkNonNull(list);
-        int len = size() - index;
-        if (list != null) {
-            if (list.size() < len) {
-                len = list.size();
-            }
-        }
-        // Call worker method
-        doReplaceAll(index, len, list);
+        doPutAll(index, list);
     }
 
     /**
@@ -1739,13 +1721,20 @@ public abstract class IDoubleList implements Cloneable, Serializable {
      * @param coll  collection with elements to set or add
      */
     public void putAll(int index, Collection<Double> coll) {
-        if (coll instanceof IDoubleList) {
-            putAll(index, (IDoubleList) coll);
-        } else if (coll instanceof List) {
-            putAll(index, new IReadOnlyDoubleListFromList((List<Double>) coll));
-        } else {
-            putAll(index, new IReadOnlyDoubleListFromCollection(coll));
+        doPutAll(index, getReadOnlyList(coll));
+    }
+
+    protected void doPutAll(int index, IDoubleListable list) {
+        checkIndexAdd(index);
+        checkNonNull(list);
+        int len = size() - index;
+        if (list != null) {
+            if (list.size() < len) {
+                len = list.size();
+            }
         }
+        // Call worker method
+        doReplace(index, len, list);
     }
 
     /**
@@ -1758,7 +1747,7 @@ public abstract class IDoubleList implements Cloneable, Serializable {
      */
     @SuppressWarnings("unchecked")
     public void putArray(int index, double... elems) {
-        putAll(index, new IReadOnlyDoubleListFromArray(elems));
+        doPutAll(index, new IReadOnlyListFromArray(elems));
     }
 
     /**
@@ -1770,7 +1759,7 @@ public abstract class IDoubleList implements Cloneable, Serializable {
      * @param len 	element to set or add
      */
     public void putMult(int index, int len, double elem) {
-        putAll(index, new IReadOnlyDoubleListFromMult(len, elem));
+        doPutAll(index, new IReadOnlyListFromMult(len, elem));
     }
 
     /**
@@ -1781,6 +1770,10 @@ public abstract class IDoubleList implements Cloneable, Serializable {
      * @throws 		IndexOutOfBoundsException if the length is invalid
      */
     public void initAll(IDoubleList list) {
+        doInitAll(list);
+    }
+
+    protected void doInitAll(IDoubleListable list) {
         checkNonNull(list);
         doClear();
         doAddAll(-1, list);
@@ -1794,12 +1787,20 @@ public abstract class IDoubleList implements Cloneable, Serializable {
      * @throws 		IndexOutOfBoundsException if the length is invalid
      */
     public void initAll(Collection<Double> coll) {
-        if (coll instanceof IDoubleList) {
-            initAll((IDoubleList) coll);
+        doInitAll(getReadOnlyList(coll));
+    }
+
+    /**
+     * Return correct IReadOnlyList for specified collection.
+     */
+    @SuppressWarnings("unchecked")
+    protected IDoubleListable getReadOnlyList(Collection<Double> coll) {
+        if (coll instanceof IDoubleListable) {
+            return (IDoubleListable) coll;
         } else if (coll instanceof List) {
-            initAll(new IReadOnlyDoubleListFromList((List<Double>) coll));
+            return new IReadOnlyListFromList((List<Double>) coll);
         } else {
-            initAll(new IReadOnlyDoubleListFromCollection(coll));
+            return new IReadOnlyListFromCollection(coll);
         }
     }
 
@@ -1812,7 +1813,7 @@ public abstract class IDoubleList implements Cloneable, Serializable {
      */
     @SuppressWarnings("unchecked")
     public void initArray(double... elems) {
-        initAll(new IReadOnlyDoubleListFromArray(elems));
+        doInitAll(new IReadOnlyListFromArray(elems));
     }
 
     /**
@@ -1826,7 +1827,7 @@ public abstract class IDoubleList implements Cloneable, Serializable {
      */
     public void initMult(int len, double elem) {
         checkLength(len);
-        initAll(new IReadOnlyDoubleListFromMult(len, elem));
+        doInitAll(new IReadOnlyListFromMult(len, elem));
     }
 
     /**
@@ -1845,13 +1846,7 @@ public abstract class IDoubleList implements Cloneable, Serializable {
      * @throws 		IndexOutOfBoundsException if the range is invalid
      */
     public void replaceAll(int index, int len, Collection<Double> coll) {
-        if (coll instanceof IDoubleList) {
-            replaceAll(index, len, (IDoubleList) coll);
-        } else if (coll instanceof List) {
-            replaceAll(index, len, new IReadOnlyDoubleListFromList((List<Double>) coll));
-        } else {
-            replaceAll(index, len, new IReadOnlyDoubleListFromCollection(coll));
-        }
+        replace(index, len, getReadOnlyList(coll));
     }
 
     /**
@@ -1871,7 +1866,7 @@ public abstract class IDoubleList implements Cloneable, Serializable {
      */
     @SuppressWarnings("unchecked")
     public void replaceArray(int index, int len, double... elems) {
-        replaceAll(index, len, new IReadOnlyDoubleListFromArray(elems));
+        replace(index, len, new IReadOnlyListFromArray(elems));
     }
 
     /**
@@ -1891,7 +1886,7 @@ public abstract class IDoubleList implements Cloneable, Serializable {
      * @throws 			IndexOutOfBoundsException if the range is invalid
      */
     public void replaceMult(int index, int len, int numElems, double elem) {
-        replaceAll(index, len, new IReadOnlyDoubleListFromMult(numElems, elem));
+        replace(index, len, new IReadOnlyListFromMult(numElems, elem));
     }
 
     /**
@@ -1910,6 +1905,10 @@ public abstract class IDoubleList implements Cloneable, Serializable {
      * @throws 		IndexOutOfBoundsException if the range is invalid
      */
     public void replaceAll(int index, int len, IDoubleList list) {
+        replace(index, len, list);
+    }
+
+    protected void replace(int index, int len, IDoubleListable list) {
         // Check arguments
         if (index == -1) {
             index = size();
@@ -1918,33 +1917,30 @@ public abstract class IDoubleList implements Cloneable, Serializable {
         }
         if (len == -1) {
             len = size() - index;
-            if (list != null) {
-                if (list.size() < len) {
-                    len = list.size();
-                }
+            if (list.size() < len) {
+                len = list.size();
             }
         } else {
             checkRange(index, len);
         }
         // Call worker method
-        doReplaceAll(index, len, list);
+        doReplace(index, len, list);
     }
 
-    protected boolean doReplaceAll(int index, int len, IDoubleList list) {
+    protected boolean doReplace(int index, int len, IDoubleListable list) {
         // There is a special implementation accepting an IDoubleList
         // so the method is also available in the primitive classes.
-        assert (index >= 0 && index <= size());
-        assert (len >= 0 && index + len <= size());
-        int srcLen = 0;
-        if (list != null) {
-            srcLen = list.size();
+        //assert (index >= 0 && index <= size());
+        //assert (len >= 0 && index + len <= size());
+        int srcLen = list.size();
+        if (srcLen > len) {
+            doEnsureCapacity(size() - len + srcLen);
         }
-        doEnsureCapacity(size() - len + srcLen);
         // Remove elements
         doRemoveAll(index, len);
         // Add elements
         for (int i = 0; i < srcLen; i++) {
-            if (!doAdd(index + i, list.doGet(i))) {
+            if (!doAdd(index + i, list.get(i))) {
                 index--;
             }
         }
@@ -2331,87 +2327,7 @@ public abstract class IDoubleList implements Cloneable, Serializable {
     }
 
     // --- End class ListIter ---
-    protected static abstract class IReadOnlyDoubleList extends IDoubleList {
-
-        public IDoubleList unmodifiableList() {
-            error();
-            return null;
-        }
-
-        public IDoubleList immutableList() {
-            error();
-            return null;
-        }
-
-        protected void doClone(IDoubleList that) {
-            error();
-        }
-
-        public int capacity() {
-            error();
-            return 0;
-        }
-
-        protected double doSet(int index, double elem) {
-            error();
-            return 0;
-        }
-
-        protected double doReSet(int index, double elem) {
-            error();
-            return 0;
-        }
-
-        protected double getDefaultElem() {
-            error();
-            return 0;
-        }
-
-        protected boolean doAdd(int index, double elem) {
-            error();
-            return false;
-        }
-
-        protected double doRemove(int index) {
-            error();
-            return 0;
-        }
-
-        protected void doEnsureCapacity(int minCapacity) {
-            error();
-        }
-
-        public void trimToSize() {
-            error();
-        }
-
-        protected IDoubleList doCreate(int capacity) {
-            error();
-            return null;
-        }
-
-        protected void doAssign(IDoubleList that) {
-            error();
-        }
-
-        public void sort(int index, int len) {
-            error();
-        }
-
-        public int binarySearch(int index, int len, double key) {
-            error();
-            return 0;
-        }
-
-        /**
-         * Throw exception if an attempt is made to change an immutable list.
-         */
-        private void error() {
-            throw new UnsupportedOperationException("list is read-only");
-        }
-    }
-
-    protected static class IReadOnlyDoubleListFromArray extends IReadOnlyDoubleList {
+    protected static class IReadOnlyListFromArray implements IDoubleListable {
 
         double[] array;
 
@@ -2419,13 +2335,13 @@ public abstract class IDoubleList implements Cloneable, Serializable {
 
         int length;
 
-        IReadOnlyDoubleListFromArray(double[] array) {
+        IReadOnlyListFromArray(double[] array) {
             this.array = array;
             this.offset = 0;
             this.length = array.length;
         }
 
-        IReadOnlyDoubleListFromArray(double[] array, int offset, int length) {
+        IReadOnlyListFromArray(double[] array, int offset, int length) {
             this.array = array;
             this.offset = offset;
             this.length = length;
@@ -2435,19 +2351,18 @@ public abstract class IDoubleList implements Cloneable, Serializable {
             return length;
         }
 
-        protected double doGet(int index) {
+        public double get(int index) {
             return array[offset + index];
         }
     }
 
-    protected static class IReadOnlyDoubleListFromMult extends IReadOnlyDoubleList {
+    protected static class IReadOnlyListFromMult implements IDoubleListable {
 
         int len;
 
         double elem;
 
-        IReadOnlyDoubleListFromMult(int len, double elem) {
-            checkLength(len);
+        IReadOnlyListFromMult(int len, double elem) {
             this.len = len;
             this.elem = elem;
         }
@@ -2456,16 +2371,16 @@ public abstract class IDoubleList implements Cloneable, Serializable {
             return len;
         }
 
-        protected double doGet(int index) {
+        public double get(int index) {
             return elem;
         }
     }
 
-    protected static class IReadOnlyDoubleListFromCollection extends IReadOnlyDoubleList {
+    protected static class IReadOnlyListFromCollection implements IDoubleListable {
 
         double[] array;
 
-        IReadOnlyDoubleListFromCollection(Collection<Double> coll) {
+        IReadOnlyListFromCollection(Collection<Double> coll) {
             array = toArray(coll);
         }
 
@@ -2473,18 +2388,16 @@ public abstract class IDoubleList implements Cloneable, Serializable {
             return array.length;
         }
 
-        @SuppressWarnings("unchecked")
-        protected double doGet(int index) {
+        public double get(int index) {
             return array[index];
         }
     }
 
-    protected static class IReadOnlyDoubleListFromList extends IReadOnlyDoubleList {
+    protected static class IReadOnlyListFromList implements IDoubleListable {
 
         List<Double> list2;
 
-        @SuppressWarnings("unchecked")
-        IReadOnlyDoubleListFromList(List<Double> list) {
+        IReadOnlyListFromList(List<Double> list) {
             this.list2 = (List) list;
         }
 
@@ -2492,8 +2405,15 @@ public abstract class IDoubleList implements Cloneable, Serializable {
             return list2.size();
         }
 
-        protected double doGet(int index) {
+        public double get(int index) {
             return list2.get(index);
         }
     }
+}
+
+interface IDoubleListable {
+
+    int size();
+
+    double get(int index);
 }

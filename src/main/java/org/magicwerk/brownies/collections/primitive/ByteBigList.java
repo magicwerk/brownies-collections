@@ -767,7 +767,7 @@ public class ByteBigList extends IByteList {
     }
 
     @Override
-    protected boolean doAddAll(int index, IByteList list) {
+    protected boolean doAddAll(int index, IByteListable list) {
         if (list.size() == 0) {
             return false;
         }
@@ -786,7 +786,7 @@ public class ByteBigList extends IByteList {
         int addLen = list.size();
         if (addLen <= space) {
             // All elements can be added to current block
-            currNode.block.addAll(addPos, list);
+            currNode.block.doAddAll(addPos, list);
             modify(currNode, addLen);
             size += addLen;
             currByteBlockEnd += addLen;
@@ -808,7 +808,7 @@ public class ByteBigList extends IByteList {
         return true;
     }
 
-    private void doAddAllTail(IByteList list, int addPos, int addLen, int space) {
+    private void doAddAllTail(IByteListable list, int addPos, int addLen, int space) {
         for (int i = 0; i < space; i++) {
             currNode.block.add(addPos + i, list.get(i));
         }
@@ -831,7 +831,7 @@ public class ByteBigList extends IByteList {
         currByteBlockStart = currByteBlockEnd - currNode.block.size();
     }
 
-    private void doAddAllHead(IByteList list, int addPos, int addLen, int space) {
+    private void doAddAllHead(IByteListable list, int addPos, int addLen, int space) {
         assert (addPos == 0);
         for (int i = 0; i < space; i++) {
             currNode.block.add(addPos + i, list.get(addLen - space + i));
@@ -857,11 +857,11 @@ public class ByteBigList extends IByteList {
 
     // method is not changed right now.
     private // To have good performance, it would have to be guaranteed that escape analysis is able to perform scalar replacement. As this is not trivial,
-    void doAddAllMiddle(IByteList list, int addPos) {
+    void doAddAllMiddle(IByteListable list, int addPos) {
         // Split first block to remove tail elements if necessary
         // TODO avoid unnecessary copy
         ByteGapList list2 = ByteGapList.create();
-        list2.addAll(list);
+        list2.doAddAll(-1, list);
         int remove = currNode.block.size() - addPos;
         if (remove > 0) {
             list2.addAll(currNode.block.getAll(addPos, remove));

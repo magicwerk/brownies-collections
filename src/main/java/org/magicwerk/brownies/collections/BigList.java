@@ -779,7 +779,7 @@ public class BigList<E> extends IList<E> {
 	}
 
 	@Override
-	protected boolean doAddAll(int index, IList<? extends E> list) {
+	protected boolean doAddAll(int index, IListable<? extends E> list) {
 		if (list.size() == 0) {
 			return false;
 		}
@@ -801,7 +801,7 @@ public class BigList<E> extends IList<E> {
 		int addLen = list.size();
 		if (addLen <= space) {
 			// All elements can be added to current block
-			currNode.block.addAll(addPos, list);
+			currNode.block.doAddAll(addPos, list);
 			modify(currNode, addLen);
 			size += addLen;
 			currBlockEnd += addLen;
@@ -828,7 +828,7 @@ public class BigList<E> extends IList<E> {
 		return true;
 	}
 
-	private void doAddAllTail(IList<? extends E> list, int addPos, int addLen, int space) {
+	private void doAddAllTail(IListable<? extends E> list, int addPos, int addLen, int space) {
 		for (int i = 0; i < space; i++) {
 			currNode.block.add(addPos + i, list.get(i));
 		}
@@ -853,7 +853,7 @@ public class BigList<E> extends IList<E> {
 		currBlockStart = currBlockEnd - currNode.block.size();
 	}
 
-	private void doAddAllHead(IList<? extends E> list, int addPos, int addLen, int space) {
+	private void doAddAllHead(IListable<? extends E> list, int addPos, int addLen, int space) {
 		assert (addPos == 0);
 
 		for (int i = 0; i < space; i++) {
@@ -883,10 +883,10 @@ public class BigList<E> extends IList<E> {
 	// This method is too large to be inlined. However it cannot easily be split up, as several values would have to be returned from the different parts.
 	// To have good performance, it would have to be guaranteed that escape analysis is able to perform scalar replacement. As this is not trivial,
 	// method is not changed right now.
-	private void doAddAllMiddle(IList<? extends E> list, int addPos) {
+	private void doAddAllMiddle(IListable<? extends E> list, int addPos) {
 		// Split first block to remove tail elements if necessary
 		GapList<E> list2 = GapList.create(); // TODO avoid unnecessary copy
-		list2.addAll(list);
+		list2.doAddAll(-1, list);
 		int remove = currNode.block.size() - addPos;
 		if (remove > 0) {
 			list2.addAll(currNode.block.getAll(addPos, remove));

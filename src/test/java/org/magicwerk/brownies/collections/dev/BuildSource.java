@@ -1,7 +1,11 @@
 package org.magicwerk.brownies.collections.dev;
 
+import java.util.EnumSet;
+
 import org.apache.commons.lang3.StringUtils;
 import org.magicwerk.brownies.collections.dev.RefactorVisitor.RefactorMethod;
+import org.magicwerk.brownies.core.diff.DiffState;
+import org.magicwerk.brownies.core.diff.StringDiffTools;
 import org.magicwerk.brownies.core.files.FileTools;
 import org.magicwerk.brownies.core.files.PathTools;
 import org.magicwerk.brownies.core.logback.LogbackTools;
@@ -126,13 +130,25 @@ public class BuildSource {
 		}
 
 		String substitute(String regex, String input, String message) {
+			return substitute(regex, input, message, false);
+		}
+
+		String substitute(String regex, String input, String message, boolean debug) {
 			regex = applyTemplate(regex);
 			//message = RegexTools.getLiteralMessageFormat(message);
 			StringFormat format = applyFormat(message);
 
 			String src = new RegexReplacer().setPattern(regex).setFormat(format).replace(input);
 			src = applyTemplate(src);
+			if (debug && !src.equals(input)) {
+				String sd = getAnnotatedStringDiff(input, src);
+				LOG.info("Change: {}", sd);
+			}
 			return src;
+		}
+
+		static String getAnnotatedStringDiff(String s0, String s1) {
+			return StringDiffTools.getAnnotatedLinesDiff(s0, s1, EnumSet.of(DiffState.DELETED, DiffState.ADDED));
 		}
 
 		String substituteNested(String regex1, String regex2, String input, String message) {

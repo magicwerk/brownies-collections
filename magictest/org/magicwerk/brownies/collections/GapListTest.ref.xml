@@ -1304,8 +1304,8 @@
     </traceStep>
   </traceTest>
   <traceTest name="testInitAll">
-    <runDate>2015-03-01T17:55:26.421+01:00</runDate>
-    <runDuration>0.002791199</runDuration>
+    <runDate>2023-12-20T22:48:00.102+01:00</runDate>
+    <runDuration>0.0024769</runDuration>
     <exception></exception>
     <traceClass>org.magicwerk.brownies.collections.GapList</traceClass>
     <traceMethod>/initAll|initArray|initMult/</traceMethod>
@@ -2312,8 +2312,8 @@
     </traceStep>
   </traceTest>
   <traceTest name="testPutAll">
-    <runDate>2015-03-01T17:55:33.877+01:00</runDate>
-    <runDuration>0.003425879</runDuration>
+    <runDate>2023-12-20T22:48:00.638+01:00</runDate>
+    <runDuration>0.0022806</runDuration>
     <exception></exception>
     <traceClass>org.magicwerk.brownies.collections.GapList</traceClass>
     <traceMethod>/putAll|putArray|putMult/</traceMethod>

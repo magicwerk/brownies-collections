@@ -48,7 +48,7 @@ import java.util.function.UnaryOperator;
  * @see	    java.util.ArrayList
  * @see	    java.util.LinkedList
  */
-public abstract class IIntList implements Cloneable, Serializable {
+public abstract class IIntList implements IIntListable, Cloneable, Serializable {
 
     /**
      * Copies the collection values into an array.
@@ -1080,11 +1080,14 @@ public abstract class IIntList implements Cloneable, Serializable {
      * @param list	list with elements to add
      * @return      true if elements have been added, false otherwise
      */
-    protected boolean doAddAll(int index, IIntList list) {
+    protected boolean doAddAll(int index, IIntListable list) {
         int listSize = list.size();
-        doEnsureCapacity(size() + listSize);
         if (listSize == 0) {
             return false;
+        }
+        int size = size();
+        if (size + listSize > capacity()) {
+            doEnsureCapacity(size + listSize);
         }
         boolean changed = false;
         int prevSize = size();
@@ -1557,11 +1560,7 @@ public abstract class IIntList implements Cloneable, Serializable {
      * @throws NullPointerException if the specified collection is null
      */
     public boolean addAll(Collection<Integer> coll) {
-        if (coll instanceof List) {
-            return doAddAll(-1, new IReadOnlyIntListFromList((List<Integer>) coll));
-        } else {
-            return doAddAll(-1, new IReadOnlyIntListFromCollection(coll));
-        }
+        return doAddAll(-1, getReadOnlyList(coll));
     }
 
     /**
@@ -1581,11 +1580,7 @@ public abstract class IIntList implements Cloneable, Serializable {
      */
     public boolean addAll(int index, Collection<Integer> coll) {
         checkIndexAdd(index);
-        if (coll instanceof List) {
-            return doAddAll(index, new IReadOnlyIntListFromList((List<Integer>) coll));
-        } else {
-            return doAddAll(index, new IReadOnlyIntListFromCollection(coll));
-        }
+        return doAddAll(index, getReadOnlyList(coll));
     }
 
     /**
@@ -1596,15 +1591,15 @@ public abstract class IIntList implements Cloneable, Serializable {
      */
     @SuppressWarnings("unchecked")
     public boolean addArray(int... elems) {
-        return doAddAll(-1, new IReadOnlyIntListFromArray(elems));
+        return doAddAll(-1, new IReadOnlyListFromArray(elems));
     }
 
     public boolean addArray(int[] elems, int offset, int length) {
-        return doAddAll(-1, new IReadOnlyIntListFromArray(elems, offset, length));
+        return doAddAll(-1, new IReadOnlyListFromArray(elems, offset, length));
     }
 
     public boolean addArray(int index, int[] elems, int offset, int length) {
-        return doAddAll(index, new IReadOnlyIntListFromArray(elems, offset, length));
+        return doAddAll(index, new IReadOnlyListFromArray(elems, offset, length));
     }
 
     /**
@@ -1621,7 +1616,7 @@ public abstract class IIntList implements Cloneable, Serializable {
      */
     public boolean addArray(int index, @SuppressWarnings("unchecked") int... elems) {
         checkIndexAdd(index);
-        return doAddAll(index, new IReadOnlyIntListFromArray(elems));
+        return doAddAll(index, new IReadOnlyListFromArray(elems));
     }
 
     /**
@@ -1631,7 +1626,7 @@ public abstract class IIntList implements Cloneable, Serializable {
      * @return <tt>true</tt> if this list changed as a result of the call
      */
     public boolean addMult(int len, int elem) {
-        return doAddAll(-1, new IReadOnlyIntListFromMult(len, elem));
+        return doAddAll(-1, new IReadOnlyListFromMult(len, elem));
     }
 
     /**
@@ -1647,7 +1642,7 @@ public abstract class IIntList implements Cloneable, Serializable {
      */
     public boolean addMult(int index, int len, int elem) {
         checkIndexAdd(index);
-        return doAddAll(index, new IReadOnlyIntListFromMult(len, elem));
+        return doAddAll(index, new IReadOnlyListFromMult(len, elem));
     }
 
     /**
@@ -1655,12 +1650,11 @@ public abstract class IIntList implements Cloneable, Serializable {
      *
      * @param index index of first element to set
      * @param list  list with elements to set
-     * @throws 		IndexOutOfBoundsException if the range is invalid
      */
     public void setAll(int index, IIntList list) {
         int listSize = list.size();
         checkRange(index, listSize);
-        doReplaceAll(index, listSize, list);
+        doReplace(index, listSize, list);
     }
 
     /**
@@ -1668,15 +1662,12 @@ public abstract class IIntList implements Cloneable, Serializable {
      *
      * @param index index of first element to set
      * @param coll  collection with elements to set
+     * @throws 		IndexOutOfBoundsException if the range is invalid
      */
     public void setAll(int index, Collection<Integer> coll) {
         int collSize = coll.size();
         checkRange(index, collSize);
-        if (coll instanceof List) {
-            doReplaceAll(index, collSize, new IReadOnlyIntListFromList((List<Integer>) coll));
-        } else {
-            doReplaceAll(index, collSize, new IReadOnlyIntListFromCollection(coll));
-        }
+        doReplace(index, collSize, getReadOnlyList(coll));
     }
 
     /**
@@ -1690,13 +1681,13 @@ public abstract class IIntList implements Cloneable, Serializable {
     public void setArray(int index, int... elems) {
         int arrayLen = elems.length;
         checkRange(index, arrayLen);
-        doReplaceAll(index, arrayLen, new IReadOnlyIntListFromArray(elems));
+        doReplace(index, arrayLen, new IReadOnlyListFromArray(elems));
     }
 
     public void setArray(int index, int[] elems, int offset, int length) {
         int arrayLen = elems.length;
         checkRange(index, arrayLen);
-        doReplaceAll(index, arrayLen, new IReadOnlyIntListFromArray(elems, offset, length));
+        doReplace(index, arrayLen, new IReadOnlyListFromArray(elems, offset, length));
     }
 
     /**
@@ -1707,7 +1698,7 @@ public abstract class IIntList implements Cloneable, Serializable {
      */
     public void setMult(int index, int len, int elem) {
         checkRange(index, len);
-        doReplaceAll(index, len, new IReadOnlyIntListFromMult(len, elem));
+        doReplace(index, len, new IReadOnlyListFromMult(len, elem));
     }
 
     /**
@@ -1717,16 +1708,7 @@ public abstract class IIntList implements Cloneable, Serializable {
      * @param list  list with elements to set or add
      */
     public void putAll(int index, IIntList list) {
-        checkIndexAdd(index);
-        checkNonNull(list);
-        int len = size() - index;
-        if (list != null) {
-            if (list.size() < len) {
-                len = list.size();
-            }
-        }
-        // Call worker method
-        doReplaceAll(index, len, list);
+        doPutAll(index, list);
     }
 
     /**
@@ -1738,13 +1720,20 @@ public abstract class IIntList implements Cloneable, Serializable {
      * @param coll  collection with elements to set or add
      */
     public void putAll(int index, Collection<Integer> coll) {
-        if (coll instanceof IIntList) {
-            putAll(index, (IIntList) coll);
-        } else if (coll instanceof List) {
-            putAll(index, new IReadOnlyIntListFromList((List<Integer>) coll));
-        } else {
-            putAll(index, new IReadOnlyIntListFromCollection(coll));
+        doPutAll(index, getReadOnlyList(coll));
+    }
+
+    protected void doPutAll(int index, IIntListable list) {
+        checkIndexAdd(index);
+        checkNonNull(list);
+        int len = size() - index;
+        if (list != null) {
+            if (list.size() < len) {
+                len = list.size();
+            }
         }
+        // Call worker method
+        doReplace(index, len, list);
     }
 
     /**
@@ -1757,7 +1746,7 @@ public abstract class IIntList implements Cloneable, Serializable {
      */
     @SuppressWarnings("unchecked")
     public void putArray(int index, int... elems) {
-        putAll(index, new IReadOnlyIntListFromArray(elems));
+        doPutAll(index, new IReadOnlyListFromArray(elems));
     }
 
     /**
@@ -1769,7 +1758,7 @@ public abstract class IIntList implements Cloneable, Serializable {
      * @param len 	element to set or add
      */
     public void putMult(int index, int len, int elem) {
-        putAll(index, new IReadOnlyIntListFromMult(len, elem));
+        doPutAll(index, new IReadOnlyListFromMult(len, elem));
     }
 
     /**
@@ -1780,6 +1769,10 @@ public abstract class IIntList implements Cloneable, Serializable {
      * @throws 		IndexOutOfBoundsException if the length is invalid
      */
     public void initAll(IIntList list) {
+        doInitAll(list);
+    }
+
+    protected void doInitAll(IIntListable list) {
         checkNonNull(list);
         doClear();
         doAddAll(-1, list);
@@ -1793,12 +1786,20 @@ public abstract class IIntList implements Cloneable, Serializable {
      * @throws 		IndexOutOfBoundsException if the length is invalid
      */
     public void initAll(Collection<Integer> coll) {
-        if (coll instanceof IIntList) {
-            initAll((IIntList) coll);
+        doInitAll(getReadOnlyList(coll));
+    }
+
+    /**
+     * Return correct IReadOnlyList for specified collection.
+     */
+    @SuppressWarnings("unchecked")
+    protected IIntListable getReadOnlyList(Collection<Integer> coll) {
+        if (coll instanceof IIntListable) {
+            return (IIntListable) coll;
         } else if (coll instanceof List) {
-            initAll(new IReadOnlyIntListFromList((List<Integer>) coll));
+            return new IReadOnlyListFromList((List<Integer>) coll);
         } else {
-            initAll(new IReadOnlyIntListFromCollection(coll));
+            return new IReadOnlyListFromCollection(coll);
         }
     }
 
@@ -1811,7 +1812,7 @@ public abstract class IIntList implements Cloneable, Serializable {
      */
     @SuppressWarnings("unchecked")
     public void initArray(int... elems) {
-        initAll(new IReadOnlyIntListFromArray(elems));
+        doInitAll(new IReadOnlyListFromArray(elems));
     }
 
     /**
@@ -1825,7 +1826,7 @@ public abstract class IIntList implements Cloneable, Serializable {
      */
     public void initMult(int len, int elem) {
         checkLength(len);
-        initAll(new IReadOnlyIntListFromMult(len, elem));
+        doInitAll(new IReadOnlyListFromMult(len, elem));
     }
 
     /**
@@ -1844,13 +1845,7 @@ public abstract class IIntList implements Cloneable, Serializable {
      * @throws 		IndexOutOfBoundsException if the range is invalid
      */
     public void replaceAll(int index, int len, Collection<Integer> coll) {
-        if (coll instanceof IIntList) {
-            replaceAll(index, len, (IIntList) coll);
-        } else if (coll instanceof List) {
-            replaceAll(index, len, new IReadOnlyIntListFromList((List<Integer>) coll));
-        } else {
-            replaceAll(index, len, new IReadOnlyIntListFromCollection(coll));
-        }
+        replace(index, len, getReadOnlyList(coll));
     }
 
     /**
@@ -1870,7 +1865,7 @@ public abstract class IIntList implements Cloneable, Serializable {
      */
     @SuppressWarnings("unchecked")
     public void replaceArray(int index, int len, int... elems) {
-        replaceAll(index, len, new IReadOnlyIntListFromArray(elems));
+        replace(index, len, new IReadOnlyListFromArray(elems));
     }
 
     /**
@@ -1890,7 +1885,7 @@ public abstract class IIntList implements Cloneable, Serializable {
      * @throws 			IndexOutOfBoundsException if the range is invalid
      */
     public void replaceMult(int index, int len, int numElems, int elem) {
-        replaceAll(index, len, new IReadOnlyIntListFromMult(numElems, elem));
+        replace(index, len, new IReadOnlyListFromMult(numElems, elem));
     }
 
     /**
@@ -1909,6 +1904,10 @@ public abstract class IIntList implements Cloneable, Serializable {
      * @throws 		IndexOutOfBoundsException if the range is invalid
      */
     public void replaceAll(int index, int len, IIntList list) {
+        replace(index, len, list);
+    }
+
+    protected void replace(int index, int len, IIntListable list) {
         // Check arguments
         if (index == -1) {
             index = size();
@@ -1917,33 +1916,30 @@ public abstract class IIntList implements Cloneable, Serializable {
         }
         if (len == -1) {
             len = size() - index;
-            if (list != null) {
-                if (list.size() < len) {
-                    len = list.size();
-                }
+            if (list.size() < len) {
+                len = list.size();
             }
         } else {
             checkRange(index, len);
         }
         // Call worker method
-        doReplaceAll(index, len, list);
+        doReplace(index, len, list);
     }
 
-    protected boolean doReplaceAll(int index, int len, IIntList list) {
+    protected boolean doReplace(int index, int len, IIntListable list) {
         // There is a special implementation accepting an IIntList
         // so the method is also available in the primitive classes.
-        assert (index >= 0 && index <= size());
-        assert (len >= 0 && index + len <= size());
-        int srcLen = 0;
-        if (list != null) {
-            srcLen = list.size();
+        //assert (index >= 0 && index <= size());
+        //assert (len >= 0 && index + len <= size());
+        int srcLen = list.size();
+        if (srcLen > len) {
+            doEnsureCapacity(size() - len + srcLen);
         }
-        doEnsureCapacity(size() - len + srcLen);
         // Remove elements
         doRemoveAll(index, len);
         // Add elements
         for (int i = 0; i < srcLen; i++) {
-            if (!doAdd(index + i, list.doGet(i))) {
+            if (!doAdd(index + i, list.get(i))) {
                 index--;
             }
         }
@@ -2330,87 +2326,7 @@ public abstract class IIntList implements Cloneable, Serializable {
     }
 
     // --- End class ListIter ---
-    protected static abstract class IReadOnlyIntList extends IIntList {
-
-        public IIntList unmodifiableList() {
-            error();
-            return null;
-        }
-
-        public IIntList immutableList() {
-            error();
-            return null;
-        }
-
-        protected void doClone(IIntList that) {
-            error();
-        }
-
-        public int capacity() {
-            error();
-            return 0;
-        }
-
-        protected int doSet(int index, int elem) {
-            error();
-            return 0;
-        }
-
-        protected int doReSet(int index, int elem) {
-            error();
-            return 0;
-        }
-
-        protected int getDefaultElem() {
-            error();
-            return 0;
-        }
-
-        protected boolean doAdd(int index, int elem) {
-            error();
-            return false;
-        }
-
-        protected int doRemove(int index) {
-            error();
-            return 0;
-        }
-
-        protected void doEnsureCapacity(int minCapacity) {
-            error();
-        }
-
-        public void trimToSize() {
-            error();
-        }
-
-        protected IIntList doCreate(int capacity) {
-            error();
-            return null;
-        }
-
-        protected void doAssign(IIntList that) {
-            error();
-        }
-
-        public void sort(int index, int len) {
-            error();
-        }
-
-        public int binarySearch(int index, int len, int key) {
-            error();
-            return 0;
-        }
-
-        /**
-         * Throw exception if an attempt is made to change an immutable list.
-         */
-        private void error() {
-            throw new UnsupportedOperationException("list is read-only");
-        }
-    }
-
-    protected static class IReadOnlyIntListFromArray extends IReadOnlyIntList {
+    protected static class IReadOnlyListFromArray implements IIntListable {
 
         int[] array;
 
@@ -2418,13 +2334,13 @@ public abstract class IIntList implements Cloneable, Serializable {
 
         int length;
 
-        IReadOnlyIntListFromArray(int[] array) {
+        IReadOnlyListFromArray(int[] array) {
             this.array = array;
             this.offset = 0;
             this.length = array.length;
         }
 
-        IReadOnlyIntListFromArray(int[] array, int offset, int length) {
+        IReadOnlyListFromArray(int[] array, int offset, int length) {
             this.array = array;
             this.offset = offset;
             this.length = length;
@@ -2434,19 +2350,18 @@ public abstract class IIntList implements Cloneable, Serializable {
             return length;
         }
 
-        protected int doGet(int index) {
+        public int get(int index) {
             return array[offset + index];
         }
     }
 
-    protected static class IReadOnlyIntListFromMult extends IReadOnlyIntList {
+    protected static class IReadOnlyListFromMult implements IIntListable {
 
         int len;
 
         int elem;
 
-        IReadOnlyIntListFromMult(int len, int elem) {
-            checkLength(len);
+        IReadOnlyListFromMult(int len, int elem) {
             this.len = len;
             this.elem = elem;
         }
@@ -2455,16 +2370,16 @@ public abstract class IIntList implements Cloneable, Serializable {
             return len;
         }
 
-        protected int doGet(int index) {
+        public int get(int index) {
             return elem;
         }
     }
 
-    protected static class IReadOnlyIntListFromCollection extends IReadOnlyIntList {
+    protected static class IReadOnlyListFromCollection implements IIntListable {
 
         int[] array;
 
-        IReadOnlyIntListFromCollection(Collection<Integer> coll) {
+        IReadOnlyListFromCollection(Collection<Integer> coll) {
             array = toArray(coll);
         }
 
@@ -2472,18 +2387,16 @@ public abstract class IIntList implements Cloneable, Serializable {
             return array.length;
         }
 
-        @SuppressWarnings("unchecked")
-        protected int doGet(int index) {
+        public int get(int index) {
             return array[index];
         }
     }
 
-    protected static class IReadOnlyIntListFromList extends IReadOnlyIntList {
+    protected static class IReadOnlyListFromList implements IIntListable {
 
         List<Integer> list2;
 
-        @SuppressWarnings("unchecked")
-        IReadOnlyIntListFromList(List<Integer> list) {
+        IReadOnlyListFromList(List<Integer> list) {
             this.list2 = (List) list;
         }
 
@@ -2491,8 +2404,15 @@ public abstract class IIntList implements Cloneable, Serializable {
             return list2.size();
         }
 
-        protected int doGet(int index) {
+        public int get(int index) {
             return list2.get(index);
         }
     }
+}
+
+interface IIntListable {
+
+    int size();
+
+    int get(int index);
 }

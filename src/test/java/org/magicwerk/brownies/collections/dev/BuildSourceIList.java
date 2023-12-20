@@ -9,6 +9,7 @@ import org.magicwerk.brownies.core.files.PathTools;
 import org.magicwerk.brownies.core.reflect.ClassTools;
 import org.magicwerk.brownies.core.regex.RegexBuilder;
 import org.magicwerk.brownies.core.regex.RegexReplacer;
+import org.magicwerk.brownies.core.strings.StringFormatter;
 
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Modifier;
@@ -176,9 +177,10 @@ public class BuildSourceIList extends FileBuilder {
 		setFileContent(src);
 	}
 
+	/** processClass is executed after processMethod */
 	String processClass(String src) {
 		src = substitute(" extends AbstractList\\<E\\>", src, "");
-		src = substitute("(?s)implements.*?Deque.*?\\{", src, "implements Cloneable, Serializable '{'");
+		src = substitute("(?s)implements.*?Deque.*?\\{", src, "implements I{NAME}Listable, Cloneable, Serializable '{'");
 		src = substitute("class IList\\<E\\>", src, "class I{NAME}List");
 		src = substitute("IList(?!(\\<R\\>)? list)", src, "I{NAME}List");
 		src = substitute("\\(I{NAME}List\\<R\\>\\) doCreate\\(", src, "(IList<R>) new GapList<R>(");
@@ -192,7 +194,7 @@ public class BuildSourceIList extends FileBuilder {
 		src = substitute("\\(obj == (false|0|\\().*\\)", src, "(obj == null)");
 
 		if ("char".equals(BuildSourceIList.this.builder.getPrimitiveType())) {
-			src = src.replace("implements Cloneable, Serializable", "implements Cloneable, Serializable, CharSequence");
+			src = src.replace("implements ICharListable, Cloneable, Serializable", "implements ICharListable, Cloneable, Serializable, CharSequence");
 
 			Pattern p = Pattern.compile("(public String toString\\(\\) \\{)(.*)(public boolean isEmpty\\(\\))", Pattern.DOTALL);
 			src = new RegexReplacer().setPattern(p).setFormat("{1}\nreturn new String(toArray());\n}\n\n{3}").replace(src);
@@ -214,20 +216,33 @@ public class BuildSourceIList extends FileBuilder {
 			src = src.substring(0, pos) + add + src.substring(pos);
 		}
 
-		// for IReadOnlyList
+		// for IListable
+		String base = StringFormatter.format("I{}Listable", builder.getTypeName());
+		String type = StringFormatter.format("<{}>", builder.getWrapperType());
+		src = substitute(base + type, src, base);
+
 		src = substitute("E\\[", src, "{PRIMITIVE}[");
 		src = substitute("E elem", src, "{PRIMITIVE} elem");
 		src = substitute("Object\\[\\] array", src, "{PRIMITIVE}[] array");
-		src = substitute("IReadOnlyList", src, "IReadOnly{NAME}List");
+
 		src = substitute("\\<E\\>", src, "");
 		src = substitute("List list2", src, "List<{WRAPPER}> list2");
 
 		src = substitute("I{NAME}List<RR>", src, "IList<R>");
 
+		String tpl = "interface I{NAME}Listable {\r\n"
+				+ "		int size();\r\n"
+				+ "		{PRIMITIVE} get(int index);\r\n"
+				+ "	}";
+		String add = applyTemplate(tpl);
+		src += add;
+
 		return src;
 	}
 
+	/** processMethod is executed before processClass */
 	String processMethod(String src) {
+
 		src = substitute("mappedList = doCreate", src, "mappedList = new GapList");
 		src = substitute("IList\\<\\? extends E\\>", src, "I{NAME}List");
 		src = substitute("IList\\<E\\>", src, "I{NAME}List");

@@ -48,7 +48,7 @@ import java.util.function.UnaryOperator;
  * @see	    java.util.ArrayList
  * @see	    java.util.LinkedList
  */
-public abstract class ICharList implements Cloneable, Serializable, CharSequence {
+public abstract class ICharList implements ICharListable, Cloneable, Serializable, CharSequence {
 
     /**
      * Copies the collection values into an array.
@@ -1070,11 +1070,14 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
      * @param list	list with elements to add
      * @return      true if elements have been added, false otherwise
      */
-    protected boolean doAddAll(int index, ICharList list) {
+    protected boolean doAddAll(int index, ICharListable list) {
         int listSize = list.size();
-        doEnsureCapacity(size() + listSize);
         if (listSize == 0) {
             return false;
+        }
+        int size = size();
+        if (size + listSize > capacity()) {
+            doEnsureCapacity(size + listSize);
         }
         boolean changed = false;
         int prevSize = size();
@@ -1547,11 +1550,7 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
      * @throws NullPointerException if the specified collection is null
      */
     public boolean addAll(Collection<Character> coll) {
-        if (coll instanceof List) {
-            return doAddAll(-1, new IReadOnlyCharListFromList((List<Character>) coll));
-        } else {
-            return doAddAll(-1, new IReadOnlyCharListFromCollection(coll));
-        }
+        return doAddAll(-1, getReadOnlyList(coll));
     }
 
     /**
@@ -1571,11 +1570,7 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
      */
     public boolean addAll(int index, Collection<Character> coll) {
         checkIndexAdd(index);
-        if (coll instanceof List) {
-            return doAddAll(index, new IReadOnlyCharListFromList((List<Character>) coll));
-        } else {
-            return doAddAll(index, new IReadOnlyCharListFromCollection(coll));
-        }
+        return doAddAll(index, getReadOnlyList(coll));
     }
 
     /**
@@ -1586,15 +1581,15 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
      */
     @SuppressWarnings("unchecked")
     public boolean addArray(char... elems) {
-        return doAddAll(-1, new IReadOnlyCharListFromArray(elems));
+        return doAddAll(-1, new IReadOnlyListFromArray(elems));
     }
 
     public boolean addArray(char[] elems, int offset, int length) {
-        return doAddAll(-1, new IReadOnlyCharListFromArray(elems, offset, length));
+        return doAddAll(-1, new IReadOnlyListFromArray(elems, offset, length));
     }
 
     public boolean addArray(int index, char[] elems, int offset, int length) {
-        return doAddAll(index, new IReadOnlyCharListFromArray(elems, offset, length));
+        return doAddAll(index, new IReadOnlyListFromArray(elems, offset, length));
     }
 
     /**
@@ -1611,7 +1606,7 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
      */
     public boolean addArray(int index, @SuppressWarnings("unchecked") char... elems) {
         checkIndexAdd(index);
-        return doAddAll(index, new IReadOnlyCharListFromArray(elems));
+        return doAddAll(index, new IReadOnlyListFromArray(elems));
     }
 
     /**
@@ -1621,7 +1616,7 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
      * @return <tt>true</tt> if this list changed as a result of the call
      */
     public boolean addMult(int len, char elem) {
-        return doAddAll(-1, new IReadOnlyCharListFromMult(len, elem));
+        return doAddAll(-1, new IReadOnlyListFromMult(len, elem));
     }
 
     /**
@@ -1637,7 +1632,7 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
      */
     public boolean addMult(int index, int len, char elem) {
         checkIndexAdd(index);
-        return doAddAll(index, new IReadOnlyCharListFromMult(len, elem));
+        return doAddAll(index, new IReadOnlyListFromMult(len, elem));
     }
 
     /**
@@ -1645,12 +1640,11 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
      *
      * @param index index of first element to set
      * @param list  list with elements to set
-     * @throws 		IndexOutOfBoundsException if the range is invalid
      */
     public void setAll(int index, ICharList list) {
         int listSize = list.size();
         checkRange(index, listSize);
-        doReplaceAll(index, listSize, list);
+        doReplace(index, listSize, list);
     }
 
     /**
@@ -1658,15 +1652,12 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
      *
      * @param index index of first element to set
      * @param coll  collection with elements to set
+     * @throws 		IndexOutOfBoundsException if the range is invalid
      */
     public void setAll(int index, Collection<Character> coll) {
         int collSize = coll.size();
         checkRange(index, collSize);
-        if (coll instanceof List) {
-            doReplaceAll(index, collSize, new IReadOnlyCharListFromList((List<Character>) coll));
-        } else {
-            doReplaceAll(index, collSize, new IReadOnlyCharListFromCollection(coll));
-        }
+        doReplace(index, collSize, getReadOnlyList(coll));
     }
 
     /**
@@ -1680,13 +1671,13 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
     public void setArray(int index, char... elems) {
         int arrayLen = elems.length;
         checkRange(index, arrayLen);
-        doReplaceAll(index, arrayLen, new IReadOnlyCharListFromArray(elems));
+        doReplace(index, arrayLen, new IReadOnlyListFromArray(elems));
     }
 
     public void setArray(int index, char[] elems, int offset, int length) {
         int arrayLen = elems.length;
         checkRange(index, arrayLen);
-        doReplaceAll(index, arrayLen, new IReadOnlyCharListFromArray(elems, offset, length));
+        doReplace(index, arrayLen, new IReadOnlyListFromArray(elems, offset, length));
     }
 
     /**
@@ -1697,7 +1688,7 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
      */
     public void setMult(int index, int len, char elem) {
         checkRange(index, len);
-        doReplaceAll(index, len, new IReadOnlyCharListFromMult(len, elem));
+        doReplace(index, len, new IReadOnlyListFromMult(len, elem));
     }
 
     /**
@@ -1707,16 +1698,7 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
      * @param list  list with elements to set or add
      */
     public void putAll(int index, ICharList list) {
-        checkIndexAdd(index);
-        checkNonNull(list);
-        int len = size() - index;
-        if (list != null) {
-            if (list.size() < len) {
-                len = list.size();
-            }
-        }
-        // Call worker method
-        doReplaceAll(index, len, list);
+        doPutAll(index, list);
     }
 
     /**
@@ -1728,13 +1710,20 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
      * @param coll  collection with elements to set or add
      */
     public void putAll(int index, Collection<Character> coll) {
-        if (coll instanceof ICharList) {
-            putAll(index, (ICharList) coll);
-        } else if (coll instanceof List) {
-            putAll(index, new IReadOnlyCharListFromList((List<Character>) coll));
-        } else {
-            putAll(index, new IReadOnlyCharListFromCollection(coll));
+        doPutAll(index, getReadOnlyList(coll));
+    }
+
+    protected void doPutAll(int index, ICharListable list) {
+        checkIndexAdd(index);
+        checkNonNull(list);
+        int len = size() - index;
+        if (list != null) {
+            if (list.size() < len) {
+                len = list.size();
+            }
         }
+        // Call worker method
+        doReplace(index, len, list);
     }
 
     /**
@@ -1747,7 +1736,7 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
      */
     @SuppressWarnings("unchecked")
     public void putArray(int index, char... elems) {
-        putAll(index, new IReadOnlyCharListFromArray(elems));
+        doPutAll(index, new IReadOnlyListFromArray(elems));
     }
 
     /**
@@ -1759,7 +1748,7 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
      * @param len 	element to set or add
      */
     public void putMult(int index, int len, char elem) {
-        putAll(index, new IReadOnlyCharListFromMult(len, elem));
+        doPutAll(index, new IReadOnlyListFromMult(len, elem));
     }
 
     /**
@@ -1770,6 +1759,10 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
      * @throws 		IndexOutOfBoundsException if the length is invalid
      */
     public void initAll(ICharList list) {
+        doInitAll(list);
+    }
+
+    protected void doInitAll(ICharListable list) {
         checkNonNull(list);
         doClear();
         doAddAll(-1, list);
@@ -1783,12 +1776,20 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
      * @throws 		IndexOutOfBoundsException if the length is invalid
      */
     public void initAll(Collection<Character> coll) {
-        if (coll instanceof ICharList) {
-            initAll((ICharList) coll);
+        doInitAll(getReadOnlyList(coll));
+    }
+
+    /**
+     * Return correct IReadOnlyList for specified collection.
+     */
+    @SuppressWarnings("unchecked")
+    protected ICharListable getReadOnlyList(Collection<Character> coll) {
+        if (coll instanceof ICharListable) {
+            return (ICharListable) coll;
         } else if (coll instanceof List) {
-            initAll(new IReadOnlyCharListFromList((List<Character>) coll));
+            return new IReadOnlyListFromList((List<Character>) coll);
         } else {
-            initAll(new IReadOnlyCharListFromCollection(coll));
+            return new IReadOnlyListFromCollection(coll);
         }
     }
 
@@ -1801,7 +1802,7 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
      */
     @SuppressWarnings("unchecked")
     public void initArray(char... elems) {
-        initAll(new IReadOnlyCharListFromArray(elems));
+        doInitAll(new IReadOnlyListFromArray(elems));
     }
 
     /**
@@ -1815,7 +1816,7 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
      */
     public void initMult(int len, char elem) {
         checkLength(len);
-        initAll(new IReadOnlyCharListFromMult(len, elem));
+        doInitAll(new IReadOnlyListFromMult(len, elem));
     }
 
     /**
@@ -1834,13 +1835,7 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
      * @throws 		IndexOutOfBoundsException if the range is invalid
      */
     public void replaceAll(int index, int len, Collection<Character> coll) {
-        if (coll instanceof ICharList) {
-            replaceAll(index, len, (ICharList) coll);
-        } else if (coll instanceof List) {
-            replaceAll(index, len, new IReadOnlyCharListFromList((List<Character>) coll));
-        } else {
-            replaceAll(index, len, new IReadOnlyCharListFromCollection(coll));
-        }
+        replace(index, len, getReadOnlyList(coll));
     }
 
     /**
@@ -1860,7 +1855,7 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
      */
     @SuppressWarnings("unchecked")
     public void replaceArray(int index, int len, char... elems) {
-        replaceAll(index, len, new IReadOnlyCharListFromArray(elems));
+        replace(index, len, new IReadOnlyListFromArray(elems));
     }
 
     /**
@@ -1880,7 +1875,7 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
      * @throws 			IndexOutOfBoundsException if the range is invalid
      */
     public void replaceMult(int index, int len, int numElems, char elem) {
-        replaceAll(index, len, new IReadOnlyCharListFromMult(numElems, elem));
+        replace(index, len, new IReadOnlyListFromMult(numElems, elem));
     }
 
     /**
@@ -1899,6 +1894,10 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
      * @throws 		IndexOutOfBoundsException if the range is invalid
      */
     public void replaceAll(int index, int len, ICharList list) {
+        replace(index, len, list);
+    }
+
+    protected void replace(int index, int len, ICharListable list) {
         // Check arguments
         if (index == -1) {
             index = size();
@@ -1907,33 +1906,30 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
         }
         if (len == -1) {
             len = size() - index;
-            if (list != null) {
-                if (list.size() < len) {
-                    len = list.size();
-                }
+            if (list.size() < len) {
+                len = list.size();
             }
         } else {
             checkRange(index, len);
         }
         // Call worker method
-        doReplaceAll(index, len, list);
+        doReplace(index, len, list);
     }
 
-    protected boolean doReplaceAll(int index, int len, ICharList list) {
+    protected boolean doReplace(int index, int len, ICharListable list) {
         // There is a special implementation accepting an ICharList
         // so the method is also available in the primitive classes.
-        assert (index >= 0 && index <= size());
-        assert (len >= 0 && index + len <= size());
-        int srcLen = 0;
-        if (list != null) {
-            srcLen = list.size();
+        //assert (index >= 0 && index <= size());
+        //assert (len >= 0 && index + len <= size());
+        int srcLen = list.size();
+        if (srcLen > len) {
+            doEnsureCapacity(size() - len + srcLen);
         }
-        doEnsureCapacity(size() - len + srcLen);
         // Remove elements
         doRemoveAll(index, len);
         // Add elements
         for (int i = 0; i < srcLen; i++) {
-            if (!doAdd(index + i, list.doGet(i))) {
+            if (!doAdd(index + i, list.get(i))) {
                 index--;
             }
         }
@@ -2320,87 +2316,7 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
     }
 
     // --- End class ListIter ---
-    protected static abstract class IReadOnlyCharList extends ICharList {
-
-        public ICharList unmodifiableList() {
-            error();
-            return null;
-        }
-
-        public ICharList immutableList() {
-            error();
-            return null;
-        }
-
-        protected void doClone(ICharList that) {
-            error();
-        }
-
-        public int capacity() {
-            error();
-            return 0;
-        }
-
-        protected char doSet(int index, char elem) {
-            error();
-            return (char) 0;
-        }
-
-        protected char doReSet(int index, char elem) {
-            error();
-            return (char) 0;
-        }
-
-        protected char getDefaultElem() {
-            error();
-            return (char) 0;
-        }
-
-        protected boolean doAdd(int index, char elem) {
-            error();
-            return false;
-        }
-
-        protected char doRemove(int index) {
-            error();
-            return (char) 0;
-        }
-
-        protected void doEnsureCapacity(int minCapacity) {
-            error();
-        }
-
-        public void trimToSize() {
-            error();
-        }
-
-        protected ICharList doCreate(int capacity) {
-            error();
-            return null;
-        }
-
-        protected void doAssign(ICharList that) {
-            error();
-        }
-
-        public void sort(int index, int len) {
-            error();
-        }
-
-        public int binarySearch(int index, int len, char key) {
-            error();
-            return 0;
-        }
-
-        /**
-         * Throw exception if an attempt is made to change an immutable list.
-         */
-        private void error() {
-            throw new UnsupportedOperationException("list is read-only");
-        }
-    }
-
-    protected static class IReadOnlyCharListFromArray extends IReadOnlyCharList {
+    protected static class IReadOnlyListFromArray implements ICharListable {
 
         char[] array;
 
@@ -2408,13 +2324,13 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
 
         int length;
 
-        IReadOnlyCharListFromArray(char[] array) {
+        IReadOnlyListFromArray(char[] array) {
             this.array = array;
             this.offset = 0;
             this.length = array.length;
         }
 
-        IReadOnlyCharListFromArray(char[] array, int offset, int length) {
+        IReadOnlyListFromArray(char[] array, int offset, int length) {
             this.array = array;
             this.offset = offset;
             this.length = length;
@@ -2424,19 +2340,18 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
             return length;
         }
 
-        protected char doGet(int index) {
+        public char get(int index) {
             return array[offset + index];
         }
     }
 
-    protected static class IReadOnlyCharListFromMult extends IReadOnlyCharList {
+    protected static class IReadOnlyListFromMult implements ICharListable {
 
         int len;
 
         char elem;
 
-        IReadOnlyCharListFromMult(int len, char elem) {
-            checkLength(len);
+        IReadOnlyListFromMult(int len, char elem) {
             this.len = len;
             this.elem = elem;
         }
@@ -2445,16 +2360,16 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
             return len;
         }
 
-        protected char doGet(int index) {
+        public char get(int index) {
             return elem;
         }
     }
 
-    protected static class IReadOnlyCharListFromCollection extends IReadOnlyCharList {
+    protected static class IReadOnlyListFromCollection implements ICharListable {
 
         char[] array;
 
-        IReadOnlyCharListFromCollection(Collection<Character> coll) {
+        IReadOnlyListFromCollection(Collection<Character> coll) {
             array = toArray(coll);
         }
 
@@ -2462,18 +2377,16 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
             return array.length;
         }
 
-        @SuppressWarnings("unchecked")
-        protected char doGet(int index) {
+        public char get(int index) {
             return array[index];
         }
     }
 
-    protected static class IReadOnlyCharListFromList extends IReadOnlyCharList {
+    protected static class IReadOnlyListFromList implements ICharListable {
 
         List<Character> list2;
 
-        @SuppressWarnings("unchecked")
-        IReadOnlyCharListFromList(List<Character> list) {
+        IReadOnlyListFromList(List<Character> list) {
             this.list2 = (List) list;
         }
 
@@ -2481,7 +2394,7 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
             return list2.size();
         }
 
-        protected char doGet(int index) {
+        public char get(int index) {
             return list2.get(index);
         }
     }
@@ -2501,4 +2414,11 @@ public abstract class ICharList implements Cloneable, Serializable, CharSequence
     public CharSequence subSequence(int start, int end) {
         return getAll(start, end - start);
     }
+}
+
+interface ICharListable {
+
+    int size();
+
+    char get(int index);
 }
