@@ -149,7 +149,7 @@ public abstract class ILongList implements ILongListable, Cloneable, Serializabl
                 doAdd(i, elem);
             }
         }
-        assert (size() == len);
+        assert size() == len;
     }
 
     // Do not remove - needed for generating primitive classes
@@ -1560,7 +1560,7 @@ public abstract class ILongList implements ILongListable, Cloneable, Serializabl
      * @throws NullPointerException if the specified collection is null
      */
     public boolean addAll(Collection<Long> coll) {
-        return doAddAll(-1, getReadOnlyList(coll));
+        return doAddAll(-1, asILongListable(coll));
     }
 
     /**
@@ -1580,7 +1580,7 @@ public abstract class ILongList implements ILongListable, Cloneable, Serializabl
      */
     public boolean addAll(int index, Collection<Long> coll) {
         checkIndexAdd(index);
-        return doAddAll(index, getReadOnlyList(coll));
+        return doAddAll(index, asILongListable(coll));
     }
 
     /**
@@ -1591,15 +1591,15 @@ public abstract class ILongList implements ILongListable, Cloneable, Serializabl
      */
     @SuppressWarnings("unchecked")
     public boolean addArray(long... elems) {
-        return doAddAll(-1, new IReadOnlyListFromArray(elems));
+        return doAddAll(-1, new ILongListableFromArray(elems));
     }
 
     public boolean addArray(long[] elems, int offset, int length) {
-        return doAddAll(-1, new IReadOnlyListFromArray(elems, offset, length));
+        return doAddAll(-1, new ILongListableFromArray(elems, offset, length));
     }
 
     public boolean addArray(int index, long[] elems, int offset, int length) {
-        return doAddAll(index, new IReadOnlyListFromArray(elems, offset, length));
+        return doAddAll(index, new ILongListableFromArray(elems, offset, length));
     }
 
     /**
@@ -1616,7 +1616,7 @@ public abstract class ILongList implements ILongListable, Cloneable, Serializabl
      */
     public boolean addArray(int index, @SuppressWarnings("unchecked") long... elems) {
         checkIndexAdd(index);
-        return doAddAll(index, new IReadOnlyListFromArray(elems));
+        return doAddAll(index, new ILongListableFromArray(elems));
     }
 
     /**
@@ -1626,7 +1626,7 @@ public abstract class ILongList implements ILongListable, Cloneable, Serializabl
      * @return <tt>true</tt> if this list changed as a result of the call
      */
     public boolean addMult(int len, long elem) {
-        return doAddAll(-1, new IReadOnlyListFromMult(len, elem));
+        return doAddAll(-1, new ILongListableFromMult(len, elem));
     }
 
     /**
@@ -1642,7 +1642,7 @@ public abstract class ILongList implements ILongListable, Cloneable, Serializabl
      */
     public boolean addMult(int index, int len, long elem) {
         checkIndexAdd(index);
-        return doAddAll(index, new IReadOnlyListFromMult(len, elem));
+        return doAddAll(index, new ILongListableFromMult(len, elem));
     }
 
     /**
@@ -1667,7 +1667,7 @@ public abstract class ILongList implements ILongListable, Cloneable, Serializabl
     public void setAll(int index, Collection<Long> coll) {
         int collSize = coll.size();
         checkRange(index, collSize);
-        doReplace(index, collSize, getReadOnlyList(coll));
+        doReplace(index, collSize, asILongListable(coll));
     }
 
     /**
@@ -1681,13 +1681,13 @@ public abstract class ILongList implements ILongListable, Cloneable, Serializabl
     public void setArray(int index, long... elems) {
         int arrayLen = elems.length;
         checkRange(index, arrayLen);
-        doReplace(index, arrayLen, new IReadOnlyListFromArray(elems));
+        doReplace(index, arrayLen, new ILongListableFromArray(elems));
     }
 
     public void setArray(int index, long[] elems, int offset, int length) {
         int arrayLen = elems.length;
         checkRange(index, arrayLen);
-        doReplace(index, arrayLen, new IReadOnlyListFromArray(elems, offset, length));
+        doReplace(index, arrayLen, new ILongListableFromArray(elems, offset, length));
     }
 
     /**
@@ -1698,7 +1698,7 @@ public abstract class ILongList implements ILongListable, Cloneable, Serializabl
      */
     public void setMult(int index, int len, long elem) {
         checkRange(index, len);
-        doReplace(index, len, new IReadOnlyListFromMult(len, elem));
+        doReplace(index, len, new ILongListableFromMult(len, elem));
     }
 
     /**
@@ -1720,17 +1720,15 @@ public abstract class ILongList implements ILongListable, Cloneable, Serializabl
      * @param coll  collection with elements to set or add
      */
     public void putAll(int index, Collection<Long> coll) {
-        doPutAll(index, getReadOnlyList(coll));
+        doPutAll(index, asILongListable(coll));
     }
 
     protected void doPutAll(int index, ILongListable list) {
         checkIndexAdd(index);
         checkNonNull(list);
         int len = size() - index;
-        if (list != null) {
-            if (list.size() < len) {
-                len = list.size();
-            }
+        if (list.size() < len) {
+            len = list.size();
         }
         // Call worker method
         doReplace(index, len, list);
@@ -1746,7 +1744,7 @@ public abstract class ILongList implements ILongListable, Cloneable, Serializabl
      */
     @SuppressWarnings("unchecked")
     public void putArray(int index, long... elems) {
-        doPutAll(index, new IReadOnlyListFromArray(elems));
+        doPutAll(index, new ILongListableFromArray(elems));
     }
 
     /**
@@ -1758,7 +1756,7 @@ public abstract class ILongList implements ILongListable, Cloneable, Serializabl
      * @param len 	element to set or add
      */
     public void putMult(int index, int len, long elem) {
-        doPutAll(index, new IReadOnlyListFromMult(len, elem));
+        doPutAll(index, new ILongListableFromMult(len, elem));
     }
 
     /**
@@ -1786,20 +1784,20 @@ public abstract class ILongList implements ILongListable, Cloneable, Serializabl
      * @throws 		IndexOutOfBoundsException if the length is invalid
      */
     public void initAll(Collection<Long> coll) {
-        doInitAll(getReadOnlyList(coll));
+        doInitAll(asILongListable(coll));
     }
 
     /**
-     * Return correct IReadOnlyList for specified collection.
+     * Return correct ILongListable for specified collection.
      */
     @SuppressWarnings("unchecked")
-    protected ILongListable getReadOnlyList(Collection<Long> coll) {
+    protected ILongListable asILongListable(Collection<Long> coll) {
         if (coll instanceof ILongListable) {
             return (ILongListable) coll;
         } else if (coll instanceof List) {
-            return new IReadOnlyListFromList((List<Long>) coll);
+            return new ILongListableFromList((List<Long>) coll);
         } else {
-            return new IReadOnlyListFromCollection(coll);
+            return new ILongListableFromCollection(coll);
         }
     }
 
@@ -1812,7 +1810,7 @@ public abstract class ILongList implements ILongListable, Cloneable, Serializabl
      */
     @SuppressWarnings("unchecked")
     public void initArray(long... elems) {
-        doInitAll(new IReadOnlyListFromArray(elems));
+        doInitAll(new ILongListableFromArray(elems));
     }
 
     /**
@@ -1826,7 +1824,7 @@ public abstract class ILongList implements ILongListable, Cloneable, Serializabl
      */
     public void initMult(int len, long elem) {
         checkLength(len);
-        doInitAll(new IReadOnlyListFromMult(len, elem));
+        doInitAll(new ILongListableFromMult(len, elem));
     }
 
     /**
@@ -1845,7 +1843,7 @@ public abstract class ILongList implements ILongListable, Cloneable, Serializabl
      * @throws 		IndexOutOfBoundsException if the range is invalid
      */
     public void replaceAll(int index, int len, Collection<Long> coll) {
-        replace(index, len, getReadOnlyList(coll));
+        replace(index, len, asILongListable(coll));
     }
 
     /**
@@ -1865,7 +1863,7 @@ public abstract class ILongList implements ILongListable, Cloneable, Serializabl
      */
     @SuppressWarnings("unchecked")
     public void replaceArray(int index, int len, long... elems) {
-        replace(index, len, new IReadOnlyListFromArray(elems));
+        replace(index, len, new ILongListableFromArray(elems));
     }
 
     /**
@@ -1885,7 +1883,7 @@ public abstract class ILongList implements ILongListable, Cloneable, Serializabl
      * @throws 			IndexOutOfBoundsException if the range is invalid
      */
     public void replaceMult(int index, int len, int numElems, long elem) {
-        replace(index, len, new IReadOnlyListFromMult(numElems, elem));
+        replace(index, len, new ILongListableFromMult(numElems, elem));
     }
 
     /**
@@ -1929,21 +1927,21 @@ public abstract class ILongList implements ILongListable, Cloneable, Serializabl
     protected boolean doReplace(int index, int len, ILongListable list) {
         // There is a special implementation accepting an ILongList
         // so the method is also available in the primitive classes.
-        //assert (index >= 0 && index <= size());
-        //assert (len >= 0 && index + len <= size());
-        int srcLen = list.size();
-        if (srcLen > len) {
-            doEnsureCapacity(size() - len + srcLen);
+        assert index >= 0 && index <= size();
+        assert len >= 0 && index + len <= size();
+        int listLen = list.size();
+        if (listLen > len) {
+            doEnsureCapacity(size() - len + listLen);
         }
         // Remove elements
         doRemoveAll(index, len);
         // Add elements
-        for (int i = 0; i < srcLen; i++) {
+        for (int i = 0; i < listLen; i++) {
             if (!doAdd(index + i, list.get(i))) {
                 index--;
             }
         }
-        return len > 0 || srcLen > 0;
+        return len > 0 || listLen > 0;
     }
 
     // see java.util.Arrays#fill
@@ -2134,7 +2132,7 @@ public abstract class ILongList implements ILongListable, Cloneable, Serializabl
         if (distance == 0) {
             return;
         }
-        assert (distance >= 0 && distance < len);
+        assert distance >= 0 && distance < len;
         int num = 0;
         for (int start = 0; num != len; start++) {
             long elem = doGet(index + start);
@@ -2326,7 +2324,7 @@ public abstract class ILongList implements ILongListable, Cloneable, Serializabl
     }
 
     // --- End class ListIter ---
-    protected static class IReadOnlyListFromArray implements ILongListable {
+    protected static class ILongListableFromArray implements ILongListable {
 
         long[] array;
 
@@ -2334,13 +2332,13 @@ public abstract class ILongList implements ILongListable, Cloneable, Serializabl
 
         int length;
 
-        IReadOnlyListFromArray(long[] array) {
+        ILongListableFromArray(long[] array) {
             this.array = array;
             this.offset = 0;
             this.length = array.length;
         }
 
-        IReadOnlyListFromArray(long[] array, int offset, int length) {
+        ILongListableFromArray(long[] array, int offset, int length) {
             this.array = array;
             this.offset = offset;
             this.length = length;
@@ -2355,13 +2353,13 @@ public abstract class ILongList implements ILongListable, Cloneable, Serializabl
         }
     }
 
-    protected static class IReadOnlyListFromMult implements ILongListable {
+    protected static class ILongListableFromMult implements ILongListable {
 
         int len;
 
         long elem;
 
-        IReadOnlyListFromMult(int len, long elem) {
+        ILongListableFromMult(int len, long elem) {
             this.len = len;
             this.elem = elem;
         }
@@ -2375,37 +2373,40 @@ public abstract class ILongList implements ILongListable, Cloneable, Serializabl
         }
     }
 
-    protected static class IReadOnlyListFromCollection implements ILongListable {
+    protected static class ILongListableFromCollection implements ILongListable {
 
-        long[] array;
+        Iterator<Long> iter;
 
-        IReadOnlyListFromCollection(Collection<Long> coll) {
-            array = toArray(coll);
+        int size;
+
+        ILongListableFromCollection(Collection<Long> coll) {
+            iter = coll.iterator();
+            size = coll.size();
         }
 
         public int size() {
-            return array.length;
+            return size;
         }
 
         public long get(int index) {
-            return array[index];
+            return iter.next();
         }
     }
 
-    protected static class IReadOnlyListFromList implements ILongListable {
+    protected static class ILongListableFromList implements ILongListable {
 
-        List<Long> list2;
+        List<Long> list;
 
-        IReadOnlyListFromList(List<Long> list) {
-            this.list2 = (List) list;
+        ILongListableFromList(List<Long> list) {
+            this.list = list;
         }
 
         public int size() {
-            return list2.size();
+            return list.size();
         }
 
         public long get(int index) {
-            return list2.get(index);
+            return list.get(index);
         }
     }
 }

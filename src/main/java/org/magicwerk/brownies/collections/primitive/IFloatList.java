@@ -149,7 +149,7 @@ public abstract class IFloatList implements IFloatListable, Cloneable, Serializa
                 doAdd(i, elem);
             }
         }
-        assert (size() == len);
+        assert size() == len;
     }
 
     // Do not remove - needed for generating primitive classes
@@ -1561,7 +1561,7 @@ public abstract class IFloatList implements IFloatListable, Cloneable, Serializa
      * @throws NullPointerException if the specified collection is null
      */
     public boolean addAll(Collection<Float> coll) {
-        return doAddAll(-1, getReadOnlyList(coll));
+        return doAddAll(-1, asIFloatListable(coll));
     }
 
     /**
@@ -1581,7 +1581,7 @@ public abstract class IFloatList implements IFloatListable, Cloneable, Serializa
      */
     public boolean addAll(int index, Collection<Float> coll) {
         checkIndexAdd(index);
-        return doAddAll(index, getReadOnlyList(coll));
+        return doAddAll(index, asIFloatListable(coll));
     }
 
     /**
@@ -1592,15 +1592,15 @@ public abstract class IFloatList implements IFloatListable, Cloneable, Serializa
      */
     @SuppressWarnings("unchecked")
     public boolean addArray(float... elems) {
-        return doAddAll(-1, new IReadOnlyListFromArray(elems));
+        return doAddAll(-1, new IFloatListableFromArray(elems));
     }
 
     public boolean addArray(float[] elems, int offset, int length) {
-        return doAddAll(-1, new IReadOnlyListFromArray(elems, offset, length));
+        return doAddAll(-1, new IFloatListableFromArray(elems, offset, length));
     }
 
     public boolean addArray(int index, float[] elems, int offset, int length) {
-        return doAddAll(index, new IReadOnlyListFromArray(elems, offset, length));
+        return doAddAll(index, new IFloatListableFromArray(elems, offset, length));
     }
 
     /**
@@ -1617,7 +1617,7 @@ public abstract class IFloatList implements IFloatListable, Cloneable, Serializa
      */
     public boolean addArray(int index, @SuppressWarnings("unchecked") float... elems) {
         checkIndexAdd(index);
-        return doAddAll(index, new IReadOnlyListFromArray(elems));
+        return doAddAll(index, new IFloatListableFromArray(elems));
     }
 
     /**
@@ -1627,7 +1627,7 @@ public abstract class IFloatList implements IFloatListable, Cloneable, Serializa
      * @return <tt>true</tt> if this list changed as a result of the call
      */
     public boolean addMult(int len, float elem) {
-        return doAddAll(-1, new IReadOnlyListFromMult(len, elem));
+        return doAddAll(-1, new IFloatListableFromMult(len, elem));
     }
 
     /**
@@ -1643,7 +1643,7 @@ public abstract class IFloatList implements IFloatListable, Cloneable, Serializa
      */
     public boolean addMult(int index, int len, float elem) {
         checkIndexAdd(index);
-        return doAddAll(index, new IReadOnlyListFromMult(len, elem));
+        return doAddAll(index, new IFloatListableFromMult(len, elem));
     }
 
     /**
@@ -1668,7 +1668,7 @@ public abstract class IFloatList implements IFloatListable, Cloneable, Serializa
     public void setAll(int index, Collection<Float> coll) {
         int collSize = coll.size();
         checkRange(index, collSize);
-        doReplace(index, collSize, getReadOnlyList(coll));
+        doReplace(index, collSize, asIFloatListable(coll));
     }
 
     /**
@@ -1682,13 +1682,13 @@ public abstract class IFloatList implements IFloatListable, Cloneable, Serializa
     public void setArray(int index, float... elems) {
         int arrayLen = elems.length;
         checkRange(index, arrayLen);
-        doReplace(index, arrayLen, new IReadOnlyListFromArray(elems));
+        doReplace(index, arrayLen, new IFloatListableFromArray(elems));
     }
 
     public void setArray(int index, float[] elems, int offset, int length) {
         int arrayLen = elems.length;
         checkRange(index, arrayLen);
-        doReplace(index, arrayLen, new IReadOnlyListFromArray(elems, offset, length));
+        doReplace(index, arrayLen, new IFloatListableFromArray(elems, offset, length));
     }
 
     /**
@@ -1699,7 +1699,7 @@ public abstract class IFloatList implements IFloatListable, Cloneable, Serializa
      */
     public void setMult(int index, int len, float elem) {
         checkRange(index, len);
-        doReplace(index, len, new IReadOnlyListFromMult(len, elem));
+        doReplace(index, len, new IFloatListableFromMult(len, elem));
     }
 
     /**
@@ -1721,17 +1721,15 @@ public abstract class IFloatList implements IFloatListable, Cloneable, Serializa
      * @param coll  collection with elements to set or add
      */
     public void putAll(int index, Collection<Float> coll) {
-        doPutAll(index, getReadOnlyList(coll));
+        doPutAll(index, asIFloatListable(coll));
     }
 
     protected void doPutAll(int index, IFloatListable list) {
         checkIndexAdd(index);
         checkNonNull(list);
         int len = size() - index;
-        if (list != null) {
-            if (list.size() < len) {
-                len = list.size();
-            }
+        if (list.size() < len) {
+            len = list.size();
         }
         // Call worker method
         doReplace(index, len, list);
@@ -1747,7 +1745,7 @@ public abstract class IFloatList implements IFloatListable, Cloneable, Serializa
      */
     @SuppressWarnings("unchecked")
     public void putArray(int index, float... elems) {
-        doPutAll(index, new IReadOnlyListFromArray(elems));
+        doPutAll(index, new IFloatListableFromArray(elems));
     }
 
     /**
@@ -1759,7 +1757,7 @@ public abstract class IFloatList implements IFloatListable, Cloneable, Serializa
      * @param len 	element to set or add
      */
     public void putMult(int index, int len, float elem) {
-        doPutAll(index, new IReadOnlyListFromMult(len, elem));
+        doPutAll(index, new IFloatListableFromMult(len, elem));
     }
 
     /**
@@ -1787,20 +1785,20 @@ public abstract class IFloatList implements IFloatListable, Cloneable, Serializa
      * @throws 		IndexOutOfBoundsException if the length is invalid
      */
     public void initAll(Collection<Float> coll) {
-        doInitAll(getReadOnlyList(coll));
+        doInitAll(asIFloatListable(coll));
     }
 
     /**
-     * Return correct IReadOnlyList for specified collection.
+     * Return correct IFloatListable for specified collection.
      */
     @SuppressWarnings("unchecked")
-    protected IFloatListable getReadOnlyList(Collection<Float> coll) {
+    protected IFloatListable asIFloatListable(Collection<Float> coll) {
         if (coll instanceof IFloatListable) {
             return (IFloatListable) coll;
         } else if (coll instanceof List) {
-            return new IReadOnlyListFromList((List<Float>) coll);
+            return new IFloatListableFromList((List<Float>) coll);
         } else {
-            return new IReadOnlyListFromCollection(coll);
+            return new IFloatListableFromCollection(coll);
         }
     }
 
@@ -1813,7 +1811,7 @@ public abstract class IFloatList implements IFloatListable, Cloneable, Serializa
      */
     @SuppressWarnings("unchecked")
     public void initArray(float... elems) {
-        doInitAll(new IReadOnlyListFromArray(elems));
+        doInitAll(new IFloatListableFromArray(elems));
     }
 
     /**
@@ -1827,7 +1825,7 @@ public abstract class IFloatList implements IFloatListable, Cloneable, Serializa
      */
     public void initMult(int len, float elem) {
         checkLength(len);
-        doInitAll(new IReadOnlyListFromMult(len, elem));
+        doInitAll(new IFloatListableFromMult(len, elem));
     }
 
     /**
@@ -1846,7 +1844,7 @@ public abstract class IFloatList implements IFloatListable, Cloneable, Serializa
      * @throws 		IndexOutOfBoundsException if the range is invalid
      */
     public void replaceAll(int index, int len, Collection<Float> coll) {
-        replace(index, len, getReadOnlyList(coll));
+        replace(index, len, asIFloatListable(coll));
     }
 
     /**
@@ -1866,7 +1864,7 @@ public abstract class IFloatList implements IFloatListable, Cloneable, Serializa
      */
     @SuppressWarnings("unchecked")
     public void replaceArray(int index, int len, float... elems) {
-        replace(index, len, new IReadOnlyListFromArray(elems));
+        replace(index, len, new IFloatListableFromArray(elems));
     }
 
     /**
@@ -1886,7 +1884,7 @@ public abstract class IFloatList implements IFloatListable, Cloneable, Serializa
      * @throws 			IndexOutOfBoundsException if the range is invalid
      */
     public void replaceMult(int index, int len, int numElems, float elem) {
-        replace(index, len, new IReadOnlyListFromMult(numElems, elem));
+        replace(index, len, new IFloatListableFromMult(numElems, elem));
     }
 
     /**
@@ -1930,21 +1928,21 @@ public abstract class IFloatList implements IFloatListable, Cloneable, Serializa
     protected boolean doReplace(int index, int len, IFloatListable list) {
         // There is a special implementation accepting an IFloatList
         // so the method is also available in the primitive classes.
-        //assert (index >= 0 && index <= size());
-        //assert (len >= 0 && index + len <= size());
-        int srcLen = list.size();
-        if (srcLen > len) {
-            doEnsureCapacity(size() - len + srcLen);
+        assert index >= 0 && index <= size();
+        assert len >= 0 && index + len <= size();
+        int listLen = list.size();
+        if (listLen > len) {
+            doEnsureCapacity(size() - len + listLen);
         }
         // Remove elements
         doRemoveAll(index, len);
         // Add elements
-        for (int i = 0; i < srcLen; i++) {
+        for (int i = 0; i < listLen; i++) {
             if (!doAdd(index + i, list.get(i))) {
                 index--;
             }
         }
-        return len > 0 || srcLen > 0;
+        return len > 0 || listLen > 0;
     }
 
     // see java.util.Arrays#fill
@@ -2135,7 +2133,7 @@ public abstract class IFloatList implements IFloatListable, Cloneable, Serializa
         if (distance == 0) {
             return;
         }
-        assert (distance >= 0 && distance < len);
+        assert distance >= 0 && distance < len;
         int num = 0;
         for (int start = 0; num != len; start++) {
             float elem = doGet(index + start);
@@ -2327,7 +2325,7 @@ public abstract class IFloatList implements IFloatListable, Cloneable, Serializa
     }
 
     // --- End class ListIter ---
-    protected static class IReadOnlyListFromArray implements IFloatListable {
+    protected static class IFloatListableFromArray implements IFloatListable {
 
         float[] array;
 
@@ -2335,13 +2333,13 @@ public abstract class IFloatList implements IFloatListable, Cloneable, Serializa
 
         int length;
 
-        IReadOnlyListFromArray(float[] array) {
+        IFloatListableFromArray(float[] array) {
             this.array = array;
             this.offset = 0;
             this.length = array.length;
         }
 
-        IReadOnlyListFromArray(float[] array, int offset, int length) {
+        IFloatListableFromArray(float[] array, int offset, int length) {
             this.array = array;
             this.offset = offset;
             this.length = length;
@@ -2356,13 +2354,13 @@ public abstract class IFloatList implements IFloatListable, Cloneable, Serializa
         }
     }
 
-    protected static class IReadOnlyListFromMult implements IFloatListable {
+    protected static class IFloatListableFromMult implements IFloatListable {
 
         int len;
 
         float elem;
 
-        IReadOnlyListFromMult(int len, float elem) {
+        IFloatListableFromMult(int len, float elem) {
             this.len = len;
             this.elem = elem;
         }
@@ -2376,37 +2374,40 @@ public abstract class IFloatList implements IFloatListable, Cloneable, Serializa
         }
     }
 
-    protected static class IReadOnlyListFromCollection implements IFloatListable {
+    protected static class IFloatListableFromCollection implements IFloatListable {
 
-        float[] array;
+        Iterator<Float> iter;
 
-        IReadOnlyListFromCollection(Collection<Float> coll) {
-            array = toArray(coll);
+        int size;
+
+        IFloatListableFromCollection(Collection<Float> coll) {
+            iter = coll.iterator();
+            size = coll.size();
         }
 
         public int size() {
-            return array.length;
+            return size;
         }
 
         public float get(int index) {
-            return array[index];
+            return iter.next();
         }
     }
 
-    protected static class IReadOnlyListFromList implements IFloatListable {
+    protected static class IFloatListableFromList implements IFloatListable {
 
-        List<Float> list2;
+        List<Float> list;
 
-        IReadOnlyListFromList(List<Float> list) {
-            this.list2 = (List) list;
+        IFloatListableFromList(List<Float> list) {
+            this.list = list;
         }
 
         public int size() {
-            return list2.size();
+            return list.size();
         }
 
         public float get(int index) {
-            return list2.get(index);
+            return list.get(index);
         }
     }
 }

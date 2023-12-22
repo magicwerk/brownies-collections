@@ -149,7 +149,7 @@ public abstract class IShortList implements IShortListable, Cloneable, Serializa
                 doAdd(i, elem);
             }
         }
-        assert (size() == len);
+        assert size() == len;
     }
 
     // Do not remove - needed for generating primitive classes
@@ -1560,7 +1560,7 @@ public abstract class IShortList implements IShortListable, Cloneable, Serializa
      * @throws NullPointerException if the specified collection is null
      */
     public boolean addAll(Collection<Short> coll) {
-        return doAddAll(-1, getReadOnlyList(coll));
+        return doAddAll(-1, asIShortListable(coll));
     }
 
     /**
@@ -1580,7 +1580,7 @@ public abstract class IShortList implements IShortListable, Cloneable, Serializa
      */
     public boolean addAll(int index, Collection<Short> coll) {
         checkIndexAdd(index);
-        return doAddAll(index, getReadOnlyList(coll));
+        return doAddAll(index, asIShortListable(coll));
     }
 
     /**
@@ -1591,15 +1591,15 @@ public abstract class IShortList implements IShortListable, Cloneable, Serializa
      */
     @SuppressWarnings("unchecked")
     public boolean addArray(short... elems) {
-        return doAddAll(-1, new IReadOnlyListFromArray(elems));
+        return doAddAll(-1, new IShortListableFromArray(elems));
     }
 
     public boolean addArray(short[] elems, int offset, int length) {
-        return doAddAll(-1, new IReadOnlyListFromArray(elems, offset, length));
+        return doAddAll(-1, new IShortListableFromArray(elems, offset, length));
     }
 
     public boolean addArray(int index, short[] elems, int offset, int length) {
-        return doAddAll(index, new IReadOnlyListFromArray(elems, offset, length));
+        return doAddAll(index, new IShortListableFromArray(elems, offset, length));
     }
 
     /**
@@ -1616,7 +1616,7 @@ public abstract class IShortList implements IShortListable, Cloneable, Serializa
      */
     public boolean addArray(int index, @SuppressWarnings("unchecked") short... elems) {
         checkIndexAdd(index);
-        return doAddAll(index, new IReadOnlyListFromArray(elems));
+        return doAddAll(index, new IShortListableFromArray(elems));
     }
 
     /**
@@ -1626,7 +1626,7 @@ public abstract class IShortList implements IShortListable, Cloneable, Serializa
      * @return <tt>true</tt> if this list changed as a result of the call
      */
     public boolean addMult(int len, short elem) {
-        return doAddAll(-1, new IReadOnlyListFromMult(len, elem));
+        return doAddAll(-1, new IShortListableFromMult(len, elem));
     }
 
     /**
@@ -1642,7 +1642,7 @@ public abstract class IShortList implements IShortListable, Cloneable, Serializa
      */
     public boolean addMult(int index, int len, short elem) {
         checkIndexAdd(index);
-        return doAddAll(index, new IReadOnlyListFromMult(len, elem));
+        return doAddAll(index, new IShortListableFromMult(len, elem));
     }
 
     /**
@@ -1667,7 +1667,7 @@ public abstract class IShortList implements IShortListable, Cloneable, Serializa
     public void setAll(int index, Collection<Short> coll) {
         int collSize = coll.size();
         checkRange(index, collSize);
-        doReplace(index, collSize, getReadOnlyList(coll));
+        doReplace(index, collSize, asIShortListable(coll));
     }
 
     /**
@@ -1681,13 +1681,13 @@ public abstract class IShortList implements IShortListable, Cloneable, Serializa
     public void setArray(int index, short... elems) {
         int arrayLen = elems.length;
         checkRange(index, arrayLen);
-        doReplace(index, arrayLen, new IReadOnlyListFromArray(elems));
+        doReplace(index, arrayLen, new IShortListableFromArray(elems));
     }
 
     public void setArray(int index, short[] elems, int offset, int length) {
         int arrayLen = elems.length;
         checkRange(index, arrayLen);
-        doReplace(index, arrayLen, new IReadOnlyListFromArray(elems, offset, length));
+        doReplace(index, arrayLen, new IShortListableFromArray(elems, offset, length));
     }
 
     /**
@@ -1698,7 +1698,7 @@ public abstract class IShortList implements IShortListable, Cloneable, Serializa
      */
     public void setMult(int index, int len, short elem) {
         checkRange(index, len);
-        doReplace(index, len, new IReadOnlyListFromMult(len, elem));
+        doReplace(index, len, new IShortListableFromMult(len, elem));
     }
 
     /**
@@ -1720,17 +1720,15 @@ public abstract class IShortList implements IShortListable, Cloneable, Serializa
      * @param coll  collection with elements to set or add
      */
     public void putAll(int index, Collection<Short> coll) {
-        doPutAll(index, getReadOnlyList(coll));
+        doPutAll(index, asIShortListable(coll));
     }
 
     protected void doPutAll(int index, IShortListable list) {
         checkIndexAdd(index);
         checkNonNull(list);
         int len = size() - index;
-        if (list != null) {
-            if (list.size() < len) {
-                len = list.size();
-            }
+        if (list.size() < len) {
+            len = list.size();
         }
         // Call worker method
         doReplace(index, len, list);
@@ -1746,7 +1744,7 @@ public abstract class IShortList implements IShortListable, Cloneable, Serializa
      */
     @SuppressWarnings("unchecked")
     public void putArray(int index, short... elems) {
-        doPutAll(index, new IReadOnlyListFromArray(elems));
+        doPutAll(index, new IShortListableFromArray(elems));
     }
 
     /**
@@ -1758,7 +1756,7 @@ public abstract class IShortList implements IShortListable, Cloneable, Serializa
      * @param len 	element to set or add
      */
     public void putMult(int index, int len, short elem) {
-        doPutAll(index, new IReadOnlyListFromMult(len, elem));
+        doPutAll(index, new IShortListableFromMult(len, elem));
     }
 
     /**
@@ -1786,20 +1784,20 @@ public abstract class IShortList implements IShortListable, Cloneable, Serializa
      * @throws 		IndexOutOfBoundsException if the length is invalid
      */
     public void initAll(Collection<Short> coll) {
-        doInitAll(getReadOnlyList(coll));
+        doInitAll(asIShortListable(coll));
     }
 
     /**
-     * Return correct IReadOnlyList for specified collection.
+     * Return correct IShortListable for specified collection.
      */
     @SuppressWarnings("unchecked")
-    protected IShortListable getReadOnlyList(Collection<Short> coll) {
+    protected IShortListable asIShortListable(Collection<Short> coll) {
         if (coll instanceof IShortListable) {
             return (IShortListable) coll;
         } else if (coll instanceof List) {
-            return new IReadOnlyListFromList((List<Short>) coll);
+            return new IShortListableFromList((List<Short>) coll);
         } else {
-            return new IReadOnlyListFromCollection(coll);
+            return new IShortListableFromCollection(coll);
         }
     }
 
@@ -1812,7 +1810,7 @@ public abstract class IShortList implements IShortListable, Cloneable, Serializa
      */
     @SuppressWarnings("unchecked")
     public void initArray(short... elems) {
-        doInitAll(new IReadOnlyListFromArray(elems));
+        doInitAll(new IShortListableFromArray(elems));
     }
 
     /**
@@ -1826,7 +1824,7 @@ public abstract class IShortList implements IShortListable, Cloneable, Serializa
      */
     public void initMult(int len, short elem) {
         checkLength(len);
-        doInitAll(new IReadOnlyListFromMult(len, elem));
+        doInitAll(new IShortListableFromMult(len, elem));
     }
 
     /**
@@ -1845,7 +1843,7 @@ public abstract class IShortList implements IShortListable, Cloneable, Serializa
      * @throws 		IndexOutOfBoundsException if the range is invalid
      */
     public void replaceAll(int index, int len, Collection<Short> coll) {
-        replace(index, len, getReadOnlyList(coll));
+        replace(index, len, asIShortListable(coll));
     }
 
     /**
@@ -1865,7 +1863,7 @@ public abstract class IShortList implements IShortListable, Cloneable, Serializa
      */
     @SuppressWarnings("unchecked")
     public void replaceArray(int index, int len, short... elems) {
-        replace(index, len, new IReadOnlyListFromArray(elems));
+        replace(index, len, new IShortListableFromArray(elems));
     }
 
     /**
@@ -1885,7 +1883,7 @@ public abstract class IShortList implements IShortListable, Cloneable, Serializa
      * @throws 			IndexOutOfBoundsException if the range is invalid
      */
     public void replaceMult(int index, int len, int numElems, short elem) {
-        replace(index, len, new IReadOnlyListFromMult(numElems, elem));
+        replace(index, len, new IShortListableFromMult(numElems, elem));
     }
 
     /**
@@ -1929,21 +1927,21 @@ public abstract class IShortList implements IShortListable, Cloneable, Serializa
     protected boolean doReplace(int index, int len, IShortListable list) {
         // There is a special implementation accepting an IShortList
         // so the method is also available in the primitive classes.
-        //assert (index >= 0 && index <= size());
-        //assert (len >= 0 && index + len <= size());
-        int srcLen = list.size();
-        if (srcLen > len) {
-            doEnsureCapacity(size() - len + srcLen);
+        assert index >= 0 && index <= size();
+        assert len >= 0 && index + len <= size();
+        int listLen = list.size();
+        if (listLen > len) {
+            doEnsureCapacity(size() - len + listLen);
         }
         // Remove elements
         doRemoveAll(index, len);
         // Add elements
-        for (int i = 0; i < srcLen; i++) {
+        for (int i = 0; i < listLen; i++) {
             if (!doAdd(index + i, list.get(i))) {
                 index--;
             }
         }
-        return len > 0 || srcLen > 0;
+        return len > 0 || listLen > 0;
     }
 
     // see java.util.Arrays#fill
@@ -2134,7 +2132,7 @@ public abstract class IShortList implements IShortListable, Cloneable, Serializa
         if (distance == 0) {
             return;
         }
-        assert (distance >= 0 && distance < len);
+        assert distance >= 0 && distance < len;
         int num = 0;
         for (int start = 0; num != len; start++) {
             short elem = doGet(index + start);
@@ -2326,7 +2324,7 @@ public abstract class IShortList implements IShortListable, Cloneable, Serializa
     }
 
     // --- End class ListIter ---
-    protected static class IReadOnlyListFromArray implements IShortListable {
+    protected static class IShortListableFromArray implements IShortListable {
 
         short[] array;
 
@@ -2334,13 +2332,13 @@ public abstract class IShortList implements IShortListable, Cloneable, Serializa
 
         int length;
 
-        IReadOnlyListFromArray(short[] array) {
+        IShortListableFromArray(short[] array) {
             this.array = array;
             this.offset = 0;
             this.length = array.length;
         }
 
-        IReadOnlyListFromArray(short[] array, int offset, int length) {
+        IShortListableFromArray(short[] array, int offset, int length) {
             this.array = array;
             this.offset = offset;
             this.length = length;
@@ -2355,13 +2353,13 @@ public abstract class IShortList implements IShortListable, Cloneable, Serializa
         }
     }
 
-    protected static class IReadOnlyListFromMult implements IShortListable {
+    protected static class IShortListableFromMult implements IShortListable {
 
         int len;
 
         short elem;
 
-        IReadOnlyListFromMult(int len, short elem) {
+        IShortListableFromMult(int len, short elem) {
             this.len = len;
             this.elem = elem;
         }
@@ -2375,37 +2373,40 @@ public abstract class IShortList implements IShortListable, Cloneable, Serializa
         }
     }
 
-    protected static class IReadOnlyListFromCollection implements IShortListable {
+    protected static class IShortListableFromCollection implements IShortListable {
 
-        short[] array;
+        Iterator<Short> iter;
 
-        IReadOnlyListFromCollection(Collection<Short> coll) {
-            array = toArray(coll);
+        int size;
+
+        IShortListableFromCollection(Collection<Short> coll) {
+            iter = coll.iterator();
+            size = coll.size();
         }
 
         public int size() {
-            return array.length;
+            return size;
         }
 
         public short get(int index) {
-            return array[index];
+            return iter.next();
         }
     }
 
-    protected static class IReadOnlyListFromList implements IShortListable {
+    protected static class IShortListableFromList implements IShortListable {
 
-        List<Short> list2;
+        List<Short> list;
 
-        IReadOnlyListFromList(List<Short> list) {
-            this.list2 = (List) list;
+        IShortListableFromList(List<Short> list) {
+            this.list = list;
         }
 
         public int size() {
-            return list2.size();
+            return list.size();
         }
 
         public short get(int index) {
-            return list2.get(index);
+            return list.get(index);
         }
     }
 }

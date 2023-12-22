@@ -227,6 +227,8 @@ public class BuildSourceIList extends FileBuilder {
 
 		src = substitute("\\<E\\>", src, "");
 		src = substitute("List list2", src, "List<{WRAPPER}> list2");
+		src = substitute("Iterator\\<\\? extends E\\>", src, "Iterator<{WRAPPER}>");
+		src = substitute("List\\<\\? extends E\\>", src, "List<{WRAPPER}>");
 
 		src = substitute("I{NAME}List<RR>", src, "IList<R>");
 

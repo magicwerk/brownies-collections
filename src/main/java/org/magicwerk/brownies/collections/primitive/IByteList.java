@@ -149,7 +149,7 @@ public abstract class IByteList implements IByteListable, Cloneable, Serializabl
                 doAdd(i, elem);
             }
         }
-        assert (size() == len);
+        assert size() == len;
     }
 
     // Do not remove - needed for generating primitive classes
@@ -1560,7 +1560,7 @@ public abstract class IByteList implements IByteListable, Cloneable, Serializabl
      * @throws NullPointerException if the specified collection is null
      */
     public boolean addAll(Collection<Byte> coll) {
-        return doAddAll(-1, getReadOnlyList(coll));
+        return doAddAll(-1, asIByteListable(coll));
     }
 
     /**
@@ -1580,7 +1580,7 @@ public abstract class IByteList implements IByteListable, Cloneable, Serializabl
      */
     public boolean addAll(int index, Collection<Byte> coll) {
         checkIndexAdd(index);
-        return doAddAll(index, getReadOnlyList(coll));
+        return doAddAll(index, asIByteListable(coll));
     }
 
     /**
@@ -1591,15 +1591,15 @@ public abstract class IByteList implements IByteListable, Cloneable, Serializabl
      */
     @SuppressWarnings("unchecked")
     public boolean addArray(byte... elems) {
-        return doAddAll(-1, new IReadOnlyListFromArray(elems));
+        return doAddAll(-1, new IByteListableFromArray(elems));
     }
 
     public boolean addArray(byte[] elems, int offset, int length) {
-        return doAddAll(-1, new IReadOnlyListFromArray(elems, offset, length));
+        return doAddAll(-1, new IByteListableFromArray(elems, offset, length));
     }
 
     public boolean addArray(int index, byte[] elems, int offset, int length) {
-        return doAddAll(index, new IReadOnlyListFromArray(elems, offset, length));
+        return doAddAll(index, new IByteListableFromArray(elems, offset, length));
     }
 
     /**
@@ -1616,7 +1616,7 @@ public abstract class IByteList implements IByteListable, Cloneable, Serializabl
      */
     public boolean addArray(int index, @SuppressWarnings("unchecked") byte... elems) {
         checkIndexAdd(index);
-        return doAddAll(index, new IReadOnlyListFromArray(elems));
+        return doAddAll(index, new IByteListableFromArray(elems));
     }
 
     /**
@@ -1626,7 +1626,7 @@ public abstract class IByteList implements IByteListable, Cloneable, Serializabl
      * @return <tt>true</tt> if this list changed as a result of the call
      */
     public boolean addMult(int len, byte elem) {
-        return doAddAll(-1, new IReadOnlyListFromMult(len, elem));
+        return doAddAll(-1, new IByteListableFromMult(len, elem));
     }
 
     /**
@@ -1642,7 +1642,7 @@ public abstract class IByteList implements IByteListable, Cloneable, Serializabl
      */
     public boolean addMult(int index, int len, byte elem) {
         checkIndexAdd(index);
-        return doAddAll(index, new IReadOnlyListFromMult(len, elem));
+        return doAddAll(index, new IByteListableFromMult(len, elem));
     }
 
     /**
@@ -1667,7 +1667,7 @@ public abstract class IByteList implements IByteListable, Cloneable, Serializabl
     public void setAll(int index, Collection<Byte> coll) {
         int collSize = coll.size();
         checkRange(index, collSize);
-        doReplace(index, collSize, getReadOnlyList(coll));
+        doReplace(index, collSize, asIByteListable(coll));
     }
 
     /**
@@ -1681,13 +1681,13 @@ public abstract class IByteList implements IByteListable, Cloneable, Serializabl
     public void setArray(int index, byte... elems) {
         int arrayLen = elems.length;
         checkRange(index, arrayLen);
-        doReplace(index, arrayLen, new IReadOnlyListFromArray(elems));
+        doReplace(index, arrayLen, new IByteListableFromArray(elems));
     }
 
     public void setArray(int index, byte[] elems, int offset, int length) {
         int arrayLen = elems.length;
         checkRange(index, arrayLen);
-        doReplace(index, arrayLen, new IReadOnlyListFromArray(elems, offset, length));
+        doReplace(index, arrayLen, new IByteListableFromArray(elems, offset, length));
     }
 
     /**
@@ -1698,7 +1698,7 @@ public abstract class IByteList implements IByteListable, Cloneable, Serializabl
      */
     public void setMult(int index, int len, byte elem) {
         checkRange(index, len);
-        doReplace(index, len, new IReadOnlyListFromMult(len, elem));
+        doReplace(index, len, new IByteListableFromMult(len, elem));
     }
 
     /**
@@ -1720,17 +1720,15 @@ public abstract class IByteList implements IByteListable, Cloneable, Serializabl
      * @param coll  collection with elements to set or add
      */
     public void putAll(int index, Collection<Byte> coll) {
-        doPutAll(index, getReadOnlyList(coll));
+        doPutAll(index, asIByteListable(coll));
     }
 
     protected void doPutAll(int index, IByteListable list) {
         checkIndexAdd(index);
         checkNonNull(list);
         int len = size() - index;
-        if (list != null) {
-            if (list.size() < len) {
-                len = list.size();
-            }
+        if (list.size() < len) {
+            len = list.size();
         }
         // Call worker method
         doReplace(index, len, list);
@@ -1746,7 +1744,7 @@ public abstract class IByteList implements IByteListable, Cloneable, Serializabl
      */
     @SuppressWarnings("unchecked")
     public void putArray(int index, byte... elems) {
-        doPutAll(index, new IReadOnlyListFromArray(elems));
+        doPutAll(index, new IByteListableFromArray(elems));
     }
 
     /**
@@ -1758,7 +1756,7 @@ public abstract class IByteList implements IByteListable, Cloneable, Serializabl
      * @param len 	element to set or add
      */
     public void putMult(int index, int len, byte elem) {
-        doPutAll(index, new IReadOnlyListFromMult(len, elem));
+        doPutAll(index, new IByteListableFromMult(len, elem));
     }
 
     /**
@@ -1786,20 +1784,20 @@ public abstract class IByteList implements IByteListable, Cloneable, Serializabl
      * @throws 		IndexOutOfBoundsException if the length is invalid
      */
     public void initAll(Collection<Byte> coll) {
-        doInitAll(getReadOnlyList(coll));
+        doInitAll(asIByteListable(coll));
     }
 
     /**
-     * Return correct IReadOnlyList for specified collection.
+     * Return correct IByteListable for specified collection.
      */
     @SuppressWarnings("unchecked")
-    protected IByteListable getReadOnlyList(Collection<Byte> coll) {
+    protected IByteListable asIByteListable(Collection<Byte> coll) {
         if (coll instanceof IByteListable) {
             return (IByteListable) coll;
         } else if (coll instanceof List) {
-            return new IReadOnlyListFromList((List<Byte>) coll);
+            return new IByteListableFromList((List<Byte>) coll);
         } else {
-            return new IReadOnlyListFromCollection(coll);
+            return new IByteListableFromCollection(coll);
         }
     }
 
@@ -1812,7 +1810,7 @@ public abstract class IByteList implements IByteListable, Cloneable, Serializabl
      */
     @SuppressWarnings("unchecked")
     public void initArray(byte... elems) {
-        doInitAll(new IReadOnlyListFromArray(elems));
+        doInitAll(new IByteListableFromArray(elems));
     }
 
     /**
@@ -1826,7 +1824,7 @@ public abstract class IByteList implements IByteListable, Cloneable, Serializabl
      */
     public void initMult(int len, byte elem) {
         checkLength(len);
-        doInitAll(new IReadOnlyListFromMult(len, elem));
+        doInitAll(new IByteListableFromMult(len, elem));
     }
 
     /**
@@ -1845,7 +1843,7 @@ public abstract class IByteList implements IByteListable, Cloneable, Serializabl
      * @throws 		IndexOutOfBoundsException if the range is invalid
      */
     public void replaceAll(int index, int len, Collection<Byte> coll) {
-        replace(index, len, getReadOnlyList(coll));
+        replace(index, len, asIByteListable(coll));
     }
 
     /**
@@ -1865,7 +1863,7 @@ public abstract class IByteList implements IByteListable, Cloneable, Serializabl
      */
     @SuppressWarnings("unchecked")
     public void replaceArray(int index, int len, byte... elems) {
-        replace(index, len, new IReadOnlyListFromArray(elems));
+        replace(index, len, new IByteListableFromArray(elems));
     }
 
     /**
@@ -1885,7 +1883,7 @@ public abstract class IByteList implements IByteListable, Cloneable, Serializabl
      * @throws 			IndexOutOfBoundsException if the range is invalid
      */
     public void replaceMult(int index, int len, int numElems, byte elem) {
-        replace(index, len, new IReadOnlyListFromMult(numElems, elem));
+        replace(index, len, new IByteListableFromMult(numElems, elem));
     }
 
     /**
@@ -1929,21 +1927,21 @@ public abstract class IByteList implements IByteListable, Cloneable, Serializabl
     protected boolean doReplace(int index, int len, IByteListable list) {
         // There is a special implementation accepting an IByteList
         // so the method is also available in the primitive classes.
-        //assert (index >= 0 && index <= size());
-        //assert (len >= 0 && index + len <= size());
-        int srcLen = list.size();
-        if (srcLen > len) {
-            doEnsureCapacity(size() - len + srcLen);
+        assert index >= 0 && index <= size();
+        assert len >= 0 && index + len <= size();
+        int listLen = list.size();
+        if (listLen > len) {
+            doEnsureCapacity(size() - len + listLen);
         }
         // Remove elements
         doRemoveAll(index, len);
         // Add elements
-        for (int i = 0; i < srcLen; i++) {
+        for (int i = 0; i < listLen; i++) {
             if (!doAdd(index + i, list.get(i))) {
                 index--;
             }
         }
-        return len > 0 || srcLen > 0;
+        return len > 0 || listLen > 0;
     }
 
     // see java.util.Arrays#fill
@@ -2134,7 +2132,7 @@ public abstract class IByteList implements IByteListable, Cloneable, Serializabl
         if (distance == 0) {
             return;
         }
-        assert (distance >= 0 && distance < len);
+        assert distance >= 0 && distance < len;
         int num = 0;
         for (int start = 0; num != len; start++) {
             byte elem = doGet(index + start);
@@ -2326,7 +2324,7 @@ public abstract class IByteList implements IByteListable, Cloneable, Serializabl
     }
 
     // --- End class ListIter ---
-    protected static class IReadOnlyListFromArray implements IByteListable {
+    protected static class IByteListableFromArray implements IByteListable {
 
         byte[] array;
 
@@ -2334,13 +2332,13 @@ public abstract class IByteList implements IByteListable, Cloneable, Serializabl
 
         int length;
 
-        IReadOnlyListFromArray(byte[] array) {
+        IByteListableFromArray(byte[] array) {
             this.array = array;
             this.offset = 0;
             this.length = array.length;
         }
 
-        IReadOnlyListFromArray(byte[] array, int offset, int length) {
+        IByteListableFromArray(byte[] array, int offset, int length) {
             this.array = array;
             this.offset = offset;
             this.length = length;
@@ -2355,13 +2353,13 @@ public abstract class IByteList implements IByteListable, Cloneable, Serializabl
         }
     }
 
-    protected static class IReadOnlyListFromMult implements IByteListable {
+    protected static class IByteListableFromMult implements IByteListable {
 
         int len;
 
         byte elem;
 
-        IReadOnlyListFromMult(int len, byte elem) {
+        IByteListableFromMult(int len, byte elem) {
             this.len = len;
             this.elem = elem;
         }
@@ -2375,37 +2373,40 @@ public abstract class IByteList implements IByteListable, Cloneable, Serializabl
         }
     }
 
-    protected static class IReadOnlyListFromCollection implements IByteListable {
+    protected static class IByteListableFromCollection implements IByteListable {
 
-        byte[] array;
+        Iterator<Byte> iter;
 
-        IReadOnlyListFromCollection(Collection<Byte> coll) {
-            array = toArray(coll);
+        int size;
+
+        IByteListableFromCollection(Collection<Byte> coll) {
+            iter = coll.iterator();
+            size = coll.size();
         }
 
         public int size() {
-            return array.length;
+            return size;
         }
 
         public byte get(int index) {
-            return array[index];
+            return iter.next();
         }
     }
 
-    protected static class IReadOnlyListFromList implements IByteListable {
+    protected static class IByteListableFromList implements IByteListable {
 
-        List<Byte> list2;
+        List<Byte> list;
 
-        IReadOnlyListFromList(List<Byte> list) {
-            this.list2 = (List) list;
+        IByteListableFromList(List<Byte> list) {
+            this.list = list;
         }
 
         public int size() {
-            return list2.size();
+            return list.size();
         }
 
         public byte get(int index) {
-            return list2.get(index);
+            return list.get(index);
         }
     }
 }

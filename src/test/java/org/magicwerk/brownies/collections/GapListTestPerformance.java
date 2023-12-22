@@ -4,9 +4,11 @@ import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Deque;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.RandomAccess;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -22,8 +24,10 @@ import org.magicwerk.brownies.core.SystemTools;
 import org.magicwerk.brownies.core.Timer;
 import org.magicwerk.brownies.core.files.FilePath;
 import org.magicwerk.brownies.core.logback.LogbackTools;
+import org.magicwerk.brownies.core.objects.Tuple;
 import org.magicwerk.brownies.core.stat.NumberStat;
 import org.magicwerk.brownies.core.stat.StatValues.StoreValues;
+import org.magicwerk.brownies.tools.dev.jvm.HeapObserver;
 import org.magicwerk.brownies.tools.dev.jvm.JavaEnvironment;
 import org.magicwerk.brownies.tools.dev.jvm.JavaEnvironment.JavaVersion;
 import org.magicwerk.brownies.tools.dev.jvm.JmhReporter;
@@ -32,11 +36,13 @@ import org.magicwerk.brownies.tools.dev.jvm.JmhRunner.Options;
 import org.magicwerk.brownies.tools.runner.JvmRunner;
 import org.magicwerk.brownies.tools.runner.Runner;
 import org.openjdk.jmh.annotations.Benchmark;
+import org.openjdk.jmh.annotations.Level;
 import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.annotations.Scope;
+import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.annotations.TearDown;
 
-import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 /**
@@ -106,24 +112,59 @@ public class GapListTestPerformance {
 
 		@State(Scope.Benchmark)
 		public static class CheckState {
-			final int size = 1000;
+			final int size = 100;
 			Integer val = 10;
 			IList<Integer> srcList = new GapList<>(size);
+			Set<Integer> srcSet = new HashSet<>();
 			Integer[] srcArray = new Integer[size];
 			IList<Integer> list;
 
 			public CheckState() {
 				for (int i = 0; i < size; i++) {
 					srcList.add(i);
+					srcSet.add(i);
 					srcArray[i] = i;
 				}
 				list = CollectionTools.concat(srcList, srcList);
 			}
 		}
 
+		@State(Scope.Benchmark)
+		public static class HeapObserverState {
+			boolean observe = false;
+			HeapObserver heapObserver = new HeapObserver().setLive(false).setHprofFile(FilePath.of("output/HeapObserverTest.hprof"));
+
+			@Setup(Level.Iteration)
+			public void setupTrial() {
+				if (observe) {
+					heapObserver.start();
+				}
+			}
+
+			@TearDown(Level.Iteration)
+			public void tearDown() {
+				if (observe) {
+					heapObserver.stop();
+				}
+			}
+
+			@TearDown(Level.Trial)
+			public void tearDownTrial() {
+				if (observe) {
+					IList<Tuple<Integer, String>> list = heapObserver.getAllocatedInstances();
+					LOG.info("\n{}\n", list);
+				}
+			}
+		}
+
 		@Benchmark
-		public void testSetAll(CheckState state) {
+		public void testSetList(CheckState state) {
 			state.list.setAll(10, state.srcList);
+		}
+
+		@Benchmark
+		public void testSetCollection(CheckState state, HeapObserverState hos) {
+			state.list.setAll(10, state.srcSet);
 		}
 
 		@Benchmark
@@ -137,9 +178,15 @@ public class GapListTestPerformance {
 		}
 
 		@Benchmark
-		public void testAddAll(CheckState state) {
+		public void testAddList(CheckState state) {
 			state.list.remove(10, state.srcList.size());
 			state.list.addAll(10, state.srcList);
+		}
+
+		@Benchmark
+		public void testAddCollection(CheckState state) {
+			state.list.remove(10, state.srcSet.size());
+			state.list.addAll(10, state.srcSet);
 		}
 
 		@Benchmark
@@ -153,7 +200,6 @@ public class GapListTestPerformance {
 			state.list.remove(10, state.size);
 			state.list.addMult(10, state.size, state.val);
 		}
-
 	}
 
 	//
@@ -595,8 +641,8 @@ public class GapListTestPerformance {
 		runner.addJavaArgsRun(bh.getJavaExe(JavaVersion.JAVA_8), jvmArgs);
 		//runner.addJavaArgsRun(bh.getJavaExe(JavaVersion.JAVA_11), jvmArgs);
 
-		LogbackTools.setAllLevels(Level.INFO);
-		LogbackTools.setLogLevel("org.magicwerk.brownies.test.runner.JvmTester", Level.DEBUG);
+		//LogbackTools.setAllLevels(Level.INFO);
+		//LogbackTools.setLogLevel("org.magicwerk.brownies.test.runner.JvmTester", Level.DEBUG);
 		runner.run(args);
 
 		//			        tester.addJvmArgsRun("-Xmx64m");	//  5'089'000
