@@ -49,9 +49,14 @@ import java.util.function.UnaryOperator;
 public abstract class IList<E>
 		extends AbstractList<E> implements ICollection<E>, IListable<E>,
 		// All interfaces of ArrayList
-		List<E>, RandomAccess, Cloneable, Serializable,
-		// Additional interfaces of LinkedList and ArrayDeque
-		Deque<E> {
+		List<E>, RandomAccess, Cloneable, Serializable {
+
+	/**
+	 * @return list of IList as {@link Deque}
+	 */
+	public Deque<E> asDeque() {
+		return new IListAsDeque<>(this);
+	}
 
 	/**
 	 * Copies the collection values into an array.
@@ -1208,14 +1213,14 @@ public abstract class IList<E>
 		return new ListIter(index);
 	}
 
-	@Override
+	// Queue operations
+
+	/** See {@link Deque#descendingIterator} */
 	public Iterator<E> descendingIterator() {
 		return new Iter(false);
 	}
 
-	// Queue operations
-
-	@Override
+	/** See {@link Deque#peek} */
 	public E peek() {
 		if (size() == 0) {
 			return null;
@@ -1223,7 +1228,7 @@ public abstract class IList<E>
 		return getFirst();
 	}
 
-	@Override
+	/** See {@link Deque#element} */
 	public E element() {
 		// inline version of getFirst():
 		if (size() == 0) {
@@ -1232,7 +1237,7 @@ public abstract class IList<E>
 		return doGet(0);
 	}
 
-	@Override
+	/** See {@link Deque#poll} */
 	public E poll() {
 		if (size() == 0) {
 			return null;
@@ -1240,7 +1245,7 @@ public abstract class IList<E>
 		return doRemove(0);
 	}
 
-	@Override
+	/** See {@link Deque#remove} */
 	public E remove() {
 		// inline version of removeFirst():
 		if (size() == 0) {
@@ -1249,7 +1254,7 @@ public abstract class IList<E>
 		return doRemove(0);
 	}
 
-	@Override
+	/** See {@link Deque#offer} */
 	public boolean offer(E elem) {
 		// inline version of add(elem):
 		return doAdd(-1, elem);
@@ -1273,7 +1278,7 @@ public abstract class IList<E>
 		return doGet(0);
 	}
 
-	@Override
+	/** See {@link Deque#getLast} */
 	public E getLast() {
 		int size = size();
 		if (size == 0) {
@@ -1296,18 +1301,18 @@ public abstract class IList<E>
 		return doGet(size - 1);
 	}
 
-	@Override
+	/** See {@link Deque#addFirst} */
 	public void addFirst(E elem) {
 		doAdd(0, elem);
 	}
 
-	@Override
+	/** See {@link Deque#addLast} */
 	public void addLast(E elem) {
 		// inline version of add(elem):
 		doAdd(-1, elem);
 	}
 
-	@Override
+	/** See {@link Deque#removeFirst} */
 	public E removeFirst() {
 		if (size() == 0) {
 			throw new NoSuchElementException();
@@ -1315,7 +1320,7 @@ public abstract class IList<E>
 		return doRemove(0);
 	}
 
-	@Override
+	/** See {@link Deque#removeLast} */
 	public E removeLast() {
 		int size = size();
 		if (size == 0) {
@@ -1324,21 +1329,21 @@ public abstract class IList<E>
 		return doRemove(size - 1);
 	}
 
-	@Override
+	/** See {@link Deque#offerFirst} */
 	public boolean offerFirst(E elem) {
 		// inline version of addFirst(elem):
 		doAdd(0, elem);
 		return true;
 	}
 
-	@Override
+	/** See {@link Deque#offerLast} */
 	public boolean offerLast(E elem) {
 		// inline version of addLast(elem):
 		doAdd(-1, elem);
 		return true;
 	}
 
-	@Override
+	/** See {@link Deque#peekFirst} */
 	public E peekFirst() {
 		if (size() == 0) {
 			return null;
@@ -1346,7 +1351,7 @@ public abstract class IList<E>
 		return doGet(0);
 	}
 
-	@Override
+	/** See {@link Deque#peekLast} */
 	public E peekLast() {
 		int size = size();
 		if (size == 0) {
@@ -1355,7 +1360,7 @@ public abstract class IList<E>
 		return doGet(size - 1);
 	}
 
-	@Override
+	/** See {@link Deque#pollFirst} */
 	public E pollFirst() {
 		if (size() == 0) {
 			return null;
@@ -1363,7 +1368,7 @@ public abstract class IList<E>
 		return doRemove(0);
 	}
 
-	@Override
+	/** See {@link Deque#pollLast} */
 	public E pollLast() {
 		int size = size();
 		if (size == 0) {
@@ -1372,7 +1377,7 @@ public abstract class IList<E>
 		return doRemove(size - 1);
 	}
 
-	@Override
+	/** See {@link Deque#pop} */
 	public E pop() {
 		// inline version of removeFirst():
 		if (size() == 0) {
@@ -1382,13 +1387,13 @@ public abstract class IList<E>
 
 	}
 
-	@Override
+	/** See {@link Deque#push} */
 	public void push(E elem) {
 		// inline version of addFirst();
 		doAdd(0, elem);
 	}
 
-	@Override
+	/** See {@link Deque#removeFirstOccurrence} */
 	public boolean removeFirstOccurrence(Object elem) {
 		int index = indexOf(elem);
 		if (index == -1) {
@@ -1398,7 +1403,7 @@ public abstract class IList<E>
 		return true;
 	}
 
-	@Override
+	/** See {@link Deque#removeLastOccurrence} */
 	public boolean removeLastOccurrence(Object elem) {
 		int index = lastIndexOf(elem);
 		if (index == -1) {

@@ -17,10 +17,6 @@ import com.github.javaparser.printer.configuration.PrettyPrinterConfiguration;
 
 public class RefactorVisitor extends DefaultPrettyPrinterVisitor {
 
-	public RefactorVisitor() {
-		super(new DefaultPrinterConfiguration());
-	}
-
 	public static class RefactorMethod {
 
 		/**
@@ -41,6 +37,10 @@ public class RefactorVisitor extends DefaultPrettyPrinterVisitor {
 	private GapList<String> removeTypes = GapList.create();
 	private GapList<String> removeMethods = GapList.create();
 	private GapList<RefactorMethod> refactorMethods = GapList.create();
+
+	public RefactorVisitor() {
+		super(new DefaultPrinterConfiguration());
+	}
 
 	public RefactorVisitor addRemoveTypes(String... types) {
 		removeTypes.addArray(types);

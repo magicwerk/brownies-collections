@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Deque;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
@@ -970,6 +971,14 @@ public class GapListTest {
 		// If an unmodifiable list is copied, it can be changed
 		IList<Integer> list3 = list.copy();
 		list3.add(1);
+	}
+
+	@Trace(traceMethod = "/.+/", parameters = Trace.THIS | Trace.ALL_PARAMS, result = Trace.RESULT)
+	public static void testAsDeque() {
+		IList<Integer> list = getSortedGapList(7);
+		Deque<Integer> deque = list.asDeque();
+		CheckTools.check(deque.getFirst() == list.getFirst());
+		CheckTools.check(deque.getLast() == list.getLast());
 	}
 
 	// Iterator

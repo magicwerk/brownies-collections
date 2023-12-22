@@ -306,8 +306,8 @@ public class BuildSource {
 
 	static void writeFile(String file, String src) {
 		LOG.info("Write file {}", file);
-		CompilationUnit cu = javaParserReader.parseCompilationUnit(src);
-		src = javaParserReader.print(cu);
+		//		CompilationUnit cu = javaParserReader.parseCompilationUnit(src);
+		//		src = javaParserReader.print(cu);
 		FileTools.writeFile().setFile(file).setText(src).write();
 	}
 

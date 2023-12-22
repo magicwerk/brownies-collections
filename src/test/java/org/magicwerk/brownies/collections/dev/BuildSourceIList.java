@@ -37,7 +37,7 @@ public class BuildSourceIList extends FileBuilder {
 
 		visitor = new RefactorVisitor();
 		visitor.addRemoveTypes("Iter", "ListIter");
-		visitor.addRemoveMethods("iterator", "listIterator", "descendingIterator");
+		visitor.addRemoveMethods("iterator", "listIterator", "descendingIterator", "asDeque");
 		addRefactor("void move", "(fill\\(.*,) null\\)", "{1} {DEFAULT})");
 		addRefactor("toArray", "array\\[size\\] = null", "array[size] = {DEFAULT}");
 		visitor.addRefactorMethods(new RefactorMethod() {
@@ -180,7 +180,9 @@ public class BuildSourceIList extends FileBuilder {
 	/** processClass is executed after processMethod */
 	String processClass(String src) {
 		src = substitute(" extends AbstractList\\<E\\>", src, "");
-		src = substitute("(?s)implements.*?Deque.*?\\{", src, "implements I{NAME}Listable, Cloneable, Serializable '{'");
+		src = substitute("(?s)implements.*?Serializable.*?\\{", src, "implements I{NAME}Listable, Cloneable, Serializable '{'");
+		src = substitute("(?s)Begin Deque", src, "XXX");
+		//		src = substitute("(?s)Begin Deque.*?End Deque", src, "XXX");
 		src = substitute("class IList\\<E\\>", src, "class I{NAME}List");
 		src = substitute("IList(?!(\\<R\\>)? list)", src, "I{NAME}List");
 		src = substitute("\\(I{NAME}List\\<R\\>\\) doCreate\\(", src, "(IList<R>) new GapList<R>(");

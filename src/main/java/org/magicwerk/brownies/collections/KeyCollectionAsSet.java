@@ -26,7 +26,6 @@ import org.magicwerk.brownies.collections.exceptions.DuplicateKeyException;
  *
  * @author Thomas Mauch
  */
-@SuppressWarnings("serial")
 public class KeyCollectionAsSet<E> extends CollectionAsSet<E> implements Serializable {
 
 	public KeyCollectionAsSet(KeyCollectionImpl<E> coll, boolean immutable) {

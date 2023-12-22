@@ -230,6 +230,49 @@
       <error></error>
     </traceStep>
   </traceTest>
+  <traceTest name="testAsDeque">
+    <runDate>2023-12-22T14:31:38.69+01:00</runDate>
+    <runDuration>0.0099295</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.BigList</traceClass>
+    <traceMethod>/.+/</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"asDeque"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"getFirst"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"0"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"getLast"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"{ 0, 1, 2, 3, 4, 5, 6 }"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="Result">"6"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+  </traceTest>
   <captureTest name="testBinarySearch">
     <runDate>2014-02-17T22:36:20.978+01:00</runDate>
     <runDuration>0.003492381</runDuration>

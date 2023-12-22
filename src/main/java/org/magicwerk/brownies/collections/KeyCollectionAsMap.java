@@ -30,7 +30,6 @@ import java.util.Set;
  *
  * @author Thomas Mauch
  */
-@SuppressWarnings("serial")
 public class KeyCollectionAsMap<K, E> implements Map<K, E>, Serializable {
 	/** Reference to KeyCollectionImpl containing data (exactly one of the fields coll and list is set) */
 	KeyCollectionImpl<E> coll;
