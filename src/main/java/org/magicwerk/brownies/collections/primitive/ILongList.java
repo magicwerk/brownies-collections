@@ -39,8 +39,8 @@ import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 
 /**
- * ILongList is an abstract class which offers all interfaces offered by both ArrayList and LinkedList.
- * It also offers additional methods which are then available in all implementations of GapList and BigList.
+ * Class {@link ILongList} is the abstract class which offers all interfaces implemented by ArrayList.
+ * It also offers additional methods which are then available in all implementations of {@link GapList} and {@link BigList}.
  *
  * @author Thomas Mauch
  *
@@ -1898,7 +1898,7 @@ public void initAll(Collection<Long> coll) {
 }
 
     /**
- * Return correct ILongListable for specified collection.
+ * Return correct ILongListable for passed collection.
  */
 @SuppressWarnings("unchecked")
 protected ILongListable asILongListable(Collection<Long> coll) {
@@ -2439,6 +2439,9 @@ protected void checkNonNull(Object obj) {
 
 
     // --- End class ListIter ---
+    /**
+     * Wrapper to treat an array as {@link ILongListable}.
+     */
     protected static class ILongListableFromArray implements ILongListable {
 
         long[] array;
@@ -2470,6 +2473,9 @@ public long get(int index) {
 }
     }
 
+    /**
+     * Wrapper to treat a repeated element as {@link ILongListable}.
+     */
     protected static class ILongListableFromMult implements ILongListable {
 
         int len;
@@ -2492,6 +2498,33 @@ public long get(int index) {
 }
     }
 
+    /**
+     * Wrapper to treat a {@link List} as {@link ILongListable}.
+     */
+    protected static class ILongListableFromList implements ILongListable {
+
+        List<Long> list;
+
+        ILongListableFromList(List<Long> list) {
+    this.list = list;
+}
+
+        
+public int size() {
+    return list.size();
+}
+
+        
+public long get(int index) {
+    return list.get(index);
+}
+    }
+
+    /**
+     * Wrapper to treat a {@link Collection} as {@link ILongListable}.
+     * <p>
+     * Note that the implementation relies on the fact that the elements are only accessed sequentially.
+     */
     protected static class ILongListableFromCollection implements ILongListable {
 
         Iterator<Long> iter;
@@ -2511,25 +2544,6 @@ public int size() {
         
 public long get(int index) {
     return iter.next();
-}
-    }
-
-    protected static class ILongListableFromList implements ILongListable {
-
-        List<Long> list;
-
-        ILongListableFromList(List<Long> list) {
-    this.list = list;
-}
-
-        
-public int size() {
-    return list.size();
-}
-
-        
-public long get(int index) {
-    return list.get(index);
 }
     }
 }

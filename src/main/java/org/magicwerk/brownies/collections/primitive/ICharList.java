@@ -39,8 +39,8 @@ import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 
 /**
- * ICharList is an abstract class which offers all interfaces offered by both ArrayList and LinkedList.
- * It also offers additional methods which are then available in all implementations of GapList and BigList.
+ * Class {@link ICharList} is the abstract class which offers all interfaces implemented by ArrayList.
+ * It also offers additional methods which are then available in all implementations of {@link GapList} and {@link BigList}.
  *
  * @author Thomas Mauch
  *
@@ -1887,7 +1887,7 @@ public void initAll(Collection<Character> coll) {
 }
 
     /**
- * Return correct ICharListable for specified collection.
+ * Return correct ICharListable for passed collection.
  */
 @SuppressWarnings("unchecked")
 protected ICharListable asICharListable(Collection<Character> coll) {
@@ -2428,6 +2428,9 @@ protected void checkNonNull(Object obj) {
 
 
     // --- End class ListIter ---
+    /**
+     * Wrapper to treat an array as {@link ICharListable}.
+     */
     protected static class ICharListableFromArray implements ICharListable {
 
         char[] array;
@@ -2459,6 +2462,9 @@ public char get(int index) {
 }
     }
 
+    /**
+     * Wrapper to treat a repeated element as {@link ICharListable}.
+     */
     protected static class ICharListableFromMult implements ICharListable {
 
         int len;
@@ -2481,6 +2487,33 @@ public char get(int index) {
 }
     }
 
+    /**
+     * Wrapper to treat a {@link List} as {@link ICharListable}.
+     */
+    protected static class ICharListableFromList implements ICharListable {
+
+        List<Character> list;
+
+        ICharListableFromList(List<Character> list) {
+    this.list = list;
+}
+
+        
+public int size() {
+    return list.size();
+}
+
+        
+public char get(int index) {
+    return list.get(index);
+}
+    }
+
+    /**
+     * Wrapper to treat a {@link Collection} as {@link ICharListable}.
+     * <p>
+     * Note that the implementation relies on the fact that the elements are only accessed sequentially.
+     */
     protected static class ICharListableFromCollection implements ICharListable {
 
         Iterator<Character> iter;
@@ -2500,25 +2533,6 @@ public int size() {
         
 public char get(int index) {
     return iter.next();
-}
-    }
-
-    protected static class ICharListableFromList implements ICharListable {
-
-        List<Character> list;
-
-        ICharListableFromList(List<Character> list) {
-    this.list = list;
-}
-
-        
-public int size() {
-    return list.size();
-}
-
-        
-public char get(int index) {
-    return list.get(index);
 }
     }
 	// Implementation of CharSequence 

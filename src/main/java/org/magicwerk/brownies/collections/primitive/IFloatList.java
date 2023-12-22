@@ -39,8 +39,8 @@ import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 
 /**
- * IFloatList is an abstract class which offers all interfaces offered by both ArrayList and LinkedList.
- * It also offers additional methods which are then available in all implementations of GapList and BigList.
+ * Class {@link IFloatList} is the abstract class which offers all interfaces implemented by ArrayList.
+ * It also offers additional methods which are then available in all implementations of {@link GapList} and {@link BigList}.
  *
  * @author Thomas Mauch
  *
@@ -1899,7 +1899,7 @@ public void initAll(Collection<Float> coll) {
 }
 
     /**
- * Return correct IFloatListable for specified collection.
+ * Return correct IFloatListable for passed collection.
  */
 @SuppressWarnings("unchecked")
 protected IFloatListable asIFloatListable(Collection<Float> coll) {
@@ -2440,6 +2440,9 @@ protected void checkNonNull(Object obj) {
 
 
     // --- End class ListIter ---
+    /**
+     * Wrapper to treat an array as {@link IFloatListable}.
+     */
     protected static class IFloatListableFromArray implements IFloatListable {
 
         float[] array;
@@ -2471,6 +2474,9 @@ public float get(int index) {
 }
     }
 
+    /**
+     * Wrapper to treat a repeated element as {@link IFloatListable}.
+     */
     protected static class IFloatListableFromMult implements IFloatListable {
 
         int len;
@@ -2493,6 +2499,33 @@ public float get(int index) {
 }
     }
 
+    /**
+     * Wrapper to treat a {@link List} as {@link IFloatListable}.
+     */
+    protected static class IFloatListableFromList implements IFloatListable {
+
+        List<Float> list;
+
+        IFloatListableFromList(List<Float> list) {
+    this.list = list;
+}
+
+        
+public int size() {
+    return list.size();
+}
+
+        
+public float get(int index) {
+    return list.get(index);
+}
+    }
+
+    /**
+     * Wrapper to treat a {@link Collection} as {@link IFloatListable}.
+     * <p>
+     * Note that the implementation relies on the fact that the elements are only accessed sequentially.
+     */
     protected static class IFloatListableFromCollection implements IFloatListable {
 
         Iterator<Float> iter;
@@ -2512,25 +2545,6 @@ public int size() {
         
 public float get(int index) {
     return iter.next();
-}
-    }
-
-    protected static class IFloatListableFromList implements IFloatListable {
-
-        List<Float> list;
-
-        IFloatListableFromList(List<Float> list) {
-    this.list = list;
-}
-
-        
-public int size() {
-    return list.size();
-}
-
-        
-public float get(int index) {
-    return list.get(index);
 }
     }
 }

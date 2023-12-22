@@ -39,8 +39,8 @@ import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 
 /**
- * IByteList is an abstract class which offers all interfaces offered by both ArrayList and LinkedList.
- * It also offers additional methods which are then available in all implementations of GapList and BigList.
+ * Class {@link IByteList} is the abstract class which offers all interfaces implemented by ArrayList.
+ * It also offers additional methods which are then available in all implementations of {@link GapList} and {@link BigList}.
  *
  * @author Thomas Mauch
  *
@@ -1898,7 +1898,7 @@ public void initAll(Collection<Byte> coll) {
 }
 
     /**
- * Return correct IByteListable for specified collection.
+ * Return correct IByteListable for passed collection.
  */
 @SuppressWarnings("unchecked")
 protected IByteListable asIByteListable(Collection<Byte> coll) {
@@ -2439,6 +2439,9 @@ protected void checkNonNull(Object obj) {
 
 
     // --- End class ListIter ---
+    /**
+     * Wrapper to treat an array as {@link IByteListable}.
+     */
     protected static class IByteListableFromArray implements IByteListable {
 
         byte[] array;
@@ -2470,6 +2473,9 @@ public byte get(int index) {
 }
     }
 
+    /**
+     * Wrapper to treat a repeated element as {@link IByteListable}.
+     */
     protected static class IByteListableFromMult implements IByteListable {
 
         int len;
@@ -2492,6 +2498,33 @@ public byte get(int index) {
 }
     }
 
+    /**
+     * Wrapper to treat a {@link List} as {@link IByteListable}.
+     */
+    protected static class IByteListableFromList implements IByteListable {
+
+        List<Byte> list;
+
+        IByteListableFromList(List<Byte> list) {
+    this.list = list;
+}
+
+        
+public int size() {
+    return list.size();
+}
+
+        
+public byte get(int index) {
+    return list.get(index);
+}
+    }
+
+    /**
+     * Wrapper to treat a {@link Collection} as {@link IByteListable}.
+     * <p>
+     * Note that the implementation relies on the fact that the elements are only accessed sequentially.
+     */
     protected static class IByteListableFromCollection implements IByteListable {
 
         Iterator<Byte> iter;
@@ -2511,25 +2544,6 @@ public int size() {
         
 public byte get(int index) {
     return iter.next();
-}
-    }
-
-    protected static class IByteListableFromList implements IByteListable {
-
-        List<Byte> list;
-
-        IByteListableFromList(List<Byte> list) {
-    this.list = list;
-}
-
-        
-public int size() {
-    return list.size();
-}
-
-        
-public byte get(int index) {
-    return list.get(index);
 }
     }
 }

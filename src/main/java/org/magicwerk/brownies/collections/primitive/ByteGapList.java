@@ -22,29 +22,35 @@ import org.magicwerk.brownies.collections.GapList;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Deque;
+import java.util.LinkedList;
 import java.util.function.Function;
 
 /**
- * ByteGapList combines the strengths of both ArrayList and LinkedList.
+ * Class {link ByteGapList} combines the strengths of both {@link ArrayList} and {@link LinkedList}.
  * It is implemented to offer both efficient random access to elements
  * by index (as ArrayList does) and at the same time efficient adding
  * and removing elements to and from beginning and end (as LinkedList does).
  * It also exploits the locality of reference often seen in applications
- * to further improve performance, e.g. for iterating over the list.<p>
- *
- * <strong>Note that this implementation is not synchronized.</strong><p>
- *
- * Note that the iterators provided are not fail-fast.<p>
+ * to further improve performance, e.g. for iterating over the list.
+ * <p>
+ * The class can be used as drop-in replacement for ArrayList.
+ * It is also source compatible to LinkedList/Deque as it implements all needed methods.
+ * It cannot implement {@link Deque} however, use {@link #asDeque} to get a view implementing it.
+ * <p>
+ * <strong>Note that this implementation is not synchronized.</strong>
+ * <p>
+ * Note that the iterators provided are not fail-fast.
  *
  * @author Thomas Mauch
  *
  * @param  type of elements stored in the list
  * @see	    java.util.List
  * @see	    java.util.ArrayList
- * @see	    java.util.LinkedList
  */
 public class ByteGapList extends IByteList {
 

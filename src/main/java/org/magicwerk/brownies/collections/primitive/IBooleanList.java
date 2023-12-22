@@ -39,8 +39,8 @@ import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 
 /**
- * IBooleanList is an abstract class which offers all interfaces offered by both ArrayList and LinkedList.
- * It also offers additional methods which are then available in all implementations of GapList and BigList.
+ * Class {@link IBooleanList} is the abstract class which offers all interfaces implemented by ArrayList.
+ * It also offers additional methods which are then available in all implementations of {@link GapList} and {@link BigList}.
  *
  * @author Thomas Mauch
  *
@@ -1899,7 +1899,7 @@ public void initAll(Collection<Boolean> coll) {
 }
 
     /**
- * Return correct IBooleanListable for specified collection.
+ * Return correct IBooleanListable for passed collection.
  */
 @SuppressWarnings("unchecked")
 protected IBooleanListable asIBooleanListable(Collection<Boolean> coll) {
@@ -2440,6 +2440,9 @@ protected void checkNonNull(Object obj) {
 
 
     // --- End class ListIter ---
+    /**
+     * Wrapper to treat an array as {@link IBooleanListable}.
+     */
     protected static class IBooleanListableFromArray implements IBooleanListable {
 
         boolean[] array;
@@ -2471,6 +2474,9 @@ public boolean get(int index) {
 }
     }
 
+    /**
+     * Wrapper to treat a repeated element as {@link IBooleanListable}.
+     */
     protected static class IBooleanListableFromMult implements IBooleanListable {
 
         int len;
@@ -2493,6 +2499,33 @@ public boolean get(int index) {
 }
     }
 
+    /**
+     * Wrapper to treat a {@link List} as {@link IBooleanListable}.
+     */
+    protected static class IBooleanListableFromList implements IBooleanListable {
+
+        List<Boolean> list;
+
+        IBooleanListableFromList(List<Boolean> list) {
+    this.list = list;
+}
+
+        
+public int size() {
+    return list.size();
+}
+
+        
+public boolean get(int index) {
+    return list.get(index);
+}
+    }
+
+    /**
+     * Wrapper to treat a {@link Collection} as {@link IBooleanListable}.
+     * <p>
+     * Note that the implementation relies on the fact that the elements are only accessed sequentially.
+     */
     protected static class IBooleanListableFromCollection implements IBooleanListable {
 
         Iterator<Boolean> iter;
@@ -2512,25 +2545,6 @@ public int size() {
         
 public boolean get(int index) {
     return iter.next();
-}
-    }
-
-    protected static class IBooleanListableFromList implements IBooleanListable {
-
-        List<Boolean> list;
-
-        IBooleanListableFromList(List<Boolean> list) {
-    this.list = list;
-}
-
-        
-public int size() {
-    return list.size();
-}
-
-        
-public boolean get(int index) {
-    return list.get(index);
 }
     }
 }

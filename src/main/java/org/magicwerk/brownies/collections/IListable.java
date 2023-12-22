@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 by Thomas Mauch
+ * Copyright 2023 by Thomas Mauch
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,13 +18,15 @@
 package org.magicwerk.brownies.collections;
 
 /**
- * Implements a Set based on a Collection.
- * It supports both mutable and immutable sets.
+ * Interface {@link IListable} offers a minimalist interface for accessing a list or an array.
  *
  * @author Thomas Mauch
  */
 public interface IListable<E> {
+
+	/** Return size of list */
 	int size();
 
+	/** Return element at specified position */
 	E get(int index);
 }

@@ -35,8 +35,8 @@ import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 
 /**
- * IList is an abstract class which offers all interfaces offered by both ArrayList and LinkedList.
- * It also offers additional methods which are then available in all implementations of GapList and BigList.
+ * Class {@link IList} is the abstract class which offers all interfaces implemented by ArrayList.
+ * It also offers additional methods which are then available in all implementations of {@link GapList} and {@link BigList}.
  *
  * @author Thomas Mauch
  *
@@ -1960,7 +1960,7 @@ public abstract class IList<E>
 	}
 
 	/**
-	 * Return correct IListable for specified collection.
+	 * Return correct IListable for passed collection.
 	 */
 	@SuppressWarnings("unchecked")
 	protected IListable<? extends E> asIListable(Collection<? extends E> coll) {
@@ -2736,6 +2736,9 @@ public abstract class IList<E>
 
 	// --- End class ListIter ---
 
+	/** 
+	 * Wrapper to treat an array as {@link IListable}.
+	 */
 	protected static class IListableFromArray<E> implements IListable<E> {
 		E[] array;
 		int offset;
@@ -2764,6 +2767,9 @@ public abstract class IList<E>
 		}
 	}
 
+	/** 
+	 * Wrapper to treat a repeated element as {@link IListable}.
+	 */
 	protected static class IListableFromMult<E> implements IListable<E> {
 		int len;
 		E elem;
@@ -2784,6 +2790,32 @@ public abstract class IList<E>
 		}
 	}
 
+	/** 
+	 * Wrapper to treat a {@link List} as {@link IListable}.
+	 */
+	protected static class IListableFromList<E> implements IListable<E> {
+		List<? extends E> list;
+
+		IListableFromList(List<? extends E> list) {
+			this.list = list;
+		}
+
+		@Override
+		public int size() {
+			return list.size();
+		}
+
+		@Override
+		public E get(int index) {
+			return list.get(index);
+		}
+	}
+
+	/** 
+	 * Wrapper to treat a {@link Collection} as {@link IListable}.
+	 * <p>
+	 * Note that the implementation relies on the fact that the elements are only accessed sequentially.
+	 */
 	protected static class IListableFromCollection<E> implements IListable<E> {
 		Iterator<? extends E> iter;
 		int size;
@@ -2801,24 +2833,6 @@ public abstract class IList<E>
 		@Override
 		public E get(int index) {
 			return iter.next();
-		}
-	}
-
-	protected static class IListableFromList<E> implements IListable<E> {
-		List<? extends E> list;
-
-		IListableFromList(List<? extends E> list) {
-			this.list = list;
-		}
-
-		@Override
-		public int size() {
-			return list.size();
-		}
-
-		@Override
-		public E get(int index) {
-			return list.get(index);
 		}
 	}
 

@@ -39,8 +39,8 @@ import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 
 /**
- * IDoubleList is an abstract class which offers all interfaces offered by both ArrayList and LinkedList.
- * It also offers additional methods which are then available in all implementations of GapList and BigList.
+ * Class {@link IDoubleList} is the abstract class which offers all interfaces implemented by ArrayList.
+ * It also offers additional methods which are then available in all implementations of {@link GapList} and {@link BigList}.
  *
  * @author Thomas Mauch
  *
@@ -1899,7 +1899,7 @@ public void initAll(Collection<Double> coll) {
 }
 
     /**
- * Return correct IDoubleListable for specified collection.
+ * Return correct IDoubleListable for passed collection.
  */
 @SuppressWarnings("unchecked")
 protected IDoubleListable asIDoubleListable(Collection<Double> coll) {
@@ -2440,6 +2440,9 @@ protected void checkNonNull(Object obj) {
 
 
     // --- End class ListIter ---
+    /**
+     * Wrapper to treat an array as {@link IDoubleListable}.
+     */
     protected static class IDoubleListableFromArray implements IDoubleListable {
 
         double[] array;
@@ -2471,6 +2474,9 @@ public double get(int index) {
 }
     }
 
+    /**
+     * Wrapper to treat a repeated element as {@link IDoubleListable}.
+     */
     protected static class IDoubleListableFromMult implements IDoubleListable {
 
         int len;
@@ -2493,6 +2499,33 @@ public double get(int index) {
 }
     }
 
+    /**
+     * Wrapper to treat a {@link List} as {@link IDoubleListable}.
+     */
+    protected static class IDoubleListableFromList implements IDoubleListable {
+
+        List<Double> list;
+
+        IDoubleListableFromList(List<Double> list) {
+    this.list = list;
+}
+
+        
+public int size() {
+    return list.size();
+}
+
+        
+public double get(int index) {
+    return list.get(index);
+}
+    }
+
+    /**
+     * Wrapper to treat a {@link Collection} as {@link IDoubleListable}.
+     * <p>
+     * Note that the implementation relies on the fact that the elements are only accessed sequentially.
+     */
     protected static class IDoubleListableFromCollection implements IDoubleListable {
 
         Iterator<Double> iter;
@@ -2512,25 +2545,6 @@ public int size() {
         
 public double get(int index) {
     return iter.next();
-}
-    }
-
-    protected static class IDoubleListableFromList implements IDoubleListable {
-
-        List<Double> list;
-
-        IDoubleListableFromList(List<Double> list) {
-    this.list = list;
-}
-
-        
-public int size() {
-    return list.size();
-}
-
-        
-public double get(int index) {
-    return list.get(index);
 }
     }
 }

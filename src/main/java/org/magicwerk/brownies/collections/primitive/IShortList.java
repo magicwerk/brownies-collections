@@ -39,8 +39,8 @@ import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 
 /**
- * IShortList is an abstract class which offers all interfaces offered by both ArrayList and LinkedList.
- * It also offers additional methods which are then available in all implementations of GapList and BigList.
+ * Class {@link IShortList} is the abstract class which offers all interfaces implemented by ArrayList.
+ * It also offers additional methods which are then available in all implementations of {@link GapList} and {@link BigList}.
  *
  * @author Thomas Mauch
  *
@@ -1898,7 +1898,7 @@ public void initAll(Collection<Short> coll) {
 }
 
     /**
- * Return correct IShortListable for specified collection.
+ * Return correct IShortListable for passed collection.
  */
 @SuppressWarnings("unchecked")
 protected IShortListable asIShortListable(Collection<Short> coll) {
@@ -2439,6 +2439,9 @@ protected void checkNonNull(Object obj) {
 
 
     // --- End class ListIter ---
+    /**
+     * Wrapper to treat an array as {@link IShortListable}.
+     */
     protected static class IShortListableFromArray implements IShortListable {
 
         short[] array;
@@ -2470,6 +2473,9 @@ public short get(int index) {
 }
     }
 
+    /**
+     * Wrapper to treat a repeated element as {@link IShortListable}.
+     */
     protected static class IShortListableFromMult implements IShortListable {
 
         int len;
@@ -2492,6 +2498,33 @@ public short get(int index) {
 }
     }
 
+    /**
+     * Wrapper to treat a {@link List} as {@link IShortListable}.
+     */
+    protected static class IShortListableFromList implements IShortListable {
+
+        List<Short> list;
+
+        IShortListableFromList(List<Short> list) {
+    this.list = list;
+}
+
+        
+public int size() {
+    return list.size();
+}
+
+        
+public short get(int index) {
+    return list.get(index);
+}
+    }
+
+    /**
+     * Wrapper to treat a {@link Collection} as {@link IShortListable}.
+     * <p>
+     * Note that the implementation relies on the fact that the elements are only accessed sequentially.
+     */
     protected static class IShortListableFromCollection implements IShortListable {
 
         Iterator<Short> iter;
@@ -2511,25 +2544,6 @@ public int size() {
         
 public short get(int index) {
     return iter.next();
-}
-    }
-
-    protected static class IShortListableFromList implements IShortListable {
-
-        List<Short> list;
-
-        IShortListableFromList(List<Short> list) {
-    this.list = list;
-}
-
-        
-public int size() {
-    return list.size();
-}
-
-        
-public short get(int index) {
-    return list.get(index);
 }
     }
 }

@@ -39,8 +39,8 @@ import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 
 /**
- * IIntList is an abstract class which offers all interfaces offered by both ArrayList and LinkedList.
- * It also offers additional methods which are then available in all implementations of GapList and BigList.
+ * Class {@link IIntList} is the abstract class which offers all interfaces implemented by ArrayList.
+ * It also offers additional methods which are then available in all implementations of {@link GapList} and {@link BigList}.
  *
  * @author Thomas Mauch
  *
@@ -1898,7 +1898,7 @@ public void initAll(Collection<Integer> coll) {
 }
 
     /**
- * Return correct IIntListable for specified collection.
+ * Return correct IIntListable for passed collection.
  */
 @SuppressWarnings("unchecked")
 protected IIntListable asIIntListable(Collection<Integer> coll) {
@@ -2439,6 +2439,9 @@ protected void checkNonNull(Object obj) {
 
 
     // --- End class ListIter ---
+    /**
+     * Wrapper to treat an array as {@link IIntListable}.
+     */
     protected static class IIntListableFromArray implements IIntListable {
 
         int[] array;
@@ -2470,6 +2473,9 @@ public int get(int index) {
 }
     }
 
+    /**
+     * Wrapper to treat a repeated element as {@link IIntListable}.
+     */
     protected static class IIntListableFromMult implements IIntListable {
 
         int len;
@@ -2492,6 +2498,33 @@ public int get(int index) {
 }
     }
 
+    /**
+     * Wrapper to treat a {@link List} as {@link IIntListable}.
+     */
+    protected static class IIntListableFromList implements IIntListable {
+
+        List<Integer> list;
+
+        IIntListableFromList(List<Integer> list) {
+    this.list = list;
+}
+
+        
+public int size() {
+    return list.size();
+}
+
+        
+public int get(int index) {
+    return list.get(index);
+}
+    }
+
+    /**
+     * Wrapper to treat a {@link Collection} as {@link IIntListable}.
+     * <p>
+     * Note that the implementation relies on the fact that the elements are only accessed sequentially.
+     */
     protected static class IIntListableFromCollection implements IIntListable {
 
         Iterator<Integer> iter;
@@ -2511,25 +2544,6 @@ public int size() {
         
 public int get(int index) {
     return iter.next();
-}
-    }
-
-    protected static class IIntListableFromList implements IIntListable {
-
-        List<Integer> list;
-
-        IIntListableFromList(List<Integer> list) {
-    this.list = list;
-}
-
-        
-public int size() {
-    return list.size();
-}
-
-        
-public int get(int index) {
-    return list.get(index);
 }
     }
 }
