@@ -141,7 +141,7 @@ public class KeyCollectionsTestPerformance {
 
 		@Override
 		public KeyList create(int size) {
-			Integer obj = new Integer(0);
+			Integer obj = Integer.valueOf(0);
 			KeyList<Object> list = new KeyList.Builder<Object>().build();
 			for (int i = 0; i < size; i++) {
 				list.add(obj);
@@ -151,7 +151,7 @@ public class KeyCollectionsTestPerformance {
 
 		@Override
 		public KeyList createSize(int size) {
-			Integer obj = new Integer(0);
+			Integer obj = Integer.valueOf(0);
 			KeyList<Object> list = new KeyList.Builder<Object>().withCapacity(size).build();
 			for (int i = 0; i < size; i++) {
 				list.add(obj);

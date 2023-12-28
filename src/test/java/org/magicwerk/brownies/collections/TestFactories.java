@@ -227,7 +227,7 @@ public class TestFactories {
 		}
 
 		public static IntGapList allocGapList(int size) {
-			Integer obj = new Integer(0);
+			Integer obj = Integer.valueOf(0);
 			IntGapList l = new IntGapList();
 			for (int i = 0; i < size; i++) {
 				l.add(i, obj);
@@ -236,7 +236,7 @@ public class TestFactories {
 		}
 
 		public static IntGapList allocGapListSize(int size) {
-			Integer obj = new Integer(0);
+			Integer obj = Integer.valueOf(0);
 			IntGapList l = new IntGapList(size);
 			for (int i = 0; i < size; i++) {
 				l.add(i, obj);
@@ -321,7 +321,7 @@ public class TestFactories {
 		}
 
 		public static TreeList<Object> allocTreeList(int size) {
-			Integer obj = new Integer(0);
+			Integer obj = Integer.valueOf(0);
 			TreeList<Object> l = new TreeList<Object>();
 			for (int i = 0; i < size; i++) {
 				l.add(i, obj);
@@ -374,7 +374,7 @@ public class TestFactories {
 		}
 
 		public static BigList<Object> allocBigList(int size, int blockSize) {
-			Integer obj = new Integer(0);
+			Integer obj = Integer.valueOf(0);
 			BigList<Object> l = new BigList<Object>(blockSize);
 			for (int i = 0; i < size; i++) {
 				l.add(i, obj);
@@ -405,7 +405,7 @@ public class TestFactories {
 		}
 
 		public static ArrayList<Object> allocArrayList(int size) {
-			Integer obj = new Integer(0);
+			Integer obj = Integer.valueOf(0);
 			ArrayList<Object> l = new ArrayList<Object>();
 			for (int i = 0; i < size; i++) {
 				l.add(i, obj);
@@ -414,7 +414,7 @@ public class TestFactories {
 		}
 
 		public static ArrayList<Object> allocArrayListSize(int size) {
-			Integer obj = new Integer(0);
+			Integer obj = Integer.valueOf(0);
 			ArrayList<Object> l = new ArrayList<Object>(size);
 			for (int i = 0; i < size; i++) {
 				l.add(i, obj);
@@ -445,7 +445,7 @@ public class TestFactories {
 		}
 
 		public static TList allocTList(int size) {
-			Integer obj = new Integer(0);
+			Integer obj = Integer.valueOf(0);
 			TList list = new TList();
 			for (int i = 0; i < size; i++) {
 				list.add(obj);
@@ -477,7 +477,7 @@ public class TestFactories {
 		}
 
 		public static RootishArrayStack<Object> allocRootishArrayStack(int size) {
-			Integer obj = new Integer(0);
+			Integer obj = Integer.valueOf(0);
 			RootishArrayStack<Object> list = new RootishArrayStack<Object>(Object.class);
 			for (int i = 0; i < size; i++) {
 				list.add(obj);
@@ -509,7 +509,7 @@ public class TestFactories {
 		}
 
 		static CircularArrayList allocCircularArrayList(int size) {
-			Integer obj = new Integer(0);
+			Integer obj = Integer.valueOf(0);
 			CircularArrayList l = new CircularArrayList();
 			for (int i = 0; i < size; i++) {
 				l.add(i, obj);
@@ -518,7 +518,7 @@ public class TestFactories {
 		}
 
 		static CircularArrayList allocCircularArrayListSize(int size) {
-			Integer obj = new Integer(0);
+			Integer obj = Integer.valueOf(0);
 			CircularArrayList l = new CircularArrayList(size);
 			for (int i = 0; i < size; i++) {
 				l.add(i, obj);
@@ -549,7 +549,7 @@ public class TestFactories {
 		}
 
 		public static LinkedList<Object> allocLinkedList(int size) {
-			Integer obj = new Integer(0);
+			Integer obj = Integer.valueOf(0);
 			LinkedList<Object> l = new LinkedList<Object>();
 			for (int i = 0; i < size; i++) {
 				l.add(i, obj);
@@ -566,7 +566,7 @@ public class TestFactories {
 
 		@Override
 		public FastTable create(int size) {
-			Integer obj = new Integer(0);
+			Integer obj = Integer.valueOf(0);
 			FastTable<Object> l = new FastTable<Object>();
 			for (int i = 0; i < size; i++) {
 				l.add(i, obj);
@@ -587,7 +587,7 @@ public class TestFactories {
 		}
 
 		public static FastTable<Object> allocFastTable(int size) {
-			Integer obj = new Integer(0);
+			Integer obj = Integer.valueOf(0);
 			FastTable<Object> l = new FastTable<Object>();
 			for (int i = 0; i < size; i++) {
 				l.add(i, obj);
@@ -604,7 +604,7 @@ public class TestFactories {
 
 		@Override
 		public DualRootishArrayDeque create(int size) {
-			Integer obj = new Integer(0);
+			Integer obj = Integer.valueOf(0);
 			DualRootishArrayDeque l = new DualRootishArrayDeque<Object>(Object.class);
 			for (int i = 0; i < size; i++) {
 				l.add(i, obj);
@@ -632,7 +632,7 @@ public class TestFactories {
 
 		@Override
 		public DualArrayDeque create(int size) {
-			Integer obj = new Integer(0);
+			Integer obj = Integer.valueOf(0);
 			DualArrayDeque l = new DualArrayDeque<Object>(Object.class);
 			for (int i = 0; i < size; i++) {
 				l.add(i, obj);

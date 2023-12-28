@@ -1040,7 +1040,7 @@ public class GapListTestPerformance {
 		GapList<Object> l = new GapList<Object>();
 		for (int i = 0; i < size; i++) {
 			if (set) {
-				obj = new Integer(i);
+				obj = Integer.valueOf(i);
 			}
 			l.add(i, obj);
 		}
@@ -1107,7 +1107,7 @@ public class GapListTestPerformance {
 	static void addLastRemoveFirst(List<Object> l, int num) {
 		Object obj = new Object();
 		for (int i = 0; i < num; i++) {
-			obj = new Double(10 + i);//TODO
+			obj = Double.valueOf(10 + i);//TODO
 			l.add(l.size(), obj);
 			l.remove(0);
 		}
@@ -1164,7 +1164,7 @@ public class GapListTestPerformance {
 	//	}
 
 	static TList allocTList(int size) {
-		Integer obj = new Integer(0);
+		Integer obj = Integer.valueOf(0);
 		TList l = new TList();
 		l.setMode(TList.NORMAL);
 		for (int i = 0; i < size; i++) {
