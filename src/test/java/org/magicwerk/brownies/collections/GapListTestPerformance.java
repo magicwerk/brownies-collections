@@ -93,7 +93,7 @@ public class GapListTestPerformance {
 			//opts.setJavaVersion(JavaVersion.JAVA_8);
 			//opts.setJavaVersion(JavaVersion.JAVA_11);
 			//opts.setJavaVersion(JavaVersion.JAVA_17);
-			opts.setJavaVersion(JavaVersion.JAVA_21);
+			opts.setJavaVersions(GapList.create(JavaVersion.JAVA_21));
 
 			JmhRunner runner = new JmhRunner();
 			//runner.runJmhMethod(SetReplaceAllJmhTest.class, "testSetArray");
