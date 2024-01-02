@@ -83,8 +83,8 @@ public class GapListTestPerformance {
 				hcc.setAddPercentageDiff(true);
 				hcc.setAddPercentageDiffRound(2);
 			});
-			//sb.showTables();
-			sb.showCharts();
+			//sb.showTable();
+			sb.showChart();
 		}
 
 		static void test() {
