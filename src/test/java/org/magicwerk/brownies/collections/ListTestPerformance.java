@@ -23,7 +23,8 @@ import org.magicwerk.brownies.core.reflect.ReflectTools;
 import org.magicwerk.brownies.core.types.Type;
 import org.magicwerk.brownies.core.values.Table;
 import org.magicwerk.brownies.html.HtmlTable;
-import org.magicwerk.brownies.tools.dev.jvm.JavaEnvironment.JavaVersion;
+import org.magicwerk.brownies.test.JavaEnvironment.JavaVersion;
+import org.magicwerk.brownies.test.TestTools;
 import org.magicwerk.brownies.tools.dev.jvm.JmhRunner;
 import org.magicwerk.brownies.tools.dev.jvm.JmhRunner.Options;
 import org.openjdk.jmh.annotations.Benchmark;
@@ -84,7 +85,7 @@ public class ListTestPerformance {
 		opts.setRunTimeMillis(100);
 		opts.setJvmArgs(jvmArgs);
 
-		opts.setJavaVersions(GapList.create(JavaVersion.JAVA_8));
+		opts.setJavaVersions(GapList.create(TestTools.createJdkTools(JavaVersion.JAVA_8)));
 		//opts.setJavaVersion(JavaVersion.JAVA_11);
 
 		//opts.setUseGcProfiler(true);

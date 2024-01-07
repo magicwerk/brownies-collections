@@ -24,24 +24,20 @@ import org.magicwerk.brownies.core.SystemTools;
 import org.magicwerk.brownies.core.Timer;
 import org.magicwerk.brownies.core.files.FilePath;
 import org.magicwerk.brownies.core.logback.LogbackTools;
-import org.magicwerk.brownies.core.objects.Tuple;
 import org.magicwerk.brownies.core.stat.NumberStat;
 import org.magicwerk.brownies.core.stat.StatValues.StoreValues;
-import org.magicwerk.brownies.tools.dev.jvm.HeapObserver;
-import org.magicwerk.brownies.tools.dev.jvm.JavaEnvironment;
-import org.magicwerk.brownies.tools.dev.jvm.JavaEnvironment.JavaVersion;
+import org.magicwerk.brownies.test.JavaEnvironment;
+import org.magicwerk.brownies.test.JavaEnvironment.JavaVersion;
+import org.magicwerk.brownies.test.TestTools;
 import org.magicwerk.brownies.tools.dev.jvm.JmhReporter;
 import org.magicwerk.brownies.tools.dev.jvm.JmhRunner;
 import org.magicwerk.brownies.tools.dev.jvm.JmhRunner.Options;
 import org.magicwerk.brownies.tools.runner.JvmRunner;
 import org.magicwerk.brownies.tools.runner.Runner;
 import org.openjdk.jmh.annotations.Benchmark;
-import org.openjdk.jmh.annotations.Level;
 import org.openjdk.jmh.annotations.Param;
 import org.openjdk.jmh.annotations.Scope;
-import org.openjdk.jmh.annotations.Setup;
 import org.openjdk.jmh.annotations.State;
-import org.openjdk.jmh.annotations.TearDown;
 
 import ch.qos.logback.classic.Logger;
 
@@ -93,7 +89,7 @@ public class GapListTestPerformance {
 			//opts.setJavaVersion(JavaVersion.JAVA_8);
 			//opts.setJavaVersion(JavaVersion.JAVA_11);
 			//opts.setJavaVersion(JavaVersion.JAVA_17);
-			opts.setJavaVersions(GapList.create(JavaVersion.JAVA_21));
+			opts.setJavaVersions(GapList.create(TestTools.createJdkTools(JavaVersion.JAVA_21)));
 
 			JmhRunner runner = new JmhRunner();
 			//runner.runJmhMethod(SetReplaceAllJmhTest.class, "testSetArray");
@@ -129,41 +125,13 @@ public class GapListTestPerformance {
 			}
 		}
 
-		@State(Scope.Benchmark)
-		public static class HeapObserverState {
-			boolean observe = false;
-			HeapObserver heapObserver = new HeapObserver().setLive(false).setHprofFile(FilePath.of("output/HeapObserverTest.hprof"));
-
-			@Setup(Level.Iteration)
-			public void setupTrial() {
-				if (observe) {
-					heapObserver.start();
-				}
-			}
-
-			@TearDown(Level.Iteration)
-			public void tearDown() {
-				if (observe) {
-					heapObserver.stop();
-				}
-			}
-
-			@TearDown(Level.Trial)
-			public void tearDownTrial() {
-				if (observe) {
-					IList<Tuple<Integer, String>> list = heapObserver.getAllocatedInstances();
-					LOG.info("\n{}\n", list);
-				}
-			}
-		}
-
 		@Benchmark
 		public void testSetList(CheckState state) {
 			state.list.setAll(10, state.srcList);
 		}
 
 		@Benchmark
-		public void testSetCollection(CheckState state, HeapObserverState hos) {
+		public void testSetCollection(CheckState state) {
 			state.list.setAll(10, state.srcSet);
 		}
 
