@@ -94,7 +94,6 @@ dependencies {
 	testImplementation 'org.apache.commons:commons-collections4:4.0'
 	testImplementation 'org.javolution:javolution-core-java:6.0.0'
 	testImplementation 'it.unimi.dsi:fastutil:7.0.9'
-	//testImplementation 'com.ertu.collection:ertu-collection:1.0-SNAPSHOT'
 }
 
 javadoc {
