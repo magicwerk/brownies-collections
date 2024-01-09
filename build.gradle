@@ -83,7 +83,6 @@ dependencies {
     testImplementation project(':Brownies-Swt')
    	testImplementation project(':Brownies-Test')
     testImplementation project(':Brownies-Tools')
-    testImplementation project(':Brownies-Dev')
     testImplementation project(':MagicTest-NG')
     
     testImplementation libraries.junit
