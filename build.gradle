@@ -84,6 +84,9 @@ dependencies {
    	testImplementation project(':Brownies-Test')
     testImplementation project(':Brownies-Tools')
     testImplementation project(':MagicTest-NG')
+
+	// for BrowniesJitWatchTool etc
+    testImplementation project(':Brownies-Dev')
     
     testImplementation libraries.junit
     testImplementation libraries.guava_testlib
