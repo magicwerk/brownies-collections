@@ -36,10 +36,10 @@ import org.magicwerk.brownies.html.content.HtmlChartCreator;
 import org.magicwerk.brownies.html.content.HtmlChartCreator.ChartType;
 import org.magicwerk.brownies.html.content.HtmlFormatters;
 import org.magicwerk.brownies.html.content.HtmlFormatters.ConditionalFormatter;
+import org.magicwerk.brownies.html.content.HtmlTableFormatter;
 import org.magicwerk.brownies.tools.dev.jvm.JmhRunner.BenchmarkFileResult;
 import org.magicwerk.brownies.tools.dev.jvm.JmhRunner.BenchmarkJsonParser;
 import org.magicwerk.brownies.tools.dev.jvm.JmhRunner.BenchmarkResult;
-import org.magicwerk.brownies.html.content.HtmlTableFormatter;
 import org.slf4j.Logger;
 
 /**
@@ -184,7 +184,7 @@ public class ListTestPerformanceReport {
 		double valYellow = 2;
 		double valBlue = 1;
 
-		ListTestPerformance.LOG.info("{}", tab);
+		LOG.info("{}", tab);
 
 		ConditionalFormatter cf = new ConditionalFormatter();
 		cf.add(c -> (double) c.getValue() > valRed, t -> getCssStyle(colBad).getAttribute());
