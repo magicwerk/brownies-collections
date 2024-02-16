@@ -108,7 +108,7 @@ public class MethodSource {
 	}
 
 	public String getSourceDoc() {
-		return new StringPrinter().addArrayIf(doc, header, body).toString();
+		return new StringPrinter().addsIf(doc, header, body).toString();
 	}
 
 	public void setSourceDoc(String source) {
@@ -120,7 +120,7 @@ public class MethodSource {
 	}
 
 	public String getSource() {
-		return new StringPrinter().addArrayIf(header, body).toString();
+		return new StringPrinter().addsIf(header, body).toString();
 	}
 
 	public void setSource(String source) {
