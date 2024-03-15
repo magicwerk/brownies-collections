@@ -59,7 +59,6 @@ import org.magicwerk.brownies.collections.helper.SortedLists;
  * @see GapList
  * @param <E> type of elements stored in the list
  */
-@SuppressWarnings("serial")
 public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Cloneable {
 
 	/**
@@ -769,6 +768,7 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 		 * @param keyMapBuild 	key map builder to use for initialization
 		 * @param list   		true if a KeyListImpl is built up, false for KeyCollectionImpl
 		 */
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		KeyMap buildKeyMap(KeyMapBuilder keyMapBuilder, boolean list) {
 			KeyMap<E, Object> keyMap = new KeyMap<E, Object>();
 			keyMap.mapper = keyMapBuilder.mapper;
@@ -779,13 +779,13 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 			if (isTrue(keyMapBuilder.sort) || isTrue(keyMapBuilder.orderBy)) {
 				if (keyMapBuilder.comparator == null) {
 					if (keyMap.allowNull) {
-						keyMap.comparator = new NullComparator(NaturalComparator.INSTANCE(), keyMapBuilder.sortNullsFirst);
+						keyMap.comparator = new NullComparator<>(NaturalComparator.INSTANCE(), keyMapBuilder.sortNullsFirst);
 					} else {
 						keyMap.comparator = NaturalComparator.INSTANCE();
 					}
 				} else {
 					if (!keyMapBuilder.comparatorSortsNull && keyMap.allowNull) {
-						keyMap.comparator = new NullComparator(keyMapBuilder.comparator, keyMapBuilder.sortNullsFirst);
+						keyMap.comparator = new NullComparator<>(keyMapBuilder.comparator, keyMapBuilder.sortNullsFirst);
 					} else {
 						keyMap.comparator = keyMapBuilder.comparator;
 					}
@@ -828,6 +828,7 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 		 * @param keyColl collection to initialize
 		 * @param list    true if a KeyListImpl is built up, false for KeyCollectionImpl
 		 */
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		void build(KeyCollectionImpl keyColl, boolean list) {
 			keyColl.setBehavior = setBehavior;
 			keyColl.allowNullElem = allowNullElem;
@@ -907,6 +908,7 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 		 *
 		 * @param keyColl	KeyCollectionImpl which has already been initialized
 		 */
+		@SuppressWarnings({ "rawtypes", "unchecked" })
 		void init(KeyCollectionImpl keyColl) {
 			if (collection != null) {
 				keyColl.addAll(collection);
@@ -921,6 +923,7 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 		 * @param keyColl	KeyCollectionImpl which has already been initialized
 		 * @param keyList	KeyListImpl to initialize
 		 */
+		@SuppressWarnings({ "rawtypes", "unchecked" })
 		void init(KeyCollectionImpl keyColl, KeyListImpl keyList) {
 			keyList.keyColl = keyColl;
 			keyColl.keyList = keyList;
@@ -996,6 +999,7 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 		KeyMap() {
 		}
 
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		KeyMap<E, K> copy() {
 			KeyMap<E, K> copy = new KeyMap<E, K>();
 			copy.mapper = mapper;
@@ -1059,6 +1063,7 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 			return mapper.apply(elem);
 		}
 
+		@SuppressWarnings("unchecked")
 		boolean containsKey(Object key) {
 			if (key == null) {
 				if (!allowNull) {
@@ -1142,7 +1147,7 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 			return Option.empty();
 		}
 
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		Option<E> getContainedValue(Object value) {
 			assert (count == false);
 			for (Map.Entry<?, ?> entry : keysMap.entrySet()) {
@@ -1191,6 +1196,7 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 				return hasNext;
 			}
 
+			@SuppressWarnings("unchecked")
 			@Override
 			public E next() {
 				boolean hasNext = false;
@@ -1312,6 +1318,7 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 		 * @return		SYMBOL_ADDED if element has successfully been added, SYMBOL_ERROR_NULL_KEY if a null key is not allowed, 
 		 * 				otherwise the key which is rejected because of a duplicate exception 
 		 */
+		@SuppressWarnings("unchecked")
 		Object add(K key, E elem) {
 			if (key == null) {
 				if (!allowNull) {
@@ -1405,6 +1412,7 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 		 * @param keyColl		key collection which stores object
 		 * @return				removed object
 		 */
+		@SuppressWarnings({ "rawtypes", "unchecked" })
 		Option<E> remove(Object key, boolean matchValue, Object value, KeyCollectionImpl keyColl) {
 			// If list cannot contain null, handle null explicitly to prevent NPE
 			if (key == null) {
@@ -1445,7 +1453,7 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 					} else {
 						elem = (E) keysMap.remove(key);
 					}
-					return new Option(elem);
+					return new Option<>(elem);
 				}
 			} else {
 				// Sorted list
@@ -1456,7 +1464,7 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 				}
 				elem = (E) keyColl.keyList.doGet(index);
 				keysList.remove(index);
-				return new Option(elem);
+				return new Option<>(elem);
 			}
 		}
 
@@ -1468,6 +1476,7 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 		 * @param key   	key of element to remove
 		 * @param coll      collection to store all removed elements, null to not store them
 		 */
+		@SuppressWarnings("unchecked")
 		private void doRemoveAllByKey(K key, KeyCollectionImpl<E> keyColl, Collection<E> coll) {
 			// If list cannot contain null, handle null explicitly to prevent NPE
 			if (key == null) {
@@ -1634,6 +1643,7 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 	 *
 	 * @param that source object
 	 */
+	@SuppressWarnings("unchecked")
 	void initCopy(KeyCollectionImpl<E> that) {
 		size = that.size;
 		// keyList is copied later
@@ -1663,6 +1673,7 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 	 *
 	 * @param that source object
 	 */
+	@SuppressWarnings("unchecked")
 	void initCrop(KeyCollectionImpl<E> that) {
 		size = 0;
 		// keyList is copied later
@@ -1701,6 +1712,7 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 		}
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private void doDebugCheck(KeyMap keyMap) {
 		if (keyMap.keysMap != null) {
 			int count = 0;
@@ -1762,6 +1774,7 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 	/**
 	 * Check whether index is valid for the sorted list.
 	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	void checkIndex(int loIndex, int hiIndex, E elem) {
 		KeyMap keyMap = keyMaps[orderByKey];
 		Object key = keyMap.getKey(elem);
@@ -1810,6 +1823,7 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 	 * @param index	index where element will be added
 	 * @param elem	element to add
 	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	void addSorted(int index, E elem) {
 		// Check whether index is correct for adding element in a sorted list
 		checkIndex(index - 1, index, elem);
@@ -1844,6 +1858,7 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 	}
 
 	// Called from KeyListImpl.doSet
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	void setSorted(int index, E elem, E oldElem) {
 		// Check whether index is correct for setting element in a sorted list
 		checkIndex(index - 1, index + 1, elem);
@@ -2054,6 +2069,7 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 	 * @param ignore	KeyMap to ignore (null to remove element from all key maps)
 	 * @return			true if element has been removed
 	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	boolean remove(Object elem, KeyMap ignore) {
 		beforeDelete((E) elem);
 		Option<E> removed = doRemove(elem, ignore);
@@ -2109,6 +2125,7 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 					continue;
 				}
 				try {
+					@SuppressWarnings("unchecked")
 					Object key = km.getKey((E) o);
 					if (km.isPrimaryMap()) {
 						return km.containsKey(key);
@@ -2261,6 +2278,7 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 	 * @param ignore	KeyMap to ignore (null to remove element from all key maps)
 	 * @return			optional with element which has been removed
 	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	Option<E> doRemove(Object elem, KeyMap ignore) {
 		Option<E> removed = Option.empty();
 		boolean first = true;
@@ -2294,6 +2312,7 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 	 * @return  a copy of this collection
 	 */
 	@Override
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public KeyCollectionImpl copy() {
 		try {
 			KeyCollectionImpl copy = (KeyCollectionImpl) super.clone();
@@ -2314,6 +2333,7 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 	 * @return  an empty copy of this collection
 	 */
 	@Override
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public KeyCollectionImpl crop() {
 		try {
 			KeyCollectionImpl copy = (KeyCollectionImpl) super.clone();
@@ -2348,7 +2368,7 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 	 * @throws IllegalArgumentException if the element set cannot be viewed as Set
 	 */
 	public Set<E> asSet() {
-		return new KeyCollectionAsSet(this, false);
+		return new KeyCollectionAsSet<>(this, false);
 	}
 
 	@Override
@@ -2371,7 +2391,7 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 		}
 	}
 
-	boolean doAddThrow(E elem, KeyMap ignore) {
+	boolean doAddThrow(E elem, KeyMap<?, ?> ignore) {
 		Object symbol = doAdd(elem, ignore);
 		if (symbol == SYMBOL_ADDED) {
 			return true;
@@ -2396,7 +2416,7 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 	 * @return			SYMBOL_ADDED if element has successfully been added, SYMBOL_NOT_ADDED if element has not been added,
 	 * 					SYMBOL_ERROR_NULL_KEY if a null key is not allowed, otherwise the key which is rejected because of a duplicate exception 
 	 */
-	Object doAdd(E elem, KeyMap ignore) {
+	Object doAdd(E elem, KeyMap<?, ?> ignore) {
 		if (keyMaps == null) {
 			return SYMBOL_NOT_ADDED;
 		}
@@ -2540,6 +2560,7 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 		return getByKey(getKeyMap(keyIndex), key);
 	}
 
+	@SuppressWarnings("unchecked")
 	private <K> E getByKey(KeyMap<E, K> keyMap, K key) {
 		// Handle null key if not allowed to prevent NPE
 		if (key == null) {
@@ -2577,6 +2598,7 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 	 * @return      	list with all elements
 	 */
 	protected Collection<E> getAllByKey(int keyIndex, Object key) {
+		@SuppressWarnings("unchecked")
 		Collection<E> coll = crop();
 		getAllByKey(keyIndex, key, coll);
 		return coll;
@@ -2593,6 +2615,7 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 		doGetAllByKey(getKeyMap(keyIndex), key, coll);
 	}
 
+	@SuppressWarnings("unchecked")
 	private <K> void doGetAllByKey(KeyMap<E, K> keyMap, K key, Collection<E> coll) {
 		// Handle null key if not allowed to prevent NPE
 		if (key == null) {
@@ -2643,6 +2666,7 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 		return getCountByKey(getKeyMap(keyIndex), key);
 	}
 
+	@SuppressWarnings("unchecked")
 	private <K> int getCountByKey(KeyMap<E, K> keyMap, K key) {
 		// Handle null key if not allowed to prevent NPE
 		if (key == null) {
@@ -2732,6 +2756,7 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 		doInvalidateKey(keyIndex, oldKey, newKey, elem);
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	E doInvalidateKey(int keyIndex, Object oldKey, Object newKey, E elem) {
 		KeyMap keyMap = getKeyMap(keyIndex);
 		Option<Object> removed;
@@ -2754,6 +2779,7 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 	 * @param elem		elem to invalidate
 	 * @return			null if key for keyMap and element is correct, else key which must be added to keymap
 	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private Option<Object> invalidate(KeyMap keyMap, Object elem) {
 		boolean allowDuplicates = keyMap.allowDuplicates;
 		Object key = keyMap.getKey(elem);
@@ -2837,12 +2863,12 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 	 * @return      	true if elements have been removed, false otherwise
 	 */
 	protected Collection<E> removeAllByKey(int keyIndex, Object key) {
+		@SuppressWarnings("unchecked")
 		Collection<E> removeds = crop();
 		removeAllByKey(keyIndex, key, removeds);
 		return removeds;
 	}
 
-	@SuppressWarnings("unchecked")
 	protected void removeAllByKey(int keyIndex, Object key, Collection<E> removeds) {
 		checkKeyMap(keyIndex);
 		keyMaps[keyIndex].doRemoveAllByKey(key, this, removeds);
@@ -2950,7 +2976,8 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 				return false;
 			}
 		}
-		Collection c = (Collection) o;
+		@SuppressWarnings({ "rawtypes", "unchecked" })
+		Collection<E> c = (Collection) o;
 		if (c.size() != size()) {
 			return false;
 		}
@@ -3022,14 +3049,15 @@ public class KeyCollectionImpl<E> implements ICollection<E>, Serializable, Clone
 	 *
 	 * @return		set with distinct elements
 	 */
+	@SuppressWarnings("unchecked")
 	public Set<E> getDistinct() {
 		return (Set<E>) getDistinctKeys(0);
 	}
 
 	@Override
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public KeyCollectionImpl filter(Predicate<? super E> predicate) {
 		KeyCollectionImpl coll = crop();
-		int size = size();
 		for (E e : this) {
 			if (predicate.test(e)) {
 				coll.add(e);
