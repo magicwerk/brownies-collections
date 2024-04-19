@@ -132,8 +132,28 @@ public class ShortObjBigList extends IList<Short> {
 	}
 
 	@Override
+	public boolean isReadOnly() {
+		return this instanceof ImmutableShortObjBigList;
+	}
+
+	@Override
 	public ShortObjBigList copy() {
-		return (ShortObjBigList) clone();
+		if (this instanceof ImmutableShortObjBigList) {
+			ShortObjBigList list = new ShortObjBigList();
+			list.doClone(this);
+			return list;
+		} else {
+			return (ShortObjBigList) super.clone();
+		}	
+	}
+
+	@Override
+	public ShortObjBigList clone() {
+		if (this instanceof ImmutableShortObjBigList) {
+			return this;
+		} else {
+			return (ShortObjBigList) super.clone();
+		}	
 	}
 
 	@Override

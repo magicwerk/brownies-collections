@@ -386,42 +386,50 @@ public double getDefaultElem() {
 }
 
     @Override
-
-public DoubleGapList copy() {
-    return (DoubleGapList) clone();
-}
-
-    @Override
 public DoubleGapList crop() {
     return (DoubleGapList) super.crop();
 }
 
     @Override
-public Object clone() {
-    if (this instanceof ImmutableDoubleGapList) {
+public DoubleGapList copy() {
+    if (this instanceof ReadOnlyList) {
         DoubleGapList list = new DoubleGapList(false, null);
         list.doClone(this);
         return list;
     } else {
-        return super.clone();
+        return (DoubleGapList) super.clone();
     }
 }
 
     @Override
-public DoubleGapList unmodifiableList() {
-    if (this instanceof ImmutableDoubleGapList) {
+public DoubleGapList clone() {
+    if (this instanceof ReadOnlyList) {
         return this;
     } else {
-        return new ImmutableDoubleGapList(this);
+        return (DoubleGapList) super.clone();
+    }
+}
+
+    @Override
+public boolean isReadOnly() {
+    return this instanceof ReadOnlyList;
+}
+
+    @Override
+public DoubleGapList unmodifiableList() {
+    if (this instanceof ReadOnlyList) {
+        return this;
+    } else {
+        return new ReadOnlyList(this);
     }
 }
 
     @Override
 public DoubleGapList immutableList() {
-    if (this instanceof ImmutableDoubleGapList) {
+    if (this instanceof ReadOnlyList) {
         return this;
     } else {
-        return new ImmutableDoubleGapList(copy());
+        return new ReadOnlyList(copy());
     }
 }
 
@@ -1492,10 +1500,11 @@ private void debugLog(String msg) {
 
     // --- ImmutableDoubleGapList ---
     /**
-     * An immutable version of a DoubleGapList.
+     * A read-only version of {@link DoubleGapList}.
+     * It is used to implement both unmodifiable and immutable lists.
      * Note that the client cannot change the list, but the content may change if the underlying list is changed.
      */
-    protected static class ImmutableDoubleGapList extends DoubleGapList {
+    protected static class ReadOnlyList extends DoubleGapList {
 
         /**
          * UID for serialization
@@ -1507,7 +1516,7 @@ private void debugLog(String msg) {
  *
  * @param that  list to create an immutable view of
  */
-protected ImmutableDoubleGapList(DoubleGapList that) {
+protected ReadOnlyList(DoubleGapList that) {
     super(true, that);
 }
 

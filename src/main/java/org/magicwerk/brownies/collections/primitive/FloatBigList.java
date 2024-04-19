@@ -141,12 +141,7 @@ public static  FloatBigList EMPTY() {
  */
 protected FloatBigList(boolean copy, FloatBigList that) {
     if (copy) {
-        this.blockSize = that.blockSize;
-        this.currFloatBlockStart = that.currFloatBlockStart;
-        this.currFloatBlockEnd = that.currFloatBlockEnd;
-        this.currNode = that.currNode;
-        this.rootNode = that.rootNode;
-        this.size = that.size;
+        doAssign(that);
     }
 }
 
@@ -218,7 +213,6 @@ public FloatBigList(int blockSize) {
 
 public FloatBigList(Collection<Float> coll) {
     if (coll instanceof FloatBigList) {
-        doAssign((FloatBigList) coll);
         doClone((FloatBigList) coll);
     } else {
         blockSize = DEFAULT_BLOCK_SIZE;
@@ -267,63 +261,68 @@ private void doInit(int blockSize, int firstFloatBlockSize) {
     addFloatBlock(0, block);
 }
 
-    /**
- * Returns a shallow copy of this list.
- * The new list will contain the same elements as the source list, i.e. the elements themselves are not copied.
- * The copy is realized by a copy-on-write approach so also really large lists can efficiently be copied.
- * This returned list will be modifiable, i.e. an unmodifiable list will become modifiable again.
- * This method is identical to clone() except that it returns an object with the exact type.
- *
- * @return a modifiable copy of this list
- */
-@Override
-
-public FloatBigList copy() {
-    return (FloatBigList) clone();
-}
-
     @Override
 public FloatBigList crop() {
     return (FloatBigList) super.crop();
 }
 
+    @Override
+public boolean isReadOnly() {
+    return this instanceof ReadOnlyFloatBigList;
+}
+
     /**
- * Returns a shallow copy of this list.
- * The new list will contain the same elements as the source list, i.e. the elements themselves are not copied.
- * The copy is realized by a copy-on-write approach so also really large lists can efficiently be copied.
- * This returned list will be modifiable, i.e. an unmodifiable list will become modifiable again.
- * It is advised to use copy() which is identical except that it returns an object with the exact type.
- *
- * @return a modifiable copy of this list
+ * {@inheritDoc}
+ * <p>
+ * The copy is realized by a copy-on-write approach so also really large lists can efficiently be handled.
  */
 @Override
-public Object clone() {
-    if (this instanceof ImmutableFloatBigList) {
+public FloatBigList copy() {
+    if (this instanceof ReadOnlyFloatBigList) {
         FloatBigList list = new FloatBigList(false, null);
         list.doClone(this);
         return list;
     } else {
-        return super.clone();
+        return (FloatBigList) super.clone();
+    }
+}
+
+    /**
+ * {@inheritDoc}
+ * <p>
+ * The copy is realized by a copy-on-write approach so also really large lists can efficiently be handled.
+ */
+@Override
+public FloatBigList clone() {
+    if (this instanceof ReadOnlyFloatBigList) {
+        return this;
+    } else {
+        return (FloatBigList) super.clone();
     }
 }
 
     @Override
 protected void doAssign(IFloatList that) {
     FloatBigList list = (FloatBigList) that;
+    this.size = list.size;
     this.blockSize = list.blockSize;
+    this.rootNode = list.rootNode;
+    this.currNode = list.currNode;
     this.currFloatBlockEnd = list.currFloatBlockEnd;
     this.currFloatBlockStart = list.currFloatBlockStart;
-    this.currNode = list.currNode;
-    this.rootNode = list.rootNode;
-    this.size = list.size;
+    this.currModify = list.currModify;
 }
 
     @Override
 protected void doClone(IFloatList that) {
     FloatBigList bigList = (FloatBigList) that;
     bigList.releaseFloatBlock();
+    size = bigList.size;
+    blockSize = bigList.blockSize;
     rootNode = copy(bigList.rootNode);
     currNode = null;
+    currFloatBlockStart = 0;
+    currFloatBlockEnd = 0;
     currModify = 0;
     if (CHECK)
         check();
@@ -1123,19 +1122,19 @@ protected float doRemove(int index) {
 
     @Override
 public FloatBigList unmodifiableList() {
-    if (this instanceof ImmutableFloatBigList) {
+    if (this instanceof ReadOnlyFloatBigList) {
         return this;
     } else {
-        return new ImmutableFloatBigList(this);
+        return new ReadOnlyFloatBigList(this);
     }
 }
 
     @Override
 public FloatBigList immutableList() {
-    if (this instanceof ImmutableFloatBigList) {
+    if (this instanceof ReadOnlyFloatBigList) {
         return this;
     } else {
-        return new ImmutableFloatBigList(copy());
+        return new ReadOnlyFloatBigList(copy());
     }
 }
 
@@ -1844,11 +1843,11 @@ public String toString() {
 
     // --- ImmutableFloatBigList ---
     /**
-     * An immutable version of a FloatBigList.
-     * Note that the client cannot change the list,
-     * but the content may change if the underlying list is changed.
+     * A read-only version of {@link Key1List}.
+     * It is used to implement both unmodifiable and immutable lists.
+     * Note that the client cannot change the list, but the content may change if the underlying list is changed.
      */
-    protected static class ImmutableFloatBigList extends FloatBigList {
+    protected static class ReadOnlyFloatBigList extends FloatBigList {
 
         /**
          * UID for serialization
@@ -1860,7 +1859,7 @@ public String toString() {
  *
  * @param that  list to create an immutable view of
  */
-protected ImmutableFloatBigList(FloatBigList that) {
+protected ReadOnlyFloatBigList(FloatBigList that) {
     super(true, that);
 }
 

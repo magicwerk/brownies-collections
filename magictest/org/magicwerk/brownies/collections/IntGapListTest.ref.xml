@@ -1,5 +1,97 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testClass xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="org.magicwerk.brownies.collections.IntGapListTest" xsi:noNamespaceSchemaLocation="testclass-v10.xsd">
+  <traceTest name="testClone">
+    <runDate>2024-03-22T11:02:42.573+01:00</runDate>
+    <runDuration>0.0162889</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.primitive.IntGapList</traceClass>
+    <traceMethod>clone</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"clone"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"Size: 3, Capacity: 20, Content: [1, 2, 3]"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"Size: 3, Capacity: 20, Content: [1, 2, 3]"</paramText>
+        <paramText outputType="VALUE" param="Result">"Size: 3, Capacity: 3, Content: [1, 2, 3]"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"clone"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"Size: 4, Capacity: 10, Content: [1, 2, 3, 99]"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"Size: 4, Capacity: 10, Content: [1, 2, 3, 99]"</paramText>
+        <paramText outputType="VALUE" param="Result">"Size: 4, Capacity: 4, Content: [1, 2, 3, 99]"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"clone"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"Size: 4, Capacity: 4, Content: [1, 2, 3, 99]"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"Size: 4, Capacity: 4, Content: [1, 2, 3, 99]"</paramText>
+        <paramText outputType="VALUE" param="Result">"Size: 4, Capacity: 4, Content: [1, 2, 3, 99]"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testCopy">
+    <runDate>2024-03-22T11:02:42.643+01:00</runDate>
+    <runDuration>0.0030833</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.primitive.IntGapList</traceClass>
+    <traceMethod>copy</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"copy"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"Size: 3, Capacity: 20, Content: [1, 2, 3]"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"Size: 3, Capacity: 20, Content: [1, 2, 3]"</paramText>
+        <paramText outputType="VALUE" param="Result">"Size: 3, Capacity: 3, Content: [1, 2, 3]"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"copy"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"Size: 4, Capacity: 10, Content: [1, 2, 3, 99]"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"Size: 4, Capacity: 10, Content: [1, 2, 3, 99]"</paramText>
+        <paramText outputType="VALUE" param="Result">"Size: 4, Capacity: 4, Content: [1, 2, 3, 99]"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"copy"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"Size: 4, Capacity: 4, Content: [1, 2, 3, 99]"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"Size: 4, Capacity: 4, Content: [1, 2, 3, 99]"</paramText>
+        <paramText outputType="VALUE" param="Result">"Size: 4, Capacity: 4, Content: [1, 2, 3, 99]"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+  </traceTest>
   <traceTest name="testCreate">
     <runDate>2014-10-12T12:11:10.763+02:00</runDate>
     <runDuration>0.01227856</runDuration>

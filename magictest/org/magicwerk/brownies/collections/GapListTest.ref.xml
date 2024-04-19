@@ -321,8 +321,8 @@
     </traceStep>
   </traceTest>
   <traceTest name="testClone">
-    <runDate>2022-07-28T23:26:21.317+02:00</runDate>
-    <runDuration>0.0148746</runDuration>
+    <runDate>2024-03-18T21:29:34.737+01:00</runDate>
+    <runDuration>0.0050431</runDuration>
     <exception></exception>
     <traceClass>org.magicwerk.brownies.collections.GapList</traceClass>
     <traceMethod>clone</traceMethod>
@@ -348,6 +348,19 @@
       </parameters>
       <result>
         <paramText outputType="VALUE" param="This">"Size: 8, Capacity: 10, Content: [0, 1, 2, 3, 4, 5, 6, 99]"</paramText>
+        <paramText outputType="VALUE" param="Result">"Size: 8, Capacity: 8, Content: [0, 1, 2, 3, 4, 5, 6, 99]"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"clone"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"Size: 8, Capacity: 8, Content: [0, 1, 2, 3, 4, 5, 6, 99]"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"Size: 8, Capacity: 8, Content: [0, 1, 2, 3, 4, 5, 6, 99]"</paramText>
         <paramText outputType="VALUE" param="Result">"Size: 8, Capacity: 8, Content: [0, 1, 2, 3, 4, 5, 6, 99]"</paramText>
       </result>
       <error></error>
@@ -577,8 +590,54 @@
     </traceStep>
   </traceTest>
   <traceTest name="testCopy">
-    <runDate>2013-02-21T23:52:56.424+01:00</runDate>
-    <runDuration>0.001533334</runDuration>
+    <runDate>2024-03-18T21:29:35.03+01:00</runDate>
+    <runDuration>0.0021095</runDuration>
+    <exception></exception>
+    <traceClass>org.magicwerk.brownies.collections.GapList</traceClass>
+    <traceMethod>copy</traceMethod>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"copy"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"Size: 7, Capacity: 20, Content: [0, 1, 2, 3, 4, 5, 6]"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"Size: 7, Capacity: 20, Content: [0, 1, 2, 3, 4, 5, 6]"</paramText>
+        <paramText outputType="VALUE" param="Result">"Size: 7, Capacity: 7, Content: [0, 1, 2, 3, 4, 5, 6]"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"copy"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"Size: 8, Capacity: 10, Content: [0, 1, 2, 3, 4, 5, 6, 99]"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"Size: 8, Capacity: 10, Content: [0, 1, 2, 3, 4, 5, 6, 99]"</paramText>
+        <paramText outputType="VALUE" param="Result">"Size: 8, Capacity: 8, Content: [0, 1, 2, 3, 4, 5, 6, 99]"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+    <traceStep>
+      <description>
+        <paramText outputType="TEXT" param="Description">"copy"</paramText>
+      </description>
+      <parameters>
+        <paramText outputType="VALUE" param="This">"Size: 8, Capacity: 8, Content: [0, 1, 2, 3, 4, 5, 6, 99]"</paramText>
+      </parameters>
+      <result>
+        <paramText outputType="VALUE" param="This">"Size: 8, Capacity: 8, Content: [0, 1, 2, 3, 4, 5, 6, 99]"</paramText>
+        <paramText outputType="VALUE" param="Result">"Size: 8, Capacity: 8, Content: [0, 1, 2, 3, 4, 5, 6, 99]"</paramText>
+      </result>
+      <error></error>
+    </traceStep>
+  </traceTest>
+  <traceTest name="testCopy2">
+    <runDate>2024-03-18T21:29:35.121+01:00</runDate>
+    <runDuration>9.056E-4</runDuration>
     <exception></exception>
     <traceClass>org.magicwerk.brownies.collections.GapList</traceClass>
     <traceMethod>copy</traceMethod>

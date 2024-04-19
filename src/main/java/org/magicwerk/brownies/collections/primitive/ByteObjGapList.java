@@ -132,8 +132,28 @@ public class ByteObjGapList extends IList<Byte> {
 	}
 
 	@Override
+	public boolean isReadOnly() {
+		return this instanceof ImmutableByteObjGapList;
+	}
+
+	@Override
 	public ByteObjGapList copy() {
-		return (ByteObjGapList) clone();
+		if (this instanceof ImmutableByteObjGapList) {
+			ByteObjGapList list = new ByteObjGapList();
+			list.doClone(this);
+			return list;
+		} else {
+			return (ByteObjGapList) super.clone();
+		}	
+	}
+
+	@Override
+	public ByteObjGapList clone() {
+		if (this instanceof ImmutableByteObjGapList) {
+			return this;
+		} else {
+			return (ByteObjGapList) super.clone();
+		}	
 	}
 
 	@Override

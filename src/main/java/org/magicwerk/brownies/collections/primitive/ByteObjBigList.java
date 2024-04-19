@@ -132,8 +132,28 @@ public class ByteObjBigList extends IList<Byte> {
 	}
 
 	@Override
+	public boolean isReadOnly() {
+		return this instanceof ImmutableByteObjBigList;
+	}
+
+	@Override
 	public ByteObjBigList copy() {
-		return (ByteObjBigList) clone();
+		if (this instanceof ImmutableByteObjBigList) {
+			ByteObjBigList list = new ByteObjBigList();
+			list.doClone(this);
+			return list;
+		} else {
+			return (ByteObjBigList) super.clone();
+		}	
+	}
+
+	@Override
+	public ByteObjBigList clone() {
+		if (this instanceof ImmutableByteObjBigList) {
+			return this;
+		} else {
+			return (ByteObjBigList) super.clone();
+		}	
 	}
 
 	@Override

@@ -141,12 +141,7 @@ public static  ByteBigList EMPTY() {
  */
 protected ByteBigList(boolean copy, ByteBigList that) {
     if (copy) {
-        this.blockSize = that.blockSize;
-        this.currByteBlockStart = that.currByteBlockStart;
-        this.currByteBlockEnd = that.currByteBlockEnd;
-        this.currNode = that.currNode;
-        this.rootNode = that.rootNode;
-        this.size = that.size;
+        doAssign(that);
     }
 }
 
@@ -218,7 +213,6 @@ public ByteBigList(int blockSize) {
 
 public ByteBigList(Collection<Byte> coll) {
     if (coll instanceof ByteBigList) {
-        doAssign((ByteBigList) coll);
         doClone((ByteBigList) coll);
     } else {
         blockSize = DEFAULT_BLOCK_SIZE;
@@ -267,63 +261,68 @@ private void doInit(int blockSize, int firstByteBlockSize) {
     addByteBlock(0, block);
 }
 
-    /**
- * Returns a shallow copy of this list.
- * The new list will contain the same elements as the source list, i.e. the elements themselves are not copied.
- * The copy is realized by a copy-on-write approach so also really large lists can efficiently be copied.
- * This returned list will be modifiable, i.e. an unmodifiable list will become modifiable again.
- * This method is identical to clone() except that it returns an object with the exact type.
- *
- * @return a modifiable copy of this list
- */
-@Override
-
-public ByteBigList copy() {
-    return (ByteBigList) clone();
-}
-
     @Override
 public ByteBigList crop() {
     return (ByteBigList) super.crop();
 }
 
+    @Override
+public boolean isReadOnly() {
+    return this instanceof ReadOnlyByteBigList;
+}
+
     /**
- * Returns a shallow copy of this list.
- * The new list will contain the same elements as the source list, i.e. the elements themselves are not copied.
- * The copy is realized by a copy-on-write approach so also really large lists can efficiently be copied.
- * This returned list will be modifiable, i.e. an unmodifiable list will become modifiable again.
- * It is advised to use copy() which is identical except that it returns an object with the exact type.
- *
- * @return a modifiable copy of this list
+ * {@inheritDoc}
+ * <p>
+ * The copy is realized by a copy-on-write approach so also really large lists can efficiently be handled.
  */
 @Override
-public Object clone() {
-    if (this instanceof ImmutableByteBigList) {
+public ByteBigList copy() {
+    if (this instanceof ReadOnlyByteBigList) {
         ByteBigList list = new ByteBigList(false, null);
         list.doClone(this);
         return list;
     } else {
-        return super.clone();
+        return (ByteBigList) super.clone();
+    }
+}
+
+    /**
+ * {@inheritDoc}
+ * <p>
+ * The copy is realized by a copy-on-write approach so also really large lists can efficiently be handled.
+ */
+@Override
+public ByteBigList clone() {
+    if (this instanceof ReadOnlyByteBigList) {
+        return this;
+    } else {
+        return (ByteBigList) super.clone();
     }
 }
 
     @Override
 protected void doAssign(IByteList that) {
     ByteBigList list = (ByteBigList) that;
+    this.size = list.size;
     this.blockSize = list.blockSize;
+    this.rootNode = list.rootNode;
+    this.currNode = list.currNode;
     this.currByteBlockEnd = list.currByteBlockEnd;
     this.currByteBlockStart = list.currByteBlockStart;
-    this.currNode = list.currNode;
-    this.rootNode = list.rootNode;
-    this.size = list.size;
+    this.currModify = list.currModify;
 }
 
     @Override
 protected void doClone(IByteList that) {
     ByteBigList bigList = (ByteBigList) that;
     bigList.releaseByteBlock();
+    size = bigList.size;
+    blockSize = bigList.blockSize;
     rootNode = copy(bigList.rootNode);
     currNode = null;
+    currByteBlockStart = 0;
+    currByteBlockEnd = 0;
     currModify = 0;
     if (CHECK)
         check();
@@ -1123,19 +1122,19 @@ protected byte doRemove(int index) {
 
     @Override
 public ByteBigList unmodifiableList() {
-    if (this instanceof ImmutableByteBigList) {
+    if (this instanceof ReadOnlyByteBigList) {
         return this;
     } else {
-        return new ImmutableByteBigList(this);
+        return new ReadOnlyByteBigList(this);
     }
 }
 
     @Override
 public ByteBigList immutableList() {
-    if (this instanceof ImmutableByteBigList) {
+    if (this instanceof ReadOnlyByteBigList) {
         return this;
     } else {
-        return new ImmutableByteBigList(copy());
+        return new ReadOnlyByteBigList(copy());
     }
 }
 
@@ -1844,11 +1843,11 @@ public String toString() {
 
     // --- ImmutableByteBigList ---
     /**
-     * An immutable version of a ByteBigList.
-     * Note that the client cannot change the list,
-     * but the content may change if the underlying list is changed.
+     * A read-only version of {@link Key1List}.
+     * It is used to implement both unmodifiable and immutable lists.
+     * Note that the client cannot change the list, but the content may change if the underlying list is changed.
      */
-    protected static class ImmutableByteBigList extends ByteBigList {
+    protected static class ReadOnlyByteBigList extends ByteBigList {
 
         /**
          * UID for serialization
@@ -1860,7 +1859,7 @@ public String toString() {
  *
  * @param that  list to create an immutable view of
  */
-protected ImmutableByteBigList(ByteBigList that) {
+protected ReadOnlyByteBigList(ByteBigList that) {
     super(true, that);
 }
 

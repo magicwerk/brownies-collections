@@ -386,42 +386,50 @@ public int getDefaultElem() {
 }
 
     @Override
-
-public IntGapList copy() {
-    return (IntGapList) clone();
-}
-
-    @Override
 public IntGapList crop() {
     return (IntGapList) super.crop();
 }
 
     @Override
-public Object clone() {
-    if (this instanceof ImmutableIntGapList) {
+public IntGapList copy() {
+    if (this instanceof ReadOnlyList) {
         IntGapList list = new IntGapList(false, null);
         list.doClone(this);
         return list;
     } else {
-        return super.clone();
+        return (IntGapList) super.clone();
     }
 }
 
     @Override
-public IntGapList unmodifiableList() {
-    if (this instanceof ImmutableIntGapList) {
+public IntGapList clone() {
+    if (this instanceof ReadOnlyList) {
         return this;
     } else {
-        return new ImmutableIntGapList(this);
+        return (IntGapList) super.clone();
+    }
+}
+
+    @Override
+public boolean isReadOnly() {
+    return this instanceof ReadOnlyList;
+}
+
+    @Override
+public IntGapList unmodifiableList() {
+    if (this instanceof ReadOnlyList) {
+        return this;
+    } else {
+        return new ReadOnlyList(this);
     }
 }
 
     @Override
 public IntGapList immutableList() {
-    if (this instanceof ImmutableIntGapList) {
+    if (this instanceof ReadOnlyList) {
         return this;
     } else {
-        return new ImmutableIntGapList(copy());
+        return new ReadOnlyList(copy());
     }
 }
 
@@ -1492,10 +1500,11 @@ private void debugLog(String msg) {
 
     // --- ImmutableIntGapList ---
     /**
-     * An immutable version of a IntGapList.
+     * A read-only version of {@link IntGapList}.
+     * It is used to implement both unmodifiable and immutable lists.
      * Note that the client cannot change the list, but the content may change if the underlying list is changed.
      */
-    protected static class ImmutableIntGapList extends IntGapList {
+    protected static class ReadOnlyList extends IntGapList {
 
         /**
          * UID for serialization
@@ -1507,7 +1516,7 @@ private void debugLog(String msg) {
  *
  * @param that  list to create an immutable view of
  */
-protected ImmutableIntGapList(IntGapList that) {
+protected ReadOnlyList(IntGapList that) {
     super(true, that);
 }
 

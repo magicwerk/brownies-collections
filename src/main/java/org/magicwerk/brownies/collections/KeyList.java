@@ -219,19 +219,22 @@ public class KeyList<E> extends KeyListImpl<E> {
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public KeyList<E> copy() {
-		return (KeyList<E>) clone();
-	}
-
-	@Override
-	public Object clone() {
 		if (this instanceof ImmutableKeyList) {
 			KeyList<E> list = new KeyList<>(false, null);
 			list.initCopy(this);
 			return list;
 		} else {
-			return super.clone();
+			return (KeyList<E>) super.clone();
+		}
+	}
+
+	@Override
+	public KeyList<E> clone() {
+		if (this instanceof ImmutableKeyList) {
+			return this;
+		} else {
+			return (KeyList<E>) super.clone();
 		}
 	}
 
@@ -276,6 +279,11 @@ public class KeyList<E> extends KeyListImpl<E> {
 	// --- ImmutableKey1List ---
 
 	@Override
+	public boolean isReadOnly() {
+		return this instanceof ImmutableKeyList;
+	}
+
+	@Override
 	public KeyList<E> unmodifiableList() {
 		if (this instanceof ImmutableKeyList) {
 			return this;
@@ -300,7 +308,8 @@ public class KeyList<E> extends KeyListImpl<E> {
 	}
 
 	/**
-	 * An immutable version of a Key1List.
+	 * A read-only version of {@link KeyList}.
+	 * It is used to implement both unmodifiable and immutable lists.
 	 * Note that the client cannot change the list, but the content may change if the underlying list is changed.
 	 */
 	protected static class ImmutableKeyList<E> extends KeyList<E> {

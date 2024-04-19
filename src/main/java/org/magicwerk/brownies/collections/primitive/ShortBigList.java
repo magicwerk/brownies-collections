@@ -141,12 +141,7 @@ public static  ShortBigList EMPTY() {
  */
 protected ShortBigList(boolean copy, ShortBigList that) {
     if (copy) {
-        this.blockSize = that.blockSize;
-        this.currShortBlockStart = that.currShortBlockStart;
-        this.currShortBlockEnd = that.currShortBlockEnd;
-        this.currNode = that.currNode;
-        this.rootNode = that.rootNode;
-        this.size = that.size;
+        doAssign(that);
     }
 }
 
@@ -218,7 +213,6 @@ public ShortBigList(int blockSize) {
 
 public ShortBigList(Collection<Short> coll) {
     if (coll instanceof ShortBigList) {
-        doAssign((ShortBigList) coll);
         doClone((ShortBigList) coll);
     } else {
         blockSize = DEFAULT_BLOCK_SIZE;
@@ -267,63 +261,68 @@ private void doInit(int blockSize, int firstShortBlockSize) {
     addShortBlock(0, block);
 }
 
-    /**
- * Returns a shallow copy of this list.
- * The new list will contain the same elements as the source list, i.e. the elements themselves are not copied.
- * The copy is realized by a copy-on-write approach so also really large lists can efficiently be copied.
- * This returned list will be modifiable, i.e. an unmodifiable list will become modifiable again.
- * This method is identical to clone() except that it returns an object with the exact type.
- *
- * @return a modifiable copy of this list
- */
-@Override
-
-public ShortBigList copy() {
-    return (ShortBigList) clone();
-}
-
     @Override
 public ShortBigList crop() {
     return (ShortBigList) super.crop();
 }
 
+    @Override
+public boolean isReadOnly() {
+    return this instanceof ReadOnlyShortBigList;
+}
+
     /**
- * Returns a shallow copy of this list.
- * The new list will contain the same elements as the source list, i.e. the elements themselves are not copied.
- * The copy is realized by a copy-on-write approach so also really large lists can efficiently be copied.
- * This returned list will be modifiable, i.e. an unmodifiable list will become modifiable again.
- * It is advised to use copy() which is identical except that it returns an object with the exact type.
- *
- * @return a modifiable copy of this list
+ * {@inheritDoc}
+ * <p>
+ * The copy is realized by a copy-on-write approach so also really large lists can efficiently be handled.
  */
 @Override
-public Object clone() {
-    if (this instanceof ImmutableShortBigList) {
+public ShortBigList copy() {
+    if (this instanceof ReadOnlyShortBigList) {
         ShortBigList list = new ShortBigList(false, null);
         list.doClone(this);
         return list;
     } else {
-        return super.clone();
+        return (ShortBigList) super.clone();
+    }
+}
+
+    /**
+ * {@inheritDoc}
+ * <p>
+ * The copy is realized by a copy-on-write approach so also really large lists can efficiently be handled.
+ */
+@Override
+public ShortBigList clone() {
+    if (this instanceof ReadOnlyShortBigList) {
+        return this;
+    } else {
+        return (ShortBigList) super.clone();
     }
 }
 
     @Override
 protected void doAssign(IShortList that) {
     ShortBigList list = (ShortBigList) that;
+    this.size = list.size;
     this.blockSize = list.blockSize;
+    this.rootNode = list.rootNode;
+    this.currNode = list.currNode;
     this.currShortBlockEnd = list.currShortBlockEnd;
     this.currShortBlockStart = list.currShortBlockStart;
-    this.currNode = list.currNode;
-    this.rootNode = list.rootNode;
-    this.size = list.size;
+    this.currModify = list.currModify;
 }
 
     @Override
 protected void doClone(IShortList that) {
     ShortBigList bigList = (ShortBigList) that;
     bigList.releaseShortBlock();
+    size = bigList.size;
+    blockSize = bigList.blockSize;
     rootNode = copy(bigList.rootNode);
     currNode = null;
+    currShortBlockStart = 0;
+    currShortBlockEnd = 0;
     currModify = 0;
     if (CHECK)
         check();
@@ -1123,19 +1122,19 @@ protected short doRemove(int index) {
 
     @Override
 public ShortBigList unmodifiableList() {
-    if (this instanceof ImmutableShortBigList) {
+    if (this instanceof ReadOnlyShortBigList) {
         return this;
     } else {
-        return new ImmutableShortBigList(this);
+        return new ReadOnlyShortBigList(this);
     }
 }
 
     @Override
 public ShortBigList immutableList() {
-    if (this instanceof ImmutableShortBigList) {
+    if (this instanceof ReadOnlyShortBigList) {
         return this;
     } else {
-        return new ImmutableShortBigList(copy());
+        return new ReadOnlyShortBigList(copy());
     }
 }
 
@@ -1844,11 +1843,11 @@ public String toString() {
 
     // --- ImmutableShortBigList ---
     /**
-     * An immutable version of a ShortBigList.
-     * Note that the client cannot change the list,
-     * but the content may change if the underlying list is changed.
+     * A read-only version of {@link Key1List}.
+     * It is used to implement both unmodifiable and immutable lists.
+     * Note that the client cannot change the list, but the content may change if the underlying list is changed.
      */
-    protected static class ImmutableShortBigList extends ShortBigList {
+    protected static class ReadOnlyShortBigList extends ShortBigList {
 
         /**
          * UID for serialization
@@ -1860,7 +1859,7 @@ public String toString() {
  *
  * @param that  list to create an immutable view of
  */
-protected ImmutableShortBigList(ShortBigList that) {
+protected ReadOnlyShortBigList(ShortBigList that) {
     super(true, that);
 }
 

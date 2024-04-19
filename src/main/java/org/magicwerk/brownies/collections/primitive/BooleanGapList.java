@@ -386,42 +386,50 @@ public boolean getDefaultElem() {
 }
 
     @Override
-
-public BooleanGapList copy() {
-    return (BooleanGapList) clone();
-}
-
-    @Override
 public BooleanGapList crop() {
     return (BooleanGapList) super.crop();
 }
 
     @Override
-public Object clone() {
-    if (this instanceof ImmutableBooleanGapList) {
+public BooleanGapList copy() {
+    if (this instanceof ReadOnlyList) {
         BooleanGapList list = new BooleanGapList(false, null);
         list.doClone(this);
         return list;
     } else {
-        return super.clone();
+        return (BooleanGapList) super.clone();
     }
 }
 
     @Override
-public BooleanGapList unmodifiableList() {
-    if (this instanceof ImmutableBooleanGapList) {
+public BooleanGapList clone() {
+    if (this instanceof ReadOnlyList) {
         return this;
     } else {
-        return new ImmutableBooleanGapList(this);
+        return (BooleanGapList) super.clone();
+    }
+}
+
+    @Override
+public boolean isReadOnly() {
+    return this instanceof ReadOnlyList;
+}
+
+    @Override
+public BooleanGapList unmodifiableList() {
+    if (this instanceof ReadOnlyList) {
+        return this;
+    } else {
+        return new ReadOnlyList(this);
     }
 }
 
     @Override
 public BooleanGapList immutableList() {
-    if (this instanceof ImmutableBooleanGapList) {
+    if (this instanceof ReadOnlyList) {
         return this;
     } else {
-        return new ImmutableBooleanGapList(copy());
+        return new ReadOnlyList(copy());
     }
 }
 
@@ -1492,10 +1500,11 @@ private void debugLog(String msg) {
 
     // --- ImmutableBooleanGapList ---
     /**
-     * An immutable version of a BooleanGapList.
+     * A read-only version of {@link BooleanGapList}.
+     * It is used to implement both unmodifiable and immutable lists.
      * Note that the client cannot change the list, but the content may change if the underlying list is changed.
      */
-    protected static class ImmutableBooleanGapList extends BooleanGapList {
+    protected static class ReadOnlyList extends BooleanGapList {
 
         /**
          * UID for serialization
@@ -1507,7 +1516,7 @@ private void debugLog(String msg) {
  *
  * @param that  list to create an immutable view of
  */
-protected ImmutableBooleanGapList(BooleanGapList that) {
+protected ReadOnlyList(BooleanGapList that) {
     super(true, that);
 }
 

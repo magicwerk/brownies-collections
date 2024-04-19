@@ -386,42 +386,50 @@ public long getDefaultElem() {
 }
 
     @Override
-
-public LongGapList copy() {
-    return (LongGapList) clone();
-}
-
-    @Override
 public LongGapList crop() {
     return (LongGapList) super.crop();
 }
 
     @Override
-public Object clone() {
-    if (this instanceof ImmutableLongGapList) {
+public LongGapList copy() {
+    if (this instanceof ReadOnlyList) {
         LongGapList list = new LongGapList(false, null);
         list.doClone(this);
         return list;
     } else {
-        return super.clone();
+        return (LongGapList) super.clone();
     }
 }
 
     @Override
-public LongGapList unmodifiableList() {
-    if (this instanceof ImmutableLongGapList) {
+public LongGapList clone() {
+    if (this instanceof ReadOnlyList) {
         return this;
     } else {
-        return new ImmutableLongGapList(this);
+        return (LongGapList) super.clone();
+    }
+}
+
+    @Override
+public boolean isReadOnly() {
+    return this instanceof ReadOnlyList;
+}
+
+    @Override
+public LongGapList unmodifiableList() {
+    if (this instanceof ReadOnlyList) {
+        return this;
+    } else {
+        return new ReadOnlyList(this);
     }
 }
 
     @Override
 public LongGapList immutableList() {
-    if (this instanceof ImmutableLongGapList) {
+    if (this instanceof ReadOnlyList) {
         return this;
     } else {
-        return new ImmutableLongGapList(copy());
+        return new ReadOnlyList(copy());
     }
 }
 
@@ -1492,10 +1500,11 @@ private void debugLog(String msg) {
 
     // --- ImmutableLongGapList ---
     /**
-     * An immutable version of a LongGapList.
+     * A read-only version of {@link LongGapList}.
+     * It is used to implement both unmodifiable and immutable lists.
      * Note that the client cannot change the list, but the content may change if the underlying list is changed.
      */
-    protected static class ImmutableLongGapList extends LongGapList {
+    protected static class ReadOnlyList extends LongGapList {
 
         /**
          * UID for serialization
@@ -1507,7 +1516,7 @@ private void debugLog(String msg) {
  *
  * @param that  list to create an immutable view of
  */
-protected ImmutableLongGapList(LongGapList that) {
+protected ReadOnlyList(LongGapList that) {
     super(true, that);
 }
 

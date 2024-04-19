@@ -73,30 +73,26 @@ static char[] toArray(Collection<Character> coll) {
  * Returns a shallow copy of this list.
  * The new list will contain the same elements as the source list, i.e. the elements themselves are not copied.
  * The capacity of the list will be set to the number of elements, i.e. size and capacity are equal.
- * This returned list will be modifiable, i.e. an unmodifiable list will become modifiable again.
- * This method is identical to clone() except that it returns an object with the exact type.
+ * This returned list will be modifiable, i.e. a read-only list will be copied and be modifiable again.
  *
  * @return a modifiable copy of this list
  */
 
-@SuppressWarnings("unchecked")
-public ICharList copy() {
-    return (ICharList) clone();
-}
+public abstract ICharList copy() ;
 
     /**
  * Returns a shallow copy of this list.
  * The new list will contain the same elements as the source list, i.e. the elements themselves are not copied.
  * The capacity of the list will be set to the number of elements, i.e. size and capacity are equal.
- * This returned list will be modifiable, i.e. an unmodifiable list will become modifiable again.
- * It is advised to use copy() which is identical except that it returns an object with the exact type.
+ * If the list is read-only, the same list is returned without change.
+ * Use {@link #copy} to .
  *
  * @return a modifiable copy of this list
  */
-@SuppressWarnings("unchecked")
 
-public Object clone() {
+public ICharList clone() {
     try {
+        @SuppressWarnings("unchecked")
         ICharList list = (ICharList) super.clone();
         list.doClone(this);
         return list;
@@ -117,17 +113,31 @@ public ICharList crop() {
     return doCreate(0);
 }
 
-    // Naming as in java.util.Collections#unmodifiableList
-abstract public ICharList unmodifiableList() ;
+    /**
+ * Returns true if this list is either unmodifiable or immutable, false otherwise.
+ */
+public abstract boolean isReadOnly() ;
 
-    abstract public ICharList immutableList() ;
+    // Naming as in java.util.Collections#unmodifiableList
+public abstract ICharList unmodifiableList() ;
+
+    /**
+ * Returns an immutable copy of this list.
+ * The returned list is independent from the original list, i.e. changes done later are not seen.
+ * Attempts to modify the returned list, whether direct or via its iterator, result in an UnsupportedOperationException.
+ * If this list is already immutable, it is returned unchanged.
+ * See {@link #unmodifiableList} to get unmodifiable view of a list.
+ *
+ * @return an immutable copy of the specified list
+ */
+public abstract ICharList immutableList() ;
 
     /**
  * Initialize this object after the bitwise copy has been made by Object.clone().
  *
  * @param that	source object
  */
-abstract protected void doClone(ICharList that) ;
+protected abstract void doClone(ICharList that) ;
 
     
 public void clear() {

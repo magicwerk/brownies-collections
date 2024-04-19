@@ -132,8 +132,28 @@ public class FloatObjBigList extends IList<Float> {
 	}
 
 	@Override
+	public boolean isReadOnly() {
+		return this instanceof ImmutableFloatObjBigList;
+	}
+
+	@Override
 	public FloatObjBigList copy() {
-		return (FloatObjBigList) clone();
+		if (this instanceof ImmutableFloatObjBigList) {
+			FloatObjBigList list = new FloatObjBigList();
+			list.doClone(this);
+			return list;
+		} else {
+			return (FloatObjBigList) super.clone();
+		}	
+	}
+
+	@Override
+	public FloatObjBigList clone() {
+		if (this instanceof ImmutableFloatObjBigList) {
+			return this;
+		} else {
+			return (FloatObjBigList) super.clone();
+		}	
 	}
 
 	@Override

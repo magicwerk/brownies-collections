@@ -132,8 +132,28 @@ public class LongObjBigList extends IList<Long> {
 	}
 
 	@Override
+	public boolean isReadOnly() {
+		return this instanceof ImmutableLongObjBigList;
+	}
+
+	@Override
 	public LongObjBigList copy() {
-		return (LongObjBigList) clone();
+		if (this instanceof ImmutableLongObjBigList) {
+			LongObjBigList list = new LongObjBigList();
+			list.doClone(this);
+			return list;
+		} else {
+			return (LongObjBigList) super.clone();
+		}	
+	}
+
+	@Override
+	public LongObjBigList clone() {
+		if (this instanceof ImmutableLongObjBigList) {
+			return this;
+		} else {
+			return (LongObjBigList) super.clone();
+		}	
 	}
 
 	@Override

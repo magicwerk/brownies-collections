@@ -77,30 +77,26 @@ public abstract class IList<E>
 	 * Returns a shallow copy of this list.
 	 * The new list will contain the same elements as the source list, i.e. the elements themselves are not copied.
 	 * The capacity of the list will be set to the number of elements, i.e. size and capacity are equal.
-	 * This returned list will be modifiable, i.e. an unmodifiable list will become modifiable again.
-	 * This method is identical to clone() except that it returns an object with the exact type.
+	 * This returned list will be modifiable, i.e. a read-only list will be copied and be modifiable again.
 	 *
 	 * @return a modifiable copy of this list
 	 */
 	@Override
-	@SuppressWarnings("unchecked")
-	public IList<E> copy() {
-		return (IList<E>) clone();
-	}
+	public abstract IList<E> copy();
 
 	/**
 	 * Returns a shallow copy of this list.
 	 * The new list will contain the same elements as the source list, i.e. the elements themselves are not copied.
 	 * The capacity of the list will be set to the number of elements, i.e. size and capacity are equal.
-	 * This returned list will be modifiable, i.e. an unmodifiable list will become modifiable again.
-	 * It is advised to use copy() which is identical except that it returns an object with the exact type.
+	 * If the list is read-only, the same list is returned without change.
+	 * Use {@link #copy} to .
 	 *
 	 * @return a modifiable copy of this list
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
-	public Object clone() {
+	public IList<E> clone() {
 		try {
+			@SuppressWarnings("unchecked")
 			IList<E> list = (IList<E>) super.clone();
 			list.doClone(this);
 			return list;
@@ -122,23 +118,39 @@ public abstract class IList<E>
 	}
 
 	/**
-	 * Returns an unmodifiable view of this list. This method allows modules to provide users with "read-only" access to internal lists.
-	 * Query operations on the returned list "read through" to the specified list, and attempts to modify the returned list, whether direct or
-	 * via its iterator, result in an UnsupportedOperationException. If this list is already unmodifiable, it is returned unchanged.
+	 * Returns true if this list is either unmodifiable or immutable, false otherwise. 
+	 */
+	public abstract boolean isReadOnly();
+
+	/**
+	 * Returns an unmodifiable view of this list. This method allows modules to provide users with "read-only" access to internal lists,
+	 * where changes made to the original list are visible as query operations on the returned list "read through" to the specified list.
+	 * Attempts to modify the returned list, whether direct or via its iterator, result in an UnsupportedOperationException. 
+	 * If this list is already unmodifiable, it is returned unchanged.
+	 * See {@link #immutableList} to get an immutable copy of a list.
 	 *
 	 * @return an unmodifiable view of the specified list
 	 */
 	// Naming as in java.util.Collections#unmodifiableList
-	abstract public IList<E> unmodifiableList();
+	public abstract IList<E> unmodifiableList();
 
-	abstract public IList<E> immutableList();
+	/**
+	 * Returns an immutable copy of this list. 
+	 * The returned list is independent from the original list, i.e. changes done later are not seen.
+	 * Attempts to modify the returned list, whether direct or via its iterator, result in an UnsupportedOperationException.
+	 * If this list is already immutable, it is returned unchanged.
+	 * See {@link #unmodifiableList} to get unmodifiable view of a list.
+	 *
+	 * @return an immutable copy of the specified list
+	 */
+	public abstract IList<E> immutableList();
 
 	/**
 	 * Initialize this object after the bitwise copy has been made by Object.clone().
 	 *
 	 * @param that	source object
 	 */
-	abstract protected void doClone(IList<E> that);
+	protected abstract void doClone(IList<E> that);
 
 	@Override
 	public void clear() {

@@ -132,8 +132,28 @@ public class ShortObjGapList extends IList<Short> {
 	}
 
 	@Override
+	public boolean isReadOnly() {
+		return this instanceof ImmutableShortObjGapList;
+	}
+
+	@Override
 	public ShortObjGapList copy() {
-		return (ShortObjGapList) clone();
+		if (this instanceof ImmutableShortObjGapList) {
+			ShortObjGapList list = new ShortObjGapList();
+			list.doClone(this);
+			return list;
+		} else {
+			return (ShortObjGapList) super.clone();
+		}	
+	}
+
+	@Override
+	public ShortObjGapList clone() {
+		if (this instanceof ImmutableShortObjGapList) {
+			return this;
+		} else {
+			return (ShortObjGapList) super.clone();
+		}	
 	}
 
 	@Override

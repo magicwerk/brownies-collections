@@ -132,8 +132,28 @@ public class IntObjBigList extends IList<Integer> {
 	}
 
 	@Override
+	public boolean isReadOnly() {
+		return this instanceof ImmutableIntObjBigList;
+	}
+
+	@Override
 	public IntObjBigList copy() {
-		return (IntObjBigList) clone();
+		if (this instanceof ImmutableIntObjBigList) {
+			IntObjBigList list = new IntObjBigList();
+			list.doClone(this);
+			return list;
+		} else {
+			return (IntObjBigList) super.clone();
+		}	
+	}
+
+	@Override
+	public IntObjBigList clone() {
+		if (this instanceof ImmutableIntObjBigList) {
+			return this;
+		} else {
+			return (IntObjBigList) super.clone();
+		}	
 	}
 
 	@Override

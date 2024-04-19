@@ -26,6 +26,7 @@ import org.magictest.client.Trace;
 import org.magicwerk.brownies.collections.helper.GapLists;
 import org.magicwerk.brownies.core.CheckTools;
 import org.magicwerk.brownies.core.ObjectTools;
+import org.magicwerk.brownies.core.RunTools;
 import org.magicwerk.brownies.core.function.Predicates;
 import org.magicwerk.brownies.core.function.Predicates.NamedPredicate;
 import org.magicwerk.brownies.core.print.PrintTools;
@@ -62,7 +63,8 @@ public class BigListGapListTest {
 		//testRetainAll();
 		//testInitMult();
 		//testPutAll();
-		testReplaceAll();
+		//testReplaceAll();
+		testClone();
 	}
 
 	static void testSplit() {
@@ -294,15 +296,34 @@ public class BigListGapListTest {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	@Trace(parameters = Trace.THIS | Trace.ALL_PARAMS, result = Trace.THIS | Trace.RESULT, formats = {
 			@Format(apply = Trace.THIS | Trace.RESULT, formatter = "formatBigList") })
 	public static void testClone() {
 		IList<Integer> list = getSortedBigList(7);
 		list.ensureCapacity(20);
-		list = (IList<Integer>) list.clone();
+		list = list.clone();
 		list.add(99);
-		list = (IList<Integer>) list.clone();
+		list = list.clone();
+
+		IList<Integer> ul = list.unmodifiableList();
+		RunTools.runThrowing(() -> ul.set(0, 0));
+		IList<Integer> ul2 = ul.clone();
+		RunTools.runThrowing(() -> ul2.set(0, 0));
+	}
+
+	@Trace(parameters = Trace.THIS | Trace.ALL_PARAMS, result = Trace.THIS | Trace.RESULT, formats = {
+			@Format(apply = Trace.THIS | Trace.RESULT, formatter = "formatBigList") })
+	public static void testCopy() {
+		IList<Integer> list = getSortedBigList(7);
+		list.ensureCapacity(20);
+		list = list.copy();
+		list.add(99);
+		list = list.copy();
+
+		IList<Integer> ul = list.unmodifiableList();
+		RunTools.runThrowing(() -> ul.set(0, 0));
+		IList<Integer> ul2 = ul.copy();
+		ul2.set(0, 0);
 	}
 
 	static String formatBigList(IList<?> list) {
@@ -580,8 +601,8 @@ public class BigListGapListTest {
 		getSortedBigList(7).clear();
 	}
 
-	@Trace(parameters = Trace.THIS | Trace.ALL_PARAMS, result = Trace.THIS)
-	public static void testCopy() {
+	@Trace(traceMethod = "copy", parameters = Trace.THIS | Trace.ALL_PARAMS, result = Trace.THIS)
+	public static void testCopy2() {
 		getSortedBigList(7).copy(0, 4, 3);
 		getSortedBigList(7).copy(0, 3, 4);
 		getSortedBigList(7).copy(3, 0, 4);

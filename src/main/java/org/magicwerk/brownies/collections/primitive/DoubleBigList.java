@@ -141,12 +141,7 @@ public static  DoubleBigList EMPTY() {
  */
 protected DoubleBigList(boolean copy, DoubleBigList that) {
     if (copy) {
-        this.blockSize = that.blockSize;
-        this.currDoubleBlockStart = that.currDoubleBlockStart;
-        this.currDoubleBlockEnd = that.currDoubleBlockEnd;
-        this.currNode = that.currNode;
-        this.rootNode = that.rootNode;
-        this.size = that.size;
+        doAssign(that);
     }
 }
 
@@ -218,7 +213,6 @@ public DoubleBigList(int blockSize) {
 
 public DoubleBigList(Collection<Double> coll) {
     if (coll instanceof DoubleBigList) {
-        doAssign((DoubleBigList) coll);
         doClone((DoubleBigList) coll);
     } else {
         blockSize = DEFAULT_BLOCK_SIZE;
@@ -267,63 +261,68 @@ private void doInit(int blockSize, int firstDoubleBlockSize) {
     addDoubleBlock(0, block);
 }
 
-    /**
- * Returns a shallow copy of this list.
- * The new list will contain the same elements as the source list, i.e. the elements themselves are not copied.
- * The copy is realized by a copy-on-write approach so also really large lists can efficiently be copied.
- * This returned list will be modifiable, i.e. an unmodifiable list will become modifiable again.
- * This method is identical to clone() except that it returns an object with the exact type.
- *
- * @return a modifiable copy of this list
- */
-@Override
-
-public DoubleBigList copy() {
-    return (DoubleBigList) clone();
-}
-
     @Override
 public DoubleBigList crop() {
     return (DoubleBigList) super.crop();
 }
 
+    @Override
+public boolean isReadOnly() {
+    return this instanceof ReadOnlyDoubleBigList;
+}
+
     /**
- * Returns a shallow copy of this list.
- * The new list will contain the same elements as the source list, i.e. the elements themselves are not copied.
- * The copy is realized by a copy-on-write approach so also really large lists can efficiently be copied.
- * This returned list will be modifiable, i.e. an unmodifiable list will become modifiable again.
- * It is advised to use copy() which is identical except that it returns an object with the exact type.
- *
- * @return a modifiable copy of this list
+ * {@inheritDoc}
+ * <p>
+ * The copy is realized by a copy-on-write approach so also really large lists can efficiently be handled.
  */
 @Override
-public Object clone() {
-    if (this instanceof ImmutableDoubleBigList) {
+public DoubleBigList copy() {
+    if (this instanceof ReadOnlyDoubleBigList) {
         DoubleBigList list = new DoubleBigList(false, null);
         list.doClone(this);
         return list;
     } else {
-        return super.clone();
+        return (DoubleBigList) super.clone();
+    }
+}
+
+    /**
+ * {@inheritDoc}
+ * <p>
+ * The copy is realized by a copy-on-write approach so also really large lists can efficiently be handled.
+ */
+@Override
+public DoubleBigList clone() {
+    if (this instanceof ReadOnlyDoubleBigList) {
+        return this;
+    } else {
+        return (DoubleBigList) super.clone();
     }
 }
 
     @Override
 protected void doAssign(IDoubleList that) {
     DoubleBigList list = (DoubleBigList) that;
+    this.size = list.size;
     this.blockSize = list.blockSize;
+    this.rootNode = list.rootNode;
+    this.currNode = list.currNode;
     this.currDoubleBlockEnd = list.currDoubleBlockEnd;
     this.currDoubleBlockStart = list.currDoubleBlockStart;
-    this.currNode = list.currNode;
-    this.rootNode = list.rootNode;
-    this.size = list.size;
+    this.currModify = list.currModify;
 }
 
     @Override
 protected void doClone(IDoubleList that) {
     DoubleBigList bigList = (DoubleBigList) that;
     bigList.releaseDoubleBlock();
+    size = bigList.size;
+    blockSize = bigList.blockSize;
     rootNode = copy(bigList.rootNode);
     currNode = null;
+    currDoubleBlockStart = 0;
+    currDoubleBlockEnd = 0;
     currModify = 0;
     if (CHECK)
         check();
@@ -1123,19 +1122,19 @@ protected double doRemove(int index) {
 
     @Override
 public DoubleBigList unmodifiableList() {
-    if (this instanceof ImmutableDoubleBigList) {
+    if (this instanceof ReadOnlyDoubleBigList) {
         return this;
     } else {
-        return new ImmutableDoubleBigList(this);
+        return new ReadOnlyDoubleBigList(this);
     }
 }
 
     @Override
 public DoubleBigList immutableList() {
-    if (this instanceof ImmutableDoubleBigList) {
+    if (this instanceof ReadOnlyDoubleBigList) {
         return this;
     } else {
-        return new ImmutableDoubleBigList(copy());
+        return new ReadOnlyDoubleBigList(copy());
     }
 }
 
@@ -1844,11 +1843,11 @@ public String toString() {
 
     // --- ImmutableDoubleBigList ---
     /**
-     * An immutable version of a DoubleBigList.
-     * Note that the client cannot change the list,
-     * but the content may change if the underlying list is changed.
+     * A read-only version of {@link Key1List}.
+     * It is used to implement both unmodifiable and immutable lists.
+     * Note that the client cannot change the list, but the content may change if the underlying list is changed.
      */
-    protected static class ImmutableDoubleBigList extends DoubleBigList {
+    protected static class ReadOnlyDoubleBigList extends DoubleBigList {
 
         /**
          * UID for serialization
@@ -1860,7 +1859,7 @@ public String toString() {
  *
  * @param that  list to create an immutable view of
  */
-protected ImmutableDoubleBigList(DoubleBigList that) {
+protected ReadOnlyDoubleBigList(DoubleBigList that) {
     super(true, that);
 }
 

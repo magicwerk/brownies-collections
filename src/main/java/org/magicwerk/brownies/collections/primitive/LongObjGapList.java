@@ -132,8 +132,28 @@ public class LongObjGapList extends IList<Long> {
 	}
 
 	@Override
+	public boolean isReadOnly() {
+		return this instanceof ImmutableLongObjGapList;
+	}
+
+	@Override
 	public LongObjGapList copy() {
-		return (LongObjGapList) clone();
+		if (this instanceof ImmutableLongObjGapList) {
+			LongObjGapList list = new LongObjGapList();
+			list.doClone(this);
+			return list;
+		} else {
+			return (LongObjGapList) super.clone();
+		}	
+	}
+
+	@Override
+	public LongObjGapList clone() {
+		if (this instanceof ImmutableLongObjGapList) {
+			return this;
+		} else {
+			return (LongObjGapList) super.clone();
+		}	
 	}
 
 	@Override

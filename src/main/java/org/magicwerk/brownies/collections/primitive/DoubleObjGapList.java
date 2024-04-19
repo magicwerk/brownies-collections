@@ -132,8 +132,28 @@ public class DoubleObjGapList extends IList<Double> {
 	}
 
 	@Override
+	public boolean isReadOnly() {
+		return this instanceof ImmutableDoubleObjGapList;
+	}
+
+	@Override
 	public DoubleObjGapList copy() {
-		return (DoubleObjGapList) clone();
+		if (this instanceof ImmutableDoubleObjGapList) {
+			DoubleObjGapList list = new DoubleObjGapList();
+			list.doClone(this);
+			return list;
+		} else {
+			return (DoubleObjGapList) super.clone();
+		}	
+	}
+
+	@Override
+	public DoubleObjGapList clone() {
+		if (this instanceof ImmutableDoubleObjGapList) {
+			return this;
+		} else {
+			return (DoubleObjGapList) super.clone();
+		}	
 	}
 
 	@Override

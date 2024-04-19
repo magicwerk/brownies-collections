@@ -386,42 +386,50 @@ public float getDefaultElem() {
 }
 
     @Override
-
-public FloatGapList copy() {
-    return (FloatGapList) clone();
-}
-
-    @Override
 public FloatGapList crop() {
     return (FloatGapList) super.crop();
 }
 
     @Override
-public Object clone() {
-    if (this instanceof ImmutableFloatGapList) {
+public FloatGapList copy() {
+    if (this instanceof ReadOnlyList) {
         FloatGapList list = new FloatGapList(false, null);
         list.doClone(this);
         return list;
     } else {
-        return super.clone();
+        return (FloatGapList) super.clone();
     }
 }
 
     @Override
-public FloatGapList unmodifiableList() {
-    if (this instanceof ImmutableFloatGapList) {
+public FloatGapList clone() {
+    if (this instanceof ReadOnlyList) {
         return this;
     } else {
-        return new ImmutableFloatGapList(this);
+        return (FloatGapList) super.clone();
+    }
+}
+
+    @Override
+public boolean isReadOnly() {
+    return this instanceof ReadOnlyList;
+}
+
+    @Override
+public FloatGapList unmodifiableList() {
+    if (this instanceof ReadOnlyList) {
+        return this;
+    } else {
+        return new ReadOnlyList(this);
     }
 }
 
     @Override
 public FloatGapList immutableList() {
-    if (this instanceof ImmutableFloatGapList) {
+    if (this instanceof ReadOnlyList) {
         return this;
     } else {
-        return new ImmutableFloatGapList(copy());
+        return new ReadOnlyList(copy());
     }
 }
 
@@ -1492,10 +1500,11 @@ private void debugLog(String msg) {
 
     // --- ImmutableFloatGapList ---
     /**
-     * An immutable version of a FloatGapList.
+     * A read-only version of {@link FloatGapList}.
+     * It is used to implement both unmodifiable and immutable lists.
      * Note that the client cannot change the list, but the content may change if the underlying list is changed.
      */
-    protected static class ImmutableFloatGapList extends FloatGapList {
+    protected static class ReadOnlyList extends FloatGapList {
 
         /**
          * UID for serialization
@@ -1507,7 +1516,7 @@ private void debugLog(String msg) {
  *
  * @param that  list to create an immutable view of
  */
-protected ImmutableFloatGapList(FloatGapList that) {
+protected ReadOnlyList(FloatGapList that) {
     super(true, that);
 }
 

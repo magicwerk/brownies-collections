@@ -434,24 +434,29 @@ public class Key2List<E, K1, K2> extends KeyListImpl<E> {
 	@Override
 	@SuppressWarnings("unchecked")
 	public Key2List<E, K1, K2> copy() {
-		return (Key2List<E, K1, K2>) clone();
-	}
-
-	@Override
-	public Object clone() {
-		if (this instanceof ImmutableKey2List) {
+		if (this instanceof ReadOnlyKey2List) {
 			Key2List<E, K1, K2> list = new Key2List<>(false, null);
 			list.initCopy(this);
 			return list;
 		} else {
-			return super.clone();
+			return (Key2List<E, K1, K2>) super.clone();
+		}
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public Key2List<E, K1, K2> clone() {
+		if (this instanceof ReadOnlyKey2List) {
+			return this;
+		} else {
+			return (Key2List<E, K1, K2>) super.clone();
 		}
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public Key2List<E, K1, K2> crop() {
-		if (this instanceof ImmutableKey2List) {
+		if (this instanceof ReadOnlyKey2List) {
 			Key2List<E, K1, K2> list = new Key2List<>(false, null);
 			list.initCrop(this);
 			return list;
@@ -830,20 +835,25 @@ public class Key2List<E, K1, K2> extends KeyListImpl<E> {
 	// --- ImmutableKey2List ---
 
 	@Override
+	public boolean isReadOnly() {
+		return this instanceof ReadOnlyKey2List;
+	}
+
+	@Override
 	public Key2List<E, K1, K2> unmodifiableList() {
-		if (this instanceof ImmutableKey2List) {
+		if (this instanceof ReadOnlyKey2List) {
 			return this;
 		} else {
-			return new ImmutableKey2List<E, K1, K2>(this);
+			return new ReadOnlyKey2List<E, K1, K2>(this);
 		}
 	}
 
 	@Override
 	public Key2List<E, K1, K2> immutableList() {
-		if (this instanceof ImmutableKey2List) {
+		if (this instanceof ReadOnlyKey2List) {
 			return this;
 		} else {
-			return new ImmutableKey2List<E, K1, K2>(copy());
+			return new ReadOnlyKey2List<E, K1, K2>(copy());
 		}
 	}
 
@@ -854,10 +864,11 @@ public class Key2List<E, K1, K2> extends KeyListImpl<E> {
 	}
 
 	/**
-	 * An immutable version of a Key1List.
+	 * A read-only version of {@link Key2List}.
+	 * It is used to implement both unmodifiable and immutable lists.
 	 * Note that the client cannot change the list, but the content may change if the underlying list is changed.
 	 */
-	protected static class ImmutableKey2List<E, K1, K2> extends Key2List<E, K1, K2> {
+	protected static class ReadOnlyKey2List<E, K1, K2> extends Key2List<E, K1, K2> {
 
 		/** UID for serialization */
 		private static final long serialVersionUID = -1352274047348922584L;
@@ -867,7 +878,7 @@ public class Key2List<E, K1, K2> extends KeyListImpl<E> {
 		 *
 		 * @param that  list to create an immutable view of
 		 */
-		protected ImmutableKey2List(Key2List<E, K1, K2> that) {
+		protected ReadOnlyKey2List(Key2List<E, K1, K2> that) {
 			super(true, that);
 		}
 

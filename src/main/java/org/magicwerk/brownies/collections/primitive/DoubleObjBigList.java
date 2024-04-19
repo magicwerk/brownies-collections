@@ -132,8 +132,28 @@ public class DoubleObjBigList extends IList<Double> {
 	}
 
 	@Override
+	public boolean isReadOnly() {
+		return this instanceof ImmutableDoubleObjBigList;
+	}
+
+	@Override
 	public DoubleObjBigList copy() {
-		return (DoubleObjBigList) clone();
+		if (this instanceof ImmutableDoubleObjBigList) {
+			DoubleObjBigList list = new DoubleObjBigList();
+			list.doClone(this);
+			return list;
+		} else {
+			return (DoubleObjBigList) super.clone();
+		}	
+	}
+
+	@Override
+	public DoubleObjBigList clone() {
+		if (this instanceof ImmutableDoubleObjBigList) {
+			return this;
+		} else {
+			return (DoubleObjBigList) super.clone();
+		}	
 	}
 
 	@Override

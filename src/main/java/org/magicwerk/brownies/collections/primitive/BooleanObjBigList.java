@@ -132,8 +132,28 @@ public class BooleanObjBigList extends IList<Boolean> {
 	}
 
 	@Override
+	public boolean isReadOnly() {
+		return this instanceof ImmutableBooleanObjBigList;
+	}
+
+	@Override
 	public BooleanObjBigList copy() {
-		return (BooleanObjBigList) clone();
+		if (this instanceof ImmutableBooleanObjBigList) {
+			BooleanObjBigList list = new BooleanObjBigList();
+			list.doClone(this);
+			return list;
+		} else {
+			return (BooleanObjBigList) super.clone();
+		}	
+	}
+
+	@Override
+	public BooleanObjBigList clone() {
+		if (this instanceof ImmutableBooleanObjBigList) {
+			return this;
+		} else {
+			return (BooleanObjBigList) super.clone();
+		}	
 	}
 
 	@Override

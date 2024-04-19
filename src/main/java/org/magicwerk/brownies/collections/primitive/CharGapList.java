@@ -386,42 +386,50 @@ public char getDefaultElem() {
 }
 
     @Override
-
-public CharGapList copy() {
-    return (CharGapList) clone();
-}
-
-    @Override
 public CharGapList crop() {
     return (CharGapList) super.crop();
 }
 
     @Override
-public Object clone() {
-    if (this instanceof ImmutableCharGapList) {
+public CharGapList copy() {
+    if (this instanceof ReadOnlyList) {
         CharGapList list = new CharGapList(false, null);
         list.doClone(this);
         return list;
     } else {
-        return super.clone();
+        return (CharGapList) super.clone();
     }
 }
 
     @Override
-public CharGapList unmodifiableList() {
-    if (this instanceof ImmutableCharGapList) {
+public CharGapList clone() {
+    if (this instanceof ReadOnlyList) {
         return this;
     } else {
-        return new ImmutableCharGapList(this);
+        return (CharGapList) super.clone();
+    }
+}
+
+    @Override
+public boolean isReadOnly() {
+    return this instanceof ReadOnlyList;
+}
+
+    @Override
+public CharGapList unmodifiableList() {
+    if (this instanceof ReadOnlyList) {
+        return this;
+    } else {
+        return new ReadOnlyList(this);
     }
 }
 
     @Override
 public CharGapList immutableList() {
-    if (this instanceof ImmutableCharGapList) {
+    if (this instanceof ReadOnlyList) {
         return this;
     } else {
-        return new ImmutableCharGapList(copy());
+        return new ReadOnlyList(copy());
     }
 }
 
@@ -1492,10 +1500,11 @@ private void debugLog(String msg) {
 
     // --- ImmutableCharGapList ---
     /**
-     * An immutable version of a CharGapList.
+     * A read-only version of {@link CharGapList}.
+     * It is used to implement both unmodifiable and immutable lists.
      * Note that the client cannot change the list, but the content may change if the underlying list is changed.
      */
-    protected static class ImmutableCharGapList extends CharGapList {
+    protected static class ReadOnlyList extends CharGapList {
 
         /**
          * UID for serialization
@@ -1507,7 +1516,7 @@ private void debugLog(String msg) {
  *
  * @param that  list to create an immutable view of
  */
-protected ImmutableCharGapList(CharGapList that) {
+protected ReadOnlyList(CharGapList that) {
     super(true, that);
 }
 

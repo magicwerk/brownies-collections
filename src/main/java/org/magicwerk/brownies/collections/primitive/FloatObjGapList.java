@@ -132,8 +132,28 @@ public class FloatObjGapList extends IList<Float> {
 	}
 
 	@Override
+	public boolean isReadOnly() {
+		return this instanceof ImmutableFloatObjGapList;
+	}
+
+	@Override
 	public FloatObjGapList copy() {
-		return (FloatObjGapList) clone();
+		if (this instanceof ImmutableFloatObjGapList) {
+			FloatObjGapList list = new FloatObjGapList();
+			list.doClone(this);
+			return list;
+		} else {
+			return (FloatObjGapList) super.clone();
+		}	
+	}
+
+	@Override
+	public FloatObjGapList clone() {
+		if (this instanceof ImmutableFloatObjGapList) {
+			return this;
+		} else {
+			return (FloatObjGapList) super.clone();
+		}	
 	}
 
 	@Override

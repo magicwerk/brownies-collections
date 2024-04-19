@@ -75,9 +75,9 @@ public class RunDebugTest {
 
 	void prepareBuild() {
 		GradleTool gradleTool = new GradleTool();
-		IList<String> deps = gradleTool.getDependencies("testCompileClasspath").getDescendantValues(true);
+		IList<String> deps = gradleTool.getDependencies("testCompileClasspath").getDescendantValues(false);
 		Map<String, String> versionMap = getVersionMap(deps);
-		String buildGradle = StringFormatter.format(buildGradleTemplate, versionMap);
+		String buildGradle = StringFormatter.formatMap(buildGradleTemplate, versionMap);
 
 		FileTools.cleanDir().setDir(buildDir).setCreateDirs(true).clean();
 		FileTools.copyFile().copyDirIntoDir(FilePath.of("src"), buildDir);

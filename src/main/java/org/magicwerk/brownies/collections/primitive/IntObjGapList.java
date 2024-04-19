@@ -132,8 +132,28 @@ public class IntObjGapList extends IList<Integer> {
 	}
 
 	@Override
+	public boolean isReadOnly() {
+		return this instanceof ImmutableIntObjGapList;
+	}
+
+	@Override
 	public IntObjGapList copy() {
-		return (IntObjGapList) clone();
+		if (this instanceof ImmutableIntObjGapList) {
+			IntObjGapList list = new IntObjGapList();
+			list.doClone(this);
+			return list;
+		} else {
+			return (IntObjGapList) super.clone();
+		}	
+	}
+
+	@Override
+	public IntObjGapList clone() {
+		if (this instanceof ImmutableIntObjGapList) {
+			return this;
+		} else {
+			return (IntObjGapList) super.clone();
+		}	
 	}
 
 	@Override

@@ -386,42 +386,50 @@ public short getDefaultElem() {
 }
 
     @Override
-
-public ShortGapList copy() {
-    return (ShortGapList) clone();
-}
-
-    @Override
 public ShortGapList crop() {
     return (ShortGapList) super.crop();
 }
 
     @Override
-public Object clone() {
-    if (this instanceof ImmutableShortGapList) {
+public ShortGapList copy() {
+    if (this instanceof ReadOnlyList) {
         ShortGapList list = new ShortGapList(false, null);
         list.doClone(this);
         return list;
     } else {
-        return super.clone();
+        return (ShortGapList) super.clone();
     }
 }
 
     @Override
-public ShortGapList unmodifiableList() {
-    if (this instanceof ImmutableShortGapList) {
+public ShortGapList clone() {
+    if (this instanceof ReadOnlyList) {
         return this;
     } else {
-        return new ImmutableShortGapList(this);
+        return (ShortGapList) super.clone();
+    }
+}
+
+    @Override
+public boolean isReadOnly() {
+    return this instanceof ReadOnlyList;
+}
+
+    @Override
+public ShortGapList unmodifiableList() {
+    if (this instanceof ReadOnlyList) {
+        return this;
+    } else {
+        return new ReadOnlyList(this);
     }
 }
 
     @Override
 public ShortGapList immutableList() {
-    if (this instanceof ImmutableShortGapList) {
+    if (this instanceof ReadOnlyList) {
         return this;
     } else {
-        return new ImmutableShortGapList(copy());
+        return new ReadOnlyList(copy());
     }
 }
 
@@ -1492,10 +1500,11 @@ private void debugLog(String msg) {
 
     // --- ImmutableShortGapList ---
     /**
-     * An immutable version of a ShortGapList.
+     * A read-only version of {@link ShortGapList}.
+     * It is used to implement both unmodifiable and immutable lists.
      * Note that the client cannot change the list, but the content may change if the underlying list is changed.
      */
-    protected static class ImmutableShortGapList extends ShortGapList {
+    protected static class ReadOnlyList extends ShortGapList {
 
         /**
          * UID for serialization
@@ -1507,7 +1516,7 @@ private void debugLog(String msg) {
  *
  * @param that  list to create an immutable view of
  */
-protected ImmutableShortGapList(ShortGapList that) {
+protected ReadOnlyList(ShortGapList that) {
     super(true, that);
 }
 

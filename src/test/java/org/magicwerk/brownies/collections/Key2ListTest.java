@@ -217,7 +217,7 @@ public class Key2ListTest {
 		System.out.println("Orig: " + format(tickets));
 
 		//-- Clone
-		Key2List<Ticket, String, String> tickets2 = (Key2List<Ticket, String, String>) tickets.clone();
+		Key2List<Ticket, Integer, String> tickets2 = tickets.clone();
 		System.out.println("-\nClone: " + format(tickets2));
 
 		// Change original

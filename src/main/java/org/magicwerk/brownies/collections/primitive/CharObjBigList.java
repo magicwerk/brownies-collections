@@ -132,8 +132,28 @@ public class CharObjBigList extends IList<Character> {
 	}
 
 	@Override
+	public boolean isReadOnly() {
+		return this instanceof ImmutableCharObjBigList;
+	}
+
+	@Override
 	public CharObjBigList copy() {
-		return (CharObjBigList) clone();
+		if (this instanceof ImmutableCharObjBigList) {
+			CharObjBigList list = new CharObjBigList();
+			list.doClone(this);
+			return list;
+		} else {
+			return (CharObjBigList) super.clone();
+		}	
+	}
+
+	@Override
+	public CharObjBigList clone() {
+		if (this instanceof ImmutableCharObjBigList) {
+			return this;
+		} else {
+			return (CharObjBigList) super.clone();
+		}	
 	}
 
 	@Override

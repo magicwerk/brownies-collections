@@ -141,12 +141,7 @@ public static  BooleanBigList EMPTY() {
  */
 protected BooleanBigList(boolean copy, BooleanBigList that) {
     if (copy) {
-        this.blockSize = that.blockSize;
-        this.currBooleanBlockStart = that.currBooleanBlockStart;
-        this.currBooleanBlockEnd = that.currBooleanBlockEnd;
-        this.currNode = that.currNode;
-        this.rootNode = that.rootNode;
-        this.size = that.size;
+        doAssign(that);
     }
 }
 
@@ -218,7 +213,6 @@ public BooleanBigList(int blockSize) {
 
 public BooleanBigList(Collection<Boolean> coll) {
     if (coll instanceof BooleanBigList) {
-        doAssign((BooleanBigList) coll);
         doClone((BooleanBigList) coll);
     } else {
         blockSize = DEFAULT_BLOCK_SIZE;
@@ -267,63 +261,68 @@ private void doInit(int blockSize, int firstBooleanBlockSize) {
     addBooleanBlock(0, block);
 }
 
-    /**
- * Returns a shallow copy of this list.
- * The new list will contain the same elements as the source list, i.e. the elements themselves are not copied.
- * The copy is realized by a copy-on-write approach so also really large lists can efficiently be copied.
- * This returned list will be modifiable, i.e. an unmodifiable list will become modifiable again.
- * This method is identical to clone() except that it returns an object with the exact type.
- *
- * @return a modifiable copy of this list
- */
-@Override
-
-public BooleanBigList copy() {
-    return (BooleanBigList) clone();
-}
-
     @Override
 public BooleanBigList crop() {
     return (BooleanBigList) super.crop();
 }
 
+    @Override
+public boolean isReadOnly() {
+    return this instanceof ReadOnlyBooleanBigList;
+}
+
     /**
- * Returns a shallow copy of this list.
- * The new list will contain the same elements as the source list, i.e. the elements themselves are not copied.
- * The copy is realized by a copy-on-write approach so also really large lists can efficiently be copied.
- * This returned list will be modifiable, i.e. an unmodifiable list will become modifiable again.
- * It is advised to use copy() which is identical except that it returns an object with the exact type.
- *
- * @return a modifiable copy of this list
+ * {@inheritDoc}
+ * <p>
+ * The copy is realized by a copy-on-write approach so also really large lists can efficiently be handled.
  */
 @Override
-public Object clone() {
-    if (this instanceof ImmutableBooleanBigList) {
+public BooleanBigList copy() {
+    if (this instanceof ReadOnlyBooleanBigList) {
         BooleanBigList list = new BooleanBigList(false, null);
         list.doClone(this);
         return list;
     } else {
-        return super.clone();
+        return (BooleanBigList) super.clone();
+    }
+}
+
+    /**
+ * {@inheritDoc}
+ * <p>
+ * The copy is realized by a copy-on-write approach so also really large lists can efficiently be handled.
+ */
+@Override
+public BooleanBigList clone() {
+    if (this instanceof ReadOnlyBooleanBigList) {
+        return this;
+    } else {
+        return (BooleanBigList) super.clone();
     }
 }
 
     @Override
 protected void doAssign(IBooleanList that) {
     BooleanBigList list = (BooleanBigList) that;
+    this.size = list.size;
     this.blockSize = list.blockSize;
+    this.rootNode = list.rootNode;
+    this.currNode = list.currNode;
     this.currBooleanBlockEnd = list.currBooleanBlockEnd;
     this.currBooleanBlockStart = list.currBooleanBlockStart;
-    this.currNode = list.currNode;
-    this.rootNode = list.rootNode;
-    this.size = list.size;
+    this.currModify = list.currModify;
 }
 
     @Override
 protected void doClone(IBooleanList that) {
     BooleanBigList bigList = (BooleanBigList) that;
     bigList.releaseBooleanBlock();
+    size = bigList.size;
+    blockSize = bigList.blockSize;
     rootNode = copy(bigList.rootNode);
     currNode = null;
+    currBooleanBlockStart = 0;
+    currBooleanBlockEnd = 0;
     currModify = 0;
     if (CHECK)
         check();
@@ -1123,19 +1122,19 @@ protected boolean doRemove(int index) {
 
     @Override
 public BooleanBigList unmodifiableList() {
-    if (this instanceof ImmutableBooleanBigList) {
+    if (this instanceof ReadOnlyBooleanBigList) {
         return this;
     } else {
-        return new ImmutableBooleanBigList(this);
+        return new ReadOnlyBooleanBigList(this);
     }
 }
 
     @Override
 public BooleanBigList immutableList() {
-    if (this instanceof ImmutableBooleanBigList) {
+    if (this instanceof ReadOnlyBooleanBigList) {
         return this;
     } else {
-        return new ImmutableBooleanBigList(copy());
+        return new ReadOnlyBooleanBigList(copy());
     }
 }
 
@@ -1844,11 +1843,11 @@ public String toString() {
 
     // --- ImmutableBooleanBigList ---
     /**
-     * An immutable version of a BooleanBigList.
-     * Note that the client cannot change the list,
-     * but the content may change if the underlying list is changed.
+     * A read-only version of {@link Key1List}.
+     * It is used to implement both unmodifiable and immutable lists.
+     * Note that the client cannot change the list, but the content may change if the underlying list is changed.
      */
-    protected static class ImmutableBooleanBigList extends BooleanBigList {
+    protected static class ReadOnlyBooleanBigList extends BooleanBigList {
 
         /**
          * UID for serialization
@@ -1860,7 +1859,7 @@ public String toString() {
  *
  * @param that  list to create an immutable view of
  */
-protected ImmutableBooleanBigList(BooleanBigList that) {
+protected ReadOnlyBooleanBigList(BooleanBigList that) {
     super(true, that);
 }
 

@@ -141,12 +141,7 @@ public static  LongBigList EMPTY() {
  */
 protected LongBigList(boolean copy, LongBigList that) {
     if (copy) {
-        this.blockSize = that.blockSize;
-        this.currLongBlockStart = that.currLongBlockStart;
-        this.currLongBlockEnd = that.currLongBlockEnd;
-        this.currNode = that.currNode;
-        this.rootNode = that.rootNode;
-        this.size = that.size;
+        doAssign(that);
     }
 }
 
@@ -218,7 +213,6 @@ public LongBigList(int blockSize) {
 
 public LongBigList(Collection<Long> coll) {
     if (coll instanceof LongBigList) {
-        doAssign((LongBigList) coll);
         doClone((LongBigList) coll);
     } else {
         blockSize = DEFAULT_BLOCK_SIZE;
@@ -267,63 +261,68 @@ private void doInit(int blockSize, int firstLongBlockSize) {
     addLongBlock(0, block);
 }
 
-    /**
- * Returns a shallow copy of this list.
- * The new list will contain the same elements as the source list, i.e. the elements themselves are not copied.
- * The copy is realized by a copy-on-write approach so also really large lists can efficiently be copied.
- * This returned list will be modifiable, i.e. an unmodifiable list will become modifiable again.
- * This method is identical to clone() except that it returns an object with the exact type.
- *
- * @return a modifiable copy of this list
- */
-@Override
-
-public LongBigList copy() {
-    return (LongBigList) clone();
-}
-
     @Override
 public LongBigList crop() {
     return (LongBigList) super.crop();
 }
 
+    @Override
+public boolean isReadOnly() {
+    return this instanceof ReadOnlyLongBigList;
+}
+
     /**
- * Returns a shallow copy of this list.
- * The new list will contain the same elements as the source list, i.e. the elements themselves are not copied.
- * The copy is realized by a copy-on-write approach so also really large lists can efficiently be copied.
- * This returned list will be modifiable, i.e. an unmodifiable list will become modifiable again.
- * It is advised to use copy() which is identical except that it returns an object with the exact type.
- *
- * @return a modifiable copy of this list
+ * {@inheritDoc}
+ * <p>
+ * The copy is realized by a copy-on-write approach so also really large lists can efficiently be handled.
  */
 @Override
-public Object clone() {
-    if (this instanceof ImmutableLongBigList) {
+public LongBigList copy() {
+    if (this instanceof ReadOnlyLongBigList) {
         LongBigList list = new LongBigList(false, null);
         list.doClone(this);
         return list;
     } else {
-        return super.clone();
+        return (LongBigList) super.clone();
+    }
+}
+
+    /**
+ * {@inheritDoc}
+ * <p>
+ * The copy is realized by a copy-on-write approach so also really large lists can efficiently be handled.
+ */
+@Override
+public LongBigList clone() {
+    if (this instanceof ReadOnlyLongBigList) {
+        return this;
+    } else {
+        return (LongBigList) super.clone();
     }
 }
 
     @Override
 protected void doAssign(ILongList that) {
     LongBigList list = (LongBigList) that;
+    this.size = list.size;
     this.blockSize = list.blockSize;
+    this.rootNode = list.rootNode;
+    this.currNode = list.currNode;
     this.currLongBlockEnd = list.currLongBlockEnd;
     this.currLongBlockStart = list.currLongBlockStart;
-    this.currNode = list.currNode;
-    this.rootNode = list.rootNode;
-    this.size = list.size;
+    this.currModify = list.currModify;
 }
 
     @Override
 protected void doClone(ILongList that) {
     LongBigList bigList = (LongBigList) that;
     bigList.releaseLongBlock();
+    size = bigList.size;
+    blockSize = bigList.blockSize;
     rootNode = copy(bigList.rootNode);
     currNode = null;
+    currLongBlockStart = 0;
+    currLongBlockEnd = 0;
     currModify = 0;
     if (CHECK)
         check();
@@ -1123,19 +1122,19 @@ protected long doRemove(int index) {
 
     @Override
 public LongBigList unmodifiableList() {
-    if (this instanceof ImmutableLongBigList) {
+    if (this instanceof ReadOnlyLongBigList) {
         return this;
     } else {
-        return new ImmutableLongBigList(this);
+        return new ReadOnlyLongBigList(this);
     }
 }
 
     @Override
 public LongBigList immutableList() {
-    if (this instanceof ImmutableLongBigList) {
+    if (this instanceof ReadOnlyLongBigList) {
         return this;
     } else {
-        return new ImmutableLongBigList(copy());
+        return new ReadOnlyLongBigList(copy());
     }
 }
 
@@ -1844,11 +1843,11 @@ public String toString() {
 
     // --- ImmutableLongBigList ---
     /**
-     * An immutable version of a LongBigList.
-     * Note that the client cannot change the list,
-     * but the content may change if the underlying list is changed.
+     * A read-only version of {@link Key1List}.
+     * It is used to implement both unmodifiable and immutable lists.
+     * Note that the client cannot change the list, but the content may change if the underlying list is changed.
      */
-    protected static class ImmutableLongBigList extends LongBigList {
+    protected static class ReadOnlyLongBigList extends LongBigList {
 
         /**
          * UID for serialization
@@ -1860,7 +1859,7 @@ public String toString() {
  *
  * @param that  list to create an immutable view of
  */
-protected ImmutableLongBigList(LongBigList that) {
+protected ReadOnlyLongBigList(LongBigList that) {
     super(true, that);
 }
 

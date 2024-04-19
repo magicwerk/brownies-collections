@@ -360,42 +360,50 @@ public class GapList<E> extends IList<E> {
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
-	public GapList<E> copy() {
-		return (GapList<E>) clone();
-	}
-
-	@Override
 	public GapList<E> crop() {
 		return (GapList<E>) super.crop();
 	}
 
 	@Override
-	public Object clone() {
-		if (this instanceof ImmutableGapList) {
+	public GapList<E> copy() {
+		if (this instanceof ReadOnlyList) {
 			GapList<E> list = new GapList<>(false, null);
 			list.doClone(this);
 			return list;
 		} else {
-			return super.clone();
+			return (GapList<E>) super.clone();
 		}
 	}
 
 	@Override
-	public GapList<E> unmodifiableList() {
-		if (this instanceof ImmutableGapList) {
+	public GapList<E> clone() {
+		if (this instanceof ReadOnlyList) {
 			return this;
 		} else {
-			return new ImmutableGapList<E>(this);
+			return (GapList<E>) super.clone();
+		}
+	}
+
+	@Override
+	public boolean isReadOnly() {
+		return this instanceof ReadOnlyList;
+	}
+
+	@Override
+	public GapList<E> unmodifiableList() {
+		if (this instanceof ReadOnlyList) {
+			return this;
+		} else {
+			return new ReadOnlyList<E>(this);
 		}
 	}
 
 	@Override
 	public GapList<E> immutableList() {
-		if (this instanceof ImmutableGapList) {
+		if (this instanceof ReadOnlyList) {
 			return this;
 		} else {
-			return new ImmutableGapList<E>(copy());
+			return new ReadOnlyList<E>(copy());
 		}
 	}
 
@@ -1553,10 +1561,11 @@ public class GapList<E> extends IList<E> {
 	// --- ImmutableGapList ---
 
 	/**
-	 * An immutable version of a GapList.
+	 * A read-only version of {@link GapList}.
+	 * It is used to implement both unmodifiable and immutable lists.
 	 * Note that the client cannot change the list, but the content may change if the underlying list is changed.
 	 */
-	protected static class ImmutableGapList<E> extends GapList<E> {
+	protected static class ReadOnlyList<E> extends GapList<E> {
 
 		/** UID for serialization */
 		private static final long serialVersionUID = -1352274047348922584L;
@@ -1566,7 +1575,7 @@ public class GapList<E> extends IList<E> {
 		 *
 		 * @param that  list to create an immutable view of
 		 */
-		protected ImmutableGapList(GapList<E> that) {
+		protected ReadOnlyList(GapList<E> that) {
 			super(true, that);
 		}
 

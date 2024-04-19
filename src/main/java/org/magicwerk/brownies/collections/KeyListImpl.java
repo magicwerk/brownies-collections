@@ -78,14 +78,7 @@ public abstract class KeyListImpl<E> extends IList<E> {
 	}
 
 	@Override
-	@SuppressWarnings("unchecked")
-	public KeyListImpl<E> copy() {
-		return (KeyListImpl<E>) clone();
-	}
-
-	@Override
-	@SuppressWarnings("unchecked")
-	public Object clone() {
+	public KeyListImpl<E> clone() {
 		KeyListImpl<E> copy = (KeyListImpl<E>) super.clone();
 		copy.initCopy(this);
 		return copy;
@@ -98,7 +91,6 @@ public abstract class KeyListImpl<E> extends IList<E> {
 	 * @return  an empty copy of this list
 	 */
 	@Override
-	@SuppressWarnings("unchecked")
 	public KeyListImpl<E> crop() {
 		KeyListImpl<E> copy = (KeyListImpl<E>) super.clone();
 		copy.initCrop(this);

@@ -132,8 +132,28 @@ public class CharObjGapList extends IList<Character> {
 	}
 
 	@Override
+	public boolean isReadOnly() {
+		return this instanceof ImmutableCharObjGapList;
+	}
+
+	@Override
 	public CharObjGapList copy() {
-		return (CharObjGapList) clone();
+		if (this instanceof ImmutableCharObjGapList) {
+			CharObjGapList list = new CharObjGapList();
+			list.doClone(this);
+			return list;
+		} else {
+			return (CharObjGapList) super.clone();
+		}	
+	}
+
+	@Override
+	public CharObjGapList clone() {
+		if (this instanceof ImmutableCharObjGapList) {
+			return this;
+		} else {
+			return (CharObjGapList) super.clone();
+		}	
 	}
 
 	@Override

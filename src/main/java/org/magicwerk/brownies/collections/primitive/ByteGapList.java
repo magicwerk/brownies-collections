@@ -386,42 +386,50 @@ public byte getDefaultElem() {
 }
 
     @Override
-
-public ByteGapList copy() {
-    return (ByteGapList) clone();
-}
-
-    @Override
 public ByteGapList crop() {
     return (ByteGapList) super.crop();
 }
 
     @Override
-public Object clone() {
-    if (this instanceof ImmutableByteGapList) {
+public ByteGapList copy() {
+    if (this instanceof ReadOnlyList) {
         ByteGapList list = new ByteGapList(false, null);
         list.doClone(this);
         return list;
     } else {
-        return super.clone();
+        return (ByteGapList) super.clone();
     }
 }
 
     @Override
-public ByteGapList unmodifiableList() {
-    if (this instanceof ImmutableByteGapList) {
+public ByteGapList clone() {
+    if (this instanceof ReadOnlyList) {
         return this;
     } else {
-        return new ImmutableByteGapList(this);
+        return (ByteGapList) super.clone();
+    }
+}
+
+    @Override
+public boolean isReadOnly() {
+    return this instanceof ReadOnlyList;
+}
+
+    @Override
+public ByteGapList unmodifiableList() {
+    if (this instanceof ReadOnlyList) {
+        return this;
+    } else {
+        return new ReadOnlyList(this);
     }
 }
 
     @Override
 public ByteGapList immutableList() {
-    if (this instanceof ImmutableByteGapList) {
+    if (this instanceof ReadOnlyList) {
         return this;
     } else {
-        return new ImmutableByteGapList(copy());
+        return new ReadOnlyList(copy());
     }
 }
 
@@ -1492,10 +1500,11 @@ private void debugLog(String msg) {
 
     // --- ImmutableByteGapList ---
     /**
-     * An immutable version of a ByteGapList.
+     * A read-only version of {@link ByteGapList}.
+     * It is used to implement both unmodifiable and immutable lists.
      * Note that the client cannot change the list, but the content may change if the underlying list is changed.
      */
-    protected static class ImmutableByteGapList extends ByteGapList {
+    protected static class ReadOnlyList extends ByteGapList {
 
         /**
          * UID for serialization
@@ -1507,7 +1516,7 @@ private void debugLog(String msg) {
  *
  * @param that  list to create an immutable view of
  */
-protected ImmutableByteGapList(ByteGapList that) {
+protected ReadOnlyList(ByteGapList that) {
     super(true, that);
 }
 

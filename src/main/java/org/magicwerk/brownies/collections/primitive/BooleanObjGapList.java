@@ -132,8 +132,28 @@ public class BooleanObjGapList extends IList<Boolean> {
 	}
 
 	@Override
+	public boolean isReadOnly() {
+		return this instanceof ImmutableBooleanObjGapList;
+	}
+
+	@Override
 	public BooleanObjGapList copy() {
-		return (BooleanObjGapList) clone();
+		if (this instanceof ImmutableBooleanObjGapList) {
+			BooleanObjGapList list = new BooleanObjGapList();
+			list.doClone(this);
+			return list;
+		} else {
+			return (BooleanObjGapList) super.clone();
+		}	
+	}
+
+	@Override
+	public BooleanObjGapList clone() {
+		if (this instanceof ImmutableBooleanObjGapList) {
+			return this;
+		} else {
+			return (BooleanObjGapList) super.clone();
+		}	
 	}
 
 	@Override

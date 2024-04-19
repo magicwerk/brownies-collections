@@ -132,8 +132,28 @@ public class {NAME}ObjGapList extends IList<{WRAPPER}> {
 	}
 
 	@Override
+	public boolean isReadOnly() {
+		return this instanceof Immutable{NAME}ObjGapList;
+	}
+
+	@Override
 	public {NAME}ObjGapList copy() {
-		return ({NAME}ObjGapList) clone();
+		if (this instanceof Immutable{NAME}ObjGapList) {
+			{NAME}ObjGapList list = new {NAME}ObjGapList();
+			list.doClone(this);
+			return list;
+		} else {
+			return ({NAME}ObjGapList) super.clone();
+		}	
+	}
+
+	@Override
+	public {NAME}ObjGapList clone() {
+		if (this instanceof Immutable{NAME}ObjGapList) {
+			return this;
+		} else {
+			return ({NAME}ObjGapList) super.clone();
+		}	
 	}
 
 	@Override

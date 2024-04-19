@@ -332,24 +332,29 @@ public class Key1List<E, K> extends KeyListImpl<E> {
 	@Override
 	@SuppressWarnings("unchecked")
 	public Key1List<E, K> copy() {
-		return (Key1List<E, K>) clone();
-	}
-
-	@Override
-	public Object clone() {
-		if (this instanceof ImmutableKey1List) {
+		if (this instanceof ReadOnlyKey1List) {
 			Key1List<E, K> list = new Key1List<>(false, null);
 			list.initCopy(this);
 			return list;
 		} else {
-			return super.clone();
+			return (Key1List<E, K>) super.clone();
+		}
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public Key1List<E, K> clone() {
+		if (this instanceof ReadOnlyKey1List) {
+			return this;
+		} else {
+			return (Key1List<E, K>) super.clone();
 		}
 	}
 
 	@Override
 	@SuppressWarnings("unchecked")
 	public Key1List<E, K> crop() {
-		if (this instanceof ImmutableKey1List) {
+		if (this instanceof ReadOnlyKey1List) {
 			Key1List<E, K> list = new Key1List<>(false, null);
 			list.initCrop(this);
 			return list;
@@ -558,20 +563,25 @@ public class Key1List<E, K> extends KeyListImpl<E> {
 	// --- ImmutableKey1List ---
 
 	@Override
+	public boolean isReadOnly() {
+		return this instanceof ReadOnlyKey1List;
+	}
+
+	@Override
 	public Key1List<E, K> unmodifiableList() {
-		if (this instanceof ImmutableKey1List) {
+		if (this instanceof ReadOnlyKey1List) {
 			return this;
 		} else {
-			return new ImmutableKey1List<E, K>(this);
+			return new ReadOnlyKey1List<E, K>(this);
 		}
 	}
 
 	@Override
 	public Key1List<E, K> immutableList() {
-		if (this instanceof ImmutableKey1List) {
+		if (this instanceof ReadOnlyKey1List) {
 			return this;
 		} else {
-			return new ImmutableKey1List<E, K>(copy());
+			return new ReadOnlyKey1List<E, K>(copy());
 		}
 	}
 
@@ -582,10 +592,11 @@ public class Key1List<E, K> extends KeyListImpl<E> {
 	}
 
 	/**
-	 * An immutable version of a Key1List.
+	 * A read-only version of {@link Key1List}.
+	 * It is used to implement both unmodifiable and immutable lists.
 	 * Note that the client cannot change the list, but the content may change if the underlying list is changed.
 	 */
-	protected static class ImmutableKey1List<E, K> extends Key1List<E, K> {
+	protected static class ReadOnlyKey1List<E, K> extends Key1List<E, K> {
 
 		/** UID for serialization */
 		private static final long serialVersionUID = -1352274047348922584L;
@@ -595,7 +606,7 @@ public class Key1List<E, K> extends KeyListImpl<E> {
 		 *
 		 * @param that  list to create an immutable view of
 		 */
-		protected ImmutableKey1List(Key1List<E, K> that) {
+		protected ReadOnlyKey1List(Key1List<E, K> that) {
 			super(true, that);
 		}
 
