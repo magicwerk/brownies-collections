@@ -18,6 +18,7 @@
 package org.magicwerk.brownies.collections;
 
 import java.util.Map.Entry;
+import java.util.Objects;
 
 /**
  * Read-only implementation of Map.Entry.
@@ -58,6 +59,20 @@ public class ImmutableMapEntry<K, E> implements Entry<K, E> {
 	@Override
 	public E setValue(E value) {
 		throw new AssertionError();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof Entry)) {
+			return false;
+		}
+		Entry<?, ?> other = (Entry<?, ?>) obj;
+		return Objects.equals(key, other.getKey()) && Objects.equals(value, other.getValue());
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(key) ^ Objects.hashCode(value);
 	}
 
 	@Override
